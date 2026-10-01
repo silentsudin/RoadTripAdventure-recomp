@@ -262,6 +262,18 @@ int main(int argc, char *argv[])
             return 1;
         }
         selectGsBackend(runtime);
+
+        // Recompiled VU1 microcode (3D geometry) unless RT_VU1_MODE=interp.
+        {
+            uint64_t imageHash = 0;
+            void *entry = rt::game::vu1NativeEntry(imageHash);
+            const char *mode = std::getenv("RT_VU1_MODE");
+            if (entry && !(mode && std::string(mode) == "interp"))
+            {
+                runtime.setVu1Native(reinterpret_cast<PS2Runtime::Vu1NativeEntry>(entry), imageHash);
+                std::cout << "[vu1] using recompiled microcode\n";
+            }
+        }
         // Saves live outside the disc tree. Must be set before loadELF: it resets the IOP, which
         // initialises the memory card (needs patches/0002 so loadELF keeps this root).
         {

@@ -6,6 +6,7 @@
 
 #include "platform/TaskProgress.h"
 
+#include <cstdint>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -28,4 +29,7 @@ namespace rt::game
     bool load(std::string &error);
 
     std::filesystem::path buildLog();
+
+    // After load(): the recompiled VU1 entry point (PS2Runtime::Vu1NativeEntry) or nullptr.
+    void *vu1NativeEntry(uint64_t &imageHash);
 }
