@@ -113,10 +113,11 @@ add_custom_target(rt_bundle ALL
             --shim "${CMAKE_CURRENT_SOURCE_DIR}/src/game/game_shim.cpp"
             --recomp "$<TARGET_FILE:ps2_recomp>"
             --config "${CMAKE_CURRENT_SOURCE_DIR}/config/roadtrip.toml"
+            --vu1recomp "$<TARGET_FILE:ps2_vu1_recomp>"
             --resources "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources"
     COMMENT "Bundling recompiler + game SDK (no game code) into RoadTrip.app"
     VERBATIM)
-add_dependencies(rt_bundle RoadTrip ps2_recomp rt_game_sdk_probe)
+add_dependencies(rt_bundle RoadTrip ps2_recomp ps2_vu1_recomp rt_game_sdk_probe)
 
 # Bundle MoltenVK (Vulkan on Metal) for the paraLLEl-GS GPU backend, so players need neither the
 # Vulkan SDK nor Homebrew. The app points Granite at Contents/Frameworks/libMoltenVK.dylib.

@@ -4,6 +4,7 @@ RoadTrip.app/Contents/Resources. Nothing here is derived from the game:
 
   recomp/ps2_recomp       the PS2Recomp recompiler (GPL-3.0)
   recomp/roadtrip.toml    recompiler config (function addresses / names only)
+  recomp/ps2_vu1_recomp   the VU1 microcode recompiler (GPL-3.0)
   sdk/include/<n>/...     the runtime headers the generated C++ includes
   sdk/game_shim.cpp       registers the generated functions with the app
   sdk/flags.json          compiler flags matching the app's runtime ABI
@@ -81,6 +82,7 @@ def main() -> None:
     ap.add_argument("--shim", type=Path, required=True)
     ap.add_argument("--recomp", type=Path, required=True)
     ap.add_argument("--config", type=Path, required=True)
+    ap.add_argument("--vu1recomp", type=Path)
     ap.add_argument("--resources", type=Path, required=True)
     a = ap.parse_args()
 
@@ -120,6 +122,8 @@ def main() -> None:
     shutil.copy2(a.shim, sdk / "game_shim.cpp")
     shutil.copy2(a.recomp, recomp / "ps2_recomp")
     shutil.copy2(a.config, recomp / "roadtrip.toml")
+    if a.vu1recomp:
+        shutil.copy2(a.vu1recomp, recomp / "ps2_vu1_recomp")
 
     h = hashlib.sha1()
     for p in sorted(x for x in a.resources.rglob("*") if x.is_file() and x.name != "build_id"):

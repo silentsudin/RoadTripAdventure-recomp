@@ -6,6 +6,7 @@
 #include "ps2_runtime.h"
 #include "ps2_stubs.h"
 #include "ps2_syscalls.h"
+#include "runtime/vu/ps2_vu1_native.h" // recompiled VU1 microcode (ps2_vu1_recomp)
 
 #ifdef PS2_FUNCTION_LOG_TRACKER
 #include "ps2_log.h"

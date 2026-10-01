@@ -23,7 +23,7 @@ This is early, experimental work. The game boots and runs these screens without 
 - the **3D attract demo**, rendered by the game's own VU1 microcode.
 
 Known problems:
-- 3D scenes run at about 10 fps. Graphics are now rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK), and the title runs at about 50 fps. The remaining bottleneck is the cycle-accurate VU1 interpreter, which processes the game's 3D geometry on the game thread.
+- 3D scenes run at about 35 fps; the PS2 ran them at 60. Graphics are rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK). The game's VU1 microcode is statically recompiled on your Mac. Before recompilation the interpreter managed about 11 fps.
 - The attract demo stays at the start line instead of starting the race.
 - Input and audio haven't been looked at.
 
@@ -37,7 +37,8 @@ Known problems:
 | M4 IOP modules (IOPRP234, LIBSD, SNDMOD Tamsoft driver, MCMAN, PADMAN) | 🔄 all load via ps2xIOP; behaviour unverified |
 | M5 First pixels: logos and title | ✅ |
 | M6 Stable display: 4:3 aspect, no flicker (double-buffer layout), 3D via VU1 | ✅ |
-| Next: demo stuck at start line, input, audio, 3D speed (VU1/GS off the game thread, GPU GS), symbol names | ⬜ |
+| M7 GPU GS (Vulkan/MoltenVK) and recompiled VU1 microcode, bit-exact with the interpreter on captured runs | ✅ |
+| Next: demo stuck at start line, input, audio, full-speed 3D, symbol names | ⬜ |
 
 ## Supported disc
 
@@ -94,6 +95,7 @@ Environment variables:
 | `RT_DEBUG_UI=1` | Shows the PS2Recomp debug panel at startup (F1 toggles it) |
 | `RT_THREAD_DUMP=<s>` | Prints guest threads, wait reasons and semaphores every *s* seconds |
 | `RT_FRAME_DUMP=<dir>` | Saves a PNG of the game picture every `RT_FRAME_DUMP_SECONDS` (default 2) |
+| `RT_VU1_MODE=interp` | Runs VU1 microcode in the interpreter instead of the recompiled code, for A/B checks |
 | `RT_SHOW_FPS=1` | Shows the game's frame rate (buffer flips per second) on screen and in the log |
 
 Upstream's verbose runtime logging (a hook on every function entry, plus logging of every GS register write) is off by default because it costs a lot of speed. Configure with `-DRT_VERBOSE_RUNTIME_LOGS=ON` to turn it back on.
@@ -156,6 +158,15 @@ build/               (ignored)
 - VRAM is only copied back to the CPU when the game reads it.
 - The interlaced 640×224 fields are deinterlaced to a full 448-line picture.
 - If Vulkan can't start, the app logs why and falls back to the software GS.
+
+### Recompiled VU1 microcode
+
+- On first launch, `ps2_vu1_recomp` reads the VU1 overlays from the game's ELF.
+- From the MSCAL entry points it explores every reachable instruction and pipeline-timing state, then emits C++ with each stall worked out at compile time.
+- That C++ is compiled into `libroadtrip_game.dylib` with the rest of the game.
+- When the code can't predict the timing (XGKICK overlap, D/T bits, unexpected jumps), it hands over to the interpreter with the exact state.
+- The runtime only uses the recompiled code while VU1 code memory matches the image it was compiled from.
+- Checking: run the game with `RT_VU1_CAPTURE=<dir>` to record VU1 runs, then compare them bit for bit with the fork's `vu1_replay` / `vu1_replay_native` tools.
 
 ### Recompiler config notes
 

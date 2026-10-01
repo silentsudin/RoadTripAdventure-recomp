@@ -145,6 +145,18 @@ namespace rt::game
 
     fs::path buildLog() { return paths::gameDir() / "build.log"; }
 
+    namespace
+    {
+        void *g_vu1Entry = nullptr;
+        uint64_t g_vu1ImageHash = 0;
+    }
+
+    void *vu1NativeEntry(uint64_t &imageHash)
+    {
+        imageHash = g_vu1ImageHash;
+        return g_vu1Entry;
+    }
+
     std::optional<fs::path> findCompiler()
     {
         const std::string p = capture({"/usr/bin/xcrun", "--find", "clang++"});
@@ -199,6 +211,14 @@ namespace rt::game
         if (run({(recompDir() / "ps2_recomp").string(), config.string()}, buildLog(), work) != 0)
             return fail("The recompiler failed.");
 
+        // VU1 microcode -> C++. Optional: without it the VU1 interpreter runs the 3D code.
+        const fs::path vu1Source = work / "vu1_native.cpp";
+        const bool haveVu1 =
+            fs::exists(recompDir() / "ps2_vu1_recomp") &&
+            run({(recompDir() / "ps2_vu1_recomp").string(), "--elf", elf.string(), "--out", vu1Source.string()},
+                buildLog(), work) == 0 &&
+            fs::exists(vu1Source);
+
         // 2. Group generated sources into unity files (much faster to compile).
         std::vector<fs::path> sources;
         for (const auto &e : fs::directory_iterator(generated))
@@ -218,6 +238,8 @@ namespace rt::game
             units.push_back(unit);
         }
         units.push_back(sdkDir() / "game_shim.cpp");
+        if (haveVu1)
+            units.push_back(vu1Source);
 
         // 3. Compile.
         const std::string sdkJson = readFile(sdkDir() / "flags.json");
@@ -311,6 +333,12 @@ namespace rt::game
             return false;
         }
         std::cout << "[roadtrip] loaded " << libPath() << " (" << n << " function entries)\n";
+
+        g_vu1Entry = dlsym(handle, "rt_vu1_native_execute");
+        if (auto hash = reinterpret_cast<uint64_t (*)()>(dlsym(handle, "rt_vu1_native_image_hash")))
+            g_vu1ImageHash = hash();
+        if (g_vu1Entry)
+            std::cout << "[roadtrip] native VU1 microcode available\n";
         return true;
     }
 }
