@@ -123,8 +123,7 @@ config/              recompiler config (addresses only; committed) + known ROM h
 scripts/             pipeline.py, iso9660.py, merge_config.py
 src/                 app: first-run installer + game builder, ISO reader, macOS dialogs, debug tools
 src/game/            GameBuilder (on-device recompile/compile/load), game_shim.cpp, overrides
-patches/             our changes to upstream PS2Recomp (applied by `bootstrap`)
-third_party/PS2Recomp  upstream submodule, pinned
+third_party/PS2Recomp  submodule: silentsudin/PS2Recomp, branch `roadtrip` (upstream ran-j/PS2Recomp + our runtime changes)
 generated/           (ignored) ps2_recomp output
 build/               (ignored)
 ```
@@ -133,21 +132,20 @@ build/               (ignored)
 
 - **Config.** Edit `config/roadtrip.base.toml`. It holds stubs, skips, extra entry points, jump tables and MMIO. Then run `pipeline.py analyze build` and relaunch; the changed `build_id` rebuilds the game. `config/roadtrip.toml` is regenerated, so don't edit it by hand.
 - **Game hooks.** Runtime hooks for this game live in `src/game/overrides.cpp` (`PS2_REGISTER_GAME_OVERRIDE`). Use `bindAddressHandler` to route an address to a runtime stub.
-- **Upstream fixes.** Commit them inside `third_party/PS2Recomp`, then export them with `git -C third_party/PS2Recomp format-patch -o ../../patches <base>`.
+- **Runtime changes.** Commit them in `third_party/PS2Recomp` on branch `roadtrip` (remote `origin` = the fork, `upstream` = ran-j), push, then commit the new submodule pointer here. Send generic fixes upstream as PRs.
 - **Debugging.** Use PCSX2's debugger as ground truth for PCs and register state. Upstream's [stripped-game walkthrough](https://github.com/ran-j/PS2Recomp/wiki) covers `Function not found`, `[Syscall TODO]` and the other common failures.
 
-## Upstream patches
+## Changes on the PS2Recomp fork (`roadtrip` branch)
 
-| Patch | Why |
+| Commit | Why |
 |---|---|
-| `0001-cd-register-files-at-original-lbn` | The game reads sectors by LBN from a TOC baked into the ELF; it does not use `sceCdSearchFile`. The installer records each file's original LBN in `disc/.lbn_map.tsv`, and the app registers them at boot. |
-| `0002-runtime-keep-custom-memory-card-root` | `loadELF` resets the IOP, which runs MCSERV init. Without this patch the memory card root is reset to `<elf dir>/mc0` and saves land inside the disc tree. |
-| `0003-recomp-cmake-allow-add-subdirectory` | Lets `ps2_recomp` build as part of our CMake project, so it can be bundled. |
-| `0004-recomp-synthesize-undiscovered-stub-functions` | In a stripped ELF many SDK routines are only reached by a tail-call `J`, or never called, so function discovery misses them and their configured `name@addr` stubs were silently dropped (72 of 229). The main thread died on `J scePadRead`. This patch creates the missing stub wrappers. |
-
-| `0005-runtime-present-at-4x3-display-aspect` | The PS2 drives a 4:3 TV. A 640×224 field buffer was being shown 1:1, which squashed the picture to half height. |
-| `0006-gs-dbuffdc-second-buffer-after-first` | The runtime's `sceGsSetDefDBuffDc` put buffer 1 at the Z buffer address (FBP 140) instead of right after buffer 0 (FBP 70). The game's post-process reads FBP 70, so every other frame was garbage, which caused the constant flicker. |
-| `0007-vu1-skip-idle-pipeline-commits` | Speed: the VU1 interpreter scanned every pipeline slot on every emulated cycle. It now skips empty pipelines and cycles where nothing is due. Output is bit-identical. |
+| `cd register files at original lbn` | The game reads sectors by LBN from a TOC baked into the ELF; it does not use `sceCdSearchFile`. The installer records each file's original LBN in `disc/.lbn_map.tsv`, and the app registers them at boot. |
+| `runtime keep custom memory card root` | `loadELF` resets the IOP, which runs MCSERV init. Without this patch the memory card root is reset to `<elf dir>/mc0` and saves land inside the disc tree. |
+| `recomp cmake allow add subdirectory` | Lets `ps2_recomp` build as part of our CMake project, so it can be bundled. |
+| `recomp synthesize undiscovered stub functions` | In a stripped ELF many SDK routines are only reached by a tail-call `J`, or never called, so function discovery misses them and their configured `name@addr` stubs were silently dropped (72 of 229). The main thread died on `J scePadRead`. This patch creates the missing stub wrappers. |
+| `runtime present at 4x3 display aspect` | The PS2 drives a 4:3 TV. A 640×224 field buffer was being shown 1:1, which squashed the picture to half height. |
+| `gs dbuffdc second buffer after first` | The runtime's `sceGsSetDefDBuffDc` put buffer 1 at the Z buffer address (FBP 140) instead of right after buffer 0 (FBP 70). The game's post-process reads FBP 70, so every other frame was garbage, which caused the constant flicker. |
+| `vu1 skip idle pipeline commits` | Speed: the VU1 interpreter scanned every pipeline slot on every emulated cycle. It now skips empty pipelines and cycles where nothing is due. Output is bit-identical. |
 
 ### Recompiler config notes
 
