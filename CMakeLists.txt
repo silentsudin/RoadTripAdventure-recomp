@@ -118,6 +118,30 @@ add_custom_target(rt_bundle ALL
     VERBATIM)
 add_dependencies(rt_bundle RoadTrip ps2_recomp rt_game_sdk_probe)
 
+# Bundle MoltenVK (Vulkan on Metal) for the paraLLEl-GS GPU backend, so players need neither the
+# Vulkan SDK nor Homebrew. The app points Granite at Contents/Frameworks/libMoltenVK.dylib.
+if(APPLE AND PS2X_ENABLE_PGS)
+    find_library(RT_MOLTENVK_LIBRARY NAMES MoltenVK
+                 HINTS /opt/homebrew/opt/molten-vk/lib /usr/local/opt/molten-vk/lib ENV VULKAN_SDK
+                 PATH_SUFFIXES lib)
+    if(NOT RT_MOLTENVK_LIBRARY)
+        message(FATAL_ERROR "MoltenVK not found: `brew install molten-vk` (or set VULKAN_SDK), "
+                            "or configure with -DPS2X_ENABLE_PGS=OFF for the CPU GS only.")
+    endif()
+    get_filename_component(_rt_mvk_prefix "${RT_MOLTENVK_LIBRARY}" DIRECTORY)
+    get_filename_component(_rt_mvk_prefix "${_rt_mvk_prefix}" DIRECTORY)
+    message(STATUS "Bundling MoltenVK: ${RT_MOLTENVK_LIBRARY}")
+    add_custom_command(TARGET rt_bundle POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Frameworks"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${RT_MOLTENVK_LIBRARY}"
+                "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Frameworks/libMoltenVK.dylib"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/licenses"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_rt_mvk_prefix}/LICENSE"
+                "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/licenses/MoltenVK-LICENSE.txt"
+        COMMENT "Bundling MoltenVK"
+        VERBATIM)
+endif()
+
 # ---------------------------------------------------------------- tests
 include(CTest)
 if(BUILD_TESTING)

@@ -18,12 +18,12 @@ A static recompilation of **Road Trip** (*Choro Q HG 2* / *Road Trip Adventure*,
 
 This is early, experimental work. The game boots and runs these screens without flicker at the correct 4:3 aspect:
 - the publisher logo;
-- the title screen (about 40 fps);
+- the title screen (about 50 fps);
 - "NOW LOADING…";
 - the **3D attract demo**, rendered by the game's own VU1 microcode.
 
 Known problems:
-- 3D scenes run at only about 7 fps. The VU1 interpreter and the GS rasterizer are cycle-accurate and run in software on the game thread.
+- 3D scenes run at about 10 fps. Graphics are now rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK), and the title runs at about 50 fps. The remaining bottleneck is the cycle-accurate VU1 interpreter, which processes the game's 3D geometry on the game thread.
 - The attract demo stays at the start line instead of starting the race.
 - Input and audio haven't been looked at.
 
@@ -52,11 +52,11 @@ The pipeline accepts `.cue`, raw `.bin` (MODE1 or MODE2/2352) or cooked `.iso`. 
 
 ## Building the app (macOS arm64)
 
-Prerequisites: Xcode Command Line Tools and `brew install cmake ninja python`. **No ROM is needed to build the app.**
+Prerequisites: Xcode Command Line Tools and `brew install cmake ninja python molten-vk`. **No ROM is needed to build the app.**
 
 ```sh
-git clone --recurse-submodules <this repo> && cd RoadTripAdventure-decomp
-python3 scripts/pipeline.py all run
+git clone <this repo> && cd RoadTripAdventure-decomp
+python3 scripts/pipeline.py all run   # bootstrap inits only the submodules that are needed
 ```
 
 This produces `build/macos-release/RoadTrip.app`. Its `Contents/Resources` holds:
@@ -90,6 +90,7 @@ Environment variables:
 | Variable | Effect |
 |---|---|
 | `RT_DATA_DIR` | Moves the data directory |
+| `RT_GS_BACKEND=cpu` | Uses the software GS instead of the Vulkan GPU GS (paraLLEl-GS on the bundled MoltenVK) |
 | `RT_DEBUG_UI=1` | Shows the PS2Recomp debug panel at startup (F1 toggles it) |
 | `RT_THREAD_DUMP=<s>` | Prints guest threads, wait reasons and semaphores every *s* seconds |
 | `RT_FRAME_DUMP=<dir>` | Saves a PNG of the game picture every `RT_FRAME_DUMP_SECONDS` (default 2) |
@@ -146,6 +147,15 @@ build/               (ignored)
 | `runtime present at 4x3 display aspect` | The PS2 drives a 4:3 TV. A 640×224 field buffer was being shown 1:1, which squashed the picture to half height. |
 | `gs dbuffdc second buffer after first` | The runtime's `sceGsSetDefDBuffDc` put buffer 1 at the Z buffer address (FBP 140) instead of right after buffer 0 (FBP 70). The game's post-process reads FBP 70, so every other frame was garbage, which caused the constant flicker. |
 | `vu1 skip idle pipeline commits` | Speed: the VU1 interpreter scanned every pipeline slot on every emulated cycle. It now skips empty pipelines and cycles where nothing is due. Output is bit-identical. |
+
+### GPU rendering (Vulkan)
+
+- The GS (the PS2's rasterizer) runs on **paraLLEl-GS**, a Vulkan compute implementation. It lives on the fork as the submodule `ps2xRuntime/third_party/parallel-gs`.
+- On macOS it runs through **MoltenVK**. The build copies `libMoltenVK.dylib` (Apache-2.0) into `RoadTrip.app/Contents/Frameworks`, so players need neither the Vulkan SDK nor Homebrew.
+- The runtime's GS front end still parses the command stream, so CSR, FINISH/SIGNAL and transfers keep working, but it mirrors the raw GIF packets and register writes to the GPU instead of rasterizing them.
+- VRAM is only copied back to the CPU when the game reads it.
+- The interlaced 640×224 fields are deinterlaced to a full 448-line picture.
+- If Vulkan can't start, the app logs why and falls back to the software GS.
 
 ### Recompiler config notes
 
