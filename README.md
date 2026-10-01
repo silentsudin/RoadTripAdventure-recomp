@@ -4,12 +4,27 @@ A static recompilation of **Road Trip** (*Choro Q HG 2* / *Road Trip Adventure*,
 
 > **No game code or data is included, not even in the built app.** `RoadTrip.app` contains only our code, the PS2Recomp runtime and recompiler, and runtime headers. On first launch it asks for *your* disc image, copies the game files off it, recompiles the game's program into C++ and compiles that with your Mac's own clang. The result is a game library in `~/Library/Application Support/RoadTripRecomp/`. That means the app can be shared without sharing anything of Takara's. Don't distribute anything from that Application Support folder.
 
+## For players: what you need
+
+- **A Mac with Apple Silicon** running macOS 13 or later.
+- **Your own copy of Road Trip (USA, SLUS-20398)**, dumped to a `.cue`/`.bin` or `.iso`.
+- **Apple's Command Line Tools.** This is a free developer download from Apple, often over 1 GB, and most gamers won't already have it.
+  - Road Trip builds the game from your disc the first time it opens, so it never has to ship any of the game's code, and that build needs Apple's compiler.
+  - If the tools are missing, the app shows macOS's install prompt. Once the install finishes, open Road Trip again.
+  - You can also install them ahead of time with `xcode-select --install` in Terminal.
+- **First launch takes a little while.** It copies about 512 MB of game files from your disc and then builds the game, which takes about 20 seconds on an M-series Mac. Later launches start straight away.
+
 ## Status
 
-This is early, experimental work. The game boots and renders the **publisher logo and the title screen** correctly through the software GS and VU1. Known problems:
-- It runs well below full speed.
-- The picture is shown at field height (640×224, squashed) instead of the interlaced 640×448.
-- After the title it cycles to a black screen, probably the attract demo.
+This is early, experimental work. The game boots and runs these screens without flicker at the correct 4:3 aspect:
+- the publisher logo;
+- the title screen (about 40 fps);
+- "NOW LOADING…";
+- the **3D attract demo**, rendered by the game's own VU1 microcode.
+
+Known problems:
+- 3D scenes run at only about 7 fps. The VU1 interpreter and the GS rasterizer are cycle-accurate and run in software on the game thread.
+- The attract demo stays at the start line instead of starting the race.
 - Input and audio haven't been looked at.
 
 | Milestone | State |
@@ -20,8 +35,9 @@ This is early, experimental work. The game boots and renders the **publisher log
 | M2b No game code in the app: build on first launch from the user's disc | ✅ |
 | M3 Boot to `main` (crt0, kernel syscalls, stubs triaged) | ✅ |
 | M4 IOP modules (IOPRP234, LIBSD, SNDMOD Tamsoft driver, MCMAN, PADMAN) | 🔄 all load via ps2xIOP; behaviour unverified |
-| M5 First pixels: logos and title (VU1 microcode → GS) | ✅ |
-| Next: interlaced display height, attract/demo black screen, input, audio, speed (GPU GS), symbol names | ⬜ |
+| M5 First pixels: logos and title | ✅ |
+| M6 Stable display: 4:3 aspect, no flicker (double-buffer layout), 3D via VU1 | ✅ |
+| Next: demo stuck at start line, input, audio, 3D speed (VU1/GS off the game thread, GPU GS), symbol names | ⬜ |
 
 ## Supported disc
 
@@ -77,6 +93,9 @@ Environment variables:
 | `RT_DEBUG_UI=1` | Shows the PS2Recomp debug panel at startup (F1 toggles it) |
 | `RT_THREAD_DUMP=<s>` | Prints guest threads, wait reasons and semaphores every *s* seconds |
 | `RT_FRAME_DUMP=<dir>` | Saves a PNG of the game picture every `RT_FRAME_DUMP_SECONDS` (default 2) |
+| `RT_SHOW_FPS=1` | Shows the game's frame rate (buffer flips per second) on screen and in the log |
+
+Upstream's verbose runtime logging (a hook on every function entry, plus logging of every GS register write) is off by default because it costs a lot of speed. Configure with `-DRT_VERBOSE_RUNTIME_LOGS=ON` to turn it back on.
 
 ### Developer steps (need your ROM)
 
@@ -125,6 +144,15 @@ build/               (ignored)
 | `0002-runtime-keep-custom-memory-card-root` | `loadELF` resets the IOP, which runs MCSERV init. Without this patch the memory card root is reset to `<elf dir>/mc0` and saves land inside the disc tree. |
 | `0003-recomp-cmake-allow-add-subdirectory` | Lets `ps2_recomp` build as part of our CMake project, so it can be bundled. |
 | `0004-recomp-synthesize-undiscovered-stub-functions` | In a stripped ELF many SDK routines are only reached by a tail-call `J`, or never called, so function discovery misses them and their configured `name@addr` stubs were silently dropped (72 of 229). The main thread died on `J scePadRead`. This patch creates the missing stub wrappers. |
+
+| `0005-runtime-present-at-4x3-display-aspect` | The PS2 drives a 4:3 TV. A 640×224 field buffer was being shown 1:1, which squashed the picture to half height. |
+| `0006-gs-dbuffdc-second-buffer-after-first` | The runtime's `sceGsSetDefDBuffDc` put buffer 1 at the Z buffer address (FBP 140) instead of right after buffer 0 (FBP 70). The game's post-process reads FBP 70, so every other frame was garbage, which caused the constant flicker. |
+| `0007-vu1-skip-idle-pipeline-commits` | Speed: the VU1 interpreter scanned every pipeline slot on every emulated cycle. It now skips empty pipelines and cycles where nothing is due. Output is bit-identical. |
+
+### Recompiler config notes
+
+- **libvu0 is recompiled, not stubbed.** `drop_stubs` in `config/roadtrip.base.toml` makes the game run its own `sceVu0*` matrix code. One of the runtime's replacement stubs produced bad matrices, so every 3D vertex was culled and the screen stayed white.
+- **Code pointers.** `scripts/code_pointers.py` adds every `lui`/`addiu` code address in `.text` as an entry point, so callbacks the game installs through function pointers are always registered.
 
 ### Distribution notes
 

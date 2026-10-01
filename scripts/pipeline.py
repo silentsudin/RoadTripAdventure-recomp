@@ -36,6 +36,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from iso9660 import IsoImage  # noqa: E402
+from code_pointers import entry_point_selectors  # noqa: E402
 from merge_config import merge_config  # noqa: E402
 
 UPSTREAM = ROOT / "third_party" / "PS2Recomp"
@@ -128,8 +129,10 @@ def step_analyze(_: argparse.Namespace) -> None:
     log("Running ps2_analyzer")
     run([tool("ps2_analyzer"), elf, raw])
     log("Merging analyzer output with config/roadtrip.base.toml")
+    pointers = entry_point_selectors(elf)
+    print(f"   {len(pointers)} lui/addiu code pointers found in .text")
     merge_config(raw, ROOT / "config" / "roadtrip.base.toml", ROOT / "config" / "roadtrip.toml",
-                 elf_path=elf, output_dir=GENERATED)
+                 elf_path=elf, output_dir=GENERATED, extra_entry_points=pointers)
 
 
 def step_recomp(_: argparse.Namespace) -> None:

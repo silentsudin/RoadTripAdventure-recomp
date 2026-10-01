@@ -34,9 +34,9 @@
     {
       "name": "macos-release",
       "inherits": "macos-base",
-      "displayName": "macOS arm64 Release (with debug info)",
+      "displayName": "macOS arm64 Release (LTO)",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "Release"
       }
     }
   ],
