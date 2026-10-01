@@ -1,3 +1,4 @@
 [submodule "third_party/PS2Recomp"]
 	path = third_party/PS2Recomp
-	url = https://github.com/ran-j/PS2Recomp.git
+	url = https://github.com/silentsudin/PS2Recomp.git
+	branch = roadtrip

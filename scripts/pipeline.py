@@ -4,7 +4,7 @@
 The app contains no game code: it recompiles the game from the player's own disc on first
 launch. Building the app therefore needs no ROM:
 
-  bootstrap    init the PS2Recomp submodule and apply patches/*.patch
+  bootstrap    init the PS2Recomp submodule (our fork, branch roadtrip)
   build        configure + build build/<preset>/RoadTrip.app (runtime, recompiler, SDK headers)
   run          launch the app (first launch asks for the disc, then builds the game)
 
@@ -72,14 +72,6 @@ def tool(name: str) -> Path:
 def step_bootstrap(_: argparse.Namespace) -> None:
     log("Initialising PS2Recomp submodule")
     run(["git", "submodule", "update", "--init", "--recursive"], cwd=ROOT)
-    patches = sorted((ROOT / "patches").glob("*.patch"))
-    for patch in patches:
-        if subprocess.run(["git", "apply", "--reverse", "--check", patch], cwd=UPSTREAM,
-                          capture_output=True).returncode == 0:
-            log(f"patch already applied: {patch.name}")
-            continue
-        log(f"applying {patch.name}")
-        run(["git", "apply", "--whitespace=nowarn", patch], cwd=UPSTREAM)
     for exe in ("cmake", "ninja"):
         if not shutil.which(exe):
             sys.exit(f"missing '{exe}' (brew install cmake ninja)")
