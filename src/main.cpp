@@ -8,6 +8,7 @@
 // then loads the library and boots it through the PS2Recomp runtime, with cdrom0: mapped onto
 // the extracted tree and mc0: onto the saves directory.
 
+#include "debug/FpsOverlay.h"
 #include "debug/FrameDump.h"
 #include "debug/ThreadDump.h"
 #include "game/GameBuilder.h"
@@ -216,6 +217,7 @@ int main(int argc, char *argv[])
             [](PS2Runtime &rt, void *user)
             {
                 rt::debug::maybeDumpFrame(); // before the overlay, so dumps show only the game
+                rt::debug::drawFpsOverlay(rt);
 #if defined(PS2X_ENABLE_DEBUG_UI)
                 static_cast<UiHooks *>(user)->panel.draw(rt); // F1 toggles
 #endif

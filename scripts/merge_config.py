@@ -91,8 +91,13 @@ def dumps(doc: dict[str, Any]) -> str:
 
 
 def merge_config(analyzer_toml: Path, base_toml: Path, out_toml: Path, *, elf_path: Path,
-                 output_dir: Path) -> None:
+                 output_dir: Path, extra_entry_points: list[str] | None = None) -> None:
     analyzer = tomllib.loads(analyzer_toml.read_text())
+    if extra_entry_points:
+        gen = analyzer.setdefault("general", {})
+        known = {int(e.split("@", 1)[1], 16) for e in gen.get("entry_points", []) + gen.get("stubs", []) if "@" in e}
+        gen["entry_points"] = gen.get("entry_points", []) + [
+            e for e in extra_entry_points if int(e.split("@", 1)[1], 16) not in known]
     base = tomllib.loads(base_toml.read_text()) if base_toml.exists() else {}
     doc = merge(analyzer, base)
     # Paths are written relative to the repo root (ps2_recomp runs with cwd = repo root).

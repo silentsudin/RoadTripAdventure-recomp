@@ -22,11 +22,22 @@ set(PS2X_BUILD_STUDIO OFF CACHE BOOL "" FORCE)
 set(PS2X_BUILD_RUNTIME ON CACHE BOOL "" FORCE)
 set(PS2X_ENABLE_FFMPEG OFF CACHE BOOL "Road Trip has no MPEG movies we rely on yet")
 set(PS2X_ENABLE_DEBUG_UI ${RT_ENABLE_DEBUG_UI} CACHE BOOL "" FORCE)
+# Upstream defaults to per-function entry logging and per-register GS logging, which costs a lot
+# of speed. Off by default; turn back on with -DRT_VERBOSE_RUNTIME_LOGS=ON when debugging.
+option(RT_VERBOSE_RUNTIME_LOGS "Enable PS2Recomp aggressive logs + function log tracker" OFF)
+set(PS2X_ENABLE_AGRESSIVE_LOGS ${RT_VERBOSE_RUNTIME_LOGS} CACHE BOOL "" FORCE)
 # Keep the bundled ps2_recomp free of Homebrew dylibs (libdwarf would pick up zstd).
 set(ENABLE_DECOMPRESSION OFF CACHE BOOL "" FORCE)
 add_subdirectory(third_party/PS2Recomp EXCLUDE_FROM_ALL)
 
 set(PS2X_RUNTIME_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/PS2Recomp/ps2xRuntime")
+
+# Every Apple Silicon Mac supports the M1 feature set; let the hot interpreter/rasterizer use it.
+if(APPLE AND CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+    foreach(_rt_target ps2_runtime ps2_iop raylib)
+        target_compile_options(${_rt_target} PRIVATE -mcpu=apple-m1)
+    endforeach()
+endif()
 
 # ---------------------------------------------------------------- game SDK probe
 # Compiles one file with exactly the settings the recompiled game needs. Its entry in
@@ -47,6 +58,7 @@ target_link_libraries(rt_game_sdk_probe PRIVATE ps2_runtime rt_sse2neon)
 # ---------------------------------------------------------------- app
 set(RT_APP_SOURCES
     src/main.cpp
+    src/debug/FpsOverlay.cpp
     src/debug/FrameDump.cpp
     src/debug/ThreadDump.cpp
     src/game/GameBuilder.cpp
