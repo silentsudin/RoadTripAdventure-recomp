@@ -18,6 +18,8 @@
 #include "rom/RomInstaller.h"
 
 #include "ps2_runtime.h"
+#include "runtime/gs/gs_frontend.h"
+#include "runtime/gs/gs_pgs_backend.h"
 #include "Stubs/CD.h"
 #if defined(PS2X_ENABLE_DEBUG_UI)
 #include "ps2_debug_panel.h"
@@ -142,6 +144,31 @@ namespace
         return std::nullopt;
     }
 
+    // GPU GS (paraLLEl-GS on Vulkan/MoltenVK) unless RT_GS_BACKEND=cpu; falls back to the CPU GS.
+    void selectGsBackend(PS2Runtime &runtime)
+    {
+        const char *choice = std::getenv("RT_GS_BACKEND");
+        if (choice && std::string(choice) == "cpu")
+        {
+            std::cout << "[gs] using CPU backend (RT_GS_BACKEND=cpu)\n";
+            return;
+        }
+
+        ps2x::gs::PgsOptions options;
+        // Prefer the MoltenVK bundled in RoadTrip.app/Contents/Frameworks; otherwise the system loader.
+        const fs::path bundled = rt::paths::bundleResources().parent_path() / "Frameworks" / "libMoltenVK.dylib";
+        std::error_code ec;
+        if (fs::exists(bundled, ec))
+            options.vulkanLibrary = bundled.string();
+        options.pipelineCacheDir = (rt::paths::dataRoot() / "cache").string();
+
+        std::string error;
+        if (auto backend = ps2x::gs::createPgsBackend(options, error))
+            runtime.gs().setRasterBackend(std::move(backend));
+        else
+            std::cerr << "[gs] Vulkan GS unavailable (" << error << "); using CPU backend\n";
+    }
+
     // Extracts the disc and builds the game library as needed.
     bool ensureSetUp(const Options &opts)
     {
@@ -234,6 +261,7 @@ int main(int argc, char *argv[])
             std::cerr << "Failed to initialize PS2 runtime\n";
             return 1;
         }
+        selectGsBackend(runtime);
         // Saves live outside the disc tree. Must be set before loadELF: it resets the IOP, which
         // initialises the memory card (needs patches/0002 so loadELF keeps this root).
         {

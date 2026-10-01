@@ -14,5 +14,6 @@
 - The app entry point is `src/main.cpp`. It runs setup (extract the disc, build the game dylib), then `rt::game::load`, then `PS2Runtime` initialize, loadELF and run.
 - Debugging: `RT_THREAD_DUMP=5` dumps guest threads; `RT_FRAME_DUMP=<dir>` saves PNGs of the picture, which is how to see the screen headlessly; `RT_DEBUG_UI=1` shows the debug panel. To find where the game is stuck, attach lldb to the `GameThread` thread; the game functions are native, so they show up in the backtrace.
 - Game hooks go in `src/game/overrides.cpp`.
+- The GS renders on paraLLEl-GS/Vulkan (`ps2xRuntime/src/lib/gs/gs_pgs_backend.cpp` on the fork) by default; `RT_GS_BACKEND=cpu` switches to the software GS for A/B comparisons. Use `RT_FRAME_DUMP` to compare frames from the two.
 - Runtime data lives in `~/Library/Application Support/RoadTripRecomp/{disc,saves}`. Override the location with `RT_DATA_DIR`.
 - Boot ELF facts: entry 0x200008, SHA-1 2431de1e…, CRC32 0x5A49851D.

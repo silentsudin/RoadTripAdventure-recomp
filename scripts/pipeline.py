@@ -71,7 +71,16 @@ def tool(name: str) -> Path:
 
 def step_bootstrap(_: argparse.Namespace) -> None:
     log("Initialising PS2Recomp submodule")
-    run(["git", "submodule", "update", "--init", "--recursive"], cwd=ROOT)
+    run(["git", "submodule", "update", "--init"], cwd=ROOT)
+    # paraLLEl-GS (Vulkan GS) and only the Granite pieces it needs; a plain --recursive would
+    # pull every Granite dependency.
+    pgs = UPSTREAM / "ps2xRuntime" / "third_party" / "parallel-gs"
+    run(["git", "submodule", "update", "--init", "ps2xRuntime/third_party/parallel-gs"], cwd=UPSTREAM)
+    run(["git", "submodule", "update", "--init", "Granite"], cwd=pgs)
+    run(["git", "submodule", "update", "--init", "third_party/volk", "third_party/khronos/vulkan-headers"],
+        cwd=pgs / "Granite")
+    if sys.platform == "darwin" and not shutil.which("brew"):
+        print("note: install MoltenVK (brew install molten-vk) for the Vulkan GS backend")
     for exe in ("cmake", "ninja"):
         if not shutil.which(exe):
             sys.exit(f"missing '{exe}' (brew install cmake ninja)")
