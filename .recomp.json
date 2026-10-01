@@ -1,0 +1,12 @@
+{
+  "name": "Road Trip Adventure Recomp",
+  "original": {
+    "title": "Road Trip",
+    "serial": "SLUS-20398",
+    "region": "NTSC-U",
+    "elf": "SLUS_203.98",
+    "elf_sha1": "2431de1ec3edd0df4be37ba564658d70c4049089"
+  },
+  "upstream": "https://github.com/ran-j/PS2Recomp",
+  "platforms": ["macos-arm64"]
+}

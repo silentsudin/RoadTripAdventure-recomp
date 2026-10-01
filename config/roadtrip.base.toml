@@ -1,0 +1,30 @@
+# Hand-maintained recompiler overrides for Road Trip (USA) SLUS-20398.
+# Merged on top of ps2_analyzer output by `scripts/pipeline.py analyze` into config/roadtrip.toml.
+# See scripts/merge_config.py for merge rules.
+
+[general]
+ghidra_output = ""          # set to e.g. "analysis/ghidra/roadtrip_functions.csv" once exported
+single_file_output = false
+output_worker_threads = 0
+patch_syscalls = false
+patch_cop0 = true
+patch_cache = true
+
+# Extra stubs: "name@0xADDR" bound to a runtime handler, or ret0/ret1/reta0@0xADDR.
+stubs = []
+# Functions to emit as TODO wrappers instead of recompiling.
+skip = []
+# Additional entry points (e.g. function-pointer targets found while debugging).
+entry_points = []
+
+# Names to remove from the analyzer's suggestions.
+drop_stubs = []
+drop_entry_points = []
+
+[mmio]
+# "0xINSTR_ADDR" = "0xMMIO_ADDR"
+
+# [[jump_tables.table]]
+# address = "0x..."
+# base_register = 2
+# entries = [{ index = 0, target = "0x..." }]

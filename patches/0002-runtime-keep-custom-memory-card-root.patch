@@ -1,0 +1,27 @@
+diff --git a/ps2xRuntime/src/lib/ps2_runtime.cpp b/ps2xRuntime/src/lib/ps2_runtime.cpp
+index 45cb9d2..a741cf3 100644
+--- a/ps2xRuntime/src/lib/ps2_runtime.cpp
++++ b/ps2xRuntime/src/lib/ps2_runtime.cpp
+@@ -1052,6 +1052,10 @@ void PS2Runtime::setIoPaths(const IoPaths &paths)
+ void PS2Runtime::configureIoPathsFromElf(const std::string &elfPath)
+ {
+     IoPaths paths = runtimeIoPaths();
++    // Keep a memory card root the host app chose explicitly (anything other than the
++    // previous ELF-relative default), so saves can live outside the game directory.
++    const bool customMcRoot = !paths.mcRoot.empty() &&
++                              (paths.elfDirectory.empty() || paths.mcRoot != paths.elfDirectory / "mc0");
+     paths.elfPath = normalizeAbsolutePath(std::filesystem::path(elfPath));
+     if (!paths.elfPath.empty())
+     {
+@@ -1062,7 +1066,10 @@ void PS2Runtime::configureIoPathsFromElf(const std::string &elfPath)
+     {
+         paths.hostRoot = paths.elfDirectory;
+         paths.cdRoot = paths.elfDirectory;
+-        paths.mcRoot = paths.elfDirectory / "mc0";
++        if (!customMcRoot)
++        {
++            paths.mcRoot = paths.elfDirectory / "mc0";
++        }
+     }
+ 
+     setIoPaths(paths);
