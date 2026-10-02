@@ -47,6 +47,9 @@ drop_stubs = [
   "sceVu0ClipScreen",
   "sceVu0ClipScreen3",
   "sceVu0ClipAll",
+  # Internal helper of the RotMatrix family: returns cos/sin in VU0 registers (vf4/vf5), which a
+  # C stub cannot do; stubbing it made every rotation matrix garbage (cars invisible and frozen).
+  "_sceVu0ecossin",
 ]
 drop_entry_points = []
 

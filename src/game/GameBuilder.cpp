@@ -254,6 +254,14 @@ namespace rt::game
                                 "g_ps2RecompiledFunctionTableEnd", "g_ps2RecompiledFunctionTableSlotCount"})
             base.push_back(std::string("-D") + sym + "=rt_game_" + (sym + 2));
         base.push_back("-DRT_GAME_BUILD_ID=\"" + buildId + "\"");
+        // Debugging: RT_GAME_EXTRA_CFLAGS adds compiler flags (space-separated), e.g. to build
+        // with -DPS2_FUNCTION_LOG_TRACKER and a custom PS_LOG_ENTRY via -include.
+        if (const char *extra = std::getenv("RT_GAME_EXTRA_CFLAGS"))
+        {
+            std::istringstream words(extra);
+            for (std::string w; words >> w;)
+                base.push_back(w);
+        }
 
         progress.setPhase("Compiling the game for your Mac (one-time setup)");
         progress.done = 0;
@@ -299,7 +307,9 @@ namespace rt::game
         if (ec)
             return fail("Cannot install the game library: " + ec.message());
         std::ofstream(stampPath(), std::ios::trunc) << buildId << "\n";
-        fs::remove_all(work, ec); // generated code + objects are no longer needed
+        const char *keep = std::getenv("RT_KEEP_GAME_WORK");
+        if (!(keep && *keep == '1'))
+            fs::remove_all(work, ec); // generated code + objects are no longer needed
         return true;
     }
 

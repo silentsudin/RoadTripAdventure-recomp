@@ -10,6 +10,7 @@
 
 #include "debug/FpsOverlay.h"
 #include "debug/FrameDump.h"
+#include "debug/RamDump.h"
 #include "debug/ThreadDump.h"
 #include "game/GameBuilder.h"
 #include "platform/Dialogs.h"
@@ -302,6 +303,7 @@ int main(int argc, char *argv[])
         }
 
         rt::debug::startThreadDumpIfRequested(runtime);
+        rt::debug::startRamDumpIfRequested(runtime);
         runtime.run();
         std::cout.flush();
         std::cerr.flush();
