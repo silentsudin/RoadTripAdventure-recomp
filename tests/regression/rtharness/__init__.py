@@ -68,7 +68,8 @@ class Game:
 
     def __init__(self, base_data: Path, work_dir: Path, *, checkpoint: Path | None = None,
                  speed: str = "max", fake_clock: int = 1_000_000_000, app: Path = DEFAULT_APP,
-                 state_hash: bool = False, env: dict | None = None):
+                 state_hash: bool = False, env: dict | None = None,
+                 progress_edits: dict[int, bytes] | None = None):
         self.base_data = Path(base_data)
         self.work_dir = Path(work_dir)
         self.checkpoint = checkpoint
@@ -77,6 +78,9 @@ class Game:
         self.app = Path(app)
         self.state_hash = state_hash
         self.extra_env = env or {}
+        # offset -> bytes patched into the Adventure save on memory card 1 before boot
+        # (config/game_state.toml), e.g. to start in another town or with a licence.
+        self.progress_edits = progress_edits or {}
         self.proc: subprocess.Popen | None = None
         self.sock: socket.socket | None = None
         self.vblank = 0
@@ -101,6 +105,12 @@ class Game:
             shutil.copytree(self.checkpoint, self.saves_dir / "mc0")
         else:
             (self.saves_dir / "mc0").mkdir()
+        if self.progress_edits:
+            save = self.saves_dir / "mc0/BASLUS-20398/BASLUS-20398"
+            data = bytearray(save.read_bytes())
+            for offset, value in self.progress_edits.items():
+                data[offset:offset + len(value)] = value
+            save.write_bytes(bytes(data))
 
     def start(self) -> "Game":
         self._prepare()
