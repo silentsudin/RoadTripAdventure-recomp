@@ -1,4 +1,19 @@
 {
+  "010_peach_town_drive:0": {
+    "height": 447,
+    "sha256": "0c438ee388152107dfdcae7fa3b0c0d4787fb8913c806b33959973224d937404",
+    "width": 1280
+  },
+  "010_peach_town_drive:1": {
+    "height": 447,
+    "sha256": "1fdc12c120b4f20f0d4b0716abc76484bd25977d27633f0decca68d3dc926fd0",
+    "width": 1280
+  },
+  "010_peach_town_drive:2": {
+    "height": 447,
+    "sha256": "f4a990e5887653c14d4805989af5473e776bd47b686486e7176dda64609846f8",
+    "width": 1280
+  },
   "adventure_continue_factory": {
     "height": 447,
     "sha256": "86dbf62b6a02be0abdd1c8d88422d23a1848206a4db799719b440a95c80fbe39",
@@ -8,6 +23,10 @@
     "height": 447,
     "sha256": "4e3b0e80df349e1824800d8d4b8295e539c28e07a71c935c9cfcf097ba815dfc",
     "width": 1280
+  },
+  "audio:010_peach_town_drive": {
+    "frames": 3320576,
+    "hash": "e5a59109fb4b1bd1"
   },
   "audio:logo": {
     "frames": 433664,
