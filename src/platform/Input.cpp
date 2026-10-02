@@ -234,6 +234,7 @@ namespace rt::input
                     if (name == b.name)
                         g_script.push_back({std::atof(at.c_str()), hold.empty() ? 0.25 : std::atof(hold.c_str()), b.mask});
             }
+            std::fprintf(stderr, "[input] script: %zu presses\n", g_script.size());
         }
 
         uint8_t toStickByte(float v)

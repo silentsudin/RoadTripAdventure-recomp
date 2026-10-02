@@ -21,12 +21,14 @@ This is early, experimental work. The game boots and runs these screens without 
 - the title screen (60 fps);
 - "NOW LOADING…";
 - the **3D attract demo**: a full 20-car race, matching PCSX2;
-- the menus, and a **playable Quick Race** with the keyboard or a gamepad (see [Controls](#controls)). The game's own VU1 microcode is statically recompiled on your Mac, and graphics are rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK).
+- the menus, a **playable Quick Race**, and **Adventure mode** with working memory-card saves (Save data at Q's Factory, Continue on the title menu), with the keyboard or a gamepad (see [Controls](#controls)). The game's own VU1 microcode is statically recompiled on your Mac, and graphics are rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK).
 
-Races run at a steady 60 fps on an M3 Max, with the busiest thread about half loaded. The picture is progressive: the game's interlaced 224-line fields are rendered at double resolution, so there is no combing.
+Races run at a steady 60 fps on an M3 Max, with the busiest thread about half loaded. The picture is progressive and full resolution (1280×896): the game's interlaced 224-line fields are rendered at double resolution, with no combing or field shake.
+
+Sound: the SPU2 is emulated (ADPCM voices, envelopes, DMA, streaming input, MMIX routing, reverb). The title screen is silent; that matches the original (checked against PCSX2).
 
 Known problems:
-- Sound is new: the SPU2 is emulated (ADPCM voices, envelopes, DMA, streaming input) but reverb isn't, and the title screen is silent (it may be in the original too; not yet verified).
+- Adventure mode has only been played as far as the first save at Q's Factory.
 
 | Milestone | State |
 |---|---|
@@ -43,7 +45,8 @@ Known problems:
 | M9 Input: keyboard and gamepads merged, configurable, race playable | ✅ |
 | M10 Sound: SPU2 emulation, the game's own sound driver loads its banks and plays | ✅ |
 | M11 Full speed: VIF1/VU1 and GS on their own threads, fast VU1 code, progressive output | ✅ |
-| Next: reverb, saves, symbol names | ⬜ |
+| M12 Reverb, memory-card saves, full-resolution progressive picture | ✅ |
+| Next: play further into Adventure mode, symbol names, CI | ⬜ |
 
 ## Controls
 
@@ -133,7 +136,8 @@ Environment variables:
 | `RT_GAME_EXTRA_CFLAGS` | Extra compiler flags for the on-device game build, e.g. `-DPS2X_WRITE_WATCH` to enable `RT_WRITE_WATCH=<hexaddr>:<hexlen>`, which logs the PC of every write into that range. Use a separate `RT_DATA_DIR`, because a normal build won't be replaced |
 | `RT_AUDIO=0` | Turns sound off |
 | `RT_AUDIO_DUMP=<file>` | Also writes the sound output as raw 48 kHz stereo 16-bit PCM |
-| `RT_SPU2_TRACE=1` / `2` | Logs sound-chip activity per second / every transfer and IOP disc read |
+| `RT_SPU2_TRACE=1` / `2` | Logs sound-chip activity per second (including routing and reverb registers) / every transfer and IOP disc read |
+| `RT_MC_TRACE=1` | Logs memory card opens and directory creation with guest and host paths |
 | `RT_IOP_IMPORT_TRACE=1` / `2` | Logs IOP kernel calls made by the game's IOP modules |
 | `RT_INPUT_SCRIPT=<s>:<button>[:<hold>],...` | Presses buttons at fixed times after start, e.g. `10:start,15:cross:3` (testing without a player) |
 | `RT_KEEP_GAME_WORK=1` | Keeps the generated C++ (with the MIPS disassembly in comments) under `<data>/game/work` |
@@ -197,7 +201,7 @@ build/               (ignored)
 - On macOS it runs through **MoltenVK**. The build copies `libMoltenVK.dylib` (Apache-2.0) into `RoadTrip.app/Contents/Frameworks`, so players need neither the Vulkan SDK nor Homebrew.
 - The runtime's GS front end still parses the command stream, so CSR, FINISH/SIGNAL and transfers keep working, but it mirrors the raw GIF packets and register writes to the GPU instead of rasterizing them.
 - VRAM is only copied back to the CPU when the game reads it.
-- The game draws interlaced 640×224 fields. paraLLEl-GS renders them with 4× supersampling and scans out a high-resolution progressive picture, which removes the interlacing artefacts. `RT_GS_SSAA` sets the rate; `RT_GS_PROGRESSIVE=0` goes back to the plain field deinterlacer.
+- The game draws interlaced 640×224 fields. paraLLEl-GS renders them with 4× supersampling and scans out a high-resolution progressive picture (shown at its native 1280×896), which removes the interlacing artefacts. The field phase is held per display buffer, matching the half-line offset the game draws each field with, so the picture doesn't shake. `RT_GS_SSAA` sets the rate; `RT_GS_PROGRESSIVE=0` goes back to the plain field deinterlacer.
 - If Vulkan can't start, the app logs why and falls back to the software GS.
 
 ### Recompiled VU1 microcode
