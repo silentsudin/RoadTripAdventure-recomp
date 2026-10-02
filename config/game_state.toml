@@ -1,0 +1,17 @@
+# Road Trip (USA, SLUS-20398) game state, for tests and tools. Addresses and layout only.
+#
+# The Adventure progress block lives in EE RAM and is written to the memory card verbatim as
+# BASLUS-20398/BASLUS-20398 (13384 bytes), so the same offsets read a save file or live RAM.
+# Fields are added as play-through sections reveal them; "confidence" says how sure we are.
+
+[progress]
+ram_address = 0x0177F760
+size = 13384
+
+[progress.fields]
+player_name   = { offset = 0x62C, type = "str", length = 19, confidence = "confirmed" }  # New Game name entry
+currency_name = { offset = 0x63F, type = "str", length = 21, confidence = "confirmed" }  # "Enter currency unit"
+money         = { offset = 0x654, type = "u32", confidence = "confirmed" }               # 1000 at the start
+scene         = { offset = 0x538, type = "u32", confidence = "likely" }                  # 6 = Q's Factory menu, 2 = driving in town
+town_entered  = { offset = 0x528, type = "u32", confidence = "guess" }                   # 0 -> 1 on first drive around town
+map_explored  = { offset = 0xBDC, type = "bytes", length = 0x800, confidence = "guess" }  # bits clear as the map is driven

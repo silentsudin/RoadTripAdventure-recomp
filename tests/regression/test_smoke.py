@@ -81,6 +81,8 @@ def test_adventure_new_game_save(game_factory, new_checkpoint):
     assert (save / "icon.sys").is_file(), "the game did not write its save"
     assert (save / "icon.sys").read_bytes()[:4] == b"PS2D"
     assert (save / "BASLUS-20398").stat().st_size == 13384
+    saved = game.saved_progress()
+    assert (saved["player_name"], saved["currency_name"], saved["money"]) == ("AAAAAAAAA", "AAAA", 1000)
     game.snapshot_card(checkpoint)
 
 
@@ -99,3 +101,6 @@ def test_adventure_continue(game_factory, golden):
     game.press("cross")  # Load this saved data: Yes
     game.run(seconds(12))
     golden("adventure_continue_factory", game.frame())
+    state = game.progress()
+    assert state["player_name"] == "AAAAAAAAA" and state["money"] == 1000, "the save should load intact"
+    assert state["scene"] == 6, "back at Q's Factory"

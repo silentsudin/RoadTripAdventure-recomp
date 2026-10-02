@@ -14,6 +14,7 @@ import shutil
 import socket
 import struct
 import subprocess
+import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -236,6 +237,21 @@ class Game:
 
     def stats(self) -> dict:
         return self._call("stats")
+
+    def progress(self) -> dict:
+        """Adventure progress decoded from live RAM (config/game_state.toml)."""
+        sys.path.insert(0, str(REPO / "tools"))
+        import save_parser
+
+        game_map = save_parser.load_map()["progress"]
+        return save_parser.decode(self.read(game_map["ram_address"], game_map["size"]))
+
+    def saved_progress(self) -> dict:
+        """Adventure progress decoded from the save on memory card 1."""
+        sys.path.insert(0, str(REPO / "tools"))
+        import save_parser
+
+        return save_parser.decode((self.saves_dir / "mc0/BASLUS-20398/BASLUS-20398").read_bytes())
 
     def audio(self) -> dict:
         """Sound produced since the last call: frames (48 kHz), rms, peak and an exact hash."""
