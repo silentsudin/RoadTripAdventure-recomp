@@ -1,17 +1,17 @@
 {
   "010_peach_town_drive:0": {
     "height": 447,
-    "sha256": "0c438ee388152107dfdcae7fa3b0c0d4787fb8913c806b33959973224d937404",
+    "sha256": "7f044c9acb2c60402931b88bf66390db32f3482418d3a7f4cb0246102530cf0a",
     "width": 1280
   },
   "010_peach_town_drive:1": {
     "height": 447,
-    "sha256": "1fdc12c120b4f20f0d4b0716abc76484bd25977d27633f0decca68d3dc926fd0",
+    "sha256": "45b647ccb6f46c51e3eb3a1ed28dc6c31dd443deaa27f989eefc8214ba1c5b7d",
     "width": 1280
   },
   "010_peach_town_drive:2": {
     "height": 447,
-    "sha256": "f4a990e5887653c14d4805989af5473e776bd47b686486e7176dda64609846f8",
+    "sha256": "b0ab62a976941f5eb45fbbdacea3524559484bb42ae85fd180e51f161191d678",
     "width": 1280
   },
   "adventure_continue_factory": {
@@ -24,251 +24,637 @@
     "sha256": "4e3b0e80df349e1824800d8d4b8295e539c28e07a71c935c9cfcf097ba815dfc",
     "width": 1280
   },
+  "attract_demo_45s": {
+    "height": 447,
+    "sha256": "86d97d86ef3cfbfeb3baae44e5384c120b14c826a66a19978b7587a135e2dad8",
+    "width": 1280
+  },
   "audio:010_peach_town_drive": {
     "frames": 3320576,
-    "hash": "e5a59109fb4b1bd1"
+    "hash": "8f71e01833ca11c7"
+  },
+  "audio:attract_demo_15s": {
+    "frames": 719104,
+    "hash": "d49fc32ce3793718"
   },
   "audio:logo": {
     "frames": 433664,
-    "hash": "903ade1af1f63a7a"
+    "hash": "6f580a0164f322e3"
+  },
+  "audio:quick_Endurance_Run_start": {
+    "frames": 723200,
+    "hash": "63c197720a7000e8"
+  },
+  "audio:quick_Lagoon_Raceway_start": {
+    "frames": 723200,
+    "hash": "5d0189d46a451490"
+  },
+  "audio:quick_Night_Glow_Raceway_start": {
+    "frames": 723200,
+    "hash": "e2a7ab62a408d38a"
+  },
+  "audio:quick_Oval_Raceway_start": {
+    "frames": 723200,
+    "hash": "ea5c4b4fe4fe0a8e"
+  },
+  "audio:quick_Peach_Raceway_start": {
+    "frames": 723968,
+    "hash": "48d881399175d8bd"
+  },
+  "audio:quick_Snow_Mountain_Raceway_start": {
+    "frames": 723200,
+    "hash": "8fb33385b255dcee"
+  },
+  "audio:quick_Temple_Raceway_start": {
+    "frames": 722944,
+    "hash": "8d5d4f102464898d"
+  },
+  "audio:quick_Tin_Raceway_start": {
+    "frames": 722944,
+    "hash": "cd45637e59037d16"
+  },
+  "audio:quick_race_20s": {
+    "frames": 960256,
+    "hash": "112cb8ddb5df3f26"
   },
   "audio:race_Chestnut_Canyon_Lava_Run_Raceway_A": {
-    "frames": 721408,
-    "hash": "561cb58d40c2cb4c"
+    "frames": 723712,
+    "hash": "665993a5076835e7"
   },
   "audio:race_Chestnut_Canyon_Lava_Run_Raceway_B": {
-    "frames": 720640,
-    "hash": "72725b06102998d0"
+    "frames": 723712,
+    "hash": "7ce72f4787c53433"
   },
   "audio:race_Chestnut_Canyon_Miner_49er_Raceway_A": {
-    "frames": 721408,
-    "hash": "7df4a6681d780d70"
+    "frames": 723712,
+    "hash": "585f14ae00f01b00"
   },
   "audio:race_Chestnut_Canyon_Miner_49er_Raceway_C": {
-    "frames": 721664,
-    "hash": "2bf59eefce4df722"
+    "frames": 723968,
+    "hash": "1139a9d21edd174d"
   },
   "audio:race_Cloud_Hill_Tin_Raceway": {
-    "frames": 720128,
-    "hash": "6ef439c7ae082150"
+    "frames": 723200,
+    "hash": "59c6248b88bb86cc"
   },
   "audio:race_Fuji_City_Ninja_Temple_Raceway_C": {
-    "frames": 722432,
-    "hash": "32ece2c705ceaf82"
+    "frames": 723968,
+    "hash": "67aa1af342ee5367"
   },
   "audio:race_Fuji_City_Temple_Raceway_A": {
-    "frames": 720640,
-    "hash": "2678864405a0e0c6"
+    "frames": 723712,
+    "hash": "31505d647073902d"
   },
   "audio:race_Fuji_City_Temple_Raceway_B": {
-    "frames": 720640,
-    "hash": "4dd911ed58d3490b"
+    "frames": 723712,
+    "hash": "5eece2268333195e"
   },
   "audio:race_Mushroom_Road_Oval_Raceway_B": {
-    "frames": 720640,
-    "hash": "03152ac4f3abf605"
+    "frames": 723712,
+    "hash": "fc896915f8d82c2b"
   },
   "audio:race_Mushroom_Road_River_Raceway_C": {
-    "frames": 721664,
-    "hash": "b5a49bbcc609c7f5"
+    "frames": 723968,
+    "hash": "df0821974d7fbbc9"
   },
   "audio:race_Mushroom_Road_Slick_Track_A": {
-    "frames": 721408,
-    "hash": "481eff0e1a3b7384"
+    "frames": 723712,
+    "hash": "9e1e898e701507d7"
   },
   "audio:race_Mushroom_Road_Slick_Track_C": {
-    "frames": 721408,
-    "hash": "90f138e95fa09a58"
+    "frames": 723712,
+    "hash": "d39bcbdc707e9d75"
   },
   "audio:race_My_City_Endurance_Run": {
-    "frames": 720896,
-    "hash": "54590cc8c40e2664"
+    "frames": 723968,
+    "hash": "4759e478d8e95cc2"
   },
   "audio:race_Papaya_Island_Lagoon_Raceway_A": {
-    "frames": 720640,
-    "hash": "1ba7f7974a2e13f5"
+    "frames": 723712,
+    "hash": "1033668f56360455"
   },
   "audio:race_Papaya_Island_Lagoon_Raceway_B": {
-    "frames": 720640,
-    "hash": "a79d38db82273f99"
+    "frames": 723712,
+    "hash": "528d086b6a7e759d"
   },
   "audio:race_Papaya_Island_Sunny_Beach_Raceway_A": {
-    "frames": 720640,
-    "hash": "bb5d6f5c1705fa53"
+    "frames": 723712,
+    "hash": "8ec6b8fdfb606c62"
   },
   "audio:race_Papaya_Island_Sunny_Beach_Raceway_B": {
-    "frames": 720896,
-    "hash": "5b4b4107eb970e14"
+    "frames": 723968,
+    "hash": "acf4eaec7a8895c7"
   },
   "audio:race_Peach_Town_Peach_Raceway_B": {
-    "frames": 720640,
-    "hash": "38dceaf97adcd491"
+    "frames": 723712,
+    "hash": "3d1b0c1722543971"
   },
   "audio:race_Peach_Town_Peach_Raceway_C": {
-    "frames": 720896,
-    "hash": "91b17606ab6e48e8"
+    "frames": 723968,
+    "hash": "1d7ef062af2e82fa"
   },
   "audio:race_Peach_Town_Peach_Raceway_II_A": {
-    "frames": 720640,
-    "hash": "733ff05426a2c583"
+    "frames": 723712,
+    "hash": "2214b60db22853b6"
   },
   "audio:race_Sandpolis_Desert_Raceway_B": {
-    "frames": 721408,
-    "hash": "5732cee32323286d"
+    "frames": 723712,
+    "hash": "cb1f3e1ddb168946"
   },
   "audio:race_Sandpolis_Desert_Raceway_C": {
-    "frames": 721664,
-    "hash": "0fefa0ee72e59069"
+    "frames": 723968,
+    "hash": "dc74e45af0ef3335"
   },
   "audio:race_Sandpolis_Night_Glow_Raceway_A": {
-    "frames": 720640,
-    "hash": "f338a5aeccb061b6"
+    "frames": 723712,
+    "hash": "bd7d78bdff5a2f9a"
   },
   "audio:race_Sandpolis_Night_Glow_Raceway_B": {
-    "frames": 720640,
-    "hash": "0461a546c40df36e"
+    "frames": 723712,
+    "hash": "164bff47c15da9a8"
   },
   "audio:race_White_Mountain_Snow_Mountain_Raceway_A": {
-    "frames": 720640,
-    "hash": "e5eb06876e87ff0d"
+    "frames": 723712,
+    "hash": "2c44496910d3129b"
   },
   "audio:race_White_Mountain_Snow_Mountain_Raceway_B": {
-    "frames": 720896,
-    "hash": "3f8e5a2cd2403068"
+    "frames": 723968,
+    "hash": "ddf97de84ab2cc47"
+  },
+  "audio:town_Chestnut_Canyon": {
+    "frames": 483840,
+    "hash": "9626bba0e5458365"
+  },
+  "audio:town_Cloud_Hill": {
+    "frames": 483840,
+    "hash": "60d8ca388b68b5fb"
+  },
+  "audio:town_Fuji_City": {
+    "frames": 484608,
+    "hash": "b10db492364399a0"
+  },
+  "audio:town_Mushroom_Road": {
+    "frames": 483840,
+    "hash": "961b0fe9cf0e2c03"
+  },
+  "audio:town_My_City": {
+    "frames": 483840,
+    "hash": "35c7cfb03081c288"
+  },
+  "audio:town_Papaya_Island": {
+    "frames": 483840,
+    "hash": "018dba7b8212894b"
+  },
+  "audio:town_Peach_Town": {
+    "frames": 483840,
+    "hash": "048761518a20c2c5"
+  },
+  "audio:town_Sandpolis": {
+    "frames": 483840,
+    "hash": "c57b83ec2fdc46bc"
+  },
+  "audio:town_White_Mountain": {
+    "frames": 483072,
+    "hash": "43e1870432853246"
+  },
+  "factory_Chestnut_Canyon": {
+    "height": 447,
+    "sha256": "298a0a2fd4a4c6d32ad8d5ca2c5558cbfdac6e5810dfff031b447e54988b13d1",
+    "width": 1280
+  },
+  "factory_Cloud_Hill": {
+    "height": 447,
+    "sha256": "a6cdd0d0bc624de3e4115c98a6a2bbcf6aaaa53a34882702b1372386c256077f",
+    "width": 1280
+  },
+  "factory_Fuji_City": {
+    "height": 447,
+    "sha256": "2e64e006090aecd303912d4afbe610d8de9670028d5bb0e9bf4375dab3f7da36",
+    "width": 1280
+  },
+  "factory_Mushroom_Road": {
+    "height": 447,
+    "sha256": "2037c0844101c4fb231d70f4a06c73bac4f0fed0e02c2c66107d3ccf6c0a78c0",
+    "width": 1280
+  },
+  "factory_My_City": {
+    "height": 447,
+    "sha256": "dfcab5e65aeacb5bf84fa5e2125deafc744b92259e40263de5113f40a1d5f500",
+    "width": 1280
+  },
+  "factory_Papaya_Island": {
+    "height": 447,
+    "sha256": "12fc81b3a703e9eaad7817af0ba20a87f5d2fe810dfed977aa576fa1f317d20e",
+    "width": 1280
+  },
+  "factory_Peach_Town": {
+    "height": 447,
+    "sha256": "f75e9abcd0383f5893befcce851da209bc46ab78a694be1435353b452692db08",
+    "width": 1280
+  },
+  "factory_Sandpolis": {
+    "height": 447,
+    "sha256": "16ad6ee336730e9baa9f9c5101e8810679f02dae199f4a7f4ab9315968bc0d47",
+    "width": 1280
+  },
+  "factory_White_Mountain": {
+    "height": 447,
+    "sha256": "850027ad80e759d0b60fce687ddb30290d81daf99647281d3a7f4279e5b2d182",
+    "width": 1280
+  },
+  "options_menu": {
+    "height": 447,
+    "sha256": "dae21b2ed6ea42b8c7fce5dcacc9621efdcea0dcb34d5c32e49123466cf5e1c0",
+    "width": 1280
+  },
+  "options_sound_volume": {
+    "height": 447,
+    "sha256": "d33870f86ab8b893c0b62686527396e62211c3cb0dcdb68668cee7477457039c",
+    "width": 1280
+  },
+  "options_speaker": {
+    "height": 447,
+    "sha256": "23f6188ef1960354a4e929aef880de23652bb3817de4f223e7a61f498c272726",
+    "width": 1280
+  },
+  "options_vibration": {
+    "height": 447,
+    "sha256": "d16f3d666c37d31a1654a7b0ef6eeb1af5cf5723aee80446710c058cd59d8c00",
+    "width": 1280
+  },
+  "quick_Endurance_Run_card": {
+    "height": 447,
+    "sha256": "8d27719c24720ac0e4b26e3fbfffd219de46a1fca35c1e62c27eee08d1d72c57",
+    "width": 1280
+  },
+  "quick_Endurance_Run_records": {
+    "height": 447,
+    "sha256": "8fb47de4f0aae27e813c99a173bff0378f8a1a983ffd15f9bd725248a0d72c39",
+    "width": 1280
+  },
+  "quick_Endurance_Run_start": {
+    "height": 447,
+    "sha256": "aa8dcfe1937521bf603afb540d8b44ac7f27dcd70474022d2abb46131264c7da",
+    "width": 1280
+  },
+  "quick_Lagoon_Raceway_card": {
+    "height": 447,
+    "sha256": "de1fa1ed0c14e9cdec8ecbf40d3cc322f3957f765b4c078c94425fc6e2841c0a",
+    "width": 1280
+  },
+  "quick_Lagoon_Raceway_records": {
+    "height": 447,
+    "sha256": "5a681570906f504124740a83fb93188bfd194708dc6b64458dd55d940cfad9b0",
+    "width": 1280
+  },
+  "quick_Lagoon_Raceway_start": {
+    "height": 447,
+    "sha256": "5ba15fcf73c0141a0e6a0853acf3cfb40b992707ebb618188508d91fb9cb0125",
+    "width": 1280
+  },
+  "quick_Night_Glow_Raceway_card": {
+    "height": 447,
+    "sha256": "695245c225c9ede322c8d58c10586feda7daa411cb35790bb8b99217b01f2bd6",
+    "width": 1280
+  },
+  "quick_Night_Glow_Raceway_records": {
+    "height": 447,
+    "sha256": "1d3878d7f657cf3ae239bd02e219adefacbdde1efb46b2eb3068c72586c8fbce",
+    "width": 1280
+  },
+  "quick_Night_Glow_Raceway_start": {
+    "height": 447,
+    "sha256": "7c135a37c256fa20c62d96513ba2595e07be9a227cce2870e79049ba32619ac4",
+    "width": 1280
+  },
+  "quick_Oval_Raceway_card": {
+    "height": 447,
+    "sha256": "91e12f66e245410db8622b3e29297e2132b153ce2ac50af8c566f36e7aad09f2",
+    "width": 1280
+  },
+  "quick_Oval_Raceway_records": {
+    "height": 447,
+    "sha256": "e06bfabcc599d4ba8cc50ee0a42c7d5e1b0c78d01f0b308dffb4eddfecf8d45f",
+    "width": 1280
+  },
+  "quick_Oval_Raceway_start": {
+    "height": 447,
+    "sha256": "3c700006b3cc9b52f543e4bd0db7bd8b708241fc20957c9f99dcfe4ddf95648d",
+    "width": 1280
+  },
+  "quick_Peach_Raceway_card": {
+    "height": 447,
+    "sha256": "1608c7227c0243b4184ed5ed46df3493cacafff4f7f2fc1609868f09b282730c",
+    "width": 1280
+  },
+  "quick_Peach_Raceway_records": {
+    "height": 447,
+    "sha256": "4e1473c3364fd6b7ecc6d7a706b5c59463a926995f0dc7e8ab26ce52fe4ca814",
+    "width": 1280
+  },
+  "quick_Peach_Raceway_start": {
+    "height": 447,
+    "sha256": "f525df97f3f27407905d16b2d263c5558826255d4260031c9ee8fb9fbfd65a58",
+    "width": 1280
+  },
+  "quick_Snow_Mountain_Raceway_card": {
+    "height": 447,
+    "sha256": "08eac99d6cbc605c7bd7a1ca9fe36fce25c7c1320621db21f4c7b2fce700a341",
+    "width": 1280
+  },
+  "quick_Snow_Mountain_Raceway_records": {
+    "height": 447,
+    "sha256": "3c6a00326bd288c37ba43d468ee484f08372ee3820b571c860d511c895a109bd",
+    "width": 1280
+  },
+  "quick_Snow_Mountain_Raceway_start": {
+    "height": 447,
+    "sha256": "657c828bec7c067bcb8ff38067ca47852f60259807b3127aaedbdc434d3e565e",
+    "width": 1280
+  },
+  "quick_Temple_Raceway_card": {
+    "height": 447,
+    "sha256": "0a3104ca52a48ecfed8b66c9ba4b19c11011c2fdc90793d02031a0e5768b0e60",
+    "width": 1280
+  },
+  "quick_Temple_Raceway_records": {
+    "height": 447,
+    "sha256": "dfcc167a01e76e198baba080ffd52f3ade688f859d2a68f702febf2da21e254c",
+    "width": 1280
+  },
+  "quick_Temple_Raceway_start": {
+    "height": 447,
+    "sha256": "cf0913aa2bd67636a9a995c0273dc960858ab0ac5ad1ecd620eb56ae596e38b4",
+    "width": 1280
+  },
+  "quick_Tin_Raceway_card": {
+    "height": 447,
+    "sha256": "5907c0c594460ed77dd5df8b514bd395f79b2d1d9ff7769c195c165acc26edba",
+    "width": 1280
+  },
+  "quick_Tin_Raceway_records": {
+    "height": 447,
+    "sha256": "87b1607699e7204a0c42ecffbd4d150587b704556bc6d70f4692b9b3b13f0543",
+    "width": 1280
+  },
+  "quick_Tin_Raceway_start": {
+    "height": 447,
+    "sha256": "2dac79359750f28578711731e6a1a9945ffc34f4367fa1f2f537e1a47931206f",
+    "width": 1280
+  },
+  "quick_race_20s": {
+    "height": 447,
+    "sha256": "b46ce6fcce2f6a7ac61ad784622a5bd21f81c788dd5f0b8e615caddc7ef221f4",
+    "width": 1280
+  },
+  "quick_race_start": {
+    "height": 447,
+    "sha256": "c2e7be5b8978d0a3e0bc9e7d20e7d4911913283b3190ebef14244a80097e0381",
+    "width": 1280
   },
   "race_Chestnut_Canyon_Lava_Run_Raceway_A": {
     "height": 447,
-    "sha256": "ff90f73ef115d104796e71b2c52e3d6acb21b4d5880bed36acd5aa131577609e",
+    "sha256": "e3dfc4e1edb7d678880d3ea63a22e4295b85e102c32fdb1d5d6a56be88984cf4",
     "width": 1280
   },
   "race_Chestnut_Canyon_Lava_Run_Raceway_B": {
     "height": 447,
-    "sha256": "cc88746fffe17ff22790d67217ffcdeb67f3971d4cc759c3d314e1af9a532331",
+    "sha256": "40c51798573aec1762add493f950e5511a3e31daeec9d69a7ad9f3ddc2eb8867",
     "width": 1280
   },
   "race_Chestnut_Canyon_Miner_49er_Raceway_A": {
     "height": 447,
-    "sha256": "5c0e43370e41840b383c71286171f0be20059aa031e8bd68a7f2cc3bb8f4fd9d",
+    "sha256": "99d29924e93267eabad2d43ba8bb038b8df483ee60bbd70276816e01f2b1a73b",
     "width": 1280
   },
   "race_Chestnut_Canyon_Miner_49er_Raceway_C": {
     "height": 447,
-    "sha256": "7f51531a4c28ed10f3fdd7d8a9d4f5b83ad0b9b6bdcde1878fcc0a713d6aa85c",
+    "sha256": "ef0cf0d9e6b91a0309aeb43774ae03022fbe2e0d85ba942c56148cb26db01bae",
     "width": 1280
   },
   "race_Cloud_Hill_Tin_Raceway": {
     "height": 447,
-    "sha256": "130e682bd7d9ca517850b9c14a04509b4409b212d938becd60591bd0e56f3b96",
+    "sha256": "16b6d7ea02269b423b09bd09694752ea6e6c5677b7aa3dabe09cc75abbcf12c0",
+    "width": 1280
+  },
+  "race_Cloud_Hill_Tin_Raceway_not_open": {
+    "height": 447,
+    "sha256": "16b6d7ea02269b423b09bd09694752ea6e6c5677b7aa3dabe09cc75abbcf12c0",
     "width": 1280
   },
   "race_Fuji_City_Ninja_Temple_Raceway_C": {
     "height": 447,
-    "sha256": "e3b18ff359e77db4b2f5cbb420079b10177231f8034010852ac2029b73b432e3",
+    "sha256": "198975fa7a9fc1259e7da929d21b0ad02bd3b3b730deaec0805892264b6ca009",
     "width": 1280
   },
   "race_Fuji_City_Temple_Raceway_A": {
     "height": 447,
-    "sha256": "e40dae667039da7e05e028f40b8e20efcfa9421760832b9eb66e7e63c894bd7e",
+    "sha256": "4deac623cd9f1237b2bb3ccd40a70898bccf173bab770afd0d1d753782d19db9",
     "width": 1280
   },
   "race_Fuji_City_Temple_Raceway_B": {
     "height": 447,
-    "sha256": "962d11811850a1f6012b1750225ff5c1edcd7cc5379e5d364e50e4a0f8b27e62",
+    "sha256": "8a528ab6c2a19ef47e9d19a1ab94893af5d2d209ce1e192d26db3e897a8067a8",
     "width": 1280
   },
   "race_Mushroom_Road_Oval_Raceway_B": {
     "height": 447,
-    "sha256": "0bcf289209e2dbb207c03b8e92b16d450a12f1c2fd6154896725de40038afd4e",
+    "sha256": "2baa12c00c00652c3c2424e6b7dd748688fb18bb6ac9cfbe6355808c72dd9743",
     "width": 1280
   },
   "race_Mushroom_Road_River_Raceway_C": {
     "height": 447,
-    "sha256": "6a0f2a3870a309929c9e67e1fab80ae0625d46f8630a0ef0625292b7b262de1a",
+    "sha256": "18ca58422b7fbb0bd11ae42155c46bc1a4b0f0ec5c476f9c2dcd544a428a5bf3",
     "width": 1280
   },
   "race_Mushroom_Road_Slick_Track_A": {
     "height": 447,
-    "sha256": "640c86ca9d4ed4c2b745b3f63bf7e08f3a070dd63168ddab0f30187c0e0745d8",
+    "sha256": "7c0cfd7ad0d804194aec25f36652e8baeee238a75d60ef4688266260730ab511",
     "width": 1280
   },
   "race_Mushroom_Road_Slick_Track_C": {
     "height": 447,
-    "sha256": "a86ea18fb1cbf5c20773131002d3520e7d3d545f0778cbf8e8598c92a4c8dfe8",
+    "sha256": "5d28c39b0e9535239d3679a56b1819c3883098032cdbf68840e187910c3aaf9c",
     "width": 1280
   },
   "race_My_City_Endurance_Run": {
     "height": 447,
-    "sha256": "d63f0da983a37831c3371a2b72401ad64e855f5652bfa989e3c4beb994fd0abf",
+    "sha256": "827f45fc294d3fc4f4334fae1e935f405faf210db6ebac291747d4ebb58ca60e",
     "width": 1280
   },
   "race_Papaya_Island_Lagoon_Raceway_A": {
     "height": 447,
-    "sha256": "ce0d2137c7931abd22980d314584f42a7d55e01c08a3ec266ec88d51e86bc638",
+    "sha256": "5098afa188a05c01a51eefb94af90e8957e1e632312e6bf97b0c2b866bef9e6e",
     "width": 1280
   },
   "race_Papaya_Island_Lagoon_Raceway_B": {
     "height": 447,
-    "sha256": "54224c46c66ede29d560a8e055fa597931a90bc057827b79bbcfc88235828ae3",
+    "sha256": "07a339b108a961be477a4901fc230b05fc2d00f1afb15cf646a992da9adb98d2",
     "width": 1280
   },
   "race_Papaya_Island_Sunny_Beach_Raceway_A": {
     "height": 447,
-    "sha256": "323ccbcae12ad33e5a7bca225cfefa99833bf693afea31a4b029ac8c909c46c3",
+    "sha256": "176459d6891b07636614a353b0a4f696fe6f0bc21e4a96fac89e6b9f39b49033",
     "width": 1280
   },
   "race_Papaya_Island_Sunny_Beach_Raceway_B": {
     "height": 447,
-    "sha256": "570ab7d0ddac0b3ee49b8cb2c10042b66a27201215d18006cfd624aa9307feeb",
+    "sha256": "89da79b304a4dccbb5240ec2bdbb9d72075533ea06fc7e553979a79b1965b06d",
     "width": 1280
   },
   "race_Peach_Town_Peach_Raceway_B": {
     "height": 447,
-    "sha256": "525c40ca17177ed6265643a6938768c66f84bea996948f46e3192a50373f3e4e",
+    "sha256": "723dda91ae47d5649327702ec2ad7a23994e6fd5b423da3a6126821c188ebd11",
     "width": 1280
   },
   "race_Peach_Town_Peach_Raceway_C": {
     "height": 447,
-    "sha256": "d4447bd4de152c76727a0f7d775959666f2811f2b656c8b2c392332955432b09",
+    "sha256": "d050ff34fab377aebec84b0d0b31c99aac31cdbd9d5ea323b8398e6c993a2191",
     "width": 1280
   },
   "race_Peach_Town_Peach_Raceway_II_A": {
     "height": 447,
-    "sha256": "c48ff50fa29095fc3f91fcc3955368b81d740e99715795a1786202cd5aafffe1",
+    "sha256": "e3972fcf650a8fe6cb25f60daa1d8ce6767e2a86192d3e706ffb14985b4a175a",
     "width": 1280
   },
   "race_Sandpolis_Desert_Raceway_B": {
     "height": 447,
-    "sha256": "3fb51ebabaa5026aeb7abb0157b75feaac4736efeb657afc0016d5d191df2be4",
+    "sha256": "df974144652f6a8d3fd26110a6a1fb33ee94bb12d38fcae94694a8f283746e0b",
     "width": 1280
   },
   "race_Sandpolis_Desert_Raceway_C": {
     "height": 447,
-    "sha256": "363b3f6fcef79b68a4b829d8e486d8cbd7c66eaa2892128a0f4d36b2c0a3b4b7",
+    "sha256": "a280b97e1a3d6c181814b96ae466981202c776b1ea2ab01fd69d55a7c0381a27",
     "width": 1280
   },
   "race_Sandpolis_Night_Glow_Raceway_A": {
     "height": 447,
-    "sha256": "b7b147f0c1e6a94192e159e7927b295104e9b2fa5560d75ed11bb04c0bbc6243",
+    "sha256": "1930254f41cad59dcef762eead940b1df97832dd197cb4b118c25775e2e81a69",
     "width": 1280
   },
   "race_Sandpolis_Night_Glow_Raceway_B": {
     "height": 447,
-    "sha256": "5d273f841bada7e4c4cd6c1488acecfe5a6c7929adb542cad32162dbab64eb43",
+    "sha256": "858a939a46a8c4f280135cbec2bd00528704e29c3ad3534991095d3c6cd74d99",
     "width": 1280
   },
   "race_White_Mountain_Snow_Mountain_Raceway_A": {
     "height": 447,
-    "sha256": "12bf940661adcf8e0ce8413119f122db010a8f9be1510e4d7b0af3eb1c1aee74",
+    "sha256": "733c495953cee136d6130e73b3c2156d32d9a2131cdcc9fc1bb96046b1d7897c",
     "width": 1280
   },
   "race_White_Mountain_Snow_Mountain_Raceway_B": {
     "height": 447,
-    "sha256": "db4ebe4cd11e7496ad28ca9f19eb88315b9d64539502e4187662a7c773b54dc2",
+    "sha256": "5d51fbed98b20da0cbd49f9edf58dd14546b8b220b5afa209c5a81f80313c06b",
+    "width": 1280
+  },
+  "results_no_data": {
+    "height": 447,
+    "sha256": "0034184a3e6023aab76d309f3000c3c396e3578b8bb9e5d092fa2541d1c8f860",
+    "width": 1280
+  },
+  "results_slot1": {
+    "height": 447,
+    "sha256": "42cfbb5e64c9759fbc0e5cbcca1250b20cab608fda0f1035d6a7c14a703f5554",
+    "width": 1280
+  },
+  "results_slots": {
+    "height": 447,
+    "sha256": "da9722552bf4252c1f98b1a6537e15ca7cddcdba360d3ffe32ab5b29e18244df",
     "width": 1280
   },
   "title": {
     "height": 447,
     "sha256": "9b7e6d7b5a5d528b78a51f36cf1396f022986cf6a355652c4f7bce94e8cac0d2",
+    "width": 1280
+  },
+  "town_Chestnut_Canyon": {
+    "height": 447,
+    "sha256": "a779f9109af8de4e7ff91c48f81037dc12a20de3fcac821054d0748326952a46",
+    "width": 1280
+  },
+  "town_Chestnut_Canyon_driven": {
+    "height": 447,
+    "sha256": "4b4216a6848ea13499135e4e9fd9dacfc93f8cd7c24d365f5d73b6bb25e09f31",
+    "width": 1280
+  },
+  "town_Cloud_Hill": {
+    "height": 447,
+    "sha256": "830da9f70d753f7a24250fb344d1e1f9d8de518ec7da90c4ab3c3b5d59a519a5",
+    "width": 1280
+  },
+  "town_Cloud_Hill_driven": {
+    "height": 447,
+    "sha256": "48333bcdc58dd109923564765aabbcb9847b707da22ac660c68e5e3877cab5c8",
+    "width": 1280
+  },
+  "town_Fuji_City": {
+    "height": 447,
+    "sha256": "199f4874092120a93bac6b5c24f76dce9d8c668dcbd6c21d268a29b3573caea3",
+    "width": 1280
+  },
+  "town_Fuji_City_driven": {
+    "height": 447,
+    "sha256": "ef3daaf77b9956413de3c3407893fa35b5bc5e897b625dcbd0caf0fabae70176",
+    "width": 1280
+  },
+  "town_Mushroom_Road": {
+    "height": 447,
+    "sha256": "7cb62afe95d93d4b66f9a7be8db68fe4c583709a81669137b64b31e8904e57df",
+    "width": 1280
+  },
+  "town_Mushroom_Road_driven": {
+    "height": 447,
+    "sha256": "1ee0636547ca1e0a4406c044159c8b747949ed606ee4ea75beab0c9fdbb1dda7",
+    "width": 1280
+  },
+  "town_My_City": {
+    "height": 447,
+    "sha256": "3c6884f8bd04cefc1e3bf20708a0d292372ee8fbc1f9a12c376b8e4aee76cb0c",
+    "width": 1280
+  },
+  "town_My_City_driven": {
+    "height": 447,
+    "sha256": "12587f092e7ec13fe299a26a2af6788af9bbb9d172b00da1b7fdcc6be62a26bf",
+    "width": 1280
+  },
+  "town_Papaya_Island": {
+    "height": 447,
+    "sha256": "52f5f4272f4ef7cc765ddd6212707a52ce8593c437d62cd775c9cdf274b8adcd",
+    "width": 1280
+  },
+  "town_Papaya_Island_driven": {
+    "height": 447,
+    "sha256": "5c80ecb3bbeb9370549213177c044f3053d4020999f71fb4085a042f7c243091",
+    "width": 1280
+  },
+  "town_Peach_Town": {
+    "height": 447,
+    "sha256": "b08fdfd24dbd66eb72cc05dd102b1041dc1d33f48d2e985b1d20611127f6afa1",
+    "width": 1280
+  },
+  "town_Peach_Town_driven": {
+    "height": 447,
+    "sha256": "0c21a90513d648f6e6b067820c41897690e570b4112051557061b818cf4e3e83",
+    "width": 1280
+  },
+  "town_Sandpolis": {
+    "height": 447,
+    "sha256": "a2680beb9a69847f61512a9c6692a2dab2669a4a7de4bac23da66f55a4e87bba",
+    "width": 1280
+  },
+  "town_Sandpolis_driven": {
+    "height": 447,
+    "sha256": "f9bcafefe1dac80d5c7144d489051a9f10d8892608f6e0bf3f63c712af369eea",
+    "width": 1280
+  },
+  "town_White_Mountain": {
+    "height": 447,
+    "sha256": "30c58cae331982d3cd76d8de389f06fcc24d810c31237b8fe4adb0fa66d854ad",
+    "width": 1280
+  },
+  "town_White_Mountain_driven": {
+    "height": 447,
+    "sha256": "9295357410180ef480fe048afa6ca83831b2b390324bca35231bea40963dd504",
     "width": 1280
   }
 }

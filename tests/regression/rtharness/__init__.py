@@ -69,7 +69,7 @@ class Game:
     def __init__(self, base_data: Path, work_dir: Path, *, checkpoint: Path | None = None,
                  speed: str = "max", fake_clock: int = 1_000_000_000, app: Path = DEFAULT_APP,
                  state_hash: bool = False, env: dict | None = None,
-                 progress_edits: dict[int, bytes] | None = None):
+                 progress_edits: dict[int, bytes] | None = None, render: bool = False):
         self.base_data = Path(base_data)
         self.work_dir = Path(work_dir)
         self.checkpoint = checkpoint
@@ -81,6 +81,8 @@ class Game:
         # offset -> bytes patched into the Adventure save on memory card 1 before boot
         # (config/game_state.toml), e.g. to start in another town or with a licence.
         self.progress_edits = progress_edits or {}
+        # Rendering (VU1 + drawing) only when a picture is taken; see frame().
+        self.rendering = render
         self.proc: subprocess.Popen | None = None
         self.sock: socket.socket | None = None
         self.vblank = 0
@@ -122,6 +124,7 @@ class Game:
             "RT_FAKE_CLOCK": str(self.fake_clock),
             "RT_HEADLESS": "1",
             "RT_TEST_SOCKET": "rt.sock",  # relative: AF_UNIX paths are limited to 104 bytes
+            "RT_RENDER": "1" if self.rendering else "0",
         })
         if self.state_hash:
             env["RT_STATE_HASH"] = str(self.work_dir / "state_hash.txt")
@@ -193,6 +196,20 @@ class Game:
     def run_seconds(self, s: float) -> int:
         return self.run(seconds(s))
 
+    def step(self, vblanks: int, buttons: list[str] | None = None, lx: int = 128,
+             reads: list[tuple[int, int]] | None = None) -> list[bytes]:
+        """Sets the pad (if `buttons` is given), runs `vblanks` and reads EE memory ranges
+        (addr, len), in one round trip."""
+        args = {"vblanks": int(vblanks), "reads": ",".join(f"ee:{a}:{n}" for a, n in (reads or []))}
+        if buttons is not None:
+            mask = 0xFFFF
+            for b in buttons:
+                mask &= ~BUTTONS[b]
+            args.update(buttons=mask, lx=int(lx))
+        reply = self._call("step", **args)
+        self.vblank = reply["vblank"]
+        return [bytes.fromhex(h) for h in reply["data"]]
+
     def pad(self, *buttons: str, lx: int = 128, ly: int = 128, rx: int = 128, ry: int = 128):
         """Holds `buttons` (and stick positions) from the next vblank on."""
         mask = 0xFFFF
@@ -238,9 +255,30 @@ class Game:
     def f32(self, addr, space="ee"):
         return struct.unpack("<f", self.read(addr, 4, space))[0]
 
+    def voice_volumes(self) -> list[tuple[int, int, int, int]]:
+        """(core, voice, VOLL, VOLR) of every SPU2 voice with a volume set, from the registers."""
+        regs = self.read(0x1F900000, 0x800, space="iop")
+        out = []
+        for core in range(2):
+            for voice in range(24):
+                left, right = struct.unpack_from("<hh", regs, core * 0x400 + voice * 0x10)
+                if left or right:
+                    out.append((core, voice, left, right))
+        return out
+
     # ------------------------------------------------------------------ observation
-    def frame(self) -> Frame:
-        """The picture currently presented (exact pixels, GPU GS resolution)."""
+    def render(self, on: bool):
+        self._call("render", on=1 if on else 0)
+        self.rendering = on
+
+    def frame(self, warmup: int = 4) -> Frame:
+        """The picture currently presented (exact pixels, GPU GS resolution). With rendering off
+        (the default in tests: it is most of the cost in 3D scenes and the game's logic does not
+        depend on it), it is switched on for `warmup` vblanks first so the screen is redrawn."""
+        if not self.rendering:
+            self.render(True)
+            self.run(warmup)
+            self.render(False)
         path = self.work_dir / "frame.rgba"
         reply = self._call("frame", path=str(path))
         return Frame(reply["width"], reply["height"], path.read_bytes())

@@ -17,11 +17,15 @@ SECTIONS = Path(__file__).parent / "sections"
 
 
 def section_files():
-    return sorted(SECTIONS.glob("*.toml"))
+    params = []
+    for spec in sorted(SECTIONS.glob("*.toml")):
+        produces = tomllib.loads(spec.read_text()).get("produces")
+        params.append(pytest.param(spec, id=spec.stem, marks=[pytest.mark.produces(produces)] if produces else []))
+    return params
 
 
 @pytest.mark.xdist_group("sections")
-@pytest.mark.parametrize("spec", section_files(), ids=lambda p: p.stem)
+@pytest.mark.parametrize("spec", section_files())
 def test_section(spec, game_factory, golden, golden_audio, new_checkpoint):
     meta = tomllib.loads(spec.read_text())
     movie_path = SECTIONS / meta["movie"]
