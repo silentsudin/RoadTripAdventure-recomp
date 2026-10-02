@@ -20,6 +20,7 @@
 #include "rom/RomInstaller.h"
 
 #include "ps2_runtime.h"
+#include "runtime/ps2_test_harness.h"
 #include "runtime/gs/gs_frontend.h"
 #include "runtime/gs/gs_pgs_backend.h"
 #include "Stubs/CD.h"
@@ -308,6 +309,7 @@ int main(int argc, char *argv[])
         rt::debug::startThreadDumpIfRequested(runtime);
         rt::debug::startRamDumpIfRequested(runtime);
         runtime.run();
+        ps2_test::finishRecording(); // close a movie recorded with RT_MOVIE_RECORD
         std::cout.flush();
         std::cerr.flush();
         std::_Exit(0);
