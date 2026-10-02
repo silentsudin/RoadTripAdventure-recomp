@@ -11,6 +11,7 @@
 #include "debug/FpsOverlay.h"
 #include "debug/FrameDump.h"
 #include "debug/RamDump.h"
+#include "platform/Input.h"
 #include "debug/ThreadDump.h"
 #include "game/GameBuilder.h"
 #include "platform/Dialogs.h"
@@ -234,6 +235,7 @@ int main(int argc, char *argv[])
         runtime.setDebugUiCallbacks(
             [](PS2Runtime &, void *user)
             {
+                rt::input::initialize();
 #if defined(PS2X_ENABLE_DEBUG_UI)
                 // Hidden for players; F1 toggles it, RT_DEBUG_UI=1 shows it at startup.
                 auto &panel = static_cast<UiHooks *>(user)->panel;
@@ -244,6 +246,7 @@ int main(int argc, char *argv[])
             },
             [](PS2Runtime &rt, void *user)
             {
+                rt::input::update();         // one input snapshot per host frame, on this thread
                 rt::debug::maybeDumpFrame(); // before the overlay, so dumps show only the game
                 rt::debug::drawFpsOverlay(rt);
 #if defined(PS2X_ENABLE_DEBUG_UI)

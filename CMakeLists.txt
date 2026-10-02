@@ -65,6 +65,7 @@ set(RT_APP_SOURCES
     src/game/GameBuilder.cpp
     src/game/overrides.cpp
     src/platform/Paths.cpp
+    src/platform/Input.cpp
     src/rom/IsoReader.cpp
     src/rom/RomInstaller.cpp
     src/rom/Sha1.cpp
