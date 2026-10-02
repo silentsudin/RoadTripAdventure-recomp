@@ -12,6 +12,21 @@ size = 13384
 player_name   = { offset = 0x62C, type = "str", length = 19, confidence = "confirmed" }  # New Game name entry
 currency_name = { offset = 0x63F, type = "str", length = 21, confidence = "confirmed" }  # "Enter currency unit"
 money         = { offset = 0x654, type = "u32", confidence = "confirmed" }               # 1000 at the start
-scene         = { offset = 0x538, type = "u32", confidence = "likely" }                  # 6 = Q's Factory menu, 2 = driving in town
+scene         = { offset = 0x538, type = "u32", confidence = "likely" }                  # 6 = Q's Factory menu, 2 = driving in town, 10 = racing, 3 = race over
 town_entered  = { offset = 0x528, type = "u32", confidence = "guess" }                   # 0 -> 1 on first drive around town
 map_explored  = { offset = 0xBDC, type = "bytes", length = 0x800, confidence = "guess" }  # bits clear as the map is driven
+
+# Races (Quick Race and Adventure). 24 car structures; the race code keeps them at fixed addresses.
+[race]
+cars_address = 0x0177ACE0   # car 0 (ours): position x, y, z (f32); car k at + k * car_stride
+car_stride = 0x270
+car_count = 24
+place_address = 0x015B0088  # u32, our place - 1 (0 = first)
+entrants_address = 0x015B008C  # u32, cars in the race
+# Car fields relative to the position (confirmed on car 0):
+#   +0x60, +0x70, +0x128, +0x12C  wheel speeds (int, ~248 per mph)
+#   +0x80..+0xE0                  wheel positions
+#   +0x1B7                        our place - 1 (player car only)
+# Adventure races wait for button presses before the countdown starts.
+# Controls: analog stick steers (right = smaller atan2(dz, dx)), Cross accelerates, Square
+# brakes, Circle reverses.
