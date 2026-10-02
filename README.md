@@ -187,6 +187,12 @@ Recording play for new sections:
 - `RT_MOVIE_PLAY=<file>` replays a recording exactly.
 - `RT_STATE_HASH=<file>` logs memory hashes, for finding where two runs diverge.
 
+More:
+- Play-through sections live in `tests/regression/sections`. Record one with `scripts/record_section.py` (normal speed, deterministic, from a checkpoint); `tests/regression/COVERAGE.md` tracks what is covered and what still needs recording.
+- `--perf` adds a real-time check: the Quick Race must hold 60 fps.
+- `scripts/pcsx2_cards.py` exports a checkpoint to a PCSX2 folder memory card (to confirm saves load in PCSX2) and imports PCSX2 saves as checkpoints.
+- `tools/save_parser.py` and `config/game_state.toml` decode Adventure progress from a save or from RAM.
+
 ## Repository layout
 
 ```

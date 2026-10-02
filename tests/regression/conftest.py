@@ -27,6 +27,20 @@ def pytest_addoption(parser):
     group.addoption("--app", default=str(DEFAULT_APP))
     group.addoption("--speed", default="max", help="RT_SPEED for the game (max = as fast as possible)")
     group.addoption("--update-goldens", action="store_true", help="accept current frames as goldens")
+    group.addoption("--perf", action="store_true", help="also run real-time performance checks (needs a quiet machine)")
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "perf: real-time performance check; runs only with --perf")
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--perf"):
+        return
+    skip = pytest.mark.skip(reason="performance checks run with --perf")
+    for item in items:
+        if "perf" in item.keywords:
+            item.add_marker(skip)
 
 
 @pytest.fixture(scope="session")
