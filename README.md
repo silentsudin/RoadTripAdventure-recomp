@@ -20,10 +20,10 @@ This is early, experimental work. The game boots and runs these screens without 
 - the publisher logo;
 - the title screen (60 fps);
 - "NOW LOADING…";
-- the **3D attract demo** at a full 60 fps (measured on an M3 Max). The game's own VU1 microcode is statically recompiled on your Mac, and graphics are rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK). With `RT_VU1_MODE=interp` the same demo runs at about 13 fps.
+- the **3D attract demo**: a full 20-car race, matching PCSX2. The game's own VU1 microcode is statically recompiled on your Mac, and graphics are rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK).
 
 Known problems:
-- The attract demo stays at the start line instead of starting the race.
+- The race runs at about 25–40 fps on an M3 Max; the PS2 runs it at 60. The game thread is the limit: VU1 work for 20 cars plus the course. With `RT_VU1_MODE=interp` it is far slower.
 - Input and audio haven't been looked at.
 
 | Milestone | State |
@@ -37,7 +37,8 @@ Known problems:
 | M5 First pixels: logos and title | ✅ |
 | M6 Stable display: 4:3 aspect, no flicker (double-buffer layout), 3D via VU1 | ✅ |
 | M7 GPU GS (Vulkan/MoltenVK) and recompiled VU1 microcode, bit-exact with the interpreter on captured runs | ✅ |
-| Next: demo stuck at start line, input, audio, symbol names | ⬜ |
+| M8 Attract demo races (fixed EE FPU and VU0 macro-mode semantics, see below) | ✅ |
+| Next: full-speed races, input, audio, symbol names | ⬜ |
 
 ## Supported disc
 
@@ -97,6 +98,10 @@ Environment variables:
 | `RT_VU1_MODE=interp` | Runs VU1 microcode in the interpreter instead of the recompiled code, for A/B checks |
 | `RT_SHOW_FPS=1` | Shows the game's frame rate (buffer flips per second) on screen and in the log |
 | `RT_VU1_STATS=1` | Logs VU1 runs, VU cycles and host time per second |
+| `RT_RPC_TRACE=1` | Prints every SIF RPC call between the game and the IOP |
+| `RT_RAM_DUMP=<dir>` | Writes EE RAM to `<dir>/ram_NNNN.bin` every `RT_RAM_DUMP_SECONDS` (default 10) |
+| `RT_GAME_EXTRA_CFLAGS` | Extra compiler flags for the on-device game build, e.g. `-DPS2X_WRITE_WATCH` to enable `RT_WRITE_WATCH=<hexaddr>:<hexlen>`, which logs the PC of every write into that range. Use a separate `RT_DATA_DIR`, because a normal build won't be replaced |
+| `RT_KEEP_GAME_WORK=1` | Keeps the generated C++ (with the MIPS disassembly in comments) under `<data>/game/work` |
 
 Upstream's verbose runtime logging (a hook on every function entry, plus logging of every GS register write) is off by default because it costs a lot of speed. Configure with `-DRT_VERBOSE_RUNTIME_LOGS=ON` to turn it back on.
 
@@ -148,6 +153,7 @@ build/               (ignored)
 | `recomp synthesize undiscovered stub functions` | In a stripped ELF many SDK routines are only reached by a tail-call `J`, or never called, so function discovery misses them and their configured `name@addr` stubs were silently dropped (72 of 229). The main thread died on `J scePadRead`. This patch creates the missing stub wrappers. |
 | `runtime present at 4x3 display aspect` | The PS2 drives a 4:3 TV. A 640×224 field buffer was being shown 1:1, which squashed the picture to half height. |
 | `gs dbuffdc second buffer after first` | The runtime's `sceGsSetDefDBuffDc` put buffer 1 at the Z buffer address (FBP 140) instead of right after buffer 0 (FBP 70). The game's post-process reads FBP 70, so every other frame was garbage, which caused the constant flicker. |
+| `recomp/runtime: EE FPU and VU0 macro-mode semantics fixes` | `SQRT.S` read the wrong register, and `RSQRT.S` and `VRSQRT` ignored the numerator. Division by zero gave Inf, and `CVT.W.S` rounded instead of truncating. VF0 started as zero in guest threads and could be overwritten, and VU0 macro ops never set MAC/status flags. Together these made every car matrix zero, so the cars were invisible and frozen and the attract demo never raced. Found by diffing RAM against a PCSX2 savestate. |
 | `vu1 skip idle pipeline commits` | Speed: the VU1 interpreter scanned every pipeline slot on every emulated cycle. It now skips empty pipelines and cycles where nothing is due. Output is bit-identical. |
 
 ### GPU rendering (Vulkan)

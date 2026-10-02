@@ -60,6 +60,7 @@ set(RT_APP_SOURCES
     src/main.cpp
     src/debug/FpsOverlay.cpp
     src/debug/FrameDump.cpp
+    src/debug/RamDump.cpp
     src/debug/ThreadDump.cpp
     src/game/GameBuilder.cpp
     src/game/overrides.cpp

@@ -42,7 +42,6 @@ stubs = [
   "sceDmaWatch@0x00270AE8",
   "sceDmaPause@0x00270BB8",
   "sceGifPkCloseGifTag@0x00272658",
-  "_sceVu0ecossin@0x00272A70",
   "sceVpu0Reset@0x00273408",
   "scePadInit@0x00273598",
   "scePadInit2@0x002736D8",
