@@ -24,6 +24,21 @@ def _save(data: dict):
     GOLDENS_FILE.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
 
 
+def check_audio(name: str, audio: dict, update: bool = False):
+    """Sound over a stretch of play is bit-exact between runs; compare its hash."""
+    key = f"audio:{name}"
+    goldens = _load()
+    entry = goldens.get(key)
+    actual = {"hash": audio["hash"], "frames": audio["frames"]}
+    if update or entry is None:
+        goldens[key] = actual
+        _save(goldens)
+        return
+    if entry != actual:
+        raise GoldenMismatch(f"sound '{name}' differs from the golden: {actual} (golden {entry}), "
+                             f"rms {audio['rms']}, peak {audio['peak']}")
+
+
 def check(name: str, frame: Frame, test_data: Path, update: bool = False):
     digest = hashlib.sha256(frame.rgba).hexdigest()
     images = Path(test_data) / "goldens"

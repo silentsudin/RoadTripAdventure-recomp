@@ -237,6 +237,10 @@ class Game:
     def stats(self) -> dict:
         return self._call("stats")
 
+    def audio(self) -> dict:
+        """Sound produced since the last call: frames (48 kHz), rms, peak and an exact hash."""
+        return self._call("audio")
+
     def snapshot_card(self, dest: Path):
         """Copies memory card 1 (a checkpoint for later tests)."""
         dest = Path(dest)
