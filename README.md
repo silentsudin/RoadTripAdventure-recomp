@@ -12,18 +12,17 @@ A static recompilation of **Road Trip** (*Choro Q HG 2* / *Road Trip Adventure*,
   - Road Trip builds the game from your disc the first time it opens, so it never has to ship any of the game's code, and that build needs Apple's compiler.
   - If the tools are missing, the app shows macOS's install prompt. Once the install finishes, open Road Trip again.
   - You can also install them ahead of time with `xcode-select --install` in Terminal.
-- **First launch takes a little while.** It copies about 512 MB of game files from your disc and then builds the game, which takes about 20 seconds on an M-series Mac. Later launches start straight away.
+- **First launch takes a little while.** It copies about 512 MB of game files from your disc and then builds the game, which takes under a minute on an M-series Mac. Later launches start straight away.
 
 ## Status
 
 This is early, experimental work. The game boots and runs these screens without flicker at the correct 4:3 aspect:
 - the publisher logo;
-- the title screen (about 50 fps);
+- the title screen (60 fps);
 - "NOW LOADING…";
-- the **3D attract demo**, rendered by the game's own VU1 microcode.
+- the **3D attract demo** at a full 60 fps (measured on an M3 Max). The game's own VU1 microcode is statically recompiled on your Mac, and graphics are rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK). With `RT_VU1_MODE=interp` the same demo runs at about 13 fps.
 
 Known problems:
-- 3D scenes run at about 35 fps; the PS2 ran them at 60. Graphics are rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK). The game's VU1 microcode is statically recompiled on your Mac. Before recompilation the interpreter managed about 11 fps.
 - The attract demo stays at the start line instead of starting the race.
 - Input and audio haven't been looked at.
 
@@ -38,7 +37,7 @@ Known problems:
 | M5 First pixels: logos and title | ✅ |
 | M6 Stable display: 4:3 aspect, no flicker (double-buffer layout), 3D via VU1 | ✅ |
 | M7 GPU GS (Vulkan/MoltenVK) and recompiled VU1 microcode, bit-exact with the interpreter on captured runs | ✅ |
-| Next: demo stuck at start line, input, audio, full-speed 3D, symbol names | ⬜ |
+| Next: demo stuck at start line, input, audio, symbol names | ⬜ |
 
 ## Supported disc
 
@@ -97,6 +96,7 @@ Environment variables:
 | `RT_FRAME_DUMP=<dir>` | Saves a PNG of the game picture every `RT_FRAME_DUMP_SECONDS` (default 2) |
 | `RT_VU1_MODE=interp` | Runs VU1 microcode in the interpreter instead of the recompiled code, for A/B checks |
 | `RT_SHOW_FPS=1` | Shows the game's frame rate (buffer flips per second) on screen and in the log |
+| `RT_VU1_STATS=1` | Logs VU1 runs, VU cycles and host time per second |
 
 Upstream's verbose runtime logging (a hook on every function entry, plus logging of every GS register write) is off by default because it costs a lot of speed. Configure with `-DRT_VERBOSE_RUNTIME_LOGS=ON` to turn it back on.
 
