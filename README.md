@@ -25,7 +25,7 @@ This is early, experimental work. The game boots and runs these screens without 
 
 Known problems:
 - The race runs at about 25–40 fps on an M3 Max; the PS2 runs it at 60. The game thread is the limit: VU1 work for 20 cars plus the course. With `RT_VU1_MODE=interp` it is far slower.
-- No sound yet (no SPU2 emulation).
+- Sound is new: the SPU2 is emulated (ADPCM voices, envelopes, DMA, streaming input) but reverb isn't, and the title screen is silent (it may be in the original too; not yet verified).
 - The in-game FPS counter (`RT_SHOW_FPS`) over-counts during races.
 
 | Milestone | State |
@@ -41,7 +41,8 @@ Known problems:
 | M7 GPU GS (Vulkan/MoltenVK) and recompiled VU1 microcode, bit-exact with the interpreter on captured runs | ✅ |
 | M8 Attract demo races (fixed EE FPU and VU0 macro-mode semantics, see below) | ✅ |
 | M9 Input: keyboard and gamepads merged, configurable, race playable | ✅ |
-| Next: full-speed races, audio, saves, symbol names | ⬜ |
+| M10 Sound: SPU2 emulation, the game's own sound driver loads its banks and plays | ✅ |
+| Next: full-speed races, reverb, saves, symbol names | ⬜ |
 
 ## Controls
 
@@ -122,8 +123,12 @@ Environment variables:
 | `RT_SHOW_FPS=1` | Shows the game's frame rate (buffer flips per second) on screen and in the log |
 | `RT_VU1_STATS=1` | Logs VU1 runs, VU cycles and host time per second |
 | `RT_RPC_TRACE=1` | Prints every SIF RPC call between the game and the IOP |
-| `RT_RAM_DUMP=<dir>` | Writes EE RAM to `<dir>/ram_NNNN.bin` every `RT_RAM_DUMP_SECONDS` (default 10) |
+| `RT_RAM_DUMP=<dir>` | Writes EE RAM (`ram_NNNN.bin`) and IOP RAM (`iop_NNNN.bin`) to `<dir>` every `RT_RAM_DUMP_SECONDS` (default 10) |
 | `RT_GAME_EXTRA_CFLAGS` | Extra compiler flags for the on-device game build, e.g. `-DPS2X_WRITE_WATCH` to enable `RT_WRITE_WATCH=<hexaddr>:<hexlen>`, which logs the PC of every write into that range. Use a separate `RT_DATA_DIR`, because a normal build won't be replaced |
+| `RT_AUDIO=0` | Turns sound off |
+| `RT_AUDIO_DUMP=<file>` | Also writes the sound output as raw 48 kHz stereo 16-bit PCM |
+| `RT_SPU2_TRACE=1` / `2` | Logs sound-chip activity per second / every transfer and IOP disc read |
+| `RT_IOP_IMPORT_TRACE=1` / `2` | Logs IOP kernel calls made by the game's IOP modules |
 | `RT_INPUT_SCRIPT=<s>:<button>[:<hold>],...` | Presses buttons at fixed times after start, e.g. `10:start,15:cross:3` (testing without a player) |
 | `RT_KEEP_GAME_WORK=1` | Keeps the generated C++ (with the MIPS disassembly in comments) under `<data>/game/work` |
 
