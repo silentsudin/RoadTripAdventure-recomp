@@ -23,10 +23,10 @@ This is early, experimental work. The game boots and runs these screens without 
 - the **3D attract demo**: a full 20-car race, matching PCSX2;
 - the menus, and a **playable Quick Race** with the keyboard or a gamepad (see [Controls](#controls)). The game's own VU1 microcode is statically recompiled on your Mac, and graphics are rendered on the GPU through Vulkan (paraLLEl-GS on MoltenVK).
 
+Races run at a steady 60 fps on an M3 Max, with the busiest thread about half loaded. The picture is progressive: the game's interlaced 224-line fields are rendered at double resolution, so there is no combing.
+
 Known problems:
-- The race runs at about 25–40 fps on an M3 Max; the PS2 runs it at 60. The game thread is the limit: VU1 work for 20 cars plus the course. With `RT_VU1_MODE=interp` it is far slower.
 - Sound is new: the SPU2 is emulated (ADPCM voices, envelopes, DMA, streaming input) but reverb isn't, and the title screen is silent (it may be in the original too; not yet verified).
-- The in-game FPS counter (`RT_SHOW_FPS`) over-counts during races.
 
 | Milestone | State |
 |---|---|
@@ -42,7 +42,8 @@ Known problems:
 | M8 Attract demo races (fixed EE FPU and VU0 macro-mode semantics, see below) | ✅ |
 | M9 Input: keyboard and gamepads merged, configurable, race playable | ✅ |
 | M10 Sound: SPU2 emulation, the game's own sound driver loads its banks and plays | ✅ |
-| Next: full-speed races, reverb, saves, symbol names | ⬜ |
+| M11 Full speed: VIF1/VU1 and GS on their own threads, fast VU1 code, progressive output | ✅ |
+| Next: reverb, saves, symbol names | ⬜ |
 
 ## Controls
 
@@ -120,7 +121,12 @@ Environment variables:
 | `RT_THREAD_DUMP=<s>` | Prints guest threads, wait reasons and semaphores every *s* seconds |
 | `RT_FRAME_DUMP=<dir>` | Saves a PNG of the game picture every `RT_FRAME_DUMP_SECONDS` (default 2) |
 | `RT_VU1_MODE=interp` | Runs VU1 microcode in the interpreter instead of the recompiled code, for A/B checks |
-| `RT_SHOW_FPS=1` | Shows the game's frame rate (buffer flips per second) on screen and in the log |
+| `RT_SHOW_FPS=1` | Shows the game's frame rate (frames presented per second, counted at each vblank) on screen. The log also shows the host rate, the vblank rate and how busy the VIF1/VU1 and GS threads are |
+| `RT_GS_SSAA=1\|2\|4\|8\|16` | GPU supersampling rate (default 4) |
+| `RT_GS_PROGRESSIVE=0` | Uses paraLLEl-GS's field deinterlacer instead of the progressive high-resolution scanout |
+| `RT_GIF_THREAD=0` / `RT_GS_THREAD=0` | Runs GIF/VIF1/VU1 work, or the GS, on the game thread instead of their own threads (A/B checks) |
+| `RT_HOST_FPS=<n>` | Paces the window with raylib's frame limiter instead of the game's vblanks |
+| `RT_VIF_VERIFY=1` | Checks the fast VIF1 UNPACK path against the generic one and logs mismatches |
 | `RT_VU1_STATS=1` | Logs VU1 runs, VU cycles and host time per second |
 | `RT_RPC_TRACE=1` | Prints every SIF RPC call between the game and the IOP |
 | `RT_RAM_DUMP=<dir>` | Writes EE RAM (`ram_NNNN.bin`) and IOP RAM (`iop_NNNN.bin`) to `<dir>` every `RT_RAM_DUMP_SECONDS` (default 10) |
@@ -191,7 +197,7 @@ build/               (ignored)
 - On macOS it runs through **MoltenVK**. The build copies `libMoltenVK.dylib` (Apache-2.0) into `RoadTrip.app/Contents/Frameworks`, so players need neither the Vulkan SDK nor Homebrew.
 - The runtime's GS front end still parses the command stream, so CSR, FINISH/SIGNAL and transfers keep working, but it mirrors the raw GIF packets and register writes to the GPU instead of rasterizing them.
 - VRAM is only copied back to the CPU when the game reads it.
-- The interlaced 640×224 fields are deinterlaced to a full 448-line picture.
+- The game draws interlaced 640×224 fields. paraLLEl-GS renders them with 4× supersampling and scans out a high-resolution progressive picture, which removes the interlacing artefacts. `RT_GS_SSAA` sets the rate; `RT_GS_PROGRESSIVE=0` goes back to the plain field deinterlacer.
 - If Vulkan can't start, the app logs why and falls back to the software GS.
 
 ### Recompiled VU1 microcode
@@ -202,6 +208,13 @@ build/               (ignored)
 - When the code can't predict the timing (XGKICK overlap, D/T bits, unexpected jumps), it hands over to the interpreter with the exact state.
 - The runtime only uses the recompiled code while VU1 code memory matches the image it was compiled from.
 - Checking: run the game with `RT_VU1_CAPTURE=<dir>` to record VU1 runs, then compare them bit for bit with the fork's `vu1_replay` / `vu1_replay_native` tools.
+
+### Threads
+
+- **Game thread:** the recompiled EE code and the IOP (sound driver, disc, pads).
+- **VIF1/VU1 worker:** the game's GIF and VIF1 DMA lists are copied when kicked and processed in order on their own thread, together with the VU1 microprograms they start, as on real hardware where the EE runs ahead of the VU1. Whenever the EE looks at that side (GIF/VIF1 registers, VU1 memory, GS registers or VRAM), it first waits for the worker to catch up.
+- **GS thread:** takes the ordered GIF packets from the worker and feeds paraLLEl-GS.
+- **Main thread:** presents one picture per guest vblank.
 
 ### Recompiler config notes
 
