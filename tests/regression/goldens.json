@@ -6,7 +6,7 @@
   },
   "adventure_continue_summary": {
     "height": 447,
-    "sha256": "f9b523facc9507318945806b4d9ebffe597edbdbd235f2594056660b92f6b38f",
+    "sha256": "4e3b0e80df349e1824800d8d4b8295e539c28e07a71c935c9cfcf097ba815dfc",
     "width": 1280
   },
   "quick_race_20s": {
@@ -16,12 +16,12 @@
   },
   "quick_race_start": {
     "height": 447,
-    "sha256": "61b050e4f3cb6993c9d81227c731a03895394be6b3264fa01c9dbfeab3da85bb",
+    "sha256": "002ba23facc6a4237eae2b29afa2ee0aa2b58f9cedbfbcfc74275766311d3428",
     "width": 1280
   },
   "title": {
     "height": 447,
-    "sha256": "d87690fe0ac15c691195c856c0cccb512bb0ee70f368a5c03c0e268006d1865a",
+    "sha256": "9b7e6d7b5a5d528b78a51f36cf1396f022986cf6a355652c4f7bce94e8cac0d2",
     "width": 1280
   }
 }
