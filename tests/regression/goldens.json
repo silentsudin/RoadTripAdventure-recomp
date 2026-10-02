@@ -1,0 +1,27 @@
+{
+  "adventure_continue_factory": {
+    "height": 447,
+    "sha256": "86dbf62b6a02be0abdd1c8d88422d23a1848206a4db799719b440a95c80fbe39",
+    "width": 1280
+  },
+  "adventure_continue_summary": {
+    "height": 447,
+    "sha256": "f9b523facc9507318945806b4d9ebffe597edbdbd235f2594056660b92f6b38f",
+    "width": 1280
+  },
+  "quick_race_20s": {
+    "height": 447,
+    "sha256": "1e75505c5ff626ccdaebc1dde162a20e062180785e0352855957676b69430151",
+    "width": 1280
+  },
+  "quick_race_start": {
+    "height": 447,
+    "sha256": "61b050e4f3cb6993c9d81227c731a03895394be6b3264fa01c9dbfeab3da85bb",
+    "width": 1280
+  },
+  "title": {
+    "height": 447,
+    "sha256": "d87690fe0ac15c691195c856c0cccb512bb0ee70f368a5c03c0e268006d1865a",
+    "width": 1280
+  }
+}

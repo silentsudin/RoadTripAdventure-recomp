@@ -140,6 +140,9 @@ Environment variables:
 | `RT_MC_TRACE=1` | Logs memory card opens and directory creation with guest and host paths |
 | `RT_IOP_IMPORT_TRACE=1` / `2` | Logs IOP kernel calls made by the game's IOP modules |
 | `RT_INPUT_SCRIPT=<s>:<button>[:<hold>],...` | Presses buttons at fixed times after start, e.g. `10:start,15:cross:3` (testing without a player) |
+| `RT_TIME=virtual`, `RT_SPEED=<x>\|max`, `RT_FAKE_CLOCK=<unix s>` | Deterministic guest time (from EE cycles only), its pace relative to real time, and a fixed guest clock (see Regression suite) |
+| `RT_MOVIE_RECORD` / `RT_MOVIE_PLAY=<file>`, `RT_STATE_HASH=<file>`, `RT_EXIT_AT_VBLANK=<n>` | Record/replay pad input per vblank, log memory hashes, stop after n vblanks |
+| `RT_TEST_SOCKET=<path>`, `RT_HEADLESS=1` | Lockstep control socket for test drivers; hidden window and no audio device |
 | `RT_KEEP_GAME_WORK=1` | Keeps the generated C++ (with the MIPS disassembly in comments) under `<data>/game/work` |
 
 Upstream's verbose runtime logging (a hook on every function entry, plus logging of every GS register write) is off by default because it costs a lot of speed. Configure with `-DRT_VERBOSE_RUNTIME_LOGS=ON` to turn it back on.
@@ -162,6 +165,27 @@ RT_ROM="/path/to/Road Trip (USA).cue" ctest --preset macos-release
 ```
 
 The disc checks are skipped when `RT_ROM` is not set.
+
+### Regression suite
+
+`tests/regression` plays the game from Python and checks what it shows and stores:
+
+```sh
+python3 scripts/regress.py            # whole suite (installs its venv on first use)
+python3 scripts/regress.py -n 4       # four games in parallel
+python3 scripts/regress.py -k adventure --update-goldens
+```
+
+- It uses your installed game (the app's data directory, or `--base-data`; `--rom` installs one into `build/regression/base`).
+- **Deterministic:** the app runs headless with `RT_TIME=virtual`, `RT_SPEED=max` and a fake clock, so the same inputs reach the same vblanks and produce bit-identical frames every run.
+- **Lockstep control:** tests drive the game over a Unix socket. The game parks between vblanks while a test reads memory, sets the pad or grabs the exact picture (`rtharness.Game`: `run`, `press`, `pad`, `read`/`u32`, `frame`, `stats`).
+- **Checkpoints:** tests that end with an in-game save store the memory card as a checkpoint. Later tests start from it (Continue), so long play-throughs split into independent sections.
+- **What's committed:** golden frames are committed as hashes (`tests/regression/goldens.json`). The images, checkpoints and failure diffs are game output and stay in `build/regression`.
+
+Recording play for new sections:
+- `RT_TIME=virtual RT_MOVIE_RECORD=<file>` records every pad change by vblank; F5, F6 and F7 add mark, golden-frame and section-end markers.
+- `RT_MOVIE_PLAY=<file>` replays a recording exactly.
+- `RT_STATE_HASH=<file>` logs memory hashes, for finding where two runs diverge.
 
 ## Repository layout
 
