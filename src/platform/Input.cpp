@@ -2,6 +2,7 @@
 
 #include "platform/Paths.h"
 #include "raylib.h"
+#include "runtime/ps2_test_harness.h"
 
 #include <algorithm>
 #include <chrono>
@@ -15,11 +16,6 @@
 #include <string>
 #include <vector>
 
-namespace ps2_stubs
-{
-    // Defined in the runtime (Kernel/Stubs/Pad.cpp); mutex-protected, read by scePadRead.
-    void setPadOverrideState(uint16_t buttons, uint8_t lx, uint8_t ly, uint8_t rx, uint8_t ry);
-}
 
 namespace rt::input
 {
@@ -207,36 +203,6 @@ namespace rt::input
             return false;
         }
 
-        // RT_INPUT_SCRIPT="<seconds>:<button>[:<hold seconds>],..." presses buttons at fixed times
-        // after startup (debugging without a person at the keyboard), e.g. "40:start,45:cross:3".
-        struct ScriptedPress
-        {
-            double at, hold;
-            uint16_t mask;
-        };
-        std::vector<ScriptedPress> g_script;
-        std::chrono::steady_clock::time_point g_start;
-
-        void loadScript()
-        {
-            const char *env = std::getenv("RT_INPUT_SCRIPT");
-            if (!env)
-                return;
-            std::istringstream items(env);
-            for (std::string item; std::getline(items, item, ',');)
-            {
-                std::istringstream parts(item);
-                std::string at, name, hold;
-                std::getline(parts, at, ':');
-                std::getline(parts, name, ':');
-                std::getline(parts, hold, ':');
-                for (const auto &b : kButtons)
-                    if (name == b.name)
-                        g_script.push_back({std::atof(at.c_str()), hold.empty() ? 0.25 : std::atof(hold.c_str()), b.mask});
-            }
-            std::fprintf(stderr, "[input] script: %zu presses\n", g_script.size());
-        }
-
         uint8_t toStickByte(float v)
         {
             v = std::clamp(v, -1.0f, 1.0f);
@@ -248,8 +214,6 @@ namespace rt::input
     {
         SetExitKey(KEY_NULL); // Escape is a game key now; Cmd+Q or the close button quit.
         load();
-        loadScript();
-        g_start = std::chrono::steady_clock::now();
     }
 
     void update()
@@ -258,14 +222,6 @@ namespace rt::input
         for (const auto &b : kButtons)
             if (active(g_bindings[b.name]))
                 buttons &= static_cast<uint16_t>(~b.mask);
-
-        if (!g_script.empty())
-        {
-            const double t = std::chrono::duration<double>(std::chrono::steady_clock::now() - g_start).count();
-            for (const auto &p : g_script)
-                if (t >= p.at && t < p.at + p.hold)
-                    buttons &= static_cast<uint16_t>(~p.mask);
-        }
 
         float axes[4] = {0.0f, 0.0f, 0.0f, 0.0f};
         for (int pad = 0; pad < 4; ++pad)
@@ -289,7 +245,17 @@ namespace rt::input
             if (active(g_bindings[k.name]))
                 axes[k.axis] = k.sign;
 
-        ps2_stubs::setPadOverrideState(buttons, toStickByte(axes[0]), toStickByte(axes[1]), toStickByte(axes[2]),
-                                       toStickByte(axes[3]));
+        // The runtime hands this to the game at the next guest vblank (unless a movie or script
+        // drives the pad; see ps2_test_harness.h).
+        ps2_test::setLiveInput({buttons, toStickByte(axes[0]), toStickByte(axes[1]), toStickByte(axes[2]),
+                                toStickByte(axes[3])});
+
+        // Recording (RT_MOVIE_RECORD): F5 marks a moment, F6 a golden frame, F7 the end of a section.
+        if (IsKeyPressed(KEY_F5))
+            ps2_test::addMarker("mark");
+        if (IsKeyPressed(KEY_F6))
+            ps2_test::addMarker("golden");
+        if (IsKeyPressed(KEY_F7))
+            ps2_test::addMarker("section_end");
     }
 }
