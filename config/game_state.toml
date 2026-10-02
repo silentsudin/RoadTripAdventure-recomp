@@ -14,6 +14,11 @@ currency_name = { offset = 0x63F, type = "str", length = 21, confidence = "confi
 money         = { offset = 0x654, type = "u32", confidence = "confirmed" }               # 1000 at the start
 scene         = { offset = 0x538, type = "u32", confidence = "likely" }                  # 6 = Q's Factory menu, 2 = driving in town, 10 = racing, 3 = race over
 town_entered  = { offset = 0x528, type = "u32", confidence = "guess" }                   # 0 -> 1 on first drive around town
+parts         = { offset = 0x00D, type = "bytes", length = 6, confidence = "likely" }    # equipped part per category; 0x0E = engine (confirmed: index into the engine table)
+licence       = { offset = 0x651, type = "u8", confidence = "confirmed" }                # 0 none, 1 B, 2 A, 3 Super A (race menu compares it with each race's rank)
+mileage_m     = { offset = 0x658, type = "u32", confidence = "confirmed" }               # metres; the save summary shows /1609 as miles
+race_results  = { offset = 0xFF0, type = "bytes", length = 35, confidence = "confirmed" } # place - 1 per race-table entry, 0xFF = not raced
+location      = { offset = 0x12DC, type = "u8", confidence = "confirmed" }               # town of the save point: 1 Peach Town .. 9 My City (loads into that town's Q's Factory)
 map_explored  = { offset = 0xBDC, type = "bytes", length = 0x800, confidence = "guess" }  # bits clear as the map is driven
 
 # Races (Quick Race and Adventure). 24 car structures; the race code keeps them at fixed addresses.
@@ -30,3 +35,23 @@ entrants_address = 0x015B008C  # u32, cars in the race
 # Adventure races wait for button presses before the countdown starts.
 # Controls: analog stick steers (right = smaller atan2(dz, dx)), Cross accelerates, Square
 # brakes, Circle reverses.
+
+# Adventure races (race table at 0x002BDDD0 in the ELF: course, cars, laps, required licence).
+# Licence award: after a race, if every race of the current licence's rank among table entries
+# 0..23 has a result < 6 (this race: its live place), the licence goes up one level.
+[towns]
+names = ["My Garage", "Peach Town", "Fuji City", "Sandpolis", "Chestnut Canyon", "Mushroom Road",
+         "White Mountain", "Papaya Island", "Cloud Hill", "My City"]
+# Q's Factory race menu per town (licence A), in menu order.
+races = [
+  [],
+  ["Peach Raceway C", "Peach Raceway B", "Peach Raceway II A"],
+  ["Ninja Temple Raceway C", "Temple Raceway B", "Temple Raceway A"],
+  ["Desert Raceway C", "Desert Raceway B", "Night Glow Raceway B", "Night Glow Raceway A"],
+  ["Miner 49er Raceway C", "Miner 49er Raceway A", "Lava Run Raceway B", "Lava Run Raceway A"],
+  ["River Raceway C", "Slick Track C", "Oval Raceway B", "Slick Track A"],
+  ["Snow Mountain Raceway B", "Snow Mountain Raceway A"],
+  ["Sunny Beach Raceway B", "Sunny Beach Raceway A", "Lagoon Raceway B", "Lagoon Raceway A"],
+  ["Tin Raceway"],
+  ["Endurance Run"],
+]
