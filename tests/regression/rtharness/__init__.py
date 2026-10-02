@@ -253,6 +253,10 @@ class Game:
 
         return save_parser.decode((self.saves_dir / "mc0/BASLUS-20398/BASLUS-20398").read_bytes())
 
+    def marker(self, kind: str, text: str = ""):
+        """Adds a marker to the movie being recorded (RT_MOVIE_RECORD)."""
+        self._call("marker", kind=kind, text=text)
+
     def audio(self) -> dict:
         """Sound produced since the last call: frames (48 kHz), rms, peak and an exact hash."""
         return self._call("audio")
