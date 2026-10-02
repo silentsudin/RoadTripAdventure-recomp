@@ -76,8 +76,22 @@ def golden(options, test_data):
 
 
 @pytest.fixture
-def checkpoint_dir(test_data):
+def golden_audio(options):
+    def check(name, audio):
+        goldens.check_audio(name, audio, update=options.update_goldens)
+
+    return check
+
+
+@pytest.fixture
+def new_checkpoint(test_data):
+    """new_checkpoint(name) -> path for a checkpoint this test produces. Any older copy is deleted
+    first, so tests that start from it are skipped (not run on stale data) if this test fails."""
+    import shutil
+
     def path(name: str) -> Path:
-        return test_data / "checkpoints" / name
+        p = test_data / "checkpoints" / name
+        shutil.rmtree(p, ignore_errors=True)
+        return p
 
     return path

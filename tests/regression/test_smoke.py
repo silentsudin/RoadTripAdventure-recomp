@@ -15,15 +15,23 @@ def boot_to_main_menu(game):
     game.run(seconds(3))
 
 
-def test_boot_to_title(game_factory, golden):
+def test_boot_to_title(game_factory, golden, golden_audio):
     game = game_factory()
-    game.run(seconds(12))
+    game.run(seconds(9))
+    logo = game.audio()
+    assert logo["rms"] > 100, "the publisher logo plays a jingle"
+    golden_audio("logo", logo)
+    game.run(seconds(3))
     golden("title", game.frame())
     stats = game.stats()
     assert stats["flips"] > 300, "the game should have been presenting frames"
+    game.audio()
+    game.run(seconds(10))
+    title_sound = game.audio()
+    assert title_sound["peak"] <= 8, "the title screen is silent (as in the original)"
 
 
-def test_quick_race(game_factory, golden):
+def test_quick_race(game_factory, golden, golden_audio):
     game = game_factory()
     boot_to_main_menu(game)
     game.press("down")
@@ -34,7 +42,11 @@ def test_quick_race(game_factory, golden):
         game.run(seconds(4))
     golden("quick_race_start", game.frame())
     game.pad("cross")  # accelerate
+    game.audio()
     game.run(seconds(20))
+    race_sound = game.audio()
+    assert race_sound["rms"] > 500, "engines and effects should be audible"
+    golden_audio("quick_race_20s", race_sound)
     before = game.frame()
     game.run(seconds(1))
     after = game.frame()
@@ -43,7 +55,8 @@ def test_quick_race(game_factory, golden):
 
 
 @pytest.mark.xdist_group("adventure")
-def test_adventure_new_game_save(game_factory, checkpoint_dir):
+def test_adventure_new_game_save(game_factory, new_checkpoint):
+    checkpoint = new_checkpoint("adventure_first_save")
     game = game_factory()
     boot_to_main_menu(game)
     game.press("cross")  # Adventure
@@ -65,9 +78,10 @@ def test_adventure_new_game_save(game_factory, checkpoint_dir):
         game.press("cross")
     game.run(seconds(4))
     save = game.saves_dir / "mc0" / "BASLUS-20398"
+    assert (save / "icon.sys").is_file(), "the game did not write its save"
     assert (save / "icon.sys").read_bytes()[:4] == b"PS2D"
     assert (save / "BASLUS-20398").stat().st_size == 13384
-    game.snapshot_card(checkpoint_dir("adventure_first_save"))
+    game.snapshot_card(checkpoint)
 
 
 @pytest.mark.xdist_group("adventure")

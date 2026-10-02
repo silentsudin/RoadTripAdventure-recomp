@@ -9,6 +9,14 @@
     "sha256": "4e3b0e80df349e1824800d8d4b8295e539c28e07a71c935c9cfcf097ba815dfc",
     "width": 1280
   },
+  "audio:logo": {
+    "frames": 433664,
+    "hash": "903ade1af1f63a7a"
+  },
+  "audio:quick_race_20s": {
+    "frames": 960256,
+    "hash": "75c3e4dd4130c69f"
+  },
   "quick_race_20s": {
     "height": 447,
     "sha256": "1e75505c5ff626ccdaebc1dde162a20e062180785e0352855957676b69430151",
