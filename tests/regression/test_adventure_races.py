@@ -7,7 +7,9 @@ from __future__ import annotations
 import pytest
 
 from rtharness import seconds
-from rtharness.adventure import FIELDS, GAME_MAP, PROGRESS, continue_to_factory, drive_race, enter_race
+from rtharness.driver import DriverConfig
+from rtharness.adventure import (FIELDS, GAME_MAP, PROGRESS, SCENE_RACING, continue_to_factory, drive_race,
+                                  enter_race, scene)
 
 TOWNS = GAME_MAP["towns"]["names"]
 CASES = [(town, i, name) for town, races in enumerate(GAME_MAP["towns"]["races"]) for i, name in enumerate(races)]
@@ -28,12 +30,18 @@ def test_adventure_race(game_factory, golden, golden_audio, town, index, name):
     enter_race(game, index)
     game.audio()
     key = f"race_{TOWNS[town]}_{name}".replace(" ", "_")
+    if name in GAME_MAP["towns"]["not_yet_open"]:
+        # Opens later in the story; for now the factory says "Under construction."
+        golden(key + "_not_open", game.frame())
+        assert scene(game) != SCENE_RACING
+        return
 
     def check_start():
         golden(key, game.frame())
         golden_audio(key, game.audio())
 
-    place = drive_race(game, at={15: check_start})
+    config = DriverConfig(backtrack=name in GAME_MAP["bot"]["backtrack"])
+    place = drive_race(game, config=config, at={15: check_start})
     after = results(game)
     changed = [i for i in range(len(after)) if after[i] != before[i]]
     assert len(changed) == 1, f"one race result should be recorded, got entries {changed}"

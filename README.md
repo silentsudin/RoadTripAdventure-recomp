@@ -143,6 +143,7 @@ Environment variables:
 | `RT_TIME=virtual`, `RT_SPEED=<x>\|max`, `RT_FAKE_CLOCK=<unix s>` | Deterministic guest time (from EE cycles only), its pace relative to real time, and a fixed guest clock (see Regression suite) |
 | `RT_MOVIE_RECORD` / `RT_MOVIE_PLAY=<file>`, `RT_STATE_HASH=<file>`, `RT_EXIT_AT_VBLANK=<n>` | Record/replay pad input per vblank, log memory hashes, stop after n vblanks |
 | `RT_TEST_SOCKET=<path>`, `RT_HEADLESS=1` | Lockstep control socket for test drivers; hidden window and no audio device |
+| `RT_RENDER=0` | Skip VU1/GS rendering (test runs; the `render` socket command switches it back on to grab frames) |
 | `RT_KEEP_GAME_WORK=1` | Keeps the generated C++ (with the MIPS disassembly in comments) under `<data>/game/work` |
 
 Upstream's verbose runtime logging (a hook on every function entry, plus logging of every GS register write) is off by default because it costs a lot of speed. Configure with `-DRT_VERBOSE_RUNTIME_LOGS=ON` to turn it back on.
@@ -179,6 +180,8 @@ python3 scripts/regress.py -k adventure --update-goldens
 - It uses your installed game (the app's data directory, or `--base-data`; `--rom` installs one into `build/regression/base`).
 - **Deterministic:** the app runs headless with `RT_TIME=virtual`, `RT_SPEED=max` and a fake clock, so the same inputs reach the same vblanks and produce bit-identical frames every run.
 - **Lockstep control:** tests drive the game over a Unix socket. The game parks between vblanks while a test reads memory, sets the pad or grabs the exact picture (`rtharness.Game`: `run`, `press`, `pad`, `read`/`u32`, `frame`, `stats`).
+- **Fast:** tests run with rendering off (`RT_RENDER=0`): VU1 and GS work is skipped, which the game's logic never reads back (memory hashes match with and without it). `frame()` switches rendering on for 4 vblanks to grab a picture. With the IOP's cycles batched, a minute of racing takes a few seconds.
+- **Driving bot:** `rtharness.driver.Driver` races Adventure events. It waits a lap while an AI car lays down the racing line, then follows that line (steering by look-ahead, braking where the AI did), backs off walls, and for races listed under `[bot]` in `config/game_state.toml` backs out of wrong branches. `step` runs it in one round trip per control update.
 - **Checkpoints:** tests that end with an in-game save store the memory card as a checkpoint. Later tests start from it (Continue), so long play-throughs split into independent sections.
 - **What's committed:** golden frames are committed as hashes (`tests/regression/goldens.json`). The images, checkpoints and failure diffs are game output and stay in `build/regression`.
 
@@ -191,7 +194,8 @@ More:
 - Play-through sections live in `tests/regression/sections`. Record one with `scripts/record_section.py` (normal speed, deterministic, from a checkpoint); `tests/regression/COVERAGE.md` tracks what is covered and what still needs recording.
 - `--perf` adds a real-time check: the Quick Race must hold 60 fps.
 - `scripts/pcsx2_cards.py` exports a checkpoint to a PCSX2 folder memory card (to confirm saves load in PCSX2) and imports PCSX2 saves as checkpoints.
-- `tools/save_parser.py` and `config/game_state.toml` decode Adventure progress from a save or from RAM.
+- `tools/save_parser.py` and `config/game_state.toml` decode Adventure progress from a save or from RAM. Tests jump ahead in the story by editing the progress block while Continue loads it (`progress_edits`, e.g. the town and licence).
+- `Game.voice_volumes()` reads the SPU2 voice volume registers (the `iop` space maps them at 0x1F900000).
 
 ## Repository layout
 

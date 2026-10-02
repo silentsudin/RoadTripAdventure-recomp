@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import os
+import shutil
+import time
+import uuid
 from pathlib import Path
 
 import pytest
@@ -32,15 +35,41 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "perf: real-time performance check; runs only with --perf")
+    config.addinivalue_line("markers", "produces(name): the test writes checkpoint `name` for later tests")
+    # One id per run, shared with the xdist workers: checkpoints made in this run are stamped
+    # with it, so tests that start from them can wait for this run's copy.
+    worker = getattr(config, "workerinput", None)
+    config.rt_session = worker["rt_session"] if worker else uuid.uuid4().hex
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_configure_node(node):
+    node.workerinput["rt_session"] = node.config.rt_session
+
+
+def produced_checkpoint(item) -> str | None:
+    marker = item.get_closest_marker("produces")
+    return marker.args[0] if marker and marker.args else None
 
 
 def pytest_collection_modifyitems(config, items):
+    # Checkpoint producers first, so with -n they are scheduled before the tests waiting on them.
+    config.rt_producing = {name for item in items if (name := produced_checkpoint(item))}
+    items.sort(key=lambda item: produced_checkpoint(item) is None)
     if config.getoption("--perf"):
         return
     skip = pytest.mark.skip(reason="performance checks run with --perf")
     for item in items:
         if "perf" in item.keywords:
             item.add_marker(skip)
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(item, call):
+    report = yield
+    if report.when == "call":
+        item.rt_call_report = report
+    return report
 
 
 @pytest.fixture(scope="session")
@@ -69,6 +98,8 @@ def game_factory(options, test_data, request):
         cp = None
         if checkpoint:
             cp = test_data / "checkpoints" / checkpoint
+            if checkpoint in request.config.rt_producing and produced_checkpoint(request.node) != checkpoint:
+                wait_for_checkpoint(request.config, cp)
             if not cp.is_dir():
                 pytest.skip(f"checkpoint '{checkpoint}' missing; run the test that creates it first")
         game = Game(Path(options.base_data), work, checkpoint=cp, speed=options.speed,
@@ -97,15 +128,45 @@ def golden_audio(options):
     return check
 
 
+def wait_for_checkpoint(config, cp: Path, timeout: float = 3600):
+    """Waits until this run's producer has written `cp` (or failed: then the test is skipped
+    rather than run from a stale copy)."""
+    stamp, failed = cp.with_name(cp.name + ".session"), cp.with_name(cp.name + ".failed")
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if stamp.is_file() and stamp.read_text() == config.rt_session:
+            return
+        if failed.is_file() and failed.read_text() == config.rt_session:
+            pytest.skip(f"the test producing checkpoint '{cp.name}' failed in this run")
+        time.sleep(1)
+    pytest.fail(f"checkpoint '{cp.name}' was not produced within {timeout:.0f} s")
+
+
 @pytest.fixture
-def new_checkpoint(test_data):
-    """new_checkpoint(name) -> path for a checkpoint this test produces. Any older copy is deleted
-    first, so tests that start from it are skipped (not run on stale data) if this test fails."""
-    import shutil
+def new_checkpoint(test_data, request):
+    """new_checkpoint(name) -> path for a checkpoint this test produces (mark the test with
+    @pytest.mark.produces(name)). It is written to a scratch path and replaces the old checkpoint
+    only when the test passes; if it fails, tests waiting on it in this run are skipped."""
+    made = []
 
     def path(name: str) -> Path:
-        p = test_data / "checkpoints" / name
-        shutil.rmtree(p, ignore_errors=True)
-        return p
+        scratch = test_data / "checkpoints" / (name + ".new")
+        shutil.rmtree(scratch, ignore_errors=True)
+        made.append((name, scratch))
+        return scratch
 
-    return path
+    yield path
+    report = getattr(request.node, "rt_call_report", None)
+    for name, scratch in made:
+        cp = test_data / "checkpoints" / name
+        if report is not None and report.passed and scratch.is_dir():
+            old = cp.with_name(name + ".old")
+            shutil.rmtree(old, ignore_errors=True)
+            if cp.exists():
+                cp.rename(old)
+            scratch.rename(cp)
+            shutil.rmtree(old, ignore_errors=True)
+            cp.with_name(name + ".session").write_text(request.config.rt_session)
+        else:
+            shutil.rmtree(scratch, ignore_errors=True)
+            cp.with_name(name + ".failed").write_text(request.config.rt_session)

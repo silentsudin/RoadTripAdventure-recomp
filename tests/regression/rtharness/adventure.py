@@ -63,7 +63,21 @@ def enter_race(game: "Game", menu_index: int):
         game.run(seconds(2))
 
 
-def drive_race(game: "Game", timeout_seconds: float = 600, config: DriverConfig | None = None,
+class Retired(AssertionError):
+    """The bot was stuck and retired from the race through the pause menu."""
+
+
+def retire(game: "Game"):
+    """Pause -> Retire."""
+    game.release()
+    game.press("start")
+    game.run(seconds(1))
+    game.press("down")
+    game.press("cross")
+    game.run(seconds(5))
+
+
+def drive_race(game: "Game", timeout_seconds: float = 1500, config: DriverConfig | None = None,
                at: dict | None = None) -> int:
     """Lets the driving bot race until the game reports the race over; returns our place.
     `at` maps seconds into the race to callbacks (e.g. frame checks) run at that moment."""
@@ -72,6 +86,11 @@ def drive_race(game: "Game", timeout_seconds: float = 600, config: DriverConfig 
     end = start + seconds(timeout_seconds)
     pending = sorted((start + seconds(t), fn) for t, fn in (at or {}).items())
     place = None
+    progress_at, progress_index = game.vblank, -1
+    while scene(game) != SCENE_RACING:
+        if game.vblank - start > seconds(60):
+            raise AssertionError(f"the race did not start (scene {scene(game)})")
+        game.run(seconds(1))
     while game.vblank < end:
         step = seconds(2)
         if pending:
@@ -82,6 +101,13 @@ def drive_race(game: "Game", timeout_seconds: float = 600, config: DriverConfig 
                   'idx', driver.index, 'rec', driver.recoveries, flush=True)
         while pending and game.vblank >= pending[0][0]:
             pending.pop(0)[1]()
+        # No progress along the line for 90 s: the bot is stuck for good.
+        if driver.index != progress_index:
+            progress_at, progress_index = game.vblank, driver.index
+        elif driver.loop_closed and game.vblank - progress_at > seconds(90):
+            retire(game)
+            raise Retired(f"the bot was stuck at {driver.positions()[0]} (line point {driver.index}/"
+                          f"{len(driver.trail)}, {driver.recoveries} recoveries) and retired")
         if scene(game) == SCENE_RACE_OVER:
             print(f"[race] finished {place}th, {driver.recoveries} recoveries, {driver.nudges} nudges")
             return place

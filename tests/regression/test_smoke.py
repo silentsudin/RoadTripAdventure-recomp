@@ -55,6 +55,7 @@ def test_quick_race(game_factory, golden, golden_audio):
 
 
 @pytest.mark.xdist_group("adventure")
+@pytest.mark.produces("adventure_first_save")
 def test_adventure_new_game_save(game_factory, new_checkpoint):
     checkpoint = new_checkpoint("adventure_first_save")
     game = game_factory()

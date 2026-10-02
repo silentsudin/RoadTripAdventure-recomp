@@ -55,3 +55,16 @@ races = [
   ["Tin Raceway"],
   ["Endurance Run"],
 ]
+# Menu entries that are not open at the start of the game (licence A): the factory answers
+# "Under construction."
+not_yet_open = ["Tin Raceway"]
+
+[bot]
+# Races whose line has a fork the driving bot can take wrongly: let it back out of dead ends.
+# (Backing up hurts on wide tracks, so it is off elsewhere.)
+backtrack = ["Night Glow Raceway B"]
+
+[quick_race]
+# Course carousel order (right moves to the next; "Exit" follows the last), at the start of the game.
+courses = ["Peach Raceway", "Temple Raceway", "Night Glow Raceway", "Snow Mountain Raceway", "Oval Raceway",
+           "Lagoon Raceway", "Tin Raceway", "Endurance Run"]
