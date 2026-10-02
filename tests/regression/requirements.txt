@@ -1,0 +1,4 @@
+pytest>=8
+pytest-xdist>=3
+numpy>=1.26
+pillow>=10
