@@ -27,6 +27,7 @@ CELL = 2.0           # map resolution (town units per cell)
 SIZE = 1600          # a town map is SIZE x SIZE units
 N = int(SIZE / CELL)
 DIALOGUE = GAME_MAP["dialogue"]
+FREE_DRIVING = 127  # talk state while driving around with no conversation
 STAMPS = GAME_MAP["stamps"]
 
 
@@ -77,7 +78,7 @@ def height_map(path: Path) -> np.ndarray:
 class TownMap:
     """Free space and A* paths for one town."""
 
-    def __init__(self, heights: np.ndarray, step: float = 0.8, clearance: int = 2, water: float = -2.0):
+    def __init__(self, heights: np.ndarray, step: float = 1.2, clearance: int = 1, water: float = -2.0):
         self.H = heights
         Hn = np.nan_to_num(heights, nan=-99.0)
         blocked = Hn <= water
@@ -105,7 +106,7 @@ class TownMap:
                     self.learned[a, b] = True
 
     @classmethod
-    def load(cls, town: int, disc: Path, cache: Path, clearance: int = 2) -> "TownMap":
+    def load(cls, town: int, disc: Path, cache: Path, clearance: int = 1) -> "TownMap":
         name = GAME_MAP["towns"]["maps"][town]
         cache.mkdir(parents=True, exist_ok=True)
         cached = cache / (name.replace("/", "_") + ".npy")
@@ -133,14 +134,13 @@ class TownMap:
         """Cell-centre waypoints from start to goal ((x, z) pairs), or None if unreachable.
         `avoid` holds (x, z, radius) discs to keep out of (other cars)."""
         free = self.free & ~self.learned
-        if avoid:
-            ii, jj = np.meshgrid(np.arange(N), np.arange(N), indexing="ij")
-            for ax, az, r in avoid:
-                ci, cj = self.cell(ax, az)
-                rc = int(r / CELL) + 1
-                sl = (slice(max(0, ci - rc), ci + rc + 1), slice(max(0, cj - rc), cj + rc + 1))
-                near = (ii[sl] - ci) ** 2 + (jj[sl] - cj) ** 2 <= rc * rc
-                free[sl] &= ~near
+        for ax, az, r in avoid:
+            ci, cj = self.cell(ax, az)
+            rc = int(r / CELL) + 1
+            i0, j0 = max(0, ci - rc), max(0, cj - rc)
+            ii = np.arange(i0, min(N, ci + rc + 1))[:, None]
+            jj = np.arange(j0, min(N, cj + rc + 1))[None, :]
+            free[i0:i0 + ii.shape[0], j0:j0 + jj.shape[1]] &= (ii - ci) ** 2 + (jj - cj) ** 2 > rc * rc
         saved, self.free = self.free, free
         try:
             return self._path(start, goal)
@@ -177,6 +177,59 @@ class TownMap:
         return out[::-1]
 
 
+# ---------------------------------------------------------------- doors
+def door_quads(game: "Game", town: int) -> list[list[tuple[float, float]]]:
+    """The building doors of a town (quads of (x, z) points), read from the game in RAM."""
+    doors = GAME_MAP["doors"]
+    table = struct.unpack(f"<{doors['locations']}I", game.read(doors["table_address"], 4 * doors["locations"]))
+    start = table[town]
+    end = min(p for p in table if p > start)
+    raw = game.read(start, end - start)
+    return [[struct.unpack_from("<2f", raw, q + 8 * k) for k in range(4)] for q in range(0, len(raw) - 31, 32)]
+
+
+def in_quad(quad, x: float, z: float, margin: float = 2.0) -> bool:
+    """Whether (x, z) lies in a (convex) door quad, give or take `margin`."""
+    (cx, cz) = (sum(p[0] for p in quad) / 4, sum(p[1] for p in quad) / 4)
+    sign = None
+    for k in range(4):
+        (ax, az), (bx, bz) = quad[k], quad[(k + 1) % 4]
+        cross = (bx - ax) * (z - az) - (bz - az) * (x - ax)
+        inward = (bx - ax) * (cz - az) - (bz - az) * (cx - ax)
+        if cross * inward < 0 and abs(cross) / (math.dist((ax, az), (bx, bz)) or 1) > margin:
+            return False
+    return True
+
+
+def door_geometry(quad):
+    """(centre, normal): the door's middle and a unit vector across its long edge."""
+    cx = sum(p[0] for p in quad) / 4
+    cz = sum(p[1] for p in quad) / 4
+    a, b = max(((quad[k], quad[(k + 1) % 4]) for k in range(4)), key=lambda e: math.dist(*e))
+    ex, ez = b[0] - a[0], b[1] - a[1]
+    length = math.hypot(ex, ez) or 1.0
+    return (cx, cz), (-ez / length, ex / length)
+
+
+# ---------------------------------------------------------------- street traffic
+def park_traffic(game: "Game", town: int) -> int:
+    """Moves the town's street NPC spawn points off the map, so the street stays empty (call
+    before the town loads, e.g. at Q's Factory). For tests that warp into buildings, where
+    street NPCs only get in the way; returns how many spawn points were moved."""
+    table = GAME_MAP["traffic"]["spawn_table"]
+    pointers = struct.unpack("<40I", game.read(table, 160))
+    start = pointers[town]
+    if not start:
+        return 0
+    end = min(p for p in pointers if start < p < 0x400000)
+    raw = bytearray(game.read(start, end - start))
+    count = len(raw) // 16
+    for k in range(count):
+        struct.pack_into("<3f", raw, 16 * k, -4000.0 - 20 * k, 0.0, -4000.0)
+    game.write(start, bytes(raw))
+    return count
+
+
 # ---------------------------------------------------------------- the car in town
 def car_pose(game: "Game", slot: int = 0) -> tuple[float, float, float]:
     """(x, z, heading) of a car; slot 0 is ours, the others are town traffic (NPCs)."""
@@ -195,9 +248,21 @@ def steer_towards(x, z, heading, tx, tz, gain: float = 2.0) -> int:
 class TownDriver:
     """Drives our car to places in town along planned paths."""
 
-    def __init__(self, game: "Game", town_map: TownMap):
+    def __init__(self, game: "Game", town_map: TownMap, doors=(), town: int = 0):
         self.game = game
+        self.town = town
         self.map = town_map
+        # Doors enter buildings: keep out of all but the one we are going through.
+        self.door_quads = list(doors)
+        self.trace: list | None = None  # set to a list to record (vblank, x, z, event)
+        self._speed = 0.0
+        self.last_pose = car_pose(game)
+        self.entered_pose: tuple[float, float] | None = None
+        self.entered: int | None = None   # door we went in by (None: a street NPC)
+        self._throttle_vblanks = 0  # vblanks on the throttle since the last stuck check
+        self.doors = [door_geometry(q) for q in doors]
+        self.door_target: int | None = None
+        self._parked: dict[int, bytes] = {}  # original quads of doors moved away
         self.keep_away: dict[int, int] = {}  # slot -> vblank until which we keep clear of it
         self.stuck_count = 0
         self.direct_last: tuple[int, tuple[float, float]] | None = None
@@ -213,6 +278,9 @@ class TownDriver:
             if x or z:
                 wide = self.game.vblank < self.keep_away.get(slot, 0)
                 out.append((x, z, 30.0 if wide else radius))
+        for i, ((dx, dz), _) in enumerate(self.doors):
+            if i != self.door_target:
+                out.append((dx, dz, 12.0))
         return out
 
     def nearest_car(self) -> int:
@@ -222,11 +290,58 @@ class TownDriver:
     def leave_conversation(self) -> None:
         """After talking to someone we were not looking for: back away and give them room."""
         slot = self.nearest_car()
-        finish_dialogue(self.game)
+        finish_dialogue(self.game, decline=True)
         self.keep_away[slot] = self.game.vblank + 600
         x, z, heading = car_pose(self.game)
         ox, oz, _ = car_pose(self.game, slot)
         self.game.step(45, ["circle"], 255 - steer_towards(x, z, heading, ox, oz))
+
+    def speed(self) -> float:
+        """Our speed in units per vblank, from the last two steps."""
+        return self._speed
+
+    def opened(self) -> bool:
+        """Whether a dialogue (or a building's loading) has started; records which door we were
+        in at that moment (None on the street)."""
+        if dialogue_open(self.game):
+            if self.entered_pose is None:
+                x, z, _ = self.last_pose
+                self.entered_pose = (x, z)
+                self.entered = self.door_at(x, z)
+            return True
+        return False
+
+    def steer(self, tx: float, tz: float, vblanks: int = 10, slow_within: float = 0.0) -> None:
+        """One control step towards (tx, tz) with speed control: the car cannot turn sharply at
+        speed, so it brakes for big heading errors, coasts for medium ones and creeps near a
+        target (within `slow_within`) instead of circling it."""
+        game = self.game
+        x, z, heading = car_pose(game)
+        err = (math.atan2(tz - z, tx - x) - heading + math.pi) % (2 * math.pi) - math.pi
+        lx = steer_towards(x, z, heading, tx, tz)
+        near = slow_within and math.dist((x, z), (tx, tz)) < slow_within
+        # The car only turns while moving: below crawling speed it always gets throttle.
+        if self._speed < 0.25:
+            buttons = ["cross"]
+        elif abs(err) > 1.0 and self._speed > 0.5:
+            buttons = ["square"]          # brake, then turn
+        elif abs(err) > 0.5 or (near and self._speed > 0.35):
+            buttons = []                  # coast
+        else:
+            buttons = ["cross"]
+        game.step(vblanks, buttons, lx)
+        pose = car_pose(game)
+        if not dialogue_open(game):
+            self.last_pose = pose   # (inside a building the pose is the interior's)
+        nx, nz, _ = pose
+        self._speed = math.dist((x, z), (nx, nz)) / vblanks
+        if buttons == ["cross"]:
+            self._throttle_vblanks += vblanks
+
+    def note(self, event: str = "") -> None:
+        if self.trace is not None:
+            x, z, _ = car_pose(self.game)
+            self.trace.append((self.game.vblank, x, z, event))
 
     def drive_to(self, goal, radius: float = 10.0, timeout_vblanks: int = 60 * 300,
                  stop_on_dialogue: bool = True, target_slot: int | None = None) -> bool:
@@ -238,7 +353,7 @@ class TownDriver:
         path = self.map.path((x, z), goal, self.other_cars(target_slot)) or [goal]
         index, last, last_check, planned = 0, (x, z), game.vblank, game.vblank
         while game.vblank < end:
-            if stop_on_dialogue and dialogue_open(game):
+            if stop_on_dialogue and self.opened():
                 game.release()
                 return False
             x, z, heading = car_pose(game)
@@ -248,14 +363,18 @@ class TownDriver:
             while index < len(path) - 1 and math.dist(path[index], (x, z)) < 12:
                 index += 1
             if game.vblank - last_check >= 90:
-                # (A car starting from rest covers only a few units in the first second.)
-                if math.dist(last, (x, z)) < 3.0:
+                # Stuck: on the throttle most of the time and still hardly moving (not merely
+                # slowing down for a turn or a target).
+                trying = self._throttle_vblanks >= 60
+                self._throttle_vblanks = 0
+                if trying and math.dist(last, (x, z)) < 1.5:
                     # Stuck against something: remember it, back off, plan again from here.
                     self.map.learn_obstacle(x + 7 * math.cos(heading), z + 7 * math.sin(heading))
+                    self.note("stuck")
                     self.stuck_count += 1
                     # Reverse on full lock, longer and to alternating sides on repeats.
                     lock = 0 if self.stuck_count % 2 else 255
-                    game.step(60 + 30 * min(4, self.stuck_count), ["circle"], lock)
+                    game.step(40 + 15 * min(4, self.stuck_count), ["circle"], lock)
                     x, z, _ = car_pose(game)
                     path = self.map.path((x, z), goal, self.other_cars(target_slot)) or [goal]
                     index, planned = 0, game.vblank
@@ -265,9 +384,213 @@ class TownDriver:
                 path = self.map.path((x, z), goal, self.other_cars(target_slot)) or [goal]
                 index, planned = 0, game.vblank
             tx, tz = path[index]
-            game.step(10, ["cross"], steer_towards(x, z, heading, tx, tz))
+            self.steer(tx, tz, slow_within=radius + 20 if index >= len(path) - 3 else 0.0)
+            self.note()
         game.release()
+        self.note("timeout")
         return False
+
+    def enter_door(self, index: int, timeout_vblanks: int = 60 * 90, attempts: int = 4) -> str:
+        """Drives in through door `index`; returns who greets us inside ('' if we did not get
+        in). NPCs met on the street on the way are talked through and the door tried again."""
+        for _ in range(attempts):
+            self._enter_door(index, timeout_vblanks)
+            if not dialogue_open(self.game):
+                return ""
+            who = self.wait_for_speaker()
+            if self.entered == index:
+                return who
+            if self.entered is None:
+                self.leave_conversation()   # a street NPC stopped us
+            else:
+                self.leave_building()       # we drove through another building's door
+        return ""
+
+    def door_at(self, x: float, z: float) -> int | None:
+        for i, quad in enumerate(self.door_quads):
+            if in_quad(quad, x, z, margin=4.0):
+                return i
+        return None
+
+    def wait_for_speaker(self, vblanks: int = 600) -> str:
+        """After a door: the inside loads ("NOW LOADING") before anyone speaks."""
+        game = self.game
+        for _ in range(vblanks // 30):
+            who = speaker(game)
+            if who:
+                return who
+            game.run(30)
+        return speaker(game)
+
+    def _enter_door(self, index: int, timeout_vblanks: int) -> str:
+        game = self.game
+        self.entered_pose, self.entered = None, None
+        (cx, cz), (nx, nz) = self.doors[index]
+        self.door_target = index
+        try:
+            for side in (1, -1):
+                far = (cx + side * nx * 32, cz + side * nz * 32)
+                near = (cx + side * nx * 12, cz + side * nz * 12)
+                if not self.map.free[self.map.cell(*near)]:
+                    continue
+                # Line up from further out when there is room (narrow streets often have none).
+                stage = far if self.map.free[self.map.cell(*far)] else near
+                if not self.drive_to(stage, radius=6, timeout_vblanks=timeout_vblanks):
+                    if self.opened():
+                        return speaker(game)
+                    continue
+                # The last stretch is short and straight: steer, don't plan (the map's step
+                # limits can rule out a kerb the car crosses easily).
+                for _ in range(60):
+                    x, z, heading = car_pose(game)
+                    if math.dist((x, z), near) < 4 or self.opened():
+                        break
+                    self.steer(*near, slow_within=20)
+                if self.opened():
+                    game.release()
+                    return speaker(game)
+                tx, tz = cx - side * nx * 8, cz - side * nz * 8
+                for _ in range(30):
+                    self.steer(tx, tz)
+                    if self.opened():
+                        game.release()
+                        game.run(60)
+                        return speaker(game)
+                game.release()
+                for _ in range(5):  # entering loads the inside first ("NOW LOADING")
+                    game.run(60)
+                    if self.opened():
+                        return speaker(game)
+                game.step(40, ["circle"], 128)
+            return ""
+        finally:
+            self.door_target = None
+
+    def warp_into(self, index: int) -> str:
+        """Enters building `index` without driving there: its door quad is moved to just ahead
+        of the car (wound like the game's quads), the car rolls into it, and the real door is
+        put back. A coverage-first edit: the inside, its people and their scripts run for real;
+        the drive there is skipped (drive_to/enter_door cover driving). Returns the greeter."""
+        game = self.game
+        if dialogue_open(game):
+            finish_dialogue(game, decline=True)  # something stopped us first (a passer-by)
+        address = self.door_table_address(index)
+        original = game.read(address, 32)
+        try:
+            # A square just ahead of the car; if a wall stops us, one just behind, in reverse.
+            for direction, button in ((1, "cross"), (-1, "circle")):
+                x, z, heading = car_pose(game)
+                ax = x + direction * 7 * math.cos(heading)
+                az = z + direction * 7 * math.sin(heading)
+                square = [(ax - 6, az + 6), (ax + 6, az + 6), (ax + 6, az - 6), (ax - 6, az - 6)]
+                game.write(address, b"".join(struct.pack("<2f", *p) for p in square))
+                for _ in range(20):
+                    game.step(10, [button], 128)
+                    if dialogue_open(game):
+                        break
+                game.release()
+                if dialogue_open(game):
+                    break
+            self.entered = index if dialogue_open(game) else None
+            return self.wait_for_speaker() if dialogue_open(game) else ""
+        finally:
+            # Put the real door back: leaving the building places the car at its door. (Parked
+            # doors are moved away again by leave_building.)
+            game.write(address, self._parked.get(index, original))
+
+    def park_doors(self, keep: int | None = None) -> None:
+        """Moves every door of the town far off the map except `keep`, so driving around cannot
+        enter a building by accident (for tests that warp into buildings; restore_doors puts
+        them back)."""
+        game = self.game
+        if not self._parked:
+            self._parked = {i: game.read(self.door_table_address(i), 32) for i in range(len(self.doors))}
+        away = b"".join(struct.pack("<2f", -5000.0 - 10 * k, -5000.0) for k in range(4))
+        for i in range(len(self.doors)):
+            game.write(self.door_table_address(i), self._parked[i] if i == keep else away)
+
+    def restore_doors(self) -> None:
+        for i, original in self._parked.items():
+            self.game.write(self.door_table_address(i), original)
+        self._parked = {}
+
+    def door_table_address(self, index: int) -> int:
+        doors = GAME_MAP["doors"]
+        table = struct.unpack(f"<{doors['locations']}I", self.game.read(doors["table_address"], 4 * doors["locations"]))
+        return table[self.town] + 32 * index
+
+    def leave_building(self) -> None:
+        """Talks through the greeting and backs out of menus (Triangle) until we are driving
+        again, then moves out of the doorway."""
+        game = self.game
+        closed = 0
+        seen: list[str] = []
+        escapes = silent = 0
+        for n in range(80):
+            if not dialogue_open(game):
+                if game.u8(DIALOGUE["talk_state_address"]) == 1:
+                    # Still in a building's menus: some screens (the Paint Shop's colours) have
+                    # no message window. Back out of them.
+                    game.press("triangle")
+                    game.run(60)
+                    closed = 0
+                    continue
+                # Leaving shows NOW LOADING, which raises the flag again: done once we are
+                # driving again (talk state 127) and the window stays down.
+                closed += 1
+                if closed >= 3 and game.u8(DIALOGUE["talk_state_address"]) == FREE_DRIVING:
+                    break
+                game.run(60)
+                continue
+            closed = 0
+            if not speaker(game) and not text(game).strip() and silent < 3:
+                silent += 1
+                game.run(60)  # loading: wait, don't press (a few seconds at most)
+                continue
+            silent = 0
+            if not text(game).strip() and not is_choice(game):
+                game.run(60)  # a message may be about to start typing
+            current = text(game)
+            if is_choice(game) or not current.strip():
+                # A menu or question, or a screen with no message (a shop's catalogue): back
+                # out. (Cross there would pick or buy something.)
+                game.press("triangle")
+            elif seen.count(current) >= 2:
+                # The same message keeps coming back: a menu drawn by the building itself
+                # ("<name> / Quit"), where Cross picks the first entry and we return here. Its
+                # last entry is the way out (Quit, No, ...). Menus wrap around and differ in
+                # size, so each attempt goes one entry further down.
+                escapes += 1
+                for _ in range(escapes):
+                    game.press("down")
+                game.press("cross")
+                seen.clear()
+            else:
+                game.press("cross")   # a message: read on
+            seen.append(current)
+            game.run(60)
+        self.clear_doorway()
+        if self._parked:
+            self.park_doors()  # the door we used was put back for the exit
+
+    def clear_doorway(self) -> None:
+        """Out of a building we stand in its doorway, sometimes facing it: move away from the
+        nearest door (backwards if it is ahead of us) so we do not roll straight back in."""
+        game = self.game
+        x, z, heading = car_pose(game)
+        if not self.doors:
+            game.step(60, ["cross"], 128)
+            game.release()
+            return
+        (dx, dz), _ = min(self.doors, key=lambda d: math.dist(d[0], (x, z)))
+        ahead = (dx - x) * math.cos(heading) + (dz - z) * math.sin(heading) > 0
+        button = "circle" if ahead else "cross"
+        for _ in range(30):  # until 20 units clear (a car from rest is slow to get going)
+            if math.dist((dx, dz), car_pose(game)[:2]) > 20 or dialogue_open(game):
+                break
+            game.step(10, [button], 128)
+        game.release()
+        game.run(30)
 
     def drive_direct(self, goal, vblanks: int) -> None:
         """Steers straight at `goal` for `vblanks`, backing off if stuck."""
@@ -292,7 +615,9 @@ class TownDriver:
         while game.vblank < end:
             if dialogue_open(game):
                 game.release()
-                if name is None or speaker(game) == name:
+                who = self.wait_for_speaker(120)
+                self.note(f"met {who}")
+                if name is None or who == name:
                     return True
                 self.leave_conversation()
                 continue
@@ -317,7 +642,9 @@ class TownDriver:
 
 # ---------------------------------------------------------------- dialogue
 def dialogue_open(game: "Game") -> bool:
-    return game.u8(DIALOGUE["open_address"]) != 0
+    """A message window is up: the window pointer points into the conversation slots."""
+    lo, hi = DIALOGUE["window_range"]
+    return lo <= game.u32(DIALOGUE["window_address"]) < hi
 
 
 def c_string(game: "Game", address: int, limit: int = 160) -> str:
@@ -326,11 +653,19 @@ def c_string(game: "Game", address: int, limit: int = 160) -> str:
 
 
 def speaker(game: "Game") -> str:
-    """Name of the NPC talking (from their NPC entry), or '' if none."""
-    entry = game.u32(DIALOGUE["speaker_address"])
+    """Name of the NPC or place talking, or '' if none. The message window points at the
+    conversation slot of whoever is talking (a slot per car slot; buildings use their own); the
+    slot holds their NPC entry, whose first word points at the name."""
+    window = game.u32(DIALOGUE["window_address"])
+    if not 0x200000 <= window < 0x2000000:
+        return ""
+    entry = game.u32(window + DIALOGUE["window_entry"])
     if not 0x200000 <= entry < 0x2000000:
         return ""
-    return c_string(game, game.u32(entry), 24)
+    name = game.u32(entry)
+    if not 0x200000 <= name < 0x2000000:
+        return ""
+    return c_string(game, name, 24)
 
 
 def text(game: "Game") -> str:
@@ -342,7 +677,20 @@ def text(game: "Game") -> str:
     return "".join(chr(b) for b in raw.split(b"\0", 1)[0] if 32 <= b < 127 or b == 10)
 
 
-def finish_dialogue(game: "Game", presses: int = 40, answer=None) -> None:
+def is_choice(game: "Game") -> bool:
+    """The message on screen offers choices (a menu or a question): its script text holds the
+    0x09 choice marker."""
+    cursor = game.u32(DIALOGUE["cursor_address"])
+    if not 0x200000 <= cursor < 0x2000000:
+        return False
+    # The cursor can sit anywhere in the current message: look back to its start too.
+    raw = game.read(cursor - 0x80, 0x180)
+    start = raw.rfind(b"\0", 0, 0x80) + 1
+    message = raw[start:].split(b"\0", 1)[0]
+    return b"\x09" in message
+
+
+def finish_dialogue(game: "Game", presses: int = 40, answer=None, decline: bool = False) -> None:
     """Presses through a conversation until the window closes. `answer(text)` may return
     "down" to pick the second choice of a question (the default is the first)."""
     closed = 0
@@ -357,6 +705,10 @@ def finish_dialogue(game: "Game", presses: int = 40, answer=None) -> None:
             game.run(60)
             continue
         closed = 0
+        if decline and is_choice(game):
+            game.press("triangle")  # say no / back out: we are only passing by
+            game.run(60)
+            continue
         if answer and answer(text(game)) == "down":
             game.press("down")
         game.press("cross")
