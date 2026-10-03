@@ -26,6 +26,7 @@ save that the next one starts from.
 | 2 Player, Race Right-Away: all 10 events (5 courses and Highway, Tunnel, Sliding Door, Obstacle Course, Soccer) | `test_two_player::test_two_player_event` | Card, split-screen start, 20 s of play: golden, sound (exact), the picture moves |
 | 2 Player, Random Race and Custom Race with saves on both cards | `test_two_player::test_two_player_saved_cars` | Card prompt, both saves loaded, carousel, card, start and 10 s of the race |
 | World Grand Prix: all 7 stages | `test_world_grand_prix` | From saves edited to each stage (Super A licence, two teammates, earlier stages done and won): factory, briefing, start golden and sound, the bot races the stage, the game marks it done (stages 1-6); the factory after each stage |
+| The race against President Forest and the ending | `test_president` | From a WGP-won save in Cloud Hill: the secretary and Forest's challenge, the 1-on-1 race on Endurance Run (bot), Forest's concession, the mansion, the credits, "Thank You for Playing", the "Became the President!" stamp (stamp count 100) and the president's body; back in town |
 | Q's Factory: Change parts, each category | `test_factory` | Goldens of the fitted part per category |
 | Memory card: overwrite a save, load it back | `test_memcard::test_overwrite_save_and_load_it` | The save holds the live state; it loads in a fresh boot |
 | Memory card: save to card 2, quit, load from card 2 | `test_memcard::test_save_to_card_2` | "Quit for today" flow, title, Continue from slot 2 restores the progress |
@@ -38,11 +39,10 @@ Adventure mode:
 - [ ] Result screen and winnings after a race; the licence awards (C → B → A → Super A) in story order
 - [ ] Each town's arrival, shops and jobs (the races and the open world are covered above)
 - [ ] Tin Raceway once it opens
-- [ ] Ending and credits: after the 7th WGP stage the game (from our edited saves) starts the WGP
-  over instead of playing the ending. Known: stage flags 0x65.. (set at 0x538), results at 0x3310
-  (team 0 = ours), teammates at 0x674/0x676. Not yet known: what else the ending checks.
-
-Other modes:
+- [ ] Ending, without shortcuts. The test reaches it with two edits: an NPC's script entry
+  points at the Secretary (instead of driving to the mansion gate), and the race result is set to
+  "won" (the bot laps in about 1:30 and Forest is faster). Also: what (beyond stage results)
+  makes a played-through WGP end in the win.
 - [ ] Quick Race: other cars, and courses that open later
 - [ ] 2 Player: finishing an event (needs a second driver), Trade Items, Change Parts, Save
 - [ ] Options: Vibration On/Off effect on the pad motors

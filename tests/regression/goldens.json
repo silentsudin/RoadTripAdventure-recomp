@@ -306,6 +306,10 @@
     "frames": 433664,
     "hash": "6f580a0164f322e3"
   },
+  "audio:president_race_start": {
+    "frames": 8451328,
+    "hash": "d796be66db97bf56"
+  },
   "audio:quick_Endurance_Run_start": {
     "frames": 723200,
     "hash": "63c197720a7000e8"
@@ -510,6 +514,26 @@
     "frames": 3463936,
     "hash": "f448462a4fe53119"
   },
+  "ending_credits": {
+    "height": 447,
+    "sha256": "2332b66baefed55e24b4a27f7444f67a2b19185dd9309981910622eef9a5604c",
+    "width": 1280
+  },
+  "ending_late_credits": {
+    "height": 447,
+    "sha256": "46584fe5fe5e3db7bdf58892e9fa639709b65fe4138d645725f7d5914803adf0",
+    "width": 1280
+  },
+  "ending_stamp": {
+    "height": 447,
+    "sha256": "c76daf10eea8aa8020026af073945a466af2d4d48137a6b1319a01b27df355e3",
+    "width": 1280
+  },
+  "ending_thanks": {
+    "height": 447,
+    "sha256": "911bbaac2efa416dfe4d117aa3ced748ccc7be813cc6dfb6636e12d59b50fe9f",
+    "width": 1280
+  },
   "factory_Chestnut_Canyon": {
     "height": 447,
     "sha256": "298a0a2fd4a4c6d32ad8d5ca2c5558cbfdac6e5810dfff031b447e54988b13d1",
@@ -628,6 +652,21 @@
   "options_vibration": {
     "height": 447,
     "sha256": "d16f3d666c37d31a1654a7b0ef6eeb1af5cf5723aee80446710c058cd59d8c00",
+    "width": 1280
+  },
+  "president_mansion": {
+    "height": 447,
+    "sha256": "c6157e228f0547f644ff24b3a7d846f35361d0d17b76bf65c3e4cae031da791f",
+    "width": 1280
+  },
+  "president_race_start": {
+    "height": 447,
+    "sha256": "4bc8654c9d526f9354795743e67c6de127a373fe018ae5338868e112ec303f25",
+    "width": 1280
+  },
+  "president_won": {
+    "height": 447,
+    "sha256": "efd18b626c14bdaf8efb82c1cdcd6c3e6261cf43189a419a734c1b97224d8391",
     "width": 1280
   },
   "quick_Endurance_Run_card": {
@@ -1108,6 +1147,31 @@
   "wgp_7_start": {
     "height": 447,
     "sha256": "a8ebddd28d20182dae6bda7db8ff222cfb51a4677bcff1f97ee590994886d575",
+    "width": 1280
+  },
+  "zz_scan_70": {
+    "height": 447,
+    "sha256": "61a40f9f275723aaf4d25427175dd250eb7c87faf00ce385fe052528ba984de7",
+    "width": 1280
+  },
+  "zz_scan_71": {
+    "height": 447,
+    "sha256": "5625a37f26b40b48bb45761257e0f78100ff78291845bafc838dcb8c7fc9a85b",
+    "width": 1280
+  },
+  "zz_scan_72": {
+    "height": 447,
+    "sha256": "c76daf10eea8aa8020026af073945a466af2d4d48137a6b1319a01b27df355e3",
+    "width": 1280
+  },
+  "zz_scan_73": {
+    "height": 447,
+    "sha256": "6e2a439c75bca45da13857448ff4363870a8ad3839e73f38b7cd4dadf902e003",
+    "width": 1280
+  },
+  "zz_scan_74": {
+    "height": 447,
+    "sha256": "45b1d6188d0a26b395bfce6a5b130c6bb191243fb42b49c149ad9e03866cefed",
     "width": 1280
   }
 }

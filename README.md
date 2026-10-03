@@ -142,7 +142,7 @@ Environment variables:
 | `RT_INPUT_SCRIPT=<s>:<button>[:<hold>],...` | Presses buttons at fixed times after start, e.g. `10:start,15:cross:3` (testing without a player) |
 | `RT_TIME=virtual`, `RT_SPEED=<x>\|max`, `RT_FAKE_CLOCK=<unix s>` | Deterministic guest time (from EE cycles only), its pace relative to real time, and a fixed guest clock (see Regression suite) |
 | `RT_MOVIE_RECORD` / `RT_MOVIE_PLAY=<file>`, `RT_STATE_HASH=<file>`, `RT_EXIT_AT_VBLANK=<n>` | Record/replay pad input per vblank, log memory hashes, stop after n vblanks |
-| `RT_TEST_SOCKET=<path>`, `RT_HEADLESS=1` | Lockstep control socket for test drivers; hidden window and no audio device |
+| `RT_TEST_SOCKET=<path>`, `RT_HEADLESS=1` | Lockstep control socket for test drivers; no window (pictures only on request) and no audio device |
 | `RT_RENDER=0` | Skip VU1/GS rendering (test runs; the `render` socket command switches it back on to grab frames) |
 | `RT_KEEP_GAME_WORK=1` | Keeps the generated C++ (with the MIPS disassembly in comments) under `<data>/game/work` |
 

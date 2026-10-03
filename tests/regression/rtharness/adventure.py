@@ -20,6 +20,7 @@ PROGRESS = GAME_MAP["progress"]["ram_address"]
 FIELDS = GAME_MAP["progress"]["fields"]
 SCENE_RACING = 10
 SCENE_RACE_OVER = 3
+SCENE_TOWN = 2
 
 
 def scene(game: "Game") -> int:
@@ -98,7 +99,7 @@ def retire(game: "Game"):
 
 
 def drive_race(game: "Game", timeout_seconds: float = 1500, config: DriverConfig | None = None,
-               at: dict | None = None) -> int:
+               at: dict | None = None, ends_in_town: bool = False) -> int:
     """Lets the driving bot race until the game reports the race over; returns our place.
     `at` maps seconds into the race to callbacks (e.g. frame checks) run at that moment."""
     driver = Driver(game, config or DriverConfig())
@@ -128,7 +129,9 @@ def drive_race(game: "Game", timeout_seconds: float = 1500, config: DriverConfig
             retire(game)
             raise Retired(f"the bot was stuck at {driver.positions()[0]} (line point {driver.index}/"
                           f"{len(driver.trail)}, {driver.recoveries} recoveries) and retired")
-        if scene(game) == SCENE_RACE_OVER:
+        # Races end on the "race over" scene; the race against the President goes straight
+        # back to town (ends_in_town).
+        if scene(game) == SCENE_RACE_OVER or (ends_in_town and scene(game) == SCENE_TOWN):
             game.release()  # the bot's held buttons would swallow the presses that follow
             print(f"[race] finished {place}th, {driver.recoveries} recoveries, {driver.nudges} nudges")
             return place

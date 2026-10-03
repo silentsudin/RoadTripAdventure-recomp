@@ -26,6 +26,7 @@ class DriverConfig:
     lookahead: float = 14.0     # longest distance along the trail to aim at (at speed)
     tight_bend: float = 0.6     # radians of turn within the look-ahead above which it shrinks
     min_lookahead: float = 6.0
+    moving_leader: bool = False     # follow only cars that move (fields smaller than 24)
     backtrack: bool = False         # back out of wrong branches (it can hurt on wide tracks)
     off_line: float = 30.0          # this far from the line ...
     off_line_vblanks: int = 180     # ... for this long -> back up along our own path
@@ -74,6 +75,7 @@ class Driver:
     line_distance: float = 0.0
     off_line_since: int | None = None
     off_line_index: int = 0
+    start_cars: list | None = None  # all car positions at the first step (to see who races)
     backtracking_until: int = 0
     breadcrumbs: list = field(default_factory=list)  # our recent positions, for backing out
     backtracks: int = 0
@@ -140,9 +142,19 @@ class Driver:
         if self.leader is None:
             # Learn the line from an AI car: by default the one starting closest to us (the
             # slowest of the field, whose corner speeds our car can match); "far" = the pole car.
-            me = cars[0]
             pick = max if self.config.follow == "far" else min
-            self.leader = pick(range(1, CAR_COUNT), key=lambda k: math.dist(cars[k], me))
+            if not self.config.moving_leader:
+                self.leader = pick(range(1, CAR_COUNT), key=lambda k: math.dist(cars[k], cars[0]))
+            else:
+                # Only cars that move are in the race: smaller fields (the race against the
+                # President) leave the other slots holding stale positions from town.
+                if self.start_cars is None:
+                    self.start_cars = list(cars)
+                    return
+                racing = [k for k in range(1, CAR_COUNT) if math.dist(cars[k], self.start_cars[k]) > 0.5]
+                if not racing:
+                    return
+                self.leader = pick(racing, key=lambda k: math.dist(self.start_cars[k], self.start_cars[0]))
         if self.loop_closed:
             return
         p = cars[self.leader]
