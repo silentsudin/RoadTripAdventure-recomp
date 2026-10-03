@@ -58,6 +58,15 @@ races = [
 # Each town's map (collision geometry, in the town's own coordinates): FLD tiles are the open
 # world, Cloud Hill is ACTION/A16. Indexed like `names`.
 maps = ["", "FLD/223", "FLD/113", "FLD/013", "FLD/103", "FLD/210", "FLD/203", "FLD/233", "ACTION/A16", "FLD/023"]
+# Places the town bot keeps out of, per town: [x, z, radius] (portals that take you to
+# another town). Cloud Hill's rainbow gate leads down to Papaya Island.
+keep_out = { 8 = [[865, 880, 35]] }
+# Where the game puts the car while it is inside a building (every town): being there with no
+# conversation open means a building left us stranded (e.g. the Fuji City maze entrance).
+interior_stage = [1375, 1400, 90]
+# Map margin (cells) around obstacles, where a town needs other than the default 1: Cloud Hill's
+# fences have gaps on the map the car cannot get through.
+map_clearance = { 8 = 2 }
 # Menu entries that are not open at the start of the game (licence A): the factory answers
 # "Under construction."
 not_yet_open = ["Tin Raceway"]
@@ -127,14 +136,12 @@ award_function = 0x23C8A8
 # The message window: open flag (u8), the script cursor (u32, a pointer into the ELF's text),
 # and who is talking: window_address points into the talking NPC's conversation slot, which
 # holds their NPC entry at +window_entry (the entry's first word points at the name); a window
-# is up while the pointer is in window_range (open_address is only its top byte). talk_state is 127 while driving freely (2 greeting,
-# 1 in a building's menus, 0 leaving).
+# is up while the pointer is in window_range (open_address is only its top byte).
 open_address = 0x175E89B
 cursor_address = 0x175E8B0
 window_address = 0x175E898
 window_entry = 0x1C
 window_range = [0x1770000, 0x1780000]
-talk_state_address = 0x1731950
 
 [doors]
 # Building doors: per location, a list of quads (four (x, z) float pairs, 32 bytes each) in
@@ -155,3 +162,13 @@ spawn_table = 0x2C2E78
 # location's stamp (a byte per location at stamp_table) is awarded (0x23D878).
 unvisited_doors = 0xBD8
 stamp_table = 0x2A2B20
+# Who is behind each door: a pointer per location to 16-byte entries (the fourth word points at
+# the resident's name), one per door, then one per driver about town (count in byte 7 of the
+# location's entry in the 8-byte table at 0x2BE438). A resident out driving turns you away.
+residents = 0x2C22C8
+
+[clock]
+# Time of day: a u32 counting vblanks since midnight (151.5 per game minute; a game day is about
+# 60 real minutes). The night sky starts in the evening; shops stay open.
+time_address = 0x335914
+vblanks_per_minute = 151.5

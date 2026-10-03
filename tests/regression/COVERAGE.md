@@ -27,8 +27,10 @@ save that the next one starts from.
 | 2 Player, Random Race and Custom Race with saves on both cards | `test_two_player::test_two_player_saved_cars` | Card prompt, both saves loaded, carousel, card, start and 10 s of the race |
 | World Grand Prix: all 7 stages | `test_world_grand_prix` | From saves edited to each stage (Super A licence, two teammates, earlier stages done and won): factory, briefing, start golden and sound, the bot races the stage, the game marks it done (stages 1-6); the factory after each stage |
 | The race against President Forest and the ending | `test_president` | From a WGP-won save in Cloud Hill: the secretary and Forest's challenge, the 1-on-1 race on Endurance Run (bot), Forest's concession, the mansion, the credits, "Thank You for Playing", the "Became the President!" stamp (stamp 100 earned) and the president's body; back in town |
-| Notebook stamps: "Visited all the houses in ..." | `test_stamps::test_visited_all_houses` | Every door the town counts, one by one: the visit is recorded (the town's unvisited-doors bit clears), then the town's stamp. **Shortcut:** buildings are entered by warping their door onto the car (traffic and other doors parked); the visits run for real. Passing: Peach Town, Fuji City, Mushroom Road. Expected failures (bot not there yet): the other six |
-| Notebook stamp 86 (Dust, Cloud Hill) | `test_stamps::test_stamp_86_angels_wings` | Chase Dust's car, talk, stamp earned. Currently an expected failure (regressed during the rework) |
+| Notebook stamps: "Visited all the houses in ..." | `test_stamps::test_visited_all_houses` | Every door the town counts, one by one: the visit is recorded (the town's unvisited-doors bit clears), then the town's stamp. **Shortcut:** buildings are entered by warping their door onto the car (traffic and other doors parked); the visits run for real. A resident who is out turns you away (nothing is recorded). Passing: Peach Town, Fuji City, Sandpolis, Chestnut Canyon, Mushroom Road, Cloud Hill. Every door but the stamp expected to fail: Papaya Island (door 10, Shirley, drives around White Mountain at this checkpoint), White Mountain (door 17, Bigfoot Joe, never in; reason unknown, to check against PCSX2). Expected failure: My City (its houses come with the story) |
+| Notebook stamps given by talking to a resident | `test_stamps::test_talk_stamp` | Visit, accept the first offer, stamp earned: 2 (Kinsera), 11 (Princess Nanaha), 17 (Otomi), 18 (Iwasuke), 59 (Gene's greeting, a text entry), 73 (Luke), 83 (Casa). Found by surveying every door of every town with accept-first answers; the other stamps need tasks, races or items first |
+| Notebook stamps from mini-games | `test_stamps::test_stamp_29_played_roulette`, `test_stamps::test_minigame_stamp` | Played through for real: Roulette (29: bet, drive the car-ball into a pocket, leave the table), Curling (69: three slides). Not yet: Soccer (needs a full team, story), and the course mini-games (Rock Climbing, Volcano, Figure 8, Obstacle Course, Ski Jumping, the King's Sliding Door Race, Travis's races, Barrel Dodging), which need a bot that follows the course |
+| Notebook stamp 86 (Dust, Cloud Hill) | `test_stamps::test_stamp_86_angels_wings` | Chase Dust's car (doors parked so the chase stays out of the shops), talk, stamp earned |
 | Q's Factory: Change parts, each category | `test_factory` | Goldens of the fitted part per category |
 | Memory card: overwrite a save, load it back | `test_memcard::test_overwrite_save_and_load_it` | The save holds the live state; it loads in a fresh boot |
 | Memory card: save to card 2, quit, load from card 2 | `test_memcard::test_save_to_card_2` | "Quit for today" flow, title, Continue from slot 2 restores the progress |
@@ -52,6 +54,31 @@ Adventure mode:
 Memory card edge cases:
 - [ ] A full or unformatted card (needs runtime support to simulate)
 
+## Shortcuts in the town tests
+
+These keep the town tests deterministic; each skips something a player would do:
+
+- **Door warping** (`TownDriver.warp_into`): a building's door is moved onto the car, so the drive
+  there is skipped; the building itself (people, scripts, items, stamps) runs for real. Driving to
+  doors is covered separately by `enter_door` tests on doors the bot reaches reliably.
+- **Quiet streets** (`park_traffic`, `park_doors`): street NPC cars and the other doors are moved
+  off the map so they cannot interrupt a test.
+- **Carried progress**: towns whose buildings send you elsewhere (Fuji City's maze guard puts you in
+  the Treasure Hunting Maze) are visited in several games; the visits made in earlier games are
+  carried by editing the town's unvisited-doors mask, as a save would. Every visit is real, but a
+  town split this way is not one continuous session, so a visit that broke a later one only in the
+  same session would go unnoticed. Towns where no building strands the car still run in one game
+  (a new game starts only after a stranding or a failed visit).
+- **Residents' hours**: Santa Claus (White Mountain door 10) is in at some hours only; his door,
+  and only his, is retried each game hour for up to a day. Doors whose resident is never in at
+  this checkpoint (Shirley, Bigfoot Joe) are left out, and their towns' stamps are expected
+  failures; every other door of those towns is still required.
+- **Stamps a warp can award without the task**: entering some buildings by warp awards a stamp for
+  *reaching* them (Grandpa Tal's house gives "Cleared Barrel Dodging!", the maze guard gives
+  "Found the location of Treasure Hunting Maze!", Mason at the top gives "Completed Rock
+  Climbing!"). Those stamps are only counted as covered by a test
+  that does the real task; the house-visit tests do not assert them.
+
 ## Notebook stamps (in progress)
 
 The town bot (`rtharness/town.py`) drives any town from its map on the disc: ground heights
@@ -63,8 +90,12 @@ read from RAM (speaker, text). Stamps are bits in the progress block (`[stamps]`
 What awards each stamp (from the game's code and scripts):
 - 92 stamps are awarded by NPC scripts (script opcode 0x0D lists the stamps) or by the race,
   mini-game and story code (direct calls to the award function, or the Figure 8 table).
-- The "Visited all the houses in ..." stamps for most towns and "My City is now complete!" use
-  another mechanism, still to trace.
+- The "Visited all the houses in ..." stamps: leaving a building clears its bit in the town's
+  unvisited-doors mask (0x23C7B0) and, once the mask is empty, awards the town's stamp (table at
+  0x2A2B20). "My City is now complete!" still to trace.
+- Who is behind each door: per location, 16-byte entries at the pointers in 0x2C22C8 (the fourth
+  word names the resident); after the doors come the town's drivers about town. Characters can
+  live in one town and drive in another (Shirley: Papaya Island house, White Mountain driver).
 
 Next: per town, the residents, deliveries and mini-games behind its stamps.
 
