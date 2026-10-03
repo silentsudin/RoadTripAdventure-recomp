@@ -27,6 +27,7 @@ save that the next one starts from.
 | 2 Player, Random Race and Custom Race with saves on both cards | `test_two_player::test_two_player_saved_cars` | Card prompt, both saves loaded, carousel, card, start and 10 s of the race |
 | World Grand Prix: all 7 stages | `test_world_grand_prix` | From saves edited to each stage (Super A licence, two teammates, earlier stages done and won): factory, briefing, start golden and sound, the bot races the stage, the game marks it done (stages 1-6); the factory after each stage |
 | The race against President Forest and the ending | `test_president` | From a WGP-won save in Cloud Hill: the secretary and Forest's challenge, the 1-on-1 race on Endurance Run (bot), Forest's concession, the mansion, the credits, "Thank You for Playing", the "Became the President!" stamp (stamp count 100) and the president's body; back in town |
+| Notebook stamps (1 of 100 so far) | `test_stamps` | The task is played in town by the town bot; the game records the stamp (its bit in the earned set). Stamp 86 (Dust's gift, Cloud Hill) |
 | Q's Factory: Change parts, each category | `test_factory` | Goldens of the fitted part per category |
 | Memory card: overwrite a save, load it back | `test_memcard::test_overwrite_save_and_load_it` | The save holds the live state; it loads in a fresh boot |
 | Memory card: save to card 2, quit, load from card 2 | `test_memcard::test_save_to_card_2` | "Quit for today" flow, title, Continue from slot 2 restores the progress |
@@ -49,6 +50,22 @@ Adventure mode:
 
 Memory card edge cases:
 - [ ] A full or unformatted card (needs runtime support to simulate)
+
+## Notebook stamps (in progress)
+
+The town bot (`rtharness/town.py`) drives any town from its map on the disc: ground heights
+from the map's collision triangles, A* paths around cliffs, water and traffic, walls learned
+when it gets stuck, chases of NPC cars (by predicting where they will be), and the dialogue
+read from RAM (speaker, text). Stamps are bits in the progress block (`[stamps]` in
+`config/game_state.toml`).
+
+What awards each stamp (from the game's code and scripts):
+- 92 stamps are awarded by NPC scripts (script opcode 0x0D lists the stamps) or by the race,
+  mini-game and story code (direct calls to the award function, or the Figure 8 table).
+- The "Visited all the houses in ..." stamps for most towns and "My City is now complete!" use
+  another mechanism, still to trace.
+
+Next: per town, the residents, deliveries and mini-games behind its stamps.
 
 ## Game state to map
 
