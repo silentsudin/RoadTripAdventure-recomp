@@ -14,6 +14,231 @@
     "sha256": "b0ab62a976941f5eb45fbbdacea3524559484bb42ae85fd180e51f161191d678",
     "width": 1280
   },
+  "2p_Desert_Raceway_20s": {
+    "height": 447,
+    "sha256": "ad5c9a176e34583f87cdf09046b40c7d4980dee0ec7de4a4e4ba0d9fb7145f08",
+    "width": 1280
+  },
+  "2p_Desert_Raceway_card": {
+    "height": 447,
+    "sha256": "36958a878189f5a37a068624cea805e8a54da7181d9ba9cc5bfeb005b9478268",
+    "width": 1280
+  },
+  "2p_Desert_Raceway_start": {
+    "height": 447,
+    "sha256": "58a29588b682229e67ba0cc0aa718f8cef8d3942daba761127a6c2a1a7ef262e",
+    "width": 1280
+  },
+  "2p_Endurance_Run_20s": {
+    "height": 447,
+    "sha256": "a54959e706170d929197f2c79e5ab0455f863790eab9035332b7343a7281d4f2",
+    "width": 1280
+  },
+  "2p_Endurance_Run_card": {
+    "height": 447,
+    "sha256": "af8fdcaf1cf75b50f11dcc224cbad0d33d6f4de4e7e79ee42484199adb8d6850",
+    "width": 1280
+  },
+  "2p_Endurance_Run_start": {
+    "height": 447,
+    "sha256": "40b408001c09274a244bcc3abb1b16f1b1a75e90c34e7a2a001b3402b897869f",
+    "width": 1280
+  },
+  "2p_Highway_Race_20s": {
+    "height": 447,
+    "sha256": "723937a209873c14de5fc4b39d05eeeb61730a2fa3245354184d326d0317bc20",
+    "width": 1280
+  },
+  "2p_Highway_Race_card": {
+    "height": 447,
+    "sha256": "6d21d5ff5118a3bf8c48918783a50cd2b7a8b5ead7735bb0f0ae44cf330afc54",
+    "width": 1280
+  },
+  "2p_Highway_Race_start": {
+    "height": 447,
+    "sha256": "abccde2f275f29e3bf030a45a37bb6c8d04cb05235c031091023a8c54888abd9",
+    "width": 1280
+  },
+  "2p_Night_Glow_Raceway_20s": {
+    "height": 447,
+    "sha256": "39eefc6d0023832bc0ba53995fd1d42ead111cb468072fe4a0ec07c3d5e5e597",
+    "width": 1280
+  },
+  "2p_Night_Glow_Raceway_card": {
+    "height": 447,
+    "sha256": "feaa643ce938a0fec44bdf759af6951d261f0c6216d6b13804ef712d7445fb06",
+    "width": 1280
+  },
+  "2p_Night_Glow_Raceway_start": {
+    "height": 447,
+    "sha256": "eb84e8cfa6e1979971219f57c13380013c26abc48f9fd6970385750c56fa380c",
+    "width": 1280
+  },
+  "2p_Obstacle_Course_20s": {
+    "height": 447,
+    "sha256": "daf94e7367f5719288dffb1f502bc85852d5b080280a5c79a2d04c430186e3d1",
+    "width": 1280
+  },
+  "2p_Obstacle_Course_card": {
+    "height": 447,
+    "sha256": "f043ea7a30b6b5a0efb6ffb2a113355fc3e59e5d3b2c209e767fa76be6089cc5",
+    "width": 1280
+  },
+  "2p_Obstacle_Course_start": {
+    "height": 447,
+    "sha256": "435b4ea6c1f3f6eacb61e4344b0d92b6dc18024a090f35bbbcb76f8a789494d8",
+    "width": 1280
+  },
+  "2p_River_Raceway_20s": {
+    "height": 447,
+    "sha256": "9986194f024d4adbfecdcaed804cfac3f28a9ad68523cb333248330ac10bf507",
+    "width": 1280
+  },
+  "2p_River_Raceway_card": {
+    "height": 447,
+    "sha256": "7fdc204f39940f3f9ccad485d7234fbcdadd952d22d8f99c89f14396439663d0",
+    "width": 1280
+  },
+  "2p_River_Raceway_start": {
+    "height": 447,
+    "sha256": "e728184933a55b9662eea7bf970f45c6a9ab5c44466ce79a11f826784a8bfc51",
+    "width": 1280
+  },
+  "2p_Sliding_Door_Race_20s": {
+    "height": 447,
+    "sha256": "9341cd6ad92d05c654ac0a9ba447615b2770ad589a5eb4a32c5b709272a9f9c1",
+    "width": 1280
+  },
+  "2p_Sliding_Door_Race_card": {
+    "height": 447,
+    "sha256": "da5c9b036abfe271cb2fe38a2f6a13954f2c70e3bf021415ec49054bfb3470af",
+    "width": 1280
+  },
+  "2p_Sliding_Door_Race_start": {
+    "height": 447,
+    "sha256": "7e2ec1e4040d2a86fe55948af5b9adca2a3bb8e028e06b02f6be17bf397c2da9",
+    "width": 1280
+  },
+  "2p_Soccer_20s": {
+    "height": 447,
+    "sha256": "72bc9dc9a18604d61dc328b06c75243193877bebd561a8c616ac6bbcb67af457",
+    "width": 1280
+  },
+  "2p_Soccer_card": {
+    "height": 447,
+    "sha256": "c31d7356b7b0ff98069d56f2c05cfea11d503cf04bb57478a2241fe100f54688",
+    "width": 1280
+  },
+  "2p_Soccer_start": {
+    "height": 447,
+    "sha256": "1386a1f51720c2f5dc7c130c6fcfb295efa8b4c444e4a89c14912093222a7a5d",
+    "width": 1280
+  },
+  "2p_Sunny_Beach_Raceway_20s": {
+    "height": 447,
+    "sha256": "09814c6997b883672add0553fb2766d6471b3914308fe10d0b804ac07477a5f2",
+    "width": 1280
+  },
+  "2p_Sunny_Beach_Raceway_card": {
+    "height": 447,
+    "sha256": "373068662f2a16d69524e9e4ff97392789fd2489714f786c87ac3207a535c97e",
+    "width": 1280
+  },
+  "2p_Sunny_Beach_Raceway_start": {
+    "height": 447,
+    "sha256": "9d0258716a9c90f5735eadcdd08675761b49a8a227b0a2189b4a48e9fd80d006",
+    "width": 1280
+  },
+  "2p_Tunnel_Race_20s": {
+    "height": 447,
+    "sha256": "1e36ed5cc16dce488a2c36263bfef9e8fc3f2521fe084409036d625975a3cd9d",
+    "width": 1280
+  },
+  "2p_Tunnel_Race_card": {
+    "height": 447,
+    "sha256": "0b5a4ddbe8f6f898d794785f27f843991ebbdb34ab9c5b5d1999caf903c6389b",
+    "width": 1280
+  },
+  "2p_Tunnel_Race_start": {
+    "height": 447,
+    "sha256": "51e660134fbdf4aef4c89e970e9f2c2a20946d8da1bdb10c177885f5f01eab62",
+    "width": 1280
+  },
+  "2p_custom": {
+    "height": 447,
+    "sha256": "32c733c700b9a585bb248a2595cd10cd4475db504e3b0381bdba178c5a438950",
+    "width": 1280
+  },
+  "2p_custom_10s": {
+    "height": 447,
+    "sha256": "72ad711a4ec2aded561101b1072390abe1d418a78b75945e75f31a599dfa2391",
+    "width": 1280
+  },
+  "2p_custom_card": {
+    "height": 447,
+    "sha256": "df5fa2149b17e1ba5ff38c26e2fbeb1af83e40ed0f10fe230183923ca3e1f7fc",
+    "width": 1280
+  },
+  "2p_custom_carousel": {
+    "height": 447,
+    "sha256": "a68bb057dd2bc3e7ce85c148c9f07ebf8d4ceae70d3a12cf9a66594a7aa563e1",
+    "width": 1280
+  },
+  "2p_custom_loaded": {
+    "height": 447,
+    "sha256": "ed8b28951b1b78d71f6cfbf552f0aa6c934d7086e7511f27e7e2fe3d42c6c640",
+    "width": 1280
+  },
+  "2p_custom_prompt": {
+    "height": 447,
+    "sha256": "c237990235296f7a6155e0c93dee5225d8539813cf9c445e9a00bd9c52dea048",
+    "width": 1280
+  },
+  "2p_custom_start": {
+    "height": 447,
+    "sha256": "ef46928892191d0a3d14ec422dff22621fad0f8cf277b455934eecf1b698030e",
+    "width": 1280
+  },
+  "2p_menu": {
+    "height": 447,
+    "sha256": "9b4a21cfb5248d63192b7bf615612983ff795a75c0ad31ba3a93d3478ee7bd58",
+    "width": 1280
+  },
+  "2p_random": {
+    "height": 447,
+    "sha256": "38d2552f3ae94cff40e25b7af71f8ecc7c22fc58b93bbe909ebbaa229c8c6fff",
+    "width": 1280
+  },
+  "2p_random_10s": {
+    "height": 447,
+    "sha256": "9caeacd05435edb04c0a993f64c72a6238ed1f5671766fccecfe78e2474f7308",
+    "width": 1280
+  },
+  "2p_random_card": {
+    "height": 447,
+    "sha256": "7a55c315209518671fdedc5d7ad30667f03a4d90d92164f279dbf00d7561e3be",
+    "width": 1280
+  },
+  "2p_random_carousel": {
+    "height": 447,
+    "sha256": "87911cfef29e8e362cb3c2bed5c1869679b12ed2cf0bcc9b1077f6eaf962d1a8",
+    "width": 1280
+  },
+  "2p_random_loaded": {
+    "height": 447,
+    "sha256": "a185378ce8b41fdf0260d80da55f51ef7379793b0a91b1bf544f53af0a3535f2",
+    "width": 1280
+  },
+  "2p_random_prompt": {
+    "height": 447,
+    "sha256": "f891e10249a06359e586e9af1ececa2b55f4dd80baf1d365e987124df8daa92c",
+    "width": 1280
+  },
+  "2p_random_start": {
+    "height": 447,
+    "sha256": "ef46928892191d0a3d14ec422dff22621fad0f8cf277b455934eecf1b698030e",
+    "width": 1280
+  },
   "adventure_continue_factory": {
     "height": 447,
     "sha256": "86dbf62b6a02be0abdd1c8d88422d23a1848206a4db799719b440a95c80fbe39",
@@ -32,6 +257,46 @@
   "audio:010_peach_town_drive": {
     "frames": 3320576,
     "hash": "8f71e01833ca11c7"
+  },
+  "audio:2p_Desert_Raceway": {
+    "frames": 964096,
+    "hash": "fe3cc0717336cc91"
+  },
+  "audio:2p_Endurance_Run": {
+    "frames": 960256,
+    "hash": "4ea8009f4b112708"
+  },
+  "audio:2p_Highway_Race": {
+    "frames": 960256,
+    "hash": "cc9580fae6030086"
+  },
+  "audio:2p_Night_Glow_Raceway": {
+    "frames": 961536,
+    "hash": "1f5e86d6298506b2"
+  },
+  "audio:2p_Obstacle_Course": {
+    "frames": 962560,
+    "hash": "c90263fc2a851c1c"
+  },
+  "audio:2p_River_Raceway": {
+    "frames": 963328,
+    "hash": "ff0b95489038205f"
+  },
+  "audio:2p_Sliding_Door_Race": {
+    "frames": 960256,
+    "hash": "afed3ee94d27a844"
+  },
+  "audio:2p_Soccer": {
+    "frames": 960000,
+    "hash": "11aa45a26e84b59f"
+  },
+  "audio:2p_Sunny_Beach_Raceway": {
+    "frames": 961792,
+    "hash": "8c92b5cb503303eb"
+  },
+  "audio:2p_Tunnel_Race": {
+    "frames": 961792,
+    "hash": "61403e5bdb2cf958"
   },
   "audio:attract_demo_15s": {
     "frames": 719104,
@@ -260,6 +525,61 @@
   "factory_White_Mountain": {
     "height": 447,
     "sha256": "850027ad80e759d0b60fce687ddb30290d81daf99647281d3a7f4279e5b2d182",
+    "width": 1280
+  },
+  "factory_parts_brake": {
+    "height": 447,
+    "sha256": "ee5304a26821b584540b4d0b833597e474a39d738b1a4f2447372579ddf4d02c",
+    "width": 1280
+  },
+  "factory_parts_chassis": {
+    "height": 447,
+    "sha256": "bbdeb1ea6cfb8b45a8cdc7eb813ef3e5db08b52340243eab9afd4d03505a9121",
+    "width": 1280
+  },
+  "factory_parts_engine": {
+    "height": 447,
+    "sha256": "008ba025d95f9dd46cd330ff696bfb13f65f6a020cad3b0d785d5654eb2f22e9",
+    "width": 1280
+  },
+  "factory_parts_steering": {
+    "height": 447,
+    "sha256": "f6d4ca4c5a91dcd215cb7b6db7a55680861dc1673e02e6eec41c950b3882f525",
+    "width": 1280
+  },
+  "factory_parts_tires": {
+    "height": 447,
+    "sha256": "5912499d12e464898fa3616c58fe44678b46616716e373e9e9417f75ecf68e66",
+    "width": 1280
+  },
+  "factory_parts_transmission": {
+    "height": 447,
+    "sha256": "605b7eb61c6f3e1544df2eba5ca976fcae477fe6fca3b5ffa8031d224a123c6d",
+    "width": 1280
+  },
+  "factory_parts_whose": {
+    "height": 447,
+    "sha256": "81f0b15ef38d0b6528596c104d79f3c2d7aa35de86d31ebc13240befac1bb0f7",
+    "width": 1280
+  },
+  "memcard_card2_factory": {
+    "height": 447,
+    "sha256": "d69a172bb6ab72a73aa22f27dacae9973a4e593fda425b701ae1763e7a46f65f",
+    "width": 1280
+  },
+  "memcard_damaged_factory": {
+    "height": 447,
+    "sha256": "c307675e81f94d4d7e56d6c56ffa34399ec213879fcb3ace3091098b659f97a2",
+    "width": 1280
+  },
+  "memcard_overwritten_factory": {
+    "height": 447,
+    "sha256": "f75e9abcd0383f5893befcce851da209bc46ab78a694be1435353b452692db08",
+    "width": 1280
+  },
+  "memcard_quit_to_title": {
+    "height": 447,
+    "sha256": "d32caf6534d49b11a283d933c8778962957f38431e855144d79d84913186af6e",
     "width": 1280
   },
   "options_menu": {

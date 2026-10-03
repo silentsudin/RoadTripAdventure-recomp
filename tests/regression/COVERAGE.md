@@ -22,6 +22,13 @@ save that the next one starts from.
 | Options: Speaker Mono / Stereo | `test_menus::test_speaker_mono`, `test_speaker_stereo_differs` | SPU2 voice registers: mono drives every voice equally left and right; stereo pans some |
 | Results screen (with a save and on an empty card) | `test_menus::test_results_*` | Goldens of the slot list, the saved record, "There is no data" |
 | Attract demo | `test_menus::test_attract_demo` | Golden at 45 s; demo sound (exact) |
+| Every Quick Race course (8, default car) | `test_quick_race` | Course card, start golden and sound, a full race with the bot, the card's records afterwards |
+| 2 Player, Race Right-Away: all 10 events (5 courses and Highway, Tunnel, Sliding Door, Obstacle Course, Soccer) | `test_two_player::test_two_player_event` | Card, split-screen start, 20 s of play: golden, sound (exact), the picture moves |
+| 2 Player, Random Race and Custom Race with saves on both cards | `test_two_player::test_two_player_saved_cars` | Card prompt, both saves loaded, carousel, card, start and 10 s of the race |
+| Q's Factory: Change parts, each category | `test_factory` | Goldens of the fitted part per category |
+| Memory card: overwrite a save, load it back | `test_memcard::test_overwrite_save_and_load_it` | The save holds the live state; it loads in a fresh boot |
+| Memory card: save to card 2, quit, load from card 2 | `test_memcard::test_save_to_card_2` | "Quit for today" flow, title, Continue from slot 2 restores the progress |
+| Memory card: damaged save | `test_memcard::test_damaged_save_loads` | The game keeps no checksum and loads it (golden) |
 
 ## To record (in play order)
 
@@ -34,13 +41,12 @@ Adventure mode:
 - [ ] Ending and credits
 
 Other modes:
-- [ ] Quick Race: every course (one section each), other cars, laps and results
-- [ ] 2 Player (split screen): one race
+- [ ] Quick Race: other cars, and courses that open later
+- [ ] 2 Player: finishing an event (needs a second driver), Trade Items, Change Parts, Save
 - [ ] Options: Vibration On/Off effect on the pad motors
 
 Memory card edge cases:
-- [ ] No save: Continue shows "There is no data" (scripted, like the smoke tests)
-- [ ] Second slot; overwriting a save; a full or unformatted card; a corrupt save
+- [ ] A full or unformatted card (needs runtime support to simulate)
 
 ## Game state to map
 

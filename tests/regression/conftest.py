@@ -54,7 +54,6 @@ def produced_checkpoint(item) -> str | None:
 
 def pytest_collection_modifyitems(config, items):
     # Checkpoint producers first, so with -n they are scheduled before the tests waiting on them.
-    config.rt_producing = {name for item in items if (name := produced_checkpoint(item))}
     items.sort(key=lambda item: produced_checkpoint(item) is None)
     if config.getoption("--perf"):
         return
@@ -62,6 +61,11 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if "perf" in item.keywords:
             item.add_marker(skip)
+
+
+def pytest_collection_finish(session):
+    # After -k/-m deselection: the checkpoints this run will (re)make.
+    session.config.rt_producing = {name for item in session.items if (name := produced_checkpoint(item))}
 
 
 @pytest.hookimpl(wrapper=True)
@@ -90,19 +94,23 @@ def test_data(options) -> Path:
 
 @pytest.fixture
 def game_factory(options, test_data, request):
-    """game_factory(checkpoint=None, name=None) -> started Game; closed after the test."""
+    """game_factory(checkpoint=None, name=None, card2=None) -> started Game; closed after the test."""
     games = []
 
-    def make(checkpoint: str | None = None, name: str | None = None, **kwargs) -> Game:
+    def resolve(checkpoint: str) -> Path:
+        # A checkpoint name, or a path to a card directory a test prepared.
+        cp = test_data / "checkpoints" / checkpoint
+        if checkpoint in request.config.rt_producing and produced_checkpoint(request.node) != checkpoint:
+            wait_for_checkpoint(request.config, cp)
+        if not cp.is_dir():
+            pytest.skip(f"checkpoint '{checkpoint}' missing; run the test that creates it first")
+        return cp
+
+    def make(checkpoint: str | None = None, name: str | None = None, card2: str | None = None,
+             **kwargs) -> Game:
         work = test_data / "runs" / (name or request.node.name)
-        cp = None
-        if checkpoint:
-            cp = test_data / "checkpoints" / checkpoint
-            if checkpoint in request.config.rt_producing and produced_checkpoint(request.node) != checkpoint:
-                wait_for_checkpoint(request.config, cp)
-            if not cp.is_dir():
-                pytest.skip(f"checkpoint '{checkpoint}' missing; run the test that creates it first")
-        game = Game(Path(options.base_data), work, checkpoint=cp, speed=options.speed,
+        game = Game(Path(options.base_data), work, checkpoint=resolve(checkpoint) if checkpoint else None,
+                    card2=resolve(card2) if card2 else None, speed=options.speed,
                     app=Path(options.app), **kwargs).start()
         games.append(game)
         return game

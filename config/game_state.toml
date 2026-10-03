@@ -68,3 +68,8 @@ backtrack = ["Night Glow Raceway B"]
 # Course carousel order (right moves to the next; "Exit" follows the last), at the start of the game.
 courses = ["Peach Raceway", "Temple Raceway", "Night Glow Raceway", "Snow Mountain Raceway", "Oval Raceway",
            "Lagoon Raceway", "Tin Raceway", "Endurance Run"]
+
+[two_player]
+# 2 Player > Race Right-Away carousel order (then "Exit").
+events = ["Endurance Run", "Desert Raceway", "Night Glow Raceway", "River Raceway", "Sunny Beach Raceway",
+          "Highway Race", "Tunnel Race", "Sliding Door Race", "Obstacle Course", "Soccer"]
