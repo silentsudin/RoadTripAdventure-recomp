@@ -91,3 +91,22 @@ results_offset = 0x3310
 # (town, course) per stage; each stage is run at that town's Q's Factory.
 stages = [[1, "Peach Raceway II"], [2, "Temple Raceway"], [3, "Night Glow Raceway"], [6, "Snow Mountain Raceway"],
           [4, "Lava Run Raceway"], [7, "Lagoon Raceway"], [5, "Slick Track"]]
+
+[president]
+# The race against President Forest (Endurance Run, 1 on 1) after the World Grand Prix, then the
+# ending. Story flags (set at progress 0x538) for "WGP won": 0x57 and the 7 stage flags.
+wgp_won_flags = [0x57, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B]
+town = 8                      # Cloud Hill: the President's mansion
+# Talking to an NPC runs entry n of the NPC table (pointers to name + script lines). The test
+# points Dust's entry at the Secretary's, so bumping Dust (car slot 2 in Cloud Hill) leads to
+# the challenge instead of finding the mansion gate (coverage-first edit; driving there is
+# still to do).
+npc_table = 0x2A7768
+dust_entry = 15
+secretary = 0x2A7438
+# Race outcome the post-race script branches on (opcode 0x0B): 0 retired, 1 lost, 2 won.
+race_result_address = 0x335704
+# What the ending writes to the progress block: the stamp count (the notebook's "Became the
+# President!" is stamp 100) and an entry for the president's body (Q149).
+stamp_count_offset = 0x3304
+body_offset = 0x5A8
