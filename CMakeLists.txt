@@ -26,6 +26,8 @@ set(PS2X_ENABLE_DEBUG_UI ${RT_ENABLE_DEBUG_UI} CACHE BOOL "" FORCE)
 # of speed. Off by default; turn back on with -DRT_VERBOSE_RUNTIME_LOGS=ON when debugging.
 option(RT_VERBOSE_RUNTIME_LOGS "Enable PS2Recomp aggressive logs + function log tracker" OFF)
 set(PS2X_ENABLE_AGRESSIVE_LOGS ${RT_VERBOSE_RUNTIME_LOGS} CACHE BOOL "" FORCE)
+# SDL3 is the platform layer (window, events, controllers and rumble) under raylib.
+set(PS2X_HOST_PLATFORM "SDL3" CACHE STRING "" FORCE)
 # Keep the bundled ps2_recomp free of Homebrew dylibs (libdwarf would pick up zstd).
 set(ENABLE_DECOMPRESSION OFF CACHE BOOL "" FORCE)
 add_subdirectory(third_party/PS2Recomp EXCLUDE_FROM_ALL)
@@ -65,7 +67,12 @@ set(RT_APP_SOURCES
     src/game/GameBuilder.cpp
     src/game/overrides.cpp
     src/platform/Paths.cpp
-    src/platform/Input.cpp
+    src/platform/input/Config.cpp
+    src/platform/input/Devices.cpp
+    src/platform/input/Input.cpp
+    src/platform/input/Mapping.cpp
+    src/platform/input/Players.cpp
+    src/platform/input/Types.cpp
     src/rom/IsoReader.cpp
     src/rom/RomInstaller.cpp
     src/rom/Sha1.cpp
@@ -79,7 +86,7 @@ list(APPEND RT_APP_SOURCES "${PS2X_RUNTIME_DIR}/src/runner/register_functions.cp
 
 add_executable(RoadTrip MACOSX_BUNDLE ${RT_APP_SOURCES})
 target_include_directories(RoadTrip PRIVATE src)
-target_link_libraries(RoadTrip PRIVATE ps2_runtime rt_sse2neon)
+target_link_libraries(RoadTrip PRIVATE ps2_runtime rt_sse2neon SDL3::SDL3 toml11::toml11)
 add_dependencies(RoadTrip ps2_recomp rt_game_sdk_probe)
 # The game library is linked with -undefined dynamic_lookup and resolves the runtime from the
 # executable, so every runtime symbol must be present and exported.
@@ -89,7 +96,8 @@ target_link_options(RoadTrip PRIVATE
     "LINKER:-force_load,$<TARGET_FILE:ps2_iop>")
 
 if(RT_ENABLE_DEBUG_UI)
-    target_sources(RoadTrip PRIVATE "${PS2X_RUNTIME_DIR}/src/lib/ps2_debug_panel.cpp")
+    target_sources(RoadTrip PRIVATE "${PS2X_RUNTIME_DIR}/src/lib/ps2_debug_panel.cpp"
+                                    src/platform/input/ControllersWindow.cpp)
     target_link_libraries(RoadTrip PRIVATE rlImGui imgui)
     target_compile_definitions(RoadTrip PRIVATE PS2X_ENABLE_DEBUG_UI=1)
 endif()
@@ -152,4 +160,11 @@ if(BUILD_TESTING)
     target_include_directories(iso_reader_test PRIVATE src)
     add_test(NAME iso_reader COMMAND iso_reader_test)
     set_tests_properties(iso_reader PROPERTIES SKIP_RETURN_CODE 77)
+
+    add_executable(input_test tests/input_test.cpp
+        src/platform/input/Config.cpp src/platform/input/Devices.cpp src/platform/input/Mapping.cpp
+        src/platform/input/Players.cpp src/platform/input/Types.cpp)
+    target_include_directories(input_test PRIVATE src)
+    target_link_libraries(input_test PRIVATE SDL3::SDL3 toml11::toml11)
+    add_test(NAME input COMMAND input_test)
 endif()
