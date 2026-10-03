@@ -33,20 +33,40 @@ def boot_to_main_menu(game: "Game"):
     game.run(seconds(3))
 
 
-def continue_to_factory(game: "Game"):
-    """Main menu -> Adventure -> Continue -> slot 1 -> load, ending at Q's Factory's menu."""
-    boot_to_main_menu(game)
+def continue_to_factory(game: "Game", slot: int = 1, boot: bool = True):
+    """Main menu -> Adventure -> Continue -> slot (memory card 1 or 2) -> load, ending at Q's
+    Factory's menu. boot=False starts from the main menu."""
+    if boot:
+        boot_to_main_menu(game)
     game.press("cross")       # Adventure
     game.run(seconds(2))
     game.press("down")        # Continue
     game.press("cross")
     game.run(seconds(3))
-    game.press("cross")       # slot 1
+    for _ in range(slot - 1):
+        game.press("down")
+    game.press("cross")       # the slot
     game.run(seconds(3))
     game.press("cross")       # load this saved data: Yes
     game.run(seconds(12))
     game.press("cross")       # dismiss the greeting
     game.run(seconds(2))
+
+
+def save_game(game: "Game", slot: int = 1) -> None:
+    """At Q's Factory's menu: Save data -> slot -> Yes (overwrite or create) -> back at the menu."""
+    game.press("down")
+    game.press("down")
+    game.press("cross")       # Save data
+    game.run(seconds(3))
+    for _ in range(slot - 1):
+        game.press("down")
+    game.press("cross")       # the slot
+    game.run(seconds(4))
+    game.press("cross")       # Yes
+    game.run(seconds(4))      # "Saved."
+    game.press("cross")
+    game.run(seconds(3))
 
 
 def enter_race(game: "Game", menu_index: int):

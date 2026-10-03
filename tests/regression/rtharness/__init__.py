@@ -63,16 +63,18 @@ class Game:
 
     `base_data` is an installed data directory (extracted disc + built game library); the instance
     gets its own directory with links to those and its own memory cards, optionally seeded from a
-    checkpoint (a saved mc0 directory).
+    checkpoint (a saved mc0 directory); card2 likewise puts one on memory card 2.
     """
 
     def __init__(self, base_data: Path, work_dir: Path, *, checkpoint: Path | None = None,
+                 card2: Path | None = None,
                  speed: str = "max", fake_clock: int = 1_000_000_000, app: Path = DEFAULT_APP,
                  state_hash: bool = False, env: dict | None = None,
                  progress_edits: dict[int, bytes] | None = None, render: bool = False):
         self.base_data = Path(base_data)
         self.work_dir = Path(work_dir)
         self.checkpoint = checkpoint
+        self.card2 = card2
         self.speed = speed
         self.fake_clock = fake_clock
         self.app = Path(app)
@@ -102,7 +104,11 @@ class Game:
         self.data_dir.mkdir(parents=True)
         for name in ("disc", "game"):
             os.symlink(self.base_data / name, self.data_dir / name)
-        (self.saves_dir / "mc1").mkdir(parents=True)
+        self.saves_dir.mkdir(parents=True)
+        if self.card2:
+            shutil.copytree(self.card2, self.saves_dir / "mc1")
+        else:
+            (self.saves_dir / "mc1").mkdir()
         if self.checkpoint:
             shutil.copytree(self.checkpoint, self.saves_dir / "mc0")
         else:
@@ -294,12 +300,12 @@ class Game:
         game_map = save_parser.load_map()["progress"]
         return save_parser.decode(self.read(game_map["ram_address"], game_map["size"]))
 
-    def saved_progress(self) -> dict:
-        """Adventure progress decoded from the save on memory card 1."""
+    def saved_progress(self, card: int = 1) -> dict:
+        """Adventure progress decoded from the save on memory card 1 (or 2)."""
         sys.path.insert(0, str(REPO / "tools"))
         import save_parser
 
-        return save_parser.decode((self.saves_dir / "mc0/BASLUS-20398/BASLUS-20398").read_bytes())
+        return save_parser.decode((self.saves_dir / f"mc{card - 1}/BASLUS-20398/BASLUS-20398").read_bytes())
 
     def marker(self, kind: str, text: str = ""):
         """Adds a marker to the movie being recorded (RT_MOVIE_RECORD)."""
