@@ -89,6 +89,24 @@ class Driver:
     lap_vblanks: int = 0
     top_speed: float = 0.0
 
+    def export_line(self) -> dict | None:
+        """The learned racing line (one lap of the leader's trail and when it passed each
+        point), for `load_line` in a later race on the same course; None before a full lap."""
+        if not self.loop_closed:
+            return None
+        t0 = self.times[0]
+        return {"trail": [list(p) for p in self.trail], "times": [t - t0 for t in self.times],
+                "lap_vblanks": self.lap_vblanks, "top_speed": self.top_speed}
+
+    def load_line(self, line: dict) -> None:
+        """Drive a racing line learned earlier (export_line) from the start: no lap spent
+        learning it. A leader is still picked, but its trail is not recorded."""
+        self.trail = [tuple(p) for p in line["trail"]]
+        self.times = list(line["times"])
+        self.lap_vblanks = line["lap_vblanks"]
+        self.top_speed = line["top_speed"]
+        self.loop_closed = True
+
     def _read_self(self):
         """Our position and facing (from the front and rear wheel positions, car +0xB0 and
         +0xD0) in one read."""
