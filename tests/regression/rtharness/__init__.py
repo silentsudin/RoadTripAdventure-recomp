@@ -247,28 +247,45 @@ class Game:
         return self.run(seconds(s))
 
     def step(self, vblanks: int, buttons: list[str] | None = None, lx: int = 128,
-             reads: list[tuple[int, int]] | None = None) -> list[bytes]:
-        """Sets the pad (if `buttons` is given), runs `vblanks` and reads EE memory ranges
-        (addr, len), in one round trip."""
+             reads: list[tuple[int, int]] | None = None, port: int | None = None) -> list[bytes]:
+        """Sets the pad (if `buttons` is given; both pads, or only `port`), runs `vblanks` and
+        reads EE memory ranges (addr, len), in one round trip."""
         args = {"vblanks": int(vblanks), "reads": ",".join(f"ee:{a}:{n}" for a, n in (reads or []))}
         if buttons is not None:
             mask = 0xFFFF
             for b in buttons:
                 mask &= ~BUTTONS[b]
             args.update(buttons=mask, lx=int(lx))
+            if port is not None:
+                args["port"] = int(port)
         reply = self._call("step", **args)
         self.vblank = reply["vblank"]
         return [bytes.fromhex(h) for h in reply["data"]]
 
-    def pad(self, *buttons: str, lx: int = 128, ly: int = 128, rx: int = 128, ry: int = 128):
-        """Holds `buttons` (and stick positions) from the next vblank on."""
+    def pad(self, *buttons: str, lx: int = 128, ly: int = 128, rx: int = 128, ry: int = 128,
+            port: int | None = None, connected: bool | None = None):
+        """Holds `buttons` (and stick positions) from the next vblank on: on both pads, or only
+        on `port` (0 or 1). `connected=False` unplugs that pad (True plugs it back in)."""
         mask = 0xFFFF
         for b in buttons:
             mask &= ~BUTTONS[b]
-        self._call("pad", buttons=mask, lx=lx, ly=ly, rx=rx, ry=ry)
+        args = dict(buttons=mask, lx=lx, ly=ly, rx=rx, ry=ry)
+        if port is not None:
+            args["port"] = int(port)
+        if connected is not None:
+            args["connected"] = 1 if connected else 0
+        self._call("pad", **args)
 
-    def release(self):
-        self.pad()
+    def release(self, port: int | None = None):
+        self.pad(port=port)
+
+    def actuators(self) -> list[dict]:
+        """Vibration per pad port: {"small": 0/1, "large": 0..255, "changes": n}."""
+        return self._call("actuators")["ports"]
+
+    def pad_info(self) -> list[dict]:
+        """Per pad port: open, analog (DualShock mode), connected, reads, align (actuator table)."""
+        return self._call("pad_info")["ports"]
 
     def press(self, *buttons: str, frames: int = 8, then: int = 8):
         """Presses and releases `buttons`, then lets `then` more vblanks pass."""
