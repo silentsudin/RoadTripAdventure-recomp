@@ -55,6 +55,9 @@ races = [
   ["Tin Raceway"],
   ["Endurance Run"],
 ]
+# Each town's map (collision geometry, in the town's own coordinates): FLD tiles are the open
+# world, Cloud Hill is ACTION/A16. Indexed like `names`.
+maps = ["", "FLD/223", "FLD/113", "FLD/013", "FLD/103", "FLD/210", "FLD/203", "FLD/233", "ACTION/A16", "FLD/023"]
 # Menu entries that are not open at the start of the game (licence A): the factory answers
 # "Under construction."
 not_yet_open = ["Tin Raceway"]
@@ -110,3 +113,20 @@ race_result_address = 0x335704
 # President!" is stamp 100) and an entry for the president's body (Q149).
 stamp_count_offset = 0x3304
 body_offset = 0x5A8
+
+[stamps]
+# Notebook stamps 1..100. Stamp n earned <=> bit n-1 of the 128-bit set at progress
+# earned_offset (two u64). The award function (0x23C8A8, stamp in a0) skips earned or queued
+# stamps and queues the new one: u32 count at queue_offset, then up to 8 stamp numbers; the
+# queue is shown (and popped, 0x23D818) later. Captions live in the ELF in reverse order
+# (stamp n = entry 100-n of the list ending in "mail %d/%d"); tests read them from the disc.
+earned_offset = 0x518
+queue_offset = 0x3300
+award_function = 0x23C8A8
+
+[dialogue]
+# The message window: open flag (u8), the script cursor (u32, a pointer into the ELF's text),
+# and the speaker's NPC entry (u32 pointer; its first word points at the name).
+open_address = 0x175E89B
+cursor_address = 0x175E8B0
+speaker_address = 0x177A56C
