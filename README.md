@@ -182,6 +182,7 @@ python3 scripts/regress.py -k adventure --update-goldens
 - **Lockstep control:** tests drive the game over a Unix socket. The game parks between vblanks while a test reads memory, sets the pad or grabs the exact picture (`rtharness.Game`: `run`, `press`, `pad`, `read`/`u32`, `frame`, `stats`).
 - **Fast:** tests run with rendering off (`RT_RENDER=0`): VU1 and GS work is skipped, which the game's logic never reads back (memory hashes match with and without it). `frame()` switches rendering on for 4 vblanks to grab a picture. With the IOP's cycles batched, a minute of racing takes a few seconds.
 - **Driving bot:** `rtharness.driver.Driver` races Adventure events. It waits a lap while an AI car lays down the racing line, then follows that line (steering by look-ahead, braking where the AI did), backs off walls, and for races listed under `[bot]` in `config/game_state.toml` backs out of wrong branches. `step` runs it in one round trip per control update.
+- **Cleanup:** a test game exits by itself when its driver disconnects or dies (or none attaches within 5 minutes); `Game` stops its process group on close and at exit, and the run fails if any game outlives it.
 - **Checkpoints:** tests that end with an in-game save store the memory card as a checkpoint. Later tests start from it (Continue), so long play-throughs split into independent sections.
 - **What's committed:** golden frames are committed as hashes (`tests/regression/goldens.json`). The images, checkpoints and failure diffs are game output and stay in `build/regression`.
 

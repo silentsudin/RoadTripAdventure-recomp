@@ -8,14 +8,17 @@ third_party/PS2Recomp/ps2xRuntime/include/runtime/ps2_test_harness.h for the pro
 
 from __future__ import annotations
 
+import atexit
 import json
 import os
 import shutil
+import signal
 import socket
 import struct
 import subprocess
 import sys
 import time
+import weakref
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,6 +38,35 @@ BUTTONS = {
 def seconds(s: float) -> int:
     """Guest seconds -> vblanks."""
     return round(s * VBLANKS_PER_SECOND)
+
+
+# Games started by this process and not closed yet. The exit hook stops any a crashed script or
+# test left behind (the game itself also exits when its controller disconnects or dies).
+_LIVE: "weakref.WeakSet[Game]" = weakref.WeakSet()
+
+
+def _kill_group(proc: subprocess.Popen) -> None:
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        pass
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        pass
+
+
+@atexit.register
+def close_all_games() -> int:
+    """Stops every game still running; returns how many there were."""
+    leftover = [g for g in list(_LIVE) if g.proc is not None]
+    for game in leftover:
+        try:
+            game.close()
+        except Exception:
+            if game.proc is not None:
+                _kill_group(game.proc)
+    return len(leftover)
 
 
 class GameError(RuntimeError):
@@ -136,8 +168,18 @@ class Game:
             env["RT_STATE_HASH"] = str(self.work_dir / "state_hash.txt")
         env.update(self.extra_env)
         self.log = open(self.work_dir / "app.log", "wb")
+        # Its own process group, so close() (or the exit hook) can stop everything it started.
         self.proc = subprocess.Popen([str(self.app)], cwd=self.work_dir, env=env,
-                                     stdout=self.log, stderr=subprocess.STDOUT)
+                                     stdout=self.log, stderr=subprocess.STDOUT, start_new_session=True)
+        _LIVE.add(self)
+        try:
+            self._connect()
+        except BaseException:
+            self.close()  # never leave a half-started game running
+            raise
+        return self
+
+    def _connect(self):
         sock_path = self.work_dir / "rt.sock"
         deadline = time.time() + 120  # the game library may be (re)built on first launch
         while not sock_path.exists():
@@ -155,7 +197,6 @@ class Game:
             os.chdir(cwd)
         self._file = self.sock.makefile("rw")
         self.run(1)
-        return self
 
     def close(self):
         if self.sock:
@@ -163,15 +204,18 @@ class Game:
                 self._call("quit")
             except Exception:
                 pass
+            if getattr(self, "_file", None):
+                self._file.close()
+                self._file = None
             self.sock.close()
             self.sock = None
         if self.proc:
             try:
                 self.proc.wait(timeout=10)
             except subprocess.TimeoutExpired:
-                self.proc.kill()
-                self.proc.wait()
+                _kill_group(self.proc)
             self.proc = None
+        _LIVE.discard(self)
         if getattr(self, "log", None):
             self.log.close()
 

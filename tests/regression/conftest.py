@@ -14,7 +14,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from rtharness import DEFAULT_APP, Game  # noqa: E402
+from rtharness import DEFAULT_APP, Game, close_all_games  # noqa: E402
 from rtharness import goldens  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
@@ -178,3 +178,12 @@ def new_checkpoint(test_data, request):
         else:
             shutil.rmtree(scratch, ignore_errors=True)
             cp.with_name(name + ".failed").write_text(request.config.rt_session)
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Every test closes its games; any still running here is a harness bug: stop it and fail."""
+    leftover = close_all_games()
+    if leftover:
+        print(f"\n[regress] {leftover} game(s) were still running after the tests; stopped them")
+        session.exitstatus = 1
+
