@@ -109,9 +109,8 @@ dust_entry = 15
 secretary = 0x2A7438
 # Race outcome the post-race script branches on (opcode 0x0B): 0 retired, 1 lost, 2 won.
 race_result_address = 0x335704
-# What the ending writes to the progress block: the stamp count (the notebook's "Became the
-# President!" is stamp 100) and an entry for the president's body (Q149).
-stamp_count_offset = 0x3304
+# The ending earns stamp 100 ("Became the President!", see [stamps]) and records the
+# president's body (Q149) at body_offset in the progress block.
 body_offset = 0x5A8
 
 [stamps]
@@ -130,3 +129,10 @@ award_function = 0x23C8A8
 open_address = 0x175E89B
 cursor_address = 0x175E8B0
 speaker_address = 0x177A56C
+
+[doors]
+# Building doors: per location, a list of quads (four (x, z) float pairs, 32 bytes each) in
+# the ELF; driving into a quad enters that building (its greeting opens a dialogue). The table
+# holds one pointer per location; a list ends where the next one starts.
+table_address = 0x2C0698
+locations = 24

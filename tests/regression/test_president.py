@@ -14,6 +14,7 @@ import struct
 from rtharness import seconds
 from rtharness.adventure import FIELDS, GAME_MAP, PROGRESS, SCENE_RACING, continue_to_factory, drive_race, scene
 from rtharness.driver import CAR_STRIDE, CARS_BASE, DriverConfig
+from rtharness.town import stamps_earned
 
 PRES = GAME_MAP["president"]
 WGP = GAME_MAP["world_grand_prix"]
@@ -106,5 +107,5 @@ def test_president_race_and_ending(game_factory, golden, golden_audio):
     game.run(seconds(10))
     assert scene(game) == SCENE_TOWN, "back in town after the ending"
     now = game.read(PROGRESS, 13384)
-    assert now[PRES["stamp_count_offset"]] == 100, "the 'Became the President!' stamp (number 100) is recorded"
+    assert 100 in stamps_earned(game), "the 'Became the President!' stamp (number 100) is recorded"
     assert now[PRES["body_offset"]] != whole[PRES["body_offset"]], "the president's body (Q149) is given"
