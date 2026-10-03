@@ -8,8 +8,8 @@ from pathlib import Path
 import pytest
 
 from rtharness import seconds
-from rtharness.adventure import FIELDS, GAME_MAP, PROGRESS, continue_to_factory
-from rtharness.minigames import drive_minigame, play_roulette
+from rtharness.adventure import FIELDS, GAME_MAP, PROGRESS, SCENE_TOWN, continue_to_factory, scene
+from rtharness.minigames import drive_minigame, play_roulette, ski_jump
 from rtharness.town import (TownDriver, TownMap, car_pose, door_quads, finish_dialogue, park_traffic,
                             speaker, stamps_earned)
 
@@ -198,3 +198,18 @@ def test_minigame_stamp(town, stamp, number, door, desk):
     drive_minigame(game)
     driver.settle()
     assert stamp in stamps_earned(game)
+
+
+def test_ski_jump_lands(town):
+    """White Mountain's Ski Jumping: a straight run off the ramp lands cleanly. (The stamp for
+    over 140 m needs a faster car than this save's: a later save in the chain.)"""
+    game, driver = town(WHITE_MOUNTAIN, quiet=True)
+    assert driver.warp_into(7) == "Ski Jumping Registration"
+    finish_dialogue(game)  # Cross: "I'll go!!"
+    assert game.u32(PROGRESS + FIELDS["ski_jump_best"]["offset"]) == 0  # never jumped in this save
+    result = ski_jump(game)
+    assert "Congratulations" in result, result
+    best = game.u32(PROGRESS + FIELDS["ski_jump_best"]["offset"])
+    assert 90 <= best < 140, f"jumped {best} m (the stock car flies about 101 m)"
+    finish_dialogue(game, decline=True)  # no second try
+    assert scene(game) == SCENE_TOWN

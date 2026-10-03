@@ -6,7 +6,7 @@ import math
 from typing import TYPE_CHECKING
 
 from .adventure import SCENE_RACING, SCENE_TOWN, scene
-from .town import dialogue_open
+from .town import dialogue_open, text
 
 if TYPE_CHECKING:
     from . import Game
@@ -75,3 +75,25 @@ def drive_minigame(game: "Game", timeout_seconds: int = 300) -> None:
             game.step(60, ["cross"], 128 + int(100 * math.sin(t / 3)))
     game.release()
     raise AssertionError("the mini-game did not finish")
+
+
+def ski_jump(game: "Game", timeout_seconds: int = 60) -> str:
+    """One run of White Mountain's Ski Jumping, straight down the ramp at full throttle (the
+    stock car flies about 100 m). Returns the result message ("Smooth landing. Congratulations!
+    ..." when it lands well); the window is left open on "Would you like to try again?"."""
+    for _ in range(timeout_seconds):
+        if dialogue_open(game) and scene(game) == SCENE_TOWN:
+            break
+        game.step(60, ["cross"], 128)
+    else:
+        raise AssertionError("no ski jump result")
+    game.release()
+    seen = ""
+    for _ in range(20):  # read the result as it types out
+        current = text(game)
+        if current and current not in seen:
+            seen += current
+        if "again?" in current:
+            break
+        game.run(30)
+    return seen

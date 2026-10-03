@@ -29,7 +29,7 @@ save that the next one starts from.
 | The race against President Forest and the ending | `test_president` | From a WGP-won save in Cloud Hill: the secretary and Forest's challenge, the 1-on-1 race on Endurance Run (bot), Forest's concession, the mansion, the credits, "Thank You for Playing", the "Became the President!" stamp (stamp 100 earned) and the president's body; back in town |
 | Notebook stamps: "Visited all the houses in ..." | `test_stamps::test_visited_all_houses` | Every door the town counts, one by one: the visit is recorded (the town's unvisited-doors bit clears), then the town's stamp. **Shortcut:** buildings are entered by warping their door onto the car (traffic and other doors parked); the visits run for real. A resident who is out turns you away (nothing is recorded). Passing: Peach Town, Fuji City, Sandpolis, Chestnut Canyon, Mushroom Road, Cloud Hill. Every door but the stamp expected to fail: Papaya Island (door 10, Shirley, drives around White Mountain at this checkpoint), White Mountain (door 17, Bigfoot Joe, never in; reason unknown, to check against PCSX2). Expected failure: My City (its houses come with the story) |
 | Notebook stamps given by talking to a resident | `test_stamps::test_talk_stamp` | Visit, accept the first offer, stamp earned: 2 (Kinsera), 11 (Princess Nanaha), 17 (Otomi), 18 (Iwasuke), 59 (Gene's greeting, a text entry), 73 (Luke), 83 (Casa). Found by surveying every door of every town with accept-first answers; the other stamps need tasks, races or items first |
-| Notebook stamps from mini-games | `test_stamps::test_stamp_29_played_roulette`, `test_stamps::test_minigame_stamp` | Played through for real: Roulette (29: bet, drive the car-ball into a pocket, leave the table), Curling (69: three slides). Not yet: Soccer (needs a full team, story), and the course mini-games (Rock Climbing, Volcano, Figure 8, Obstacle Course, Ski Jumping, the King's Sliding Door Race, Travis's races, Barrel Dodging), which need a bot that follows the course |
+| Notebook stamps from mini-games | `test_stamps::test_stamp_29_played_roulette`, `test_stamps::test_minigame_stamp` | Played through for real: Roulette (29: bet, drive the car-ball into a pocket, leave the table), Curling (69: three slides). Ski Jumping (`test_ski_jump_lands`): a straight run lands cleanly and the record (progress 0x12C8) is 90-140 m; the 140 m stamp (66) needs a faster car than the Panther engine (about 106 m), so it waits for a later save in the chain. Not yet: Soccer (needs a full team, story), and the course mini-games (Rock Climbing, Volcano, Figure 8, Obstacle Course, Ski Jumping, the King's Sliding Door Race, Travis's races, Barrel Dodging), which need a bot that follows the course |
 | Notebook stamp 86 (Dust, Cloud Hill) | `test_stamps::test_stamp_86_angels_wings` | Chase Dust's car (doors parked so the chase stays out of the shops), talk, stamp earned |
 | Q's Factory: Change parts, each category | `test_factory` | Goldens of the fitted part per category |
 | Memory card: overwrite a save, load it back | `test_memcard::test_overwrite_save_and_load_it` | The save holds the live state; it loads in a fresh boot |
@@ -53,6 +53,14 @@ Adventure mode:
 
 Memory card edge cases:
 - [ ] A full or unformatted card (needs runtime support to simulate)
+
+## Chained saves
+
+Progress a stamp needs (teammates, parts, licences, story) is reached by the bot playing the real
+steps and saving; later tests start from those saves (`@pytest.mark.produces`, `new_checkpoint`).
+If a save's producer fails in a run, the tests that need it fail too (not skipped), so a broken
+chain step turns the run red. A save that is simply missing (e.g. a `-k` run that did not make it)
+skips its tests, and the run ends with a "not run: starting save missing" list naming them.
 
 ## Shortcuts in the town tests
 
