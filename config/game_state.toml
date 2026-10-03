@@ -19,7 +19,7 @@ licence       = { offset = 0x651, type = "u8", confidence = "confirmed" }       
 mileage_m     = { offset = 0x658, type = "u32", confidence = "confirmed" }               # metres; the save summary shows /1609 as miles
 race_results  = { offset = 0xFF0, type = "bytes", length = 35, confidence = "confirmed" } # place - 1 per race-table entry, 0xFF = not raced
 location      = { offset = 0x12DC, type = "u8", confidence = "confirmed" }               # town of the save point: 1 Peach Town .. 9 My City (loads into that town's Q's Factory)
-map_explored  = { offset = 0xBDC, type = "bytes", length = 0x800, confidence = "guess" }  # bits clear as the map is driven
+unvisited_doors = { offset = 0xBD8, type = "bytes", length = 40, confidence = "confirmed" } # per location a u32: bit n set = door n not visited yet
 
 # Races (Quick Race and Adventure). 24 car structures; the race code keeps them at fixed addresses.
 [race]
@@ -125,10 +125,16 @@ award_function = 0x23C8A8
 
 [dialogue]
 # The message window: open flag (u8), the script cursor (u32, a pointer into the ELF's text),
-# and the speaker's NPC entry (u32 pointer; its first word points at the name).
+# and who is talking: window_address points into the talking NPC's conversation slot, which
+# holds their NPC entry at +window_entry (the entry's first word points at the name); a window
+# is up while the pointer is in window_range (open_address is only its top byte). talk_state is 127 while driving freely (2 greeting,
+# 1 in a building's menus, 0 leaving).
 open_address = 0x175E89B
 cursor_address = 0x175E8B0
-speaker_address = 0x177A56C
+window_address = 0x175E898
+window_entry = 0x1C
+window_range = [0x1770000, 0x1780000]
+talk_state_address = 0x1731950
 
 [doors]
 # Building doors: per location, a list of quads (four (x, z) float pairs, 32 bytes each) in
@@ -136,3 +142,16 @@ speaker_address = 0x177A56C
 # holds one pointer per location; a list ends where the next one starts.
 table_address = 0x2C0698
 locations = 24
+
+[traffic]
+# Street NPC cars spawn from per-location lists of (x, y, z, angle) points: pointer table
+# indexed by location; a list ends where the next one starts. Tests that only need buildings
+# move the points off the map before the town loads (rtharness.town.park_traffic).
+spawn_table = 0x2C2E78
+
+[houses]
+# "Visited all the houses in <town>": per location, a u32 of not-yet-visited doors at progress
+# unvisited_doors + 4 * location (going through door n clears bit n, 0x23C7B0); when it is 0 the
+# location's stamp (a byte per location at stamp_table) is awarded (0x23D878).
+unvisited_doors = 0xBD8
+stamp_table = 0x2A2B20
