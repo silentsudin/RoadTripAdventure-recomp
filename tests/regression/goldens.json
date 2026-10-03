@@ -482,6 +482,34 @@
     "frames": 483072,
     "hash": "43e1870432853246"
   },
+  "audio:wgp_1_start": {
+    "frames": 4090880,
+    "hash": "a21d75fc3ed23382"
+  },
+  "audio:wgp_2_start": {
+    "frames": 3463936,
+    "hash": "e30a8cdb8367036a"
+  },
+  "audio:wgp_3_start": {
+    "frames": 3620864,
+    "hash": "428105c8b158c4c8"
+  },
+  "audio:wgp_4_start": {
+    "frames": 3463936,
+    "hash": "4c9e35524b561fba"
+  },
+  "audio:wgp_5_start": {
+    "frames": 3463936,
+    "hash": "1ddff83ce083a663"
+  },
+  "audio:wgp_6_start": {
+    "frames": 3463936,
+    "hash": "15aaff6089514459"
+  },
+  "audio:wgp_7_start": {
+    "frames": 3463936,
+    "hash": "f448462a4fe53119"
+  },
   "factory_Chestnut_Canyon": {
     "height": 447,
     "sha256": "298a0a2fd4a4c6d32ad8d5ca2c5558cbfdac6e5810dfff031b447e54988b13d1",
@@ -975,6 +1003,111 @@
   "town_White_Mountain_driven": {
     "height": 447,
     "sha256": "9295357410180ef480fe048afa6ca83831b2b390324bca35231bea40963dd504",
+    "width": 1280
+  },
+  "wgp_1_after": {
+    "height": 447,
+    "sha256": "37e539baaf48c2cb2e340e2a5c9f926a508ccce2e46f28d68e08b069eed62795",
+    "width": 1280
+  },
+  "wgp_1_factory": {
+    "height": 447,
+    "sha256": "18d65d6601df4338935ab3fc49debeb652339c1b26677da1baf5609e2acda345",
+    "width": 1280
+  },
+  "wgp_1_start": {
+    "height": 447,
+    "sha256": "0f7c20e235b19877514244383b8903a0863b46f4c930be33473955b41d64963a",
+    "width": 1280
+  },
+  "wgp_2_after": {
+    "height": 447,
+    "sha256": "d2b5ac127d280005faa24f3562c3431bcab26a0b68071628bea044f94cef3735",
+    "width": 1280
+  },
+  "wgp_2_factory": {
+    "height": 447,
+    "sha256": "172d63c1cfed8500c70905edcc1a032aa271152b4be1dbdfdb61be46ed268a38",
+    "width": 1280
+  },
+  "wgp_2_start": {
+    "height": 447,
+    "sha256": "8676d0c797e8412c1946a304df7d270684609212944979251687434dc1a1c025",
+    "width": 1280
+  },
+  "wgp_3_after": {
+    "height": 447,
+    "sha256": "e2b5a729a3ead68d4c145a21327718d7cc698ed335b04a59612b33fe13b6b9f2",
+    "width": 1280
+  },
+  "wgp_3_factory": {
+    "height": 447,
+    "sha256": "30f69fdff803ba26036fa81a6badb19c3f81bb6cb98b922bf510e824d0448362",
+    "width": 1280
+  },
+  "wgp_3_start": {
+    "height": 447,
+    "sha256": "5439d0087167b761c5a3f6910ce8065bc7d7d97f669163a1d3fdc1bcc16094ae",
+    "width": 1280
+  },
+  "wgp_4_after": {
+    "height": 447,
+    "sha256": "2f130f8c948290831103f88477731656a51976eb33d0b89416184d4b445ff13d",
+    "width": 1280
+  },
+  "wgp_4_factory": {
+    "height": 447,
+    "sha256": "adc9240f5c6f0f9e85623bbc2ffc2c03fe5aa73ac7f784286b0d3ad3862544bc",
+    "width": 1280
+  },
+  "wgp_4_start": {
+    "height": 447,
+    "sha256": "b2223456787130966dfb2dab67fba76a35ac6e65001df5162f206fc501d9e397",
+    "width": 1280
+  },
+  "wgp_5_after": {
+    "height": 447,
+    "sha256": "b07bcfd3ee1be9b1a632b5d753e8fdf9d1705507ecd791e405469fad76938a33",
+    "width": 1280
+  },
+  "wgp_5_factory": {
+    "height": 447,
+    "sha256": "c973e23adb2594b9b1689d26c5ffd7b0845bf80215137ea5f0e3f122638f8002",
+    "width": 1280
+  },
+  "wgp_5_start": {
+    "height": 447,
+    "sha256": "e5609e1bd2dbe46ba6c6402f2234fbc65354c2e0b2e22ca5ea8e5ca26bb7feea",
+    "width": 1280
+  },
+  "wgp_6_after": {
+    "height": 447,
+    "sha256": "74d06595d9c07e711bc87d935bb3b07132972c3ae93d4efdb814277556c15e99",
+    "width": 1280
+  },
+  "wgp_6_factory": {
+    "height": 447,
+    "sha256": "366c0981981d5cc5d77c42a35320dc21ff02ad626427d876e1e5be80cdee6cd3",
+    "width": 1280
+  },
+  "wgp_6_start": {
+    "height": 447,
+    "sha256": "d7682534eb40d7b2b85225e05a9d5cace58f3771ad6a91fc9d8f27920cf85fc2",
+    "width": 1280
+  },
+  "wgp_7_after": {
+    "height": 447,
+    "sha256": "ec9b916c9f5892ee8b96728a0ae2d793c0e6e78e86dadf3b6cc94f9c0888047b",
+    "width": 1280
+  },
+  "wgp_7_factory": {
+    "height": 447,
+    "sha256": "ea9cc915ee0150bab2c0467871ec521482ed1b59fa14ea8840ce553d1426bfc7",
+    "width": 1280
+  },
+  "wgp_7_start": {
+    "height": 447,
+    "sha256": "a8ebddd28d20182dae6bda7db8ff222cfb51a4677bcff1f97ee590994886d575",
     "width": 1280
   }
 }

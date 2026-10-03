@@ -129,6 +129,7 @@ def drive_race(game: "Game", timeout_seconds: float = 1500, config: DriverConfig
             raise Retired(f"the bot was stuck at {driver.positions()[0]} (line point {driver.index}/"
                           f"{len(driver.trail)}, {driver.recoveries} recoveries) and retired")
         if scene(game) == SCENE_RACE_OVER:
+            game.release()  # the bot's held buttons would swallow the presses that follow
             print(f"[race] finished {place}th, {driver.recoveries} recoveries, {driver.nudges} nudges")
             return place
         place = game.u32(GAME_MAP["race"]["place_address"]) + 1
