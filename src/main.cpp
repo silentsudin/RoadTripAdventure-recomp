@@ -25,7 +25,10 @@
 #include "runtime/gs/gs_pgs_backend.h"
 #include "Stubs/CD.h"
 #if defined(PS2X_ENABLE_DEBUG_UI)
+#include "imgui.h"
+#include "platform/ControllersWindow.h"
 #include "ps2_debug_panel.h"
+#include "rlImGui.h"
 #endif
 
 #include "raylib.h"
@@ -241,6 +244,8 @@ int main(int argc, char *argv[])
                 // Hidden for players; F1 toggles it, RT_DEBUG_UI=1 shows it at startup.
                 auto &panel = static_cast<UiHooks *>(user)->panel;
                 panel.initialize();
+                // The Controllers window can be used with a controller.
+                ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
                 const char *env = std::getenv("RT_DEBUG_UI");
                 panel.setVisible(env && *env && *env != '0');
 #endif
@@ -251,11 +256,24 @@ int main(int argc, char *argv[])
                 rt::debug::maybeDumpFrame(); // before the overlay, so dumps show only the game
                 rt::debug::drawFpsOverlay(rt);
 #if defined(PS2X_ENABLE_DEBUG_UI)
-                static_cast<UiHooks *>(user)->panel.draw(rt); // F1 toggles
+                // One ImGui frame for the debug panel (F1) and the Controllers window (F2, Guide,
+                // or Back+Start held).
+                auto &panel = static_cast<UiHooks *>(user)->panel;
+                rt::input::updateControllersWindow();
+                if (IsKeyPressed(KEY_F1))
+                    panel.toggleVisible();
+                if (panel.isVisible() || rt::input::controllersWindowOpen())
+                {
+                    rlImGuiBegin();
+                    panel.drawWindow(rt);
+                    rt::input::drawControllersWindow();
+                    rlImGuiEnd();
+                }
 #endif
             },
             [](PS2Runtime &, void *user)
             {
+                rt::input::shutdown(); // stops vibration, closes the controllers
 #if defined(PS2X_ENABLE_DEBUG_UI)
                 static_cast<UiHooks *>(user)->panel.shutdown();
 #endif
