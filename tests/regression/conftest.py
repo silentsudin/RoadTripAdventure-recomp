@@ -103,7 +103,7 @@ def game_factory(options, test_data, request):
         if checkpoint in request.config.rt_producing and produced_checkpoint(request.node) != checkpoint:
             wait_for_checkpoint(request.config, cp)
         if not cp.is_dir():
-            pytest.skip(f"checkpoint '{checkpoint}' missing; run the test that creates it first")
+            pytest.skip(f"{MISSING} '{checkpoint}' missing; run the test that creates it first")
         return cp
 
     def make(checkpoint: str | None = None, name: str | None = None, card2: str | None = None,
@@ -136,16 +136,21 @@ def golden_audio(options):
     return check
 
 
+MISSING = "checkpoint"  # the skip reason prefix of tests whose starting save is missing
+
+
 def wait_for_checkpoint(config, cp: Path, timeout: float = 3600):
-    """Waits until this run's producer has written `cp` (or failed: then the test is skipped
-    rather than run from a stale copy)."""
+    """Waits until this run's producer has written `cp`. If the producer failed, this test
+    fails too (it is not run from a stale copy, and a broken step of the save chain must not
+    leave the run green with its later tests quietly skipped)."""
     stamp, failed = cp.with_name(cp.name + ".session"), cp.with_name(cp.name + ".failed")
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         if stamp.is_file() and stamp.read_text() == config.rt_session:
             return
         if failed.is_file() and failed.read_text() == config.rt_session:
-            pytest.skip(f"the test producing checkpoint '{cp.name}' failed in this run")
+            pytest.fail(f"not run: the test producing checkpoint '{cp.name}' failed in this run",
+                        pytrace=False)
         time.sleep(1)
     pytest.fail(f"checkpoint '{cp.name}' was not produced within {timeout:.0f} s")
 
@@ -154,7 +159,7 @@ def wait_for_checkpoint(config, cp: Path, timeout: float = 3600):
 def new_checkpoint(test_data, request):
     """new_checkpoint(name) -> path for a checkpoint this test produces (mark the test with
     @pytest.mark.produces(name)). It is written to a scratch path and replaces the old checkpoint
-    only when the test passes; if it fails, tests waiting on it in this run are skipped."""
+    only when the test passes; if it fails, tests waiting on it in this run fail too."""
     made = []
 
     def path(name: str) -> Path:
@@ -178,6 +183,17 @@ def new_checkpoint(test_data, request):
         else:
             shutil.rmtree(scratch, ignore_errors=True)
             cp.with_name(name + ".failed").write_text(request.config.rt_session)
+
+
+def pytest_terminal_summary(terminalreporter):
+    """Tests skipped because their starting save is missing are listed loudly: a run that made
+    no save for a chain step did not test what comes after it."""
+    missing = [r for r in terminalreporter.stats.get("skipped", [])
+               if isinstance(r.longrepr, tuple) and r.longrepr[2].startswith(f"Skipped: {MISSING} ")]
+    if missing:
+        terminalreporter.section("not run: starting save missing", sep="!", red=True, bold=True)
+        for r in missing:
+            terminalreporter.line(f"{r.nodeid}: {r.longrepr[2].removeprefix('Skipped: ')}")
 
 
 def pytest_sessionfinish(session, exitstatus):

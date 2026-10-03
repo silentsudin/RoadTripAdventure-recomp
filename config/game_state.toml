@@ -19,6 +19,7 @@ licence       = { offset = 0x651, type = "u8", confidence = "confirmed" }       
 mileage_m     = { offset = 0x658, type = "u32", confidence = "confirmed" }               # metres; the save summary shows /1609 as miles
 race_results  = { offset = 0xFF0, type = "bytes", length = 35, confidence = "confirmed" } # place - 1 per race-table entry, 0xFF = not raced
 location      = { offset = 0x12DC, type = "u8", confidence = "confirmed" }               # town of the save point: 1 Peach Town .. 9 My City (loads into that town's Q's Factory)
+ski_jump_best = { offset = 0x12C8, type = "u32", confidence = "confirmed" }             # White Mountain Ski Jumping record, metres (0 until the first jump; stock car ~101, Panther engine ~106)
 unvisited_doors = { offset = 0xBD8, type = "bytes", length = 40, confidence = "confirmed" } # per location a u32: bit n set = door n not visited yet
 
 # Races (Quick Race and Adventure). 24 car structures; the race code keeps them at fixed addresses.
