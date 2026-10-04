@@ -5,6 +5,7 @@
 #include "platform/Host.h"
 
 #include <SDL3/SDL.h>
+#include "ps2_runtime.h"
 #include "runtime/gs/gs_pgs_backend.h"
 
 #include <cstdlib>
@@ -84,9 +85,25 @@ namespace rt::settings
         g_gs->setSharpTextures(s.sharpTextures);
     }
 
+    void applyAspect()
+    {
+        // Widescreen: the GS narrows the HUD and tells 2D-backed screens apart, the game hook
+        // widens the 3D camera, and the presenter shows the frame at this shape.
+        PS2Runtime *rt = rt::host::runtime();
+        if (!rt)
+            return;
+        const Settings &s = current();
+        const float aspect = ratio(s.aspect);
+        rt->gs().setWideLayout(aspect, s.hud == HudMode::Edges ? ps2x::gs::HudPlacement::Edges
+                                                               : ps2x::gs::HudPlacement::Centred);
+        if (ps2x::HostPresenter *p = rt->presenter())
+            p->setDisplayAspect(aspect);
+    }
+
     void applyAll()
     {
         applyWindow();
         applyGraphics();
+        applyAspect();
     }
 }

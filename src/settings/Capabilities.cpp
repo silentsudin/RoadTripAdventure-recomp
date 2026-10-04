@@ -94,7 +94,7 @@ namespace rt::settings
         return later();
     }
 
-    Availability aspectAvailability(Aspect a) { return a == Aspect::R4_3 ? Availability{} : later(); }
+    Availability aspectAvailability(Aspect) { return {}; }
     Availability anisotropyAvailability(int level) { return level <= 1 ? Availability{} : later(); }
     Availability texturePackAvailability() { return later(); }
 }

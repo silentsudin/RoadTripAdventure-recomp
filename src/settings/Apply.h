@@ -16,6 +16,7 @@ namespace rt::settings
 
     void applyWindow();   // window mode and size
     void applyGraphics(); // supersampling, sharp textures
+    void applyAspect();
     void applyAll();
     // Startup: the supersampling level for the GS, unless RT_GS_SSAA overrides it.
     void exportGsEnvironment();
