@@ -11,6 +11,7 @@
 #include "debug/FpsOverlay.h"
 #include "debug/FrameDump.h"
 #include "debug/RamDump.h"
+#include "platform/Host.h"
 #include "platform/Input.h"
 #include "debug/ThreadDump.h"
 #include "game/GameBuilder.h"
@@ -35,6 +36,7 @@
 #endif
 
 #include "raylib.h"
+#include <SDL3/SDL_scancode.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -153,6 +155,31 @@ namespace
         return std::nullopt;
     }
 
+    // The MoltenVK bundled in RoadTrip.app/Contents/Frameworks, or "" for the system loader.
+    std::string vulkanLibrary()
+    {
+        const fs::path bundled = rt::paths::bundleResources().parent_path() / "Frameworks" / "libMoltenVK.dylib";
+        std::error_code ec;
+        return fs::exists(bundled, ec) ? bundled.string() : std::string();
+    }
+
+    // RT_PRESENTER=vulkan: an SDL3 window with a Vulkan swapchain on the GS's device (the picture
+    // stays on the GPU). Otherwise the runtime's raylib/OpenGL window.
+    void selectPresenter(PS2Runtime &runtime)
+    {
+        const char *choice = std::getenv("RT_PRESENTER");
+        if (!choice || std::string(choice) != "vulkan")
+            return;
+        ps2x::gs::PgsPresenterOptions options;
+        options.vulkanLibrary = vulkanLibrary();
+        options.vsync = rt::settings::current().vsync;
+        std::string error;
+        if (auto presenter = ps2x::gs::createPgsPresenter(options, error))
+            runtime.setPresenter(std::move(presenter));
+        else
+            std::cerr << "[presenter] Vulkan presenter unavailable (" << error << "); using raylib\n";
+    }
+
     // GPU GS (paraLLEl-GS on Vulkan/MoltenVK) unless RT_GS_BACKEND=cpu; falls back to the CPU GS.
     void selectGsBackend(PS2Runtime &runtime)
     {
@@ -164,12 +191,9 @@ namespace
         }
 
         ps2x::gs::PgsOptions options;
-        // Prefer the MoltenVK bundled in RoadTrip.app/Contents/Frameworks; otherwise the system loader.
-        const fs::path bundled = rt::paths::bundleResources().parent_path() / "Frameworks" / "libMoltenVK.dylib";
-        std::error_code ec;
-        if (fs::exists(bundled, ec))
-            options.vulkanLibrary = bundled.string();
+        options.vulkanLibrary = vulkanLibrary();
         options.pipelineCacheDir = (rt::paths::dataRoot() / "cache").string();
+        options.presenter = runtime.presenter(); // shares its device when it is the Vulkan presenter
 
         std::string error;
         ps2x::gs::PgsControl *control = nullptr;
@@ -244,8 +268,9 @@ int main(int argc, char *argv[])
 #endif
         } hooks;
         runtime.setDebugUiCallbacks(
-            [](PS2Runtime &, void *user)
+            [](PS2Runtime &rt, void *user)
             {
+                rt::host::setRuntime(&rt);
                 rt::input::initialize();
 #if defined(PS2X_ENABLE_DEBUG_UI)
                 // Hidden for players; F1 toggles it, RT_DEBUG_UI=1 shows it at startup.
@@ -264,20 +289,20 @@ int main(int argc, char *argv[])
             [](PS2Runtime &rt, void *user)
             {
                 rt::input::update();         // one input snapshot per host frame, on this thread
-                rt::debug::maybeDumpFrame(); // before the overlay, so dumps show only the game
+                rt::debug::maybeDumpFrame(); // the presenter saves this frame as shown (with any menu or overlay)
                 rt::debug::drawFpsOverlay(rt);
 #if defined(PS2X_ENABLE_DEBUG_UI)
                 // One ImGui frame for the debug panel (F1) and the in-game menu.
                 auto &panel = static_cast<UiHooks *>(user)->panel;
                 rt::ui::updatePauseMenu(); // Guide, Back+Start, Esc or F3: the in-game menu (pauses the game)
-                if (IsKeyPressed(KEY_F1))
+                if (rt::host::keyPressed(SDL_SCANCODE_F1))
                     panel.toggleVisible();
                 if (panel.isVisible() || rt::ui::pauseMenuWantsFrame())
                 {
-                    rlImGuiBegin();
+                    rt.presenter()->uiBegin();
                     panel.drawWindow(rt);
                     rt::ui::drawPauseMenu();
-                    rlImGuiEnd();
+                    rt.presenter()->uiEnd();
                     rt::ui::menuShotAfterFrame();
                 }
 #endif
@@ -291,6 +316,8 @@ int main(int argc, char *argv[])
             },
             &hooks);
         rt::settings::exportGsEnvironment(); // before the GS starts
+        if (const char *h = std::getenv("RT_HEADLESS"); !(h && *h == '1'))
+            selectPresenter(runtime);
         if (!runtime.initialize("Road Trip Adventure"))
         {
             std::cerr << "Failed to initialize PS2 runtime\n";

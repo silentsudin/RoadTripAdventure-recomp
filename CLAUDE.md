@@ -32,6 +32,10 @@
   - Test socket: `pad`/`step` take `"port"` (else both ports) and `"connected"`; `actuators` and `pad_info` report per port.
   - Movies are version 2 (port column, `# connect` lines); v1 movies drive both ports.
 - The GS renders on paraLLEl-GS/Vulkan (`ps2xRuntime/src/lib/gs/gs_pgs_backend.cpp` on the fork) by default; `RT_GS_BACKEND=cpu` switches to the software GS for A/B comparisons. Use `RT_FRAME_DUMP` to compare frames from the two.
+- Presentation goes through `ps2x::HostPresenter` (`ps2_host_presenter.h` on the fork):
+  - raylib/OpenGL (reads the picture back every frame) is the default;
+  - `RT_PRESENTER=vulkan` uses an SDL3 window with a Granite swapchain on the paraLLEl-GS device, so the picture stays on the GPU and ImGui is drawn through Granite (`gs_pgs_presenter.cpp`);
+  - the app reaches the window, keys and time only through `src/platform/Host.h` (SDL3), so both presenters work.
 - Runtime data lives in `~/Library/Application Support/RoadTripRecomp/{disc,saves}`. Override the location with `RT_DATA_DIR`.
 - Boot ELF facts: entry 0x200008, SHA-1 2431de1e…, CRC32 0x5A49851D.
 - Regression suite: `python3 scripts/regress.py [-n 4] [-k ...]` (tests/regression, pytest). Run it before committing runtime/recompiler changes. Golden images and checkpoints live in build/regression and must never be committed; only hashes (goldens.json) and inputs are.

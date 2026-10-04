@@ -1,7 +1,6 @@
 #include "FrameDump.h"
 
-#include "raylib.h"
-#include "rlgl.h"
+#include "platform/Host.h"
 
 #include <chrono>
 #include <cstdio>
@@ -29,13 +28,9 @@ namespace rt::debug
 
         std::error_code ec;
         std::filesystem::create_directories(dir, ec);
-        rlDrawRenderBatchActive(); // flush batched draws so the read sees this frame
-        const int w = GetRenderWidth(), h = GetRenderHeight();
-        unsigned char *pixels = rlReadScreenPixels(w, h);
-        Image img{pixels, w, h, 1, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8};
         char name[64];
         std::snprintf(name, sizeof(name), "/frame_%04d.png", index++);
-        ExportImage(img, (std::string(dir) + name).c_str());
-        RL_FREE(pixels);
+        // Saved by the presenter as it presents this frame (with any open menu).
+        rt::host::screenshot(std::string(dir) + name);
     }
 }
