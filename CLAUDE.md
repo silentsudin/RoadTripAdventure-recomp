@@ -12,14 +12,19 @@
   - Commit there, push `roadtrip` (the user approved pushing this branch), then commit the bumped submodule pointer in this repo.
   - Generic fixes can be offered upstream as PRs; ask first.
 - The app entry point is `src/main.cpp`. It runs setup (extract the disc, build the game dylib), then `rt::game::load`, then `PS2Runtime` initialize, loadELF and run.
-- Debugging: `RT_THREAD_DUMP=5` dumps guest threads; `RT_FRAME_DUMP=<dir>` saves PNGs of the picture, which is how to see the screen headlessly; `RT_DEBUG_UI=1` shows the debug panel. To find where the game is stuck, attach lldb to the `GameThread` thread; the game functions are native, so they show up in the backtrace.
+- Debugging: `RT_THREAD_DUMP=5` dumps guest threads; `RT_FRAME_DUMP=<dir>` saves PNGs of the window (needs a window, not `RT_HEADLESS`; headless, use the test socket's `frame` command, which reads the GS output); `RT_DEBUG_UI=1` shows the debug panel. To find where the game is stuck, attach lldb to the `GameThread` thread; the game functions are native, so they show up in the backtrace.
 - Game hooks go in `src/game/overrides.cpp`.
+- In-game menu (`src/ui/PauseMenu.cpp`, look in `src/ui/Theme.cpp`): Guide, Back+Start held 0.3 s, Esc or F3 opens it and pauses the game (`ps2_test::setPaused`). Options live in `settings.toml` in the data directory (`src/settings/`); options a device can't use, or that aren't built yet, are hidden.
+  - Screenshots headlessly: `RT_MENU_SHOT=<png> RT_MENU_PAGE=root|display|graphics|controllers|device|buttons|quit|reset RT_MENU_AT=<vblank>`.
+  - Critics: have `choroq-style-critic` and `jobs-ux-critic` (`.claude/agents/`) review screenshots after UI changes.
+- Agents in `.claude/agents/`: `bug-tester` (runs the regression suite, triages), `perf-profiler`, `reverse-engineer`, `release-guard` (run before commits/pushes), plus the two UI critics.
+- `RT_GS_BATCH_LOG=<file>` logs every GS draw batch (path, prim, texture, bounding box), used to tell the HUD from the 3D scene.
 - Platform layer is SDL3 under raylib 6.0 (`PS2X_HOST_PLATFORM=SDL3`, set by the app; the fork defaults to GLFW for upstream).
 - Input:
   - `src/platform/input/` maps the keyboard and SDL3 controllers to the game's two pad ports, with `input.toml` v2 in the data directory (v1 files are migrated).
   - Players: keyboard + first controller = P1, second controller = P2. P2 is unplugged until a device is assigned.
   - The game's vibration (scePadSetActDirect) plays on that player's controllers.
-  - The Controllers window (F2, Guide, or Back+Start held 2 s) handles assignment, rebinding, deadzones and rumble.
+  - The in-game menu's Controllers page handles assignment, rebinding, deadzones and rumble (`src/platform/Controllers.h`).
   - Unit tests: `build/macos-release/input_test` (ctest `input`), including a virtual SDL controller.
   - `scripts/check_android_input.sh` checks that the input layer builds for Android arm64 (needs the NDK; Homebrew's `android-ndk` works).
 - Pads in the runtime and tests:

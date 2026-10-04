@@ -33,7 +33,7 @@ namespace rt::input
         KeyboardProfile g_keyboard;
         Motors g_motors[kPlayers];
         bool g_ready = false;
-        bool g_menuOpen = false;
+        bool g_blocked = false; // another window (Options) has the input
 
         std::vector<int> scancodes(const std::vector<std::string> &names, const char *what)
         {
@@ -131,6 +131,8 @@ namespace rt::input
         reassign();
     }
 
+    void blockGameInput(bool blocked) { g_blocked = blocked; }
+
     void shutdown()
     {
         g_devices.shutdown();
@@ -141,9 +143,9 @@ namespace rt::input
     {
         if (g_devices.update())
             reassign();
-        // The window in the background (unless background input is on) or the Controllers window
-        // open: the game reads neutral pads (still plugged in) and the motors stop.
-        const bool focused = (IsWindowFocused() || g_config.backgroundInput) && !g_menuOpen;
+        // The window in the background (unless background input is on) or the menu open: the game
+        // reads neutral pads (still plugged in) and the motors stop.
+        const bool focused = (IsWindowFocused() || g_config.backgroundInput) && !g_blocked;
 
         const bool *keys = SDL_GetKeyboardState(nullptr);
         const bool useKeys = focused && keys && !keyboardBlocked();
@@ -160,7 +162,13 @@ namespace rt::input
                 }
                 for (Device &d : g_devices.list())
                     if (d.id == id && focused)
-                        out = merge(out, mapGamepad(Devices::snapshot(d), g_config.profileFor(d.id), d.latch));
+                    {
+                        GamepadSnapshot snap = Devices::snapshot(d);
+                        // Back+Start opens the recomp menu: Start does not reach the game meanwhile.
+                        if (snap.buttons[static_cast<int>(PadButton::Back)])
+                            snap.buttons[static_cast<int>(PadButton::Start)] = false;
+                        out = merge(out, mapGamepad(snap, g_config.profileFor(d.id), d.latch));
+                    }
             }
             // The runtime hands this to the game at the next guest vblank (unless a movie, script or
             // test client drives the pads; see ps2_test_harness.h).
@@ -185,7 +193,6 @@ namespace rt::input
         Devices &devices() { return g_devices; }
         Players &players() { return g_players; }
         const Players::Slots &slots() { return g_slots; }
-        bool &menuOpen() { return g_menuOpen; }
 
         void applyConfig()
         {
@@ -202,6 +209,67 @@ namespace rt::input
                     Devices::rumble(d, 0.8f * g_config.rumble, 0.8f * g_config.rumble, 400);
         }
     }
+
+    MenuInput menuInput()
+    {
+        enum Action { Up, Down, Left, Right, Confirm, Back, Extra, Toggle, Count };
+        bool held[Count] = {};
+        bool chord = false;
+        for (const Device &d : g_devices.list())
+        {
+            const GamepadSnapshot s = Devices::snapshot(d);
+            auto b = [&](PadButton x) { return s.buttons[static_cast<int>(x)]; };
+            const float lx = s.axes[static_cast<int>(PadAxis::LeftX)], ly = s.axes[static_cast<int>(PadAxis::LeftY)];
+            held[Up] |= b(PadButton::DpadUp) || ly < -0.6f;
+            held[Down] |= b(PadButton::DpadDown) || ly > 0.6f;
+            held[Left] |= b(PadButton::DpadLeft) || lx < -0.6f;
+            held[Right] |= b(PadButton::DpadRight) || lx > 0.6f;
+            held[Confirm] |= b(PadButton::South);
+            held[Back] |= b(PadButton::North) || b(PadButton::East);
+            held[Extra] |= b(PadButton::West);
+            held[Toggle] |= b(PadButton::Guide);
+            chord |= b(PadButton::Back) && b(PadButton::Start);
+        }
+        // Back+Start counts once held for 0.3 s, so a quick Select+Start in the game is left alone.
+        static double chordSince = -1;
+        const double t = GetTime();
+        if (!chord)
+            chordSince = -1;
+        else if (chordSince < 0)
+            chordSince = t;
+        held[Toggle] |= chord && t - chordSince >= 0.3;
+        // Edges, with auto-repeat for the directions (after 350 ms, every 90 ms).
+        static bool was[Count] = {};
+        static double since[Count] = {};
+        const double now = GetTime();
+        bool fire[Count] = {};
+        for (int a = 0; a < Count; ++a)
+        {
+            if (held[a] && !was[a])
+            {
+                fire[a] = true;
+                since[a] = now + 0.35;
+            }
+            else if (held[a] && a <= Right && now >= since[a])
+            {
+                fire[a] = true;
+                since[a] = now + 0.09;
+            }
+            was[a] = held[a];
+        }
+        MenuInput m;
+        m.up = fire[Up] || IsKeyPressed(KEY_UP) || IsKeyPressedRepeat(KEY_UP);
+        m.down = fire[Down] || IsKeyPressed(KEY_DOWN) || IsKeyPressedRepeat(KEY_DOWN);
+        m.left = fire[Left] || IsKeyPressed(KEY_LEFT) || IsKeyPressedRepeat(KEY_LEFT);
+        m.right = fire[Right] || IsKeyPressed(KEY_RIGHT) || IsKeyPressedRepeat(KEY_RIGHT);
+        m.confirm = fire[Confirm] || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE);
+        m.back = fire[Back] || IsKeyPressed(KEY_BACKSPACE);
+        m.extra = fire[Extra] || IsKeyPressed(KEY_R);
+        m.toggleMenu = fire[Toggle] || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_F3);
+        return m;
+    }
+
+    bool anyGamepad() { return !g_devices.list().empty(); }
 
     std::vector<DeviceStatus> devices()
     {

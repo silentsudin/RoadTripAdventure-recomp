@@ -18,6 +18,8 @@
 #include "platform/Paths.h"
 #include "platform/TaskProgress.h"
 #include "rom/RomInstaller.h"
+#include "settings/Apply.h"
+#include "settings/Settings.h"
 
 #include "ps2_runtime.h"
 #include "runtime/ps2_test_harness.h"
@@ -26,9 +28,10 @@
 #include "Stubs/CD.h"
 #if defined(PS2X_ENABLE_DEBUG_UI)
 #include "imgui.h"
-#include "platform/ControllersWindow.h"
 #include "ps2_debug_panel.h"
 #include "rlImGui.h"
+#include "ui/PauseMenu.h"
+#include "ui/Theme.h"
 #endif
 
 #include "raylib.h"
@@ -169,8 +172,12 @@ namespace
         options.pipelineCacheDir = (rt::paths::dataRoot() / "cache").string();
 
         std::string error;
-        if (auto backend = ps2x::gs::createPgsBackend(options, error))
+        ps2x::gs::PgsControl *control = nullptr;
+        if (auto backend = ps2x::gs::createPgsBackend(options, error, &control))
+        {
             runtime.gs().setRasterBackend(std::move(backend));
+            rt::settings::setGsControl(control);
+        }
         else
             std::cerr << "[gs] Vulkan GS unavailable (" << error << "); using CPU backend\n";
     }
@@ -244,8 +251,12 @@ int main(int argc, char *argv[])
                 // Hidden for players; F1 toggles it, RT_DEBUG_UI=1 shows it at startup.
                 auto &panel = static_cast<UiHooks *>(user)->panel;
                 panel.initialize();
-                // The Controllers window can be used with a controller.
-                ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+                // The Controllers window can be used with a controller; the menu reads pads itself.
+                ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_NavEnableKeyboard;
+                rt::ui::theme::initialize(); // the game's look: fonts and colours
+                // Window positions live with the other settings, not in the working directory.
+                static const std::string ini = (rt::paths::dataRoot() / "imgui.ini").string();
+                ImGui::GetIO().IniFilename = ini.c_str();
                 const char *env = std::getenv("RT_DEBUG_UI");
                 panel.setVisible(env && *env && *env != '0');
 #endif
@@ -256,18 +267,18 @@ int main(int argc, char *argv[])
                 rt::debug::maybeDumpFrame(); // before the overlay, so dumps show only the game
                 rt::debug::drawFpsOverlay(rt);
 #if defined(PS2X_ENABLE_DEBUG_UI)
-                // One ImGui frame for the debug panel (F1) and the Controllers window (F2, Guide,
-                // or Back+Start held).
+                // One ImGui frame for the debug panel (F1) and the in-game menu.
                 auto &panel = static_cast<UiHooks *>(user)->panel;
-                rt::input::updateControllersWindow();
+                rt::ui::updatePauseMenu(); // Guide, Back+Start, Esc or F3: the in-game menu (pauses the game)
                 if (IsKeyPressed(KEY_F1))
                     panel.toggleVisible();
-                if (panel.isVisible() || rt::input::controllersWindowOpen())
+                if (panel.isVisible() || rt::ui::pauseMenuWantsFrame())
                 {
                     rlImGuiBegin();
                     panel.drawWindow(rt);
-                    rt::input::drawControllersWindow();
+                    rt::ui::drawPauseMenu();
                     rlImGuiEnd();
+                    rt::ui::menuShotAfterFrame();
                 }
 #endif
             },
@@ -279,12 +290,14 @@ int main(int argc, char *argv[])
 #endif
             },
             &hooks);
+        rt::settings::exportGsEnvironment(); // before the GS starts
         if (!runtime.initialize("Road Trip Adventure"))
         {
             std::cerr << "Failed to initialize PS2 runtime\n";
             return 1;
         }
         selectGsBackend(runtime);
+        rt::settings::applyAll();
 
         // Recompiled VU1 microcode (3D geometry) unless RT_VU1_MODE=interp.
         {

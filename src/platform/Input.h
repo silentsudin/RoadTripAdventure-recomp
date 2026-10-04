@@ -15,8 +15,22 @@ namespace rt::input
     // Loads (or creates) input.toml, starts controller support, stops Escape from closing the window.
     void initialize();
     void update();
+    // While another window (Options) is open: the game reads neutral pads, motors stop.
+    void blockGameInput(bool blocked);
     // Stops vibration and closes the controllers (before the window closes).
     void shutdown();
+
+    // Menu actions this frame from any controller or the keyboard (directions repeat while held).
+    // Cross/South or Enter confirms; Triangle/North, Circle/East or Escape/Backspace go back;
+    // Square/West or R is the page's extra action; Guide, Back+Start held together for 0.3 s,
+    // Escape or F3 open/close the menu.
+    struct MenuInput
+    {
+        bool up = false, down = false, left = false, right = false;
+        bool confirm = false, back = false, extra = false;
+        bool toggleMenu = false;
+    };
+    MenuInput menuInput();
 
     struct DeviceStatus
     {
@@ -26,4 +40,6 @@ namespace rt::input
     };
     std::vector<DeviceStatus> devices();
     int playerOf(const std::string &id);
+    // True if any controller is connected (for button prompts and hints).
+    bool anyGamepad();
 }
