@@ -101,8 +101,9 @@ namespace rt::settings
             p->setDisplayAspect(aspect);
             capabilities().postProcess = p->supportsPostProcess();
             ps2x::HostPresenter::PostProcess post;
-            post.aa = s.aa == AntiAliasing::Fxaa ? ps2x::HostPresenter::PostProcess::AntiAliasing::Fxaa
-                                                 : ps2x::HostPresenter::PostProcess::AntiAliasing::None;
+            post.aa = s.aa == AntiAliasing::Fxaa   ? ps2x::HostPresenter::PostProcess::AntiAliasing::Fxaa
+                      : s.aa == AntiAliasing::Smaa ? ps2x::HostPresenter::PostProcess::AntiAliasing::Smaa
+                                                   : ps2x::HostPresenter::PostProcess::AntiAliasing::None;
             post.scaling = s.upscaler == Upscaler::Fsr1 ? ps2x::HostPresenter::PostProcess::Scaling::Fsr1
                                                         : ps2x::HostPresenter::PostProcess::Scaling::Bilinear;
             post.sharpness = s.sharpness;

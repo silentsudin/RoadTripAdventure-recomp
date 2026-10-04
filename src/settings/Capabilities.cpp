@@ -85,7 +85,7 @@ namespace rt::settings
     {
         if (a == AntiAliasing::None)
             return {};
-        if (a == AntiAliasing::Fxaa)
+        if (a == AntiAliasing::Fxaa || a == AntiAliasing::Smaa)
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         return later();
     }
