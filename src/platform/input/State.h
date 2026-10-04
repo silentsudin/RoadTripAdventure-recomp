@@ -16,8 +16,6 @@ namespace rt::input::detail
     // After the config or the player choices changed: re-resolve keys and re-assign players.
     void applyConfig();
     void save();
-    // The Controllers window is open: the game reads neutral pads meanwhile.
-    bool &menuOpen();
     // A short test vibration on one device.
     void testRumble(const std::string &id);
 }

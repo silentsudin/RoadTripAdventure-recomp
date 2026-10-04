@@ -76,6 +76,9 @@ set(RT_APP_SOURCES
     src/rom/IsoReader.cpp
     src/rom/RomInstaller.cpp
     src/rom/Sha1.cpp
+    src/settings/Apply.cpp
+    src/settings/Capabilities.cpp
+    src/settings/Settings.cpp
 )
 if(APPLE)
     list(APPEND RT_APP_SOURCES src/platform/macos/Dialogs.mm)
@@ -97,7 +100,8 @@ target_link_options(RoadTrip PRIVATE
 
 if(RT_ENABLE_DEBUG_UI)
     target_sources(RoadTrip PRIVATE "${PS2X_RUNTIME_DIR}/src/lib/ps2_debug_panel.cpp"
-                                    src/platform/input/ControllersWindow.cpp)
+                                    src/platform/input/Controllers.cpp
+                                    src/ui/PauseMenu.cpp src/ui/Theme.cpp)
     target_link_libraries(RoadTrip PRIVATE rlImGui imgui)
     target_compile_definitions(RoadTrip PRIVATE PS2X_ENABLE_DEBUG_UI=1)
 endif()
@@ -128,6 +132,15 @@ add_custom_target(rt_bundle ALL
     COMMENT "Bundling recompiler + game SDK (no game code) into RoadTrip.app"
     VERBATIM)
 add_dependencies(rt_bundle RoadTrip ps2_recomp ps2_vu1_recomp rt_game_sdk_probe)
+# The UI's font (Fredoka, SIL Open Font License; licence alongside).
+add_custom_command(TARGET rt_bundle POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/fonts"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts/Fredoka-SemiBold.ttf"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts/Fredoka-Bold.ttf"
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts/OFL.txt"
+            "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/fonts"
+    VERBATIM)
 
 # Bundle MoltenVK (Vulkan on Metal) for the paraLLEl-GS GPU backend, so players need neither the
 # Vulkan SDK nor Homebrew. The app points Granite at Contents/Frameworks/libMoltenVK.dylib.
@@ -167,4 +180,10 @@ if(BUILD_TESTING)
     target_include_directories(input_test PRIVATE src)
     target_link_libraries(input_test PRIVATE SDL3::SDL3 toml11::toml11)
     add_test(NAME input COMMAND input_test)
+
+    add_executable(settings_test tests/settings_test.cpp src/settings/Settings.cpp src/settings/Capabilities.cpp
+        src/platform/Paths.cpp)
+    target_include_directories(settings_test PRIVATE src)
+    target_link_libraries(settings_test PRIVATE toml11::toml11)
+    add_test(NAME settings COMMAND settings_test)
 endif()
