@@ -367,6 +367,7 @@ int main(int argc, char *argv[])
         }
 
         rt::debug::startThreadDumpIfRequested(runtime);
+        rt::debug::startFpsLogIfHeadless(runtime);
         rt::debug::startRamDumpIfRequested(runtime);
         runtime.run();
         ps2_test::finishRecording(); // close a movie recorded with RT_MOVIE_RECORD

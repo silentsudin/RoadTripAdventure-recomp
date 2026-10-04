@@ -5,6 +5,7 @@
 #include "raylib.h"
 
 #include <string>
+#include <thread>
 
 #include <chrono>
 #include <cstdio>
@@ -15,17 +16,48 @@ namespace rt::debug
     namespace
     {
         uint64_t s_hostFrames = 0, s_lastHostFrames = 0; // host frames drawn
+        double s_shownFps = 0.0;
+    }
+
+    namespace
+    {
+        bool enabled()
+        {
+            static const bool on = [] {
+                const char *env = std::getenv("RT_SHOW_FPS");
+                return env && *env && *env != '0';
+            }();
+            return on;
+        }
     }
 
     void drawFpsOverlay(PS2Runtime &runtime)
     {
-        static const bool enabled = [] {
-            const char *env = std::getenv("RT_SHOW_FPS");
-            return env && *env && *env != '0';
-        }();
-        if (!enabled)
+        if (!enabled())
             return;
+        logFps(runtime);
+        // On screen with raylib (the Vulkan presenter has the stderr line only, for now).
+        if (std::string(rt::host::presenterName()) == "raylib")
+            DrawText(TextFormat("game %.1f fps", s_shownFps), 10, 10, 20, YELLOW);
+    }
 
+    void startFpsLogIfHeadless(PS2Runtime &runtime)
+    {
+        const char *headless = std::getenv("RT_HEADLESS");
+        if (!enabled() || !headless || *headless != '1')
+            return;
+        // No host frames headless: log from a timer thread (game, vblank and worker numbers only).
+        std::thread([&runtime] {
+            while (!runtime.isStopRequested())
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(250));
+                logFps(runtime);
+            }
+        }).detach();
+    }
+
+    void logFps(PS2Runtime &runtime)
+    {
         ++s_hostFrames;
         // Frames the game presented: vblanks at which the displayed buffer changed.
         static double shownFps = 0.0;
@@ -56,8 +88,6 @@ namespace rt::debug
             lastGs = gs;
             windowStart = now;
         }
-        // On screen with raylib (the Vulkan presenter has the stderr line only, for now).
-        if (std::string(rt::host::presenterName()) == "raylib")
-            DrawText(TextFormat("game %.1f fps", shownFps), 10, 10, 20, YELLOW);
+        s_shownFps = shownFps;
     }
 }
