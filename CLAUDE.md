@@ -18,6 +18,11 @@
   - Screenshots headlessly: `RT_MENU_SHOT=<png> RT_MENU_PAGE=root|display|graphics|controllers|device|buttons|quit|reset RT_MENU_AT=<vblank>`.
   - Critics: have `choroq-style-critic` and `jobs-ux-critic` (`.claude/agents/`) review screenshots after UI changes.
 - Agents in `.claude/agents/`: `bug-tester` (runs the regression suite, triages), `perf-profiler`, `reverse-engineer`, `release-guard` (run before commits/pushes), plus the two UI critics.
+- Widescreen (Options → Aspect ratio, HUD position):
+  - The game hook in `src/game/overrides.cpp` widens the 3D by narrowing the player cameras' projection X. It wraps 0x21F698 and its resume points, and keeps the tile-cull points (0x29CF40) widened.
+  - The GS frontend's `WideLayout` (`gs_wide_layout.cpp` on the fork) narrows the HUD in driving frames, and marks 2D-backed screens, which the presenter shows at 4:3.
+  - Frame boundaries come from the game's clear stub (`GS::markFrameStart`).
+  - Unit test: `wide_layout_test`.
 - `RT_GS_BATCH_LOG=<file>` logs every GS draw batch (path, prim, texture, bounding box), used to tell the HUD from the 3D scene.
 - Platform layer is SDL3 under raylib 6.0 (`PS2X_HOST_PLATFORM=SDL3`, set by the app; the fork defaults to GLFW for upstream).
 - Input:
@@ -33,8 +38,9 @@
   - Movies are version 2 (port column, `# connect` lines); v1 movies drive both ports.
 - The GS renders on paraLLEl-GS/Vulkan (`ps2xRuntime/src/lib/gs/gs_pgs_backend.cpp` on the fork) by default; `RT_GS_BACKEND=cpu` switches to the software GS for A/B comparisons. Use `RT_FRAME_DUMP` to compare frames from the two.
 - Presentation goes through `ps2x::HostPresenter` (`ps2_host_presenter.h` on the fork):
-  - raylib/OpenGL (reads the picture back every frame) is the default;
-  - `RT_PRESENTER=vulkan` uses an SDL3 window with a Granite swapchain on the paraLLEl-GS device, so the picture stays on the GPU and ImGui is drawn through Granite (`gs_pgs_presenter.cpp`);
+  - the default is an SDL3 window with a Granite swapchain on the paraLLEl-GS device, so the picture stays on the GPU and ImGui is drawn through Granite (`gs_pgs_presenter.cpp`);
+  - `RT_PRESENTER=raylib` (also the default with `RT_GS_BACKEND=cpu`) uses raylib/OpenGL, which reads the picture back every frame;
+  - perf numbers are in `build/scratch/perf/vulkan2.md`: half the main-thread CPU, 60 fps held;
   - the app reaches the window, keys and time only through `src/platform/Host.h` (SDL3), so both presenters work.
 - Runtime data lives in `~/Library/Application Support/RoadTripRecomp/{disc,saves}`. Override the location with `RT_DATA_DIR`.
 - Boot ELF facts: entry 0x200008, SHA-1 2431de1e…, CRC32 0x5A49851D.

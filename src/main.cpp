@@ -163,12 +163,13 @@ namespace
         return fs::exists(bundled, ec) ? bundled.string() : std::string();
     }
 
-    // RT_PRESENTER=vulkan: an SDL3 window with a Vulkan swapchain on the GS's device (the picture
-    // stays on the GPU). Otherwise the runtime's raylib/OpenGL window.
+    // An SDL3 window with a Vulkan swapchain on the GS's device (the picture stays on the GPU), unless
+    // RT_PRESENTER=raylib or the CPU GS is chosen: then the runtime's raylib/OpenGL window.
     void selectPresenter(PS2Runtime &runtime)
     {
         const char *choice = std::getenv("RT_PRESENTER");
-        if (!choice || std::string(choice) != "vulkan")
+        const char *gs = std::getenv("RT_GS_BACKEND");
+        if ((choice && std::string(choice) == "raylib") || (gs && std::string(gs) == "cpu" && !choice))
             return;
         ps2x::gs::PgsPresenterOptions options;
         options.vulkanLibrary = vulkanLibrary();
