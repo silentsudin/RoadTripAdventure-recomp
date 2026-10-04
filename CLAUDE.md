@@ -41,6 +41,10 @@
   - the default is an SDL3 window with a Granite swapchain on the paraLLEl-GS device, so the picture stays on the GPU and ImGui is drawn through Granite (`gs_pgs_presenter.cpp`);
   - `RT_PRESENTER=raylib` (also the default with `RT_GS_BACKEND=cpu`) uses raylib/OpenGL, which reads the picture back every frame;
   - perf numbers are in `build/scratch/perf/vulkan2.md`: half the main-thread CPU, 60 fps held;
+  - post-processing (Vulkan presenter only):
+    - FXAA, SMAA, AMD FSR 1 and MetalFX spatial, in `gs_pgs_presenter.cpp`;
+    - the shaders are in `src/lib/gs/post` on the fork; rebuild `post_spirv.h` with its `compile.py` (needs glslc);
+  - guest vblanks are phase-locked to the display on 60/120/240 Hz screens (CVDisplayLink; `RT_DISPLAY_LOCK=0` turns it off, `RT_DISPLAY_LOCK_DEBUG=1` logs the phase error).
   - the app reaches the window, keys and time only through `src/platform/Host.h` (SDL3), so both presenters work.
 - Runtime data lives in `~/Library/Application Support/RoadTripRecomp/{disc,saves}`. Override the location with `RT_DATA_DIR`.
 - Boot ELF facts: entry 0x200008, SHA-1 2431de1e…, CRC32 0x5A49851D.
