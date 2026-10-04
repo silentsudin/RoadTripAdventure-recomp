@@ -73,6 +73,7 @@ namespace rt::settings
                 return no("XeSS has no macOS version");
             return later();
         case Upscaler::Fsr1:
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::ArmAsr:
         case Upscaler::Fsr3:
         default:
@@ -80,9 +81,13 @@ namespace rt::settings
         }
     }
 
-    Availability availability(const Capabilities &, AntiAliasing a)
+    Availability availability(const Capabilities &c, AntiAliasing a)
     {
-        return a == AntiAliasing::None ? Availability{} : later();
+        if (a == AntiAliasing::None)
+            return {};
+        if (a == AntiAliasing::Fxaa)
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
+        return later();
     }
 
     Availability refreshAvailability(const Capabilities &c, int hz)

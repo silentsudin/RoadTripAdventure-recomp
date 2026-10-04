@@ -19,6 +19,7 @@ namespace rt::settings
         uint32_t gpuVendor = 0;
         int displayRefresh = 60; // the current display's refresh rate
         bool armNeuralAccel = false; // Arm Mali with neural accelerators (Arm NSS)
+        bool postProcess = false;    // the presenter runs post-processing passes (the Vulkan one)
     };
 
     struct Availability

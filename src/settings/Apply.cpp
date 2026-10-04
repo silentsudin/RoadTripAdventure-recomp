@@ -97,7 +97,17 @@ namespace rt::settings
         rt->gs().setWideLayout(aspect, s.hud == HudMode::Edges ? ps2x::gs::HudPlacement::Edges
                                                                : ps2x::gs::HudPlacement::Centred);
         if (ps2x::HostPresenter *p = rt->presenter())
+        {
             p->setDisplayAspect(aspect);
+            capabilities().postProcess = p->supportsPostProcess();
+            ps2x::HostPresenter::PostProcess post;
+            post.aa = s.aa == AntiAliasing::Fxaa ? ps2x::HostPresenter::PostProcess::AntiAliasing::Fxaa
+                                                 : ps2x::HostPresenter::PostProcess::AntiAliasing::None;
+            post.scaling = s.upscaler == Upscaler::Fsr1 ? ps2x::HostPresenter::PostProcess::Scaling::Fsr1
+                                                        : ps2x::HostPresenter::PostProcess::Scaling::Bilinear;
+            post.sharpness = s.sharpness;
+            p->setPostProcess(post);
+        }
     }
 
     void applyAll()
