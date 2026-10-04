@@ -18,6 +18,7 @@ namespace rt::host
     }
 
     void setRuntime(PS2Runtime *runtime) { g_runtime = runtime; }
+    PS2Runtime *runtime() { return g_runtime; }
 
     void beginFrame()
     {

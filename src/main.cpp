@@ -260,6 +260,7 @@ int main(int argc, char *argv[])
         }
 
         PS2Runtime runtime;
+        rt::host::setRuntime(&runtime); // settings (aspect) reach the GS also in headless runs
         // The debug-UI hooks run on the render thread each frame; also used for frame dumps.
         struct UiHooks
         {

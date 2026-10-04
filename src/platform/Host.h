@@ -11,6 +11,7 @@ struct SDL_Window;
 namespace rt::host
 {
     void setRuntime(PS2Runtime *runtime);
+    PS2Runtime *runtime();
     // Once per host frame, before reading keys.
     void beginFrame();
 

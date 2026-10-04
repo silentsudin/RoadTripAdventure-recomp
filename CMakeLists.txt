@@ -187,4 +187,8 @@ if(BUILD_TESTING)
     target_include_directories(settings_test PRIVATE src)
     target_link_libraries(settings_test PRIVATE toml11::toml11)
     add_test(NAME settings COMMAND settings_test)
+    add_executable(wide_layout_test tests/wide_layout_test.cpp
+        "${CMAKE_CURRENT_SOURCE_DIR}/third_party/PS2Recomp/ps2xRuntime/src/lib/gs/gs_wide_layout.cpp")
+    target_include_directories(wide_layout_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/PS2Recomp/ps2xRuntime/include")
+    add_test(NAME wide_layout COMMAND wide_layout_test)
 endif()
