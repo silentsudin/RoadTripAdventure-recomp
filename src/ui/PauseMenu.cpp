@@ -236,15 +236,31 @@ namespace rt::ui
             }
             if (refreshAvailability(capabilities(), 120).ok)
             {
-                static const std::vector<int> rates = {60, 72, 90, 100, 120, 144};
-                rows.push_back({"Frame rate", [&s] { return s.refreshRate == 60 ? std::string("60 fps (original)") : std::to_string(s.refreshRate) + " fps (interpolated)"; },
+                static const std::vector<int> rates = {60, 120, 240};
+                rows.push_back({"Frame rate", [&s] { return s.refreshRate == 60 ? std::string("60 fps (original)") : std::to_string(s.refreshRate) + " fps (generated)"; },
                                 [&s](int d) {
                                     do
                                         cycle(s.refreshRate, rates, d);
                                     while (!refreshAvailability(capabilities(), s.refreshRate).ok);
                                     changed();
                                 },
-                                {}, "The game runs at 60; extra frames are rendered in between from interpolated positions."});
+                                {}, "The game runs at 60. Higher rates add frames re-rendered from the game's own geometry, each object moved on "
+                                    "along its motion: no added delay."});
+                // The picture-warping modes are for comparison only (RT_FRAME_GEN=1).
+                const char *warp = std::getenv("RT_FRAME_GEN");
+                if (s.refreshRate > 60 && warp && *warp == '1')
+                {
+                    static const std::vector<FrameMode> modes = {FrameMode::Rerender, FrameMode::Interpolate, FrameMode::Extrapolate};
+                    rows.push_back({"Frame generation",
+                                    [&s] {
+                                        return std::string(s.frameMode == FrameMode::Rerender      ? "Re-rendered (no added latency)"
+                                                           : s.frameMode == FrameMode::Interpolate ? "Warped, interpolated (+1 refresh latency)"
+                                                                                                   : "Warped, extrapolated (edge artefacts)");
+                                    },
+                                    [&s](int d) { cycle(s.frameMode, modes, d); changed(); }, {},
+                                    "Interpolated frames sit between two game frames: smoothest. Extrapolated ones continue the newest "
+                                    "frame's motion: no extra delay, rougher at edges.", false, true});
+                }
             }
 
             rows.push_back(heading("Graphics"));

@@ -36,7 +36,7 @@ namespace
         s.windowMode = WindowMode::Borderless;
         s.aspect = Aspect::R21_9;
         s.hud = HudMode::Edges;
-        s.refreshRate = 144;
+        s.refreshRate = 240;
         s.superSampling = 16;
         s.sharpTextures = true;
         s.progressiveFields = false;
@@ -46,7 +46,7 @@ namespace
         save(path, s);
         const Settings b = load(path);
         CHECK(b.windowMode == WindowMode::Borderless && b.aspect == Aspect::R21_9 && b.hud == HudMode::Edges);
-        CHECK(b.refreshRate == 144 && b.superSampling == 16 && b.sharpTextures && !b.progressiveFields);
+        CHECK(b.refreshRate == 240 && b.superSampling == 16 && b.sharpTextures && !b.progressiveFields);
         CHECK(b.upscaler == Upscaler::MetalFxTemporal && b.texturePack == "hd" && b.menuHintShown);
 
         // Hand-edited values snap to what exists; unknown names keep the default.
@@ -72,7 +72,9 @@ namespace
         mac.postProcess = true;
         CHECK(availability(mac, Upscaler::Fsr1).ok && availability(mac, AntiAliasing::Fxaa).ok); // Vulkan presenter
         CHECK(availability(mac, Upscaler::MetalFxSpatial).ok);
-        CHECK(refreshAvailability(mac, 144).reason.find("120 Hz") != std::string::npos);
+        CHECK(refreshAvailability(mac, 240).reason.find("120 Hz") != std::string::npos);
+        CHECK(!refreshAvailability(mac, 120).ok); // frame generation not finished (RT_FRAME_GEN=1)
+        CHECK(!refreshAvailability(mac, 90).ok);
 
         Capabilities thor;
         thor.os = Os::Android;

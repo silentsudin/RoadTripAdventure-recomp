@@ -19,10 +19,17 @@ namespace rt::debug
             const char *s = std::getenv("RT_FRAME_DUMP_SECONDS");
             return (s && std::atof(s) > 0) ? std::atof(s) : 2.0;
         }();
-        static auto last = std::chrono::steady_clock::now();
+        // RT_FRAME_DUMP_AFTER=<s>: start that many seconds after the first frame.
+        static const double after = [] {
+            const char *s = std::getenv("RT_FRAME_DUMP_AFTER");
+            return s ? std::atof(s) : 0.0;
+        }();
+        static const auto start = std::chrono::steady_clock::now();
+        static auto last = start;
         static int index = 0;
         const auto now = std::chrono::steady_clock::now();
-        if (std::chrono::duration<double>(now - last).count() < interval)
+        if (std::chrono::duration<double>(now - start).count() < after ||
+            std::chrono::duration<double>(now - last).count() < interval)
             return;
         last = now;
 
