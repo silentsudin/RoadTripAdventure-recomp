@@ -17,7 +17,7 @@ namespace rt::settings
         constexpr std::array<const char *, 3> kWindowModes = {"windowed", "borderless", "fullscreen"};
         constexpr std::array<const char *, 5> kAspects = {"4:3", "16:10", "16:9", "21:9", "32:9"};
         constexpr std::array<const char *, 2> kHud = {"4:3", "edges"};
-        constexpr std::array<const char *, 2> kFrameModes = {"interpolate", "extrapolate"};
+        constexpr std::array<const char *, 3> kFrameModes = {"interpolate", "extrapolate", "rerender"};
         constexpr std::array<const char *, 4> kAa = {"none", "fxaa", "smaa", "taa"};
         constexpr std::array<const char *, static_cast<size_t>(Upscaler::Count)> kUpscalers = {
             "none", "fsr1", "metalfx_spatial", "metalfx_temporal", "arm_asr", "sgsr1", "sgsr2", "arm_nss",
@@ -107,7 +107,7 @@ namespace rt::settings
         s.windowHeight = std::max(224, integer(d, "height", s.windowHeight));
         s.aspect = pick(d, "aspect", kAspects, s.aspect);
         s.hud = pick(d, "hud", kHud, s.hud);
-        s.refreshRate = nearestOf(integer(d, "refresh_rate", s.refreshRate), {60, 72, 90, 100, 120, 144});
+        s.refreshRate = nearestOf(integer(d, "refresh_rate", s.refreshRate), {60, 120, 240});
         s.frameMode = pick(d, "frame_mode", kFrameModes, s.frameMode);
         s.vsync = flag(d, "vsync", s.vsync);
         const toml::value &q = table(root, "quality");
@@ -137,8 +137,8 @@ namespace rt::settings
           << "width = " << s.windowWidth << "\nheight = " << s.windowHeight << "\n"
           << "aspect = \"" << name(s.aspect) << "\"  # 4:3, 16:10, 16:9, 21:9, 32:9\n"
           << "hud = \"" << name(s.hud) << "\"  # 4:3 (centred) or edges (anchored to the window edges); the HUD is never stretched\n"
-          << "refresh_rate = " << s.refreshRate << "  # 60, 72, 90, 100, 120, 144\n"
-          << "frame_mode = \"" << kFrameModes[static_cast<size_t>(s.frameMode)] << "\"  # interpolate (smoother) or extrapolate (lower latency)\n"
+          << "refresh_rate = " << s.refreshRate << "  # 60, 120, 240 (frames between the game's 60 are generated)\n"
+          << "frame_mode = \"" << kFrameModes[static_cast<size_t>(s.frameMode)] << "\"  # rerender (re-rendered from the game's geometry, no added latency); interpolate/extrapolate warp the picture (RT_FRAME_GEN=1)\n"
           << "vsync = " << (s.vsync ? "true" : "false") << "\n\n"
           << "[quality]\n"
           << "supersampling = " << s.superSampling << "  # samples per pixel: 1, 2, 4, 8, 16 (4+ doubles the resolution)\n"

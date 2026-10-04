@@ -14,7 +14,7 @@ namespace rt::settings
     // With a wide aspect only the 3D world widens: the game's 2D screens stay 4:3 and its HUD is
     // either kept in the centred 4:3 area or moved out to the window edges, never stretched.
     enum class HudMode { FourThree, Edges };
-    enum class FrameMode { Interpolate, Extrapolate };
+    enum class FrameMode { Interpolate, Extrapolate, Rerender };
     enum class AntiAliasing { None, Fxaa, Smaa, Taa };
     enum class Upscaler
     {
@@ -29,8 +29,8 @@ namespace rt::settings
         int windowWidth = 1280, windowHeight = 896;
         Aspect aspect = Aspect::R4_3;
         HudMode hud = HudMode::FourThree;
-        int refreshRate = 60;          // 60, 72, 90, 100, 120, 144
-        FrameMode frameMode = FrameMode::Interpolate;
+        int refreshRate = 60;          // 60, 120, 240: 1, 2 or 4 frames per game frame (generated)
+        FrameMode frameMode = FrameMode::Rerender; // re-rendered frames: no added latency
         bool vsync = true;
         // Quality
         int superSampling = 8;         // samples per pixel, 1..16 (8 with progressive fields: 1280x896)

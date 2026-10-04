@@ -118,6 +118,13 @@ namespace rt::settings
                                                                     : ps2x::HostPresenter::PostProcess::Scaling::Bilinear;
             post.sharpness = s.sharpness;
             p->setPostProcess(post);
+            ps2x::HostPresenter::FrameGeneration fg;
+            if (refreshAvailability(capabilities(), s.refreshRate).ok)
+                fg.factor = static_cast<uint32_t>(s.refreshRate / 60);
+            const char *warp = std::getenv("RT_FRAME_GEN");
+            fg.rerender = s.frameMode == FrameMode::Rerender || !(warp && *warp == '1');
+            fg.extrapolate = s.frameMode == FrameMode::Extrapolate;
+            p->setFrameGeneration(fg);
         }
     }
 
