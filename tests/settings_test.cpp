@@ -73,7 +73,7 @@ namespace
         CHECK(availability(mac, Upscaler::Fsr1).ok && availability(mac, AntiAliasing::Fxaa).ok); // Vulkan presenter
         CHECK(availability(mac, Upscaler::MetalFxSpatial).ok);
         CHECK(refreshAvailability(mac, 240).reason.find("120 Hz") != std::string::npos);
-        CHECK(!refreshAvailability(mac, 120).ok); // frame generation not finished (RT_FRAME_GEN=1)
+        CHECK(refreshAvailability(mac, 120).ok);
         CHECK(!refreshAvailability(mac, 90).ok);
 
         Capabilities thor;

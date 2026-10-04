@@ -105,9 +105,6 @@ namespace rt::settings
             return no("Not a whole multiple of the game's 60 Hz");
         if (hz > c.displayRefresh)
             return no("Higher than this display's " + std::to_string(c.displayRefresh) + " Hz");
-        // Frame generation (re-rendered shadow frames) is not finished: RT_FRAME_GEN=1 to try it.
-        if (const char *e = std::getenv("RT_FRAME_GEN"); !(e && *e == '1'))
-            return later();
         return {};
     }
 
