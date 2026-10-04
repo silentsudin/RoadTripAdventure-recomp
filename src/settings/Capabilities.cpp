@@ -47,6 +47,9 @@ namespace rt::settings
         case Upscaler::None:
             return {};
         case Upscaler::MetalFxSpatial:
+            if (c.os != Os::MacOS)
+                return no("MetalFX is Apple's: macOS only");
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::MetalFxTemporal:
             if (c.os != Os::MacOS)
                 return no("MetalFX is Apple's: macOS only");

@@ -104,8 +104,9 @@ namespace rt::settings
             post.aa = s.aa == AntiAliasing::Fxaa   ? ps2x::HostPresenter::PostProcess::AntiAliasing::Fxaa
                       : s.aa == AntiAliasing::Smaa ? ps2x::HostPresenter::PostProcess::AntiAliasing::Smaa
                                                    : ps2x::HostPresenter::PostProcess::AntiAliasing::None;
-            post.scaling = s.upscaler == Upscaler::Fsr1 ? ps2x::HostPresenter::PostProcess::Scaling::Fsr1
-                                                        : ps2x::HostPresenter::PostProcess::Scaling::Bilinear;
+            post.scaling = s.upscaler == Upscaler::Fsr1             ? ps2x::HostPresenter::PostProcess::Scaling::Fsr1
+                           : s.upscaler == Upscaler::MetalFxSpatial ? ps2x::HostPresenter::PostProcess::Scaling::MetalFxSpatial
+                                                                    : ps2x::HostPresenter::PostProcess::Scaling::Bilinear;
             post.sharpness = s.sharpness;
             p->setPostProcess(post);
         }

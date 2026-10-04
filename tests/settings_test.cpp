@@ -70,6 +70,7 @@ namespace
         CHECK(!availability(mac, Upscaler::Fsr1).ok && !availability(mac, AntiAliasing::Fxaa).ok); // raylib presenter
         mac.postProcess = true;
         CHECK(availability(mac, Upscaler::Fsr1).ok && availability(mac, AntiAliasing::Fxaa).ok); // Vulkan presenter
+        CHECK(availability(mac, Upscaler::MetalFxSpatial).ok);
         CHECK(refreshAvailability(mac, 144).reason.find("120 Hz") != std::string::npos);
 
         Capabilities thor;
