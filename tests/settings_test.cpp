@@ -29,7 +29,7 @@ namespace
         const auto path = dir / "settings.toml";
 
         const Settings defaults = load(path); // missing file: defaults
-        CHECK(defaults.superSampling == 4 && defaults.aspect == Aspect::R4_3 && defaults.refreshRate == 60);
+        CHECK(defaults.superSampling == 8 && defaults.aspect == Aspect::R4_3 && defaults.refreshRate == 60);
         CHECK(defaults.hud == HudMode::FourThree && defaults.upscaler == Upscaler::None);
 
         Settings s;
@@ -39,13 +39,14 @@ namespace
         s.refreshRate = 144;
         s.superSampling = 16;
         s.sharpTextures = true;
+        s.progressiveFields = false;
         s.upscaler = Upscaler::MetalFxTemporal;
         s.texturePack = "hd";
         s.menuHintShown = true;
         save(path, s);
         const Settings b = load(path);
         CHECK(b.windowMode == WindowMode::Borderless && b.aspect == Aspect::R21_9 && b.hud == HudMode::Edges);
-        CHECK(b.refreshRate == 144 && b.superSampling == 16 && b.sharpTextures);
+        CHECK(b.refreshRate == 144 && b.superSampling == 16 && b.sharpTextures && !b.progressiveFields);
         CHECK(b.upscaler == Upscaler::MetalFxTemporal && b.texturePack == "hd" && b.menuHintShown);
 
         // Hand-edited values snap to what exists; unknown names keep the default.

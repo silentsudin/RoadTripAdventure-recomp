@@ -23,6 +23,13 @@
   - The GS frontend's `WideLayout` (`gs_wide_layout.cpp` on the fork) narrows the HUD in driving frames, and marks 2D-backed screens, which the presenter shows at 4:3.
   - Frame boundaries come from the game's clear stub (`GS::markFrameStart`).
   - Unit test: `wide_layout_test`.
+- Progressive fields (Options → Interlacing: Off, the default; `RT_PROGRESSIVE_FIELDS=0|1` overrides it):
+  - The game draws 640x224 fields and moves every other one down half a line (sceGsSetHalfOffset at 0x26F340 and 0x26F3C8, `halfoff` = the field parity). The hook in `overrides.cpp` forces `halfoff` to 0.
+  - The pgs backend hides INT/FFMD from paraLLEl-GS, so the field is scanned out as a progressive double-strike picture.
+  - `VSyncInfo::progressive_field_scanout` takes twice as many lines as columns from the super-samples: 2x and 4x give 640x448, 8x and 16x give 1280x896 (`shaders/scanout_sampling.h` on the paraLLEl-GS fork).
+  - A real 448-line frame can't fit in VRAM: textures start at block 0x1A40, right after the 224-line buffers and Z.
+  - The regression harness pins `RT_PROGRESSIVE_FIELDS=0` so the goldens keep the original fields; `test_progressive_fields.py` covers the progressive path.
+- Supersampling above 4x needs 8/16-wide compute subgroups. paraLLEl-GS's `fixed_wave32()` allows it on Apple GPUs, where MoltenVK reports sizes 4..32 but compute runs 32 wide. The `[gs]` log line shows the rate in use and the maximum.
 - `RT_GS_BATCH_LOG=<file>` logs every GS draw batch (path, prim, texture, bounding box), used to tell the HUD from the 3D scene.
 - Platform layer is SDL3 under raylib 6.0 (`PS2X_HOST_PLATFORM=SDL3`, set by the app; the fork defaults to GLFW for upstream).
 - Input:
@@ -47,7 +54,7 @@
     - the shaders are in `src/lib/gs/post` on the fork; rebuild `post_spirv.h` with its `compile.py` (needs glslc);
   - temporal inputs from the game:
     - **depth** is the GS's Z scanout, snapshotted where the 3D ends;
-    - **per-object motion vectors** come from `gs_motion.cpp`: VU1 matrices per object, re-projected per vertex, carried in paraLLEl-GS's `VertexPosition.padding`. They feed TAA and MetalFX temporal; MetalFX temporal needs 4x SSAA or more and uses MetalFX spatial below that;
+    - **per-object motion vectors** come from `gs_motion.cpp`: VU1 matrices per object, re-projected per vertex, carried in paraLLEl-GS's `VertexPosition.padding`. They feed TAA and MetalFX temporal. MetalFX temporal needs a progressive picture (progressive fields, or 4x SSAA and up with interlaced fields) and uses MetalFX spatial otherwise. It scales at most `maxScale()` per axis (3x on the M3 Max); the presentation's bilinear pass scales the rest, and a scaler that can't be created is logged as `[metalfx]`;
     - the camera **jitter** comes from the game hook;
     - the **UI mask** (HUD and 2D screens, so only the 3D is post-processed) comes from the HUD classifier;
     - debug views: `RT_SHOW_DEPTH=1`, `RT_SHOW_MOTION=1`, `RT_MOTION_DEBUG=1`.

@@ -251,24 +251,46 @@ namespace rt::ui
             static const std::vector<int> levels = {1, 2, 4, 8, 16};
             rows.push_back({"Supersampling (SSAA)",
                             [&s] {
-                                switch (s.superSampling)
+                                // The picture each level scans out. The game draws 224-line fields:
+                                // progressive fields take twice as many lines as columns from the
+                                // samples; interlaced ones get 2x2 from 4x up.
+                                const int n = std::min(s.superSampling, capabilities().maxSuperSampling);
+                                if (s.progressiveFields)
+                                {
+                                    switch (n)
+                                    {
+                                    case 1: return std::string("Off (640x224)");
+                                    case 2: return std::string("2x (640x448)");
+                                    case 4: return std::string("4x (640x448, anti-aliased)");
+                                    case 8: return std::string("8x (1280x896)");
+                                    default: return std::string("16x (1280x896, anti-aliased)");
+                                    }
+                                }
+                                switch (n)
                                 {
                                 case 1: return std::string("Off (640x448)");
-                                case 2: return std::string("2x");
-                                case 4: return std::string("4x (1280x896)");
-                                case 8: return std::string("8x");
-                                default: return std::string("16x (2560x1792)");
+                                case 2: return std::string("2x (640x448)");
+                                case 4: return std::string("4x (1280x448)");
+                                case 8: return std::string("8x (1280x448)");
+                                default: return std::string("16x (1280x448)");
                                 }
                             },
                             [&s](int d) {
-                                const int i = std::clamp(indexOf(levels, s.superSampling) + d, 0, static_cast<int>(levels.size()) - 1);
+                                const int top = static_cast<int>(std::upper_bound(levels.begin(), levels.end(), capabilities().maxSuperSampling) -
+                                                                 levels.begin()) - 1;
+                                const int i = std::clamp(indexOf(levels, std::min(s.superSampling, capabilities().maxSuperSampling)) + d, 0, top);
                                 s.superSampling = levels[i];
                                 changed();
                             },
-                            {}, "Samples per pixel. 4x and up also doubles the output resolution. Higher costs more GPU.", false, true});
+                            {}, "Samples per pixel. With interlacing off, 2x renders whole 448-line frames and 8x doubles that to 1280x896. Higher costs more GPU.", false, true});
             rows.push_back({"Mipmaps", [&s] { return std::string(s.sharpTextures ? "Off (sharpest)" : "On (original)"); },
                             [&s](int) { s.sharpTextures = !s.sharpTextures; changed(); }, {},
                             "Off always samples the full-size texture, so distant roads and signs stay sharp.", false, true});
+            rows.push_back({"Interlacing", [&s] { return std::string(s.progressiveFields ? "Off (progressive fields)" : "On (original)"); },
+                            [&s](int) { s.progressiveFields = !s.progressiveFields; changed(); }, {},
+                            "The game draws 224-line fields, every other one half a line lower. Off draws them all alike "
+                            "and shows each as a whole picture: no flicker or combing, and temporal AA works at any SSAA.",
+                            false, true});
             if (availability(capabilities(), AntiAliasing::Fxaa).ok)
             {
                 static const std::vector<AntiAliasing> aas = {AntiAliasing::None, AntiAliasing::Fxaa, AntiAliasing::Smaa, AntiAliasing::Taa};

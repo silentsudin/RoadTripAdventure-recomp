@@ -140,9 +140,37 @@ namespace
         finishIfDone(rdram, ctx);
     }
 
+    // ---------------------------------------------------------------- progressive fields
+    // The game renders 640x224 fields (sceGsResetGraph(0, INTERLACE, NTSC, FIELD)) and, for an
+    // interlaced TV, draws every other one half a line lower: each frame the main loop passes the
+    // field parity from sceGsSyncV (0x335909) as `halfoff` to libgraph's sceGsSetHalfOffset
+    // (0x26F340, draw env 1) and its draw env 2 twin (0x26F3C8), which add 8 (0.5 px) to XYOFFSET's
+    // OFY. With progressive fields on (GS::progressiveFields) halfoff is forced to 0, so every
+    // field is the same picture and the scanout shows it as is. A full 448-line frame does not
+    // fit: textures start right after the two 224-line frame buffers and Z (block 0x1A40).
+    constexpr uint32_t kSetHalfOffset[2] = {0x0026F340u, 0x0026F3C8u};
+    PS2Runtime::RecompiledFunction g_setHalfOffset[2] = {};
+
+    template <int I>
+    void setHalfOffset(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        if (runtime->gsUnsynced().progressiveFields())
+            SET_GPR_U64(ctx, 7, 0); // a3 = halfoff
+        g_setHalfOffset[I](rdram, ctx, runtime);
+    }
+
     void applyRoadTrip(PS2Runtime &runtime)
     {
         std::cout << "[roadtrip] applying SLUS-20398 overrides\n";
+        g_setHalfOffset[0] = runtime.lookupFunction(kSetHalfOffset[0]);
+        g_setHalfOffset[1] = runtime.lookupFunction(kSetHalfOffset[1]);
+        if (g_setHalfOffset[0] && g_setHalfOffset[1])
+        {
+            runtime.replaceFunction(kSetHalfOffset[0], setHalfOffset<0>);
+            runtime.replaceFunction(kSetHalfOffset[1], setHalfOffset<1>);
+        }
+        else
+            std::cerr << "[roadtrip] sceGsSetHalfOffset not found: progressive fields unavailable\n";
         g_buildCamera = runtime.lookupFunction(kBuildCamera);
         if (g_buildCamera)
         {
