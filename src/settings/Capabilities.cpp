@@ -53,7 +53,7 @@ namespace rt::settings
         case Upscaler::MetalFxTemporal:
             if (c.os != Os::MacOS)
                 return no("MetalFX is Apple's: macOS only");
-            return later();
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::SnapdragonGsr1:
         case Upscaler::SnapdragonGsr2:
             if (c.os == Os::MacOS)
@@ -88,7 +88,7 @@ namespace rt::settings
     {
         if (a == AntiAliasing::None)
             return {};
-        if (a == AntiAliasing::Fxaa || a == AntiAliasing::Smaa)
+        if (a == AntiAliasing::Fxaa || a == AntiAliasing::Smaa || a == AntiAliasing::Taa)
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         return later();
     }
