@@ -1,6 +1,7 @@
 #include "platform/Input.h"
 
 #include "State.h"
+#include "platform/Host.h"
 #include "platform/Paths.h"
 #include "raylib.h"
 #include "runtime/ps2_test_harness.h"
@@ -141,11 +142,12 @@ namespace rt::input
 
     void update()
     {
+        host::beginFrame(); // key edges for this frame (menu, F-keys)
         if (g_devices.update())
             reassign();
         // The window in the background (unless background input is on) or the menu open: the game
         // reads neutral pads (still plugged in) and the motors stop.
-        const bool focused = (IsWindowFocused() || g_config.backgroundInput) && !g_blocked;
+        const bool focused = (host::windowFocused() || g_config.backgroundInput) && !g_blocked;
 
         const bool *keys = SDL_GetKeyboardState(nullptr);
         const bool useKeys = focused && keys && !keyboardBlocked();
@@ -179,11 +181,11 @@ namespace rt::input
         applyRumble(!focused);
 
         // Recording (RT_MOVIE_RECORD): F5 marks a moment, F6 a golden frame, F7 the end of a section.
-        if (IsKeyPressed(KEY_F5))
+        if (host::keyPressed(SDL_SCANCODE_F5))
             ps2_test::addMarker("mark");
-        if (IsKeyPressed(KEY_F6))
+        if (host::keyPressed(SDL_SCANCODE_F6))
             ps2_test::addMarker("golden");
-        if (IsKeyPressed(KEY_F7))
+        if (host::keyPressed(SDL_SCANCODE_F7))
             ps2_test::addMarker("section_end");
     }
 
@@ -232,7 +234,7 @@ namespace rt::input
         }
         // Back+Start counts once held for 0.3 s, so a quick Select+Start in the game is left alone.
         static double chordSince = -1;
-        const double t = GetTime();
+        const double t = host::now();
         if (!chord)
             chordSince = -1;
         else if (chordSince < 0)
@@ -241,7 +243,7 @@ namespace rt::input
         // Edges, with auto-repeat for the directions (after 350 ms, every 90 ms).
         static bool was[Count] = {};
         static double since[Count] = {};
-        const double now = GetTime();
+        const double now = host::now();
         bool fire[Count] = {};
         for (int a = 0; a < Count; ++a)
         {
@@ -258,14 +260,14 @@ namespace rt::input
             was[a] = held[a];
         }
         MenuInput m;
-        m.up = fire[Up] || IsKeyPressed(KEY_UP) || IsKeyPressedRepeat(KEY_UP);
-        m.down = fire[Down] || IsKeyPressed(KEY_DOWN) || IsKeyPressedRepeat(KEY_DOWN);
-        m.left = fire[Left] || IsKeyPressed(KEY_LEFT) || IsKeyPressedRepeat(KEY_LEFT);
-        m.right = fire[Right] || IsKeyPressed(KEY_RIGHT) || IsKeyPressedRepeat(KEY_RIGHT);
-        m.confirm = fire[Confirm] || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE);
-        m.back = fire[Back] || IsKeyPressed(KEY_BACKSPACE);
-        m.extra = fire[Extra] || IsKeyPressed(KEY_R);
-        m.toggleMenu = fire[Toggle] || IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_F3);
+        m.up = fire[Up] || host::keyPressed(SDL_SCANCODE_UP) || host::keyPressedRepeat(SDL_SCANCODE_UP);
+        m.down = fire[Down] || host::keyPressed(SDL_SCANCODE_DOWN) || host::keyPressedRepeat(SDL_SCANCODE_DOWN);
+        m.left = fire[Left] || host::keyPressed(SDL_SCANCODE_LEFT) || host::keyPressedRepeat(SDL_SCANCODE_LEFT);
+        m.right = fire[Right] || host::keyPressed(SDL_SCANCODE_RIGHT) || host::keyPressedRepeat(SDL_SCANCODE_RIGHT);
+        m.confirm = fire[Confirm] || host::keyPressed(SDL_SCANCODE_RETURN) || host::keyPressed(SDL_SCANCODE_SPACE);
+        m.back = fire[Back] || host::keyPressed(SDL_SCANCODE_BACKSPACE);
+        m.extra = fire[Extra] || host::keyPressed(SDL_SCANCODE_R);
+        m.toggleMenu = fire[Toggle] || host::keyPressed(SDL_SCANCODE_ESCAPE) || host::keyPressed(SDL_SCANCODE_F3);
         return m;
     }
 

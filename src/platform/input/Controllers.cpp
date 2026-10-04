@@ -2,7 +2,7 @@
 #include "platform/Input.h"
 
 #include "State.h"
-#include "raylib.h"
+#include "platform/Host.h"
 
 #include <SDL3/SDL.h>
 
@@ -185,7 +185,7 @@ namespace rt::input
     {
         if (g_rebinding < 0)
             return;
-        if (IsKeyPressed(KEY_ESCAPE) || Clock::now() - g_rebindStart > std::chrono::seconds(6))
+        if (host::keyPressed(SDL_SCANCODE_ESCAPE) || Clock::now() - g_rebindStart > std::chrono::seconds(6))
         {
             g_rebinding = -1;
             return;

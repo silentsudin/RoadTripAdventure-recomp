@@ -60,7 +60,7 @@ namespace rt::ui::theme
         }
     }
 
-    float scale() { return std::max(0.5f, GetScreenHeight() / 1080.0f); }
+    float scale() { return std::max(0.5f, ImGui::GetIO().DisplaySize.y / 1080.0f); }
     float px(float at1080p) { return at1080p * scale(); }
     ImFont *font() { return g_font ? g_font : ImGui::GetFont(); }
 

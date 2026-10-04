@@ -3,6 +3,7 @@
 #include "Theme.h"
 #include "imgui.h"
 #include "platform/Controllers.h"
+#include "platform/Host.h"
 #include "platform/Input.h"
 #include "raylib.h"
 #include "runtime/ps2_test_harness.h"
@@ -128,7 +129,7 @@ namespace rt::ui
             {
                 ps2_test::setPaused(true);
                 rt::input::blockGameInput(true);
-                g_openedAt = GetTime();
+                g_openedAt = rt::host::now();
                 g_panelY = -1;
             }
             go(page);
@@ -137,7 +138,7 @@ namespace rt::ui
         void close()
         {
             g_page = Page::Closed;
-            g_closedAt = GetTime();
+            g_closedAt = rt::host::now();
             rt::input::blockGameInput(false);
             ps2_test::setPaused(false);
         }
@@ -161,8 +162,8 @@ namespace rt::ui
         std::vector<WindowSize> windowSizes()
         {
             std::vector<WindowSize> sizes = {{"Small", 640, 448}, {"Medium", 960, 672}, {"Large", 1280, 896}};
-            const int monitor = GetCurrentMonitor();
-            const int mh = GetMonitorHeight(monitor), mw = GetMonitorWidth(monitor);
+            int mw = 0, mh = 0;
+            rt::host::displayUsableSize(mw, mh);
             int h = static_cast<int>(mh * 0.88f) / 32 * 32;
             int w = h * 10 / 7;
             if (w > mw * 0.95f)
@@ -607,11 +608,11 @@ namespace rt::ui
         if (g_toastPending && !current().menuHintShown && ps2_test::currentVblank() > 120)
         {
             g_toastPending = false;
-            g_toastUntil = GetTime() + 8.0;
+            g_toastUntil = rt::host::now() + 8.0;
             current().menuHintShown = true;
             saveCurrent();
         }
-        const double now = GetTime();
+        const double now = rt::host::now();
         return g_page != Page::Closed || now < g_toastUntil || now < g_closedAt + 0.2;
     }
 
@@ -695,7 +696,7 @@ namespace rt::ui
                 if (on)
                 {
                     th::selectionBar(dl, a, b);
-                    th::horn(dl, ImVec2(a.x + th::px(2), (a.y + b.y) * 0.5f), th::px(26), static_cast<float>(GetTime()));
+                    th::horn(dl, ImVec2(a.x + th::px(2), (a.y + b.y) * 0.5f), th::px(26), static_cast<float>(rt::host::now()));
                 }
                 const ImVec2 ls = th::measure(th::Size::Body, labels[i]);
                 th::text(dl, ImVec2((a.x + b.x - ls.x) * 0.5f - th::px(8), (a.y + b.y - ls.y) * 0.5f), th::Size::Body,
@@ -765,7 +766,7 @@ namespace rt::ui
         ImDrawList *dl = ImGui::GetForegroundDrawList();
         const ImGuiViewport *vp = ImGui::GetMainViewport();
         const ImVec2 vmin = vp->Pos, vmax(vp->Pos.x + vp->Size.x, vp->Pos.y + vp->Size.y);
-        const double now = GetTime();
+        const double now = rt::host::now();
         const float dt = ImGui::GetIO().DeltaTime;
 
         if (g_page == Page::Closed)
@@ -950,11 +951,11 @@ namespace rt::ui
 
     void menuShotAfterFrame()
     {
-        if (g_shot && g_shotFrames >= 20)
+        // Frame 20: the presenter saves this frame as it presents it; quit once it has.
+        if (g_shot && g_shotFrames == 20)
+            rt::host::screenshot(g_shot);
+        if (g_shot && g_shotFrames >= 22)
         {
-            Image image = LoadImageFromScreen();
-            ExportImage(image, g_shot);
-            UnloadImage(image);
             std::fflush(nullptr);
             std::_Exit(0);
         }

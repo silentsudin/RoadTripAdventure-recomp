@@ -70,6 +70,7 @@ set(RT_APP_SOURCES
     src/platform/input/Config.cpp
     src/platform/input/Devices.cpp
     src/platform/input/Input.cpp
+    src/platform/Host.cpp
     src/platform/input/Mapping.cpp
     src/platform/input/Players.cpp
     src/platform/input/Types.cpp
