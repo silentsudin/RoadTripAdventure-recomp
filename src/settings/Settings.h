@@ -33,8 +33,9 @@ namespace rt::settings
         FrameMode frameMode = FrameMode::Interpolate;
         bool vsync = true;
         // Quality
-        int superSampling = 4;         // samples per pixel, 1..16; 4+ doubles the scanout resolution
+        int superSampling = 8;         // samples per pixel, 1..16 (8 with progressive fields: 1280x896)
         bool sharpTextures = false;    // always sample the top texture level
+        bool progressiveFields = true; // no half-line offset on alternate fields, no deinterlacing
         int anisotropy = 1;            // 1 (off), 2, 4, 8, 16
         AntiAliasing aa = AntiAliasing::None;
         Upscaler upscaler = Upscaler::None;

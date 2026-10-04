@@ -669,6 +669,21 @@
     "sha256": "efd18b626c14bdaf8efb82c1cdcd6c3e6261cf43189a419a734c1b97224d8391",
     "width": 1280
   },
+  "progressive_factory": {
+    "height": 896,
+    "sha256": "45ff85f228c329ed76e47b228f6a344633cf8fa321a165c541764a2b4e7091c7",
+    "width": 1280
+  },
+  "progressive_quick_race_10s": {
+    "height": 896,
+    "sha256": "c3083dc4b42126cd6f4965175996e23e39967d5a6c0d9ecca5c92a3a70942faf",
+    "width": 1280
+  },
+  "progressive_town_driven": {
+    "height": 896,
+    "sha256": "6d83ee3c1d33af7d5b0a6ba9dc272ec26400e9ef01944edc5e9e499d7010dd92",
+    "width": 1280
+  },
   "quick_Endurance_Run_card": {
     "height": 447,
     "sha256": "8d27719c24720ac0e4b26e3fbfffd219de46a1fca35c1e62c27eee08d1d72c57",
@@ -953,6 +968,11 @@
     "height": 447,
     "sha256": "9b7e6d7b5a5d528b78a51f36cf1396f022986cf6a355652c4f7bce94e8cac0d2",
     "width": 1280
+  },
+  "title_progressive": {
+    "height": 448,
+    "sha256": "410896a6d2674f63887e91270bdf17509af7fdf805c3554903e8ebee75811dec",
+    "width": 640
   },
   "town_Chestnut_Canyon": {
     "height": 447,

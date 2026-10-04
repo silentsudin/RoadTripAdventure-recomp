@@ -163,6 +163,9 @@ class Game:
             "RT_HEADLESS": "1",
             "RT_TEST_SOCKET": "rt.sock",  # relative: AF_UNIX paths are limited to 104 bytes
             "RT_RENDER": "1" if self.rendering else "0",
+            # The original interlaced fields at 4x: goldens and state hashes record the game as is.
+            "RT_PROGRESSIVE_FIELDS": "0",
+            "RT_GS_SSAA": "4",
         })
         if self.state_hash:
             env["RT_STATE_HASH"] = str(self.work_dir / "state_hash.txt")

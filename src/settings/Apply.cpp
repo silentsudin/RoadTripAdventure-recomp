@@ -9,6 +9,7 @@
 #include "runtime/gs/gs_pgs_backend.h"
 
 #include <cstdlib>
+#include <cstring>
 #include <string>
 
 namespace rt::settings
@@ -26,6 +27,7 @@ namespace rt::settings
         {
             const ps2x::gs::PgsDeviceInfo info = g_gs->deviceInfo();
             setGpu(info.name, info.vendorId);
+            capabilities().maxSuperSampling = static_cast<int>(info.maxSuperSampling);
         }
     }
 
@@ -96,6 +98,11 @@ namespace rt::settings
         const float aspect = ratio(s.aspect);
         rt->gs().setWideLayout(aspect, s.hud == HudMode::Edges ? ps2x::gs::HudPlacement::Edges
                                                                : ps2x::gs::HudPlacement::Centred);
+        // Progressive fields: the game hook drops the half-line field offset, the scanout stops
+        // deinterlacing. RT_PROGRESSIVE_FIELDS=0|1 overrides the setting (the regression suite
+        // keeps the original fields).
+        const char *pf = std::getenv("RT_PROGRESSIVE_FIELDS");
+        rt->gs().setProgressiveFields(pf ? std::strcmp(pf, "0") != 0 : s.progressiveFields);
         if (ps2x::HostPresenter *p = rt->presenter())
         {
             p->setDisplayAspect(aspect);

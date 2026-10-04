@@ -113,6 +113,7 @@ namespace rt::settings
         const toml::value &q = table(root, "quality");
         s.superSampling = nearestOf(integer(q, "supersampling", s.superSampling), {1, 2, 4, 8, 16});
         s.sharpTextures = flag(q, "sharp_textures", s.sharpTextures);
+        s.progressiveFields = flag(q, "progressive_fields", s.progressiveFields);
         s.anisotropy = nearestOf(integer(q, "anisotropy", s.anisotropy), {1, 2, 4, 8, 16});
         s.aa = pick(q, "anti_aliasing", kAa, s.aa);
         s.upscaler = pick(q, "upscaler", kUpscalers, s.upscaler);
@@ -142,6 +143,7 @@ namespace rt::settings
           << "[quality]\n"
           << "supersampling = " << s.superSampling << "  # samples per pixel: 1, 2, 4, 8, 16 (4+ doubles the resolution)\n"
           << "sharp_textures = " << (s.sharpTextures ? "true" : "false") << "\n"
+          << "progressive_fields = " << (s.progressiveFields ? "true" : "false") << "  # false = the original interlaced fields\n"
           << "anisotropy = " << s.anisotropy << "  # 1 (off), 2, 4, 8, 16\n"
           << "anti_aliasing = \"" << name(s.aa) << "\"  # none, fxaa, smaa, taa\n"
           << "upscaler = \"" << name(s.upscaler) << "\"\n"

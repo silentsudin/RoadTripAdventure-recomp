@@ -20,6 +20,7 @@ namespace rt::settings
         int displayRefresh = 60; // the current display's refresh rate
         bool armNeuralAccel = false; // Arm Mali with neural accelerators (Arm NSS)
         bool postProcess = false;    // the presenter runs post-processing passes (the Vulkan one)
+        int maxSuperSampling = 16;   // samples per pixel the GS supports on this GPU (4, 8 or 16)
     };
 
     struct Availability
