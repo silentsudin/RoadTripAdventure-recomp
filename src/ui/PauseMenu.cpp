@@ -272,22 +272,33 @@ namespace rt::ui
             if (availability(capabilities(), AntiAliasing::Fxaa).ok)
             {
                 static const std::vector<AntiAliasing> aas = {AntiAliasing::None, AntiAliasing::Fxaa, AntiAliasing::Smaa, AntiAliasing::Taa};
-                rows.push_back({"Anti-aliasing", [&s] { return std::string(s.aa == AntiAliasing::None ? "Off" : name(s.aa)); },
+                rows.push_back({"Anti-aliasing",
+                                [&s] {
+                                    switch (s.aa)
+                                    {
+                                    case AntiAliasing::Fxaa: return std::string("FXAA");
+                                    case AntiAliasing::Smaa: return std::string("SMAA");
+                                    case AntiAliasing::Taa: return std::string("TAA (temporal)");
+                                    default: return std::string("Off");
+                                    }
+                                },
                                 [&s](int d) {
                                     do
                                         cycle(s.aa, aas, d);
                                     while (!availability(capabilities(), s.aa).ok);
                                     changed();
                                 },
-                                {}, "Post-process anti-aliasing on top of supersampling.", false, true});
+                                {}, "Smooths edges after rendering. TAA also steadies shimmer, using the game's motion.", false, true});
             }
             if (availability(capabilities(), Upscaler::Fsr1).ok)
             {
-                static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1, Upscaler::MetalFxSpatial};
+                static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1, Upscaler::MetalFxSpatial,
+                                                          Upscaler::MetalFxTemporal};
                 rows.push_back({"Upscaling",
                                 [&s] {
                                     return std::string(s.upscaler == Upscaler::Fsr1             ? "AMD FSR 1"
                                                        : s.upscaler == Upscaler::MetalFxSpatial ? "MetalFX spatial"
+                                                       : s.upscaler == Upscaler::MetalFxTemporal ? "MetalFX temporal"
                                                                                                 : "Bilinear");
                                 },
                                 [&s](int d) {

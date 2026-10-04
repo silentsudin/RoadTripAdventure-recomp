@@ -37,6 +37,7 @@
   - Test socket: `pad`/`step` take `"port"` (else both ports) and `"connected"`; `actuators` and `pad_info` report per port.
   - Movies are version 2 (port column, `# connect` lines); v1 movies drive both ports.
 - The GS renders on paraLLEl-GS/Vulkan (`ps2xRuntime/src/lib/gs/gs_pgs_backend.cpp` on the fork) by default; `RT_GS_BACKEND=cpu` switches to the software GS for A/B comparisons. Use `RT_FRAME_DUMP` to compare frames from the two.
+- paraLLEl-GS is our fork: silentsudin/parallel-gs, branch `roadtrip` (remote `upstream` = Arntzen-Software). Its shaders are precompiled: after editing `gs/shaders`, run `scripts/regen_pgs_shaders.sh`, which builds slangmosh into `build/tools` the first time.
 - Presentation goes through `ps2x::HostPresenter` (`ps2_host_presenter.h` on the fork):
   - the default is an SDL3 window with a Granite swapchain on the paraLLEl-GS device, so the picture stays on the GPU and ImGui is drawn through Granite (`gs_pgs_presenter.cpp`);
   - `RT_PRESENTER=raylib` (also the default with `RT_GS_BACKEND=cpu`) uses raylib/OpenGL, which reads the picture back every frame;
@@ -44,6 +45,12 @@
   - post-processing (Vulkan presenter only):
     - FXAA, SMAA, AMD FSR 1 and MetalFX spatial, in `gs_pgs_presenter.cpp`;
     - the shaders are in `src/lib/gs/post` on the fork; rebuild `post_spirv.h` with its `compile.py` (needs glslc);
+  - temporal inputs from the game:
+    - **depth** is the GS's Z scanout, snapshotted where the 3D ends;
+    - **per-object motion vectors** come from `gs_motion.cpp`: VU1 matrices per object, re-projected per vertex, carried in paraLLEl-GS's `VertexPosition.padding`. They feed TAA and MetalFX temporal; MetalFX temporal needs 4x SSAA or more and uses MetalFX spatial below that;
+    - the camera **jitter** comes from the game hook;
+    - the **UI mask** (HUD and 2D screens, so only the 3D is post-processed) comes from the HUD classifier;
+    - debug views: `RT_SHOW_DEPTH=1`, `RT_SHOW_MOTION=1`, `RT_MOTION_DEBUG=1`.
   - guest vblanks are phase-locked to the display on 60/120/240 Hz screens (CVDisplayLink; `RT_DISPLAY_LOCK=0` turns it off, `RT_DISPLAY_LOCK_DEBUG=1` logs the phase error).
   - the app reaches the window, keys and time only through `src/platform/Host.h` (SDL3), so both presenters work.
 - Runtime data lives in `~/Library/Application Support/RoadTripRecomp/{disc,saves}`. Override the location with `RT_DATA_DIR`.

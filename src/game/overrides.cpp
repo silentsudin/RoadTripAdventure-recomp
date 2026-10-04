@@ -41,6 +41,8 @@ namespace
         bool active = false;
         uint32_t cam = 0, ra = 0;
         float k = 1.0f;
+        bool jitter = false;
+        float jx = 0.0f, jy = 0.0f; // sub-pixel camera jitter for temporal AA, frame-buffer pixels
     } g_build;
     float g_frustum[7];
     bool g_haveFrustum = false;
@@ -85,11 +87,29 @@ namespace
         }
     }
 
+    // Shifts everything the camera draws by (jx, jy) screen pixels: the viewport's centre (used by
+    // the microprogram's clip path) and the screen matrix (x += jx * w).
+    void jitterCamera(uint8_t *rdram, uint32_t cam, float jx, float jy)
+    {
+        storeF(rdram, cam + 0xB0, loadF(rdram, cam + 0xB0) + jx);
+        storeF(rdram, cam + 0xB4, loadF(rdram, cam + 0xB4) + jy);
+        for (uint32_t j = 0; j < 4; ++j)
+        {
+            const uint32_t col = cam + 16 * j;
+            const float w = loadF(rdram, col + 0xC);
+            storeF(rdram, col, loadF(rdram, col) + jx * w);
+            storeF(rdram, col + 4, loadF(rdram, col + 4) + jy * w);
+        }
+    }
+
     void finishIfDone(uint8_t *rdram, R5900Context *ctx)
     {
         if (g_build.active && ctx->pc == g_build.ra)
         {
-            narrowCamera(rdram, g_build.cam, g_build.k);
+            if (g_build.k < 0.999f)
+                narrowCamera(rdram, g_build.cam, g_build.k);
+            if (g_build.jitter)
+                jitterCamera(rdram, g_build.cam, g_build.jx, g_build.jy);
             g_build.active = false;
         }
     }
@@ -98,15 +118,17 @@ namespace
     {
         const uint32_t cam = GPR_U32(ctx, 4);
         const bool player = cam == kPlayerCameras[0] || cam == kPlayerCameras[1];
-        float k = 1.0f;
+        float k = 1.0f, jx = 0.0f, jy = 0.0f;
+        bool jitter = false;
         if (player)
         {
             GS &gs = runtime->gsUnsynced();
             if (gs.wideDriving())
                 k = gs.wideHorizontalScale();
+            jitter = gs.cameraJitter(jx, jy);
         }
         setFrustumScale(rdram, k);
-        g_build = {k < 0.999f, cam, GPR_U32(ctx, 31), k};
+        g_build = {k < 0.999f || jitter, cam, GPR_U32(ctx, 31), k, jitter, jx, jy};
         g_buildCamera(rdram, ctx, runtime);
         finishIfDone(rdram, ctx);
     }
