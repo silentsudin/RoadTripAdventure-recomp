@@ -67,6 +67,9 @@ namespace
         CHECK(availability(mac, Upscaler::Xess).reason.find("macOS") != std::string::npos);
         CHECK(availability(mac, Upscaler::SnapdragonGsr2).reason.find("Android") != std::string::npos);
         CHECK(refreshAvailability(mac, 60).ok);
+        CHECK(!availability(mac, Upscaler::Fsr1).ok && !availability(mac, AntiAliasing::Fxaa).ok); // raylib presenter
+        mac.postProcess = true;
+        CHECK(availability(mac, Upscaler::Fsr1).ok && availability(mac, AntiAliasing::Fxaa).ok); // Vulkan presenter
         CHECK(refreshAvailability(mac, 144).reason.find("120 Hz") != std::string::npos);
 
         Capabilities thor;

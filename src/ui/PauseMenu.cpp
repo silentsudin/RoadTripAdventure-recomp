@@ -269,7 +269,7 @@ namespace rt::ui
             rows.push_back({"Mipmaps", [&s] { return std::string(s.sharpTextures ? "Off (sharpest)" : "On (original)"); },
                             [&s](int) { s.sharpTextures = !s.sharpTextures; changed(); }, {},
                             "Off always samples the full-size texture, so distant roads and signs stay sharp.", false, true});
-            if (availability(capabilities(), AntiAliasing::Smaa).ok || availability(capabilities(), Upscaler::Fsr1).ok)
+            if (availability(capabilities(), AntiAliasing::Fxaa).ok)
             {
                 static const std::vector<AntiAliasing> aas = {AntiAliasing::None, AntiAliasing::Fxaa, AntiAliasing::Smaa, AntiAliasing::Taa};
                 rows.push_back({"Anti-aliasing", [&s] { return std::string(s.aa == AntiAliasing::None ? "Off" : name(s.aa)); },
@@ -280,6 +280,25 @@ namespace rt::ui
                                     changed();
                                 },
                                 {}, "Post-process anti-aliasing on top of supersampling.", false, true});
+            }
+            if (availability(capabilities(), Upscaler::Fsr1).ok)
+            {
+                static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1};
+                rows.push_back({"Upscaling", [&s] { return std::string(s.upscaler == Upscaler::Fsr1 ? "AMD FSR 1" : "Bilinear"); },
+                                [&s](int d) {
+                                    do
+                                        cycle(s.upscaler, ups, d);
+                                    while (!availability(capabilities(), s.upscaler).ok);
+                                    changed();
+                                },
+                                {}, "How the picture is scaled up to the window. FSR 1 keeps edges sharp.", false, true});
+                if (s.upscaler == Upscaler::Fsr1)
+                    rows.push_back({"Sharpening", [&s] { return std::to_string(static_cast<int>(std::lround(s.sharpness * 100))) + "%"; },
+                                    [&s](int d) {
+                                        s.sharpness = std::clamp(std::round(s.sharpness * 10.0f + d) / 10.0f, 0.0f, 1.0f);
+                                        changed();
+                                    },
+                                    {}, "FSR 1 sharpening (RCAS) after upscaling.", false, true});
             }
             return rows;
         }
