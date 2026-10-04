@@ -283,15 +283,20 @@ namespace rt::ui
             }
             if (availability(capabilities(), Upscaler::Fsr1).ok)
             {
-                static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1};
-                rows.push_back({"Upscaling", [&s] { return std::string(s.upscaler == Upscaler::Fsr1 ? "AMD FSR 1" : "Bilinear"); },
+                static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1, Upscaler::MetalFxSpatial};
+                rows.push_back({"Upscaling",
+                                [&s] {
+                                    return std::string(s.upscaler == Upscaler::Fsr1             ? "AMD FSR 1"
+                                                       : s.upscaler == Upscaler::MetalFxSpatial ? "MetalFX spatial"
+                                                                                                : "Bilinear");
+                                },
                                 [&s](int d) {
                                     do
                                         cycle(s.upscaler, ups, d);
                                     while (!availability(capabilities(), s.upscaler).ok);
                                     changed();
                                 },
-                                {}, "How the picture is scaled up to the window. FSR 1 keeps edges sharp.", false, true});
+                                {}, "How the picture is scaled up to the window. FSR 1 and MetalFX keep edges sharp.", false, true});
                 if (s.upscaler == Upscaler::Fsr1)
                     rows.push_back({"Sharpening", [&s] { return std::to_string(static_cast<int>(std::lround(s.sharpness * 100))) + "%"; },
                                     [&s](int d) {
