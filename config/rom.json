@@ -1,0 +1,20 @@
+{
+  "title": "Road Trip (USA)",
+  "serial": "SLUS-20398",
+  "boot_elf": "SLUS_203.98",
+  "volume_id": "ROADTRIP",
+  "images": [
+    {
+      "name": "Road Trip (USA).bin",
+      "format": "bin/cue MODE2/2352",
+      "size": 616332192,
+      "sha1": "236b902a72580f43a480f18d232723a8676b02e5"
+    }
+  ],
+  "elf": {
+    "size": 1280576,
+    "entry": "0x00200008",
+    "sha1": "2431de1ec3edd0df4be37ba564658d70c4049089",
+    "crc32": "0x5a49851d"
+  }
+}

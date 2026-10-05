@@ -1,0 +1,66 @@
+# Hand-maintained recompiler overrides for Road Trip (USA) SLUS-20398.
+# Merged on top of ps2_analyzer output by `scripts/pipeline.py analyze` into config/roadtrip.toml.
+# See scripts/merge_config.py for merge rules.
+
+[general]
+ghidra_output = ""          # set to e.g. "analysis/ghidra/roadtrip_functions.csv" once exported
+single_file_output = false
+output_worker_threads = 0
+patch_syscalls = false
+patch_cop0 = true
+patch_cache = true
+
+# Extra stubs: "name@0xADDR" bound to a runtime handler, or ret0/ret1/reta0@0xADDR.
+stubs = []
+# Functions to emit as TODO wrappers instead of recompiling.
+skip = []
+# Additional entry points (e.g. function-pointer targets found while debugging).
+entry_points = []
+
+# Names to remove from the analyzer's suggestions.
+drop_stubs = [
+  "sceVu0ApplyMatrix",
+  "sceVu0MulMatrix",
+  "sceVu0InnerProduct",
+  "sceVu0Normalize",
+  "sceVu0TransposeMatrix",
+  "sceVu0InversMatrix",
+  "sceVu0DivVector",
+  "sceVu0DivVectorXYZ",
+  "sceVu0InterVector",
+  "sceVu0TransMatrix",
+  "sceVu0CopyMatrix",
+  "sceVu0UnitMatrix",
+  "sceVu0RotMatrixZ",
+  "sceVu0RotMatrixX",
+  "sceVu0RotMatrixY",
+  "sceVu0RotMatrix",
+  "sceVu0ClampVector",
+  "sceVu0CameraMatrix",
+  "sceVu0NormalLightMatrix",
+  "sceVu0LightColorMatrix",
+  "sceVu0ViewScreenMatrix",
+  "sceVu0DropShadowMatrix",
+  "sceVu0RotTransPersN",
+  "sceVu0RotTransPers",
+  "sceVu0InterVectorXYZ",
+  "sceVu0ClipScreen",
+  "sceVu0ClipScreen3",
+  "sceVu0ClipAll",
+  # Internal helper of the RotMatrix family: returns cos/sin in VU0 registers (vf4/vf5), which a
+  # C stub cannot do; stubbing it made every rotation matrix garbage (cars invisible and frozen).
+  "_sceVu0ecossin",
+  # libsdr's EE side: the real SDRDRV.IRX runs on the emulated IOP, so the game's own RPC client
+  # reaches it. The runtime stubs dropped sceSdSetParam (Sound Volume) and sceSdSetEffectAttr (reverb).
+  "sceSdRemoteInit",
+  "sceSdRemote",
+]
+drop_entry_points = []
+
+[mmio]
+# "0xINSTR_ADDR" = "0xMMIO_ADDR"
+
+# [[jump_tables.table]]
+# address = "0x..."
+# base_register = 2
+# entries = [{ index = 0, target = "0x..." }]

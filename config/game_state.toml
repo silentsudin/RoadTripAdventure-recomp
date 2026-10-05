@@ -1,0 +1,175 @@
+# Road Trip (USA, SLUS-20398) game state, for tests and tools. Addresses and layout only.
+#
+# The Adventure progress block lives in EE RAM and is written to the memory card verbatim as
+# BASLUS-20398/BASLUS-20398 (13384 bytes), so the same offsets read a save file or live RAM.
+# Fields are added as play-through sections reveal them; "confidence" says how sure we are.
+
+[progress]
+ram_address = 0x0177F760
+size = 13384
+
+[progress.fields]
+player_name   = { offset = 0x62C, type = "str", length = 19, confidence = "confirmed" }  # New Game name entry
+currency_name = { offset = 0x63F, type = "str", length = 21, confidence = "confirmed" }  # "Enter currency unit"
+money         = { offset = 0x654, type = "u32", confidence = "confirmed" }               # 1000 at the start
+scene         = { offset = 0x538, type = "u32", confidence = "likely" }                  # low word of a 128-bit state/story flag set (WGP stage flags live higher up): 6 = Q's Factory menu, 2 = driving in town, 10 = racing, 3 = race over
+town_entered  = { offset = 0x528, type = "u32", confidence = "guess" }                   # 0 -> 1 on first drive around town
+parts         = { offset = 0x00D, type = "bytes", length = 6, confidence = "likely" }    # equipped part per category; 0x0E = engine (confirmed: index into the engine table)
+licence       = { offset = 0x651, type = "u8", confidence = "confirmed" }                # 0 none, 1 B, 2 A, 3 Super A (race menu compares it with each race's rank)
+mileage_m     = { offset = 0x658, type = "u32", confidence = "confirmed" }               # metres; the save summary shows /1609 as miles
+race_results  = { offset = 0xFF0, type = "bytes", length = 35, confidence = "confirmed" } # place - 1 per race-table entry, 0xFF = not raced
+location      = { offset = 0x12DC, type = "u8", confidence = "confirmed" }               # town of the save point: 1 Peach Town .. 9 My City (loads into that town's Q's Factory)
+ski_jump_best = { offset = 0x12C8, type = "u32", confidence = "confirmed" }             # White Mountain Ski Jumping record, metres (0 until the first jump; stock car ~101, Panther engine ~106)
+unvisited_doors = { offset = 0xBD8, type = "bytes", length = 40, confidence = "confirmed" } # per location a u32: bit n set = door n not visited yet
+
+# Races (Quick Race and Adventure). 24 car structures; the race code keeps them at fixed addresses.
+[race]
+cars_address = 0x0177ACE0   # car 0 (ours): position x, y, z (f32); car k at + k * car_stride
+car_stride = 0x270
+car_count = 24
+place_address = 0x015B0088  # u32, our place - 1 (0 = first)
+entrants_address = 0x015B008C  # u32, cars in the race
+# Car fields relative to the position (confirmed on car 0):
+#   +0x60, +0x70, +0x128, +0x12C  wheel speeds (int, ~248 per mph)
+#   +0x80..+0xE0                  wheel positions
+#   +0x1B7                        our place - 1 (player car only)
+# Adventure races wait for button presses before the countdown starts.
+# Controls: analog stick steers (right = smaller atan2(dz, dx)), Cross accelerates, Square
+# brakes, Circle reverses.
+
+# Adventure races (race table at 0x002BDDD0 in the ELF: course, cars, laps, required licence).
+# Licence award: after a race, if every race of the current licence's rank among table entries
+# 0..23 has a result < 6 (this race: its live place), the licence goes up one level.
+[towns]
+names = ["My Garage", "Peach Town", "Fuji City", "Sandpolis", "Chestnut Canyon", "Mushroom Road",
+         "White Mountain", "Papaya Island", "Cloud Hill", "My City"]
+# Q's Factory race menu per town (licence A), in menu order.
+races = [
+  [],
+  ["Peach Raceway C", "Peach Raceway B", "Peach Raceway II A"],
+  ["Ninja Temple Raceway C", "Temple Raceway B", "Temple Raceway A"],
+  ["Desert Raceway C", "Desert Raceway B", "Night Glow Raceway B", "Night Glow Raceway A"],
+  ["Miner 49er Raceway C", "Miner 49er Raceway A", "Lava Run Raceway B", "Lava Run Raceway A"],
+  ["River Raceway C", "Slick Track C", "Oval Raceway B", "Slick Track A"],
+  ["Snow Mountain Raceway B", "Snow Mountain Raceway A"],
+  ["Sunny Beach Raceway B", "Sunny Beach Raceway A", "Lagoon Raceway B", "Lagoon Raceway A"],
+  ["Tin Raceway"],
+  ["Endurance Run"],
+]
+# Each town's map (collision geometry, in the town's own coordinates): FLD tiles are the open
+# world, Cloud Hill is ACTION/A16. Indexed like `names`.
+maps = ["", "FLD/223", "FLD/113", "FLD/013", "FLD/103", "FLD/210", "FLD/203", "FLD/233", "ACTION/A16", "FLD/023"]
+# Places the town bot keeps out of, per town: [x, z, radius] (portals that take you to
+# another town). Cloud Hill's rainbow gate leads down to Papaya Island.
+keep_out = { 8 = [[865, 880, 35]] }
+# Where the game puts the car while it is inside a building (every town): being there with no
+# conversation open means a building left us stranded (e.g. the Fuji City maze entrance).
+interior_stage = [1375, 1400, 90]
+# Map margin (cells) around obstacles, where a town needs other than the default 1: Cloud Hill's
+# fences have gaps on the map the car cannot get through.
+map_clearance = { 8 = 2 }
+# Menu entries that are not open at the start of the game (licence A): the factory answers
+# "Under construction."
+not_yet_open = ["Tin Raceway"]
+
+[bot]
+# Races whose line has a fork the driving bot can take wrongly: let it back out of dead ends.
+# (Backing up hurts on wide tracks, so it is off elsewhere.)
+backtrack = ["Night Glow Raceway B"]
+# World Grand Prix stages where following the pole car's line works better than the nearest car's.
+wgp_follow_far = ["Night Glow Raceway"]
+
+[quick_race]
+# Course carousel order (right moves to the next; "Exit" follows the last), at the start of the game.
+courses = ["Peach Raceway", "Temple Raceway", "Night Glow Raceway", "Snow Mountain Raceway", "Oval Raceway",
+           "Lagoon Raceway", "Tin Raceway", "Endurance Run"]
+
+[two_player]
+# 2 Player > Race Right-Away carousel order (then "Exit").
+events = ["Endurance Run", "Desert Raceway", "Night Glow Raceway", "River Raceway", "Sunny Beach Raceway",
+          "Highway Race", "Tunnel Race", "Sliding Door Race", "Obstacle Course", "Soccer"]
+
+[world_grand_prix]
+# Needs licence 3 (Super A) and two teammates. Team members are bytes in the progress block
+# (0 = none): the factory script's "enough teammates?" opcode (7) checks the two below.
+teammate_offsets = [0x674, 0x676]
+# Story flags: a 128-bit set at progress offset flags_offset; stage n done sets bit
+# stage_flag_base + n - 1 (the stage scripts test it with opcode 1).
+flags_offset = 0x538
+stage_flag_base = 0x65
+# Results: u32 stages run at results_offset, then one record per stage: 8 teams x 3 cars, the
+# points each car scored (1st place 0x1E ... 24th 0x07). Team 0 is the player's. The standings
+# sum these, and the final stage only leads to the ending if the player's team wins.
+results_offset = 0x3310
+# (town, course) per stage; each stage is run at that town's Q's Factory.
+stages = [[1, "Peach Raceway II"], [2, "Temple Raceway"], [3, "Night Glow Raceway"], [6, "Snow Mountain Raceway"],
+          [4, "Lava Run Raceway"], [7, "Lagoon Raceway"], [5, "Slick Track"]]
+
+[president]
+# The race against President Forest (Endurance Run, 1 on 1) after the World Grand Prix, then the
+# ending. Story flags (set at progress 0x538) for "WGP won": 0x57 and the 7 stage flags.
+wgp_won_flags = [0x57, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B]
+town = 8                      # Cloud Hill: the President's mansion
+# Talking to an NPC runs entry n of the NPC table (pointers to name + script lines). The test
+# points Dust's entry at the Secretary's, so bumping Dust (car slot 2 in Cloud Hill) leads to
+# the challenge instead of finding the mansion gate (coverage-first edit; driving there is
+# still to do).
+npc_table = 0x2A7768
+dust_entry = 15
+secretary = 0x2A7438
+# Race outcome the post-race script branches on (opcode 0x0B): 0 retired, 1 lost, 2 won.
+race_result_address = 0x335704
+# The ending earns stamp 100 ("Became the President!", see [stamps]) and records the
+# president's body (Q149) at body_offset in the progress block.
+body_offset = 0x5A8
+
+[stamps]
+# Notebook stamps 1..100. Stamp n earned <=> bit n-1 of the 128-bit set at progress
+# earned_offset (two u64). The award function (0x23C8A8, stamp in a0) skips earned or queued
+# stamps and queues the new one: u32 count at queue_offset, then up to 8 stamp numbers; the
+# queue is shown (and popped, 0x23D818) later. Captions live in the ELF in reverse order
+# (stamp n = entry 100-n of the list ending in "mail %d/%d"); tests read them from the disc.
+earned_offset = 0x518
+queue_offset = 0x3300
+award_function = 0x23C8A8
+
+[dialogue]
+# The message window: open flag (u8), the script cursor (u32, a pointer into the ELF's text),
+# and who is talking: window_address points into the talking NPC's conversation slot, which
+# holds their NPC entry at +window_entry (the entry's first word points at the name); a window
+# is up while the pointer is in window_range (open_address is only its top byte).
+open_address = 0x175E89B
+cursor_address = 0x175E8B0
+window_address = 0x175E898
+window_entry = 0x1C
+window_range = [0x1770000, 0x1780000]
+
+[doors]
+# Building doors: per location, a list of quads (four (x, z) float pairs, 32 bytes each) in
+# the ELF; driving into a quad enters that building (its greeting opens a dialogue). The table
+# holds one pointer per location; a list ends where the next one starts.
+table_address = 0x2C0698
+locations = 24
+
+[traffic]
+# Street NPC cars spawn from per-location lists of (x, y, z, angle) points: pointer table
+# indexed by location; a list ends where the next one starts. Tests that only need buildings
+# move the points off the map before the town loads (rtharness.town.park_traffic).
+spawn_table = 0x2C2E78
+
+[houses]
+# "Visited all the houses in <town>": per location, a u32 of not-yet-visited doors at progress
+# unvisited_doors + 4 * location (going through door n clears bit n, 0x23C7B0); when it is 0 the
+# location's stamp (a byte per location at stamp_table) is awarded (0x23D878).
+unvisited_doors = 0xBD8
+stamp_table = 0x2A2B20
+# Who is behind each door: a pointer per location to 16-byte entries (the fourth word points at
+# the resident's name), one per door, then one per driver about town (count in byte 7 of the
+# location's entry in the 8-byte table at 0x2BE438). A resident out driving turns you away.
+residents = 0x2C22C8
+
+[clock]
+# Time of day: a u32 counting vblanks since midnight (151.5 per game minute; a game day is about
+# 60 real minutes). The night sky starts in the evening; shops stay open.
+time_address = 0x335914
+vblanks_per_minute = 151.5

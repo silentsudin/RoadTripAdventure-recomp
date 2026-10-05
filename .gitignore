@@ -1,0 +1,38 @@
+# Build output
+/build/
+build-*.log
+
+# Recompiler output is derived from the game's code: never commit it.
+/generated/
+
+# Game data / disc images / executables: never commit.
+*.bin
+*.BIN
+*.cue
+*.iso
+*.ISO
+*.chd
+*.elf
+SLUS_*
+/extracted/
+/disc/
+
+# Ghidra project databases (exported CSV/TOML maps are fine to commit)
+*.gpr
+*.rep/
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/
+compile_commands.json
+.cache/
+__pycache__/
+
+# Runtime artifacts written to the working directory
+imgui.ini
+ps2_log.txt
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/worktrees/

@@ -1,0 +1,6 @@
+title = "Adventure: Continue from the first save and drive around Peach Town"
+movie = "010_peach_town_drive.movie"
+start = "adventure_first_save"
+[expect]
+scene = 2
+money = 1000
