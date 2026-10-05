@@ -5,6 +5,7 @@
 #include "platform/Controllers.h"
 #include "platform/Host.h"
 #include "platform/Input.h"
+#include "platform/Paths.h"
 #include "raylib.h"
 #include "runtime/ps2_test_harness.h"
 #include "settings/Apply.h"
@@ -15,6 +16,9 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <chrono>
+#include <filesystem>
+#include <thread>
 #include <functional>
 #include <string>
 #include <vector>
@@ -41,6 +45,40 @@ namespace rt::ui
         };
 
         Row heading(const char *label) { return {label, {}, {}, {}, {}, true}; }
+
+        // A hint broken into lines no wider than `width` (at word boundaries).
+        std::vector<std::string> wrapHint(const std::string &s, float width)
+        {
+            std::vector<std::string> lines;
+            std::string line;
+            size_t i = 0;
+            while (i < s.size())
+            {
+                const size_t sp = s.find(' ', i);
+                const std::string word = s.substr(i, sp == std::string::npos ? std::string::npos : sp - i);
+                const std::string candidate = line.empty() ? word : line + " " + word;
+                if (!line.empty() && th::measure(th::Size::Hint, candidate.c_str()).x > width)
+                {
+                    lines.push_back(line);
+                    line = word;
+                }
+                else
+                    line = candidate;
+                // A word wider than the band (a path) is broken where it runs out.
+                while (th::measure(th::Size::Hint, line.c_str()).x > width && line.size() > 1)
+                {
+                    size_t cut = line.size() - 1;
+                    while (cut > 1 && th::measure(th::Size::Hint, line.substr(0, cut).c_str()).x > width)
+                        --cut;
+                    lines.push_back(line.substr(0, cut));
+                    line = line.substr(cut);
+                }
+                i = sp == std::string::npos ? s.size() : sp + 1;
+            }
+            if (!line.empty())
+                lines.push_back(line);
+            return lines;
+        }
         Row note(const char *text)
         {
             Row r{text, {}, {}, {}, {}, true};
@@ -298,14 +336,53 @@ namespace rt::ui
                                 s.superSampling = levels[i];
                                 changed();
                             },
-                            {}, "Samples per pixel. With interlacing off, 2x renders whole 448-line frames and 8x doubles that to 1280x896. Higher costs more GPU.", false, true});
+                            {}, "A sharper, smoother picture. Higher settings need a faster GPU.", false, true});
             rows.push_back({"Mipmaps", [&s] { return std::string(s.sharpTextures ? "Off (sharpest)" : "On (original)"); },
                             [&s](int) { s.sharpTextures = !s.sharpTextures; changed(); }, {},
                             "Off always samples the full-size texture, so distant roads and signs stay sharp.", false, true});
+            if (texturePackAvailability().ok)
+            {
+                // Folder names in textures/packs, rescanned at most once a second.
+                static std::vector<std::string> packs;
+                static uint64_t scannedAt = 0;
+                const uint64_t nowMs = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(
+                                                                 std::chrono::steady_clock::now().time_since_epoch()).count()) + 1;
+                if (scannedAt == 0 || nowMs - scannedAt > 1000)
+                {
+                    packs.clear();
+                    std::error_code ec;
+                    for (const auto &e : std::filesystem::directory_iterator(rt::paths::dataRoot() / "textures" / "packs", ec))
+                        if (e.is_directory())
+                            packs.push_back(e.path().filename().string());
+                    std::sort(packs.begin(), packs.end());
+                    scannedAt = nowMs;
+                }
+                const auto packsDir = rt::paths::dataRoot() / "textures" / "packs";
+                const bool missing = !s.texturePack.empty() && indexOf(packs, s.texturePack) < 0;
+                std::string hint = packs.empty() && s.texturePack.empty()
+                                       ? "None installed. Add pack folders to " + packsDir.string()
+                                       : "Swap the game's textures for a high-detail pack. Pick None to see the original.";
+                rows.push_back({"Texture pack",
+                                [&s, missing] {
+                                    if (s.texturePack.empty())
+                                        return std::string(packs.empty() ? "None installed" : "None (original)");
+                                    std::string name = s.texturePack.size() > 24 ? s.texturePack.substr(0, 23) + "\u2026" : s.texturePack;
+                                    return missing ? name + " (missing)" : name;
+                                },
+                                // Nothing to choose from: no arrows.
+                                packs.empty() && s.texturePack.empty() ? std::function<void(int)>() : [&s](int d) {
+                                    std::vector<std::string> all = {""};
+                                    all.insert(all.end(), packs.begin(), packs.end());
+                                    int i = indexOf(all, s.texturePack);
+                                    i = (std::max(i, 0) + d + static_cast<int>(all.size())) % static_cast<int>(all.size());
+                                    s.texturePack = all[static_cast<size_t>(i)];
+                                    changed();
+                                },
+                                {}, hint, false, true});
+            }
             rows.push_back({"Interlacing", [&s] { return std::string(s.progressiveFields ? "Off (progressive fields)" : "On (original)"); },
                             [&s](int) { s.progressiveFields = !s.progressiveFields; changed(); }, {},
-                            "The game draws 224-line fields, every other one half a line lower. Off draws them all alike "
-                            "and shows each as a whole picture: no flicker or combing, and temporal AA works at any SSAA.",
+                            "Off shows every frame whole: no flicker or combing. On keeps the original TV fields.",
                             false, true});
             if (availability(capabilities(), AntiAliasing::Fxaa).ok)
             {
@@ -585,9 +662,12 @@ namespace rt::ui
                     go(Page::Options, 1);
                 else if (page == "graphics")
                 {
+                    // RT_MENU_ROW: the Options row to select (default: Supersampling).
+                    const char *rowLabel = std::getenv("RT_MENU_ROW");
+                    const std::string want = rowLabel ? rowLabel : "Supersampling (SSAA)";
                     const auto rows = optionRows();
                     int i = 0;
-                    while (i < static_cast<int>(rows.size()) && rows[i].label != "Supersampling (SSAA)")
+                    while (i < static_cast<int>(rows.size()) && rows[i].label != want)
                         ++i;
                     go(Page::Options, i);
                 }
@@ -876,8 +956,18 @@ namespace rt::ui
         const float rowH = th::px(62);
         const float width = std::min(th::px(wide ? 880 : 520), vp->Size.x * 0.92f);
         const float pad = th::px(30);
-        const float hintH = th::px(62);
         const float promptsH = th::px(90);
+        // The hint band fits the longest hint on the page (steady height), set in the label
+        // column and wrapped at the values' right edge.
+        const float hintInset = th::px(84);
+        const float hintWidth = width - th::px(60) - hintInset - th::px(40);
+        const float hintLineH = th::measure(th::Size::Hint, "Ag").y;
+        const float hintPad = th::px(18);
+        size_t hintLines = 1;
+        for (const Row &r : rows)
+            if (!r.hint.empty())
+                hintLines = std::max(hintLines, wrapHint(r.hint, hintWidth).size());
+        const float hintH = std::max(th::px(62), hintLineH * static_cast<float>(hintLines) + 2.0f * hintPad + th::px(6));
         // While previewing, the panel is a strip with just the focused row and its hint.
         const int visible = preview ? 1 : std::max(1, std::min(n, static_cast<int>(vp->Size.y * 0.62f / rowH)));
         const float bodyH = rowH * visible;
@@ -1012,9 +1102,14 @@ namespace rt::ui
             th::hintBand(dl, hmin, hmax);
         if (anyHint && n && !rows[sel].hint.empty())
         {
-            const ImVec2 hs = th::measure(th::Size::Hint, rows[sel].hint.c_str());
-            th::text(dl, ImVec2(hmin.x + th::px(18), (hmin.y + hmax.y - hs.y) * 0.5f), th::Size::Hint, th::col::ListSelected,
-                     rows[sel].hint.c_str(), th::col::Black);
+            const std::vector<std::string> lines = wrapHint(rows[sel].hint, hintWidth);
+            // Top-aligned, so the first line stays put while moving between rows.
+            float y = hintLines == 1 ? (hmin.y + hmax.y - hintLineH) * 0.5f : hmin.y + hintPad;
+            for (const std::string &line : lines)
+            {
+                th::text(dl, ImVec2(hmin.x + hintInset, y), th::Size::Hint, th::col::ListSelected, line.c_str(), th::col::Black);
+                y += hintLineH;
+            }
         }
         drawPrompts(dl, max, min.x, n && rows[sel].change != nullptr);
 
@@ -1029,6 +1124,9 @@ namespace rt::ui
             rt::host::screenshot(g_shot);
         if (g_shot && g_shotFrames >= 22)
         {
+            // The presenter encodes the PNG on another thread: wait for it (up to 10 s).
+            for (int i = 0; i < 200 && !std::filesystem::exists(g_shot); ++i)
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
             std::fflush(nullptr);
             std::_Exit(0);
         }

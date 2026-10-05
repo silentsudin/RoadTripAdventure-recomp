@@ -3,12 +3,15 @@
 #include "Capabilities.h"
 #include "Settings.h"
 #include "platform/Host.h"
+#include "platform/Paths.h"
 
 #include <SDL3/SDL.h>
 #include "ps2_runtime.h"
 #include "runtime/gs/gs_pgs_backend.h"
 
+#include <algorithm>
 #include <cstdlib>
+#include <filesystem>
 #include <cstring>
 #include <string>
 
@@ -28,6 +31,7 @@ namespace rt::settings
             const ps2x::gs::PgsDeviceInfo info = g_gs->deviceInfo();
             setGpu(info.name, info.vendorId);
             capabilities().maxSuperSampling = static_cast<int>(info.maxSuperSampling);
+            capabilities().gpuGs = true;
         }
     }
 
@@ -85,6 +89,16 @@ namespace rt::settings
         if (!g_ssaaFromEnv)
             g_gs->setSuperSampling(static_cast<uint32_t>(s.superSampling));
         g_gs->setSharpTextures(s.sharpTextures);
+        // Texture dumps go to textures/dumps; packs are folders under textures/packs.
+        // RT_TEXTURE_DUMP, RT_TEXTURE_PACK (directories) and RT_ANISOTROPY override the settings.
+        const std::filesystem::path textures = rt::paths::dataRoot() / "textures";
+        const char *dumpEnv = std::getenv("RT_TEXTURE_DUMP");
+        const char *packEnv = std::getenv("RT_TEXTURE_PACK");
+        const char *anisoEnv = std::getenv("RT_ANISOTROPY");
+        const int aniso = anisoEnv ? std::atoi(anisoEnv) : s.anisotropy;
+        g_gs->setAnisotropy(static_cast<uint32_t>(anisotropyAvailability(aniso).ok ? std::clamp(aniso, 1, 16) : 1));
+        g_gs->setTextures(dumpEnv ? dumpEnv : s.dumpTextures ? (textures / "dumps").string() : std::string(),
+                          packEnv ? packEnv : s.texturePack.empty() ? std::string() : (textures / "packs" / s.texturePack).string());
     }
 
     void applyAspect()

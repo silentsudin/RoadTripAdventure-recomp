@@ -114,7 +114,6 @@ namespace rt::settings
         s.superSampling = nearestOf(integer(q, "supersampling", s.superSampling), {1, 2, 4, 8, 16});
         s.sharpTextures = flag(q, "sharp_textures", s.sharpTextures);
         s.progressiveFields = flag(q, "progressive_fields", s.progressiveFields);
-        s.anisotropy = nearestOf(integer(q, "anisotropy", s.anisotropy), {1, 2, 4, 8, 16});
         s.aa = pick(q, "anti_aliasing", kAa, s.aa);
         s.upscaler = pick(q, "upscaler", kUpscalers, s.upscaler);
         s.sharpness = std::clamp(number(q, "sharpness", s.sharpness), 0.0f, 1.0f);
@@ -122,6 +121,7 @@ namespace rt::settings
         if (t.contains("pack") && t.at("pack").is_string())
             s.texturePack = t.at("pack").as_string();
         s.dumpTextures = flag(t, "dump", s.dumpTextures);
+        s.anisotropy = nearestOf(integer(t, "pack_anisotropy", s.anisotropy), {1, 2, 4, 8, 16});
         s.menuHintShown = flag(table(root, "general"), "menu_hint_shown", s.menuHintShown);
         return s;
     }
@@ -144,13 +144,13 @@ namespace rt::settings
           << "supersampling = " << s.superSampling << "  # samples per pixel: 1, 2, 4, 8, 16 (4+ doubles the resolution)\n"
           << "sharp_textures = " << (s.sharpTextures ? "true" : "false") << "\n"
           << "progressive_fields = " << (s.progressiveFields ? "true" : "false") << "  # false = the original interlaced fields\n"
-          << "anisotropy = " << s.anisotropy << "  # 1 (off), 2, 4, 8, 16\n"
           << "anti_aliasing = \"" << name(s.aa) << "\"  # none, fxaa, smaa, taa\n"
           << "upscaler = \"" << name(s.upscaler) << "\"\n"
           << "sharpness = " << s.sharpness << "\n\n"
           << "[textures]\n"
-          << "pack = \"" << s.texturePack << "\"\n"
-          << "dump = " << (s.dumpTextures ? "true" : "false") << "\n\n"
+          << "pack = \"" << s.texturePack << "\"  # a folder in textures/packs; empty = the original textures\n"
+          << "pack_anisotropy = " << s.anisotropy << "  # filtering of pack images: 1 (trilinear), 2, 4, 8, 16\n"
+          << "dump = " << (s.dumpTextures ? "true" : "false") << "  # for pack makers: save every texture to textures/dumps\n\n"
           << "[general]\n"
           << "menu_hint_shown = " << (s.menuHintShown ? "true" : "false") << "\n";
         std::ofstream(path) << o.str();

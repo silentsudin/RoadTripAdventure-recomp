@@ -127,6 +127,9 @@ Environment variables:
 | `RT_SHOW_FPS=1` | Shows the game's frame rate (frames presented per second, counted at each vblank) on screen. The log also shows the host rate, the vblank rate and how busy the VIF1/VU1 and GS threads are |
 | `RT_GS_SSAA=1\|2\|4\|8\|16` | GPU supersampling rate (default: the Options setting, 8) |
 | `RT_PROGRESSIVE_FIELDS=0\|1` | Overrides Options → Interlacing: 0 keeps the game's original alternating fields |
+| `RT_TEXTURE_DUMP=<dir>` | Overrides `[textures] dump` in settings.toml: saves every texture the game decodes once, as `<hash>_<W>x<H>_psm<NN>.png` |
+| `RT_TEXTURE_PACK=<dir>` | Overrides Options → Texture pack: a folder of replacement PNGs named by those hashes (any size) |
+| `RT_ANISOTROPY=1\|2\|4\|8\|16` | Overrides `[textures] pack_anisotropy` (default 16): anisotropic filtering of texture-pack images (1 = trilinear) |
 | `RT_GS_PROGRESSIVE=0` | Uses paraLLEl-GS's field deinterlacer instead of the progressive high-resolution scanout |
 | `RT_GIF_THREAD=0` / `RT_GS_THREAD=0` | Runs GIF/VIF1/VU1 work, or the GS, on the game thread instead of their own threads (A/B checks) |
 | `RT_HOST_FPS=<n>` | Paces the window with raylib's frame limiter instead of the game's vblanks |
@@ -237,6 +240,7 @@ build/               (ignored)
 - On macOS it runs through **MoltenVK**. The build copies `libMoltenVK.dylib` (Apache-2.0) into `RoadTrip.app/Contents/Frameworks`, so players need neither the Vulkan SDK nor Homebrew.
 - The runtime's GS front end still parses the command stream, so CSR, FINISH/SIGNAL and transfers keep working, but it mirrors the raw GIF packets and register writes to the GPU instead of rasterizing them.
 - VRAM is only copied back to the CPU when the game reads it.
+- Texture packs: with `dump = true` under `[textures]` in settings.toml (or `RT_TEXTURE_DUMP`), each texture the game uses is saved to `textures/dumps` in the data folder, named by a hash of its decoded pixels. Put edited or upscaled copies (same file names, any size) in a folder under `textures/packs` and choose it in Options → Texture pack. Pack images get mipmaps and 16× anisotropic filtering (`pack_anisotropy`). Needs the GPU GS.
 - The game draws interlaced 640×224 fields, moving every other one down half a line. With Options → Interlacing set to Off (the default), a game hook stops that shift and each field is shown as a whole progressive picture, like PCSX2's no-interlacing patches. paraLLEl-GS builds the picture from its supersamples with twice as many lines as columns: 2× and 4× give 640×448, 8× (the default) and 16× give 1280×896. A real 448-line frame can't fit in the PS2's 4 MB of VRAM, so this is the clean equivalent. With Interlacing On, the original fields are scanned out as before; `RT_GS_PROGRESSIVE=0` goes back to the plain field deinterlacer.
 - If Vulkan can't start, the app logs why and falls back to the software GS.
 

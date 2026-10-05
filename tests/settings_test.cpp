@@ -42,12 +42,13 @@ namespace
         s.progressiveFields = false;
         s.upscaler = Upscaler::MetalFxTemporal;
         s.texturePack = "hd";
+        s.anisotropy = 4;
         s.menuHintShown = true;
         save(path, s);
         const Settings b = load(path);
         CHECK(b.windowMode == WindowMode::Borderless && b.aspect == Aspect::R21_9 && b.hud == HudMode::Edges);
         CHECK(b.refreshRate == 240 && b.superSampling == 16 && b.sharpTextures && !b.progressiveFields);
-        CHECK(b.upscaler == Upscaler::MetalFxTemporal && b.texturePack == "hd" && b.menuHintShown);
+        CHECK(b.upscaler == Upscaler::MetalFxTemporal && b.texturePack == "hd" && b.anisotropy == 4 && b.menuHintShown);
 
         // Hand-edited values snap to what exists; unknown names keep the default.
         std::ofstream(path) << "[display]\nrefresh_rate = 130\naspect = \"5:4\"\nhud = \"stretched\"\n[quality]\nsupersampling = 5\n";
