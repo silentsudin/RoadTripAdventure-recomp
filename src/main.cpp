@@ -20,6 +20,7 @@
 #if defined(__ANDROID__)
 #include "platform/android/Assets.h"
 #endif
+#include "platform/ProgressEta.h"
 #include "platform/TaskProgress.h"
 #include "rom/RomInstaller.h"
 #include "settings/Apply.h"
@@ -37,11 +38,13 @@
 #include "ps2_debug_panel.h"
 #include "rlImGui.h"
 #include "ui/PauseMenu.h"
+#include "ui/SetupScreen.h"
 #include "ui/Theme.h"
 #endif
 
 #include "raylib.h"
 #include <SDL3/SDL_gamepad.h>
+#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_joystick.h>
 #include <SDL3/SDL_scancode.h>
 #if defined(__ANDROID__)
@@ -97,8 +100,15 @@ namespace
             if (const char *env = std::getenv("RT_ROM"); env && *env)
                 o.rom = env;
         }
+        // RT_REBUILD_GAME=1: as --rebuild-game (Android, where files/env.txt stands in for arguments).
+        if (const char *env = std::getenv("RT_REBUILD_GAME"); env && *env == '1')
+            o.rebuild = true;
         return o;
     }
+
+    // Android: the presenter opened for the first-run setup screen, handed to the runtime later.
+    std::unique_ptr<ps2x::HostPresenter> g_setupPresenter;
+    ps2x::HostPresenter *setupPresenter();
 
     // Runs `task` on a worker thread while showing a small progress window.
     bool runWithProgress(const std::function<bool(rt::TaskProgress &)> &task)
@@ -107,33 +117,74 @@ namespace
         std::thread worker([&]
                            { task(progress) ? progress.succeed() : (progress.finished.load() || progress.fail("failed")); });
 
+        const auto start = std::chrono::steady_clock::now();
+        auto seconds = [&] { return std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(); };
 #if defined(__ANDROID__)
-        // One window per activity on Android: no separate setup window. Progress goes to logcat
-        // until the setup screen is drawn by the presenter.
+        // One window per activity on Android: the Vulkan presenter opens now and draws the setup
+        // screen (the runtime takes it over afterwards), about 20 times a second.
+#if defined(PS2X_ENABLE_DEBUG_UI)
+        ps2x::HostPresenter *screen = setupPresenter();
+#else
+        ps2x::HostPresenter *screen = nullptr;
+#endif
         std::string lastPhase;
+        auto drawScreen = [&]
+        {
+            bool closed = false;
+            screen->frameUi([&]
+                            {
+                                screen->uiBegin();
+#if defined(PS2X_ENABLE_DEBUG_UI)
+                                closed = rt::ui::drawSetupScreen(progress, seconds());
+#endif
+                                screen->uiEnd(); });
+            std::this_thread::sleep_for(std::chrono::milliseconds(40));
+            return closed;
+        };
         while (!progress.finished)
         {
             if (progress.phase() != lastPhase)
                 std::cout << "[setup] " << (lastPhase = progress.phase()) << "\n";
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            if (screen)
+                drawScreen();
+            else
+                std::this_thread::sleep_for(std::chrono::milliseconds(250));
         }
         worker.join();
+        if (progress.failed && screen)
+        {
+            std::cerr << "[setup] " << progress.error() << "\n";
+            while (!drawScreen() && !screen->closeRequested())
+            {
+            }
+            return false;
+        }
 #else
         SetTraceLogLevel(LOG_WARNING);
         InitWindow(720, 200, "Road Trip - first-time setup");
         SetTargetFPS(30);
+        rt::ProgressEta eta;
         while (!progress.finished)
         {
             if (WindowShouldClose())
                 break; // can't safely cancel mid-step; keep working without drawing
             const double total = static_cast<double>(progress.total.load());
             const double frac = total > 0 ? std::min(1.0, progress.done.load() / total) : 0.0;
+            const double left = eta.update(progress, seconds());
+            std::string phase = progress.phase();
+            if (progress.steps > 1)
+                phase = "Step " + std::to_string(std::max(1, progress.step.load())) + " of " + std::to_string(progress.steps.load()) +
+                        ": " + phase;
+            std::string status = total > 0 ? std::to_string(static_cast<int>(frac * 100.0)) + "%" : std::string();
+            if (const std::string e = rt::ProgressEta::describe(left); !e.empty())
+                status += "   " + e;
             BeginDrawing();
             ClearBackground(Color{24, 28, 36, 255});
-            DrawText(progress.phase().c_str(), 24, 36, 20, RAYWHITE);
-            DrawRectangle(24, 90, 672, 24, Color{60, 66, 80, 255});
-            DrawRectangle(24, 90, static_cast<int>(672 * frac), 24, Color{90, 170, 250, 255});
-            DrawText(progress.detail().c_str(), 24, 130, 18, LIGHTGRAY);
+            DrawText(phase.c_str(), 24, 36, 20, RAYWHITE);
+            DrawRectangle(24, 80, 672, 24, Color{60, 66, 80, 255});
+            DrawRectangle(24, 80, static_cast<int>(672 * frac), 24, Color{90, 170, 250, 255});
+            DrawText(status.c_str(), 24, 116, 18, RAYWHITE);
+            DrawText(progress.detail().c_str(), 24, 150, 18, LIGHTGRAY);
             EndDrawing();
         }
         worker.join();
@@ -152,6 +203,46 @@ namespace
     std::optional<fs::path> chooseRom(const Options &opts)
     {
         std::optional<fs::path> rom = opts.rom;
+#if defined(__ANDROID__) && defined(PS2X_ENABLE_DEBUG_UI)
+        // A welcome screen first, then the system's document picker; back to the welcome screen
+        // if nothing usable was picked.
+        if (!rom)
+        {
+            ps2x::HostPresenter *screen = setupPresenter();
+            std::string note;
+            while (screen && !screen->closeRequested())
+            {
+                bool confirmed = false;
+                screen->frameUi([&]
+                                {
+                                    screen->uiBegin();
+                                    confirmed = rt::ui::drawWelcomeScreen(note);
+                                    screen->uiEnd(); });
+                if (!confirmed)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(30));
+                    continue;
+                }
+                std::optional<fs::path> picked = rt::dialogs::pickRomImage();
+                if (!picked)
+                {
+                    note = "No file was chosen.";
+                    continue;
+                }
+                std::string detail;
+                const rt::RomCheck check = rt::checkRom(*picked, detail);
+                if (check == rt::RomCheck::Ok)
+                    return picked;
+                if (check == rt::RomCheck::UnknownBuild)
+                {
+                    note = "That's a different version of Road Trip than this app supports (USA, SLUS-20398). " + detail;
+                    continue;
+                }
+                note = "That file can't be used: " + detail;
+            }
+            return std::nullopt;
+        }
+#endif
         if (!rom)
             rom = rt::dialogs::pickRomImage();
         if (!rom)
@@ -186,6 +277,35 @@ namespace
         return fs::exists(bundled, ec) ? bundled.string() : std::string();
     }
 
+    // The Vulkan presenter, opened before the runtime exists for the setup screen (Android has one
+    // window per activity, so setup can't have a window of its own). Null if unavailable.
+    ps2x::HostPresenter *setupPresenter()
+    {
+#if defined(PS2X_ENABLE_DEBUG_UI)
+        if (!g_setupPresenter)
+        {
+            ps2x::gs::PgsPresenterOptions options;
+            options.vulkanLibrary = vulkanLibrary();
+            options.vsync = rt::settings::current().vsync;
+            std::string error;
+            auto presenter = ps2x::gs::createPgsPresenter(options, error);
+            if (!presenter || !presenter->open("Road Trip Adventure", 1280, 720))
+            {
+                std::cerr << "[setup] no presenter for the setup screen (" << error << ")\n";
+                return nullptr;
+            }
+            presenter->uiInit();
+            SDL_InitSubSystem(SDL_INIT_GAMEPAD); // the setup screens take a controller's confirm button (through ImGui)
+            rt::ui::theme::initialize();
+            ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_NavEnableKeyboard;
+            g_setupPresenter = std::move(presenter);
+        }
+        return g_setupPresenter.get();
+#else
+        return nullptr;
+#endif
+    }
+
     // An SDL3 window with a Vulkan swapchain on the GS's device (the picture stays on the GPU), unless
     // RT_PRESENTER=raylib or the CPU GS is chosen: then the runtime's raylib/OpenGL window.
     void selectPresenter(PS2Runtime &runtime)
@@ -194,6 +314,11 @@ namespace
         const char *gs = std::getenv("RT_GS_BACKEND");
         if ((choice && std::string(choice) == "raylib") || (gs && std::string(gs) == "cpu" && !choice))
             return;
+        if (g_setupPresenter)
+        {
+            runtime.setPresenter(std::move(g_setupPresenter)); // already open (the setup screen)
+            return;
+        }
         ps2x::gs::PgsPresenterOptions options;
         options.vulkanLibrary = vulkanLibrary();
         options.vsync = rt::settings::current().vsync;
@@ -351,6 +476,15 @@ namespace
 
         return runWithProgress([&](rt::TaskProgress &progress)
                                {
+                                   // Extracting is one step; translating, compiling and linking three.
+                                   progress.steps = (needInstall ? 1 : 0) + (needBuild ? 3 : 0);
+                                   // RT_SETUP_TEST_FAIL=1 (UI reviews): fail at once, with the last build log.
+                                   if (const char *f = std::getenv("RT_SETUP_TEST_FAIL"); f && *f == '1')
+                                   {
+                                       progress.setPhase("Compiling the game for this device");
+                                       return progress.fail("Compiling the game failed.\n\nDetails: " +
+                                                            (rt::paths::gameDir() / "build.log").string());
+                                   }
                                    if (needInstall && !rt::installFromRom(*rom, progress))
                                        return false;
                                    return !needBuild ||

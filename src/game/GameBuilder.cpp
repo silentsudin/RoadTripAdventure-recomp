@@ -20,6 +20,7 @@ int ps2x_vu1_recomp_main(int argc, char **argv);
 #include <unistd.h>
 
 #include <algorithm>
+#include <chrono>
 #include <atomic>
 #include <fstream>
 #include <iostream>
@@ -240,9 +241,7 @@ namespace rt::game
             return fail("Cannot create " + work.string() + ": " + ec.message());
 
         // 1. MIPS -> C++
-        progress.setPhase("Translating the game's code (one-time setup)");
-        progress.done = 0;
-        progress.total = 1;
+        progress.setPhase("Translating the game's code");
         const fs::path config = work / "roadtrip.toml";
         if (!writeConfig(elf, generated, config))
             return fail("Cannot write recompiler config.");
@@ -261,7 +260,7 @@ namespace rt::game
             return fail(std::string("The recompiler failed: ") + e.what());
         }
         // VU1 microcode -> C++. Optional: without it the VU1 interpreter runs the 3D code.
-        std::vector<std::string> vu1Args{"ps2_vu1_recomp", "--elf", elf.string(), "--out", vu1Source.string()};
+        std::vector<std::string> vu1Args{"ps2_vu1_recomp", "--elf", elf.string(), "--out", vu1Source.string(), "--split"};
         std::vector<char *> vu1Argv;
         for (auto &a : vu1Args)
             vu1Argv.push_back(a.data());
@@ -273,7 +272,7 @@ namespace rt::game
         // VU1 microcode -> C++. Optional: without it the VU1 interpreter runs the 3D code.
         const bool haveVu1 =
             fs::exists(recompDir() / "ps2_vu1_recomp") &&
-            run({(recompDir() / "ps2_vu1_recomp").string(), "--elf", elf.string(), "--out", vu1Source.string()},
+            run({(recompDir() / "ps2_vu1_recomp").string(), "--elf", elf.string(), "--out", vu1Source.string(), "--split"},
                 buildLog(), work) == 0 &&
             fs::exists(vu1Source);
 #endif
@@ -287,18 +286,65 @@ namespace rt::game
         if (sources.empty())
             return fail("The recompiler produced no code.");
 
+        // Each unit's weight (the progress bar, and the order: heaviest first, so no big unit is
+        // left compiling alone at the end), in bytes of game code, from compile times measured on
+        // the AYN Thor (the "[build]" lines): the runtime headers every unit parses cost as much as
+        // 210 KB of game code; a VU1 microprogram costs 10x per byte and parses more headers
+        // (465 KB); the VU1 dispatcher is mostly tables and costs its headers only.
         std::vector<fs::path> units;
+        std::vector<uint64_t> weights;
+        constexpr uint64_t kHeaderWeight = 210000, kVu1HeaderWeight = 465000, kVu1ByteWeight = 10;
+        auto sizeOf = [](const fs::path &p)
+        {
+            std::error_code e;
+            const auto n = fs::file_size(p, e);
+            return e ? uint64_t(1) : std::max<uint64_t>(n, 1);
+        };
         for (size_t i = 0; i < sources.size(); i += kUnityBatch)
         {
             const fs::path unit = work / ("unity_" + std::to_string(units.size()) + ".cpp");
             std::ofstream u(unit);
+            uint64_t weight = 0;
             for (size_t j = i; j < std::min(sources.size(), i + kUnityBatch); ++j)
+            {
                 u << "#include " << tomlString(sources[j]) << "\n";
+                weight += sizeOf(sources[j]);
+            }
             units.push_back(unit);
+            weights.push_back(kHeaderWeight + weight);
         }
         units.push_back(sdkDir() / "game_shim.cpp");
+        weights.push_back(kHeaderWeight + sizeOf(units.back()));
         if (haveVu1)
+        {
+            // The dispatcher and one file per microprogram (ps2_vu1_recomp --split).
             units.push_back(vu1Source);
+            weights.push_back(kHeaderWeight);
+            for (const auto &e : fs::directory_iterator(work))
+            {
+                const std::string name = e.path().filename().string();
+                if (name.rfind(vu1Source.stem().string() + ".part", 0) == 0 && e.path().extension() == ".cpp")
+                {
+                    units.push_back(e.path());
+                    weights.push_back(kVu1HeaderWeight + kVu1ByteWeight * sizeOf(e.path()));
+                }
+            }
+        }
+        {
+            std::vector<size_t> order(units.size());
+            for (size_t i = 0; i < order.size(); ++i)
+                order[i] = i;
+            std::stable_sort(order.begin(), order.end(), [&](size_t a, size_t b) { return weights[a] > weights[b]; });
+            std::vector<fs::path> u;
+            std::vector<uint64_t> w;
+            for (size_t i : order)
+            {
+                u.push_back(units[i]);
+                w.push_back(weights[i]);
+            }
+            units.swap(u);
+            weights.swap(w);
+        }
 
         // 3. Compile.
         const std::string sdkJson = readFile(sdkDir() / "flags.json");
@@ -338,17 +384,21 @@ namespace rt::game
         }
 
 #if defined(__ANDROID__)
-        progress.setPhase("Compiling the game for this device (one-time setup)");
+        progress.setPhase("Compiling the game for this device");
 #else
-        progress.setPhase("Compiling the game for your Mac (one-time setup)");
+        progress.setPhase("Compiling the game for your Mac");
 #endif
-        progress.done = 0;
-        progress.total = units.size();
+        uint64_t totalWeight = 0;
+        for (uint64_t w : weights)
+            totalWeight += w;
+        progress.total = totalWeight;
         std::atomic<size_t> next{0};
+        std::atomic<int> slots{0};
         std::atomic<bool> compileFailed{false};
         std::vector<fs::path> objects(units.size());
         auto worker = [&]
         {
+            const int slot = slots++;
 #if defined(__ANDROID__)
             // On the big cores (cpu3-7 on Snapdragon 8 Gen 2 and kin) at a lower priority, so the
             // UI stays smooth; the compiler processes inherit both from this thread.
@@ -365,9 +415,15 @@ namespace rt::game
                 objects[i] = objDir / ("u" + std::to_string(i) + ".o");
                 std::vector<std::string> argv = base;
                 argv.insert(argv.end(), {"-c", units[i].string(), "-o", objects[i].string()});
+                const auto t0 = std::chrono::steady_clock::now();
+                progress.beginUnit(slot, weights[i]);
                 if (run(argv, buildLog()) != 0)
                     compileFailed = true;
-                ++progress.done;
+                progress.endUnit(slot);
+                progress.done += weights[i];
+                // Per-unit times (weights are calibrated from these).
+                std::cout << "[build] " << units[i].filename().string() << " weight " << weights[i] << ": "
+                          << std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count() << " s\n";
             }
         };
 #if defined(__ANDROID__)
@@ -376,6 +432,7 @@ namespace rt::game
 #else
         const unsigned jobs = std::max(1u, std::thread::hardware_concurrency());
 #endif
+        progress.beginUnits(static_cast<int>(jobs));
         std::vector<std::thread> pool;
         for (unsigned j = 0; j < jobs; ++j)
             pool.emplace_back(worker);

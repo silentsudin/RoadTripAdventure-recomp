@@ -7,6 +7,11 @@
 #include <regex>
 #include <sstream>
 
+#if defined(__ANDROID__)
+#include <SDL3/SDL_iostream.h>
+#include <unistd.h>
+#endif
+
 namespace rt
 {
     namespace
@@ -62,7 +67,24 @@ namespace rt
                 return false;
         }
 
-        m_file = std::fopen(data.string().c_str(), "rb");
+#if defined(__ANDROID__)
+        // A document picked through the storage access framework: a content:// URI, opened by the
+        // content resolver (SDL) and read through our own copy of its file descriptor.
+        if (data.string().rfind("content://", 0) == 0)
+        {
+            if (SDL_IOStream *io = SDL_IOFromFile(data.string().c_str(), "rb"))
+            {
+                auto *fp = static_cast<std::FILE *>(
+                    SDL_GetPointerProperty(SDL_GetIOProperties(io), SDL_PROP_IOSTREAM_STDIO_FILE_POINTER, nullptr));
+                const int fd = fp ? dup(fileno(fp)) : -1;
+                SDL_CloseIO(io);
+                if (fd >= 0 && !(m_file = fdopen(fd, "rb")))
+                    ::close(fd);
+            }
+        }
+        else
+#endif
+            m_file = std::fopen(data.string().c_str(), "rb");
         if (!m_file)
         {
             error = "cannot open " + data.string();

@@ -125,7 +125,7 @@ target_link_libraries(${RT_APP_TARGET} PRIVATE ps2_runtime rt_sse2neon SDL3::SDL
 if(RT_ENABLE_DEBUG_UI)
     target_sources(${RT_APP_TARGET} PRIVATE "${PS2X_RUNTIME_DIR}/src/lib/ps2_debug_panel.cpp"
                                     src/platform/input/Controllers.cpp
-                                    src/ui/PauseMenu.cpp src/ui/Theme.cpp)
+                                    src/ui/PauseMenu.cpp src/ui/SetupScreen.cpp src/ui/Theme.cpp)
     target_link_libraries(${RT_APP_TARGET} PRIVATE rlImGui imgui)
     target_compile_definitions(${RT_APP_TARGET} PRIVATE PS2X_ENABLE_DEBUG_UI=1)
 endif()

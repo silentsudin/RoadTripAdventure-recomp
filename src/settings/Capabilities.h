@@ -21,7 +21,7 @@ namespace rt::settings
         bool armNeuralAccel = false; // Arm Mali with neural accelerators (Arm NSS)
         bool postProcess = false;    // the presenter runs post-processing passes (the Vulkan one)
         int maxSuperSampling = 16;   // samples per pixel the GS supports on this GPU (4, 8 or 16)
-        bool gpuGs = false;          // the paraLLEl-GS backend runs (texture dumps and packs need it)
+        bool gpuGs = false;          // a GPU GS runs (paraLLEl-GS or the hardware GS; texture dumps and packs need it)
     };
 
     struct Availability

@@ -104,7 +104,9 @@ namespace rt::ui::theme
         ImGuiIO &io = ImGui::GetIO();
         const auto path = rt::paths::bundleResources() / "fonts" / "Fredoka-SemiBold.ttf";
         std::error_code ec;
-        if (std::filesystem::exists(path, ec))
+        if (g_font)
+            ; // already (the setup screen ran first)
+        else if (std::filesystem::exists(path, ec))
             g_font = io.Fonts->AddFontFromFileTTF(path.string().c_str(), 30.0f);
         else
             std::fprintf(stderr, "[ui] font missing: %s\n", path.string().c_str());
