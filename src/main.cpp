@@ -13,12 +13,14 @@
 #include "debug/RamDump.h"
 #include "platform/Host.h"
 #include "platform/Input.h"
+#include "platform/Lifecycle.h"
 #include "debug/ThreadDump.h"
 #include "game/GameBuilder.h"
 #include "platform/Dialogs.h"
 #include "platform/Paths.h"
 #if defined(__ANDROID__)
 #include "platform/android/Assets.h"
+#include "platform/android/PerformanceHint.h"
 #endif
 #include "platform/ProgressEta.h"
 #include "platform/TaskProgress.h"
@@ -638,6 +640,9 @@ int main(int argc, char *argv[])
             [](PS2Runtime &rt, void *user)
             {
                 rt::input::update();         // one input snapshot per host frame, on this thread
+#if defined(__ANDROID__)
+                rt::perfhint::tick();        // ADPF: the frame's work, so the governor keeps up
+#endif
                 rt::debug::maybeDumpFrame(); // the presenter saves this frame as shown (with any menu or overlay)
                 rt::debug::drawFpsOverlay(rt);
 #if defined(PS2X_ENABLE_DEBUG_UI)
@@ -674,6 +679,7 @@ int main(int argc, char *argv[])
         }
         selectGsBackend(runtime);
         rt::settings::applyAll();
+        rt::lifecycle::install(); // Android: pause the game and close audio while the app is away
         // Test-socket commands of the app's own:
         //   {"cmd":"texture_pack","path":DIR}  use that pack ("" = none; no "path": keep it)
         //                                      -> {"pack_images","replaced"} of the active pack

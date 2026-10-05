@@ -109,6 +109,7 @@ set(RT_APP_SOURCES
     src/platform/input/Devices.cpp
     src/platform/input/Input.cpp
     src/platform/Host.cpp
+    src/platform/Lifecycle.cpp
     src/platform/input/Mapping.cpp
     src/platform/input/Players.cpp
     src/platform/input/Types.cpp
@@ -125,7 +126,8 @@ elseif(ANDROID)
     list(APPEND RT_APP_SOURCES
         src/platform/android/Assets.cpp
         src/platform/android/Dialogs.cpp
-        src/platform/android/LogRedirect.cpp)
+        src/platform/android/LogRedirect.cpp
+        src/platform/android/PerformanceHint.cpp)
 endif()
 
 # The empty, full-range function table; the game library fills it in when loaded.
