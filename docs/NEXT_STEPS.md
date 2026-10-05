@@ -86,11 +86,11 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [ ] **The Options page jumps between one row and the full list while scrolling.** Cause:
       picture rows are marked `preview` (`src/ui/PauseMenu.cpp`, `const bool preview = n &&
       rows[sel].preview;`, then `visible = preview ? 1 : ...`), so focusing one collapses the
-      panel to a one-row strip at the bottom to show the picture, and leaving it expands it again.
-      Fix: keep the full list while browsing; collapse only while a picture value is being changed
-      (and for about a second after), or keep the panel full height and slide it to a side with
-      the scrim lifted. Re-shoot with `RT_MENU_SHOT ... RT_MENU_PAGE=graphics` and have both UI
-      critics check it.
+      panel to a one-row strip at the bottom. **Decision (user): the menu never collapses.** Remove
+      the one-row preview mode: the panel keeps its full list and position on every row. If seeing
+      the picture change matters, the most that is allowed is lifting the scrim a little while a
+      picture row is focused, with no change to the panel's size or position. Re-shoot with
+      `RT_MENU_SHOT ... RT_MENU_PAGE=graphics` and have both UI critics check it.
 - [ ] **Audio crackles.** Leads: the ring buffer in `ps2_audio_out.cpp` drops the oldest frames
       beyond 200 ms and plays silence on underrun; both click. Unsteady guest timing (above) makes
       both happen. raylib/miniaudio on AAudio uses `SetAudioStreamBufferSizeDefault(1024)`, which
