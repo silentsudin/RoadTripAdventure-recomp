@@ -204,7 +204,8 @@ namespace
             std::cerr << "[presenter] Vulkan presenter unavailable (" << error << "); using raylib\n";
     }
 
-    // GPU GS (paraLLEl-GS on Vulkan/MoltenVK) unless RT_GS_BACKEND=cpu; falls back to the CPU GS.
+    // GPU GS (paraLLEl-GS on Vulkan/MoltenVK, or the hardware GS) unless RT_GS_BACKEND=cpu; falls back to
+    // the CPU GS.
     void selectGsBackend(PS2Runtime &runtime)
     {
         const char *choice = std::getenv("RT_GS_BACKEND");
@@ -214,8 +215,15 @@ namespace
             return;
         }
 
-        // RT_GS_BACKEND=hw: the hardware-rasterizer GS on the presenter's device.
-        if (choice && std::string(choice) == "hw")
+        // The hardware-rasterizer GS on the presenter's device: RT_GS_BACKEND=hw, and the default on
+        // Android (paraLLEl-GS's compute rasterizer is several times heavier on phone GPUs;
+        // RT_GS_BACKEND=pgs keeps it).
+#if defined(__ANDROID__)
+        const bool hardware = !choice || std::string(choice) != "pgs";
+#else
+        const bool hardware = choice && std::string(choice) == "hw";
+#endif
+        if (hardware)
         {
             ps2x::gs::HwOptions hw;
             hw.presenter = runtime.presenter();
