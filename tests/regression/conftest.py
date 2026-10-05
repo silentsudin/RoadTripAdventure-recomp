@@ -14,7 +14,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from rtharness import DEFAULT_APP, Game, close_all_games  # noqa: E402
+from rtharness import DEFAULT_APP, RENDER_ALWAYS, Game, close_all_games  # noqa: E402
 from rtharness import goldens  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
@@ -124,6 +124,8 @@ def game_factory(options, test_data, request):
 @pytest.fixture
 def golden(options, test_data):
     def check(name, frame):
+        if RENDER_ALWAYS:  # every frame drawn: pictures differ from the goldens (texture dump runs)
+            return
         goldens.check(name, frame, test_data, update=options.update_goldens)
 
     return check
@@ -132,6 +134,8 @@ def golden(options, test_data):
 @pytest.fixture
 def golden_audio(options):
     def check(name, audio):
+        if RENDER_ALWAYS:
+            return
         goldens.check_audio(name, audio, update=options.update_goldens)
 
     return check
