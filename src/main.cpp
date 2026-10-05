@@ -17,12 +17,16 @@
 #include "game/GameBuilder.h"
 #include "platform/Dialogs.h"
 #include "platform/Paths.h"
+#if defined(__ANDROID__)
+#include "platform/android/Assets.h"
+#endif
 #include "platform/TaskProgress.h"
 #include "rom/RomInstaller.h"
 #include "settings/Apply.h"
 #include "settings/Settings.h"
 
 #include "ps2_runtime.h"
+#include <fstream>
 #include "runtime/ps2_test_harness.h"
 #include "runtime/gs/gs_frontend.h"
 #include "runtime/gs/gs_pgs_backend.h"
@@ -36,7 +40,12 @@
 #endif
 
 #include "raylib.h"
+#include <SDL3/SDL_gamepad.h>
+#include <SDL3/SDL_joystick.h>
 #include <SDL3/SDL_scancode.h>
+#if defined(__ANDROID__)
+#include <SDL3/SDL_main.h> // main() becomes SDL_main, called by SDLActivity
+#endif
 
 #include <algorithm>
 #include <cstdlib>
@@ -97,6 +106,18 @@ namespace
         std::thread worker([&]
                            { task(progress) ? progress.succeed() : (progress.finished.load() || progress.fail("failed")); });
 
+#if defined(__ANDROID__)
+        // One window per activity on Android: no separate setup window. Progress goes to logcat
+        // until the setup screen is drawn by the presenter.
+        std::string lastPhase;
+        while (!progress.finished)
+        {
+            if (progress.phase() != lastPhase)
+                std::cout << "[setup] " << (lastPhase = progress.phase()) << "\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        }
+        worker.join();
+#else
         SetTraceLogLevel(LOG_WARNING);
         InitWindow(720, 200, "Road Trip - first-time setup");
         SetTargetFPS(30);
@@ -117,6 +138,7 @@ namespace
         worker.join();
         if (IsWindowReady())
             CloseWindow();
+#endif
 
         if (progress.failed)
         {
@@ -207,9 +229,77 @@ namespace
             std::cerr << "[gs] Vulkan GS unavailable (" << error << "); using CPU backend\n";
     }
 
+    // Test socket {"cmd":"sdlpad","type":"xbox|ps|switch","buttons":"start,back,..."}: a virtual SDL
+    // gamepad with these buttons held (the rest released), so tests reach the app's own input
+    // path (menus, rebinding, button icons) the way a real controller does. "type":"none" unplugs it.
+    std::string testSdlPad(const std::string &line)
+    {
+        static SDL_JoystickID id = 0;
+        static SDL_Joystick *joy = nullptr;
+        static std::string current;
+        std::string type = ps2_test::jsonField(line, "type");
+        if (type.empty())
+            type = current.empty() ? "xbox" : current;
+        if (joy && type != current)
+        {
+            SDL_CloseJoystick(joy);
+            SDL_DetachVirtualJoystick(id);
+            joy = nullptr;
+        }
+        if (type == "none")
+            return "{\"ok\":true}";
+        if (!joy)
+        {
+            SDL_VirtualJoystickDesc desc;
+            SDL_INIT_INTERFACE(&desc);
+            desc.type = SDL_JOYSTICK_TYPE_GAMEPAD;
+            desc.naxes = SDL_GAMEPAD_AXIS_COUNT;
+            desc.nbuttons = SDL_GAMEPAD_BUTTON_COUNT;
+            // Every button and axis present, in SDL's gamepad order: SDL derives the mapping from
+            // these (not from the database entry of the device the ids name).
+            desc.button_mask = (1u << SDL_GAMEPAD_BUTTON_COUNT) - 1;
+            desc.axis_mask = (1u << SDL_GAMEPAD_AXIS_COUNT) - 1;
+            // Real devices' USB ids, so SDL reports their gamepad type and button labels.
+            if (type == "ps")
+                desc.vendor_id = 0x054C, desc.product_id = 0x0CE6, desc.name = "Test DualSense";
+            else if (type == "switch")
+                desc.vendor_id = 0x057E, desc.product_id = 0x2009, desc.name = "Test Switch Pro";
+            else
+                desc.vendor_id = 0x045E, desc.product_id = 0x0B12, desc.name = "Test Xbox";
+            id = SDL_AttachVirtualJoystick(&desc);
+            joy = id ? SDL_OpenJoystick(id) : nullptr;
+            if (!joy)
+                return std::string("{\"ok\":false,\"error\":\"") + SDL_GetError() + "\"}";
+            current = type;
+        }
+        static const std::pair<const char *, SDL_GamepadButton> names[] = {
+            {"a", SDL_GAMEPAD_BUTTON_SOUTH}, {"b", SDL_GAMEPAD_BUTTON_EAST}, {"x", SDL_GAMEPAD_BUTTON_WEST},
+            {"y", SDL_GAMEPAD_BUTTON_NORTH}, {"back", SDL_GAMEPAD_BUTTON_BACK}, {"guide", SDL_GAMEPAD_BUTTON_GUIDE},
+            {"start", SDL_GAMEPAD_BUTTON_START}, {"l3", SDL_GAMEPAD_BUTTON_LEFT_STICK},
+            {"r3", SDL_GAMEPAD_BUTTON_RIGHT_STICK}, {"lb", SDL_GAMEPAD_BUTTON_LEFT_SHOULDER},
+            {"rb", SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER}, {"up", SDL_GAMEPAD_BUTTON_DPAD_UP},
+            {"down", SDL_GAMEPAD_BUTTON_DPAD_DOWN}, {"left", SDL_GAMEPAD_BUTTON_DPAD_LEFT},
+            {"right", SDL_GAMEPAD_BUTTON_DPAD_RIGHT}};
+        const std::string held = "," + ps2_test::jsonField(line, "buttons") + ",";
+        for (const auto &[name, button] : names)
+            SDL_SetJoystickVirtualButton(joy, button, held.find("," + std::string(name) + ",") != std::string::npos);
+        for (const char *trigger : {"lt", "rt"})
+            SDL_SetJoystickVirtualAxis(joy, trigger[0] == 'l' ? SDL_GAMEPAD_AXIS_LEFT_TRIGGER : SDL_GAMEPAD_AXIS_RIGHT_TRIGGER,
+                                       held.find("," + std::string(trigger) + ",") != std::string::npos ? SDL_JOYSTICK_AXIS_MAX : 0);
+        return "{\"ok\":true}";
+    }
+
     // Extracts the disc and builds the game library as needed.
     bool ensureSetUp(const Options &opts)
     {
+#if defined(__ANDROID__)
+        // The compiler's headers and libraries ship in the APK; unpack them first.
+        if (std::string kitError; !rt::android::ensureBuildKit(kitError))
+        {
+            rt::dialogs::message("Setup failed", kitError);
+            return false;
+        }
+#endif
         const bool needInstall = opts.reinstall || !rt::isInstalled();
         const bool needBuild = needInstall || opts.rebuild || !rt::game::isBuilt();
         if (!needInstall && !needBuild)
@@ -244,6 +334,16 @@ namespace
 
 int main(int argc, char *argv[])
 {
+#if defined(__ANDROID__)
+    // Apps get no environment: files/env.txt (KEY=VALUE lines) sets RT_* switches for debugging,
+    // e.g. `adb shell run-as <pkg> sh -c 'echo RT_GS_BACKEND=cpu > files/env.txt'`.
+    {
+        std::ifstream env(rt::paths::dataRoot() / "env.txt");
+        for (std::string line; std::getline(env, line);)
+            if (const size_t eq = line.find('='); eq != std::string::npos && line[0] != '#')
+                setenv(line.substr(0, eq).c_str(), line.substr(eq + 1).c_str(), 1);
+    }
+#endif
     const Options opts = parseArgs(argc, argv);
 
     try
@@ -340,6 +440,8 @@ int main(int argc, char *argv[])
                 return "{\"ok\":true,\"pack_images\":" + std::to_string(stats.packImages) +
                        ",\"replaced\":" + std::to_string(stats.replaced) + "}";
             }
+            if (cmd == "sdlpad")
+                return testSdlPad(line);
             return {};
         });
 

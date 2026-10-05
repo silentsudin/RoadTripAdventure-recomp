@@ -85,3 +85,9 @@
 - The GIF/VIF1 worker hands GS batches to the GS thread every 24 packets while VU1 runs (`PS2Memory::drainGif`), so VU1 and GS overlap; the game, VU1 and GS threads run at user-interactive QoS. `RT_GS_OVERLAP=0` restores one batch per VIF1 job. At 60 Hz a frame had only about 1 ms of headroom before.
 - Regression suite: `python3 scripts/regress.py [-n 4] [-k ...]` (tests/regression, pytest). Run it before committing runtime/recompiler changes. Golden images and checkpoints live in build/regression and must never be committed; only hashes (goldens.json) and inputs are.
 - `RT_TEST_RENDER_ALWAYS=1` makes the regression harness draw every frame instead of only around pictures (goldens then differ). With `RT_TEXTURE_DUMP=<dir>` it dumps every texture a suite run shows, including the ones the game builds in code.
+- Android (branch `android-port`, tested on the AYN Thor, Adreno 740):
+  - `scripts/android/build_llvm.sh` cross-builds the on-device compiler (`libllvm.so`, clang + lld, LLVM 21 to match the NDK); `scripts/android/build_apk.sh [--release] [--install]` builds `libmain.so`, the build kit (`bundle_sdk.py --android` → `assets/rt.tar`) and the APK (`platform/android/`).
+  - The app recompiles and compiles the game on the device (`GameBuilder.cpp`, Android branch) into `files/game/libroadtrip_game.so`; the disc is still pushed by hand into `files/disc` (first-run picking is not built yet).
+  - RT_* switches come from `files/env.txt` (`run-as io.github.roadtrip.recomp`); logs: `adb logcat -s RoadTrip`.
+  - Tests: `tests/regression/rtharness/android.py` `AndroidGame` (test socket over `adb forward`, inline frames, `sdl(...)` presses a virtual SDL gamepad; `lockstep=False` for real time).
+  - Adreno: sampler feedback off, one precompile thread; `RT_PGS_TIMESTAMPS=1` logs GPU ms per stage.

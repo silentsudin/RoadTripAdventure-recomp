@@ -222,14 +222,17 @@ namespace rt::ui
             Settings &s = current();
             std::vector<Row> rows;
             rows.push_back(heading("Display"));
-            rows.push_back({"Window",
+            // Phones and handhelds are always full screen: no window rows there.
+            const bool hasWindow = capabilities().os != Os::Android;
+            if (hasWindow)
+                rows.push_back({"Window",
                             [&s] { return std::string(s.windowMode == WindowMode::Windowed ? "Windowed" : "Borderless full screen"); },
                             [&s](int) {
                                 s.windowMode = s.windowMode == WindowMode::Windowed ? WindowMode::Borderless : WindowMode::Windowed;
                                 changed();
                             },
                             {}, "Play in a window or fill the screen."});
-            if (s.windowMode == WindowMode::Windowed)
+            if (hasWindow && s.windowMode == WindowMode::Windowed)
             {
                 rows.push_back({"Window size",
                                 [&s] {

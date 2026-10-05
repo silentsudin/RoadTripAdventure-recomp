@@ -9,6 +9,10 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if(ANDROID)
+    # Everything ends up in libmain.so.
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 
 option(RT_ENABLE_DEBUG_UI "Include the PS2Recomp ImGui debug panel" ON)
 
@@ -30,6 +34,8 @@ set(PS2X_ENABLE_AGRESSIVE_LOGS ${RT_VERBOSE_RUNTIME_LOGS} CACHE BOOL "" FORCE)
 set(PS2X_HOST_PLATFORM "SDL3" CACHE STRING "" FORCE)
 # Keep the bundled ps2_recomp free of Homebrew dylibs (libdwarf would pick up zstd).
 set(ENABLE_DECOMPRESSION OFF CACHE BOOL "" FORCE)
+# Android recompiles the game on the device too: the recompiler is linked into the app.
+set(PS2X_ANDROID_RECOMP ON CACHE BOOL "" FORCE)
 add_subdirectory(third_party/PS2Recomp EXCLUDE_FROM_ALL)
 
 set(PS2X_RUNTIME_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/PS2Recomp/ps2xRuntime")
@@ -83,28 +89,45 @@ set(RT_APP_SOURCES
 )
 if(APPLE)
     list(APPEND RT_APP_SOURCES src/platform/macos/Dialogs.mm)
+elseif(ANDROID)
+    list(APPEND RT_APP_SOURCES
+        src/platform/android/Assets.cpp
+        src/platform/android/Dialogs.cpp
+        src/platform/android/LogRedirect.cpp)
 endif()
 
 # The empty, full-range function table; the game library fills it in when loaded.
 list(APPEND RT_APP_SOURCES "${PS2X_RUNTIME_DIR}/src/runner/register_functions.cpp")
 
-add_executable(RoadTrip MACOSX_BUNDLE ${RT_APP_SOURCES})
-target_include_directories(RoadTrip PRIVATE src)
-target_link_libraries(RoadTrip PRIVATE ps2_runtime rt_sse2neon SDL3::SDL3 toml11::toml11)
-add_dependencies(RoadTrip ps2_recomp rt_game_sdk_probe)
-# The game library is linked with -undefined dynamic_lookup and resolves the runtime from the
-# executable, so every runtime symbol must be present and exported.
-target_link_options(RoadTrip PRIVATE
-    "LINKER:-export_dynamic"
-    "LINKER:-force_load,$<TARGET_FILE:ps2_runtime>"
-    "LINKER:-force_load,$<TARGET_FILE:ps2_iop>")
+if(ANDROID)
+    # libmain.so, loaded by SDLActivity. The game library is linked against it (DT_NEEDED), so
+    # every runtime symbol must be in it and exported; the recompilers run in-process.
+    set(RT_APP_TARGET main)
+    add_library(main SHARED ${RT_APP_SOURCES})
+    target_link_libraries(main PRIVATE
+        "$<LINK_LIBRARY:WHOLE_ARCHIVE,ps2_runtime>" "$<LINK_LIBRARY:WHOLE_ARCHIVE,ps2_iop>"
+        ps2_recomp_lib ps2_vu1_recomp_lib android log GLESv3)
+    add_dependencies(main rt_game_sdk_probe)
+else()
+    set(RT_APP_TARGET RoadTrip)
+    add_executable(RoadTrip MACOSX_BUNDLE ${RT_APP_SOURCES})
+    add_dependencies(RoadTrip ps2_recomp rt_game_sdk_probe)
+    # The game library is linked with -undefined dynamic_lookup and resolves the runtime from the
+    # executable, so every runtime symbol must be present and exported.
+    target_link_options(RoadTrip PRIVATE
+        "LINKER:-export_dynamic"
+        "LINKER:-force_load,$<TARGET_FILE:ps2_runtime>"
+        "LINKER:-force_load,$<TARGET_FILE:ps2_iop>")
+endif()
+target_include_directories(${RT_APP_TARGET} PRIVATE src)
+target_link_libraries(${RT_APP_TARGET} PRIVATE ps2_runtime rt_sse2neon SDL3::SDL3 toml11::toml11)
 
 if(RT_ENABLE_DEBUG_UI)
-    target_sources(RoadTrip PRIVATE "${PS2X_RUNTIME_DIR}/src/lib/ps2_debug_panel.cpp"
+    target_sources(${RT_APP_TARGET} PRIVATE "${PS2X_RUNTIME_DIR}/src/lib/ps2_debug_panel.cpp"
                                     src/platform/input/Controllers.cpp
                                     src/ui/PauseMenu.cpp src/ui/Theme.cpp)
-    target_link_libraries(RoadTrip PRIVATE rlImGui imgui)
-    target_compile_definitions(RoadTrip PRIVATE PS2X_ENABLE_DEBUG_UI=1)
+    target_link_libraries(${RT_APP_TARGET} PRIVATE rlImGui imgui)
+    target_compile_definitions(${RT_APP_TARGET} PRIVATE PS2X_ENABLE_DEBUG_UI=1)
 endif()
 
 if(APPLE)
@@ -119,6 +142,7 @@ if(APPLE)
 endif()
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
+if(NOT ANDROID)
 # Always re-run (cheap): picks up a rebuilt ps2_recomp, header or config change even when the
 # app executable itself didn't relink.
 add_custom_target(rt_bundle ALL
@@ -142,6 +166,7 @@ add_custom_command(TARGET rt_bundle POST_BUILD
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts/OFL.txt"
             "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/fonts"
     VERBATIM)
+endif()
 
 # Bundle MoltenVK (Vulkan on Metal) for the paraLLEl-GS GPU backend, so players need neither the
 # Vulkan SDK nor Homebrew. The app points Granite at Contents/Frameworks/libMoltenVK.dylib.
@@ -169,7 +194,7 @@ endif()
 
 # ---------------------------------------------------------------- tests
 include(CTest)
-if(BUILD_TESTING)
+if(BUILD_TESTING AND NOT ANDROID)
     add_executable(iso_reader_test tests/iso_reader_test.cpp src/rom/IsoReader.cpp src/rom/Sha1.cpp)
     target_include_directories(iso_reader_test PRIVATE src)
     add_test(NAME iso_reader COMMAND iso_reader_test)
@@ -193,6 +218,7 @@ if(BUILD_TESTING)
     add_test(NAME wide_layout COMMAND wide_layout_test)
 endif()
 
+if(NOT ANDROID)
 # Every texture on the disc as PNG, named like texture dumps (tools/texture_extract.cpp). Reads the
 # user's extracted disc at run time; contains no game data.
 add_executable(rt_texture_extract tools/texture_extract.cpp src/textures/Extract.cpp)
@@ -201,3 +227,4 @@ target_link_libraries(rt_texture_extract PRIVATE ps2_runtime rt_sse2neon)
 
 # The disc's VAG streams as WAV (tools/audio_extract.cpp). Reads the user's disc at run time.
 add_executable(rt_audio_extract tools/audio_extract.cpp)
+endif()

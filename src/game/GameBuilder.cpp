@@ -5,6 +5,14 @@
 
 #include <dlfcn.h>
 #include <fcntl.h>
+#if defined(__ANDROID__)
+#include "ps2recomp/ps2_recompiler.h"
+#include <sched.h>
+#include <sys/resource.h>
+#include <sys/stat.h>
+// ps2xRuntime/tools/vu1_recomp (ps2_vu1_recomp_lib): the VU1 recompiler as a function.
+int ps2x_vu1_recomp_main(int argc, char **argv);
+#endif
 #include <spawn.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -26,7 +34,11 @@ namespace rt::game
 
     namespace
     {
+#if defined(__ANDROID__)
+        constexpr const char *kLibName = "libroadtrip_game.so";
+#else
         constexpr const char *kLibName = "libroadtrip_game.dylib";
+#endif
         constexpr size_t kUnityBatch = 24;
 
         fs::path libPath() { return paths::gameDir() / kLibName; }
@@ -58,8 +70,10 @@ namespace rt::game
             posix_spawn_file_actions_init(&actions);
             posix_spawn_file_actions_addopen(&actions, 1, log.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
             posix_spawn_file_actions_adddup2(&actions, 1, 2);
+#if !defined(__ANDROID__) // bionic has it from API 34 only; Android passes absolute paths
             if (!cwd.empty())
                 posix_spawn_file_actions_addchdir_np(&actions, cwd.c_str());
+#endif
 
             std::vector<char *> args;
             for (const auto &a : argv)
@@ -159,6 +173,12 @@ namespace rt::game
 
     std::optional<fs::path> findCompiler()
     {
+#if defined(__ANDROID__)
+        // The shipped compiler: one LLVM binary (clang + lld) in the native library directory.
+        const fs::path llvm = paths::toolDir() / "libllvm.so";
+        std::error_code ec;
+        return fs::exists(llvm, ec) ? std::optional<fs::path>(llvm) : std::nullopt;
+#endif
         const std::string p = capture({"/usr/bin/xcrun", "--find", "clang++"});
         if (p.empty() || !fs::exists(p))
             return std::nullopt;
@@ -186,9 +206,16 @@ namespace rt::game
         if (buildId.empty())
             return fail("The app bundle is missing its build kit (Contents/Resources/sdk).");
         const auto compiler = findCompiler();
+#if defined(__ANDROID__)
+        const fs::path res = paths::bundleResources();
+        const std::string sysroot = (res / "sysroot").string();
+        if (!compiler)
+            return fail("The app's compiler is missing (lib/arm64/libllvm.so).");
+#else
         const std::string sysroot = capture({"/usr/bin/xcrun", "--show-sdk-path"});
         if (!compiler || sysroot.empty())
             return fail("Xcode Command Line Tools are required to build the game.");
+#endif
 
         const fs::path work = paths::gameDir() / "work";
         const fs::path generated = work / "generated";
@@ -208,16 +235,37 @@ namespace rt::game
         const fs::path config = work / "roadtrip.toml";
         if (!writeConfig(elf, generated, config))
             return fail("Cannot write recompiler config.");
+        const fs::path vu1Source = work / "vu1_native.cpp";
+#if defined(__ANDROID__)
+        // In-process: Android doesn't let an app run programs it wrote, and these are libraries here.
+        try
+        {
+            ps2recomp::PS2Recompiler recompiler(config.string());
+            if (!recompiler.initialize() || !recompiler.recompile())
+                return fail("The recompiler failed.");
+            recompiler.generateOutput();
+        }
+        catch (const std::exception &e)
+        {
+            return fail(std::string("The recompiler failed: ") + e.what());
+        }
+        // VU1 microcode -> C++. Optional: without it the VU1 interpreter runs the 3D code.
+        std::vector<std::string> vu1Args{"ps2_vu1_recomp", "--elf", elf.string(), "--out", vu1Source.string()};
+        std::vector<char *> vu1Argv;
+        for (auto &a : vu1Args)
+            vu1Argv.push_back(a.data());
+        const bool haveVu1 = ps2x_vu1_recomp_main(int(vu1Argv.size()), vu1Argv.data()) == 0 && fs::exists(vu1Source);
+#else
         if (run({(recompDir() / "ps2_recomp").string(), config.string()}, buildLog(), work) != 0)
             return fail("The recompiler failed.");
 
         // VU1 microcode -> C++. Optional: without it the VU1 interpreter runs the 3D code.
-        const fs::path vu1Source = work / "vu1_native.cpp";
         const bool haveVu1 =
             fs::exists(recompDir() / "ps2_vu1_recomp") &&
             run({(recompDir() / "ps2_vu1_recomp").string(), "--elf", elf.string(), "--out", vu1Source.string()},
                 buildLog(), work) == 0 &&
             fs::exists(vu1Source);
+#endif
 
         // 2. Group generated sources into unity files (much faster to compile).
         std::vector<fs::path> sources;
@@ -243,7 +291,12 @@ namespace rt::game
 
         // 3. Compile.
         const std::string sdkJson = readFile(sdkDir() / "flags.json");
+#if defined(__ANDROID__)
+        std::vector<std::string> base{compiler->string(), "clang", "--driver-mode=g++", "--target=aarch64-linux-android31",
+                                      "--sysroot=" + sysroot, "-resource-dir=" + (res / "clang").string(), "-fPIC"};
+#else
         std::vector<std::string> base{compiler->string(), "-isysroot", sysroot};
+#endif
         for (auto &f : jsonStringArray(sdkJson, "flags"))
             base.push_back(f);
         for (auto &inc : jsonStringArray(sdkJson, "includes"))
@@ -263,7 +316,11 @@ namespace rt::game
                 base.push_back(w);
         }
 
+#if defined(__ANDROID__)
+        progress.setPhase("Compiling the game for this device (one-time setup)");
+#else
         progress.setPhase("Compiling the game for your Mac (one-time setup)");
+#endif
         progress.done = 0;
         progress.total = units.size();
         std::atomic<size_t> next{0};
@@ -271,6 +328,17 @@ namespace rt::game
         std::vector<fs::path> objects(units.size());
         auto worker = [&]
         {
+#if defined(__ANDROID__)
+            // On the big cores (cpu3-7 on Snapdragon 8 Gen 2 and kin) at a lower priority, so the
+            // UI stays smooth; the compiler processes inherit both from this thread.
+            cpu_set_t big;
+            CPU_ZERO(&big);
+            const unsigned cpus = std::thread::hardware_concurrency();
+            for (unsigned c = cpus > 4 ? 3 : 0; c < cpus; ++c)
+                CPU_SET(c, &big);
+            sched_setaffinity(0, sizeof(big), &big);
+            setpriority(PRIO_PROCESS, 0, 10);
+#endif
             for (size_t i; !compileFailed && (i = next++) < units.size();)
             {
                 objects[i] = objDir / ("u" + std::to_string(i) + ".o");
@@ -281,7 +349,12 @@ namespace rt::game
                 ++progress.done;
             }
         };
+#if defined(__ANDROID__)
+        const unsigned cpus = std::thread::hardware_concurrency();
+        const unsigned jobs = cpus > 4 ? cpus - 3 : std::max(1u, cpus); // the big cores
+#else
         const unsigned jobs = std::max(1u, std::thread::hardware_concurrency());
+#endif
         std::vector<std::thread> pool;
         for (unsigned j = 0; j < jobs; ++j)
             pool.emplace_back(worker);
@@ -293,6 +366,23 @@ namespace rt::game
         // 4. Link. Runtime symbols resolve against the app executable at load time.
         progress.setPhase("Linking");
         const fs::path tmpLib = work / kLibName;
+#if defined(__ANDROID__)
+        // The runtime resolves through DT_NEEDED libmain.so (already loaded by the activity).
+        const fs::path libs = fs::path(sysroot) / "usr/lib/aarch64-linux-android";
+        std::vector<std::string> link{compiler->string(), "lld", "-flavor", "gnu", "-shared", "-soname", kLibName,
+                                      "--eh-frame-hdr", // the runtime switches guest threads by unwinding through game code
+                                      "-z", "noexecstack", "-z", "relro", "-z", "now", "--hash-style=gnu", "--build-id",
+                                      "-z", "max-page-size=16384", "-o", tmpLib.string(),
+                                      (libs / "31/crtbegin_so.o").string()};
+        for (auto &o : objects)
+            link.push_back(o.string());
+        for (const char *lib : {"libmain.so", "libc++_shared.so"})
+            link.push_back((paths::toolDir() / lib).string());
+        for (std::string extra : {"-L" + (libs / "31").string(), std::string("-lc"), std::string("-lm"), std::string("-ldl"),
+                                  (res / "clang/lib/linux/libclang_rt.builtins-aarch64-android.a").string(),
+                                  (libs / "31/crtend_so.o").string()})
+            link.push_back(extra);
+#else
         std::vector<std::string> link{compiler->string(), "-isysroot", sysroot, "-dynamiclib", "-undefined", "dynamic_lookup",
                                       "-install_name", "@rpath/" + std::string(kLibName), "-o", tmpLib.string()};
         for (auto &f : jsonStringArray(sdkJson, "flags"))
@@ -300,6 +390,7 @@ namespace rt::game
                 link.push_back(f);
         for (auto &o : objects)
             link.push_back(o.string());
+#endif
         if (run(link, buildLog()) != 0)
             return fail("Linking the game failed.");
 

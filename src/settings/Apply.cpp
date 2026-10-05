@@ -60,6 +60,11 @@ namespace rt::settings
             return;
         const Settings &s = current();
         capabilities().displayRefresh = rt::host::displayRefreshRate();
+#if defined(__ANDROID__)
+        // Always the whole screen (immersive: no status or navigation bar).
+        SDL_SetWindowFullscreen(w, true);
+        return;
+#endif
         const bool fullscreen = SDL_GetWindowFlags(w) & SDL_WINDOW_FULLSCREEN;
         if (s.windowMode == WindowMode::Windowed)
         {

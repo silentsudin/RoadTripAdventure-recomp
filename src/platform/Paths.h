@@ -18,4 +18,6 @@ namespace rt::paths
     std::filesystem::path bundleResources();
     // Tab-separated "path<TAB>lbn<TAB>size" for every file on the disc.
     std::filesystem::path lbnMap();
+    // Where shipped executables live (Android: the native library directory, which may run them).
+    std::filesystem::path toolDir();
 }

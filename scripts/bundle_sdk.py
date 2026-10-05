@@ -9,6 +9,12 @@ RoadTrip.app/Contents/Resources. Nothing here is derived from the game:
   sdk/game_shim.cpp       registers the generated functions with the app
   sdk/flags.json          compiler flags matching the app's runtime ABI
   sdk/build_id            hash of all of the above; a change triggers a rebuild on launch
+
+With --android it writes the Android app's build kit instead, as assets/rt.tar + assets/rt.id
+(the app extracts it to files/res): sdk/ and recomp/roadtrip.toml as above (the recompilers are
+linked into the app), plus what the shipped compiler needs to build for the device: the NDK's
+headers (sysroot/usr/include), API-31 link stubs and crt objects, clang's resource headers and
+compiler-rt builtins. Again nothing from the game.
 """
 from __future__ import annotations
 
@@ -17,8 +23,10 @@ import hashlib
 import json
 import shlex
 import shutil
+import io
 import subprocess
 import sys
+import tarfile
 from pathlib import Path
 
 KEEP_PREFIXES = ("-D", "-std=", "-O", "-mmacosx-version-min=", "-f")
@@ -84,6 +92,11 @@ def main() -> None:
     ap.add_argument("--config", type=Path, required=True)
     ap.add_argument("--vu1recomp", type=Path)
     ap.add_argument("--resources", type=Path, required=True)
+    ap.add_argument("--android", action="store_true", help="write the Android build kit (assets) instead")
+    ap.add_argument("--ndk-sysroot", type=Path)
+    ap.add_argument("--clang-resource", type=Path, help="our LLVM's lib/clang/<v> (include/ inside)")
+    ap.add_argument("--builtins", type=Path, help="libclang_rt.builtins-aarch64-android.a")
+    ap.add_argument("--compiler", type=Path, help="the shipped compiler (its hash joins the build id)")
     a = ap.parse_args()
 
     compiler, args, cwd = probe_command(a.compile_commands, a.probe)
@@ -120,8 +133,11 @@ def main() -> None:
     includes = [f"include/{i}" for i in range(len(include_dirs)) if f"include/{i}" in used_dirs]
     (sdk / "flags.json").write_text(json.dumps({"flags": flags, "includes": includes}, indent=2) + "\n")
     shutil.copy2(a.shim, sdk / "game_shim.cpp")
-    shutil.copy2(a.recomp, recomp / "ps2_recomp")
     shutil.copy2(a.config, recomp / "roadtrip.toml")
+    if a.android:
+        android_kit(a, flags, includes, copied)
+        return
+    shutil.copy2(a.recomp, recomp / "ps2_recomp")
     if a.vu1recomp:
         shutil.copy2(a.vu1recomp, recomp / "ps2_vu1_recomp")
 
@@ -131,6 +147,49 @@ def main() -> None:
         h.update(p.read_bytes())
     (sdk / "build_id").write_text(h.hexdigest() + "\n")
     print(f"bundle_sdk: {copied} headers, {len(flags)} flags, build id {h.hexdigest()[:12]}")
+
+
+def android_kit(a, flags: list[str], includes: list[str], copied: int) -> None:
+    """--android: adds the device toolchain's sysroot to the staged tree and packs assets/rt.tar."""
+    stage = a.resources  # sdk/ and recomp/ are already here
+    sysroot = stage / "sysroot"
+    if sysroot.exists():
+        shutil.rmtree(sysroot)
+    shutil.copytree(a.ndk_sysroot / "usr/include", sysroot / "usr/include")
+    libs = a.ndk_sysroot / "usr/lib/aarch64-linux-android"
+    dst = sysroot / "usr/lib/aarch64-linux-android/31"
+    dst.mkdir(parents=True)
+    for name in ("crtbegin_so.o", "crtend_so.o", "libc.so", "libm.so", "libdl.so", "liblog.so", "libandroid.so"):
+        shutil.copy2(libs / "31" / name, dst / name)
+    fonts = stage / "fonts"
+    if fonts.exists():
+        shutil.rmtree(fonts)
+    shutil.copytree(Path(__file__).resolve().parent.parent / "resources" / "fonts", fonts)
+    clang = stage / "clang"
+    if clang.exists():
+        shutil.rmtree(clang)
+    shutil.copytree(a.clang_resource / "include", clang / "include")
+    (clang / "lib/linux").mkdir(parents=True)
+    shutil.copy2(a.builtins, clang / "lib/linux" / a.builtins.name)
+
+    h = hashlib.sha1()
+    for p in sorted(x for x in stage.rglob("*") if x.is_file() and x.name != "build_id"):
+        h.update(str(p.relative_to(stage)).encode())
+        h.update(p.read_bytes())
+    if a.compiler and a.compiler.exists():
+        h.update(a.compiler.read_bytes())
+    build_id = h.hexdigest()
+    (stage / "sdk" / "build_id").write_text(build_id + "\n")
+
+    assets = stage.parent / "android-assets"
+    assets.mkdir(parents=True, exist_ok=True)
+    with tarfile.open(assets / "rt.tar", "w", format=tarfile.USTAR_FORMAT) as tar:
+        for p in sorted(stage.rglob("*")):
+            if p.is_file():
+                tar.add(p, arcname=str(p.relative_to(stage)), recursive=False)
+    (assets / "rt.id").write_text(build_id + "\n")
+    size = (assets / "rt.tar").stat().st_size
+    print(f"bundle_sdk --android: {copied} headers, {len(flags)} flags, kit {size >> 20} MB, build id {build_id[:12]}")
 
 
 if __name__ == "__main__":

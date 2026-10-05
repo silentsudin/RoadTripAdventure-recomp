@@ -1,8 +1,11 @@
 #include "Theme.h"
 
+#include "platform/Host.h"
 #include "platform/Input.h"
 #include "platform/Paths.h"
 #include "raylib.h"
+
+#include <SDL3/SDL_video.h>
 
 #include <algorithm>
 #include <cmath>
@@ -60,7 +63,28 @@ namespace rt::ui::theme
         }
     }
 
-    float scale() { return std::max(0.5f, ImGui::GetIO().DisplaySize.y / 1080.0f); }
+    // Handheld screens: the same pixels are physically much smaller than on a desk monitor, so the
+    // UI grows with how small the screen is (Android reports its density; desktops stay at 1).
+    float handheldBoost()
+    {
+        static const float boost = [] {
+#if defined(__ANDROID__)
+            SDL_Window *w = rt::host::window();
+            const SDL_DisplayID display = w ? SDL_GetDisplayForWindow(w) : SDL_GetPrimaryDisplay();
+            const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(display);
+            const float dpi = SDL_GetDisplayContentScale(display) * 160.0f; // Android density
+            if (mode && dpi > 0.0f)
+            {
+                const float heightInches = float(std::min(mode->w, mode->h)) / dpi;
+                return std::clamp(4.5f / heightInches, 1.0f, 1.7f);
+            }
+#endif
+            return 1.0f;
+        }();
+        return boost;
+    }
+
+    float scale() { return std::max(0.5f, ImGui::GetIO().DisplaySize.y / 1080.0f * handheldBoost()); }
     float px(float at1080p) { return at1080p * scale(); }
     ImFont *font() { return g_font ? g_font : ImGui::GetFont(); }
 

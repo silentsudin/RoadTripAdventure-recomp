@@ -267,7 +267,27 @@ namespace rt::input
         m.confirm = fire[Confirm] || host::keyPressed(SDL_SCANCODE_RETURN) || host::keyPressed(SDL_SCANCODE_SPACE);
         m.back = fire[Back] || host::keyPressed(SDL_SCANCODE_BACKSPACE);
         m.extra = fire[Extra] || host::keyPressed(SDL_SCANCODE_R);
-        m.toggleMenu = fire[Toggle] || host::keyPressed(SDL_SCANCODE_ESCAPE) || host::keyPressed(SDL_SCANCODE_F3);
+        static const bool debug = [] { const char *e = std::getenv("RT_INPUT_DEBUG"); return e && *e == '1'; }();
+        static double lastBeat = 0;
+        if (debug && now - lastBeat > 1.0)
+        {
+            lastBeat = now;
+            for (const Device &d : g_devices.list())
+            {
+                SDL_Joystick *j = SDL_GetGamepadJoystick(d.pad);
+                std::fprintf(stderr, "[input] beat %s: pad down %d a %d | joy b12 %d b0 %d\n", d.name.c_str(),
+                             int(SDL_GetGamepadButton(d.pad, SDL_GAMEPAD_BUTTON_DPAD_DOWN)),
+                             int(SDL_GetGamepadButton(d.pad, SDL_GAMEPAD_BUTTON_SOUTH)),
+                             j ? int(SDL_GetJoystickButton(j, 12)) : -1, j ? int(SDL_GetJoystickButton(j, 0)) : -1);
+            }
+        }
+        if (debug)
+            for (int a = 0; a < Count; ++a)
+                if (held[a] != was[a] || fire[a])
+                    std::fprintf(stderr, "[input] menu action %d held %d fire %d\n", a, int(held[a]), int(fire[a]));
+        // Android's Back button / gesture arrives as AC_BACK (SDL_HINT_ANDROID_TRAP_BACK_BUTTON).
+        m.toggleMenu = fire[Toggle] || host::keyPressed(SDL_SCANCODE_ESCAPE) || host::keyPressed(SDL_SCANCODE_F3) ||
+                       host::keyPressed(SDL_SCANCODE_AC_BACK);
         return m;
     }
 

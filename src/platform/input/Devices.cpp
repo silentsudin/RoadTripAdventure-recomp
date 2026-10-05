@@ -138,6 +138,12 @@ namespace rt::input
                 d.id = std::string(guid) + "#" + std::to_string(same + 1);
             }
             std::fprintf(stderr, "[input] connected: %s (%s, %s)\n", d.name.c_str(), d.type.c_str(), d.id.c_str());
+            if (const char *dbg = std::getenv("RT_INPUT_DEBUG"); dbg && *dbg == '1')
+                if (char *mapping = SDL_GetGamepadMapping(d.pad))
+                {
+                    std::fprintf(stderr, "[input]   mapping: %s\n", mapping);
+                    SDL_free(mapping);
+                }
             m_devices.push_back(std::move(d));
             changed = true;
         }
