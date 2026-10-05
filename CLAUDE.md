@@ -90,4 +90,5 @@
   - The app recompiles and compiles the game on the device (`GameBuilder.cpp`, Android branch) into `files/game/libroadtrip_game.so`; the disc is still pushed by hand into `files/disc` (first-run picking is not built yet).
   - RT_* switches come from `files/env.txt` (`run-as io.github.roadtrip.recomp`); logs: `adb logcat -s RoadTrip`.
   - Tests: `tests/regression/rtharness/android.py` `AndroidGame` (test socket over `adb forward`, inline frames, `sdl(...)` presses a virtual SDL gamepad; `lockstep=False` for real time).
-  - Adreno: sampler feedback off, one precompile thread; `RT_PGS_TIMESTAMPS=1` logs GPU ms per stage.
+  - Adreno: sampler feedback off (`RT_PGS_NO_FEEDBACK=0|1` overrides), one precompile thread; `RT_PGS_TIMESTAMPS=1` logs GPU ms per stage.
+  - `RT_TEST_LIVE=1`: the test socket runs without lockstep (real time; the app menus work).
