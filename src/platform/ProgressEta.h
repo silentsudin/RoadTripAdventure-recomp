@@ -1,9 +1,9 @@
 #pragma once
 
 // Time left in a TaskProgress phase, from this machine's measured throughput: the work done over
-// the last 40 seconds (or since the phase started). Unknown until the phase has run 10 seconds and
-// done 5% of its work (parallel compiles finish in lumps); the shown value changes once a second
-// so it can be read.
+// the last 40 seconds (or since the phase started). Unknown until the phase has run 3 seconds and
+// done 5% of its work; parallel units (compiling) use TaskProgress's unit model instead. The shown
+// value changes once a second so it can be read.
 
 #include "platform/TaskProgress.h"
 
@@ -50,7 +50,7 @@ namespace rt
                 return m_shown;
             m_shownAt = now;
             const auto &[t0, d0] = m_samples.front();
-            if (now - m_phaseStart < 10.0 || done * 20 < total || now - t0 < 1.0 || done <= d0)
+            if (now - m_phaseStart < 3.0 || done * 20 < total || now - t0 < 1.0 || done <= d0)
                 return m_shown = -1.0;
             const double rate = static_cast<double>(done - d0) / (now - t0);
             return m_shown = static_cast<double>(total - done) / rate;

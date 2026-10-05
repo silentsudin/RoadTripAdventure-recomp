@@ -41,6 +41,52 @@ namespace rt
         return RomCheck::Ok;
     }
 
+    ImageCheck verifyImage(const fs::path &image, TaskProgress &progress, std::string &detail)
+    {
+        progress.setPhase("Checking your disc image");
+        IsoReader iso;
+        if (!iso.open(image, detail))
+            return ImageCheck::Unreadable;
+        std::string sha;
+        const bool ok = iso.hashImage([&](uint64_t done, uint64_t total)
+                                      {
+                                          progress.total = total;
+                                          progress.done = done; },
+                                      sha);
+        if (!ok)
+        {
+            detail = iso.format() == IsoReader::Format::Chd ? "Part of this CHD file can't be read: it is damaged."
+                                                             : "The disc image couldn't be read to the end.";
+            return iso.format() == IsoReader::Format::Chd ? ImageCheck::Damaged : ImageCheck::Unreadable;
+        }
+        switch (iso.format())
+        {
+        case IsoReader::Format::Raw:
+            if (sha == kImageSha1Bin)
+                return detail = "Matches the known good dump.", ImageCheck::Verified;
+            detail = "This .bin isn't the known good dump (SHA-1 " + sha + ", expected " + kImageSha1Bin + ").";
+            return ImageCheck::Mismatch;
+        case IsoReader::Format::Cooked:
+            if (sha == kImageSha1Iso)
+                return detail = "Matches the known good dump.", ImageCheck::Verified;
+            detail = "This .iso isn't the known good dump (SHA-1 " + sha + ", expected " + kImageSha1Iso + ").";
+            return ImageCheck::Mismatch;
+        case IsoReader::Format::Chd:
+            if (sha != iso.chdDataSha1())
+            {
+                detail = "This CHD file is damaged: its data (SHA-1 " + sha + ") no longer matches the checksum recorded when "
+                         "it was made (" + iso.chdDataSha1() + ").";
+                return ImageCheck::Damaged;
+            }
+            if (sha == kImageSha1ChdCd || sha == kImageSha1Iso)
+                return detail = "Matches the known good dump.", ImageCheck::Verified;
+            detail = "This CHD file is intact (data SHA-1 " + sha + "), but it wasn't made the usual way from the known good "
+                     "dump, so it can't be checked against it.";
+            return ImageCheck::Unverified;
+        }
+        return ImageCheck::Unreadable;
+    }
+
     bool isInstalled()
     {
         std::error_code ec;

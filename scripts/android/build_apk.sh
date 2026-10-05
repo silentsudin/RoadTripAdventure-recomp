@@ -34,6 +34,9 @@ python3 "$ROOT/scripts/bundle_sdk.py" --android \
     --builtins "$(ls "$PREBUILT"/lib/clang/*/lib/linux/libclang_rt.builtins-aarch64-android.a | head -1)" \
     --compiler "$JNI/libllvm.so"
 mv "$ROOT/build/android-kit/android-assets/"* "$ROOT/build/android-assets/" 2>/dev/null || true
+# Every third-party component's licence, LLVM's included (the compiler and libc++ ship in the APK).
+rm -rf "$ROOT/build/android-assets/licenses"
+python3 "$ROOT/scripts/collect_licenses.py" "$BUILD" "$ROOT/build/android-assets/licenses" --llvm "$ROOT/build/android-llvm/src"
 
 cd "$ROOT/platform/android"
 [ -f local.properties ] || echo "sdk.dir=${ANDROID_HOME:-$HOME/Library/Android/sdk}" > local.properties

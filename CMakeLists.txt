@@ -63,6 +63,38 @@ endif()
 add_library(rt_game_sdk_probe OBJECT src/game/sdk_probe.cpp)
 target_link_libraries(rt_game_sdk_probe PRIVATE ps2_runtime rt_sse2neon)
 
+# ---------------------------------------------------------------- libchdr
+# CHD disc images (the compressed format emulator users keep their games in; BSD-3, with LZMA,
+# zstd and miniz inside). Static only: BUILD_SHARED_LIBS stays as it is for everything else.
+include(FetchContent)
+set(_rt_shared_libs "${BUILD_SHARED_LIBS}")
+set(BUILD_SHARED_LIBS OFF)
+set(CHDR_WANT_TESTS OFF CACHE BOOL "" FORCE)
+set(INSTALL_STATIC_LIBS OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    libchdr
+    GIT_REPOSITORY "https://github.com/rtissera/libchdr.git"
+    GIT_TAG "607694ca0812edfc9cc2030c64634fc2393668de"
+)
+FetchContent_MakeAvailable(libchdr)
+set(BUILD_SHARED_LIBS "${_rt_shared_libs}")
+# Its licence and those of the decompressors inside it (theirs sit in their sources' headers).
+file(READ "${libchdr_SOURCE_DIR}/LICENSE.txt" _rt_chdr_licence)
+file(GLOB _rt_lzma_licence_file "${libchdr_SOURCE_DIR}/deps/lzma-*/LICENSE")
+file(READ "${_rt_lzma_licence_file}" _rt_lzma_licence)
+file(GLOB _rt_miniz_c "${libchdr_SOURCE_DIR}/deps/miniz-*/miniz.c")
+file(STRINGS "${_rt_miniz_c}" _rt_miniz_head LIMIT_COUNT 26)
+string(JOIN "\n" _rt_miniz_head ${_rt_miniz_head})
+file(GLOB _rt_zstd_h "${libchdr_SOURCE_DIR}/deps/zstd-*/zstd.h")
+file(STRINGS "${_rt_zstd_h}" _rt_zstd_head LIMIT_COUNT 10)
+string(JOIN "\n" _rt_zstd_head ${_rt_zstd_head})
+set(RT_CHDR_LICENCES "${CMAKE_CURRENT_BINARY_DIR}/libchdr-LICENSES.txt")
+file(WRITE "${RT_CHDR_LICENCES}"
+     "libchdr (https://github.com/rtissera/libchdr)\n\n${_rt_chdr_licence}\n\n"
+     "LZMA SDK (inside libchdr)\n\n${_rt_lzma_licence}\n\n"
+     "miniz (inside libchdr)\n\n${_rt_miniz_head}\n\n"
+     "Zstandard (inside libchdr; BSD licence)\n\n${_rt_zstd_head}\n")
+
 # ---------------------------------------------------------------- app
 set(RT_APP_SOURCES
     src/main.cpp
@@ -120,7 +152,7 @@ else()
         "LINKER:-force_load,$<TARGET_FILE:ps2_iop>")
 endif()
 target_include_directories(${RT_APP_TARGET} PRIVATE src)
-target_link_libraries(${RT_APP_TARGET} PRIVATE ps2_runtime rt_sse2neon SDL3::SDL3 toml11::toml11)
+target_link_libraries(${RT_APP_TARGET} PRIVATE ps2_runtime rt_sse2neon SDL3::SDL3 toml11::toml11 chdr-static)
 
 if(RT_ENABLE_DEBUG_UI)
     target_sources(${RT_APP_TARGET} PRIVATE "${PS2X_RUNTIME_DIR}/src/lib/ps2_debug_panel.cpp"
@@ -165,6 +197,9 @@ add_custom_command(TARGET rt_bundle POST_BUILD
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts/Fredoka-Bold.ttf"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts/OFL.txt"
             "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/fonts"
+    # Every third-party component's licence (scripts/collect_licenses.py fails on a missing one).
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/collect_licenses.py" "${CMAKE_BINARY_DIR}"
+            "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/licenses"
     VERBATIM)
 endif()
 
@@ -197,6 +232,7 @@ include(CTest)
 if(BUILD_TESTING AND NOT ANDROID)
     add_executable(iso_reader_test tests/iso_reader_test.cpp src/rom/IsoReader.cpp src/rom/Sha1.cpp)
     target_include_directories(iso_reader_test PRIVATE src)
+    target_link_libraries(iso_reader_test PRIVATE chdr-static)
     add_test(NAME iso_reader COMMAND iso_reader_test)
     set_tests_properties(iso_reader PROPERTIES SKIP_RETURN_CODE 77)
 

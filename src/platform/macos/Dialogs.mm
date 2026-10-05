@@ -24,12 +24,12 @@ namespace rt::dialogs
             ensureApp();
             NSOpenPanel *panel = [NSOpenPanel openPanel];
             panel.title = @"Locate your Road Trip (USA) disc image";
-            panel.message = @"Choose the .cue, .bin or .iso you dumped from your own copy of Road Trip (SLUS-20398).";
+            panel.message = @"Choose the .cue, .bin, .iso or .chd you made from your own copy of Road Trip (SLUS-20398).";
             panel.canChooseFiles = YES;
             panel.canChooseDirectories = NO;
             panel.allowsMultipleSelection = NO;
             NSMutableArray<UTType *> *types = [NSMutableArray array];
-            for (NSString *ext in @[ @"cue", @"bin", @"iso" ])
+            for (NSString *ext in @[ @"cue", @"bin", @"iso", @"chd" ])
             {
                 if (UTType *t = [UTType typeWithFilenameExtension:ext])
                     [types addObject:t];

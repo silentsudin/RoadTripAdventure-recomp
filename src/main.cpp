@@ -87,7 +87,7 @@ namespace
                 o.rebuild = true;
             else if (a == "--help" || a == "-h")
             {
-                std::cout << "usage: RoadTrip [--rom <image.cue|.bin|.iso>] [--reinstall] [--rebuild-game]\n";
+                std::cout << "usage: RoadTrip [--rom <image.cue|.bin|.iso|.chd>] [--reinstall] [--rebuild-game]\n";
                 std::exit(0);
             }
             else if (a.rfind("-psn_", 0) == 0)
@@ -110,8 +110,9 @@ namespace
     std::unique_ptr<ps2x::HostPresenter> g_setupPresenter;
     ps2x::HostPresenter *setupPresenter();
 
-    // Runs `task` on a worker thread while showing a small progress window.
-    bool runWithProgress(const std::function<bool(rt::TaskProgress &)> &task)
+    // Runs `task` on a worker thread while showing a small progress window. `finale`: the last
+    // setup task (Android: a rumble and a fade into the game when it succeeds).
+    bool runWithProgress(const std::function<bool(rt::TaskProgress &)> &task, bool finale = false)
     {
         rt::TaskProgress progress;
         std::thread worker([&]
@@ -130,16 +131,16 @@ namespace
         std::string lastPhase;
         auto drawScreen = [&]
         {
-            bool closed = false;
+            int action = 0; // rt::ui::SetupAction: 0 none, 1 retry, 2 close
             screen->frameUi([&]
                             {
                                 screen->uiBegin();
 #if defined(PS2X_ENABLE_DEBUG_UI)
-                                closed = rt::ui::drawSetupScreen(progress, seconds());
+                                action = static_cast<int>(rt::ui::drawSetupScreen(progress, seconds()));
 #endif
                                 screen->uiEnd(); });
             std::this_thread::sleep_for(std::chrono::milliseconds(40));
-            return closed;
+            return action;
         };
         while (!progress.finished)
         {
@@ -154,11 +155,41 @@ namespace
         if (progress.failed && screen)
         {
             std::cerr << "[setup] " << progress.error() << "\n";
-            while (!drawScreen() && !screen->closeRequested())
+            int action = 0;
+            while (!(action = drawScreen()) && !screen->closeRequested())
             {
             }
-            return false;
+            // "Try again": the whole task again (each step starts over cleanly).
+            return action == 1 ? runWithProgress(task, finale) : false;
         }
+#if defined(PS2X_ENABLE_DEBUG_UI)
+        if (finale && screen && !progress.failed)
+        {
+            // Done: a short rumble on the controller, and half a second's fade to black; the
+            // title screen comes up out of it.
+            int count = 0;
+            SDL_Gamepad *pad = nullptr; // closed after the fade (closing stops the rumble)
+            if (SDL_JoystickID *pads = SDL_GetGamepads(&count))
+            {
+                if (count > 0 && (pad = SDL_OpenGamepad(pads[0])))
+                    SDL_RumbleGamepad(pad, 0x5000, 0x9000, 180);
+                SDL_free(pads);
+            }
+            const double fadeStart = seconds();
+            for (double t = 0.0; t < 0.5; t = seconds() - fadeStart)
+            {
+                screen->frameUi([&]
+                                {
+                                    screen->uiBegin();
+                                    rt::ui::drawSetupScreen(progress, seconds());
+                                    rt::ui::drawFadeOut(static_cast<float>(t / 0.5));
+                                    screen->uiEnd(); });
+                std::this_thread::sleep_for(std::chrono::milliseconds(16));
+            }
+            if (pad)
+                SDL_CloseGamepad(pad); // the input layer opens it again
+        }
+#endif
 #else
         SetTraceLogLevel(LOG_WARNING);
         InitWindow(720, 200, "Road Trip - first-time setup");
@@ -200,6 +231,24 @@ namespace
         return true;
     }
 
+    // Whether the image was checked this run: the check is then step 1 of the setup's steps.
+    bool g_imageChecked = false;
+
+    // Hashes the whole image against the good dump, with the progress screen (step 1 of 5: the
+    // check, extracting, translating, compiling, linking).
+    rt::ImageCheck verifyChosen(const fs::path &image, std::string &detail)
+    {
+        rt::ImageCheck result = rt::ImageCheck::Unreadable;
+        g_imageChecked = true;
+        runWithProgress([&](rt::TaskProgress &progress)
+                        {
+                            progress.steps = 5;
+                            result = rt::verifyImage(image, progress, detail);
+                            return true; });
+        std::cout << "[setup] disc image check: " << detail << "\n";
+        return result;
+    }
+
     std::optional<fs::path> chooseRom(const Options &opts)
     {
         std::optional<fs::path> rom = opts.rom;
@@ -210,19 +259,24 @@ namespace
         {
             ps2x::HostPresenter *screen = setupPresenter();
             std::string note;
+            std::optional<fs::path> doubtful; // checked, didn't verify: the warning offers "Use it anyway"
+            rt::ui::ImageWarning warning = rt::ui::ImageWarning::Mismatch;
             while (screen && !screen->closeRequested())
             {
-                bool confirmed = false;
+                rt::ui::WelcomeAction action = rt::ui::WelcomeAction::None;
                 screen->frameUi([&]
                                 {
                                     screen->uiBegin();
-                                    confirmed = rt::ui::drawWelcomeScreen(note);
+                                    action = doubtful ? rt::ui::drawImageWarning(warning) : rt::ui::drawWelcomeScreen(note);
                                     screen->uiEnd(); });
-                if (!confirmed)
+                if (action == rt::ui::WelcomeAction::UseAnyway && doubtful)
+                    return doubtful;
+                if (action != rt::ui::WelcomeAction::Choose)
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(30));
                     continue;
                 }
+                doubtful.reset();
                 std::optional<fs::path> picked = rt::dialogs::pickRomImage();
                 if (!picked)
                 {
@@ -232,13 +286,28 @@ namespace
                 std::string detail;
                 const rt::RomCheck check = rt::checkRom(*picked, detail);
                 if (check == rt::RomCheck::Ok)
-                    return picked;
-                if (check == rt::RomCheck::UnknownBuild)
                 {
-                    note = "That's a different version of Road Trip than this app supports (USA, SLUS-20398). " + detail;
+                    const rt::ImageCheck image = verifyChosen(*picked, detail);
+                    if (image == rt::ImageCheck::Verified)
+                        return picked;
+                    if (image == rt::ImageCheck::Unreadable)
+                    {
+                        note = "That file couldn't be read to the end. Choose it again, or another copy.";
+                        continue;
+                    }
+                    warning = image == rt::ImageCheck::Damaged      ? rt::ui::ImageWarning::Damaged
+                              : image == rt::ImageCheck::Unverified ? rt::ui::ImageWarning::Unverified
+                                                                    : rt::ui::ImageWarning::Mismatch;
+                    doubtful = picked;
                     continue;
                 }
-                note = "That file can't be used: " + detail;
+                std::cout << "[setup] disc image rejected: " << detail << "\n";
+                if (check == rt::RomCheck::UnknownBuild)
+                {
+                    note = "That's another version of Road Trip. This app needs Road Trip (USA).";
+                    continue;
+                }
+                note = check == rt::RomCheck::WrongGame ? "That isn't a Road Trip disc image." : "That file can't be read as a disc image.";
             }
             return std::nullopt;
         }
@@ -252,7 +321,23 @@ namespace
         switch (rt::checkRom(*rom, detail))
         {
         case rt::RomCheck::Ok:
-            return rom;
+        {
+            const rt::ImageCheck image = verifyChosen(*rom, detail);
+            // Given on the command line (scripts, tests): the check is only logged.
+            if (image == rt::ImageCheck::Verified || opts.rom)
+                return rom;
+            if (image == rt::ImageCheck::Unreadable)
+            {
+                rt::dialogs::message("Can't use this disc image", detail);
+                return std::nullopt;
+            }
+            if (rt::dialogs::message(image == rt::ImageCheck::Unverified ? "Disc image not verified" : "Disc image doesn't match",
+                                     detail + (image == rt::ImageCheck::Mismatch ? " It may be damaged or altered." : "") +
+                                         "\n\nUse it anyway?",
+                                     true))
+                return rom;
+            return std::nullopt;
+        }
         case rt::RomCheck::UnknownBuild:
             if (rt::dialogs::message("Unrecognised version",
                                      "This disc doesn't match Road Trip (USA) SLUS-20398 v1.02, the only version "
@@ -477,7 +562,8 @@ namespace
         return runWithProgress([&](rt::TaskProgress &progress)
                                {
                                    // Extracting is one step; translating, compiling and linking three.
-                                   progress.steps = (needInstall ? 1 : 0) + (needBuild ? 3 : 0);
+                                   progress.steps = (g_imageChecked ? 1 : 0) + (needInstall ? 1 : 0) + (needBuild ? 3 : 0);
+                                   progress.step = g_imageChecked ? 1 : 0; // the check was step 1
                                    // RT_SETUP_TEST_FAIL=1 (UI reviews): fail at once, with the last build log.
                                    if (const char *f = std::getenv("RT_SETUP_TEST_FAIL"); f && *f == '1')
                                    {
@@ -488,7 +574,8 @@ namespace
                                    if (needInstall && !rt::installFromRom(*rom, progress))
                                        return false;
                                    return !needBuild ||
-                                          rt::game::build(rt::paths::discDir() / rt::kBootElfName, progress); });
+                                          rt::game::build(rt::paths::discDir() / rt::kBootElfName, progress); },
+                               true);
     }
 }
 
