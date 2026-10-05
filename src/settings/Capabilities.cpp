@@ -109,6 +109,10 @@ namespace rt::settings
     }
 
     Availability aspectAvailability(Aspect) { return {}; }
-    Availability anisotropyAvailability(int level) { return level <= 1 ? Availability{} : later(); }
-    Availability texturePackAvailability() { return later(); }
+    // Texture-pack images are sampled trilinear with up to 16x anisotropy (paraLLEl-GS).
+    Availability anisotropyAvailability(int level)
+    {
+        return level <= 1 || capabilities().gpuGs ? Availability{} : no("Needs the GPU GS (paraLLEl-GS)");
+    }
+    Availability texturePackAvailability() { return capabilities().gpuGs ? Availability{} : no("Needs the GPU GS (paraLLEl-GS)"); }
 }

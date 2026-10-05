@@ -15,7 +15,7 @@
 - Debugging: `RT_THREAD_DUMP=5` dumps guest threads; `RT_FRAME_DUMP=<dir>` saves PNGs of the window every `RT_FRAME_DUMP_SECONDS` (from `RT_FRAME_DUMP_AFTER` seconds on) (needs a window, not `RT_HEADLESS`; headless, use the test socket's `frame` command, which reads the GS output); `RT_DEBUG_UI=1` shows the debug panel. To find where the game is stuck, attach lldb to the `GameThread` thread; the game functions are native, so they show up in the backtrace.
 - Game hooks go in `src/game/overrides.cpp`.
 - In-game menu (`src/ui/PauseMenu.cpp`, look in `src/ui/Theme.cpp`): Guide, Back+Start held 0.3 s, Esc or F3 opens it and pauses the game (`ps2_test::setPaused`). Options live in `settings.toml` in the data directory (`src/settings/`); options a device can't use, or that aren't built yet, are hidden.
-  - Screenshots headlessly: `RT_MENU_SHOT=<png> RT_MENU_PAGE=root|display|graphics|controllers|device|buttons|quit|reset RT_MENU_AT=<vblank>`.
+  - Screenshots headlessly: `RT_MENU_SHOT=<png> RT_MENU_PAGE=root|display|graphics|controllers|device|buttons|quit|reset RT_MENU_AT=<vblank>`; with `graphics`, `RT_MENU_ROW=<label>` selects that Options row.
   - Critics: have `choroq-style-critic` and `jobs-ux-critic` (`.claude/agents/`) review screenshots after UI changes.
 - Agents in `.claude/agents/`: `bug-tester` (runs the regression suite, triages), `perf-profiler`, `reverse-engineer`, `release-guard` (run before commits/pushes), plus the two UI critics.
 - Widescreen (Options → Aspect ratio, HUD position):
@@ -29,6 +29,13 @@
   - `VSyncInfo::progressive_field_scanout` takes twice as many lines as columns from the super-samples: 2x and 4x give 640x448, 8x and 16x give 1280x896 (`shaders/scanout_sampling.h` on the paraLLEl-GS fork).
   - A real 448-line frame can't fit in VRAM: textures start at block 0x1A40, right after the 224-line buffers and Z.
   - The regression harness pins `RT_PROGRESSIVE_FIELDS=0` so the goldens keep the original fields; `test_progressive_fields.py` covers the progressive path.
+- Texture dumps and HD packs (Options → Texture pack; `[textures] dump` and `pack_anisotropy` in settings.toml, for pack makers and tuning; `gs_texture_tools.cpp`, the pgs backend's `textureToolsLocked`, and the readback/prediction hooks in our paraLLEl-GS fork):
+  - with either on, paraLLEl-GS copies each newly decoded texture (RGBA8 with the palette applied; PS2 alpha, 0x80 = opaque) back to the host. A worker names it by an FNV-1a hash of its decoded pixels: the same texture gets the same name across runs, wherever it sits in GS memory, and a palette swap is a different texture.
+  - dumps go to `<data>/textures/dumps/<hash>_<W>x<H>_psm<NN>.png`. A pack is a folder in `<data>/textures/packs/` of PNGs whose names start with the 16-digit hash, at any size (alpha in PNG terms).
+  - a replacement is created once per content (sampled only, no storage usage: paraLLEl-GS addresses it by the original texture's size and keeps it out of its image pool). It is bound by the texture's stable key (the cache key without the palette instance, `TextureDescriptor::stable_key`), because Road Trip reloads palettes every frame and paraLLEl-GS decodes such textures under a new cache key each time. Each decode still reads back and re-checks: a description that decodes to something else drops its prediction.
+  - replacements get a full mip chain and are sampled with analytic texture-coordinate gradients through a trilinear/anisotropic sampler (`BINDING_SAMPLER_ANISO`, the `TEX_INFO_REPLACED` path at the top of `sample_texture` in `ubershader.comp`). `pack_anisotropy` sets it (1–16, default 16; no menu row: it costs next to nothing).
+  - `RT_TEXTURE_DUMP=<dir>`, `RT_TEXTURE_PACK=<dir>` and `RT_ANISOTROPY=<n>` override the settings. Headless, the GIF path services the readbacks when no vsync has for 50 ms.
+  - `test_texture_pack.py` dumps a race, makes a tinted 2x pack from those dumps in a temp dir, and checks that the pack shows and that anisotropy changes it.
 - Supersampling above 4x needs 8/16-wide compute subgroups. paraLLEl-GS's `fixed_wave32()` allows it on Apple GPUs, where MoltenVK reports sizes 4..32 but compute runs 32 wide. The `[gs]` log line shows the rate in use and the maximum.
 - `RT_GS_BATCH_LOG=<file>` logs every GS draw batch (path, prim, texture, bounding box), used to tell the HUD from the 3D scene.
 - Platform layer is SDL3 under raylib 6.0 (`PS2X_HOST_PLATFORM=SDL3`, set by the app; the fork defaults to GLFW for upstream).

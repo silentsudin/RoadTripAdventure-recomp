@@ -14,6 +14,7 @@ save that the next one starts from.
 | Adventure: Continue from slot 1 | `test_smoke::test_adventure_continue` | Save summary and Q's Factory goldens; progress after loading |
 | Peach Town: drive around town | `sections/010_peach_town_drive` | 3 goldens, section sound, scene and money |
 | Progressive fields (the default picture: no half-line field offset, 8x = 1280x896) | `test_progressive_fields` | Title: the original fields alternate, progressive ones don't; goldens of a Quick Race, Q's Factory and Peach Town at 8x. Every other test pins the original interlaced fields at 4x (`RT_PROGRESSIVE_FIELDS=0`, `RT_GS_SSAA=4`) |
+| Texture dumps and packs, pack anisotropy | `test_texture_pack` | A Quick Race dumps hundreds of textures named `<hash>_<W>x<H>_psm<NN>.png`; a tinted 2x pack made from them shows in the same race; 16x anisotropic filtering changes the replaced textures against trilinear |
 | Real-time performance (Quick Race) | `test_perf` (`--perf`) | 60 fps median, VIF1/VU1 thread headroom |
 | Every Adventure race (26 events in 9 towns, licence A) | `test_adventure_races` | The driving bot races each one to the finish; start golden and sound; the result is recorded in the progress block with the finishing place. Tin Raceway: "Under construction" golden |
 | Every town's open world (9 towns) | `test_towns` | Q's Factory golden per town, "Drive around town": the town loads (scene), goldens before and after driving, town sound |
