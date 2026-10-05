@@ -115,6 +115,7 @@ def game_factory(options, test_data, request):
         games.append(game)
         return game
 
+    make.base_data = Path(options.base_data)  # the installed data (disc, game library)
     yield make
     for g in games:
         g.close()

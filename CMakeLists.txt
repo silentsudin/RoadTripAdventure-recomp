@@ -192,3 +192,9 @@ if(BUILD_TESTING)
     target_include_directories(wide_layout_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/PS2Recomp/ps2xRuntime/include")
     add_test(NAME wide_layout COMMAND wide_layout_test)
 endif()
+
+# Every texture on the disc as PNG, named like texture dumps (tools/texture_extract.cpp). Reads the
+# user's extracted disc at run time; contains no game data.
+add_executable(rt_texture_extract tools/texture_extract.cpp src/textures/Extract.cpp)
+target_include_directories(rt_texture_extract PRIVATE src)
+target_link_libraries(rt_texture_extract PRIVATE ps2_runtime rt_sse2neon)
