@@ -35,7 +35,9 @@
   - a replacement is created once per content (sampled only, no storage usage: paraLLEl-GS addresses it by the original texture's size and keeps it out of its image pool). It is bound by the texture's stable key (the cache key without the palette instance, `TextureDescriptor::stable_key`), because Road Trip reloads palettes every frame and paraLLEl-GS decodes such textures under a new cache key each time. Each decode still reads back and re-checks: a description that decodes to something else drops its prediction.
   - replacements get a full mip chain and are sampled with analytic texture-coordinate gradients through a trilinear/anisotropic sampler (`BINDING_SAMPLER_ANISO`, the `TEX_INFO_REPLACED` path at the top of `sample_texture` in `ubershader.comp`). `pack_anisotropy` sets it (1–16, default 16; no menu row: it costs next to nothing).
   - `RT_TEXTURE_DUMP=<dir>`, `RT_TEXTURE_PACK=<dir>` and `RT_ANISOTROPY=<n>` override the settings. Headless, the GIF path services the readbacks when no vsync has for 50 ms.
-  - `test_texture_pack.py` dumps a race, makes a tinted 2x pack from those dumps in a temp dir, and checks that the pack shows and that anisotropy changes it.
+  - clamped textures sample through clamp-to-edge variants of that sampler (bindings 27–29), so pack images don't bleed in their far edge at any mip level.
+  - switching packs (or to none) drops every replacement and prediction on the main and shadow GS and invalidates the whole texture cache (`GSInterface::drop_texture_replacements`), so textures decode from GS memory again. The Texture pack hint shows how many of the pack's images the game has used (`PgsControl::texturePackStats`).
+  - `test_texture_pack.py` dumps a race, makes a tinted 2x pack from those dumps in a temp dir, and checks that the pack shows, goes and comes back when switched while running, and that anisotropy changes it.
 - Supersampling above 4x needs 8/16-wide compute subgroups. paraLLEl-GS's `fixed_wave32()` allows it on Apple GPUs, where MoltenVK reports sizes 4..32 but compute runs 32 wide. The `[gs]` log line shows the rate in use and the maximum.
 - `RT_GS_BATCH_LOG=<file>` logs every GS draw batch (path, prim, texture, bounding box), used to tell the HUD from the 3D scene.
 - Platform layer is SDL3 under raylib 6.0 (`PS2X_HOST_PLATFORM=SDL3`, set by the app; the fork defaults to GLFW for upstream).
@@ -49,6 +51,7 @@
 - Pads in the runtime and tests:
   - `RT_PAD_TRACE=1` logs the game's pad commands.
   - Test socket: `pad`/`step` take `"port"` (else both ports) and `"connected"`; `actuators` and `pad_info` report per port.
+  - The app adds its own test-socket commands through `ps2_test::setCommandHandler` (`src/main.cpp`): `{"cmd":"texture_pack","path":DIR}` switches the pack ("" = none; without `path` it only reports `pack_images` and `replaced`).
   - Movies are version 2 (port column, `# connect` lines); v1 movies drive both ports.
 - The GS renders on paraLLEl-GS/Vulkan (`ps2xRuntime/src/lib/gs/gs_pgs_backend.cpp` on the fork) by default; `RT_GS_BACKEND=cpu` switches to the software GS for A/B comparisons. Use `RT_FRAME_DUMP` to compare frames from the two.
 - paraLLEl-GS is our fork: silentsudin/parallel-gs, branch `roadtrip` (remote `upstream` = Arntzen-Software). Its shaders are precompiled: after editing `gs/shaders`, run `scripts/regen_pgs_shaders.sh`, which builds slangmosh into `build/tools` the first time.
