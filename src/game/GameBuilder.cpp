@@ -7,7 +7,9 @@
 #include <fcntl.h>
 #if defined(__ANDROID__)
 #include "ps2recomp/ps2_recompiler.h"
+#include <asm/hwcap.h>
 #include <sched.h>
+#include <sys/auxv.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
 // ps2xRuntime/tools/vu1_recomp (ps2_vu1_recomp_lib): the VU1 recompiler as a function.
@@ -61,7 +63,16 @@ namespace rt::game
             return s;
         }
 
-        std::string bundleBuildId() { return trim(readFile(sdkDir() / "build_id")); }
+        // The kit's hash; on Android also the device compile flags below (bump when they change).
+        std::string bundleBuildId()
+        {
+            std::string id = trim(readFile(sdkDir() / "build_id"));
+#if defined(__ANDROID__)
+            if (!id.empty())
+                id += "-device2";
+#endif
+            return id;
+        }
 
         // Runs argv with stdout/stderr appended to `log`; returns the exit status (or -1).
         int run(const std::vector<std::string> &argv, const fs::path &log, const fs::path &cwd = {})
@@ -294,6 +305,13 @@ namespace rt::game
 #if defined(__ANDROID__)
         std::vector<std::string> base{compiler->string(), "clang", "--driver-mode=g++", "--target=aarch64-linux-android31",
                                       "--sysroot=" + sysroot, "-resource-dir=" + (res / "clang").string(), "-fPIC"};
+        // The game is built on the device it runs on: inline LSE atomics when the kernel reports them
+        // (instead of libc's out-of-line helpers), and no NDK stack-protector/fortify defaults, which
+        // the SDK flags inherit and the Mac build doesn't have. Not -mcpu=native: it detects SVE on
+        // Snapdragon cores whose kernel has it disabled (SIGILL).
+        std::vector<std::string> deviceFlags{"-fno-stack-protector", "-U_FORTIFY_SOURCE"};
+        if (getauxval(AT_HWCAP) & HWCAP_ATOMICS)
+            deviceFlags.push_back("-march=armv8.1-a");
 #else
         std::vector<std::string> base{compiler->string(), "-isysroot", sysroot};
 #endif
@@ -303,6 +321,9 @@ namespace rt::game
             base.push_back("-I" + (sdkDir() / inc).string());
         base.push_back("-I" + generated.string());
         base.push_back("-w");
+#if defined(__ANDROID__)
+        base.insert(base.end(), deviceFlags.begin(), deviceFlags.end());
+#endif
         for (const char *sym : {"g_ps2RecompiledFunctionTable", "g_ps2RecompiledFunctionTableBase",
                                 "g_ps2RecompiledFunctionTableEnd", "g_ps2RecompiledFunctionTableSlotCount"})
             base.push_back(std::string("-D") + sym + "=rt_game_" + (sym + 2));

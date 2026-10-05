@@ -29,6 +29,7 @@
 #include <fstream>
 #include "runtime/ps2_test_harness.h"
 #include "runtime/gs/gs_frontend.h"
+#include "runtime/gs/gs_hw_backend.h"
 #include "runtime/gs/gs_pgs_backend.h"
 #include "Stubs/CD.h"
 #if defined(PS2X_ENABLE_DEBUG_UI)
@@ -211,6 +212,23 @@ namespace
         {
             std::cout << "[gs] using CPU backend (RT_GS_BACKEND=cpu)\n";
             return;
+        }
+
+        // RT_GS_BACKEND=hw: the hardware-rasterizer GS on the presenter's device.
+        if (choice && std::string(choice) == "hw")
+        {
+            ps2x::gs::HwOptions hw;
+            hw.presenter = runtime.presenter();
+            hw.vulkanLibrary = vulkanLibrary();
+            std::string error;
+            ps2x::gs::PgsControl *control = nullptr;
+            if (auto backend = ps2x::gs::createHwBackend(hw, error, &control))
+            {
+                runtime.gs().setRasterBackend(std::move(backend));
+                rt::settings::setGsControl(control);
+                return;
+            }
+            std::cerr << "[gs] hardware GS unavailable (" << error << "); using paraLLEl-GS\n";
         }
 
         ps2x::gs::PgsOptions options;
