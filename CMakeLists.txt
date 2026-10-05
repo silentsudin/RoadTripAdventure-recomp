@@ -198,3 +198,6 @@ endif()
 add_executable(rt_texture_extract tools/texture_extract.cpp src/textures/Extract.cpp)
 target_include_directories(rt_texture_extract PRIVATE src)
 target_link_libraries(rt_texture_extract PRIVATE ps2_runtime rt_sse2neon)
+
+# The disc's VAG streams as WAV (tools/audio_extract.cpp). Reads the user's disc at run time.
+add_executable(rt_audio_extract tools/audio_extract.cpp)
