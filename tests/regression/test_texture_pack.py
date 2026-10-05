@@ -6,12 +6,18 @@ tinted where the original was not, and 16x anisotropic filtering must change the
 textures' look against trilinear.
 """
 
+import subprocess
 import time
 
 import numpy as np
 from PIL import Image
 
-from rtharness import seconds
+from rtharness import REPO, seconds
+
+
+def game_factory_base(game_factory):
+    # The installed data directory the games link their disc from.
+    return game_factory.base_data
 
 
 def race(game_factory, name: str, env: dict):
@@ -45,6 +51,10 @@ def blueness(frame) -> float:
 def test_texture_pack(game_factory, tmp_path):
     dumps = tmp_path / "dumps"
     original = race_frame(game_factory, "texture_dump", {"RT_TEXTURE_DUMP": str(dumps)})
+    # Dumping decodes whole uploads instead of the sampled parts: the picture must not change.
+    plain = race_frame(game_factory, "texture_plain", {})
+    changed = np.mean(np.any(plain.array() != original.array(), axis=2))
+    assert changed == 0, f"dumping changed {changed:.4f} of the pixels"
     deadline = time.time() + 10  # dumps are written by a worker thread
     while time.time() < deadline and not any(dumps.glob("*.png")):
         time.sleep(0.2)
@@ -55,6 +65,17 @@ def test_texture_pack(game_factory, tmp_path):
         hash_, size, psm = p.stem.split("_")
         int(hash_, 16)
         assert len(hash_) == 16 and psm.startswith("psm")
+
+    # The disc extractor names textures the same way: most of what the race drew is on the disc
+    # (the rest the game builds or recolours in code).
+    extracted = tmp_path / "extracted"
+    tool = REPO / "build" / "macos-release" / "rt_texture_extract"
+    run = subprocess.run([str(tool), str(game_factory_base(game_factory) / "disc"), str(extracted)],
+                         capture_output=True, text=True, timeout=300)
+    assert run.returncode == 0, run.stderr[-2000:]
+    offline = {p.name[:16] for p in extracted.rglob("*.png")}
+    found = sum(p.name[:16] in offline for p in names) / len(names)
+    assert len(offline) > 4000 and found > 0.5, f"{len(offline)} extracted, {found:.2f} of the race's textures among them"
 
     pack = tmp_path / "pack"
     pack.mkdir()

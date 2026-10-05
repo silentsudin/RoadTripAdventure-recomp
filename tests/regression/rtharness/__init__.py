@@ -73,6 +73,9 @@ class GameError(RuntimeError):
     pass
 
 
+RENDER_ALWAYS = os.environ.get("RT_TEST_RENDER_ALWAYS") == "1"
+
+
 @dataclass
 class Frame:
     width: int
@@ -115,8 +118,9 @@ class Game:
         # offset -> bytes patched into the Adventure save on memory card 1 before boot
         # (config/game_state.toml), e.g. to start in another town or with a licence.
         self.progress_edits = progress_edits or {}
-        # Rendering (VU1 + drawing) only when a picture is taken; see frame().
-        self.rendering = render
+        # Rendering (VU1 + drawing) only when a picture is taken; see frame(). RT_TEST_RENDER_ALWAYS=1
+        # draws every frame (e.g. with RT_TEXTURE_DUMP, to dump every texture the suite shows).
+        self.rendering = render or RENDER_ALWAYS
         self.proc: subprocess.Popen | None = None
         self.sock: socket.socket | None = None
         self.vblank = 0
@@ -338,6 +342,8 @@ class Game:
 
     # ------------------------------------------------------------------ observation
     def render(self, on: bool):
+        if RENDER_ALWAYS:
+            on = True
         self._call("render", on=1 if on else 0)
         self.rendering = on
 
