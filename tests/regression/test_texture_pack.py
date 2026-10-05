@@ -14,7 +14,7 @@ from PIL import Image
 from rtharness import seconds
 
 
-def race_frame(game_factory, name: str, env: dict):
+def race(game_factory, name: str, env: dict):
     game = game_factory(name=name, env={"RT_PROGRESSIVE_FIELDS": "1", **env})
     game.render(True)  # textures are read back and replaced as they are decoded
     game.run(seconds(10))
@@ -27,6 +27,11 @@ def race_frame(game_factory, name: str, env: dict):
         game.run(seconds(4))
     game.pad("cross")
     game.run(seconds(10))
+    return game
+
+
+def race_frame(game_factory, name: str, env: dict):
+    game = race(game_factory, name, env)
     frame = game.frame()
     frame.image().save(game.work_dir / "race.png")  # for triage
     return frame
@@ -65,9 +70,24 @@ def test_texture_pack(game_factory, tmp_path):
         made += 1
     assert made > 10
 
-    trilinear = race_frame(game_factory, "texture_pack", {"RT_TEXTURE_PACK": str(pack), "RT_ANISOTROPY": "1"})
+    game = race(game_factory, "texture_pack", {"RT_TEXTURE_PACK": str(pack), "RT_ANISOTROPY": "1"})
+    trilinear = game.frame()
+    trilinear.image().save(game.work_dir / "race.png")
     assert blueness(trilinear) > blueness(original) + 20, \
         f"the tinted pack should show ({blueness(original):.1f} -> {blueness(trilinear):.1f})"
+    stats = game._call("texture_pack")
+    assert stats["pack_images"] == made and 0 < stats["replaced"] <= made, stats
+
+    # Switched off and on again while running: the originals come back, then the pack.
+    game._call("texture_pack", path="")
+    game.run(seconds(1))
+    off = game.frame()
+    off.image().save(game.work_dir / "race_off.png")
+    assert blueness(off) < blueness(original) + 5, f"the pack should be gone ({blueness(off):.1f})"
+    game._call("texture_pack", path=str(pack))
+    game.run(seconds(1))
+    on = game.frame()
+    assert blueness(on) > blueness(original) + 20, f"the pack should be back ({blueness(on):.1f})"
 
     aniso = race_frame(game_factory, "texture_pack_aniso", {"RT_TEXTURE_PACK": str(pack), "RT_ANISOTROPY": "16"})
     diff = np.mean(np.any(aniso.array() != trilinear.array(), axis=2))

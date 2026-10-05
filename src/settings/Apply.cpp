@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <filesystem>
+#include <optional>
 #include <cstring>
 #include <string>
 
@@ -19,6 +20,7 @@ namespace rt::settings
 {
     namespace
     {
+        std::optional<std::string> g_packOverride; // the test socket's texture_pack command
         ps2x::gs::PgsControl *g_gs = nullptr;
         bool g_ssaaFromEnv = false; // RT_GS_SSAA was set by hand: keep it
     }
@@ -36,6 +38,12 @@ namespace rt::settings
     }
 
     ps2x::gs::PgsControl *gsControl() { return g_gs; }
+
+    void overrideTexturePack(const std::string &dir)
+    {
+        g_packOverride = dir;
+        applyGraphics();
+    }
 
     void exportGsEnvironment()
     {
@@ -93,7 +101,7 @@ namespace rt::settings
         // RT_TEXTURE_DUMP, RT_TEXTURE_PACK (directories) and RT_ANISOTROPY override the settings.
         const std::filesystem::path textures = rt::paths::dataRoot() / "textures";
         const char *dumpEnv = std::getenv("RT_TEXTURE_DUMP");
-        const char *packEnv = std::getenv("RT_TEXTURE_PACK");
+        const char *packEnv = g_packOverride ? g_packOverride->c_str() : std::getenv("RT_TEXTURE_PACK");
         const char *anisoEnv = std::getenv("RT_ANISOTROPY");
         const int aniso = anisoEnv ? std::atoi(anisoEnv) : s.anisotropy;
         g_gs->setAnisotropy(static_cast<uint32_t>(anisotropyAvailability(aniso).ok ? std::clamp(aniso, 1, 16) : 1));

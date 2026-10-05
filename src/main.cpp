@@ -327,6 +327,21 @@ int main(int argc, char *argv[])
         }
         selectGsBackend(runtime);
         rt::settings::applyAll();
+        // Test-socket commands of the app's own:
+        //   {"cmd":"texture_pack","path":DIR}  use that pack ("" = none; no "path": keep it)
+        //                                      -> {"pack_images","replaced"} of the active pack
+        ps2_test::setCommandHandler([](const std::string &cmd, const std::string &line) -> std::string {
+            if (cmd == "texture_pack")
+            {
+                if (line.find("\"path\"") != std::string::npos)
+                    rt::settings::overrideTexturePack(ps2_test::jsonField(line, "path"));
+                ps2x::gs::PgsControl *gs = rt::settings::gsControl();
+                const auto stats = gs ? gs->texturePackStats() : ps2x::gs::PgsControl::TexturePackStats{};
+                return "{\"ok\":true,\"pack_images\":" + std::to_string(stats.packImages) +
+                       ",\"replaced\":" + std::to_string(stats.replaced) + "}";
+            }
+            return {};
+        });
 
         // Recompiled VU1 microcode (3D geometry) unless RT_VU1_MODE=interp.
         {

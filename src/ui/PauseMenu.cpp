@@ -7,6 +7,7 @@
 #include "platform/Input.h"
 #include "platform/Paths.h"
 #include "raylib.h"
+#include "runtime/gs/gs_pgs_backend.h"
 #include "runtime/ps2_test_harness.h"
 #include "settings/Apply.h"
 #include "settings/Capabilities.h"
@@ -362,6 +363,14 @@ namespace rt::ui
                 std::string hint = packs.empty() && s.texturePack.empty()
                                        ? "None installed. Add pack folders to " + packsDir.string()
                                        : "Swap the game's textures for a high-detail pack. Pick None to see the original.";
+                // Proof the pack is doing something: how much of it the game has drawn so far.
+                if (!s.texturePack.empty() && !missing)
+                    if (ps2x::gs::PgsControl *gs = gsControl())
+                    {
+                        const auto stats = gs->texturePackStats();
+                        hint = std::to_string(stats.replaced) + " of the pack's " + std::to_string(stats.packImages) +
+                               " textures in use so far. " + hint;
+                    }
                 rows.push_back({"Texture pack",
                                 [&s, missing] {
                                     if (s.texturePack.empty())
