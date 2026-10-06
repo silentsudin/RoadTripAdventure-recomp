@@ -45,19 +45,21 @@ namespace rt::ui::theme
             }
         }
 
-        // Which glyph family the player is holding: PlayStation shapes unless a non-PlayStation pad
-        // is the first connected controller (then its face letters).
+        // Which glyph family the player is holding, from the first connected controller: PlayStation
+        // shapes for PlayStation pads, Nintendo letters for Nintendo ones, and Xbox letters for the
+        // rest: Xbox pads, and the "standard" pads SDL can't name (handhelds such as the AYN Thor and
+        // Odin, most Bluetooth and Android pads), which are labelled A/B/X/Y the Xbox way.
         std::string padFamily()
         {
             for (const rt::input::DeviceStatus &d : rt::input::devices())
             {
                 if (d.type == "keyboard")
                     continue;
-                if (d.type.rfind("xbox", 0) == 0)
-                    return "xbox";
+                if (d.type.rfind("ps", 0) == 0)
+                    return "ps";
                 if (d.type == "switchpro" || d.type == "joycon")
                     return "nintendo";
-                return "ps";
+                return "xbox";
             }
             return "keyboard";
         }

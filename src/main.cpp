@@ -662,7 +662,8 @@ int main(int argc, char *argv[])
                 {
                     rt.presenter()->uiBegin();
                     panel.drawWindow(rt);
-                    rt::ui::drawPerfOverlay(overlay);
+                    if (!ps2_test::paused()) // under the menu it would only read 0 fps
+                        rt::ui::drawPerfOverlay(overlay);
                     rt::ui::drawPauseMenu();
                     rt.presenter()->uiEnd();
                     rt::ui::menuShotAfterFrame();
