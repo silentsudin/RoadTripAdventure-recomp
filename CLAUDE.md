@@ -53,6 +53,7 @@
 - The GIF/GS hand-off reuses packet buffers (`GifArbiter::recycle`), and a waiter is woken only when the lowest target it waits for is reached. Its queue ordering allocates nothing when already in order (`std::stable_sort`'s buffer after every VU1 program cost a tenth of the VU1 thread on Android, in malloc's lock).
 - Interlace flicker blending can be turned off with `RT_FLICKER=0`.
 - Supersampling above 4x needs 8/16-wide compute subgroups. paraLLEl-GS's `fixed_wave32()` allows it on Apple GPUs, where MoltenVK reports sizes 4..32 but compute runs 32 wide. The `[gs]` log line shows the rate in use and the maximum.
+- Performance overlay (Options → Performance overlay, `[general] performance_overlay`): `src/ui/PerfOverlay.cpp` draws one row along the bottom edge (clear of the race HUD) from `src/debug/PerfStats.cpp` (half-second windows: fps, worst frame, VU1/GS busy, app CPU via getrusage; on Android GPU busy and clock from kgsl sysfs and battery temperature).
 - `RT_GS_BATCH_LOG=<file>` logs every GS draw batch (path, prim, texture, bounding box), used to tell the HUD from the 3D scene.
 - Platform layer is SDL3 under raylib 6.0 (`PS2X_HOST_PLATFORM=SDL3`, set by the app; the fork defaults to GLFW for upstream).
 - Input:

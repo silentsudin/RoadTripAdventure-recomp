@@ -19,6 +19,7 @@ namespace rt::settings
         constexpr std::array<const char *, 2> kHud = {"4:3", "edges"};
         constexpr std::array<const char *, 3> kFrameModes = {"interpolate", "extrapolate", "rerender"};
         constexpr std::array<const char *, 4> kAa = {"none", "fxaa", "smaa", "taa"};
+        constexpr std::array<const char *, 3> kPerfOverlay = {"off", "fps", "detailed"};
         constexpr std::array<const char *, static_cast<size_t>(Upscaler::Count)> kUpscalers = {
             "none", "fsr1", "metalfx_spatial", "metalfx_temporal", "arm_asr", "sgsr1", "sgsr2", "arm_nss",
             "fsr3", "fsr4", "xess", "dlss"};
@@ -123,6 +124,7 @@ namespace rt::settings
         s.dumpTextures = flag(t, "dump", s.dumpTextures);
         s.anisotropy = nearestOf(integer(t, "pack_anisotropy", s.anisotropy), {1, 2, 4, 8, 16});
         s.menuHintShown = flag(table(root, "general"), "menu_hint_shown", s.menuHintShown);
+        s.perfOverlay = pick(table(root, "general"), "performance_overlay", kPerfOverlay, s.perfOverlay);
         return s;
     }
 
@@ -152,7 +154,9 @@ namespace rt::settings
           << "pack_anisotropy = " << s.anisotropy << "  # filtering of pack images: 1 (trilinear), 2, 4, 8, 16\n"
           << "dump = " << (s.dumpTextures ? "true" : "false") << "  # for pack makers: save every texture to textures/dumps\n\n"
           << "[general]\n"
-          << "menu_hint_shown = " << (s.menuHintShown ? "true" : "false") << "\n";
+          << "menu_hint_shown = " << (s.menuHintShown ? "true" : "false") << "\n"
+          << "performance_overlay = \"" << kPerfOverlay[static_cast<size_t>(s.perfOverlay)]
+          << "\"  # off, fps, detailed (frame rate, load and temperature along the bottom)\n";
         std::ofstream(path) << o.str();
     }
 

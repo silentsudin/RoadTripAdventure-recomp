@@ -101,9 +101,10 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
       because the game is paused.
 
 ### 2. Android features
-- [ ] **#18 Performance overlay:** an Options toggle showing FPS, frame time, CPU and GPU load on
-      screen, drawn with the theme through the Vulkan presenter. The data exists (`[fps]` lines,
-      `measure.py` sampling).
+- [x] **#18 Performance overlay:** Options → Performance overlay: Off / Frame rate / Detailed
+      (`src/ui/PerfOverlay.cpp`, numbers from `src/debug/PerfStats.cpp`): one row along the bottom
+      edge, clear of the race HUD: fps, worst frame, VU1/GS load, app CPU and, on Android, GPU load
+      and clock and battery temperature.
 - [ ] **#19 Controller-aware button icons:** glyphs and wording for the Thor's built-in pad,
       Xbox, PlayStation and Nintendo layouts. The theme's `prompt()` reads the device family; the
       setup screens have no glyphs because they run before the input layer. Also show glyphs in

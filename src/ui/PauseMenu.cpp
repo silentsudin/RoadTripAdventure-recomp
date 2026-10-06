@@ -305,6 +305,18 @@ namespace rt::ui
                 }
             }
 
+            {
+                static const std::vector<PerfOverlay> levels = {PerfOverlay::Off, PerfOverlay::Fps, PerfOverlay::Detailed};
+                rows.push_back({"Performance overlay",
+                                [&s] {
+                                    return std::string(s.perfOverlay == PerfOverlay::Off   ? "Off"
+                                                       : s.perfOverlay == PerfOverlay::Fps ? "Frame rate"
+                                                                                           : "Detailed");
+                                },
+                                [&s](int d) { cycle(s.perfOverlay, levels, d); changed(); }, {},
+                                "The frame rate along the bottom of the screen; Detailed adds the longest frame, CPU and GPU load "
+                                "and temperature."});
+            }
             rows.push_back(heading("Graphics"));
             static const std::vector<int> levels = {1, 2, 4, 8, 16};
             rows.push_back({"Supersampling (SSAA)",

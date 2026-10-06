@@ -16,6 +16,7 @@ namespace rt::settings
     enum class HudMode { FourThree, Edges };
     enum class FrameMode { Interpolate, Extrapolate, Rerender };
     enum class AntiAliasing { None, Fxaa, Smaa, Taa };
+    enum class PerfOverlay { Off, Fps, Detailed };
     enum class Upscaler
     {
         None, Fsr1, MetalFxSpatial, MetalFxTemporal, ArmAsr, SnapdragonGsr1, SnapdragonGsr2, ArmNss,
@@ -45,6 +46,7 @@ namespace rt::settings
         bool dumpTextures = false;
         // General
         bool menuHintShown = false;  // the first-launch "how to open the menu" hint was shown
+        PerfOverlay perfOverlay = PerfOverlay::Off; // frame rate (and load, temperature) along the bottom
     };
 
     const char *name(Aspect a);

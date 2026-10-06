@@ -10,6 +10,7 @@
 
 #include "debug/FpsOverlay.h"
 #include "debug/FrameDump.h"
+#include "debug/PerfStats.h"
 #include "debug/RamDump.h"
 #include "platform/Host.h"
 #include "platform/Input.h"
@@ -41,6 +42,7 @@
 #include "ps2_debug_panel.h"
 #include "rlImGui.h"
 #include "ui/PauseMenu.h"
+#include "ui/PerfOverlay.h"
 #include "ui/SetupScreen.h"
 #include "ui/Theme.h"
 #endif
@@ -648,16 +650,19 @@ int main(int argc, char *argv[])
 #endif
                 rt::debug::maybeDumpFrame(); // the presenter saves this frame as shown (with any menu or overlay)
                 rt::debug::drawFpsOverlay(rt);
+                rt::debug::samplePerf(rt);   // the performance overlay's numbers
 #if defined(PS2X_ENABLE_DEBUG_UI)
                 // One ImGui frame for the debug panel (F1) and the in-game menu.
                 auto &panel = static_cast<UiHooks *>(user)->panel;
                 rt::ui::updatePauseMenu(); // Guide, Back+Start, Esc or F3: the in-game menu (pauses the game)
                 if (rt::host::keyPressed(SDL_SCANCODE_F1))
                     panel.toggleVisible();
-                if (panel.isVisible() || rt::ui::pauseMenuWantsFrame())
+                const auto overlay = rt::settings::current().perfOverlay;
+                if (panel.isVisible() || rt::ui::pauseMenuWantsFrame() || overlay != rt::settings::PerfOverlay::Off)
                 {
                     rt.presenter()->uiBegin();
                     panel.drawWindow(rt);
+                    rt::ui::drawPerfOverlay(overlay);
                     rt::ui::drawPauseMenu();
                     rt.presenter()->uiEnd();
                     rt::ui::menuShotAfterFrame();

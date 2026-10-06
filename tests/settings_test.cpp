@@ -71,6 +71,9 @@ namespace
         CHECK(refreshAvailability(mac, 60).ok);
         CHECK(!availability(mac, Upscaler::Fsr1).ok && !availability(mac, AntiAliasing::Fxaa).ok); // raylib presenter
         mac.postProcess = true;
+        // No generated frames (the hardware GS): only 60.
+        CHECK(!refreshAvailability(mac, 120).ok);
+        mac.frameGeneration = true; // paraLLEl-GS
         CHECK(availability(mac, Upscaler::Fsr1).ok && availability(mac, AntiAliasing::Fxaa).ok); // Vulkan presenter
         CHECK(availability(mac, Upscaler::MetalFxSpatial).ok);
         CHECK(refreshAvailability(mac, 240).reason.find("120 Hz") != std::string::npos);
