@@ -25,6 +25,8 @@ coins_missing   = { offset = 0x548, type = "bytes", length = 16, confidence = "c
 towns_unvisited = { offset = 0x12DA, type = "u16", confidence = "confirmed" }  # bit n set = town n never reached (0x3FF at the start)
 mail_count      = { offset = 0x628, type = "u32", confidence = "confirmed" }   # mails received (max 128; 0x23DF38)
 mail_inbox      = { offset = 0x5A8, type = "bytes", length = 128, confidence = "confirmed" }  # per slot: mail id | 0x80 once read
+photos_taken    = { offset = 0x508, type = "bytes", length = 16, confidence = "confirmed" }  # bit n-1 = photo n (Quick-Pic Shop No.n) taken (0x23C5C0 sets, 0x23D8E8 tests)
+last_photo      = { offset = 0x12E2, type = "u16", confidence = "confirmed" }  # index (n-1) of the last photo taken
 radio_station   = { offset = 0x12DD, type = "u8", confidence = "confirmed" }   # 0 off, 1 PEACH FM (SOUND/1CH), 2 E-RADIO (SOUND/3CH)
 best_lap        = { offset = 0x1040, type = "bytes", length = 312, confidence = "likely" }  # u32 frames per race-table index, 0x7FFFFFFF = none
 best_total      = { offset = 0x1178, type = "bytes", length = 312, confidence = "likely" }  # same layout, whole race
@@ -172,16 +174,19 @@ spawn_table = 0x2C2E78
 # location's stamp (a byte per location at stamp_table) is awarded (0x23D878).
 unvisited_doors = 0xBD8
 stamp_table = 0x2A2B20
+# New-game unvisited_doors masks (0x2277B0): a door is a house to visit iff its bit starts set.
+initial_unvisited = [0, 0x3DFFF, 0x7FBFF, 0x1FFFFF, 0xFBF, 0xF, 0xFFFFF, 0x3FFFF, 0x17F, 0x7FFFDF]
 # Who is behind each door: a pointer per location to 16-byte entries (the fourth word points at
 # the resident's name), one per door, then one per driver about town (count in byte 7 of the
 # location's entry in the 8-byte table at 0x2BE438). A resident out driving turns you away.
 residents = 0x2C22C8
 
 [clock]
-# Time of day: a u32 counting vblanks since midnight (151.5 per game minute; a game day is about
-# 60 real minutes). The night sky starts in the evening; shops stay open.
+# Time of day: a u32 counting vblanks since midnight, 150 per game minute (the radio panel's clock
+# shows exactly clock / 150; a day is 216000 vblanks, an hour of real time, the radio's loop too).
+# The night sky starts in the evening; shops stay open.
 time_address = 0x335914
-vblanks_per_minute = 151.5
+vblanks_per_minute = 150
 
 [map]
 # Every course-map and town-minimap draw has TEST_2 = 0x3380B (CTXT=1, PATH1, untextured strips; template
@@ -190,6 +195,21 @@ vblanks_per_minute = 151.5
 gs_test = 0x3380B
 draw_functions = { town = 0x242438, race = 0x2427D0, scissored = 0x242A88 }
 town_scissor = [45, 156, 158, 207]
+# Town minimap: north-up, never rotates, centred on the car at (102, 183) in field pixels. A world
+# point (x, z), car (px, pz), s = zoom scale: fx = 102 + (x - px) * s / 200, fy = 183 - (z - pz) * 0.47 * s / 200
+# (before widescreen narrows the HUD). Verified against the game's Quick-Pic icons (<= 1.5 px).
+zoom_table = 0x2A42C0      # {X0, Y0, s, 0}: mode 0 = (302, 89, 50) near, mode 1 = (202, 136, 25) far
+mode_address = 0x177A215   # u8 0/1, Select toggles it
+coin_table = 0x2A3970      # 100 x {x, y, z, FLD tile code}
+
+[photos]
+# Photo booths are Quick-Pic Shops: doors whose resident is "Quick-Pic Shop No.n" (script op 0x11 n,
+# 0x23C5C0, free). 100 photos: 77 in towns, 23 in the field areas; album full -> stamp 96.
+count = 100
+take_function = 0x23C5C0
+
+[locations]
+table = 0x2BE438  # 8 bytes per location: name ptr, u16 FLD tile code, u8 doors, u8 drivers (10..21 are field areas)
 
 [game]
 # Globals (likely unless noted).

@@ -33,6 +33,10 @@ namespace rt::game
         int town = 0;
         int hour = 0, minute = 0;
         int housesLeft = 0;
+        int photos = 0;                     // Quick-Pic Shop photos taken, of 100
+        int townPhotos = 0, townPhotosTaken = 0;
+        float carX = 0, carZ = 0;           // our car in the town's coordinates
+        int mapZoom = 50;                   // the minimap's scale (50 near, 25 far)
         // A race (any mode): our place, the field, laps and times (frames at 60 per second).
         bool racing = false;
         enum class Mode : uint8_t { Adventure, QuickRace, TwoPlayer } mode = Mode::QuickRace;
@@ -64,6 +68,20 @@ namespace rt::game
 
     // Stamp n's picture (1..100) as 64x64 RGBA8 from the user's disc (SYS/STAMP.GSL), or empty.
     std::vector<uint8_t> stampIcon(int n);
+
+    // The buildings of a town (from the game's door and resident tables in RAM), for the map.
+    struct Place
+    {
+        enum class Kind : uint8_t { Factory, Shop, PhotoBooth, House, Other } kind;
+        std::string name;  // the resident or shop ("Quick-Pic Shop No.5", "Kevin's mom")
+        char letter = 0;   // shops: P (parts), B (body), C (colour: paint)
+        int photo = 0;     // photo booths: the photo number
+        float x = 0, z = 0;
+        bool done = false; // photo taken / house visited
+    };
+    std::vector<Place> townPlaces(PS2Runtime &runtime, int town);
+    // Where a world point lands on the town minimap (640x224 field pixels, before widescreen).
+    void mapPoint(const Stats &st, float x, float z, float &fx, float &fy);
 
     // m'ss"hh as the game's HUD shows times.
     std::string raceTime(uint32_t frames);

@@ -17,6 +17,7 @@
 #endif
 
 #include <algorithm>
+#include <bitset>
 #include <cmath>
 #include <cstdio>
 #include <string>
@@ -142,7 +143,14 @@ namespace rt::ui
 
         // The game's own map (drawn apart from the picture by the hardware GS, without its bezel),
         // as large as fits, sampled nearest, in a gold plate rim. Returns where it went.
-        bool drawMap(ImDrawList *dl, ImVec2 min, ImVec2 max, ps2x::HostPresenter &presenter, bool centre, ImVec2 *placed = nullptr)
+        // Where the map went on screen (for markers).
+        struct MapPlacement
+        {
+            ImVec2 a, b; // the map image's corners
+        };
+
+        bool drawMap(ImDrawList *dl, ImVec2 min, ImVec2 max, ps2x::HostPresenter &presenter, bool centre, ImVec2 *placed = nullptr,
+                     bool inset = false, MapPlacement *where = nullptr)
         {
             float uv[4], aspect = 1.0f;
             if (!presenter.mapRegion(uv, aspect) || aspect <= 0.0f)
@@ -150,6 +158,11 @@ namespace rt::ui
             // Widescreen draws the HUD (the map with it) narrower by (4:3) / the display's shape,
             // to look right once stretched: undo that here.
             aspect /= std::min(1.0f, (4.0f / 3.0f) / std::max(presenter.displayAspect(), 0.1f));
+            if (!inset) // the margin below widens the shown part
+            {
+                const float bw = std::max(1.0f, (uv[2] - uv[0]) * 640.0f), bh = std::max(1.0f, (uv[3] - uv[1]) * 224.0f);
+                aspect *= ((bw + 12.0f) / bw) / ((bh + 6.0f) / bh);
+            }
             const float rim = th::px(6);
             const float w = max.x - min.x - rim * 2, h = max.y - min.y - rim * 2;
             const float dw = std::floor(std::min(w, h * aspect)), dh = std::floor(dw / aspect);
@@ -158,20 +171,90 @@ namespace rt::ui
             dl->AddRectFilled(ImVec2(a.x - rim, a.y - rim), ImVec2(b.x + rim, b.y + rim), IM_COL32(0xE8, 0xC8, 0x30, 0xFF), th::px(16));
             dl->AddRect(ImVec2(a.x - rim * 0.5f, a.y - rim * 0.5f), ImVec2(b.x + rim * 0.5f, b.y + rim * 0.5f), IM_COL32(0xFF, 0xF0, 0xA0, 0xFF),
                         th::px(12), 0, th::px(3));
-            dl->AddImage(static_cast<ImTextureID>(ps2x::HostPresenter::kMapTexture), a, b, ImVec2(uv[0], uv[1]), ImVec2(uv[2], uv[3]));
+            // Inside the rim's rounded corners; the town map a field pixel in from its box (the
+            // game's bezel and scissor edge show there; a race map's box is its own extent).
+            // A race map's box is the track's own extent: leave it a margin of the layer's
+            // background (6 field pixels across, 3 lines down) so the track never meets the rim.
+            const float du = inset ? 1.0f / 640.0f : -6.0f / 640.0f, dv = inset ? 1.0f / 224.0f : -3.0f / 224.0f;
+            dl->AddImageRounded(static_cast<ImTextureID>(ps2x::HostPresenter::kMapTexture), a, b, ImVec2(uv[0] + du, uv[1] + dv),
+                                ImVec2(uv[2] - du, uv[3] - dv), IM_COL32_WHITE, th::px(12));
             if (placed)
                 *placed = ImVec2(b.x + rim, b.y + rim);
+            if (where)
+                *where = {a, b};
             return true;
+        }
+
+        // ---- places on the town map ----
+
+        // Marks on the town map: Q's Factory, the shops, Quick-Pic Shops not used yet and houses
+        // not visited yet, where the game's minimap puts them (projected like the game does; the
+        // town map's box is its scissor, 46..158 x 157..207 shown, whatever widescreen did to it).
+        void drawPlaces(ImDrawList *dl, const MapPlacement &m, const rt::game::Stats &st, const std::vector<rt::game::Place> &places)
+        {
+            constexpr float kX0 = 46, kX1 = 158, kY0 = 157, kY1 = 207;
+            dl->PushClipRect(m.a, m.b, true);
+            const float r = th::px(13);
+            for (const auto &pl : places)
+            {
+                using K = rt::game::Place::Kind;
+                if ((pl.kind == K::PhotoBooth || pl.kind == K::House) && pl.done)
+                    continue;
+                if (pl.kind == K::Other)
+                    continue;
+                float fx, fy;
+                rt::game::mapPoint(st, pl.x, pl.z, fx, fy);
+                if (fx < kX0 - 4 || fx > kX1 + 4 || fy < kY0 - 4 || fy > kY1 + 4)
+                    continue;
+                const ImVec2 c(m.a.x + (fx - kX0) / (kX1 - kX0) * (m.b.x - m.a.x), m.a.y + (fy - kY0) / (kY1 - kY0) * (m.b.y - m.a.y));
+                switch (pl.kind)
+                {
+                case K::Factory:
+                {
+                    dl->AddCircleFilled(c, r * 1.25f, IM_COL32(0xE8, 0x84, 0x0C, 0xFF), 20);
+                    dl->AddCircle(c, r * 1.25f, IM_COL32(0xFF, 0xD8, 0x78, 0xFF), 20, th::px(3));
+                    const ImVec2 sz = measure(tag(), "Q");
+                    outlined(dl, ImVec2(c.x - sz.x * 0.5f, c.y - sz.y * 0.5f), tag(), c::Value, "Q", th::px(2));
+                    break;
+                }
+                case K::Shop:
+                {
+                    const char t[2] = {pl.letter, 0};
+                    dl->AddRectFilled(ImVec2(c.x - r, c.y - r), ImVec2(c.x + r, c.y + r), IM_COL32(0x1C, 0xA1, 0xE6, 0xFF), th::px(6));
+                    dl->AddRect(ImVec2(c.x - r, c.y - r), ImVec2(c.x + r, c.y + r), c::Value, th::px(6), 0, th::px(2));
+                    const ImVec2 sz = measure(tag(), t);
+                    outlined(dl, ImVec2(c.x - sz.x * 0.5f, c.y - sz.y * 0.5f), tag(), c::Value, t, th::px(2));
+                    break;
+                }
+                case K::PhotoBooth:
+                {
+                    // A little camera: body, lens, flash.
+                    const ImU32 pink = IM_COL32(0xF0, 0x48, 0xA8, 0xFF);
+                    dl->AddRectFilled(ImVec2(c.x - r, c.y - r * 0.7f), ImVec2(c.x + r, c.y + r * 0.75f), pink, th::px(4));
+                    dl->AddRectFilled(ImVec2(c.x - r * 0.4f, c.y - r), ImVec2(c.x + r * 0.2f, c.y - r * 0.6f), pink, th::px(2));
+                    dl->AddCircleFilled(ImVec2(c.x, c.y + r * 0.05f), r * 0.45f, c::Value, 16);
+                    dl->AddCircleFilled(ImVec2(c.x, c.y + r * 0.05f), r * 0.25f, IM_COL32(0x1A, 0x3C, 0x8C, 0xFF), 16);
+                    break;
+                }
+                default: // a house still to visit
+                    dl->AddCircleFilled(c, r * 0.55f, c::Value, 16);
+                    dl->AddCircle(c, r * 0.55f, IM_COL32(0x1A, 0x3C, 0x8C, 0xFF), 16, th::px(2));
+                    break;
+                }
+            }
+            dl->PopClipRect();
         }
 
         // ---- the column beside the map ----
 
         // Label over a large value.
+        float g_statSize = 60; // th::px units of a stat's value (the town column is more compact)
+
         float stat(ImDrawList *dl, float x, float y, float w, const char *label, const std::string &value, ImU32 colour = c::Value,
                    const std::string &note = {}, ImU32 noteColour = c::Value)
         {
             outlined(dl, ImVec2(x, y), body(), c::Label, label);
-            const float big = th::px(60);
+            const float big = th::px(g_statSize);
             const ImVec2 sz = measure(big, value.c_str());
             const float size = sz.x > w ? big * w / sz.x : big;
             outlined(dl, ImVec2(x, y + body() * 1.1f), size, colour, value.c_str(), th::px(4));
@@ -224,18 +307,51 @@ namespace rt::ui
                 }
                 y = stat(dl, x, y, w, "Last lap", rt::game::raceTime(st.lastLapFrames), c::Value, note, noteColour);
             }
-            stat(dl, x, y, w, "Best lap", st.bestLapFrames ? rt::game::raceTime(st.bestLapFrames) : "--'--\"--", kGold);
+            // A new best flashes for a moment.
+            static uint32_t lastBest = 0;
+            static float bestAt = -10;
+            const float now = static_cast<float>(ImGui::GetTime());
+            if (st.bestLapFrames && st.bestLapFrames != lastBest)
+            {
+                if (lastBest && st.bestLapFrames < lastBest)
+                    bestAt = now;
+                lastBest = st.bestLapFrames;
+            }
+            const bool flash = now - bestAt < 2.5f && std::fmod(now - bestAt, 0.5f) < 0.3f;
+            if (now - bestAt < 2.5f)
+            {
+                const float top = y - th::px(8), bottom = y + body() * 1.1f + th::px(60) + th::px(12);
+                dl->AddRectFilled(ImVec2(x - th::px(12), top), ImVec2(x + w, bottom), IM_COL32(0xF8, 0xC8, 0x38, flash ? 0x50 : 0x20), th::px(14));
+            }
+            stat(dl, x, y, w, now - bestAt < 2.5f ? "New best lap!" : "Best lap",
+                 st.bestLapFrames ? rt::game::raceTime(st.bestLapFrames) : "--'--\"--", flash ? c::Value : kGold);
         }
 
         // Driving in a town: where, when, and what's left to find there.
-        void townColumn(ImDrawList *dl, float x, float y, float w, const rt::game::Stats &st)
+        void townColumn(ImDrawList *dl, float x, float y, float w, float bottom, rt::game::Stats st, const std::vector<rt::game::Place> &places)
         {
+            g_statSize = 46;
+            struct Restore
+            {
+                ~Restore() { g_statSize = 60; }
+            } restore;
+            const float each = body() * 1.1f + th::px(g_statSize) + th::px(18); // one stat's height
+            for (const auto &pl : places)
+                if (pl.kind == rt::game::Place::Kind::PhotoBooth)
+                    ++st.townPhotos, st.townPhotosTaken += pl.done;
             y = columnHeading(dl, x, y, w, rt::game::townName(st.town));
             char clock[16];
             std::snprintf(clock, sizeof(clock), "%d:%02d %s", st.hour % 12 == 0 ? 12 : st.hour % 12, st.minute, st.hour < 12 ? "am" : "pm");
-            y = stat(dl, x, y, w, "Time", clock);
-            y = stat(dl, x, y, w, "Houses to visit", std::to_string(st.housesLeft), st.housesLeft ? c::Value : kGold);
-            stat(dl, x, y, w, "Coins found", std::to_string(st.coins) + " / 100", kGold);
+            // As many as fit, most useful first.
+            if (y + each <= bottom)
+                y = stat(dl, x, y, w, "Time", clock);
+            if (st.townPhotos && y + each <= bottom)
+                y = stat(dl, x, y, w, "Photos here", std::to_string(st.townPhotosTaken) + " / " + std::to_string(st.townPhotos),
+                         st.townPhotosTaken == st.townPhotos ? kGold : c::Value);
+            if (y + each <= bottom)
+                y = stat(dl, x, y, w, "Houses to visit", std::to_string(st.housesLeft), st.housesLeft ? c::Value : kGold);
+            if (y + each <= bottom)
+                stat(dl, x, y, w, "Coins found", std::to_string(st.coins) + " / 100", kGold);
         }
 
         // The place, large (a race without a map).
@@ -255,6 +371,10 @@ namespace rt::ui
         // ---- the notebook ----
 
         bool g_stampsGot = true; // Got (else To get)
+        // Stamps earned while we watched, newest first (they lead the Got list), and the moment
+        // the newest arrived (the notebook shows it being stamped).
+        std::vector<int> g_recent;
+        float g_newStampAt = -10;
         float g_scroll = 0, g_scrollShownUntil = 0;
 
         struct StampIcons
@@ -328,13 +448,14 @@ namespace rt::ui
             outlined(dl, ImVec2(cmax.x - msz.x, y + (heading() - body()) * 0.5f), body(), c::Label, miles);
             y += heading() * 1.2f;
             const float chipH = th::px(64), chipGap = th::px(12);
-            const float chipW = (cmax.x - cmin.x - chipGap * 3) / 4;
+            const float chipW = (cmax.x - cmin.x - chipGap * 4) / 5;
             const std::string currency = st.currency.empty() ? std::string("Money") : st.currency;
-            const std::string values[4][2] = {{"Licence", rt::game::licenceName(st.licence)},
+            const std::string values[5][2] = {{"Licence", rt::game::licenceName(st.licence)},
                                               {ellipsize(currency, th::px(24), chipW - th::px(20)), withCommas(st.money)},
                                               {"Coins", std::to_string(st.coins) + " / 100"},
-                                              {"Towns", std::to_string(st.townsVisited) + " / 10"}};
-            for (int i = 0; i < 4; ++i)
+                                              {"Towns", std::to_string(st.townsVisited) + " / 10"},
+                                              {"Photos", std::to_string(st.photos) + " / 100"}};
+            for (int i = 0; i < 5; ++i)
             {
                 const float x = cmin.x + i * (chipW + chipGap);
                 chip(dl, ImVec2(x, y), ImVec2(x + chipW, y + chipH), values[i][0], values[i][1], i >= 2 ? kGold : c::Value);
@@ -366,8 +487,12 @@ namespace rt::ui
             // The cards (drag to scroll).
             const ImVec2 lmin(cmin.x, y), lmax(cmax.x, cmax.y);
             std::vector<int> shown;
+            if (g_stampsGot)
+                for (int n : g_recent)
+                    if (st.stamps[static_cast<size_t>(n - 1)])
+                        shown.push_back(n);
             for (int i = 0; i < 100; ++i)
-                if (st.stamps[static_cast<size_t>(i)] == g_stampsGot)
+                if (st.stamps[static_cast<size_t>(i)] == g_stampsGot && std::find(shown.begin(), shown.end(), i + 1) == shown.end())
                     shown.push_back(i + 1);
             if (shown.empty())
             {
@@ -406,7 +531,25 @@ namespace rt::ui
                                   th::px(18));
                 dl->AddRectFilled(fmin, fmax, c::Frame, th::px(14));
                 const StampIcons ic = stampIcons(presenter, n);
-                if (earned && ic.ink)
+                // The newest stamp is pressed onto the page: ink fades in as the stamp comes down.
+                const float since = static_cast<float>(ImGui::GetTime()) - g_newStampAt;
+                const bool fresh = earned && !g_recent.empty() && n == g_recent.front() && since < 3.5f;
+                if (fresh)
+                {
+                    const float glow = 0.5f + 0.5f * std::sin(since * 6.0f);
+                    dl->AddRect(ImVec2(kmin.x - th::px(4), kmin.y - th::px(4)), ImVec2(kmax.x + th::px(4), kmax.y + th::px(4)),
+                                IM_COL32(0xF8, 0xC8, 0x38, static_cast<int>(120 + 135 * glow)), th::px(22), 0, th::px(6));
+                }
+                if (fresh && ic.ink && ic.mask)
+                {
+                    const float t = std::clamp(since / 0.8f, 0.0f, 1.0f);
+                    const float grow = 1.0f + 0.35f * (1.0f - t) * (1.0f - t);
+                    const ImVec2 c((fmin.x + fmax.x) * 0.5f, (fmin.y + fmax.y) * 0.5f), half((fmax.x - fmin.x) * 0.5f * grow, (fmax.y - fmin.y) * 0.5f * grow);
+                    dl->AddImage(static_cast<ImTextureID>(ic.mask), fmin, fmax, ImVec2(0, 0), ImVec2(1, 1), c::Silhouette);
+                    dl->AddImage(static_cast<ImTextureID>(ic.ink), ImVec2(c.x - half.x, c.y - half.y), ImVec2(c.x + half.x, c.y + half.y),
+                                 ImVec2(0, 0), ImVec2(1, 1), IM_COL32(0xFF, 0xFF, 0xFF, static_cast<int>(255 * t)));
+                }
+                else if (earned && ic.ink)
                     dl->AddImage(static_cast<ImTextureID>(ic.ink), fmin, fmax);
                 else if (!earned && ic.mask)
                     dl->AddImage(static_cast<ImTextureID>(ic.mask), fmin, fmax, ImVec2(0, 0), ImVec2(1, 1), c::Silhouette);
@@ -525,12 +668,37 @@ namespace rt::ui
             const rt::game::Stats st = rt::game::readStats(runtime);
             float uv[4], aspect;
             const bool haveMap = presenter.mapRegion(uv, aspect);
+            const float now = static_cast<float>(ImGui::GetTime());
+
+            // A stamp earned just now (one new bit; loading a save changes many): show it.
+            static std::bitset<100> seen;
+            static bool seenValid = false;
+            if (st.adventure)
+            {
+                const std::bitset<100> added = st.stamps & ~seen;
+                if (seenValid && added.count() == 1)
+                    for (int i = 0; i < 100; ++i)
+                        if (added[static_cast<size_t>(i)])
+                        {
+                            g_recent.erase(std::remove(g_recent.begin(), g_recent.end(), i + 1), g_recent.end());
+                            g_recent.insert(g_recent.begin(), i + 1);
+                            g_newStampAt = now;
+                            g_stampsGot = true;
+                            g_scroll = 0;
+                        }
+                seen = st.stamps;
+                seenValid = true;
+            }
+            else
+                seenValid = false;
+            const bool showingNewStamp = now - g_newStampAt < 3.5f;
 
             // The page follows the game (the map while driving or racing), unless a tap chose.
             const Page wanted = haveMap || st.racing ? Page::Map : Page::Notebook;
             if (wanted != g_auto)
                 g_auto = wanted, g_overridden = false;
-            const Page page = g_overridden ? g_chosen : g_auto;
+            // The new stamp takes the screen for a moment, whatever was on it (the map stays down).
+            const Page page = showingNewStamp ? Page::Notebook : g_overridden ? g_chosen : g_auto;
             // Keep the map on the second screen unless the player chose the notebook over it.
             presenter.setWantMap(!(g_overridden && g_chosen == Page::Notebook));
 
@@ -584,7 +752,21 @@ namespace rt::ui
             const float colW = th::px(250);
             const bool column = st.racing || st.inTown;
             ImVec2 mapEnd;
-            const bool drawn = drawMap(dl, cmin, ImVec2(column ? cmax.x - colW - th::px(24) : cmax.x, cmax.y), presenter, !column, &mapEnd);
+            MapPlacement where;
+            const bool drawn =
+                drawMap(dl, cmin, ImVec2(column ? cmax.x - colW - th::px(24) : cmax.x, cmax.y), presenter, !column, &mapEnd, !st.racing, &where);
+            // The town's buildings, once per town (the tables don't change).
+            static int placesTown = -1;
+            static std::vector<rt::game::Place> places;
+            static float placesAt = 0;
+            if (st.inTown && (st.town != placesTown || now - placesAt > 1.0f)) // done-ness changes as you play
+            {
+                places = rt::game::townPlaces(runtime, st.town);
+                placesTown = st.town;
+                placesAt = now;
+            }
+            if (drawn && st.inTown)
+                drawPlaces(dl, where, st, places);
             if (!drawn && st.racing)
                 bigPlace(dl, cmin, ImVec2(cmax.x - colW - th::px(24), cmax.y), st);
             else if (!drawn)
@@ -602,7 +784,7 @@ namespace rt::ui
             if (st.racing)
                 raceColumn(dl, left, cmin.y, w, st);
             else
-                townColumn(dl, left, cmin.y, w, st);
+                townColumn(dl, left, cmin.y, w, cmax.y, st, places);
         }
     }
 

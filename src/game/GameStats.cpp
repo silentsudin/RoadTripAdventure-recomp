@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
 #include <iterator>
 
@@ -30,6 +31,12 @@ namespace rt::game
                            kUiContext = 0x003356CC, kDriveFlags = 0x00335928;
         constexpr uint32_t kRaceHandler = 0x0021CE48, kTownHandler = 0x0021CF80, kTitleContext = 0x0029AFA0;
         constexpr uint32_t kLocationNow = 0x00335923, kClock = 0x00335914, kUnvisitedDoors = 0xBD8;
+        constexpr uint32_t kPhotosTaken = 0x508, kMapMode = 0x0177A215;
+        constexpr uint32_t kDoorTable = 0x002C0698, kResidents = 0x002C22C8, kLocations = 0x002BE438;
+        constexpr int kDoorLocations = 24;
+        // New-game unvisited_doors masks ([houses] initial_unvisited): a door is a house to visit
+        // when its bit starts set.
+        constexpr uint32_t kInitialUnvisited[10] = {0, 0x3DFFF, 0x7FBFF, 0x1FFFFF, 0xFBF, 0xF, 0xFFFFF, 0x3FFFF, 0x17F, 0x7FFFDF};
         constexpr uint32_t kQuickRaceTable = 0x002BE158, kTwoPlayerTable = 0x002BE1D8;
 
         int popcount(const uint8_t *p, size_t n)
@@ -106,6 +113,15 @@ namespace rt::game
             s.hour = static_cast<int>(minutes / 60 % 24);
             s.minute = static_cast<int>(minutes % 60);
             s.housesLeft = __builtin_popcount(at<uint32_t>(p, kUnvisitedDoors + 4u * static_cast<uint32_t>(s.town)));
+        }
+        s.photos = popcount(p + kPhotosTaken, 16);
+        if (s.inTown)
+        {
+            float pos[3];
+            std::memcpy(pos, ram + kCars, sizeof(pos));
+            s.carX = pos[0];
+            s.carZ = pos[2];
+            s.mapZoom = ram[kMapMode] ? 25 : 50;
         }
         s.racing = scene3d && at<uint32_t>(ram, kScene3DHandler) == kRaceHandler;
         if (!s.racing)
@@ -273,6 +289,72 @@ namespace rt::game
         if (songs[i].title)
             np.title = songs[i].title, np.artist = songs[i].artist;
         return np;
+    }
+
+    std::vector<Place> townPlaces(PS2Runtime &runtime, int town)
+    {
+        std::vector<Place> places;
+        const uint8_t *ram = runtime.memory().getRDRAM();
+        if (!ram || town < 1 || town > 9)
+            return places;
+        // Door quads: a pointer per location, a list running to the next one ([doors]).
+        uint32_t table[kDoorLocations];
+        std::memcpy(table, ram + kDoorTable, sizeof(table));
+        const uint32_t start = table[town] & 0x1FFFFFFu;
+        uint32_t end = 0xFFFFFFFFu;
+        for (uint32_t t : table)
+            if ((t & 0x1FFFFFFu) > start)
+                end = std::min(end, t & 0x1FFFFFFu);
+        const int doors = std::min<int>(ram[kLocations + 8u * town + 6], end == 0xFFFFFFFFu ? 0 : static_cast<int>((end - start) / 32));
+        const uint32_t residents = at<uint32_t>(ram, kResidents + 4u * town) & 0x1FFFFFFu;
+        const uint8_t *p = ram + kProgress;
+        const uint32_t unvisited = at<uint32_t>(p, kUnvisitedDoors + 4u * town);
+        for (int j = 0; j < doors && start + 32u * (j + 1) <= 32u * 1024u * 1024u; ++j)
+        {
+            Place pl;
+            float q[8];
+            std::memcpy(q, ram + start + 32u * j, sizeof(q));
+            pl.x = (q[0] + q[2] + q[4] + q[6]) / 4;
+            pl.z = (q[1] + q[3] + q[5] + q[7]) / 4;
+            if (pl.x < 0 || pl.z < 0)
+                continue; // not placed
+            if (residents)
+                pl.name = guestString(ram, at<uint32_t>(ram, residents + 16u * j + 0xC));
+            const std::string &n = pl.name;
+            auto has = [&](const char *w) { return n.find(w) != std::string::npos; };
+            if (has("Quick-Pic"))
+            {
+                pl.kind = Place::Kind::PhotoBooth;
+                const size_t no = n.find("No");
+                pl.photo = no == std::string::npos ? 0 : std::atoi(n.c_str() + no + 3);
+                pl.done = pl.photo >= 1 && pl.photo <= 100 && (p[kPhotosTaken + (pl.photo - 1) / 8] >> ((pl.photo - 1) % 8) & 1);
+            }
+            else if (j == 0 || has("Factory"))
+                pl.kind = Place::Kind::Factory;
+            else if (has("Parts") || has("parts"))
+                pl.kind = Place::Kind::Shop, pl.letter = 'P';
+            else if (has("Body") || has("body"))
+                pl.kind = Place::Kind::Shop, pl.letter = 'B';
+            else if (has("Paint") || has("paint"))
+                pl.kind = Place::Kind::Shop, pl.letter = 'C';
+            else if (kInitialUnvisited[town] >> j & 1)
+            {
+                pl.kind = Place::Kind::House;
+                pl.done = !(unvisited >> j & 1);
+            }
+            else
+                pl.kind = Place::Kind::Other;
+            places.push_back(std::move(pl));
+        }
+        return places;
+    }
+
+    void mapPoint(const Stats &st, float x, float z, float &fx, float &fy)
+    {
+        // [map]: north-up, centred on the car at (102, 183); s / 200 field pixels a unit across,
+        // 0.47 of that down (fields are half height).
+        fx = 102.0f + (x - st.carX) * st.mapZoom / 200.0f;
+        fy = 183.0f - (z - st.carZ) * 0.47f * st.mapZoom / 200.0f;
     }
 
     std::string raceTime(uint32_t frames)
