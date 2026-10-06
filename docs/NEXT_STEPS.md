@@ -129,7 +129,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [ ] Parity features still to do: motion vectors and depth (TAA, MetalFX temporal), frame generation.
   - [x] Motion vectors on the hardware GS (TAA): per-vertex motion on GSVertex, an RG16F attachment
         written by unblended and As/1-As draws; matches paraLLEl-GS's field (`RT_SHOW_MOTION=1`).
-  - [ ] Depth on the hardware GS (MetalFX temporal, GSR 2, Arm ASR).
+  - [x] Depth on the hardware GS (a snapshot where the HUD starts, raw GS Z, as paraLLEl-GS's).
 - [ ] Mobile upscalers (shown greyed "later" in Options today):
   - [x] Snapdragon GSR 1 (spatial, single pass): Options > Upscaling on Android (either GS).
   - [ ] Snapdragon GSR 2 and Arm ASR (temporal): colour, depth, motion vectors and jitter; after the

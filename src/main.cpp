@@ -453,7 +453,8 @@ namespace
                 runtime.gs().setRasterBackend(std::move(backend));
                 rt::settings::setGsControl(control);
                 rt::settings::capabilities().frameGeneration = false; // no shadow frames (yet)
-                rt::settings::capabilities().motionVectors = true; // TAA (no depth yet: no MetalFX temporal)
+                rt::settings::capabilities().motionVectors = true;  // TAA
+                rt::settings::capabilities().temporalInputs = true; // and depth: MetalFX temporal, temporal upscalers
                 return;
             }
             std::cerr << "[gs] hardware GS unavailable (" << error << "); using paraLLEl-GS\n";
