@@ -174,7 +174,7 @@ if(APPLE)
         OUTPUT_NAME "RoadTrip"
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platform/macos/Info.plist.in"
         MACOSX_BUNDLE_BUNDLE_NAME "Road Trip"
-        MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.roadtrip-recomp"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.silentsudin.roadtrip"
         MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}")
 endif()

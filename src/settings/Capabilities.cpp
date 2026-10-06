@@ -109,6 +109,8 @@ namespace rt::settings
         return later();
     }
 
+    bool frameGenerationWith(const Capabilities &c, Upscaler u) { return !(u == Upscaler::ArmAsr && c.os == Os::Android); }
+
     Availability refreshAvailability(const Capabilities &c, int hz)
     {
         if (hz == 60)

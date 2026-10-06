@@ -41,6 +41,9 @@ namespace rt::settings
     Availability availability(const Capabilities &c, Upscaler u);
     Availability availability(const Capabilities &c, AntiAliasing a);
     Availability refreshAvailability(const Capabilities &c, int hz);
+    // Frame generation's extra frames with this upscaler (Android: Arm ASR alone takes the GPU, 31
+    // fps at 120 Hz on the Thor, so it stays at 60).
+    bool frameGenerationWith(const Capabilities &c, Upscaler u);
     Availability aspectAvailability(Aspect a);
     Availability anisotropyAvailability(int level);
     Availability texturePackAvailability();

@@ -21,7 +21,7 @@ from pathlib import Path
 
 from . import Frame, Game, GameError
 
-PACKAGE = "io.github.roadtrip.recomp"
+PACKAGE = "io.github.silentsudin.roadtrip"
 ACTIVITY = f"{PACKAGE}/io.github.roadtrip.RoadTripActivity"
 SOCKET_NAME = "roadtrip-test"
 

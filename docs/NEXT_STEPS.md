@@ -15,7 +15,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
    `android-port`.
 3. Android build and install: `scripts/android/build_apk.sh --install`. The first launch after a
    runtime header change rebuilds the game on the device (about 2.5 min, with the progress screen).
-   RT_* switches go in `files/env.txt` (`adb shell run-as io.github.roadtrip.recomp ...`).
+   RT_* switches go in `files/env.txt` (`adb shell run-as io.github.silentsudin.roadtrip ...`).
 
 ## Done (most recent first)
 

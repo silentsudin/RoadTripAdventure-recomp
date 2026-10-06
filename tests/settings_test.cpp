@@ -100,6 +100,8 @@ namespace
         thor.temporalInputs = true; // the hardware GS: motion and depth
         CHECK(availability(thor, Upscaler::SnapdragonGsr2).ok);
         CHECK(availability(thor, Upscaler::ArmAsr).ok);
+        CHECK(!frameGenerationWith(thor, Upscaler::ArmAsr)); // ASR stays at 60 on Android
+        CHECK(frameGenerationWith(thor, Upscaler::SnapdragonGsr2));
 
         Capabilities rtx;
         rtx.os = Os::Windows;

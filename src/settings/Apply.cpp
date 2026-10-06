@@ -151,7 +151,7 @@ namespace rt::settings
             post.sharpness = s.sharpness;
             p->setPostProcess(post);
             ps2x::HostPresenter::FrameGeneration fg;
-            if (refreshAvailability(capabilities(), s.refreshRate).ok)
+            if (refreshAvailability(capabilities(), s.refreshRate).ok && frameGenerationWith(capabilities(), s.upscaler))
                 fg.factor = static_cast<uint32_t>(s.refreshRate / 60);
             const char *warp = std::getenv("RT_FRAME_GEN");
             fg.rerender = s.frameMode == FrameMode::Rerender || !(warp && *warp == '1');

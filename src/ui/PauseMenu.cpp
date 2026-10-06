@@ -279,15 +279,22 @@ namespace rt::ui
             if (refreshAvailability(capabilities(), 120).ok)
             {
                 static const std::vector<int> rates = {60, 120, 240};
-                rows.push_back({"Frame rate", [&s] { return s.refreshRate == 60 ? std::string("60 fps (original)") : std::to_string(s.refreshRate) + " fps (generated)"; },
+                const bool fgOk = frameGenerationWith(capabilities(), s.upscaler);
+                rows.push_back({"Frame rate", [&s, fgOk] {
+                                    if (s.refreshRate > 60 && !fgOk)
+                                        return std::string("60 fps (with Arm ASR)");
+                                    return s.refreshRate == 60 ? std::string("60 fps (original)") : std::to_string(s.refreshRate) + " fps (generated)";
+                                },
                                 [&s](int d) {
                                     do
                                         cycle(s.refreshRate, rates, d);
                                     while (!refreshAvailability(capabilities(), s.refreshRate).ok);
                                     changed();
                                 },
-                                {}, "The game runs at 60. Higher rates add frames re-rendered from the game's own geometry, each object moved on "
-                                    "along its motion: no added delay."});
+                                {}, fgOk ? "The game runs at 60. Higher rates add frames re-rendered from the game's own geometry, each object "
+                                           "moved on along its motion: no added delay."
+                                         : "Arm ASR leaves no room for added frames on this device: it runs at 60. Pick another upscaler "
+                                           "for higher rates."});
                 // The picture-warping modes are for comparison only (RT_FRAME_GEN=1).
                 const char *warp = std::getenv("RT_FRAME_GEN");
                 if (s.refreshRate > 60 && warp && *warp == '1')

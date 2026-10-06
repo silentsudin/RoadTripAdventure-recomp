@@ -7,7 +7,7 @@ android {
     namespace = "io.github.roadtrip"
     compileSdk = 36
     defaultConfig {
-        applicationId = "io.github.roadtrip.recomp"
+        applicationId = "io.github.silentsudin.roadtrip"
         minSdk = 31
         targetSdk = 34
         versionCode = 1
