@@ -95,8 +95,8 @@ namespace rt::settings
     {
         if (a == AntiAliasing::None)
             return {};
-        if (a == AntiAliasing::Taa && c.postProcess && !c.temporalInputs)
-            return no("Needs the paraLLEl-GS renderer (motion vectors)");
+        if (a == AntiAliasing::Taa && c.postProcess && !c.motionVectors)
+            return no("Needs the GS's motion vectors");
         if (a == AntiAliasing::Fxaa || a == AntiAliasing::Smaa || a == AntiAliasing::Taa)
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         return later();

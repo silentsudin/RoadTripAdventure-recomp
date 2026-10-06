@@ -453,6 +453,7 @@ namespace
                 runtime.gs().setRasterBackend(std::move(backend));
                 rt::settings::setGsControl(control);
                 rt::settings::capabilities().frameGeneration = false; // no shadow frames (yet)
+                // Motion vectors are in progress (fork branch hwgs-motion): no TAA here yet.
                 return;
             }
             std::cerr << "[gs] hardware GS unavailable (" << error << "); using paraLLEl-GS\n";
@@ -471,6 +472,7 @@ namespace
             rt::settings::setGsControl(control);
             rt::settings::capabilities().frameGeneration = true;
             rt::settings::capabilities().temporalInputs = true;
+            rt::settings::capabilities().motionVectors = true;
         }
         else
             std::cerr << "[gs] Vulkan GS unavailable (" << error << "); using CPU backend\n";

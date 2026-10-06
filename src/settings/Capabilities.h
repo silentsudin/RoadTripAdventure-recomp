@@ -24,7 +24,8 @@ namespace rt::settings
         bool gpuGs = false;          // a GPU GS runs (paraLLEl-GS or the hardware GS; texture dumps and packs need it)
         bool secondDisplay = false;   // a second display the app can draw on (Android presentation display)
         bool frameGeneration = false; // the GS renders generated frames (paraLLEl-GS's shadow instances; not the hardware GS)
-        bool temporalInputs = false;  // the GS gives depth and motion vectors (TAA, MetalFX temporal: paraLLEl-GS)
+        bool motionVectors = false;   // the GS gives per-pixel motion (TAA: paraLLEl-GS and the hardware GS)
+        bool temporalInputs = false;  // ... and depth too (MetalFX temporal, temporal upscalers: paraLLEl-GS)
     };
 
     struct Availability
