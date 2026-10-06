@@ -38,6 +38,44 @@ namespace rt::paths
     std::filesystem::path lbnMap() { return discDir() / ".lbn_map.tsv"; }
     std::filesystem::path gameDir() { return dataRoot() / "game"; }
 
+    std::filesystem::path texturesDir()
+    {
+#if defined(__ANDROID__)
+        if (!std::getenv("RT_DATA_DIR"))
+            if (const char *external = SDL_GetAndroidExternalStoragePath(); external && *external)
+            {
+                const std::filesystem::path dir = std::filesystem::path(external) / "textures";
+                // Once: what an earlier version kept in the private data moves here.
+                std::error_code ec;
+                const std::filesystem::path old = dataRoot() / "textures";
+                if (std::filesystem::exists(old, ec) && !std::filesystem::exists(dir, ec))
+                {
+                    std::filesystem::create_directories(dir.parent_path(), ec);
+                    std::filesystem::rename(old, dir, ec);
+                    if (ec)
+                    {
+                        std::filesystem::copy(old, dir, std::filesystem::copy_options::recursive, ec);
+                        if (!ec)
+                            std::filesystem::remove_all(old, ec);
+                    }
+                }
+                return dir;
+            }
+#endif
+        return dataRoot() / "textures";
+    }
+
+    std::string displayPath(const std::filesystem::path &path)
+    {
+        std::string s = path.string();
+#if defined(__ANDROID__)
+        for (const char *root : {"/storage/emulated/0/", "/sdcard/"})
+            if (s.rfind(root, 0) == 0)
+                return s.substr(std::char_traits<char>::length(root));
+#endif
+        return s;
+    }
+
     std::filesystem::path bundleResources()
     {
         if (const char *overrideDir = std::getenv("RT_RESOURCES_DIR"); overrideDir && *overrideDir)

@@ -106,7 +106,7 @@ namespace rt::settings
         g_gs->setSharpTextures(s.sharpTextures);
         // Texture dumps go to textures/dumps; packs are folders under textures/packs.
         // RT_TEXTURE_DUMP, RT_TEXTURE_PACK (directories) and RT_ANISOTROPY override the settings.
-        const std::filesystem::path textures = rt::paths::dataRoot() / "textures";
+        const std::filesystem::path textures = rt::paths::texturesDir();
         const char *dumpEnv = std::getenv("RT_TEXTURE_DUMP");
         const char *packEnv = g_packOverride ? g_packOverride->c_str() : std::getenv("RT_TEXTURE_PACK");
         const char *anisoEnv = std::getenv("RT_ANISOTROPY");
@@ -146,6 +146,7 @@ namespace rt::settings
                            : s.upscaler == Upscaler::MetalFxTemporal ? ps2x::HostPresenter::PostProcess::Scaling::MetalFxTemporal
                            : s.upscaler == Upscaler::SnapdragonGsr1  ? ps2x::HostPresenter::PostProcess::Scaling::SnapdragonGsr1
                            : s.upscaler == Upscaler::SnapdragonGsr2  ? ps2x::HostPresenter::PostProcess::Scaling::SnapdragonGsr2
+                           : s.upscaler == Upscaler::ArmAsr          ? ps2x::HostPresenter::PostProcess::Scaling::ArmAsr
                                                                     : ps2x::HostPresenter::PostProcess::Scaling::Bilinear;
             post.sharpness = s.sharpness;
             p->setPostProcess(post);

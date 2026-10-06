@@ -81,7 +81,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
       last picture unevenly on a 120 Hz FIFO swapchain, so the game looked as if it sped up and
       slowed down. Frame rates above 60 now need `Capabilities::frameGeneration` (set for
       paraLLEl-GS only), so the row is hidden and the setting ignored on the hardware GS.
-      Re-enable when the hardware GS gets frame generation (#25).
+      Re-enabled 2026-10-06: the hardware GS renders shadow frames now (#25).
 - [x] **Audio crackles.** The SPU2 runs on the guest clock and the device on its own (about 0.02%
       apart on the Thor), so the queue grew until the 200 ms cap dropped frames. The callback now
       plays the queue slightly faster or slower (linear interpolation, -0.5% to +1%) to hold it
@@ -126,7 +126,8 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 
 ### 3. Hardware GS completion (#24, #25, #27)
 - [x] UI mask on the hardware GS (post-processing spares the HUD); the map layer for dual screen.
-- [ ] Parity features still to do: motion vectors and depth (TAA, MetalFX temporal), frame generation.
+- [x] Parity features: motion vectors and depth (TAA, MetalFX temporal), frame generation
+      (re-rendered shadow frames; 60 fps at 120 Hz on the Thor).
   - [x] Motion vectors on the hardware GS (TAA): per-vertex motion on GSVertex, an RG16F attachment
         written by unblended and As/1-As draws; matches paraLLEl-GS's field (`RT_SHOW_MOTION=1`).
   - [x] Depth on the hardware GS (a snapshot where the HUD starts, raw GS Z, as paraLLEl-GS's).
@@ -137,7 +138,9 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
         frame and camera jitter in the buffer on display (the GS thread may be a frame ahead), a
         repeated picture isn't processed again, and missed pictures scale the motion (the signs
         doubled vertically before).
-  - [ ] Arm ASR (temporal, FSR 2-derived compute passes).
+  - [x] Arm ASR (temporal, FSR 2-derived): Options > Upscaling on Android and PC (either GS);
+        60 fps in a Thor race at 81% GPU. paraLLEl-GS's depth and motion now also come from the
+        frame on display.
   - [ ] Arm NSS: only on Mali GPUs with neural accelerators (not testable on the Thor).
 - [ ] Image parity with paraLLEl-GS: the hw suite runs in 6 min against 21; its golden mismatches
       are expected and should shrink. A/B tool (`scripts/hwgs_ab.py`, planned).

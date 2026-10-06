@@ -73,6 +73,11 @@ namespace rt::debug
         const long tenths = readNumber("/sys/class/power_supply/battery/temp");
         s.batteryC = tenths > 0 ? tenths / 10.0 : -1.0;
 #endif
+        // RT_PERF_LOG=1: every window to the log (measurements over a whole run).
+        static const bool log = [] { const char *e = std::getenv("RT_PERF_LOG"); return e && *e == '1'; }();
+        if (log)
+            std::fprintf(stderr, "[perf] %.1f fps, worst %.1f ms, VU1 %.0f%%, GS %.0f%%, CPU %.0f%%, GPU %d%% at %d MHz\n", s.fps,
+                         s.worstFrameMs, s.vu1Busy, s.gsBusy, s.appCpu, s.gpuBusy, s.gpuMHz);
         g_stats = s;
         windowStart = now;
         windowFlips = flips;

@@ -87,6 +87,11 @@ namespace rt::settings
         case Upscaler::Fsr1:
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::ArmAsr:
+            if (c.os == Os::MacOS)
+                return no("Arm ASR is for Android and PC GPUs");
+            if (c.postProcess && !c.temporalInputs)
+                return no("Needs the GS's motion vectors and depth");
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::Fsr3:
         default:
             return later();
@@ -113,7 +118,7 @@ namespace rt::settings
         // Without generated frames the extra presents only repeat the last picture, unevenly on a
         // FIFO swapchain (the game looks as if it speeds up and slows down).
         if (!c.frameGeneration)
-            return no("Needs the paraLLEl-GS renderer");
+            return no("Needs a GPU renderer");
         if (hz % 60 != 0)
             return no("Not a whole multiple of the game's 60 Hz");
         if (hz > c.displayRefresh)

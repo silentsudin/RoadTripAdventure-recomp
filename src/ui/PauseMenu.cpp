@@ -384,16 +384,16 @@ namespace rt::ui
                 {
                     packs.clear();
                     std::error_code ec;
-                    for (const auto &e : std::filesystem::directory_iterator(rt::paths::dataRoot() / "textures" / "packs", ec))
+                    for (const auto &e : std::filesystem::directory_iterator(rt::paths::texturesDir() / "packs", ec))
                         if (e.is_directory())
                             packs.push_back(e.path().filename().string());
                     std::sort(packs.begin(), packs.end());
                     scannedAt = nowMs;
                 }
-                const auto packsDir = rt::paths::dataRoot() / "textures" / "packs";
+                const auto packsDir = rt::paths::texturesDir() / "packs";
                 const bool missing = !s.texturePack.empty() && indexOf(packs, s.texturePack) < 0;
                 std::string hint = packs.empty() && s.texturePack.empty()
-                                       ? "None installed. Add pack folders to " + packsDir.string()
+                                       ? "None installed. Add pack folders to " + rt::paths::displayPath(packsDir)
                                        : "Swap the game's textures for a high-detail pack. Pick None to see the original.";
                 // Proof the pack is doing something: how much of it the game has drawn so far.
                 if (!s.texturePack.empty() && !missing)
@@ -449,13 +449,14 @@ namespace rt::ui
             if (availability(capabilities(), Upscaler::Fsr1).ok)
             {
                 static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1, Upscaler::SnapdragonGsr1,
-                                                          Upscaler::SnapdragonGsr2, Upscaler::MetalFxSpatial,
+                                                          Upscaler::SnapdragonGsr2, Upscaler::ArmAsr, Upscaler::MetalFxSpatial,
                                                           Upscaler::MetalFxTemporal};
                 rows.push_back({"Upscaling",
                                 [&s] {
                                     return std::string(s.upscaler == Upscaler::Fsr1             ? "AMD FSR 1"
                                                        : s.upscaler == Upscaler::SnapdragonGsr1 ? "Snapdragon GSR 1"
                                                        : s.upscaler == Upscaler::SnapdragonGsr2 ? "Snapdragon GSR 2"
+                                                       : s.upscaler == Upscaler::ArmAsr         ? "Arm ASR"
                                                        : s.upscaler == Upscaler::MetalFxSpatial ? "MetalFX spatial"
                                                        : s.upscaler == Upscaler::MetalFxTemporal ? "MetalFX temporal"
                                                                                                 : "Bilinear");
@@ -466,10 +467,10 @@ namespace rt::ui
                                     while (!availability(capabilities(), s.upscaler).ok);
                                     changed();
                                 },
-                                {}, "How the picture is scaled up to the window. FSR 1, Snapdragon GSR and MetalFX keep edges sharp; GSR 2 and "
-                                "MetalFX temporal also smooth them over frames, using the game's motion.",
+                                {}, "How the picture is scaled up to the window. FSR 1, Snapdragon GSR and MetalFX keep edges sharp; GSR 2, "
+                                "Arm ASR and MetalFX temporal also smooth them over frames, using the game's motion.",
                                 false, true});
-                if (s.upscaler == Upscaler::Fsr1 || s.upscaler == Upscaler::SnapdragonGsr2)
+                if (s.upscaler == Upscaler::Fsr1 || s.upscaler == Upscaler::SnapdragonGsr2 || s.upscaler == Upscaler::ArmAsr)
                     rows.push_back({"Sharpening", [&s] { return std::to_string(static_cast<int>(std::lround(s.sharpness * 100))) + "%"; },
                                     [&s](int d) {
                                         s.sharpness = std::clamp(std::round(s.sharpness * 10.0f + d) / 10.0f, 0.0f, 1.0f);

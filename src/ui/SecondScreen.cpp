@@ -161,7 +161,7 @@ namespace rt::ui
             if (!inset) // the margin below widens the shown part
             {
                 const float bw = std::max(1.0f, (uv[2] - uv[0]) * 640.0f), bh = std::max(1.0f, (uv[3] - uv[1]) * 224.0f);
-                aspect *= ((bw + 12.0f) / bw) / ((bh + 6.0f) / bh);
+                aspect *= ((bw + 4.0f) / bw) / ((bh + 2.0f) / bh);
             }
             const float rim = th::px(6);
             const float w = max.x - min.x - rim * 2, h = max.y - min.y - rim * 2;
@@ -173,9 +173,9 @@ namespace rt::ui
                         th::px(12), 0, th::px(3));
             // Inside the rim's rounded corners; the town map a field pixel in from its box (the
             // game's bezel and scissor edge show there; a race map's box is its own extent).
-            // A race map's box is the track's own extent: leave it a margin of the layer's
-            // background (6 field pixels across, 3 lines down) so the track never meets the rim.
-            const float du = inset ? 1.0f / 640.0f : -6.0f / 640.0f, dv = inset ? 1.0f / 224.0f : -3.0f / 224.0f;
+            // A race map's box is the track's extent plus 4 GS pixels (fixed for the race by the
+            // GS); a little more of the layer's background keeps the track off the rim.
+            const float du = inset ? 1.0f / 640.0f : -2.0f / 640.0f, dv = inset ? 1.0f / 224.0f : -1.0f / 224.0f;
             dl->AddImageRounded(static_cast<ImTextureID>(ps2x::HostPresenter::kMapTexture), a, b, ImVec2(uv[0] + du, uv[1] + dv),
                                 ImVec2(uv[2] - du, uv[3] - dv), IM_COL32_WHITE, th::px(12));
             if (placed)

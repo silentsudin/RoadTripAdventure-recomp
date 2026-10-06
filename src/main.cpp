@@ -452,7 +452,7 @@ namespace
             {
                 runtime.gs().setRasterBackend(std::move(backend));
                 rt::settings::setGsControl(control);
-                rt::settings::capabilities().frameGeneration = false; // no shadow frames (yet)
+                rt::settings::capabilities().frameGeneration = true; // re-rendered shadow frames
                 rt::settings::capabilities().motionVectors = true;  // TAA
                 rt::settings::capabilities().temporalInputs = true; // and depth: MetalFX temporal, temporal upscalers
                 return;
