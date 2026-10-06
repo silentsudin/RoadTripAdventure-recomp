@@ -220,6 +220,8 @@ course_names = 0x2BE398      # u32[] name pointers by course byte
 scene3d_active = 0x3356C4    # 2 while the town/race 3D scene runs (pause menu too), else 1 (confirmed)
 scene3d_handler = 0x3356D8   # 0x21CE48 race, 0x21CF80 town (confirmed)
 ui_context = 0x3356CC        # 0x29AFA0 at the title/main menu: the progress block is stale there
+game_mode = 0x33590A          # u8: 0 Adventure, 1 Quick Race, 2/3/6 2 Player, 8 attract demo (set only by the demo task
+                              # 0x20A150; stays 8 at the title after a demo until a mode is picked)
 drive_flags = 0x335928       # bits: 0x04 can drive, 0x20 racing, 0x08 finished; 0x10000 hides the HUD
 
 [race.live]

@@ -90,6 +90,8 @@ namespace
         // The hardware GS: post-processing, but no motion vectors yet (no TAA).
         thor.postProcess = true;
         CHECK(availability(thor, AntiAliasing::Fxaa).ok);
+        CHECK(availability(thor, Upscaler::SnapdragonGsr1).ok);
+        CHECK(!availability(thor, Upscaler::SnapdragonGsr2).ok); // temporal: later
         CHECK(availability(thor, AntiAliasing::Taa).reason.find("motion") != std::string::npos);
 
         Capabilities rtx;

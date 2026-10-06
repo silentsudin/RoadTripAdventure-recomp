@@ -29,6 +29,7 @@ namespace rt::game
         int townsVisited = 0;   // of 10 (My Garage .. My City)
         int mail = 0, unreadMail = 0;
         // Driving in a town (live): which, the time of day, houses there not visited yet.
+        bool demo = false;   // the attract demo (or the title after it): nothing of the player's
         bool inTown = false; // or the field areas between towns
         int town = 0;        // location: 1..9 towns, 10..21 field areas
         int tile = 0;        // the map tile the car is in (FLD tile code)

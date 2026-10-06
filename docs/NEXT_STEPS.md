@@ -128,7 +128,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [x] UI mask on the hardware GS (post-processing spares the HUD); the map layer for dual screen.
 - [ ] Parity features still to do: motion vectors and depth (TAA, MetalFX temporal), frame generation.
 - [ ] Mobile upscalers (shown greyed "later" in Options today):
-  - [ ] Snapdragon GSR 1 (spatial, single pass): no game inputs needed; works on either GS.
+  - [x] Snapdragon GSR 1 (spatial, single pass): Options > Upscaling on Android (either GS).
   - [ ] Snapdragon GSR 2 and Arm ASR (temporal): colour, depth, motion vectors and jitter; after the
         hardware GS's motion vectors (paraLLEl-GS has them already).
   - [ ] Arm NSS: only on Mali GPUs with neural accelerators (not testable on the Thor).

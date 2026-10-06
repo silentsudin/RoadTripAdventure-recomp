@@ -33,6 +33,7 @@ namespace rt::game
         constexpr uint32_t kRaceHandler = 0x0021CE48, kTownHandler = 0x0021CF80, kTitleContext = 0x0029AFA0;
         constexpr uint32_t kLocationNow = 0x00335923, kClock = 0x00335914, kUnvisitedDoors = 0xBD8;
         constexpr uint32_t kPhotosTaken = 0x508, kMapMode = 0x0177A215;
+        constexpr uint32_t kGameMode = 0x0033590A; // u8: 0 Adventure, 1 Quick Race, 2/3/6 2 Player, 8 attract demo
         constexpr uint32_t kDoorTable = 0x002C0698, kNpcNames = 0x002A7ED0, kLocations = 0x002BE438, kTile = 0x00335954;
         constexpr int kDoorLocations = 24;
         // New-game unvisited_doors masks ([houses] initial_unvisited): a door is a house to visit
@@ -106,8 +107,11 @@ namespace rt::game
         const uint32_t scene = at<uint32_t>(p, kScene);
         s.adventure = scene != 0 && at<uint32_t>(ram, kUiContext) != kTitleContext && !s.playerName.empty() && s.licence <= 3;
 
-        // Driving: the 3D scene running with the town or the race handler.
-        const bool scene3d = at<uint32_t>(ram, kScene3D) == 2;
+        // Driving: the 3D scene running with the town or the race handler, in a game of the
+        // player's (not the attract demo, mode 8; the scene values stay stale at the title after
+        // it, and after quitting to the title, so the title's own context rules them out too).
+        s.demo = ram[kGameMode] == 8;
+        const bool scene3d = at<uint32_t>(ram, kScene3D) == 2 && !s.demo && at<uint32_t>(ram, kUiContext) != kTitleContext;
         s.inTown = scene3d && at<uint32_t>(ram, kScene3DHandler) == kTownHandler && s.adventure;
         if (s.inTown)
         {

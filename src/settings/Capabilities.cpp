@@ -59,6 +59,9 @@ namespace rt::settings
                 return no("Needs the paraLLEl-GS renderer (motion vectors)");
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::SnapdragonGsr1:
+            if (c.os == Os::MacOS)
+                return no("Snapdragon GSR is for Android and PC GPUs");
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::SnapdragonGsr2:
             if (c.os == Os::MacOS)
                 return no("Snapdragon GSR is for Android and PC GPUs");

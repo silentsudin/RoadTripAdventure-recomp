@@ -142,7 +142,7 @@ namespace rt::ui
         // ---- the map ----
 
         // The game's own map (drawn apart from the picture by the hardware GS, without its bezel),
-        // as large as fits, sampled nearest, in a gold plate rim. Returns where it went.
+        // as large as fits (its layer is drawn at 4x, sampled smoothly), in a gold plate rim.
         // Where the map went on screen (for markers).
         struct MapPlacement
         {
@@ -667,7 +667,8 @@ namespace rt::ui
             ps2x::HostPresenter &presenter = *runtime.presenter();
             const rt::game::Stats st = rt::game::readStats(runtime);
             float uv[4], aspect;
-            const bool haveMap = presenter.mapRegion(uv, aspect);
+            // The attract demo leaves both screens alone: its map stays on top.
+            const bool haveMap = !st.demo && presenter.mapRegion(uv, aspect);
             const float now = static_cast<float>(ImGui::GetTime());
 
             // A stamp earned just now (one new bit; loading a save changes many): show it.
@@ -693,14 +694,19 @@ namespace rt::ui
                 seenValid = false;
             const bool showingNewStamp = now - g_newStampAt < 3.5f;
 
-            // The page follows the game (the map while driving or racing), unless a tap chose.
+            // The page follows the game (the map while driving or racing), unless a tap chose. A
+            // change of context has to hold for a moment first: cuts and loads don't flash pages.
             const Page wanted = haveMap || st.racing ? Page::Map : Page::Notebook;
-            if (wanted != g_auto)
-                g_auto = wanted, g_overridden = false;
+            static Page candidate = Page::Notebook;
+            static float candidateSince = 0;
+            if (wanted != candidate)
+                candidate = wanted, candidateSince = now;
+            if (candidate != g_auto && now - candidateSince > 0.75f)
+                g_auto = candidate, g_overridden = false;
             // The new stamp takes the screen for a moment, whatever was on it (the map stays down).
             const Page page = showingNewStamp ? Page::Notebook : g_overridden ? g_chosen : g_auto;
             // Keep the map on the second screen unless the player chose the notebook over it.
-            presenter.setWantMap(!(g_overridden && g_chosen == Page::Notebook));
+            presenter.setWantMap(!st.demo && !(g_overridden && g_chosen == Page::Notebook));
 
             const float pad = th::px(24), rowH = th::px(84);
             const ImVec2 pmin(pad, pad + rowH), pmax(size.x - pad, size.y - pad);

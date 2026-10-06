@@ -85,7 +85,7 @@
   - `RT_PRESENTER=raylib` (also the default with `RT_GS_BACKEND=cpu`) uses raylib/OpenGL, which reads the picture back every frame;
   - perf numbers are in `build/scratch/perf/vulkan2.md`: half the main-thread CPU, 60 fps held;
   - post-processing (Vulkan presenter only):
-    - FXAA, SMAA, AMD FSR 1 and MetalFX spatial, in `gs_pgs_presenter.cpp`;
+    - FXAA, SMAA, AMD FSR 1, Snapdragon GSR 1 (Android and PC: `post/sgsr1.frag`, Qualcomm's single-pass shader, BSD-3, `post/sgsr/LICENSE`) and MetalFX spatial, in `gs_pgs_presenter.cpp`;
     - the shaders are in `src/lib/gs/post` on the fork; rebuild `post_spirv.h` with its `compile.py` (needs glslc);
   - temporal inputs from the game:
     - **depth** is the GS's Z scanout, snapshotted where the 3D ends;
