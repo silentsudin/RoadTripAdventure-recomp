@@ -23,8 +23,13 @@ pause returns or throws to `EeScheduler::run()`. At the top of `run()` (after
 - Snapshots only at the scheduler loop top, after a vblank's events; postponed a few frames while
   something can't be saved (untagged continuation, movies/MPEG, a memory card operation, a PATH3
   FIFO or half-done GS transfer).
-- States are tied to the build (ELF CRC 0x5A49851D, SDK build id, function-table hash). Memory card
-  saves stay the durable format.
+- States survive app updates where they can (decided 2026-10-06): a state holds only guest-level
+  state (RAM, registers, guest PCs: recompiled code resumes at guest addresses) and host emulation
+  state written field by field, so it is tied to the game (ELF CRC 0x5A49851D), not to the build.
+  Every chunk has its own version; loaders keep reading older versions when a change is additive,
+  and only an incompatible change makes old states unloadable. The menu then says so plainly
+  ("made by an older version"; memory card saves are unaffected). A test (planned) is to load a state made by an
+  older build. Memory card saves stay the durable format.
 
 ## Contents and difficulty
 

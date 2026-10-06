@@ -148,9 +148,8 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
       `RT_GS_BACKEND=hw`. Tidy and close #27.
 
 ### 4. Performance follow-ups
-- [ ] **#29 VU1 code generation for the course carousel (`entry4`):** profile by node (vu1_replay
-      on a carousel capture on the Mac, or simpleperf with debug info) and improve the generator.
-      Verify with vu1_replay bit-exactness.
+- [x] **#29 VU1 code generation for the course carousel (`entry4`), done 2026-10-06:** cached registers and proven clamps; entry4 39% cheaper, carousel at 60 on the Thor (VU1 49%).
+      Bit-exact in vu1_replay on every capture and fuzzed inputs.
 - [ ] **#23 Front-end batching:** partly done through draw-state serials.
 - [ ] IOP/SPU2 costs on the game thread (interpreter): move them to their own thread, or recompile.
 
