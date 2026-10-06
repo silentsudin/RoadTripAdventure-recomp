@@ -16,4 +16,5 @@ namespace rt::ui
     void menuShotAfterFrame(); // after the ImGui frame is rendered (RT_MENU_SHOT)
     bool pauseMenuOpen();
     void togglePauseMenu();    // as Guide does (the second screen's Menu button)
+    void openSoundOptions();   // the Options page at its Sound rows (the game's Title > Options)
 }

@@ -94,7 +94,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [ ] Commit and push the lifecycle work if the last session didn't (see "Picking up").
 - [x] Pause and resume with the in-game menu open: the game stays paused under the menu.
 - [x] Android back button: opens our in-game menu (the manifest traps it; AC_BACK toggles the menu).
-- [ ] Pause and resume during a loading screen.
+- [x] Pause and resume during a loading screen (checked on the Thor: the race starts normally after).
 - [ ] Measure battery drain over Wi-Fi adb (`adb tcpip 5555`, then unplug; `current_now` reads 0
       while charging). Compare in-game, background, and ADPF on/off.
 - [ ] Optional: suspend the GS/VU1 worker threads explicitly while away. They idle at 0% already,
@@ -121,11 +121,17 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
   - [x] Stamp earned / new best lap moments; map layer at 4x; clock at 150 vblanks a minute.
   - [x] Town map marks: Q's Factory, shops, Quick-Pic Shops not used, houses not visited; photos counters.
   - [ ] Field areas between towns (locations 10..21): check the minimap projection there.
-- [ ] **#21 Replace the game's Options menu** with ours.
+- [x] **#21 Replace the game's Options menu** with ours: Title > Options opens our menu at its
+      Sound rows (Volume, Speaker, Vibration), saved in settings.toml (the game never saved them).
 
 ### 3. Hardware GS completion (#24, #25, #27)
-- [ ] Parity features: the UI mask (post-processing skips the HUD), motion vectors for TAA and
-      MetalFX temporal, frame generation, and the minimap mask for dual screen.
+- [x] UI mask on the hardware GS (post-processing spares the HUD); the map layer for dual screen.
+- [ ] Parity features still to do: motion vectors and depth (TAA, MetalFX temporal), frame generation.
+- [ ] Mobile upscalers (shown greyed "later" in Options today):
+  - [ ] Snapdragon GSR 1 (spatial, single pass): no game inputs needed; works on either GS.
+  - [ ] Snapdragon GSR 2 and Arm ASR (temporal): colour, depth, motion vectors and jitter; after the
+        hardware GS's motion vectors (paraLLEl-GS has them already).
+  - [ ] Arm NSS: only on Mali GPUs with neural accelerators (not testable on the Thor).
 - [ ] Image parity with paraLLEl-GS: the hw suite runs in 6 min against 21; its golden mismatches
       are expected and should shrink. A/B tool (`scripts/hwgs_ab.py`, planned).
 - [ ] Texture packs on the hardware GS already pass `test_texture_pack*` with
@@ -138,24 +144,10 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [ ] **#23 Front-end batching:** partly done through draw-state serials.
 - [ ] IOP/SPU2 costs on the game thread (interpreter): move them to their own thread, or recompile.
 
-### 5. Save states (#28), feasibility first
-A static recomp keeps guest thread state in native call stacks, so whole-machine snapshots aren't
-free (the regression "checkpoints" are memory-card copies, not snapshots).
-- [ ] Study: where Road Trip's threads idle (vsync waits, the kernel scheduler), and whether every
-      live native frame at such points can be rebuilt from guest state.
-- [ ] Study: what must be serialized: EE RAM, scratchpad, VU0/VU1 memory and registers, GS memory
-      and registers, IOP RAM and SPU2, DMA and timers, the kernel's thread table, file handles.
-- [ ] If feasible: save and load at quiescent points, slots with thumbnails in the in-game menu,
-      and suspend-to-disk on Android background.
-
-## Useful commands and facts
-- Thor measurement: `scripts/android/measure.py io.github.roadtrip.recomp 12` gives clock-weighted
-  CPU and GPU.
-- Frame-rate log: `RT_SHOW_FPS=1`, an `[fps]` line every 2 s with VU1 and GS busy %.
-- Quick Race by script: `RT_INPUT_SCRIPT=10:start,13:down,15:cross,...` (see the agent memory
-  `game-navigation`).
-- Profiling on the Thor: `adb shell simpleperf record --app io.github.roadtrip.recomp -t <tid> ...`
-  (add `--call-graph dwarf` to unwind through libc).
-- The Thor's own CHD: `/storage/3639-3330/roms/ps2/Road Trip (USA).chd` (the SD card is labelled
-  "ayn_thor" in the picker).
-- Test hooks: `RT_REBUILD_GAME=1`, `RT_SETUP_TEST_FAIL=1`, `RT_PERF_HINT=0`.
+### 5. Save states (#28)
+- [x] Feasibility study: doable with restrictions, no redesign (guest threads are resumable
+      contexts, not native stacks). Plan, risks, effort (20-25 agent-days; Mac MVP 12-15) and
+      tests in `docs/save-states.md`.
+- [ ] Spike A: how often a vblank can be saved (`canSnapshot()` reasons over race/town movies).
+- [ ] Spike B: same-process save -> run -> restore -> run, hash equality over 600 vblanks.
+- [ ] Then the MVP (Mac, CPU GS + paraLLEl-GS), the hardware GS, Android, the menu slots.

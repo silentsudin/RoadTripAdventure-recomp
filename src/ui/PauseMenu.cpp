@@ -322,6 +322,18 @@ namespace rt::ui
                                 [&s](int) { s.secondScreen = !s.secondScreen; changed(); }, {},
                                 "The lower screen shows the map, your race place, journey and stamps. Off gives it back to "
                                 "Android."});
+            rows.push_back(heading("Sound"));
+            rows.push_back({"Volume", [&s] { return percent(s.volume); },
+                            [&s](int d) {
+                                s.volume = std::clamp(std::round(s.volume * 10.0f + d) / 10.0f, 0.0f, 1.0f);
+                                changed();
+                            },
+                            {}, "Everything the game plays: music, radio and effects."});
+            rows.push_back({"Speaker", [&s] { return std::string(s.mono ? "Mono" : "Stereo"); },
+                            [&s](int) { s.mono = !s.mono; changed(); }, {}, "Mono plays both channels from every speaker."});
+            rows.push_back({"Vibration", [&s] { return std::string(s.vibration ? "On" : "Off"); },
+                            [&s](int) { s.vibration = !s.vibration; changed(); }, {},
+                            "The game's rumble. How strongly each controller rumbles is set on the Controllers page."});
             rows.push_back(heading("Graphics"));
             static const std::vector<int> levels = {1, 2, 4, 8, 16};
             rows.push_back({"Supersampling (SSAA)",
@@ -716,6 +728,15 @@ namespace rt::ui
     }
 
     bool pauseMenuOpen() { return g_page != Page::Closed; }
+
+    void openSoundOptions()
+    {
+        open(Page::Options);
+        const auto rows = optionRows();
+        for (size_t i = 0; i < rows.size(); ++i)
+            if (std::string(rows[i].label) == "Volume")
+                g_selected = static_cast<int>(i);
+    }
 
     void togglePauseMenu()
     {

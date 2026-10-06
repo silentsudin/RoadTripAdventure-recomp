@@ -9,6 +9,7 @@
 #include <SDL3/SDL.h>
 #include "ps2_runtime.h"
 #include "runtime/gs/gs_pgs_backend.h"
+#include "runtime/ps2_audio_suspend.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -162,5 +163,6 @@ namespace rt::settings
         applyGraphics();
         applyAspect();
         rt::seconddisplay::setEnabled(current().secondScreen);
+        ps2AudioOutSetMix(current().volume, current().mono);
     }
 }

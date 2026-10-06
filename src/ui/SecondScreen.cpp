@@ -321,7 +321,7 @@ namespace rt::ui
             if (now - bestAt < 2.5f)
             {
                 const float top = y - th::px(8), bottom = y + body() * 1.1f + th::px(60) + th::px(12);
-                dl->AddRectFilled(ImVec2(x - th::px(12), top), ImVec2(x + w, bottom), IM_COL32(0xF8, 0xC8, 0x38, flash ? 0x50 : 0x20), th::px(14));
+                dl->AddRectFilled(ImVec2(x - th::px(12), top), ImVec2(x + w, bottom), IM_COL32(0xF8, 0xC8, 0x38, flash ? 0xA0 : 0x50), th::px(14));
             }
             stat(dl, x, y, w, now - bestAt < 2.5f ? "New best lap!" : "Best lap",
                  st.bestLapFrames ? rt::game::raceTime(st.bestLapFrames) : "--'--\"--", flash ? c::Value : kGold);
@@ -337,9 +337,9 @@ namespace rt::ui
             } restore;
             const float each = body() * 1.1f + th::px(g_statSize) + th::px(18); // one stat's height
             for (const auto &pl : places)
-                if (pl.kind == rt::game::Place::Kind::PhotoBooth)
+                if (pl.here && pl.kind == rt::game::Place::Kind::PhotoBooth)
                     ++st.townPhotos, st.townPhotosTaken += pl.done;
-            y = columnHeading(dl, x, y, w, rt::game::townName(st.town));
+            y = columnHeading(dl, x, y, w, st.townLabel);
             char clock[16];
             std::snprintf(clock, sizeof(clock), "%d:%02d %s", st.hour % 12 == 0 ? 12 : st.hour % 12, st.minute, st.hour < 12 ? "am" : "pm");
             // As many as fit, most useful first.
@@ -598,7 +598,7 @@ namespace rt::ui
         // the song (when we know it). Glows gold for a moment when the song changes.
         void nowPlayingStrip(ImDrawList *dl, ImVec2 min, ImVec2 max, const rt::game::NowPlaying &np)
         {
-            const std::string song = np.title.empty() ? std::string() : np.title + "  \xE2\x80\x94  " + np.artist;
+            const std::string song = np.title.empty() ? np.artist : np.title + "  \xE2\x80\x94  " + np.artist;
             const float now = static_cast<float>(ImGui::GetTime());
             if (np.station + song != g_lastSong)
                 g_lastSong = np.station + song, g_songChangedAt = now;
@@ -756,13 +756,13 @@ namespace rt::ui
             const bool drawn =
                 drawMap(dl, cmin, ImVec2(column ? cmax.x - colW - th::px(24) : cmax.x, cmax.y), presenter, !column, &mapEnd, !st.racing, &where);
             // The town's buildings, once per town (the tables don't change).
-            static int placesTown = -1;
+            static int placesTile = -1;
             static std::vector<rt::game::Place> places;
             static float placesAt = 0;
-            if (st.inTown && (st.town != placesTown || now - placesAt > 1.0f)) // done-ness changes as you play
+            if (st.inTown && (st.tile != placesTile || now - placesAt > 1.0f)) // done-ness changes as you play
             {
-                places = rt::game::townPlaces(runtime, st.town);
-                placesTown = st.town;
+                places = rt::game::placesAround(runtime, st);
+                placesTile = st.tile;
                 placesAt = now;
             }
             if (drawn && st.inTown)

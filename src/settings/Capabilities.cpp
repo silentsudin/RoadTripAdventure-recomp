@@ -55,6 +55,8 @@ namespace rt::settings
         case Upscaler::MetalFxTemporal:
             if (c.os != Os::MacOS)
                 return no("MetalFX is Apple's: macOS only");
+            if (c.postProcess && !c.temporalInputs)
+                return no("Needs the paraLLEl-GS renderer (motion vectors)");
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::SnapdragonGsr1:
         case Upscaler::SnapdragonGsr2:
@@ -90,6 +92,8 @@ namespace rt::settings
     {
         if (a == AntiAliasing::None)
             return {};
+        if (a == AntiAliasing::Taa && c.postProcess && !c.temporalInputs)
+            return no("Needs the paraLLEl-GS renderer (motion vectors)");
         if (a == AntiAliasing::Fxaa || a == AntiAliasing::Smaa || a == AntiAliasing::Taa)
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         return later();

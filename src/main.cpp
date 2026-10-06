@@ -43,6 +43,7 @@
 #include "rlImGui.h"
 #include "ui/ButtonGlyphs.h"
 #include "ui/SecondScreen.h"
+#include "game/GameOptions.h"
 #include "ui/PauseMenu.h"
 #include "ui/PerfOverlay.h"
 #include "ui/SetupScreen.h"
@@ -469,6 +470,7 @@ namespace
             runtime.gs().setRasterBackend(std::move(backend));
             rt::settings::setGsControl(control);
             rt::settings::capabilities().frameGeneration = true;
+            rt::settings::capabilities().temporalInputs = true;
         }
         else
             std::cerr << "[gs] Vulkan GS unavailable (" << error << "); using CPU backend\n";
@@ -656,6 +658,9 @@ int main(int argc, char *argv[])
 #if defined(PS2X_ENABLE_DEBUG_UI)
                 // One ImGui frame for the debug panel (F1) and the in-game menu.
                 auto &panel = static_cast<UiHooks *>(user)->panel;
+                rt::game::applyGameOptions(rt); // the game's vibration switch follows our setting
+                if (rt::game::takeOptionsRequest())
+                    rt::ui::openSoundOptions(); // Title > Options: ours, at its Sound rows
                 rt::ui::updatePauseMenu(); // Guide, Back+Start, Esc or F3: the in-game menu (pauses the game)
                 rt::ui::updateButtonGlyphs(); // the game's button glyphs for the pad in use
                 if (rt::host::keyPressed(SDL_SCANCODE_F1))

@@ -106,6 +106,7 @@ set(RT_APP_SOURCES
     src/game/GameBuilder.cpp
     src/game/overrides.cpp
     src/game/GameStats.cpp
+    src/game/GameOptions.cpp
     src/platform/Paths.cpp
     src/platform/input/Config.cpp
     src/platform/input/Devices.cpp

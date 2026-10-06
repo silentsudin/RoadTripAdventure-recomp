@@ -170,6 +170,9 @@ class Game:
             # The original interlaced fields at 4x: goldens and state hashes record the game as is.
             "RT_PROGRESSIVE_FIELDS": "0",
             "RT_GS_SSAA": "4",
+            # The game's own Title > Options screens (test_menus checks them); the app's
+            # replacement is tested with this off (test_options_replaced).
+            "RT_GAME_OPTIONS": "1",
         })
         if self.state_hash:
             env["RT_STATE_HASH"] = str(self.work_dir / "state_hash.txt")
@@ -358,6 +361,11 @@ class Game:
         path = self.work_dir / "frame.rgba"
         reply = self._call("frame", path=str(path))
         return Frame(reply["width"], reply["height"], path.read_bytes())
+
+    def log_text(self) -> str:
+        """What the app has logged so far (stdout and stderr)."""
+        self.log.flush()
+        return (self.work_dir / "app.log").read_text(errors="replace")
 
     def stats(self) -> dict:
         return self._call("stats")

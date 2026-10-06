@@ -240,3 +240,18 @@ iop_muwork = 0x54788         # 48 x 28 bytes; byte 0 = active voice
 file_table = 0x29ADF0        # 12-byte {name, lsn, sectors}
 play_bgm = 0x258EC8          # a0 = 0x0A ff ss nn (file, slot, song)
 race_bgm_table = 0x29F5B0    # 18 codes by course id
+
+[options]
+# Title > Options (Vibration / Speaker / Sound Volume / Exit): never saved; game defaults at every boot.
+vibration = 0x33590E          # u8: 4 On, 0 Off, 2 "ANALOG mode button" (default); rumble gate sys[0xC+port] & this (0x20ACB8)
+volume_index = 0x333290       # u32 0..5: 0 = "5(MAX)" (default) .. 5 = "0(mute)"; applied by 0x2583F0 (SPU2 core 1 MVOL)
+speaker_set = 0x257B00        # a0: 0 Stereo (default), 1 Mono (SNDMOD RPC 8); IOP u8 0x97CB0 = the mono flag
+options_task = 0x2092D8       # started only by the title main menu 0x209CB0
+sub_tasks = { vibration = 0x208C98, speaker = 0x208F50, volume = 0x2090C0 }
+
+[tasks]
+pool = 0x177A0D0              # 0x30 tasks x 0x30 bytes: +0 active, +4 result to parent, +8 frames run, +0xC fn(task, sys),
+                              # +0x10 first child, +0x14 sibling, +0x18 parent, +0x24 child-returned pulse, +0x28 widget
+walker = 0x204F98             # main loop 0x200534: walker(pool, 0x335900)
+spawn = 0x204C48              # (parent, fn, arg) -> task
+kill = 0x204DE8               # (task)

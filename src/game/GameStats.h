@@ -29,8 +29,10 @@ namespace rt::game
         int townsVisited = 0;   // of 10 (My Garage .. My City)
         int mail = 0, unreadMail = 0;
         // Driving in a town (live): which, the time of day, houses there not visited yet.
-        bool inTown = false;
-        int town = 0;
+        bool inTown = false; // or the field areas between towns
+        int town = 0;        // location: 1..9 towns, 10..21 field areas
+        int tile = 0;        // the map tile the car is in (FLD tile code)
+        std::string townLabel;
         int hour = 0, minute = 0;
         int housesLeft = 0;
         int photos = 0;                     // Quick-Pic Shop photos taken, of 100
@@ -76,10 +78,13 @@ namespace rt::game
         std::string name;  // the resident or shop ("Quick-Pic Shop No.5", "Kevin's mom")
         char letter = 0;   // shops: P (parts), B (body), C (colour: paint)
         int photo = 0;     // photo booths: the photo number
-        float x = 0, z = 0;
-        bool done = false; // photo taken / house visited
+        float x = 0, z = 0;   // in the current map tile's coordinates (as the car's)
+        bool done = false;    // photo taken / house visited
+        bool here = false;    // of the location we're in (the counts); else a neighbour's
     };
-    std::vector<Place> townPlaces(PS2Runtime &runtime, int town);
+    // The places around us: the location we're in and the neighbouring map tiles' (the field areas
+    // between towns are tiles of their own, with their own doors).
+    std::vector<Place> placesAround(PS2Runtime &runtime, const Stats &st);
     // Where a world point lands on the town minimap (640x224 field pixels, before widescreen).
     void mapPoint(const Stats &st, float x, float z, float &fx, float &fy);
 

@@ -126,6 +126,10 @@ namespace rt::settings
         s.menuHintShown = flag(table(root, "general"), "menu_hint_shown", s.menuHintShown);
         s.perfOverlay = pick(table(root, "general"), "performance_overlay", kPerfOverlay, s.perfOverlay);
         s.secondScreen = flag(table(root, "general"), "second_screen", s.secondScreen);
+        const toml::value &snd = table(root, "sound");
+        s.volume = std::clamp(number(snd, "volume", s.volume), 0.0f, 1.0f);
+        s.mono = flag(snd, "mono", s.mono);
+        s.vibration = flag(snd, "vibration", s.vibration);
         return s;
     }
 
@@ -159,7 +163,11 @@ namespace rt::settings
           << "performance_overlay = \"" << kPerfOverlay[static_cast<size_t>(s.perfOverlay)]
           << "\"  # off, fps, detailed (frame rate, load and temperature along the bottom)\n"
           << "second_screen = " << (s.secondScreen ? "true" : "false")
-          << "  # a second display (the AYN Thor's lower screen) shows the map and your stats\n";
+          << "  # a second display (the AYN Thor's lower screen) shows the map and your stats\n\n"
+          << "[sound]\n"
+          << "volume = " << s.volume << "  # master volume, 0 .. 1\n"
+          << "mono = " << (s.mono ? "true" : "false") << "  # speaker: false = stereo\n"
+          << "vibration = " << (s.vibration ? "true" : "false") << "  # the game's vibration switch\n";
         std::ofstream(path) << o.str();
     }
 

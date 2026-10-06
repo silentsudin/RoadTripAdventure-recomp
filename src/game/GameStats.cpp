@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cctype>
 #include <cstdlib>
 #include <fstream>
 #include <iterator>
@@ -32,11 +33,13 @@ namespace rt::game
         constexpr uint32_t kRaceHandler = 0x0021CE48, kTownHandler = 0x0021CF80, kTitleContext = 0x0029AFA0;
         constexpr uint32_t kLocationNow = 0x00335923, kClock = 0x00335914, kUnvisitedDoors = 0xBD8;
         constexpr uint32_t kPhotosTaken = 0x508, kMapMode = 0x0177A215;
-        constexpr uint32_t kDoorTable = 0x002C0698, kResidents = 0x002C22C8, kLocations = 0x002BE438;
+        constexpr uint32_t kDoorTable = 0x002C0698, kNpcNames = 0x002A7ED0, kLocations = 0x002BE438, kTile = 0x00335954;
         constexpr int kDoorLocations = 24;
         // New-game unvisited_doors masks ([houses] initial_unvisited): a door is a house to visit
         // when its bit starts set.
-        constexpr uint32_t kInitialUnvisited[10] = {0, 0x3DFFF, 0x7FBFF, 0x1FFFFF, 0xFBF, 0xF, 0xFFFFF, 0x3FFFF, 0x17F, 0x7FFFDF};
+        constexpr uint32_t kInitialUnvisited[22] = {0,   0x3DFFF, 0x7FBFF, 0x1FFFFF, 0xFBF, 0xF, 0xFFFFF, 0x3FFFF, 0x17F, 0x7FFFDF, 0xF,
+                                                    0xF, 0xF,     0x1F,    7,        0x3F,  3,   1,       1,       0xF,   1,        1};
+        constexpr int kLastLocation = 21;
         constexpr uint32_t kQuickRaceTable = 0x002BE158, kTwoPlayerTable = 0x002BE1D8;
 
         int popcount(const uint8_t *p, size_t n)
@@ -108,7 +111,25 @@ namespace rt::game
         s.inTown = scene3d && at<uint32_t>(ram, kScene3DHandler) == kTownHandler && s.adventure;
         if (s.inTown)
         {
-            s.town = std::min<int>(ram[kLocationNow], 9);
+            // Where we are: the location whose map tile the car is in (0x335923 only changes at a
+            // door), else that byte.
+            s.tile = static_cast<int>(at<uint32_t>(ram, kTile) & 0xFFFF);
+            s.town = std::min<int>(ram[kLocationNow], kLastLocation);
+            for (int l = 1; l <= kLastLocation; ++l)
+                if (at<int16_t>(ram, kLocations + 8u * l + 4) == s.tile)
+                {
+                    s.town = l;
+                    break;
+                }
+            if (s.town >= 1 && s.town <= 9)
+                s.townLabel = townName(s.town);
+            else
+            {
+                // Field areas: the game's own name when it has one (Bridge, UFO, Ruins,
+                // LightHouse); the others are named by their map tile ("022").
+                const std::string n = guestString(ram, at<uint32_t>(ram, kLocations + 8u * s.town));
+                s.townLabel = !n.empty() && !std::isdigit(static_cast<unsigned char>(n[0])) && n != "???" ? n : "On the road";
+            }
             const uint32_t minutes = at<uint32_t>(ram, kClock) / 150u; // 150 vblanks a game minute
             s.hour = static_cast<int>(minutes / 60 % 24);
             s.minute = static_cast<int>(minutes % 60);
@@ -254,15 +275,20 @@ namespace rt::game
             {2917.20f, "The Minute", "Push Kings"},           {3132.70f, "Jade", "The Waking Hours"},
             {3314.20f, "Sunday on the West Side", "Push Kings"}, {3535.95f, "The Wild Ones", "Push Kings"},
         };
-        // E-RADIO (SOUND/3CH): seventeen tracks; named where matched against Michael Walthius's MIDIs.
+        // E-RADIO (SOUND/3CH): seventeen tracks, all Michael Walthius songs arranged for the game:
+        // named from "Road Trip Adventure - The Stolen Tracks" (youtu.be/kEExb86iAiA, its chapters)
+        // and alignment with his own MIDIs (keybdwizrd.com, dongrays.com); the rest unnamed.
+        constexpr const char *kWalthius = "Michael Walthius";
         const Song kERadio[] = {
-            {0.85f, nullptr, nullptr},    {220.00f, nullptr, nullptr},  {356.20f, nullptr, nullptr},
-            {583.10f, nullptr, nullptr},  {745.50f, nullptr, nullptr},  {915.00f, nullptr, nullptr},
-            {1089.55f, "Song for My Children", "Michael Walthius"},     {1429.25f, "Echoes", "Michael Walthius"},
-            {1767.80f, nullptr, nullptr}, {1917.55f, nullptr, nullptr}, {2112.10f, nullptr, nullptr},
-            {2306.00f, nullptr, nullptr}, {2580.00f, nullptr, nullptr}, {2773.95f, nullptr, nullptr},
-            {2975.50f, nullptr, nullptr}, {3214.70f, "Pacific Coast Highway", "Michael Walthius"},
-            {3539.10f, nullptr, nullptr},
+            {0.85f, nullptr, kWalthius},                   {220.00f, nullptr, kWalthius},
+            {356.20f, "Jammin' on Sunset", kWalthius},      {583.10f, "Cyberbeat", kWalthius},
+            {745.50f, nullptr, kWalthius},                 {915.00f, nullptr, kWalthius},
+            {1089.55f, "Song for My Children", kWalthius},  {1429.25f, "Echoes", kWalthius},
+            {1767.80f, nullptr, kWalthius},                {1917.55f, nullptr, kWalthius},
+            {2112.10f, nullptr, kWalthius},                {2306.00f, "Dreaming in Stereo", kWalthius},
+            {2580.00f, "Funkengruven", kWalthius},          {2773.95f, "Nitefunk", kWalthius},
+            {2975.50f, "Incident at Dark Shores", kWalthius}, {3214.70f, "Pacific Coast Highway", kWalthius},
+            {3539.10f, nullptr, kWalthius},
         };
     }
 
@@ -287,66 +313,110 @@ namespace rt::game
         np.elapsed = std::max(0.0f, t - songs[i].start);
         np.length = end - songs[i].start;
         if (songs[i].title)
-            np.title = songs[i].title, np.artist = songs[i].artist;
+            np.title = songs[i].title;
+        if (songs[i].artist)
+            np.artist = songs[i].artist;
         return np;
     }
 
-    std::vector<Place> townPlaces(PS2Runtime &runtime, int town)
+    namespace
     {
-        std::vector<Place> places;
-        const uint8_t *ram = runtime.memory().getRDRAM();
-        if (!ram || town < 1 || town > 9)
-            return places;
-        // Door quads: a pointer per location, a list running to the next one ([doors]).
-        uint32_t table[kDoorLocations];
-        std::memcpy(table, ram + kDoorTable, sizeof(table));
-        const uint32_t start = table[town] & 0x1FFFFFFu;
-        uint32_t end = 0xFFFFFFFFu;
-        for (uint32_t t : table)
-            if ((t & 0x1FFFFFFu) > start)
-                end = std::min(end, t & 0x1FFFFFFu);
-        const int doors = std::min<int>(ram[kLocations + 8u * town + 6], end == 0xFFFFFFFFu ? 0 : static_cast<int>((end - start) / 32));
-        const uint32_t residents = at<uint32_t>(ram, kResidents + 4u * town) & 0x1FFFFFFu;
-        const uint8_t *p = ram + kProgress;
-        const uint32_t unvisited = at<uint32_t>(p, kUnvisitedDoors + 4u * town);
-        for (int j = 0; j < doors && start + 32u * (j + 1) <= 32u * 1024u * 1024u; ++j)
+        // The FLD tiles' origins (a checkerboard of 1600-unit tiles; 0x218424 / 0x218B10).
+        float tileOriginX(int t) { return static_cast<float>(t & 0xF) * 800.0f; }
+        float tileOriginZ(int t) { return static_cast<float>(((t >> 4) * 2 + (t & 1)) * 1600); }
+
+        // A location's buildings in its own tile's coordinates: door quads ([doors]) and the
+        // people or shops behind them (the NPC table at 0x2A7ED0: per location, an entry per door
+        // whose first word names it, "Q's Factory", "Quick-Pic Shop No.5").
+        std::vector<Place> placesOf(const uint8_t *ram, int loc)
         {
-            Place pl;
-            float q[8];
-            std::memcpy(q, ram + start + 32u * j, sizeof(q));
-            pl.x = (q[0] + q[2] + q[4] + q[6]) / 4;
-            pl.z = (q[1] + q[3] + q[5] + q[7]) / 4;
-            if (pl.x < 0 || pl.z < 0)
-                continue; // not placed
-            if (residents)
-                pl.name = guestString(ram, at<uint32_t>(ram, residents + 16u * j + 0xC));
-            const std::string &n = pl.name;
-            auto has = [&](const char *w) { return n.find(w) != std::string::npos; };
-            if (has("Quick-Pic"))
+            std::vector<Place> places;
+            uint32_t table[kDoorLocations];
+            std::memcpy(table, ram + kDoorTable, sizeof(table));
+            const uint32_t start = table[loc] & 0x1FFFFFFu;
+            uint32_t end = 0xFFFFFFFFu;
+            for (uint32_t t : table)
+                if ((t & 0x1FFFFFFu) > start)
+                    end = std::min(end, t & 0x1FFFFFFu);
+            const int doors = std::min<int>(ram[kLocations + 8u * loc + 6], end == 0xFFFFFFFFu ? 0 : static_cast<int>((end - start) / 32));
+            const uint32_t names = at<uint32_t>(ram, kNpcNames + 4u * loc) & 0x1FFFFFFu;
+            const uint8_t *p = ram + kProgress;
+            const uint32_t unvisited = at<uint32_t>(p, kUnvisitedDoors + 4u * loc);
+            for (int j = 0; j < doors && start + 32u * (j + 1) <= 32u * 1024u * 1024u; ++j)
             {
-                pl.kind = Place::Kind::PhotoBooth;
-                const size_t no = n.find("No");
-                pl.photo = no == std::string::npos ? 0 : std::atoi(n.c_str() + no + 3);
-                pl.done = pl.photo >= 1 && pl.photo <= 100 && (p[kPhotosTaken + (pl.photo - 1) / 8] >> ((pl.photo - 1) % 8) & 1);
+                Place pl;
+                float q[8];
+                std::memcpy(q, ram + start + 32u * j, sizeof(q));
+                pl.x = (q[0] + q[2] + q[4] + q[6]) / 4;
+                pl.z = (q[1] + q[3] + q[5] + q[7]) / 4;
+                if (pl.x < 0 || pl.z < 0)
+                    continue; // not placed
+                if (names)
+                {
+                    const uint32_t entry = at<uint32_t>(ram, names + 4u * j) & 0x1FFFFFFu;
+                    if (entry)
+                        pl.name = guestString(ram, at<uint32_t>(ram, entry));
+                }
+                const std::string &n = pl.name;
+                auto has = [&](const char *w) { return n.find(w) != std::string::npos; };
+                if (has("Quick-Pic"))
+                {
+                    pl.kind = Place::Kind::PhotoBooth;
+                    const size_t no = n.find("No");
+                    pl.photo = no == std::string::npos ? 0 : std::atoi(n.c_str() + no + 3); // "No.n" (once "No,n")
+                    pl.done = pl.photo >= 1 && pl.photo <= 100 && (p[kPhotosTaken + (pl.photo - 1) / 8] >> ((pl.photo - 1) % 8) & 1);
+                }
+                else if (has("Factory"))
+                    pl.kind = Place::Kind::Factory;
+                else if (has("Parts"))
+                    pl.kind = Place::Kind::Shop, pl.letter = 'P';
+                else if (has("Body"))
+                    pl.kind = Place::Kind::Shop, pl.letter = 'B';
+                else if (has("Paint"))
+                    pl.kind = Place::Kind::Shop, pl.letter = 'C';
+                else if (kInitialUnvisited[loc] >> j & 1)
+                {
+                    pl.kind = Place::Kind::House;
+                    pl.done = !(unvisited >> j & 1);
+                }
+                else
+                    pl.kind = Place::Kind::Other;
+                places.push_back(std::move(pl));
             }
-            else if (j == 0 || has("Factory"))
-                pl.kind = Place::Kind::Factory;
-            else if (has("Parts") || has("parts"))
-                pl.kind = Place::Kind::Shop, pl.letter = 'P';
-            else if (has("Body") || has("body"))
-                pl.kind = Place::Kind::Shop, pl.letter = 'B';
-            else if (has("Paint") || has("paint"))
-                pl.kind = Place::Kind::Shop, pl.letter = 'C';
-            else if (kInitialUnvisited[town] >> j & 1)
-            {
-                pl.kind = Place::Kind::House;
-                pl.done = !(unvisited >> j & 1);
-            }
-            else
-                pl.kind = Place::Kind::Other;
-            places.push_back(std::move(pl));
+            return places;
         }
-        return places;
+    }
+
+    std::vector<Place> placesAround(PS2Runtime &runtime, const Stats &st)
+    {
+        std::vector<Place> all;
+        const uint8_t *ram = runtime.memory().getRDRAM();
+        if (!ram || st.town < 1 || st.town > kLastLocation)
+            return all;
+        // Cloud Hill is no FLD tile (ACTION/A16): only its own places.
+        const bool tiled = st.tile > 0 && st.tile < 0x40;
+        for (int loc = 1; loc <= kLastLocation; ++loc)
+        {
+            const int t = at<int16_t>(ram, kLocations + 8u * loc + 4);
+            float dx = 0, dz = 0;
+            if (loc != st.town)
+            {
+                if (!tiled || t <= 0 || t >= 0x40)
+                    continue;
+                dx = tileOriginX(t) - tileOriginX(st.tile);
+                dz = tileOriginZ(t) - tileOriginZ(st.tile);
+                if (std::abs(dx) > 1600.0f || std::abs(dz) > 1600.0f)
+                    continue; // not a neighbouring tile
+            }
+            for (Place pl : placesOf(ram, loc))
+            {
+                pl.x += dx;
+                pl.z += dz;
+                pl.here = loc == st.town;
+                all.push_back(std::move(pl));
+            }
+        }
+        return all;
     }
 
     void mapPoint(const Stats &st, float x, float z, float &fx, float &fy)

@@ -109,6 +109,19 @@ def test_speaker_stereo_differs(game_factory):
     assert any(v[2] != v[3] for v in game.voice_volumes()), "stereo: some voices are panned"
 
 
+def test_options_replaced(game_factory, golden):
+    """The app's menu stands in for the game's Options: choosing it leaves the title menu as it
+    was (no Options screen) and hands over to the app (src/game/overrides.cpp)."""
+    game = game_factory(env={"RT_GAME_OPTIONS": "0"})
+    boot_to_main_menu(game)
+    open_main_item(game, OPTIONS)
+    golden("options_replaced", game.frame())
+    assert "Title > Options: the app's menu" in game.log_text(), "the Options hook didn't run"
+    # The title menu still works: Quick Race starts from it.
+    sound = quick_race_sound(game)
+    assert sound["rms"] > 300, "the title menu should carry on after Options"
+
+
 def test_results_screen(game_factory, golden):
     game = game_factory(checkpoint="adventure_first_save")
     boot_to_main_menu(game)

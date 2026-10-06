@@ -2,10 +2,12 @@
 // Bind addresses to runtime handlers here as boot issues are triaged, e.g.
 //   ps2_game_overrides::bindAddressHandler(runtime, 0x00123456, "ret0");
 
+#include "game/GameOptions.h"
 #include "game_overrides.h"
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
 
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 
@@ -159,6 +161,30 @@ namespace
         g_setHalfOffset[I](rdram, ctx, runtime);
     }
 
+    // ---------------------------------------------------------------- Options
+    // Title > Options starts task 0x2092D8 (a0 = task, a1 = the system block). It is replaced:
+    // the app's menu opens at its Sound rows instead, and the task ends at once the way its own
+    // Exit does (the parent's child-returned pulse +0x24 and result +4 set, then the task
+    // killed, 0x204DE8), so the title menu carries on with its cursor on Options.
+    constexpr uint32_t kOptionsTask = 0x002092D8u, kKillTask = 0x00204DE8u;
+    PS2Runtime::RecompiledFunction g_killTask = nullptr;
+
+    void optionsTask(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const uint32_t task = GPR_U32(ctx, 4);
+        uint32_t parent;
+        std::memcpy(&parent, rdram + ((task + 0x18) & PS2_RAM_MASK), 4);
+        if (parent)
+        {
+            rdram[(parent + 0x24) & PS2_RAM_MASK] = 1;
+            const uint32_t one = 1;
+            std::memcpy(rdram + ((parent + 4) & PS2_RAM_MASK), &one, 4);
+        }
+        rt::game::requestOptions();
+        std::cout << "[roadtrip] Title > Options: the app's menu (Sound)" << std::endl;
+        g_killTask(rdram, ctx, runtime); // a0 is still the task; returns to our caller
+    }
+
     void applyRoadTrip(PS2Runtime &runtime)
     {
         std::cout << "[roadtrip] applying SLUS-20398 overrides\n";
@@ -171,6 +197,15 @@ namespace
         }
         else
             std::cerr << "[roadtrip] sceGsSetHalfOffset not found: progressive fields unavailable\n";
+        g_killTask = runtime.lookupFunction(kKillTask);
+        // RT_GAME_OPTIONS=1 keeps the game's own Options screens (the regression tests of them).
+        const char *own = std::getenv("RT_GAME_OPTIONS");
+        if (own && *own == '1')
+            std::cout << "[roadtrip] RT_GAME_OPTIONS=1: the game's own Options menu\n";
+        else if (g_killTask && runtime.lookupFunction(kOptionsTask))
+            runtime.replaceFunction(kOptionsTask, optionsTask);
+        else
+            std::cerr << "[roadtrip] Options task not found: the game's own Options menu stays\n";
         g_buildCamera = runtime.lookupFunction(kBuildCamera);
         if (g_buildCamera)
         {

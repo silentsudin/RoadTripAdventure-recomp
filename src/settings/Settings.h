@@ -48,6 +48,10 @@ namespace rt::settings
         bool menuHintShown = false;  // the first-launch "how to open the menu" hint was shown
         PerfOverlay perfOverlay = PerfOverlay::Off; // frame rate (and load, temperature) along the bottom
         bool secondScreen = true;     // a second display (the AYN Thor's lower screen) shows the map and stats
+        // Sound and vibration (the game's own Options, which it never saved)
+        float volume = 1.0f;          // master volume, 0..1
+        bool mono = false;            // speaker: stereo / mono
+        bool vibration = true;        // the game's vibration switch
     };
 
     const char *name(Aspect a);
