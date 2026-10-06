@@ -145,6 +145,7 @@ namespace rt::settings
                            : s.upscaler == Upscaler::MetalFxSpatial ? ps2x::HostPresenter::PostProcess::Scaling::MetalFxSpatial
                            : s.upscaler == Upscaler::MetalFxTemporal ? ps2x::HostPresenter::PostProcess::Scaling::MetalFxTemporal
                            : s.upscaler == Upscaler::SnapdragonGsr1  ? ps2x::HostPresenter::PostProcess::Scaling::SnapdragonGsr1
+                           : s.upscaler == Upscaler::SnapdragonGsr2  ? ps2x::HostPresenter::PostProcess::Scaling::SnapdragonGsr2
                                                                     : ps2x::HostPresenter::PostProcess::Scaling::Bilinear;
             post.sharpness = s.sharpness;
             p->setPostProcess(post);

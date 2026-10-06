@@ -87,11 +87,13 @@
   - perf numbers are in `build/scratch/perf/vulkan2.md`: half the main-thread CPU, 60 fps held;
   - post-processing (Vulkan presenter only):
     - FXAA, SMAA, AMD FSR 1, Snapdragon GSR 1 (Android and PC: `post/sgsr1.frag`, Qualcomm's single-pass shader, BSD-3, `post/sgsr/LICENSE`) and MetalFX spatial, in `gs_pgs_presenter.cpp`;
+    - Snapdragon GSR 2 (temporal; Android and PC, `upscaleSgsr2`): Qualcomm's two-pass fragment version (`post/sgsr2_convert.frag`, `sgsr2_upscale.frag`), fed the GS's raw depth (reverse Z: the convert pass takes the max) and motion in GS pixels less the jitter step; FSR's RCAS sharpens after it;
     - the shaders are in `src/lib/gs/post` on the fork; rebuild `post_spirv.h` with its `compile.py` (needs glslc);
   - temporal inputs from the game:
     - **depth** is the GS's Z scanout, snapshotted where the 3D ends;
     - **per-object motion vectors** come from `gs_motion.cpp`: VU1 matrices per object, re-projected per vertex, carried in paraLLEl-GS's `VertexPosition.padding`. They feed TAA and MetalFX temporal. MetalFX temporal needs a progressive picture (progressive fields, or 4x SSAA and up with interlaced fields) and uses MetalFX spatial otherwise. It scales at most `maxScale()` per axis (3x on the M3 Max); the presentation's bilinear pass scales the rest, and a scaler that can't be created is logged as `[metalfx]`;
-    - the camera **jitter** comes from the game hook;
+    - the camera **jitter** comes from the game hook; the jitter a camera was built with travels in the VU1 runs' motion contexts (`MotionTracker::noteCameraJitter`), since the EE can be a frame ahead of the GS thread;
+    - **which picture**: where each frame's HUD starts the frontend numbers its 3D and keeps its jitter per frame buffer (and the hardware GS its depth); a presentation carries the number of the buffer on display (`GSPresentationRequest::frame3D`, `PgsShared::pictureSerial`). TAA, GSR 2 and MetalFX temporal run once per number (a repeat shows the last output) and scale the motion by the frames since their history (missed pictures; a reset past 4). Without HUD starts for 8 presentations every presentation counts. `RT_TEMPORAL_DEBUG=1` logs gaps. Getting this wrong doubled the signs vertically;
     - the **UI mask** (HUD and 2D screens, so only the 3D is post-processed) comes from the HUD classifier;
     - debug views: `RT_SHOW_DEPTH=1`, `RT_SHOW_MOTION=1`, `RT_MOTION_DEBUG=1`.
   - guest vblanks can be phase-locked to the display on 60/120/240 Hz screens (CVDisplayLink; off by default since present-at-time, `RT_DISPLAY_LOCK=1` turns it on, `RT_DISPLAY_LOCK_DEBUG=1` logs the phase error). Measurements: `build/scratch/perf/run_dl.py` (xctrace on-glass intervals).

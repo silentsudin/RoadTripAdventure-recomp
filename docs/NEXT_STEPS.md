@@ -132,8 +132,12 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
   - [x] Depth on the hardware GS (a snapshot where the HUD starts, raw GS Z, as paraLLEl-GS's).
 - [ ] Mobile upscalers (shown greyed "later" in Options today):
   - [x] Snapdragon GSR 1 (spatial, single pass): Options > Upscaling on Android (either GS).
-  - [ ] Snapdragon GSR 2 and Arm ASR (temporal): colour, depth, motion vectors and jitter; after the
-        hardware GS's motion vectors (paraLLEl-GS has them already).
+  - [x] Snapdragon GSR 2 (temporal, two fragment passes): Options > Upscaling on Android and PC
+        (either GS). Fixed with it, for every temporal pass: each picture is matched to the 3D
+        frame and camera jitter in the buffer on display (the GS thread may be a frame ahead), a
+        repeated picture isn't processed again, and missed pictures scale the motion (the signs
+        doubled vertically before).
+  - [ ] Arm ASR (temporal, FSR 2-derived compute passes).
   - [ ] Arm NSS: only on Mali GPUs with neural accelerators (not testable on the Thor).
 - [ ] Image parity with paraLLEl-GS: the hw suite runs in 6 min against 21; its golden mismatches
       are expected and should shrink. A/B tool (`scripts/hwgs_ab.py`, planned).

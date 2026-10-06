@@ -65,7 +65,9 @@ namespace rt::settings
         case Upscaler::SnapdragonGsr2:
             if (c.os == Os::MacOS)
                 return no("Snapdragon GSR is for Android and PC GPUs");
-            return later();
+            if (c.postProcess && !c.temporalInputs)
+                return no("Needs the GS's motion vectors and depth");
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::ArmNss:
             if (c.os != Os::Android || c.gpuVendor != kArm || !c.armNeuralAccel)
                 return no("Needs an Arm Mali GPU with neural accelerators");

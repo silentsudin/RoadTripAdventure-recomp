@@ -95,7 +95,9 @@ namespace
         thor.motionVectors = true;
         CHECK(availability(thor, AntiAliasing::Taa).ok);
         CHECK(availability(thor, Upscaler::SnapdragonGsr1).ok);
-        CHECK(!availability(thor, Upscaler::SnapdragonGsr2).ok); // temporal: later
+        CHECK(availability(thor, Upscaler::SnapdragonGsr2).reason.find("depth") != std::string::npos);
+        thor.temporalInputs = true; // the hardware GS: motion and depth
+        CHECK(availability(thor, Upscaler::SnapdragonGsr2).ok);
 
         Capabilities rtx;
         rtx.os = Os::Windows;

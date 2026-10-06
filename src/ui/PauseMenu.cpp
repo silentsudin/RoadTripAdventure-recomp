@@ -449,11 +449,13 @@ namespace rt::ui
             if (availability(capabilities(), Upscaler::Fsr1).ok)
             {
                 static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1, Upscaler::SnapdragonGsr1,
-                                                          Upscaler::MetalFxSpatial, Upscaler::MetalFxTemporal};
+                                                          Upscaler::SnapdragonGsr2, Upscaler::MetalFxSpatial,
+                                                          Upscaler::MetalFxTemporal};
                 rows.push_back({"Upscaling",
                                 [&s] {
                                     return std::string(s.upscaler == Upscaler::Fsr1             ? "AMD FSR 1"
                                                        : s.upscaler == Upscaler::SnapdragonGsr1 ? "Snapdragon GSR 1"
+                                                       : s.upscaler == Upscaler::SnapdragonGsr2 ? "Snapdragon GSR 2"
                                                        : s.upscaler == Upscaler::MetalFxSpatial ? "MetalFX spatial"
                                                        : s.upscaler == Upscaler::MetalFxTemporal ? "MetalFX temporal"
                                                                                                 : "Bilinear");
@@ -464,15 +466,16 @@ namespace rt::ui
                                     while (!availability(capabilities(), s.upscaler).ok);
                                     changed();
                                 },
-                                {}, "How the picture is scaled up to the window. FSR 1, Snapdragon GSR 1 and MetalFX keep edges sharp.",
+                                {}, "How the picture is scaled up to the window. FSR 1, Snapdragon GSR and MetalFX keep edges sharp; GSR 2 and "
+                                "MetalFX temporal also smooth them over frames, using the game's motion.",
                                 false, true});
-                if (s.upscaler == Upscaler::Fsr1)
+                if (s.upscaler == Upscaler::Fsr1 || s.upscaler == Upscaler::SnapdragonGsr2)
                     rows.push_back({"Sharpening", [&s] { return std::to_string(static_cast<int>(std::lround(s.sharpness * 100))) + "%"; },
                                     [&s](int d) {
                                         s.sharpness = std::clamp(std::round(s.sharpness * 10.0f + d) / 10.0f, 0.0f, 1.0f);
                                         changed();
                                     },
-                                    {}, "FSR 1 sharpening (RCAS) after upscaling.", false, true});
+                                    {}, "Sharpening (AMD's RCAS) after upscaling.", false, true});
             }
             return rows;
         }
