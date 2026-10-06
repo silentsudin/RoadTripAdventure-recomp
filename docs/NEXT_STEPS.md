@@ -127,10 +127,9 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 ### 3. Hardware GS completion (#24, #25, #27)
 - [x] UI mask on the hardware GS (post-processing spares the HUD); the map layer for dual screen.
 - [ ] Parity features still to do: motion vectors and depth (TAA, MetalFX temporal), frame generation.
-  - Motion vectors: in progress on the fork's local branch `hwgs-motion` (per-vertex motion on
-    GSVertex, an RG16F attachment, `RT_HWGS_MOTION=1`). They reach the Thor, but TAA with them is
-    soft and moving cars ghost: compare with paraLLEl-GS's motion (`RT_SHOW_MOTION=1`) and fix
-    before `Capabilities::motionVectors` is set for the hardware GS.
+  - [x] Motion vectors on the hardware GS (TAA): per-vertex motion on GSVertex, an RG16F attachment
+        written by unblended and As/1-As draws; matches paraLLEl-GS's field (`RT_SHOW_MOTION=1`).
+  - [ ] Depth on the hardware GS (MetalFX temporal, GSR 2, Arm ASR).
 - [ ] Mobile upscalers (shown greyed "later" in Options today):
   - [x] Snapdragon GSR 1 (spatial, single pass): Options > Upscaling on Android (either GS).
   - [ ] Snapdragon GSR 2 and Arm ASR (temporal): colour, depth, motion vectors and jitter; after the

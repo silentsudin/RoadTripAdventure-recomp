@@ -453,7 +453,7 @@ namespace
                 runtime.gs().setRasterBackend(std::move(backend));
                 rt::settings::setGsControl(control);
                 rt::settings::capabilities().frameGeneration = false; // no shadow frames (yet)
-                // Motion vectors are in progress (fork branch hwgs-motion): no TAA here yet.
+                rt::settings::capabilities().motionVectors = true; // TAA (no depth yet: no MetalFX temporal)
                 return;
             }
             std::cerr << "[gs] hardware GS unavailable (" << error << "); using paraLLEl-GS\n";
