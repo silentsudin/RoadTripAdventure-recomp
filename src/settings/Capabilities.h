@@ -22,6 +22,7 @@ namespace rt::settings
         bool postProcess = false;    // the presenter runs post-processing passes (the Vulkan one)
         int maxSuperSampling = 16;   // samples per pixel the GS supports on this GPU (4, 8 or 16)
         bool gpuGs = false;          // a GPU GS runs (paraLLEl-GS or the hardware GS; texture dumps and packs need it)
+        bool frameGeneration = false; // the GS renders generated frames (paraLLEl-GS's shadow instances; not the hardware GS)
     };
 
     struct Availability

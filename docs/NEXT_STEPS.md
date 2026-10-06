@@ -74,36 +74,27 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 
 ## Next steps, in order
 
-### 0. Bugs reported by the user (Android, Quick Race), fix first
-- [ ] **Game speed drifts in 120 Hz mode (the audio too).** The game speeds up and slows down when
-      the display runs at 120 Hz. Lead: guest vblanks (60 Hz) are paced by host presents, or by the
-      present-at-time / display-lock path, instead of a steady 60 Hz clock, so a 120 Hz FIFO
-      swapchain or present grid drifts. Check the EE scheduler's vblank source on Android, how
-      `presentAtTimeWanted`, display lock and frame-gen settings behave there, and whether
-      `settings.toml` sets Frame rate 120 on the Thor. Measure with `RT_SHOW_FPS=1`: vblank/s
-      should be exactly 60.0. Fix: a wall-clock 60 Hz guest vblank, independent of the display
-      rate; presents repeat or pace to the screen.
-- [ ] **The Options page jumps between one row and the full list while scrolling.** Cause:
-      picture rows are marked `preview` (`src/ui/PauseMenu.cpp`, `const bool preview = n &&
-      rows[sel].preview;`, then `visible = preview ? 1 : ...`), so focusing one collapses the
-      panel to a one-row strip at the bottom. **Decision (user): the menu never collapses.** Remove
-      the one-row preview mode: the panel keeps its full list and position on every row. If seeing
-      the picture change matters, the most that is allowed is lifting the scrim a little while a
-      picture row is focused, with no change to the panel's size or position. Re-shoot with
-      `RT_MENU_SHOT ... RT_MENU_PAGE=graphics` and have both UI critics check it.
-- [ ] **Audio crackles.** Leads: the ring buffer in `ps2_audio_out.cpp` drops the oldest frames
-      beyond 200 ms and plays silence on underrun; both click. Unsteady guest timing (above) makes
-      both happen. raylib/miniaudio on AAudio uses `SetAudioStreamBufferSizeDefault(1024)`, which
-      may be short for AAudio bursts on the Thor. Measure underruns and drops (add counters, log
-      them every 5 s), try a larger device buffer and a gentle rate correction (resample by ±0.5%
-      on ring fill level) instead of dropping or zero-filling. Re-test after the 120 Hz fix, since
-      the two are likely linked.
+### 0. Bugs reported by the user (Android, Quick Race): fixed 2026-10-06
+- [x] **Game speed drifts in 120 Hz mode.** The guest clock was steady (`RT_VBLANK_JITTER=1`: 300
+      vblanks per 5 s, none bunched). The picture wasn't: Frame rate 120 asks for frame generation,
+      which only paraLLEl-GS renders. On the hardware GS (Android) the extra presents repeated the
+      last picture unevenly on a 120 Hz FIFO swapchain, so the game looked as if it sped up and
+      slowed down. Frame rates above 60 now need `Capabilities::frameGeneration` (set for
+      paraLLEl-GS only), so the row is hidden and the setting ignored on the hardware GS.
+      Re-enable when the hardware GS gets frame generation (#25).
+- [x] **Audio crackles.** The SPU2 runs on the guest clock and the device on its own (about 0.02%
+      apart on the Thor), so the queue grew until the 200 ms cap dropped frames. The callback now
+      plays the queue slightly faster or slower (linear interpolation, -0.5% to +1%) to hold it
+      near 50 ms: no underruns or drops in a race, and 120 ms less audio lag. `RT_AUDIO_STATS=1`
+      logs underruns, drops and the queue every 5 s. User to confirm by ear.
+- [x] **The Options page jumped between one row and the full list.** The one-row preview mode is
+      gone; the panel keeps its size and position, and picture rows only lift the scrim a little.
 
 ### 1. Finish lifecycle and performance (#17)
 - [ ] Commit and push the lifecycle work if the last session didn't (see "Picking up").
-- [ ] Check pause and resume while the in-game menu is open, and during a loading screen.
-- [ ] Android back button: open our in-game menu instead of quitting (it currently goes to SDL's
-      default).
+- [x] Pause and resume with the in-game menu open: the game stays paused under the menu.
+- [x] Android back button: opens our in-game menu (the manifest traps it; AC_BACK toggles the menu).
+- [ ] Pause and resume during a loading screen.
 - [ ] Measure battery drain over Wi-Fi adb (`adb tcpip 5555`, then unplug; `current_now` reads 0
       while charging). Compare in-game, background, and ADPF on/off.
 - [ ] Optional: suspend the GS/VU1 worker threads explicitly while away. They idle at 0% already,

@@ -101,6 +101,10 @@ namespace rt::settings
             return {};
         if (!c.postProcess)
             return no("Needs the Vulkan presenter");
+        // Without generated frames the extra presents only repeat the last picture, unevenly on a
+        // FIFO swapchain (the game looks as if it speeds up and slows down).
+        if (!c.frameGeneration)
+            return no("Needs the paraLLEl-GS renderer");
         if (hz % 60 != 0)
             return no("Not a whole multiple of the game's 60 Hz");
         if (hz > c.displayRefresh)

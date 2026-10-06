@@ -41,7 +41,7 @@ namespace rt::ui
             std::function<void()> activate;           // Cross / Enter / click
             std::string hint;                         // shown when focused
             bool heading = false;
-            bool preview = false;                     // changes the picture: show the game while focused
+            bool preview = false;                     // changes the picture: the scrim lifts a little while focused
             bool note = false;                        // a line of text, not selectable
         };
 
@@ -109,7 +109,7 @@ namespace rt::ui
         int g_selected = 0;
         float g_scroll = 0;          // first visible row
         float g_barY = -1;           // animated selection bar position
-        float g_panelY = -1;         // animated panel top (it moves down while previewing)
+        float g_panelY = -1;         // animated panel top (slides in as the menu opens)
         double g_openedAt = 0;
         double g_closedAt = -10;
         bool g_toastPending = true;
@@ -959,10 +959,10 @@ namespace rt::ui
         const std::vector<Row> rows = currentRows();
         const int n = static_cast<int>(rows.size());
         const int sel = n ? std::clamp(g_selected, 0, n - 1) : 0;
-        // A focused picture option moves the panel to the bottom and lifts the scrim, so the change
-        // can be seen.
+        // A focused picture option lifts the scrim a little, so the change can be seen. The panel
+        // itself never changes size or position as the focus moves.
         const bool preview = n && rows[sel].preview;
-        th::scrim(dl, vmin, vmax, appear * (preview ? 0.3f : 1.0f));
+        th::scrim(dl, vmin, vmax, appear * (preview ? 0.55f : 1.0f));
 
         const bool wide = g_page != Page::Root;
         const float rowH = th::px(62);
@@ -980,24 +980,21 @@ namespace rt::ui
             if (!r.hint.empty())
                 hintLines = std::max(hintLines, wrapHint(r.hint, hintWidth).size());
         const float hintH = std::max(th::px(62), hintLineH * static_cast<float>(hintLines) + 2.0f * hintPad + th::px(6));
-        // While previewing, the panel is a strip with just the focused row and its hint.
-        const int visible = preview ? 1 : std::max(1, std::min(n, static_cast<int>(vp->Size.y * 0.62f / rowH)));
+        const int visible = std::max(1, std::min(n, static_cast<int>(vp->Size.y * 0.62f / rowH)));
         const float bodyH = rowH * visible;
         bool anyHint = false;
         for (const Row &r : rows)
             anyHint |= !r.hint.empty();
         const float height = pad + bodyH + (anyHint ? th::px(10) + hintH : 0.0f) + pad * 0.6f;
         // Keep the cursor in view (with the heading above it when there is room).
-        if (preview)
-            g_scroll = static_cast<float>(sel);
-        else if (sel < g_scroll + 0.5f)
+        if (sel < g_scroll + 0.5f)
             g_scroll = static_cast<float>(std::max(0, sel - (sel > 0 && rows[sel - 1].heading ? 1 : 0)));
         if (sel > g_scroll + visible - 1)
             g_scroll = static_cast<float>(sel - visible + 1);
         g_scroll = std::clamp(g_scroll, 0.0f, static_cast<float>(std::max(0, n - visible)));
         const int first = static_cast<int>(g_scroll);
 
-        const float targetY = preview ? vmax.y - height - promptsH : vp->Pos.y + (vp->Size.y - height - promptsH * 0.5f) * 0.5f;
+        const float targetY = vp->Pos.y + (vp->Size.y - height - promptsH * 0.5f) * 0.5f;
         g_panelY = g_panelY < 0 ? targetY : g_panelY + (targetY - g_panelY) * std::min(1.0f, dt * 14.0f);
         const ImVec2 min(vp->Pos.x + (vp->Size.x - width) * 0.5f, g_panelY + (1 - appear) * th::px(40));
         const ImVec2 max(min.x + width, min.y + height);
@@ -1100,11 +1097,11 @@ namespace rt::ui
             }
         }
         dl->PopClipRect();
-        // More rows above or below: small arrows at the list's edge (not on the preview strip).
-        if (first > 0 && !preview)
+        // More rows above or below: small arrows at the list's edge.
+        if (first > 0)
             dl->AddTriangleFilled(ImVec2(max.x - th::px(60), top - th::px(4)), ImVec2(max.x - th::px(48), top - th::px(16)),
                                   ImVec2(max.x - th::px(36), top - th::px(4)), th::col::Heading);
-        if (first + visible < n && !preview)
+        if (first + visible < n)
             dl->AddTriangleFilled(ImVec2(max.x - th::px(60), top + bodyH + th::px(2)), ImVec2(max.x - th::px(36), top + bodyH + th::px(2)),
                                   ImVec2(max.x - th::px(48), top + bodyH + th::px(14)), th::col::Heading);
 

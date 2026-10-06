@@ -26,6 +26,7 @@
 #include "platform/TaskProgress.h"
 #include "rom/RomInstaller.h"
 #include "settings/Apply.h"
+#include "settings/Capabilities.h"
 #include "settings/Settings.h"
 
 #include "ps2_runtime.h"
@@ -446,6 +447,7 @@ namespace
             {
                 runtime.gs().setRasterBackend(std::move(backend));
                 rt::settings::setGsControl(control);
+                rt::settings::capabilities().frameGeneration = false; // no shadow frames (yet)
                 return;
             }
             std::cerr << "[gs] hardware GS unavailable (" << error << "); using paraLLEl-GS\n";
@@ -462,6 +464,7 @@ namespace
         {
             runtime.gs().setRasterBackend(std::move(backend));
             rt::settings::setGsControl(control);
+            rt::settings::capabilities().frameGeneration = true;
         }
         else
             std::cerr << "[gs] Vulkan GS unavailable (" << error << "); using CPU backend\n";
