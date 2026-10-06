@@ -72,12 +72,21 @@ namespace rt::input
             g_rebinding = -1;
         }
 
-        // A controller's own profile, made from the shared one on its first edit.
+        // The shared bindings in this controller's family layout (Mapping.h familyProfile).
+        GamepadProfile sharedFor(const std::string &id)
+        {
+            for (const DeviceStatus &d : devices())
+                if (d.id == id)
+                    return familyProfile(detail::config().gamepad, padFamily(d.type));
+            return detail::config().gamepad;
+        }
+
+        // A controller's own profile, made from the shared one (in its layout) on its first edit.
         GamepadProfile &ownProfile(const std::string &id)
         {
             Config &c = detail::config();
             if (!c.gamepads.count(id))
-                c.gamepads[id] = c.gamepad;
+                c.gamepads[id] = sharedFor(id);
             return c.gamepads[id];
         }
     }
@@ -252,7 +261,7 @@ namespace rt::input
             c.keyStickDirs = defaults.keyStickDirs;
         }
         else if (c.gamepads.count(id))
-            c.gamepads[id].buttons = c.gamepad.buttons;
+            c.gamepads[id].buttons = sharedFor(id).buttons;
         detail::applyConfig();
         detail::save();
     }

@@ -41,6 +41,7 @@
 #include "imgui.h"
 #include "ps2_debug_panel.h"
 #include "rlImGui.h"
+#include "ui/ButtonGlyphs.h"
 #include "ui/PauseMenu.h"
 #include "ui/PerfOverlay.h"
 #include "ui/SetupScreen.h"
@@ -655,6 +656,7 @@ int main(int argc, char *argv[])
                 // One ImGui frame for the debug panel (F1) and the in-game menu.
                 auto &panel = static_cast<UiHooks *>(user)->panel;
                 rt::ui::updatePauseMenu(); // Guide, Back+Start, Esc or F3: the in-game menu (pauses the game)
+                rt::ui::updateButtonGlyphs(); // the game's button glyphs for the pad in use
                 if (rt::host::keyPressed(SDL_SCANCODE_F1))
                     panel.toggleVisible();
                 const auto overlay = rt::settings::current().perfOverlay;

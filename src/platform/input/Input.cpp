@@ -169,7 +169,11 @@ namespace rt::input
                         // Back+Start opens the recomp menu: Start does not reach the game meanwhile.
                         if (snap.buttons[static_cast<int>(PadButton::Back)])
                             snap.buttons[static_cast<int>(PadButton::Start)] = false;
-                        out = merge(out, mapGamepad(snap, g_config.profileFor(d.id), d.latch));
+                        // A controller's own bindings, else the shared ones in its family's layout.
+                        if (g_config.gamepads.count(d.id))
+                            out = merge(out, mapGamepad(snap, g_config.gamepads.at(d.id), d.latch));
+                        else
+                            out = merge(out, mapGamepad(snap, familyProfile(g_config.gamepad, padFamily(d.type)), d.latch));
                     }
             }
             // The runtime hands this to the game at the next guest vblank (unless a movie, script or
@@ -226,8 +230,19 @@ namespace rt::input
             held[Down] |= b(PadButton::DpadDown) || ly > 0.6f;
             held[Left] |= b(PadButton::DpadLeft) || lx < -0.6f;
             held[Right] |= b(PadButton::DpadRight) || lx > 0.6f;
-            held[Confirm] |= b(PadButton::South);
-            held[Back] |= b(PadButton::North) || b(PadButton::East);
+            // Confirm and back where the pad's players expect them: Nintendo A (right) and B (bottom),
+            // Xbox A (bottom) and B (right), PlayStation ✕ (bottom) and △ or ○.
+            const std::string family = padFamily(d.type);
+            if (family == "nintendo")
+            {
+                held[Confirm] |= b(PadButton::East);
+                held[Back] |= b(PadButton::South);
+            }
+            else
+            {
+                held[Confirm] |= b(PadButton::South);
+                held[Back] |= b(PadButton::East) || (family == "ps" && b(PadButton::North));
+            }
             held[Extra] |= b(PadButton::West);
             held[Toggle] |= b(PadButton::Guide);
             chord |= b(PadButton::Back) && b(PadButton::Start);

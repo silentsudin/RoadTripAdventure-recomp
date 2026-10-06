@@ -54,6 +54,24 @@ namespace
         PadOutput o = mapGamepad(pad, p, latch);
         CHECK(pressed(o, Ps2Button::Cross) && !pressed(o, Ps2Button::Circle));
 
+        // Family layouts: confirm (✕) and back (△) where each pad's players expect them.
+        auto press = [&](const GamepadProfile &prof, PadButton b) {
+            GamepadSnapshot snap;
+            snap.buttons[static_cast<int>(b)] = true;
+            AxisLatch l;
+            return mapGamepad(snap, prof, l);
+        };
+        CHECK(padFamily("ps5") == "ps" && padFamily("switchpro") == "nintendo" && padFamily("standard") == "xbox");
+        const GamepadProfile xbox = familyProfile(p, "xbox"), nin = familyProfile(p, "nintendo");
+        CHECK(pressed(press(xbox, PadButton::South), Ps2Button::Cross));    // A
+        CHECK(pressed(press(xbox, PadButton::East), Ps2Button::Triangle));  // B = back
+        CHECK(pressed(press(xbox, PadButton::North), Ps2Button::Circle));   // Y
+        CHECK(pressed(press(xbox, PadButton::West), Ps2Button::Square));    // X
+        CHECK(pressed(press(nin, PadButton::East), Ps2Button::Cross));      // A
+        CHECK(pressed(press(nin, PadButton::South), Ps2Button::Triangle));  // B = back
+        CHECK(pressed(press(nin, PadButton::North), Ps2Button::Circle));    // X
+        CHECK(pressed(press(familyProfile(p, "ps"), PadButton::North), Ps2Button::Triangle)); // unchanged
+
         // Trigger hysteresis: presses past 0.35, lets go below 0.25.
         auto r2 = [&](float v) {
             GamepadSnapshot t;

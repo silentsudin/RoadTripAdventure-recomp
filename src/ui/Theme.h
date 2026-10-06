@@ -80,4 +80,6 @@ namespace rt::ui::theme
     // "start", or a key name) as the connected pad shows it, followed by `label`; returns the width.
     // On the keyboard cross is Enter, triangle Esc and square R.
     float prompt(ImDrawList *dl, ImVec2 pos, const char *button, const char *label);
+    // The glyph family of the first connected controller: "ps", "xbox", "nintendo", or "keyboard".
+    std::string padFamilyName();
 }

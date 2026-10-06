@@ -65,6 +65,43 @@ namespace rt::input
         return p;
     }
 
+    std::string padFamily(const std::string &type)
+    {
+        if (type.rfind("ps", 0) == 0)
+            return "ps";
+        if (type == "switchpro" || type == "joycon")
+            return "nintendo";
+        return "xbox";
+    }
+
+    GamepadProfile familyProfile(const GamepadProfile &base, const std::string &family)
+    {
+        if (family != "xbox" && family != "nintendo")
+            return base;
+        // Where each PlayStation-position face button moves.
+        auto moved = [&](PadButton b) {
+            const bool xbox = family == "xbox";
+            switch (b)
+            {
+            case PadButton::South: return xbox ? PadButton::South : PadButton::East;
+            case PadButton::East: return PadButton::North;
+            case PadButton::North: return xbox ? PadButton::East : PadButton::South;
+            default: return b;
+            }
+        };
+        GamepadProfile p = base;
+        auto remap = [&](std::vector<PadSource> &sources) {
+            for (PadSource &s : sources)
+                if (s.kind == PadSource::Kind::Button)
+                    s.index = static_cast<uint8_t>(moved(static_cast<PadButton>(s.index)));
+        };
+        for (auto &list : p.buttons)
+            remap(list);
+        for (auto &list : p.stickDirs)
+            remap(list);
+        return p;
+    }
+
     void applyDeadzone(float &x, float &y, const StickSettings &s)
     {
         const float r = std::hypot(x, y);

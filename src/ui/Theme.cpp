@@ -280,6 +280,8 @@ namespace rt::ui::theme
         dl->AddRectFilled(ImVec2(min.x + px(6), min.y), ImVec2(max.x - px(6), min.y + px(3)), col::ListBevelDark);
     }
 
+    std::string padFamilyName() { return padFamily(); }
+
     float prompt(ImDrawList *dl, ImVec2 pos, const char *button, const char *label)
     {
         const std::string fam = padFamily();
@@ -315,16 +317,15 @@ namespace rt::ui::theme
             key(fam == "xbox" ? (b == "l1" ? "LB" : "RB") : fam == "nintendo" ? (b == "l1" ? "L" : "R") : (b == "l1" ? "L1" : "R1"));
         else if (fam == "xbox" || fam == "nintendo")
         {
-            // Positional: cross = bottom, circle = right, square = left, triangle = top.
+            // The game's buttons in the pad's own layout (input Mapping.h familyProfile): ✕ (confirm)
+            // is A and △ (back) is B on both; ○ is Y on Xbox, X on Nintendo; □ the other.
             const bool xbox = fam == "xbox";
-            if (b == "cross")
-                badge(IM_COL32(0x3C, 0xA0, 0x3C, 0xFF), xbox ? "A" : "B");
-            else if (b == "circle")
-                badge(IM_COL32(0xC8, 0x3C, 0x3C, 0xFF), xbox ? "B" : "A");
-            else if (b == "square")
-                badge(IM_COL32(0x3C, 0x64, 0xC8, 0xFF), xbox ? "X" : "Y");
-            else
-                badge(IM_COL32(0xC8, 0xA0, 0x28, 0xFF), xbox ? "Y" : "X");
+            const char *letter = b == "cross" ? "A" : b == "triangle" ? "B" : b == "circle" ? (xbox ? "Y" : "X") : (xbox ? "X" : "Y");
+            const ImU32 colour = letter[0] == 'A'   ? IM_COL32(0x3C, 0xA0, 0x3C, 0xFF)
+                                 : letter[0] == 'B' ? IM_COL32(0xC8, 0x3C, 0x3C, 0xFF)
+                                 : letter[0] == 'X' ? IM_COL32(0x3C, 0x64, 0xC8, 0xFF)
+                                                    : IM_COL32(0xC8, 0xA0, 0x28, 0xFF);
+            badge(colour, letter);
         }
         else
         {

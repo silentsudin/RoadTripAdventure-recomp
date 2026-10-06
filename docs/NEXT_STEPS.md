@@ -105,10 +105,14 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
       (`src/ui/PerfOverlay.cpp`, numbers from `src/debug/PerfStats.cpp`): one row along the bottom
       edge, clear of the race HUD: fps, worst frame, VU1/GS load, app CPU and, on Android, GPU load
       and clock and battery temperature.
-- [ ] **#19 Controller-aware button icons:** glyphs and wording for the Thor's built-in pad,
-      Xbox, PlayStation and Nintendo layouts. The theme's `prompt()` reads the device family; the
-      setup screens have no glyphs because they run before the input layer. Also show glyphs in
-      the game's own prompts where we can.
+- [x] **#19 Controller-aware button icons:** pads are grouped by family (`padFamily` in
+      `src/platform/input/Mapping.cpp`): PlayStation keeps the game's layout; Xbox-style pads
+      (including the Thor's built-in pad) and Nintendo pads confirm with A and go back with B
+      (`familyProfile` moves the face buttons; menus follow). Our prompts use the family's letters,
+      and on the hardware GS the game's own glyphs (the font atlas's ○ ✕ □ △, L1/L2/R1/R2, the
+      BACK/OK buttons) are repainted with the pad's letters as the atlas is decoded
+      (`src/ui/ButtonGlyphs.cpp`, the backend's decode hook). Checked on the Thor with a virtual
+      Xbox pad: A enters, B goes back. paraLLEl-GS keeps the PlayStation glyphs (no CPU decode).
 - [ ] **#20 Dual screen:** use the Thor's second display (a minimap or HUD, an options panel, or
       the game itself). The HUD classifier can already separate HUD from 3D.
 - [ ] **#21 Replace the game's Options menu** with ours.

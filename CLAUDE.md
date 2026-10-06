@@ -62,6 +62,8 @@
   - The game's vibration (scePadSetActDirect) plays on that player's controllers.
   - The in-game menu's Controllers page handles assignment, rebinding, deadzones and rumble (`src/platform/Controllers.h`).
   - Unit tests: `build/macos-release/input_test` (ctest `input`), including a virtual SDL controller.
+  - Pad families (`padFamily`): PlayStation keeps the game's layout; Xbox-style (anything else, including the Thor's pad) and Nintendo pads confirm with A and go back with B (`familyProfile` moves the face buttons for devices without their own bindings; our menus follow). On the hardware GS, `src/ui/ButtonGlyphs.cpp` repaints the game's ○ ✕ □ △ / L1..R2 glyphs with the pad's letters through the backend's decode hook (`PgsControl::setDecodeHook`; `RT_GLYPH_FAMILY=xbox|nintendo|ps` forces one, `RT_GLYPH_DEBUG=1` logs the atlas match).
+  - Test socket `sdlpad` (`AndroidGame.sdl`) drives a virtual SDL pad. Lockstep's test pad overrides SDL input to the game, so check game input from it in real time (`lockstep=False`), holding ~0.4 s.
   - `scripts/check_android_input.sh` checks that the input layer builds for Android arm64 (needs the NDK; Homebrew's `android-ndk` works).
 - Pads in the runtime and tests:
   - `RT_PAD_TRACE=1` logs the game's pad commands.
