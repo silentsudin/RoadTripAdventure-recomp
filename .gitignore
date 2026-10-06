@@ -41,3 +41,6 @@ ps2_log.txt
 /platform/android/.gradle/
 /platform/android/build/
 /platform/android/app/build/
+
+# Save states (derived from the game)
+*.rtstate

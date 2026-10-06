@@ -12,6 +12,7 @@ namespace rt::debug
     {
         bool valid = false;
         double fps = 0.0;          // frames the game showed per second
+        double shownFps = 0.0;     // pictures on screen per second: the game's and the generated ones
         double worstFrameMs = 0.0; // the longest gap between them in the window
         double vu1Busy = -1.0;     // % of one core
         double gsBusy = -1.0;      // % of one core

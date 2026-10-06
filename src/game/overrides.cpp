@@ -3,9 +3,12 @@
 //   ps2_game_overrides::bindAddressHandler(runtime, 0x00123456, "ret0");
 
 #include "game/GameOptions.h"
+#include "game/GameStats.h"
 #include "game_overrides.h"
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
+#include "ps2x/state_archive.h"
+#include "runtime/ps2_save_state.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -185,8 +188,42 @@ namespace
         g_killTask(rdram, ctx, runtime); // a0 is still the task; returns to our caller
     }
 
+    // Save states: where the game is, for a slot's label (menus list slots from file headers).
+    void registerStateMetadata(PS2Runtime &runtime)
+    {
+        static bool registered = false;
+        if (registered)
+            return;
+        registered = true;
+        ps2_save_state::setMetadataProvider([&runtime]
+                                            {
+                                                std::vector<std::pair<std::string, std::string>> out;
+                                                const rt::game::Stats st = rt::game::readStats(runtime);
+                                                if (st.racing)
+                                                {
+                                                    out.emplace_back("mode", "race");
+                                                    out.emplace_back("place", st.course);
+                                                }
+                                                else if (st.inTown && !st.demo)
+                                                {
+                                                    out.emplace_back("mode", "town");
+                                                    out.emplace_back("place", st.townLabel);
+                                                }
+                                                else
+                                                    out.emplace_back("mode", st.demo ? "demo" : "menu");
+                                                if (st.adventure)
+                                                {
+                                                    out.emplace_back("player", st.playerName);
+                                                    out.emplace_back("money", std::to_string(st.money));
+                                                    out.emplace_back("stamps", std::to_string(st.stamps.count()));
+                                                }
+                                                return out;
+                                            });
+    }
+
     void applyRoadTrip(PS2Runtime &runtime)
     {
+        registerStateMetadata(runtime);
         std::cout << "[roadtrip] applying SLUS-20398 overrides\n";
         g_setHalfOffset[0] = runtime.lookupFunction(kSetHalfOffset[0]);
         g_setHalfOffset[1] = runtime.lookupFunction(kSetHalfOffset[1]);
@@ -219,6 +256,18 @@ namespace
                     ++resumes;
                 }
             std::cout << "[roadtrip] widescreen camera hook (" << resumes << " resume points)\n";
+            // Save states: a camera build can be paused at a scheduler checkpoint.
+            static bool registered = false;
+            if (!registered)
+            {
+                registered = true;
+                ps2_save_state::registerSection(ps2x::fourcc("GAME"), [](ps2x::StateArchive &ar)
+                                                {
+                                                    ar & g_build.active & g_build.cam & g_build.ra & g_build.k;
+                                                    ar & g_build.jitter & g_build.jx & g_build.jy;
+                                                    ar & g_frustum & g_haveFrustum & g_frustumK;
+                                                });
+            }
         }
         else
             std::cerr << "[roadtrip] camera builder 0x21F698 not found: widescreen 3D unavailable\n";

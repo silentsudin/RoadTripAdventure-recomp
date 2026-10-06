@@ -33,7 +33,8 @@ python3 "$ROOT/scripts/bundle_sdk.py" --android \
     --clang-resource "$ROOT/build/android-llvm/clang-resource" \
     --builtins "$(ls "$PREBUILT"/lib/clang/*/lib/linux/libclang_rt.builtins-aarch64-android.a | head -1)" \
     --compiler "$JNI/libllvm.so"
-mv "$ROOT/build/android-kit/android-assets/"* "$ROOT/build/android-assets/" 2>/dev/null || true
+mkdir -p "$ROOT/build/android-assets" # (a fresh build dir has none: the kit was silently left out)
+mv "$ROOT/build/android-kit/android-assets/"* "$ROOT/build/android-assets/"
 # Every third-party component's licence, LLVM's included (the compiler and libc++ ship in the APK).
 rm -rf "$ROOT/build/android-assets/licenses"
 python3 "$ROOT/scripts/collect_licenses.py" "$BUILD" "$ROOT/build/android-assets/licenses" --llvm "$ROOT/build/android-llvm/src"

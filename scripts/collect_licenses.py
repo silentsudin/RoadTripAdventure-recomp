@@ -32,6 +32,7 @@ COMPONENTS = [
     ("libdwarf", "debug info reading (recompiler); LGPL 2.1", "deps:libdwarf",
      ["COPYING", "src/lib/libdwarf/LIBDWARFCOPYRIGHT", "src/lib/libdwarf/LGPL.txt"]),
     ("libchdr", "CHD disc images (with LZMA SDK, miniz, Zstandard)", "build:libchdr-LICENSES.txt", []),
+    ("Zstandard", "save state compression (BSD)", "deps:zstd", ["LICENSE"]),
     ("Fredoka", "the UI font (SIL Open Font License)", "repo:resources/fonts", ["OFL.txt"]),
     ("AMD FidelityFX FSR 1", "upscaling shaders (MIT)", "repo:third_party/PS2Recomp/ps2xRuntime/src/lib/gs/post/ffx", ["LICENSE.txt"]),
     ("SMAA", "anti-aliasing shaders and tables (MIT)", "repo:third_party/PS2Recomp/ps2xRuntime/src/lib/gs/post/smaa", ["LICENSE.txt"]),

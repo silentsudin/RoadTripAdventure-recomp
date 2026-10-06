@@ -31,9 +31,16 @@ namespace rt::ui
         };
         std::vector<Line> lines;
         char buf[96];
-        std::snprintf(buf, sizeof(buf), "%.0f fps", s.fps);
+        // The pictures on screen (with frame generation, the game's 60 and the ones between them);
+        // the game's own rate beside it when they differ. Gold while the game keeps its 60.
+        std::snprintf(buf, sizeof(buf), "%.0f fps", s.shownFps);
         const bool full = s.fps >= 59.0;
         lines.push_back({buf, full ? th::col::Heading : IM_COL32(0xFF, 0x8A, 0x3D, 0xFF)});
+        if (s.shownFps > s.fps + 1.0)
+        {
+            std::snprintf(buf, sizeof(buf), "game %.0f", s.fps);
+            lines.push_back({buf, full ? th::col::White : IM_COL32(0xFF, 0x8A, 0x3D, 0xFF)});
+        }
         if (level == PerfOverlay::Detailed)
         {
             std::snprintf(buf, sizeof(buf), "worst %.1f ms", s.worstFrameMs);

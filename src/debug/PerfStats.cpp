@@ -3,6 +3,7 @@
 #include "debug/PerfStats.h"
 
 #include "ps2_runtime.h"
+#include "runtime/ps2_host_presenter.h"
 
 #include <sys/resource.h>
 
@@ -60,6 +61,9 @@ namespace rt::debug
         PerfStats s;
         s.valid = true;
         s.fps = (flips - windowFlips) / elapsed;
+        // Frame generation adds pictures between the game's (Options > Frame rate).
+        const ps2x::HostPresenter *presenter = runtime.presenter();
+        s.shownFps = s.fps * (presenter ? std::max<uint32_t>(presenter->frameGenerationFactor(), 1u) : 1u);
         s.worstFrameMs = worst;
         const uint64_t vu1 = runtime.memory().gifVif1BusyNanos(), gs = runtime.memory().gsThreadBusyNanos();
         s.vu1Busy = (vu1 - lastVu1) / elapsed / 1e7;
@@ -76,8 +80,8 @@ namespace rt::debug
         // RT_PERF_LOG=1: every window to the log (measurements over a whole run).
         static const bool log = [] { const char *e = std::getenv("RT_PERF_LOG"); return e && *e == '1'; }();
         if (log)
-            std::fprintf(stderr, "[perf] %.1f fps, worst %.1f ms, VU1 %.0f%%, GS %.0f%%, CPU %.0f%%, GPU %d%% at %d MHz\n", s.fps,
-                         s.worstFrameMs, s.vu1Busy, s.gsBusy, s.appCpu, s.gpuBusy, s.gpuMHz);
+            std::fprintf(stderr, "[perf] %.1f fps (shown %.0f), worst %.1f ms, VU1 %.0f%%, GS %.0f%%, CPU %.0f%%, GPU %d%% at %d MHz\n", s.fps,
+                         s.shownFps, s.worstFrameMs, s.vu1Busy, s.gsBusy, s.appCpu, s.gpuBusy, s.gpuMHz);
         g_stats = s;
         windowStart = now;
         windowFlips = flips;
