@@ -13,7 +13,7 @@ player_name   = { offset = 0x62C, type = "str", length = 19, confidence = "confi
 currency_name = { offset = 0x63F, type = "str", length = 21, confidence = "confirmed" }  # "Enter currency unit"
 money         = { offset = 0x654, type = "u32", confidence = "confirmed" }               # 1000 at the start
 scene         = { offset = 0x538, type = "u32", confidence = "likely" }                  # low word of a 128-bit state/story flag set (WGP stage flags live higher up): 6 = Q's Factory menu, 2 = driving in town, 10 = racing, 3 = race over
-town_entered  = { offset = 0x528, type = "u32", confidence = "guess" }                   # 0 -> 1 on first drive around town
+town_entered  = { offset = 0x528, type = "u32", confidence = "guess" }                   # part of a story-flag word (town 1 sets bit 0, town 3 bit 22), not a counter
 parts         = { offset = 0x00D, type = "bytes", length = 6, confidence = "likely" }    # equipped part per category; 0x0E = engine (confirmed: index into the engine table)
 licence       = { offset = 0x651, type = "u8", confidence = "confirmed" }                # 0 none, 1 B, 2 A, 3 Super A (race menu compares it with each race's rank)
 mileage_m     = { offset = 0x658, type = "u32", confidence = "confirmed" }               # metres; the save summary shows /1609 as miles
@@ -21,6 +21,13 @@ race_results  = { offset = 0xFF0, type = "bytes", length = 35, confidence = "con
 location      = { offset = 0x12DC, type = "u8", confidence = "confirmed" }               # town of the save point: 1 Peach Town .. 9 My City (loads into that town's Q's Factory)
 ski_jump_best = { offset = 0x12C8, type = "u32", confidence = "confirmed" }             # White Mountain Ski Jumping record, metres (0 until the first jump; stock car ~101, Panther engine ~106)
 unvisited_doors = { offset = 0xBD8, type = "bytes", length = 40, confidence = "confirmed" } # per location a u32: bit n set = door n not visited yet
+coins_missing   = { offset = 0x548, type = "bytes", length = 16, confidence = "confirmed" }  # bit n-1 set = Choro Q coin n not found; found = 100 - popcount (status screen 0x2165B0)
+towns_unvisited = { offset = 0x12DA, type = "u16", confidence = "confirmed" }  # bit n set = town n never reached (0x3FF at the start)
+mail_count      = { offset = 0x628, type = "u32", confidence = "confirmed" }   # mails received (max 128; 0x23DF38)
+mail_inbox      = { offset = 0x5A8, type = "bytes", length = 128, confidence = "confirmed" }  # per slot: mail id | 0x80 once read
+radio_station   = { offset = 0x12DD, type = "u8", confidence = "confirmed" }   # 0 off, 1 PEACH FM (SOUND/1CH), 2 E-RADIO (SOUND/3CH)
+best_lap        = { offset = 0x1040, type = "bytes", length = 312, confidence = "likely" }  # u32 frames per race-table index, 0x7FFFFFFF = none
+best_total      = { offset = 0x1178, type = "bytes", length = 312, confidence = "likely" }  # same layout, whole race
 
 # Races (Quick Race and Adventure). 24 car structures; the race code keeps them at fixed addresses.
 [race]
@@ -132,6 +139,8 @@ body_offset = 0x5A8
 earned_offset = 0x518
 queue_offset = 0x3300
 award_function = 0x23C8A8
+icon_file = "SYS/STAMP.GSL"   # stamp n: a 64x64 PSMT4 upload at 0x94F0 + 0x960*(n-1) and its 16x2 CT32 palette at 0x9D60 + 0x960*(n-1) (data at +0x60; bank 0 = row 0 [0..7] + row 1 [0..7]); drawn by 0x265128
+captions_address = 0x32E240  # "mail %d/%d" (EE RAM = ELF vaddr), then the 100 captions, stamp 100 first, '#' = line break
 
 [dialogue]
 # The message window: open flag (u8), the script cursor (u32, a pointer into the ELF's text),
@@ -173,3 +182,41 @@ residents = 0x2C22C8
 # 60 real minutes). The night sky starts in the evening; shops stay open.
 time_address = 0x335914
 vblanks_per_minute = 151.5
+
+[map]
+# Every course-map and town-minimap draw has TEST_2 = 0x3380B (CTXT=1, PATH1, untextured strips; template
+# A+D at ELF 0x2A43B0 with ALPHA_2 0x8000000044), nothing else uses it. Town bezel: three PATH2 sprites
+# TBP 7828, PSMT4, CBP 7892, CSA 10 at 30..174 x 152..212. Race maps' size depends on the course.
+gs_test = 0x3380B
+draw_functions = { town = 0x242438, race = 0x2427D0, scissored = 0x242A88 }
+town_scissor = [45, 156, 158, 207]
+
+[game]
+# Globals (likely unless noted).
+location_address = 0x335923  # u8 current town (not the save point); stale after quitting Adventure
+race_address = 0x335910      # u32 -> race record {course, cars, laps, licence, ...}; stays set after the race
+race_tables = { adventure = 0x2BDDD0, quick_race = 0x2BE158, two_player = 0x2BE1D8 }
+course_names = 0x2BE398      # u32[] name pointers by course byte
+scene3d_active = 0x3356C4    # 2 while the town/race 3D scene runs (pause menu too), else 1 (confirmed)
+scene3d_handler = 0x3356D8   # 0x21CE48 race, 0x21CF80 town (confirmed)
+ui_context = 0x3356CC        # 0x29AFA0 at the title/main menu: the progress block is stale there
+drive_flags = 0x335928       # bits: 0x04 can drive, 0x20 racing, 0x08 finished; 0x10000 hides the HUD
+
+[race.live]
+# Valid only during a race (the work area is reused by towns). Times are frames (60 per second).
+total_time = 0x15AFC1C       # HUD TOTAL TIME (confirmed)
+countdown = 0x15AFB8C        # 2..5 lights, 6 GO, 0 after (confirmed)
+lap_times = 0x15B0044        # lap j at + 0x18*j; shown flag at 0x15B0034 + 0x18*j
+# Per car (cars_address + k * car_stride): +0x10B u8 laps completed, +0x1B7 u8 place - 1 (all cars),
+# +0x1D0 u32 current lap frames, +0x174 u32 distance, +0x148 |speed| (mph = v * 0.004096, fitted).
+
+[music]
+# Town radio (Pause > Radio): a station plays its hour-long VAG pair at the time of day (play_time/60 s).
+radio_streams = ["SOUND/1CH", "SOUND/3CH", "SOUND/2CH"]  # IOP play_tune; 2CH is never selected
+iop_radio = 0x542C4          # SNDMOD SDDRradio (IOP, module at 0x49300): +8 flag_play (2 = playing), +0x18 play_time, +0x1C play_tune
+iop_bgmbuf = 0x97CAC         # slot << 8 | song of the last PlayBGM (stale when stopped)
+iop_tsq_slots = 0x5416C      # 4 x 68 bytes {load, bank, lsn, size, name[52]}
+iop_muwork = 0x54788         # 48 x 28 bytes; byte 0 = active voice
+file_table = 0x29ADF0        # 12-byte {name, lsn, sectors}
+play_bgm = 0x258EC8          # a0 = 0x0A ff ss nn (file, slot, song)
+race_bgm_table = 0x29F5B0    # 18 codes by course id

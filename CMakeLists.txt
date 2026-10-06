@@ -105,12 +105,14 @@ set(RT_APP_SOURCES
     src/debug/ThreadDump.cpp
     src/game/GameBuilder.cpp
     src/game/overrides.cpp
+    src/game/GameStats.cpp
     src/platform/Paths.cpp
     src/platform/input/Config.cpp
     src/platform/input/Devices.cpp
     src/platform/input/Input.cpp
     src/platform/Host.cpp
     src/platform/Lifecycle.cpp
+    src/platform/SecondDisplay.cpp
     src/platform/input/Mapping.cpp
     src/platform/input/Players.cpp
     src/platform/input/Types.cpp
@@ -160,7 +162,7 @@ target_link_libraries(${RT_APP_TARGET} PRIVATE ps2_runtime rt_sse2neon SDL3::SDL
 if(RT_ENABLE_DEBUG_UI)
     target_sources(${RT_APP_TARGET} PRIVATE "${PS2X_RUNTIME_DIR}/src/lib/ps2_debug_panel.cpp"
                                     src/platform/input/Controllers.cpp
-                                    src/ui/ButtonGlyphs.cpp src/ui/PauseMenu.cpp src/ui/PerfOverlay.cpp src/ui/SetupScreen.cpp src/ui/Theme.cpp)
+                                    src/ui/ButtonGlyphs.cpp src/ui/PauseMenu.cpp src/ui/PerfOverlay.cpp src/ui/SecondScreen.cpp src/ui/SetupScreen.cpp src/ui/Theme.cpp)
     target_link_libraries(${RT_APP_TARGET} PRIVATE rlImGui imgui)
     target_compile_definitions(${RT_APP_TARGET} PRIVATE PS2X_ENABLE_DEBUG_UI=1)
 endif()

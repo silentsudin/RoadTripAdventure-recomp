@@ -113,8 +113,15 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
       BACK/OK buttons) are repainted with the pad's letters as the atlas is decoded
       (`src/ui/ButtonGlyphs.cpp`, the backend's decode hook). Checked on the Thor with a virtual
       Xbox pad: A enters, B goes back. paraLLEl-GS keeps the PlayStation glyphs (no CPU decode).
-- [ ] **#20 Dual screen:** use the Thor's second display (a minimap or HUD, an options panel, or
-      the game itself). The HUD classifier can already separate HUD from 3D.
+- [x] **#20 Dual screen:** the Thor's lower display shows the game's map (moved off the top
+      screen by the hardware GS), a race column, and the stamp notebook with coins, towns and
+      money (see CLAUDE.md, "Second screen"). Options → Second screen turns it off.
+  - [ ] Now playing: the radio song (PEACH FM = SOUND/1CH, Push Kings; E-RADIO = SOUND/3CH,
+        Matthew Walthius; `[music]` in game_state.toml), race BGM by Fumio Tanabe. Tracklist research
+        in progress.
+  - [ ] Stamp earned: flip to the notebook and show the new stamp; flash a new best lap.
+  - [ ] Map sharpness: render the map layer above the game's render scale.
+  - [ ] `[clock]` in game_state.toml: 150 vblanks a game minute (the radio display), not 151.5.
 - [ ] **#21 Replace the game's Options menu** with ours.
 
 ### 3. Hardware GS completion (#24, #25, #27)

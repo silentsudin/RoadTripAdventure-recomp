@@ -14,4 +14,6 @@ namespace rt::ui
     bool pauseMenuWantsFrame(); // something to draw this frame (menu, controllers, first-run hint)
     void drawPauseMenu();    // inside the shared ImGui frame
     void menuShotAfterFrame(); // after the ImGui frame is rendered (RT_MENU_SHOT)
+    bool pauseMenuOpen();
+    void togglePauseMenu();    // as Guide does (the second screen's Menu button)
 }

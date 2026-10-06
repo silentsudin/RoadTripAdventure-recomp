@@ -4,6 +4,7 @@
 #include "Settings.h"
 #include "platform/Host.h"
 #include "platform/Paths.h"
+#include "platform/SecondDisplay.h"
 
 #include <SDL3/SDL.h>
 #include "ps2_runtime.h"
@@ -160,5 +161,6 @@ namespace rt::settings
         applyWindow();
         applyGraphics();
         applyAspect();
+        rt::seconddisplay::setEnabled(current().secondScreen);
     }
 }

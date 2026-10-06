@@ -125,6 +125,7 @@ namespace rt::settings
         s.anisotropy = nearestOf(integer(t, "pack_anisotropy", s.anisotropy), {1, 2, 4, 8, 16});
         s.menuHintShown = flag(table(root, "general"), "menu_hint_shown", s.menuHintShown);
         s.perfOverlay = pick(table(root, "general"), "performance_overlay", kPerfOverlay, s.perfOverlay);
+        s.secondScreen = flag(table(root, "general"), "second_screen", s.secondScreen);
         return s;
     }
 
@@ -156,7 +157,9 @@ namespace rt::settings
           << "[general]\n"
           << "menu_hint_shown = " << (s.menuHintShown ? "true" : "false") << "\n"
           << "performance_overlay = \"" << kPerfOverlay[static_cast<size_t>(s.perfOverlay)]
-          << "\"  # off, fps, detailed (frame rate, load and temperature along the bottom)\n";
+          << "\"  # off, fps, detailed (frame rate, load and temperature along the bottom)\n"
+          << "second_screen = " << (s.secondScreen ? "true" : "false")
+          << "  # a second display (the AYN Thor's lower screen) shows the map and your stats\n";
         std::ofstream(path) << o.str();
     }
 

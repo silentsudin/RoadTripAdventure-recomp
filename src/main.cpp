@@ -42,6 +42,7 @@
 #include "ps2_debug_panel.h"
 #include "rlImGui.h"
 #include "ui/ButtonGlyphs.h"
+#include "ui/SecondScreen.h"
 #include "ui/PauseMenu.h"
 #include "ui/PerfOverlay.h"
 #include "ui/SetupScreen.h"
@@ -670,6 +671,7 @@ int main(int argc, char *argv[])
                     rt.presenter()->uiEnd();
                     rt::ui::menuShotAfterFrame();
                 }
+                rt::ui::updateSecondScreen(rt); // the lower screen (Android dual-screen devices)
 #endif
             },
             [](PS2Runtime &, void *user)

@@ -47,6 +47,7 @@ namespace rt::settings
         // General
         bool menuHintShown = false;  // the first-launch "how to open the menu" hint was shown
         PerfOverlay perfOverlay = PerfOverlay::Off; // frame rate (and load, temperature) along the bottom
+        bool secondScreen = true;     // a second display (the AYN Thor's lower screen) shows the map and stats
     };
 
     const char *name(Aspect a);

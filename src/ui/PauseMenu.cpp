@@ -317,6 +317,11 @@ namespace rt::ui
                                 "The frame rate along the bottom of the screen; Detailed adds the longest frame, CPU and GPU load "
                                 "and temperature."});
             }
+            if (capabilities().secondDisplay)
+                rows.push_back({"Second screen", [&s] { return std::string(s.secondScreen ? "On" : "Off"); },
+                                [&s](int) { s.secondScreen = !s.secondScreen; changed(); }, {},
+                                "The lower screen shows the map, your race place, journey and stamps. Off gives it back to "
+                                "Android."});
             rows.push_back(heading("Graphics"));
             static const std::vector<int> levels = {1, 2, 4, 8, 16};
             rows.push_back({"Supersampling (SSAA)",
@@ -708,6 +713,16 @@ namespace rt::ui
         }
 
         bool isConfirm() { return g_page == Page::QuitConfirm || g_page == Page::ResetConfirm; }
+    }
+
+    bool pauseMenuOpen() { return g_page != Page::Closed; }
+
+    void togglePauseMenu()
+    {
+        if (g_page == Page::Closed)
+            open(Page::Root);
+        else
+            close();
     }
 
     void updatePauseMenu()
