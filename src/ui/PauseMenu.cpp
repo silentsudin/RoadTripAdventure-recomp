@@ -1,12 +1,14 @@
 #include "PauseMenu.h"
 
 #include "Theme.h"
+#include "game/Driving.h"
 #include "game/GameOptions.h"
 #include "imgui.h"
 #include "platform/Controllers.h"
 #include "platform/Host.h"
 #include "platform/Input.h"
 #include "platform/Paths.h"
+#include "platform/input/Types.h"
 #include "raylib.h"
 #include "runtime/gs/gs_pgs_backend.h"
 #include "runtime/ps2_test_harness.h"
@@ -50,6 +52,13 @@ namespace rt::ui
             bool preview = false;                     // changes the picture: the scrim lifts a little while focused
             bool note = false;                        // a line of text, not selectable
             int slot = 0;                             // a save-state slot (1..4): drawn as a picture card
+            // A binding: the controls drawn as badges in the value column (Theme control()).
+            std::function<std::vector<rt::input::ControlGlyph>()> glyphs;
+            std::function<float()> waiting;           // 0..1 of the time left while waiting for a control, < 0 not
+            float flash = 0;                          // 0..1: the value just changed (a gold glow)
+            bool disabled = false;                    // greyed (does nothing in this state)
+            bool opens = false;                       // its value leads to a page: a › after it
+            bool alwaysArrows = false;                // ◄ value ► whether focused or not (a switcher)
         };
 
         Row heading(const char *label) { return {label, {}, {}, {}, {}, true}; }
@@ -112,7 +121,7 @@ namespace rt::ui
 
         enum class Page
         {
-            Closed, Root, Options, Controllers, Device, Buttons, QuitConfirm, ResetConfirm,
+            Closed, Root, Options, Controllers, Device, Buttons, Driving, QuitConfirm, ResetConfirm,
             SaveSlots, LoadSlots, SaveConfirm, LoadConfirm, StateMessage,
         };
 
@@ -124,8 +133,30 @@ namespace rt::ui
         double g_openedAt = 0;
         double g_closedAt = -10;
         bool g_toastPending = true;
+        double g_modernToastUntil = 0; // first drive with Modern controls: where gas and brake are
         double g_toastUntil = 0;
         std::string g_device;        // Device and Buttons pages
+        int g_driveAction = -1;      // ... the action waiting for a control
+        std::string g_driveNote;     // ... what the last change did
+        double g_driveNoteUntil = 0;
+        std::map<std::string, double> g_flashAt; // row label -> when its value changed
+
+        float flashOf(const std::string &label)
+        {
+            const auto it = g_flashAt.find(label);
+            if (it == g_flashAt.end())
+                return 0;
+            const double t = rt::host::now() - it->second;
+            return t < 0.6 ? static_cast<float>(1.0 - t / 0.6) : 0.0f;
+        }
+        void flashRow(const std::string &label) { g_flashAt[label] = rt::host::now(); }
+
+        // The confirm button's name on the pad in hand ("A", "Cross", "Enter").
+        std::string confirmName()
+        {
+            const std::string f = th::padFamilyName();
+            return f == "keyboard" ? "Enter" : f == "ps" ? "Cross" : "A";
+        }
         // Save states: the slot a confirmation is about, the message box's text, a short notice
         // after the menu closes ("Loaded slot 2."), and the slot pictures as UI textures.
         int g_stateSlot = 0;
@@ -460,9 +491,6 @@ namespace rt::ui
                             {}, "Everything the game plays: music, radio and effects."});
             rows.push_back({"Speaker", [&s] { return std::string(s.mono ? "Mono" : "Stereo"); },
                             [&s](int) { s.mono = !s.mono; changed(); }, {}, "Mono plays both channels from every speaker."});
-            rows.push_back({"Vibration", [&s] { return std::string(s.vibration ? "On" : "Off"); },
-                            [&s](int) { s.vibration = !s.vibration; changed(); }, {},
-                            "The game's rumble. How strongly each controller rumbles is set on the Controllers page."});
             // The town radio (the game's Pause > Radio): in an Adventure game only.
             if (PS2Runtime *rt = rt::host::runtime(); rt && rt::game::radioAvailable(*rt))
                 rows.push_back({"Radio station", [rt] { return std::string(rt::game::radioStationName(rt::game::radioStation(*rt))); },
@@ -668,6 +696,8 @@ namespace rt::ui
             return nullptr;
         }
 
+        Row schemeRow(bool opens);
+
         std::vector<Row> controllerRows()
         {
             std::vector<Row> rows;
@@ -696,10 +726,37 @@ namespace rt::ui
             }
             if (!rt::input::anyGamepad())
                 rows.push_back(note("Connect a controller and it appears here."));
-            else
-                rows.push_back({"Vibration", [] { return percent(rt::input::vibrationOverall()); },
-                                [](int d) { rt::input::setVibrationOverall(stepQuarter(rt::input::vibrationOverall(), d)); }, {},
-                                "How strongly every controller shakes."});
+            rows.push_back(heading("Driving"));
+            rows.push_back(schemeRow(true));
+            if (rt::input::anyGamepad())
+            {
+                rows.push_back(heading("Vibration"));
+                rows.push_back({"Vibration", [] { return std::string(!current().vibration ? "Off" : current().dynamicVibration ? "Dynamic" : "Classic"); },
+                                [](int d) {
+                                    Settings &s = current();
+                                    // Dynamic -> Classic -> Off, and round; each change plays a taste of it.
+                                    int v = !s.vibration ? 2 : s.dynamicVibration ? 0 : 1;
+                                    v = (v + d + 3) % 3;
+                                    s.vibration = v != 2;
+                                    s.dynamicVibration = v == 0;
+                                    changed();
+                                    if (v != 2)
+                                        rt::input::sampleVibration(v);
+                                },
+                                {},
+                                "Dynamic: feel the engine, the road, the brakes and every knock, on both motors and the "
+                                "triggers. Classic: the game's own buzz."});
+                Row strength{"Strength", [] { return percent(rt::input::vibrationOverall()); },
+                             [](int d) {
+                                 if (!current().vibration)
+                                     return;
+                                 rt::input::setVibrationOverall(stepQuarter(rt::input::vibrationOverall(), d));
+                                 rt::input::sampleVibration(current().dynamicVibration ? 0 : 1);
+                             },
+                             {}, current().vibration ? "How strongly every controller shakes." : "Vibration is off."};
+                strength.disabled = !current().vibration;
+                rows.push_back(strength);
+            }
             return rows;
         }
 
@@ -765,6 +822,171 @@ namespace rt::ui
             return rows;
         }
 
+        const char *schemeName(ControlScheme c)
+        {
+            return c == ControlScheme::Modern ? "Modern" : c == ControlScheme::Classic ? "Classic" : "Custom";
+        }
+
+        // Custom starts from the layout in use (the scheme's, as the game has it).
+        void beginCustom(PS2Runtime &rt)
+        {
+            if (current().controlScheme == ControlScheme::Custom)
+                return;
+            int layout[rt::game::kDriveActions];
+            rt::game::schemeLayout(static_cast<int>(current().controlScheme), layout);
+            std::string text;
+            for (int a = 0; a < rt::game::kDriveActions; ++a)
+                text += (a ? " " : "") + std::string(rt::input::ps2Name(static_cast<rt::input::Ps2Button>(layout[a])));
+            current().customControls = text;
+            current().controlScheme = ControlScheme::Custom;
+        }
+
+        // "Controls: Modern / Classic / Custom" (Left/Right); on the Controllers page it also opens the
+        // Driving controls page.
+        Row schemeRow(bool opens)
+        {
+            Row r{"Controls", [] { return std::string(schemeName(current().controlScheme)); },
+                  [](int d) {
+                      cycle(current().controlScheme, {ControlScheme::Modern, ControlScheme::Classic, ControlScheme::Custom}, d);
+                      changed(false);
+                      if (PS2Runtime *rt = rt::host::runtime())
+                          rt::game::applyControlScheme(*rt);
+                  },
+                  {},
+                  "Modern: right trigger gas, left trigger brake. Classic: the game's own. Custom: yours." +
+                      (opens ? " " + confirmName() + ": see or change each control." : std::string())};
+            r.flash = flashOf("Controls");
+            r.alwaysArrows = true;
+            if (opens)
+                r.activate = [] { go(Page::Driving, 1); };
+            return r;
+        }
+
+        // The driving actions and where the scheme puts them (the game's own button setup,
+        // Driving.h; saved with the game too).
+        std::vector<Row> drivingRows()
+        {
+            std::vector<Row> rows;
+            PS2Runtime *rt = rt::host::runtime();
+            rows.push_back(heading("Layout"));
+            rows.push_back(schemeRow(false));
+            Row header = heading("Action");
+            header.value = [] { return std::string("Your control"); };
+            rows.push_back(header);
+            const bool waiting = rt::input::capturing() && g_driveAction >= 0;
+            std::string hint = "Select, then press the control you want. Changing one makes the controls Custom.";
+            if (waiting)
+                hint = std::string("Press a control for ") +
+                       rt::game::driveActionName(static_cast<rt::game::DriveAction>(g_driveAction)) + ".";
+            else if (rt::host::now() < g_driveNoteUntil)
+                hint = g_driveNote;
+            const std::string device = rt::input::primaryDevice(0);
+            const bool live = rt && rt::game::actionButton(*rt, 0, rt::game::DriveAction::Gas) >= 0;
+            for (int a = 0; a < rt::game::kDriveActions; ++a)
+            {
+                const auto action = static_cast<rt::game::DriveAction>(a);
+                Row r{rt::game::driveActionName(action), {}, {},
+                      live ? std::function<void()>([a] {
+                          g_driveAction = a;
+                          rt::input::startCapture(0);
+                      })
+                           : std::function<void()>(),
+                      !live ? std::string("You can change these once the game has started.")
+                      : action == rt::game::DriveAction::Brake && !waiting && rt::host::now() >= g_driveNoteUntil
+                          ? "Hold it when stopped to reverse. " + hint
+                          : hint};
+                r.glyphs = [rt, a, action, device, live] {
+                    // The game's setup once it is in memory, else the scheme's layout.
+                    int b = live ? rt::game::actionButton(*rt, 0, action) : -1;
+                    if (b < 0)
+                    {
+                        int layout[rt::game::kDriveActions];
+                        rt::game::schemeLayout(static_cast<int>(current().controlScheme), layout);
+                        b = layout[a];
+                    }
+                    std::vector<rt::input::ControlGlyph> gs = rt::input::bindingGlyphs(device, b);
+                    // Modern and Custom also reverse on the brake held at a standstill.
+                    if (action == rt::game::DriveAction::Reverse && current().controlScheme != ControlScheme::Classic && live)
+                    {
+                        gs.push_back({"text", 0, 0, "or hold"});
+                        for (const auto &g : rt::input::bindingGlyphs(device, rt::game::actionButton(*rt, 0, rt::game::DriveAction::Brake)))
+                            gs.push_back(g);
+                    }
+                    return gs;
+                };
+                if (waiting && g_driveAction == a)
+                    r.waiting = [] {
+                        // The ring: time left, or (filling up) how long the back button has been held.
+                        const float hold = rt::input::captureCancelHold();
+                        return hold >= 0 ? -1.0f - hold : rt::input::captureSecondsLeft() / 6.0f;
+                    };
+                r.flash = flashOf(r.label);
+                rows.push_back(r);
+            }
+            if (rt::input::anyGamepad())
+            {
+                rows.push_back(heading("Feel"));
+                rows.push_back({"Analogue triggers", [] { return std::string(current().analogTriggers ? "On" : "Off"); },
+                                [](int) {
+                                    current().analogTriggers = !current().analogTriggers;
+                                    changed(false);
+                                },
+                                {}, "Gas and brake on triggers respond to how far you press them."});
+            }
+            return rows;
+        }
+
+        // A control caught on the Driving controls page: the action moves to the game button the
+        // control presses if the game allows that button for it (an action already there takes
+        // this one's old button); any other control is made to press the action's game button.
+        void applyDriveCapture(const rt::input::CapturedControl &c)
+        {
+            PS2Runtime *rt = rt::host::runtime();
+            const int a = g_driveAction;
+            g_driveAction = -1;
+            if (!rt || a < 0)
+                return;
+            const auto action = static_cast<rt::game::DriveAction>(a);
+            const int mine = rt::game::actionButton(*rt, 0, action);
+            if (mine < 0)
+                return;
+            g_driveNoteUntil = rt::host::now() + 3.0;
+            const std::string name = rt::game::driveActionName(action);
+            if (c.ps2Button == mine)
+            {
+                g_driveNote = name + ": " + rt::input::bindingText(rt::input::primaryDevice(0), mine) + ", as before.";
+                return;
+            }
+            const std::string device = rt::input::primaryDevice(0);
+            if (c.ps2Button >= 0 && rt::game::actionButtonAllowed(*rt, c.ps2Button))
+            {
+                int other = -1;
+                for (int o = 0; o < rt::game::kDriveActions; ++o)
+                    if (o != a && rt::game::actionButton(*rt, 0, static_cast<rt::game::DriveAction>(o)) == c.ps2Button)
+                        other = o;
+                if (current().controlScheme != ControlScheme::Custom)
+                    flashRow("Controls");
+                beginCustom(*rt);
+                rt::game::setActionButton(*rt, 0, action, c.ps2Button);
+                current().customControls = rt::game::layoutText(*rt);
+                changed(false);
+                rt::game::applyControlScheme(*rt); // player 2 too
+                flashRow(name);
+                g_driveNote = name + ": " + rt::input::bindingText(device, c.ps2Button) + ".";
+                if (other >= 0)
+                {
+                    const std::string otherName = rt::game::driveActionName(static_cast<rt::game::DriveAction>(other));
+                    flashRow(otherName);
+                    g_driveNote += " " + otherName + " moved to " + rt::input::bindingText(device, mine) + ".";
+                }
+                return;
+            }
+            // A control the game's setup doesn't offer: it presses the action's game button now.
+            rt::input::bindCaptured(c, mine);
+            flashRow(name);
+            g_driveNote = name + ": " + rt::input::bindingText(device, mine) + ".";
+        }
+
         std::vector<Row> currentRows()
         {
             switch (g_page)
@@ -774,6 +996,7 @@ namespace rt::ui
             case Page::Controllers: return controllerRows();
             case Page::Device: return deviceRows();
             case Page::Buttons: return buttonRows();
+            case Page::Driving: return drivingRows();
             case Page::SaveSlots: return slotRows(true);
             case Page::LoadSlots: return slotRows(false);
             default: return {};
@@ -857,6 +1080,15 @@ namespace rt::ui
             case Page::Options: go(Page::Root, rootIndex("Options")); break;
             case Page::Controllers: go(Page::Root, rootIndex("Controllers")); break;
             case Page::Device: go(Page::Controllers, 1); break;
+            case Page::Driving:
+            {
+                const auto rows = controllerRows();
+                int i = 0;
+                while (i < static_cast<int>(rows.size()) && rows[i].label != "Controls")
+                    ++i;
+                go(Page::Controllers, i);
+                break;
+            }
             case Page::Buttons:
                 if (g_device == "keyboard")
                     go(Page::Controllers, 1);
@@ -942,6 +1174,8 @@ namespace rt::ui
                 }
                 else if (page == "controllers")
                     go(Page::Controllers, 1);
+                else if (page == "driving")
+                    go(Page::Driving, 1);
                 else if (page == "device" || page == "buttons")
                 {
                     const auto all = rt::input::devices();
@@ -1022,9 +1256,13 @@ namespace rt::ui
         serviceStates();
         const rt::input::MenuInput in = rt::input::menuInput();
         // Rebinding takes every control until it is done (or Escape / the time-out cancels it).
-        if (rt::input::rebinding() >= 0)
+        if (rt::input::rebinding() >= 0 || rt::input::capturing())
         {
             rt::input::pollRebind();
+            if (auto c = rt::input::takeCapture())
+                applyDriveCapture(*c);
+            else if (!rt::input::capturing())
+                g_driveAction = -1;
             return;
         }
         // Saving or loading: a moment, nothing to choose.
@@ -1089,6 +1327,17 @@ namespace rt::ui
                 go(Page::ResetConfirm, 1);
             else if (g_page == Page::Buttons)
                 rt::input::resetBindings(g_device);
+            else if (g_page == Page::Driving && current().controlScheme != ControlScheme::Modern)
+            {
+                // Custom's layout is kept: Controls ◄► brings it back.
+                flashRow("Controls");
+                current().controlScheme = ControlScheme::Modern;
+                changed(false);
+                if (PS2Runtime *rt = rt::host::runtime())
+                    rt::game::applyControlScheme(*rt);
+                g_driveNote = "Modern controls.";
+                g_driveNoteUntil = rt::host::now() + 3.0;
+            }
         }
     }
 
@@ -1102,7 +1351,15 @@ namespace rt::ui
             saveCurrent();
         }
         const double now = rt::host::now();
-        return g_page != Page::Closed || now < g_toastUntil || now < g_closedAt + 0.2 || now < g_noticeUntil;
+        rt::game::RumbleOut driving;
+        if (!current().modernHintShown && current().controlScheme == ControlScheme::Modern && rt::game::controlSchemeActive() &&
+            rt::game::dynamicRumble(0, driving) && rt::input::anyGamepad())
+        {
+            current().modernHintShown = true;
+            saveCurrent();
+            g_modernToastUntil = now + 3.0;
+        }
+        return g_page != Page::Closed || now < g_toastUntil || now < g_modernToastUntil || now < g_closedAt + 0.2 || now < g_noticeUntil;
     }
 
     namespace
@@ -1117,6 +1374,8 @@ namespace rt::ui
             std::vector<P> ps;
             if (g_page == Page::StateMessage)
                 ps = {{"cross", "OK"}};
+            else if (rt::input::capturing())
+                ps = {{th::padFamilyName() == "keyboard" ? "Esc" : "hold", "Cancel"}};
             else if (isConfirm())
                 ps = {{"cross", "Select"},
                       {"triangle", g_page == Page::SaveConfirm || g_page == Page::LoadConfirm ? "Cancel" : "Back"}};
@@ -1135,13 +1394,23 @@ namespace rt::ui
                     ps.push_back({"square", "Reset all"});
                 if (g_page == Page::Buttons)
                     ps.push_back({"square", "Default buttons"});
+                if (g_page == Page::Driving && current().controlScheme != ControlScheme::Modern)
+                    ps.push_back({"square", "Reset to Modern"});
             }
             // Measured first, then drawn in a box right-aligned under the panel.
             const float gap = th::px(26), padX = th::px(20), h = th::px(58);
             auto drawAll = [&](float x, float y) {
                 for (const P &p : ps)
                 {
-                    if (!*p.button)
+                    if (std::string(p.button) == "hold")
+                    {
+                        // "Hold B Cancel": the pad's back button (B; ○ on PlayStation) held.
+                        const ImVec2 hs = th::measure(th::Size::Hint, "Hold");
+                        th::text(dl, ImVec2(x, y + (th::px(40) - hs.y) * 0.5f), th::Size::Hint, th::col::Silver, "Hold", th::col::OutlineBlue);
+                        x += hs.x + th::px(10);
+                        x += th::prompt(dl, ImVec2(x, y), th::padFamilyName() == "ps" ? "circle" : "triangle", p.label) + gap;
+                    }
+                    else if (!*p.button)
                     {
                         // Left/Right: two small arrows and the label.
                         th::arrow(dl, ImVec2(x + th::px(8), y + th::px(20)), false);
@@ -1220,6 +1489,46 @@ namespace rt::ui
             }
             if (g_page != Page::StateMessage) // its one button says it all
                 drawPrompts(dl, max, min.x, false);
+        }
+
+        // "RT gas · LT brake · hold LT to reverse", with player 1's own glyphs, for 3 s.
+        void drawModernToast(ImDrawList *dl, ImVec2 vmax)
+        {
+            const float h = th::px(66);
+            // Clear of the performance overlay along the bottom (PerfOverlay.cpp: its top is
+            // 12 px + its height above the edge), 16 px above it.
+            float bottom = vmax.y - th::px(32);
+            if (current().perfOverlay != PerfOverlay::Off)
+                bottom = std::min(bottom, vmax.y - th::px(12) - (th::fontSize(th::Size::Body) * 0.9f + th::px(16)) - th::px(16));
+            const float y = bottom - h;
+            const std::string device = rt::input::primaryDevice(0);
+            const std::string family = rt::input::familyOf(device);
+            auto layout = [&](float x0, bool draw) {
+                float x = x0;
+                const float gy = y + (h - th::px(40)) * 0.5f, ty = y + (h - th::fontSize(th::Size::Hint)) * 0.5f;
+                auto word = [&](const char *s) {
+                    if (draw)
+                        th::text(dl, ImVec2(x, ty), th::Size::Hint, th::col::Silver, s, th::col::OutlineBlue);
+                    x += th::measure(th::Size::Hint, s).x + th::px(10);
+                };
+                auto trigger = [&](int axis) {
+                    x += th::control(draw ? dl : nullptr, ImVec2(x, gy), family, 1, axis, {}) + th::px(10);
+                };
+                trigger(5);
+                word("gas");
+                x += th::px(18);
+                trigger(4);
+                word("brake");
+                x += th::px(18);
+                word("hold");
+                trigger(4);
+                word("to reverse");
+                return x - x0;
+            };
+            const float w = layout(0, false) + th::px(36);
+            const ImVec2 min(vmax.x - w - th::px(32), y), max(vmax.x - th::px(32), y + h);
+            th::promptBox(dl, min, max);
+            layout(min.x + th::px(22), true);
         }
 
         void drawToast(ImDrawList *dl, ImVec2 vmax)
@@ -1384,6 +1693,8 @@ namespace rt::ui
                 th::scrim(dl, vmin, vmax, static_cast<float>(1.0 - (now - g_closedAt) / 0.2));
             if (now < g_toastUntil)
                 drawToast(dl, vmax);
+            if (now < g_modernToastUntil)
+                drawModernToast(dl, vmax);
             if (now < g_noticeUntil)
                 drawNotice(dl, vmax, now);
             return;
@@ -1412,7 +1723,7 @@ namespace rt::ui
 
         const bool wide = g_page != Page::Root;
         const bool slotPage = g_page == Page::SaveSlots || g_page == Page::LoadSlots;
-        const float rowH = th::px(slotPage ? 136 : 62);
+        float rowH = th::px(slotPage ? 136 : 80);
         const float width = std::min(th::px(wide ? 880 : 520), vp->Size.x * 0.92f);
         const float pad = th::px(30);
         const float promptsH = th::px(90);
@@ -1426,13 +1737,27 @@ namespace rt::ui
         for (const Row &r : rows)
             if (!r.hint.empty())
                 hintLines = std::max(hintLines, wrapHint(r.hint, hintWidth).size());
+        if (wide && !slotPage)
+            hintLines = std::max<size_t>(hintLines, 2); // at least two lines; steady within a page
         const float hintH = std::max(th::px(62), hintLineH * static_cast<float>(hintLines) + 2.0f * hintPad + th::px(6));
-        const int visible = std::max(1, std::min(n, static_cast<int>(vp->Size.y * 0.62f / rowH)));
-        const float bodyH = rowH * visible;
-        bool anyHint = false;
+        bool anyHint = wide && !slotPage;
         for (const Row &r : rows)
             anyHint |= !r.hint.empty();
-        const float height = pad + bodyH + (anyHint ? th::px(10) + hintH : 0.0f) + pad * 0.6f;
+        // The panel, its name tab above and the prompts below stay at least 24 px inside the
+        // screen; rows beyond that scroll. Every wide page has the same frame (as many rows as
+        // fit), so moving between pages never resizes it.
+        const float margin = th::px(24), tabH = th::px(44);
+        const float chrome = pad + (anyHint ? th::px(10) + hintH : 0.0f) + pad * 0.6f;
+        const float avail = vp->Size.y - 2.0f * margin - tabH - promptsH - chrome;
+        // Handhelds (the UI grows with how small the screen is) still get 6-7 rows a page: the rows
+        // close up towards 1.5 lines of text rather than show fewer.
+        if (wide && !slotPage && avail / rowH < 6.0f)
+            rowH = std::max(th::fontSize(th::Size::Body) * 1.5f, avail / 7.0f);
+        const int fit = std::max(1, static_cast<int>(avail / rowH));
+        const int cap = std::min(fit, std::max(1, static_cast<int>(vp->Size.y * 0.62f / rowH)));
+        const int visible = wide && !slotPage ? cap : std::max(1, std::min(n, cap));
+        const float bodyH = rowH * visible;
+        const float height = pad + bodyH + chrome - pad;
         // Keep the cursor in view (with the heading above it when there is room).
         if (sel < g_scroll + 0.5f)
             g_scroll = static_cast<float>(std::max(0, sel - (sel > 0 && rows[sel - 1].heading ? 1 : 0)));
@@ -1441,7 +1766,8 @@ namespace rt::ui
         g_scroll = std::clamp(g_scroll, 0.0f, static_cast<float>(std::max(0, n - visible)));
         const int first = static_cast<int>(g_scroll);
 
-        const float targetY = vp->Pos.y + (vp->Size.y - height - promptsH * 0.5f) * 0.5f;
+        const float targetY = std::clamp(vp->Pos.y + (vp->Size.y - height - promptsH * 0.5f) * 0.5f, vp->Pos.y + margin + tabH,
+                                         std::max(vp->Pos.y + margin + tabH, vp->Pos.y + vp->Size.y - margin - promptsH - height));
         g_panelY = g_panelY < 0 ? targetY : g_panelY + (targetY - g_panelY) * std::min(1.0f, dt * 14.0f);
         const ImVec2 min(vp->Pos.x + (vp->Size.x - width) * 0.5f, g_panelY + (1 - appear) * th::px(40));
         const ImVec2 max(min.x + width, min.y + height);
@@ -1454,6 +1780,8 @@ namespace rt::ui
             title = "Load state";
         else if (g_page == Page::Controllers)
             title = "Controllers";
+        else if (g_page == Page::Driving)
+            title = "Driving controls";
         else if (g_page == Page::Device || g_page == Page::Buttons)
         {
             const auto all = rt::input::devices();
@@ -1493,7 +1821,9 @@ namespace rt::ui
         g_barY = g_barY < 0 ? target : g_barY + (target - g_barY) * std::min(1.0f, dt * 18.0f);
         if (n && !rows[sel].heading)
         {
-            const ImVec2 bmin(left + th::px(56), g_barY + th::px(7)), bmax(right, g_barY + rowH - th::px(7));
+            // A 64 px bar in the row (taller rows only space them out).
+            const float inset = slotPage ? th::px(7) : (rowH - std::min(th::px(64), rowH - th::px(10))) * 0.5f;
+            const ImVec2 bmin(left + th::px(56), g_barY + inset), bmax(right, g_barY + rowH - inset);
             th::selectionBar(dl, bmin, bmax, slotPage ? th::px(48) : 0.0f);
             th::horn(dl, ImVec2(bmin.x + th::px(2), (bmin.y + bmax.y) * 0.5f), th::px(28), static_cast<float>(now));
         }
@@ -1534,22 +1864,66 @@ namespace rt::ui
             }
             const bool on = i == sel;
             const float y = y0 + (rowH - th::fontSize(th::Size::Body)) * 0.5f;
-            const ImU32 colour = on ? th::col::ListSelected : th::col::ListText;
+            const ImU32 grey = IM_COL32(0x9C, 0xB4, 0xC4, 0xFF);
+            const ImU32 colour = rows[i].disabled ? grey : on ? th::col::ListSelected : th::col::ListText;
             const ImU32 outline = on ? th::col::OutlineBlue : th::col::Black;
             th::text(dl, ImVec2(left + th::px(84), y), th::Size::Body, colour, rows[i].label.c_str(), outline);
+            const float cy = y0 + rowH * 0.5f;
+            // A value that just changed glows gold for a moment.
+            if (rows[i].flash > 0) // a gold outline round the row, fading over 600 ms
+                dl->AddRect(ImVec2(left + th::px(56), y0 + th::px(8)), ImVec2(right, y0 + rowH - th::px(8)),
+                            IM_COL32(0xFF, 0xD2, 0x3C, static_cast<int>(255 * rows[i].flash)), th::px(12), 0, th::px(3));
+            if (rows[i].waiting)
+            {
+                // Waiting for a control: a pulsing gold "Press…" and a ring that empties as time runs out.
+                const float w01 = rows[i].waiting();
+                const bool holding = w01 < 0; // -1 - hold: the cancel hold filling the ring
+                const float left01 = holding ? std::clamp(-1.0f - w01, 0.0f, 1.0f) : std::clamp(w01, 0.0f, 1.0f);
+                const float pulse = 0.55f + 0.45f * std::sin(static_cast<float>(now) * 6.0f);
+                const ImVec2 rc(right - th::px(56), cy);
+                const float rr = th::px(14);
+                dl->AddCircle(rc, rr, IM_COL32(0x10, 0x30, 0x60, 0xFF), 0, th::px(4));
+                dl->PathArcTo(rc, rr, -1.5708f, -1.5708f + 6.2832f * left01, 32);
+                dl->PathStroke(holding ? IM_COL32(0xE8, 0x50, 0x40, 0xFF) : IM_COL32(0xFF, 0xD2, 0x4A, 0xFF), 0, th::px(4));
+                const char *press = "Press\u2026";
+                const ImVec2 ps = th::measure(th::Size::Body, press);
+                th::text(dl, ImVec2(rc.x - rr - th::px(16) - ps.x, y), th::Size::Body,
+                         IM_COL32(0xFF, 0xD2, 0x4A, static_cast<int>(255 * pulse)), press, outline);
+                continue;
+            }
+            if (rows[i].glyphs)
+            {
+                // The controls as the pad in hand shows them, right-aligned.
+                const std::vector<rt::input::ControlGlyph> gs = rows[i].glyphs();
+                float w = 0;
+                for (const auto &g : gs)
+                    w += th::control(nullptr, ImVec2(), g.family, g.kind, g.index, g.key) + th::px(8);
+                float gx = right - th::px(40) - w + th::px(8);
+                if (gs.empty())
+                    th::text(dl, ImVec2(right - th::px(40) - th::measure(th::Size::Body, "-").x, y), th::Size::Body, th::col::White, "-", outline);
+                for (const auto &g : gs)
+                    gx += th::control(dl, ImVec2(gx, cy - th::px(20)), g.family, g.kind, g.index, g.key) + th::px(8);
+                continue;
+            }
             if (rows[i].value)
             {
                 const std::string v = rows[i].value();
                 const ImVec2 size = th::measure(th::Size::Body, v.c_str());
-                const float vx = right - th::px(on && rows[i].change ? 72 : 40) - size.x;
+                const bool arrows = (on || rows[i].alwaysArrows) && rows[i].change && !rows[i].disabled;
+                const float vx = right - th::px(arrows ? 72 : rows[i].opens ? 62 : 40) - size.x;
                 // Bindings (an action's control) in white so they read apart from the action.
-                const ImU32 vc = on ? th::col::ListSelected : g_page == Page::Buttons ? th::col::White : th::col::ListText;
+                const ImU32 vc = rows[i].disabled ? grey : on ? th::col::ListSelected : g_page == Page::Buttons ? th::col::White : th::col::ListText;
                 th::text(dl, ImVec2(vx, y), th::Size::Body, vc, v.c_str(), outline);
-                if (on && rows[i].change)
+                if (arrows)
                 {
-                    const float cy = y0 + rowH * 0.5f;
                     th::arrow(dl, ImVec2(vx - th::px(20), cy), false);
                     th::arrow(dl, ImVec2(right - th::px(54), cy), true);
+                }
+                else if (rows[i].opens) // leads to a page: ›
+                {
+                    const float ax = right - th::px(44), ah = th::px(9);
+                    dl->AddLine(ImVec2(ax - ah * 0.6f, cy - ah), ImVec2(ax + ah * 0.4f, cy), vc, th::px(4));
+                    dl->AddLine(ImVec2(ax + ah * 0.4f, cy), ImVec2(ax - ah * 0.6f, cy + ah), vc, th::px(4));
                 }
             }
         }

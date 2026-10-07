@@ -379,9 +379,14 @@ namespace rt::states
             }
             if (!stepLocked(kMaxVblanks))
             {
+                // (r is still the previous request's result: this one was never served.)
+                uint64_t loopTops = 0;
+                const std::string blockers = ss::pendingBlockers(&loopTops);
                 ss::cancel();
                 g_thumbnailPng.clear();
-                return finishLocked(false, busyMessage(r.blockers), "no savable point (" + r.blockers + ")");
+                return finishLocked(false, busyMessage(blockers),
+                                    "no savable point (" + blockers + "; " + std::to_string(g_status.vblanks) + " vblanks, " +
+                                        std::to_string(loopTops) + " loop tops)");
             }
             return;
         }

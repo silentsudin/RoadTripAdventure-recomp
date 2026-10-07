@@ -40,6 +40,8 @@ namespace rt::input
         static GamepadSnapshot snapshot(const Device &d);
         // low/high: 0..1 (large, slow motor / small, fast motor); lasts `ms` unless renewed.
         static void rumble(const Device &d, float low, float high, uint32_t ms);
+        // The trigger motors (Xbox One and later pads; false where the pad has none).
+        static bool rumbleTriggers(const Device &d, float left, float right, uint32_t ms);
         // Player LEDs (DualSense, Switch Pro, Xbox 360) and the light bar (DualSense, DS4).
         static void showPlayer(const Device &d, int player);
 

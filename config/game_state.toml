@@ -263,3 +263,18 @@ pool = 0x177A0D0              # 0x30 tasks x 0x30 bytes: +0 active, +4 result to
 walker = 0x204F98             # main loop 0x200534: walker(pool, 0x335900)
 spawn = 0x204C48              # (parent, fn, arg) -> task
 kill = 0x204DE8               # (task)
+
+[controls]
+# The game's driving button setup (progress block 0x177F760 + port * 0x3448), u16 masks in the
+# game's word order (the DS2 data bytes swapped from SCE's: Cross 0x0040, Square 0x0080, Circle
+# 0x0020, Triangle 0x0010, R1 0x0008, L1 0x0004, R2 0x0002, L2 0x0001, Select 0x0100, Up 0x1000, Down 0x4000).
+action_map = 0x1780A48       # +0 gas, +2 brake, +4 reverse, +6 jet, +8 wing up, +A wing down, +C horn, +E view, +10 lights (= horn), +12 navigator
+allowed_buttons = 0x29C538   # 11 x 20 bytes {u32 mask, x, y, ..}: the buttons the setup offers
+held = 0x33592C              # u16 + port*2, game word order; pressed edges at 0x335930
+player_control = 0x21A820    # (task, sys, car) -> v0 control word: 1 gas, 2 brake, 4 reverse (5 with the reverse button), 8 jet, 0x10 lights, 0x20/0x40 wing, 0x2000/0x8000 steer
+car_object = 0x177AC50       # + k * 0x270 (= cars_address - 0x90): +0x198 port bit, +0x19C 7 contact words (0x2000 road, 0x2353 grass at Peach Raceway, -1 none),
+                             # +0x1C4 u8 skid 0..180 (inferred), +0x1D0 u16 rpm 0..~9000, +0x1D8 u32 |speed|, +0x1FE brake ramp 0..32, +0x1FF gear 1..5
+car_update = 0x21A310        # brake force = curve[+0x200][ramp - 1] * 10000 >> 5; gearbox via the pointer at 0x3356D8 (0x21CE48)
+rumble_start = 0x20ACB8      # (sys, port, pattern, strength); gate sys[0xC + port] & 0x33590E; scripts 0x29AD60 -> 0x2EA3D0 (8 bytes each)
+# Seen while driving: pattern 1 from 0x21B360 (suspension bumps, strength 11..41); 3/4/5 from 0x219C6C/0x219C8C (rough ground,
+# by surface type: 4 for 1/4/5, 3 for 2/8/10, 5 for 3/6/7/9; every 2-3 frames off the road); 6 from 0x21793C (collisions, strength 125 into a car).

@@ -2,6 +2,7 @@
 // Bind addresses to runtime handlers here as boot issues are triaged, e.g.
 //   ps2_game_overrides::bindAddressHandler(runtime, 0x00123456, "ret0");
 
+#include "game/Driving.h"
 #include "game/GameOptions.h"
 #include "game/GameStats.h"
 #include "states/StateSlots.h"
@@ -362,6 +363,8 @@ namespace
             runtime.replaceFunction(kTownTask, townTask);
         else
             std::cerr << "[roadtrip] town task or radio calls not found: the app can't switch stations\n";
+        // Analogue gas and brake, dynamic vibration (game/Driving.h).
+        rt::game::installDrivingHooks(runtime);
         g_buildCamera = runtime.lookupFunction(kBuildCamera);
         if (g_buildCamera)
         {

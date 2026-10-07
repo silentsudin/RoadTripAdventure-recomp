@@ -107,6 +107,8 @@ set(RT_APP_SOURCES
     src/game/overrides.cpp
     src/game/GameStats.cpp
     src/game/GameOptions.cpp
+    src/game/Driving.cpp
+    src/game/DriveFeel.cpp
     src/platform/Paths.cpp
     src/platform/input/Config.cpp
     src/platform/input/Devices.cpp
@@ -249,6 +251,10 @@ if(BUILD_TESTING AND NOT ANDROID)
     target_include_directories(input_test PRIVATE src)
     target_link_libraries(input_test PRIVATE SDL3::SDL3 toml11::toml11)
     add_test(NAME input COMMAND input_test)
+
+    add_executable(drive_feel_test tests/drive_feel_test.cpp src/game/DriveFeel.cpp)
+    target_include_directories(drive_feel_test PRIVATE src)
+    add_test(NAME drive_feel COMMAND drive_feel_test)
 
     add_executable(settings_test tests/settings_test.cpp src/settings/Settings.cpp src/settings/Capabilities.cpp
         src/platform/Paths.cpp)

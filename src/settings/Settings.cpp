@@ -20,6 +20,7 @@ namespace rt::settings
         constexpr std::array<const char *, 3> kFrameModes = {"interpolate", "extrapolate", "rerender"};
         constexpr std::array<const char *, 4> kAa = {"none", "fxaa", "smaa", "taa"};
         constexpr std::array<const char *, 3> kPerfOverlay = {"off", "fps", "detailed"};
+        constexpr std::array<const char *, 3> kSchemes = {"modern", "classic", "custom"};
         constexpr std::array<const char *, static_cast<size_t>(Upscaler::Count)> kUpscalers = {
             "none", "fsr1", "metalfx_spatial", "metalfx_temporal", "arm_asr", "sgsr1", "sgsr2", "arm_nss",
             "fsr3", "fsr4", "xess", "dlss"};
@@ -126,12 +127,20 @@ namespace rt::settings
         s.dumpTextures = flag(t, "dump", s.dumpTextures);
         s.anisotropy = nearestOf(integer(t, "pack_anisotropy", s.anisotropy), {1, 2, 4, 8, 16});
         s.menuHintShown = flag(table(root, "general"), "menu_hint_shown", s.menuHintShown);
+        s.modernHintShown = flag(table(root, "general"), "modern_hint_shown", s.modernHintShown);
         s.perfOverlay = pick(table(root, "general"), "performance_overlay", kPerfOverlay, s.perfOverlay);
         s.secondScreen = flag(table(root, "general"), "second_screen", s.secondScreen);
         const toml::value &snd = table(root, "sound");
         s.volume = std::clamp(number(snd, "volume", s.volume), 0.0f, 1.0f);
         s.mono = flag(snd, "mono", s.mono);
         s.vibration = flag(snd, "vibration", s.vibration);
+        if (snd.is_table() && snd.contains("vibration_style") && snd.at("vibration_style").is_string())
+            s.dynamicVibration = snd.at("vibration_style").as_string() != "classic";
+        const toml::value &ctl = table(root, "controls");
+        s.analogTriggers = flag(ctl, "analog_triggers", s.analogTriggers);
+        s.controlScheme = pick(ctl, "scheme", kSchemes, s.controlScheme);
+        if (ctl.contains("custom") && ctl.at("custom").is_string())
+            s.customControls = ctl.at("custom").as_string();
         return s;
     }
 
@@ -163,6 +172,7 @@ namespace rt::settings
           << "dump = " << (s.dumpTextures ? "true" : "false") << "  # for pack makers: save every texture to textures/dumps\n\n"
           << "[general]\n"
           << "menu_hint_shown = " << (s.menuHintShown ? "true" : "false") << "\n"
+          << "modern_hint_shown = " << (s.modernHintShown ? "true" : "false") << "\n"
           << "performance_overlay = \"" << kPerfOverlay[static_cast<size_t>(s.perfOverlay)]
           << "\"  # off, fps, detailed (frame rate, load and temperature along the bottom)\n"
           << "second_screen = " << (s.secondScreen ? "true" : "false")
@@ -170,7 +180,16 @@ namespace rt::settings
           << "[sound]\n"
           << "volume = " << s.volume << "  # master volume, 0 .. 1\n"
           << "mono = " << (s.mono ? "true" : "false") << "  # speaker: false = stereo\n"
-          << "vibration = " << (s.vibration ? "true" : "false") << "  # the game's vibration switch\n";
+          << "vibration = " << (s.vibration ? "true" : "false") << "  # the game's vibration switch\n"
+          << "vibration_style = \"" << (s.dynamicVibration ? "dynamic" : "classic")
+          << "\"  # dynamic: from the car (engine, road, brakes, knocks); classic: the game's own\n\n"
+          << "[controls]\n"
+          << "scheme = \"" << kSchemes[static_cast<size_t>(s.controlScheme)]
+          << "\"  # modern (triggers gas/brake), classic (the game's own), custom\n"
+          << "custom = \"" << s.customControls
+          << "\"  # custom: gas brake reverse jet wing_up wing_down horn view navigator\n"
+          << "analog_triggers = " << (s.analogTriggers ? "true" : "false")
+          << "  # gas and brake on analogue triggers respond to how far they are pressed\n";
         std::ofstream(path) << o.str();
     }
 

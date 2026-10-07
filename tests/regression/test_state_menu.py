@@ -180,3 +180,44 @@ def test_card_save_after_menu_load(game_factory):
     game.close()  # (the log is flushed at exit)
     log = (game.work_dir / "app.log").read_text(errors="replace")
     assert "result=-1" in log, "the game saw the changed card"
+
+
+def test_menu_states_real_time(game_factory):
+    """Real time (RT_TIME=real, RT_TEST_LIVE=1), as on a device: the menu holds the game in its
+    vblank park and lets vblanks through one at a time until a savable point. A save and a load
+    from the held game both finish (a load used to give up with "no savable point" on the Thor)."""
+    from rtharness.adventure import boot_to_main_menu
+
+    game = game_factory(name="state_menu_real_time", render=True, env={"RT_TIME": "real", "RT_TEST_LIVE": "1"})
+    boot_to_main_menu(game)  # into a Quick Race, as test_pause_resume does
+    game.press("down")
+    game.run(seconds(2))
+    for _ in range(8):
+        game.press("cross")
+        game.run(seconds(4))
+    game.pad("cross")
+    game.run(seconds(5))
+    assert slots(game)["available"], slots(game)
+
+    def held(op: str, slot: int) -> dict:
+        game._call("pause", on=1)
+        time.sleep(0.3)
+        assert game._call("state_slot", op=op, slot=slot)["ok"]
+        end = time.time() + 60
+        while time.time() < end:
+            s = status(game)
+            if s["phase"] in ("done", "failed"):
+                break
+            time.sleep(0.03)
+        game._call("pause", on=0)
+        return s
+
+    saved = held("save", 1)
+    assert saved["phase"] == "done", saved
+    game.run(seconds(3))
+    loaded = held("load", 1)
+    assert loaded["phase"] == "done" and loaded["message"] == "Loaded slot 1.", loaded
+    game.run(seconds(2))
+    for _ in range(3):  # again, from different moments
+        assert held("load", 1)["phase"] == "done"
+        game.run(seconds(1))

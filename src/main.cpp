@@ -44,6 +44,7 @@
 #include "rlImGui.h"
 #include "ui/ButtonGlyphs.h"
 #include "ui/SecondScreen.h"
+#include "game/Driving.h"
 #include "game/GameOptions.h"
 #include "ui/PauseMenu.h"
 #include "ui/PerfOverlay.h"
@@ -61,6 +62,7 @@
 #endif
 
 #include <algorithm>
+#include <atomic>
 #include <cstdlib>
 #include <cstring>
 #include <exception>
@@ -470,7 +472,7 @@ namespace
                 rt::settings::capabilities().frameGeneration = true; // re-rendered shadow frames
                 rt::settings::capabilities().motionVectors = true;  // TAA
                 rt::settings::capabilities().temporalInputs = true; // and depth: MetalFX temporal, temporal upscalers
-                rt::settings::capabilities().saveStates = false;    // its render targets aren't in a state yet
+                rt::settings::capabilities().saveStates = true;     // local memory saved; render targets redrawn after a load
                 rt::settings::capabilities().hardwareGs = true;     // supersampling labels give its render scale
                 return;
             }
@@ -552,6 +554,8 @@ namespace
     // Test socket {"cmd":"sdlpad","type":"xbox|ps|switch","buttons":"start,back,..."}: a virtual SDL
     // gamepad with these buttons held (the rest released), so tests reach the app's own input
     // path (menus, rebinding, button icons) the way a real controller does. "type":"none" unplugs it.
+    std::atomic<int> g_virtualRumble[4] = {0, 0, 0, 0};
+
     std::string testSdlPad(const std::string &line)
     {
         static SDL_JoystickID id = 0;
@@ -579,6 +583,16 @@ namespace
             // these (not from the database entry of the device the ids name).
             desc.button_mask = (1u << SDL_GAMEPAD_BUTTON_COUNT) - 1;
             desc.axis_mask = (1u << SDL_GAMEPAD_AXIS_COUNT) - 1;
+            desc.Rumble = [](void *, Uint16 low, Uint16 high) {
+                g_virtualRumble[0] = low;
+                g_virtualRumble[1] = high;
+                return true;
+            };
+            desc.RumbleTriggers = [](void *, Uint16 left, Uint16 right) {
+                g_virtualRumble[2] = left;
+                g_virtualRumble[3] = right;
+                return true;
+            };
             // Real devices' USB ids, so SDL reports their gamepad type and button labels.
             if (type == "ps")
                 desc.vendor_id = 0x054C, desc.product_id = 0x0CE6, desc.name = "Test DualSense";
@@ -604,9 +618,20 @@ namespace
         for (const auto &[name, button] : names)
             SDL_SetJoystickVirtualButton(joy, button, held.find("," + std::string(name) + ",") != std::string::npos);
         for (const char *trigger : {"lt", "rt"})
+        {
+            // In "buttons" fully pressed; "lt"/"rt": 0..1, how far.
+            const std::string amount = ps2_test::jsonField(line, trigger);
+            const float v = !amount.empty() ? std::clamp(std::strtof(amount.c_str(), nullptr), 0.0f, 1.0f)
+                            : held.find("," + std::string(trigger) + ",") != std::string::npos ? 1.0f : 0.0f;
             SDL_SetJoystickVirtualAxis(joy, trigger[0] == 'l' ? SDL_GAMEPAD_AXIS_LEFT_TRIGGER : SDL_GAMEPAD_AXIS_RIGHT_TRIGGER,
-                                       held.find("," + std::string(trigger) + ",") != std::string::npos ? SDL_JOYSTICK_AXIS_MAX : 0);
-        return "{\"ok\":true}";
+                                       // SDL reads a virtual pad's trigger over the axis' whole range (0 = half
+                                       // pressed), so released is the minimum.
+                                       static_cast<Sint16>(SDL_JOYSTICK_AXIS_MIN + v * (SDL_JOYSTICK_AXIS_MAX - SDL_JOYSTICK_AXIS_MIN)));
+        }
+        // What the app last asked this pad's motors for (0..65535: low, high, left and right trigger).
+        return "{\"ok\":true,\"rumble\":[" + std::to_string(g_virtualRumble[0].load()) + "," +
+               std::to_string(g_virtualRumble[1].load()) + "," + std::to_string(g_virtualRumble[2].load()) + "," +
+               std::to_string(g_virtualRumble[3].load()) + "]}";
     }
 
     // Extracts the disc and builds the game library as needed.
@@ -945,6 +970,11 @@ int main(int argc, char *argv[])
             {
                 PS2Runtime *rt = rt::host::runtime();
                 return rt ? rt::game::radioCommand(*rt, line) : std::string("{\"ok\":false}");
+            }
+            if (cmd == "driving") // the game's driving actions, analogue gas/brake, dynamic vibration (Driving.h)
+            {
+                PS2Runtime *rt = rt::host::runtime();
+                return rt ? rt::game::drivingCommand(*rt, line) : std::string("{\"ok\":false}");
             }
             if (cmd == "sdlpad")
                 return testSdlPad(line);

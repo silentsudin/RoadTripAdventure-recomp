@@ -167,6 +167,12 @@ namespace rt::input
         SDL_RumbleGamepad(d.pad, u16(low), u16(high), ms);
     }
 
+    bool Devices::rumbleTriggers(const Device &d, float left, float right, uint32_t ms)
+    {
+        auto u16 = [](float v) { return static_cast<Uint16>(std::clamp(v, 0.0f, 1.0f) * 65535.0f); };
+        return SDL_RumbleGamepadTriggers(d.pad, u16(left), u16(right), ms);
+    }
+
     void Devices::showPlayer(const Device &d, int player)
     {
         SDL_SetGamepadPlayerIndex(d.pad, player);
