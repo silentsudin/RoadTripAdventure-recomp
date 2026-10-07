@@ -251,6 +251,46 @@ namespace
         CHECK(!w.lastFrameWas2D());
     }
 
+    void fadeKeepsVerdict()
+    {
+        // Going into a building or a load: frames start with a blended black fill over the
+        // last picture (no clear), then "NOW LOADING". They show the picture before them, so
+        // they keep its verdict: a town picture is not squeezed to 4:3 for the fade, and the
+        // text on it keeps its shape (narrowed as HUD).
+        constexpr uint64_t kBlendSprite = kSprite | (1 << 6);
+        WideLayout w;
+        w.configure(16.0f / 9.0f, HudPlacement::Edges);
+        drivingFrame(w);
+        for (int f = 0; f < 12; ++f)
+        {
+            w.frameStart();
+            auto fade = packet(kBlendSprite, {{0, -16}, {640, 240}});
+            run(w, PATH2, fade);
+            CHECK(near(xAt(fade, 0), 0) && near(xAt(fade, 1), 640)); // full-screen: stretches
+            auto text = packet(kTexSprite, {{400, 180}, {600, 200}});
+            run(w, PATH2, text, 7566);
+            CHECK(near(xAt(text, 0), 460) && near(xAt(text, 1), 610)); // right third: towards the right edge
+            w.framePresented();
+            CHECK(!w.lastFrameWas2D());
+        }
+        // The building's inside (a full-screen picture) is 2D-backed at once; a fade there
+        // keeps it 4:3, and leaves its text alone.
+        w.frameStart();
+        auto inside = packet(kTexSprite, {{0, 0}, {640, 224}});
+        run(w, PATH2, inside, 7566);
+        CHECK(w.lastFrameWas2D());
+        for (int f = 0; f < 12; ++f)
+        {
+            w.frameStart();
+            auto fade = packet(kBlendSprite, {{0, -16}, {640, 240}});
+            run(w, PATH2, fade);
+            auto text = packet(kTexSprite, {{400, 180}, {600, 200}});
+            run(w, PATH2, text, 7566);
+            CHECK(near(xAt(text, 0), 400) && near(xAt(text, 1), 600));
+            CHECK(w.lastFrameWas2D());
+        }
+    }
+
     void off()
     {
         WideLayout w;
@@ -272,6 +312,7 @@ int main()
     messageWindow();
     separateElements();
     newScreenAt4By3();
+    fadeKeepsVerdict();
     off();
     if (g_failures)
         std::fprintf(stderr, "%d check(s) failed\n", g_failures);

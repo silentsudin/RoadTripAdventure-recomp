@@ -97,7 +97,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [ ] Artefacts on the second screen still (details pending: page, look, 60/120 Hz).
 - [x] (VIF1 sync, pipeline cache, present thread; 120 Hz in town is its own item) Town frame rate inconsistent (60, then 30 or lower). The hardware GS has no persistent pipeline cache and builds pipelines on first use: add the cache, pre-compile recorded states at startup, then measure a town drive on the Thor (compile hitches vs load).
 - [x] 16:9: the title screen shows stretched for a split second after the Takara logo (the 2D verdict lags the first frame).
-- [ ] Audit every screen at 16:9 (queued; the boot/race/town sweeps found nothing else).
+- [x] Audit every screen at 16:9: doors/loading fades and the one-frame lag at changes fixed; only the game's own Settings page (replaced by ours) is open.
 - [x] Town dialogue box stretched in 16:9 (should stay 4:3 and centred like the HUD): WideLayout classification.
 - [x] (VIF1-register reads no longer wait for the GS thread) Town sometimes stuck at 30 fps until the pause menu is opened and closed (a half-rate pacing lock).
 - [x] The in-game Start menu's Settings opens the game's options screen: should open our menu, as Title > Options does.
@@ -119,6 +119,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 ### Requested features (2026-10-07)
 - [ ] Controller remapping: check what the Controllers > Buttons page already covers (rebinding pad buttons to the PS2 buttons, per device) against what's wanted (the game's actions: Gas / Brake / Reverse / Jet / View / Horn / Wing / Navigator, which the game's own button setup did; on the Thor and other pads), then fill the gap; reachable from Start > Settings too.
 - [ ] Analogue triggers for gas and brake (optional, Options): the game reads digital buttons; drive it with how far the trigger is pressed (find where the game turns the pad into throttle/brake; pressure-sensitive DualShock 2 buttons, if the game reads them, or modulate the input over time).
+- Research (2026-10-07, static): the game reads digital bits and stick signs only (never pressure mode): control word from 0x21A820 (1 gas, 2 brake, 4 reverse, 8 jet, 0x20/0x40 wing, 0x2000/0x8000 steer), button map at save block +0x12E8..+0x12FA (+port*0x3448; the game's Settings writes it). Brake ramps over 32 frames (car+0x1FE). Rumble: 0x20ACB8(sys, port, pattern, strength), scripts at 0x29AD60, ticked by 0x20A660 (180-frame duty cutoff); call sites for collisions/contacts. Car (0x177ACE0 + k*0x270): rpm +0x1D0 (inferred), gear +0x1FF, speed +0x148. Not found statically: surface, airborne, slip (probes needed). Plan: analogue = PWM of the gas bit by trigger value + brake via clamping +0x1FE; rumble = wrap 0x20ACB8 for events + rpm/speed/gear/brake for continuous effects; remap = write the game's own masks for its 9 actions, other buttons in our input layer.
 - [ ] Dynamic vibration like modern racing games (optional, can be turned off): strength and texture from the car's state (throttle/brake, engine, surface/terrain, bumps, collisions, drift) instead of the game's on/off motor; rumble on both motors and the triggers where the pad has them (SDL rumble / trigger rumble); levels in Options.
 
 ### 1. Finish lifecycle and performance (#17)
