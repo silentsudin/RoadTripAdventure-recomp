@@ -63,7 +63,13 @@ namespace rt::debug
         s.fps = (flips - windowFlips) / elapsed;
         // Frame generation adds pictures between the game's (Options > Frame rate).
         const ps2x::HostPresenter *presenter = runtime.presenter();
-        s.shownFps = s.fps * (presenter ? std::max<uint32_t>(presenter->frameGenerationFactor(), 1u) : 1u);
+        // Frame skip (GS::setFrameSkip): skipped frames show nothing new, and generated frames pause
+        // while the game is behind.
+        static uint64_t lastSkipped = runtime.gsUnsynced().framesSkipped();
+        const uint64_t skipped = runtime.gsUnsynced().framesSkipped();
+        const uint32_t skipLevel = runtime.gsUnsynced().frameSkipLevel();
+        const double drawn = std::max(0.0, s.fps - (skipped - lastSkipped) / elapsed);
+        s.shownFps = drawn * (presenter && skipLevel == 0u ? std::max<uint32_t>(presenter->frameGenerationFactor(), 1u) : 1u);
         s.worstFrameMs = worst;
         const uint64_t vu1 = runtime.memory().gifVif1BusyNanos(), gs = runtime.memory().gsThreadBusyNanos();
         s.vu1Busy = (vu1 - lastVu1) / elapsed / 1e7;
@@ -80,8 +86,10 @@ namespace rt::debug
         // RT_PERF_LOG=1: every window to the log (measurements over a whole run).
         static const bool log = [] { const char *e = std::getenv("RT_PERF_LOG"); return e && *e == '1'; }();
         if (log)
-            std::fprintf(stderr, "[perf] %.1f fps (shown %.0f), worst %.1f ms, VU1 %.0f%%, GS %.0f%%, CPU %.0f%%, GPU %d%% at %d MHz\n", s.fps,
-                         s.shownFps, s.worstFrameMs, s.vu1Busy, s.gsBusy, s.appCpu, s.gpuBusy, s.gpuMHz);
+            std::fprintf(stderr, "[perf] %.1f fps (shown %.0f), worst %.1f ms, VU1 %.0f%%, GS %.0f%%, CPU %.0f%%, GPU %d%% at %d MHz, skip level %u (%llu skipped)\n",
+                         s.fps, s.shownFps, s.worstFrameMs, s.vu1Busy, s.gsBusy, s.appCpu, s.gpuBusy, s.gpuMHz, skipLevel,
+                         static_cast<unsigned long long>(skipped - lastSkipped));
+        lastSkipped = skipped;
         g_stats = s;
         windowStart = now;
         windowFlips = flips;

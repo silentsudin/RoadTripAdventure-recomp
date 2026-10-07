@@ -110,6 +110,8 @@ namespace rt::settings
         s.hud = pick(d, "hud", kHud, s.hud);
         s.refreshRate = nearestOf(integer(d, "refresh_rate", s.refreshRate), {60, 120, 240});
         s.frameMode = pick(d, "frame_mode", kFrameModes, s.frameMode);
+        if (d.contains("frame_skip") && d.at("frame_skip").is_string())
+            s.frameSkip = d.at("frame_skip").as_string() != "off";
         s.vsync = flag(d, "vsync", s.vsync);
         const toml::value &q = table(root, "quality");
         s.superSampling = nearestOf(integer(q, "supersampling", s.superSampling), {1, 2, 4, 8, 16});
@@ -146,6 +148,7 @@ namespace rt::settings
           << "hud = \"" << name(s.hud) << "\"  # 4:3 (centred) or edges (anchored to the window edges); the HUD is never stretched\n"
           << "refresh_rate = " << s.refreshRate << "  # 60, 120, 240 (frames between the game's 60 are generated)\n"
           << "frame_mode = \"" << kFrameModes[static_cast<size_t>(s.frameMode)] << "\"  # rerender (re-rendered from the game's geometry, no added latency); interpolate/extrapolate warp the picture (RT_FRAME_GEN=1)\n"
+          << "frame_skip = \"" << (s.frameSkip ? "auto" : "off") << "\"  # auto: when the device can't keep up, generated frames pause, then drawing skips frames (the game keeps its speed); off: the game slows\n"
           << "vsync = " << (s.vsync ? "true" : "false") << "\n\n"
           << "[quality]\n"
           << "supersampling = " << s.superSampling << "  # samples per pixel: 1, 2, 4, 8, 16 (4+ doubles the resolution)\n"

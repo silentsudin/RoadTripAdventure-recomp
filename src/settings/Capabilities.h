@@ -27,6 +27,7 @@ namespace rt::settings
         bool motionVectors = false;   // the GS gives per-pixel motion (TAA)
         bool temporalInputs = false;  // ... and depth too (MetalFX temporal, temporal upscalers); both GPU GSs give both
         bool saveStates = true;       // the GS can save and restore its state (paraLLEl-GS and the CPU GS; not the hardware GS yet)
+        bool hardwareGs = false;      // the hardware GS: supersampling is a render scale (floor of the square root), no anti-aliasing
     };
 
     struct Availability

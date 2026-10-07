@@ -429,6 +429,11 @@ namespace rt::ui
                 }
             }
 
+            rows.push_back({"Frame skip", [&s] { return std::string(s.frameSkip ? "Auto" : "Off"); },
+                            [&s](int) { s.frameSkip = !s.frameSkip; changed(); }, {},
+                            std::string("If the device can't keep up, Auto shows fewer pictures so driving and music stay at full "
+                                        "speed. Off shows every picture, but the game and its sound slow down.") +
+                                (s.refreshRate > 60 ? " Above 60 fps, the extra frames pause first." : "")});
             {
                 static const std::vector<PerfOverlay> levels = {PerfOverlay::Off, PerfOverlay::Fps, PerfOverlay::Detailed};
                 rows.push_back({"Performance overlay",
@@ -474,6 +479,16 @@ namespace rt::ui
                                 // progressive fields take twice as many lines as columns from the
                                 // samples; interlaced ones get 2x2 from 4x up.
                                 const int n = std::min(s.superSampling, capabilities().maxSuperSampling);
+                                if (capabilities().hardwareGs)
+                                {
+                                    // The hardware GS draws at a render scale, the square root of the
+                                    // samples rounded down (1, 2: 1x; 4, 8: 2x; 16: 4x), without
+                                    // anti-aliasing.
+                                    const int scale = n >= 16 ? 4 : n >= 4 ? 2 : 1;
+                                    const int lines = 448 * scale;
+                                    const std::string size = " (" + std::to_string(640 * scale) + "x" + std::to_string(lines) + ")";
+                                    return (n == 1 ? std::string("Off") : std::to_string(n) + "x") + size;
+                                }
                                 if (s.progressiveFields)
                                 {
                                     switch (n)

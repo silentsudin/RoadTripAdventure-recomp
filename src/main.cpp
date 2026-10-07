@@ -471,6 +471,7 @@ namespace
                 rt::settings::capabilities().motionVectors = true;  // TAA
                 rt::settings::capabilities().temporalInputs = true; // and depth: MetalFX temporal, temporal upscalers
                 rt::settings::capabilities().saveStates = false;    // its render targets aren't in a state yet
+                rt::settings::capabilities().hardwareGs = true;     // supersampling labels give its render scale
                 return;
             }
             std::cerr << "[gs] hardware GS unavailable (" << error << "); using paraLLEl-GS\n";

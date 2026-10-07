@@ -132,6 +132,12 @@ namespace rt::settings
         // keeps the original fields).
         const char *pf = std::getenv("RT_PROGRESSIVE_FIELDS");
         rt->gs().setProgressiveFields(pf ? std::strcmp(pf, "0") != 0 : s.progressiveFields);
+        // Frame skip: RT_FRAME_SKIP=0|1 overrides the setting; guest time (RT_TIME=virtual: tests)
+        // never falls behind the host, and keeps every frame.
+        const char *fs = std::getenv("RT_FRAME_SKIP");
+        const char *time = std::getenv("RT_TIME");
+        const bool virtualTime = time && std::strcmp(time, "virtual") == 0;
+        rt->gs().setFrameSkip(fs ? std::strcmp(fs, "0") != 0 : s.frameSkip && !virtualTime);
         if (ps2x::HostPresenter *p = rt->presenter())
         {
             p->setDisplayAspect(aspect);

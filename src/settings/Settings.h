@@ -32,6 +32,7 @@ namespace rt::settings
         HudMode hud = HudMode::FourThree;
         int refreshRate = 60;          // 60, 120, 240: 1, 2 or 4 frames per game frame (generated)
         FrameMode frameMode = FrameMode::Rerender; // re-rendered frames: no added latency
+        bool frameSkip = true;         // behind real time: skip drawing frames (Auto) rather than slow the game (Off)
         bool vsync = true;
         // Quality
         int superSampling = 8;         // samples per pixel, 1..16 (8 with progressive fields: 1280x896)
