@@ -91,7 +91,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
       gone; the panel keeps its size and position, and picture rows only lift the scrim a little.
 
 ### Bugs reported 2026-10-07 (Thor)
-- [ ] 120 Hz with GSR 2: ghosting behind fast-moving cars. Found on the Thor at 60 Hz too, in GSR 2's real frames (trails beside moving cars that FSR 1 doesn't have: build/scratch/fgx/thor_ghost.py); being fixed. Shadow frames now go through GSR 2 as well (they flickered between looks).
+- [x] (disocclusion + minimum current weight) 120 Hz with GSR 2: ghosting behind fast-moving cars. Found on the Thor at 60 Hz too, in GSR 2's real frames (trails beside moving cars that FSR 1 doesn't have: build/scratch/fgx/thor_ghost.py); being fixed. Shadow frames now go through GSR 2 as well (they flickered between looks).
 - [x] The game runs fast for a few seconds after closing the in-game menu (likely also the 120 -> 60 report: the switch is made in that menu). Suspect: vblanks missed while paused fire back to back on resume.
 - [x] (vblank resync) Switching Frame rate 120 -> 60 takes a few seconds, and the game runs fast meanwhile.
 - [ ] Artefacts on the second screen still (details pending: page, look, 60/120 Hz).
@@ -111,6 +111,11 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 ### Agent queue (max 3 running; 2026-10-07)
 - Running: timing/pacing bugs (menu exit, audio after menu, 120->60, town 30 fps, GSR 2 ghosting); Start-menu Settings + radio station; widescreen (dialogue box, title frame).
 - Queued: image parity + hardware-GS pipeline cache/pre-compile (stopped mid-edit: its gs/hw files and gs_hw_pipelines.* in the working tree are unfinished); 16:9 audit of every screen; open-world profiling (better on the Thor); save-slot absolute date/time (after the menu commit).
+
+### Requested features (2026-10-07)
+- [ ] Controller remapping: check what the Controllers > Buttons page already covers (rebinding pad buttons to the PS2 buttons, per device) against what's wanted (the game's actions: Gas / Brake / Reverse / Jet / View / Horn / Wing / Navigator, which the game's own button setup did; on the Thor and other pads), then fill the gap; reachable from Start > Settings too.
+- [ ] Analogue triggers for gas and brake (optional, Options): the game reads digital buttons; drive it with how far the trigger is pressed (find where the game turns the pad into throttle/brake; pressure-sensitive DualShock 2 buttons, if the game reads them, or modulate the input over time).
+- [ ] Dynamic vibration like modern racing games (optional, can be turned off): strength and texture from the car's state (throttle/brake, engine, surface/terrain, bumps, collisions, drift) instead of the game's on/off motor; rumble on both motors and the triggers where the pad has them (SDL rumble / trigger rumble); levels in Options.
 
 ### 1. Finish lifecycle and performance (#17)
 - [ ] Commit and push the lifecycle work if the last session didn't (see "Picking up").
