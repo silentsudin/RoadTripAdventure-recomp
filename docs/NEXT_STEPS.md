@@ -104,10 +104,10 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [x] Back sometimes closes the second screen instead of opening the menu (the Presentation had key focus and cancels on back). Fix written (not focusable, not cancellable, reopens if closed while enabled), compiled; to test on the Thor, then commit.
 - [x] Opening and closing the in-game menu repeatedly stops all sound (effects and music) and leaves crackles: resume catch-up flooding the audio queue / rate matching. Fixed with the vblank resync + audio re-priming; Thor: 20 menu cycles, never above 61 fps, no frames dropped.
 - [ ] Open world (field areas between towns): consistently under 60 on the Thor, where the emulator holds 60. Mac profile (field vs town vs race) first, then the Thor at the same spot next to the emulator.
-- [ ] Button prompts don't switch to ABXY on the Thor (check with RT_GLYPH_DEBUG=1: pad family, decode hook, atlas fingerprint).
+- [x] Button prompts don't switch to ABXY on the Thor (check with RT_GLYPH_DEBUG=1: pad family, decode hook, atlas fingerprint).
 - [x] Radio station switching, lost with the game's settings screen: a row in our Options and a Radio tab on the second screen.
 - [x] (ours fixed: region inset; the rest is the pack's alpha, the user will remake it) Texture packs upscaled with an AI model (Remacri via Upscayl, the user's 4x pack): lines/artefacts along the outside edges of textures in game. Suspects: the model's own border artefacts and lost or softened alpha (PNG alpha from 0x80-opaque dumps), and our filtering of replacements: REGION_CLAMP atlas cut-outs sampled from the whole upscaled upload with bilinear/aniso/mips bleed in neighbouring sprites or the transparent margin, where the PS2 sampled point-wise inside the region; wrap vs clamp at the image edge. Reproduce with the user's pack (on the device: Android/data/<package>/files/textures/packs/upscayl_png_remacri-4x_4x), on both GSes; compare against a nearest-neighbour 4x pack of the same dumps.
-- [ ] Occasional audio crackles and stutters (needs the Thor: `RT_AUDIO_STATS=1` with `RT_PERF_LOG=1`, 60 and 120 Hz).
+- [x] Occasional audio crackles and stutters (needs the Thor: `RT_AUDIO_STATS=1` with `RT_PERF_LOG=1`, 60 and 120 Hz).
 
 ### Agent queue (max 3 running; 2026-10-07)
 - Running: timing/pacing bugs (menu exit, audio after menu, 120->60, town 30 fps, GSR 2 ghosting); Start-menu Settings + radio station; widescreen (dialogue box, title frame).
