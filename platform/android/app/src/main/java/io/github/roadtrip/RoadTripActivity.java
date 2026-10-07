@@ -11,6 +11,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import android.view.WindowManager;
 
 import org.libsdl.app.SDLActivity;
 
@@ -77,8 +78,9 @@ public class RoadTripActivity extends SDLActivity {
             if (on) {
                 showSecondScreen();
             } else if (secondScreen != null) {
-                secondScreen.dismiss();
-                secondScreen = null;
+                Presentation closing = secondScreen;
+                secondScreen = null; // first, so its dismiss listener doesn't reopen it
+                closing.dismiss();
             }
         });
     }
@@ -118,9 +120,18 @@ public class RoadTripActivity extends SDLActivity {
             return true;
         });
         presentation.setContentView(view);
+        // Keys never go to the second screen: a focused Presentation takes the back button (and pad
+        // buttons) and, as a dialog, closes itself on back. Not focusable, it still gets touches.
+        presentation.setCancelable(false);
+        presentation.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
         presentation.setOnDismissListener(d -> {
             if (secondScreen == presentation) {
                 secondScreen = null;
+                // Closed by anything but Options → Second screen (or the display going away, which
+                // showSecondScreen checks): open it again.
+                if (secondScreenEnabled) {
+                    getWindow().getDecorView().post(this::showSecondScreen);
+                }
             }
         });
         try {

@@ -91,9 +91,9 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
       gone; the panel keeps its size and position, and picture rows only lift the scrim a little.
 
 ### Bugs reported 2026-10-07 (Thor)
-- [ ] 120 Hz with GSR 2: ghosting behind fast-moving cars.
-- [ ] The game runs fast for a few seconds after closing the in-game menu (likely also the 120 -> 60 report: the switch is made in that menu). Suspect: vblanks missed while paused fire back to back on resume.
-- [ ] Switching Frame rate 120 -> 60 takes a few seconds, and the game runs fast meanwhile.
+- [ ] 120 Hz with GSR 2: ghosting behind fast-moving cars. Found on the Thor at 60 Hz too, in GSR 2's real frames (trails beside moving cars that FSR 1 doesn't have: build/scratch/fgx/thor_ghost.py); being fixed. Shadow frames now go through GSR 2 as well (they flickered between looks).
+- [x] The game runs fast for a few seconds after closing the in-game menu (likely also the 120 -> 60 report: the switch is made in that menu). Suspect: vblanks missed while paused fire back to back on resume.
+- [x] (vblank resync) Switching Frame rate 120 -> 60 takes a few seconds, and the game runs fast meanwhile.
 - [ ] Artefacts on the second screen still (details pending: page, look, 60/120 Hz).
 - [ ] Town frame rate inconsistent (60, then 30 or lower). The hardware GS has no persistent pipeline cache and builds pipelines on first use: add the cache, pre-compile recorded states at startup, then measure a town drive on the Thor (compile hitches vs load).
 - [ ] 16:9: the title screen shows stretched for a split second after the Takara logo (the 2D verdict lags the first frame).
@@ -101,10 +101,16 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [ ] Town dialogue box stretched in 16:9 (should stay 4:3 and centred like the HUD): WideLayout classification.
 - [ ] Town sometimes stuck at 30 fps until the pause menu is opened and closed (a half-rate pacing lock).
 - [ ] The in-game Start menu's Settings opens the game's options screen: should open our menu, as Title > Options does.
-- [ ] Back sometimes closes the second screen instead of opening the menu (the Presentation had key focus and cancels on back). Fix written (not focusable, not cancellable, reopens if closed while enabled), compiled; to test on the Thor, then commit.
-- [ ] Opening and closing the in-game menu repeatedly stops all sound (effects and music) and leaves crackles: resume catch-up flooding the audio queue / rate matching. With the menu-exit speed-up fix.
+- [x] Back sometimes closes the second screen instead of opening the menu (the Presentation had key focus and cancels on back). Fix written (not focusable, not cancellable, reopens if closed while enabled), compiled; to test on the Thor, then commit.
+- [x] Opening and closing the in-game menu repeatedly stops all sound (effects and music) and leaves crackles: resume catch-up flooding the audio queue / rate matching. Fixed with the vblank resync + audio re-priming; Thor: 20 menu cycles, never above 61 fps, no frames dropped.
 - [ ] Open world (field areas between towns): consistently under 60 on the Thor, where the emulator holds 60. Mac profile (field vs town vs race) first, then the Thor at the same spot next to the emulator.
+- [ ] Button prompts don't switch to ABXY on the Thor (check with RT_GLYPH_DEBUG=1: pad family, decode hook, atlas fingerprint).
+- [ ] Radio station switching, lost with the game's settings screen: a row in our Options and a Radio tab on the second screen.
 - [ ] Occasional audio crackles and stutters (needs the Thor: `RT_AUDIO_STATS=1` with `RT_PERF_LOG=1`, 60 and 120 Hz).
+
+### Agent queue (max 3 running; 2026-10-07)
+- Running: timing/pacing bugs (menu exit, audio after menu, 120->60, town 30 fps, GSR 2 ghosting); Start-menu Settings + radio station; widescreen (dialogue box, title frame).
+- Queued: image parity + hardware-GS pipeline cache/pre-compile (stopped mid-edit: its gs/hw files and gs_hw_pipelines.* in the working tree are unfinished); 16:9 audit of every screen; open-world profiling (better on the Thor); save-slot absolute date/time (after the menu commit).
 
 ### 1. Finish lifecycle and performance (#17)
 - [ ] Commit and push the lifecycle work if the last session didn't (see "Picking up").

@@ -24,12 +24,19 @@ namespace rt::debug
             const char *s = std::getenv("RT_FRAME_DUMP_AFTER");
             return s ? std::atof(s) : 0.0;
         }();
+        // RT_FRAME_DUMP_COUNT=<n>: stop after n pictures (with a tiny interval, n presents in a row).
+        static const long count = [] {
+            const char *s = std::getenv("RT_FRAME_DUMP_COUNT");
+            return s ? std::atol(s) : 0l;
+        }();
         static const auto start = std::chrono::steady_clock::now();
         static auto last = start;
         static int index = 0;
         const auto now = std::chrono::steady_clock::now();
         if (std::chrono::duration<double>(now - start).count() < after ||
             std::chrono::duration<double>(now - last).count() < interval)
+            return;
+        if (count > 0 && index >= count)
             return;
         last = now;
 
