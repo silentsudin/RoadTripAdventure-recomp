@@ -99,7 +99,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [x] 16:9: the title screen shows stretched for a split second after the Takara logo (the 2D verdict lags the first frame).
 - [ ] Audit every screen at 16:9 (queued; the boot/race/town sweeps found nothing else).
 - [x] Town dialogue box stretched in 16:9 (should stay 4:3 and centred like the HUD): WideLayout classification.
-- [ ] Town sometimes stuck at 30 fps until the pause menu is opened and closed (a half-rate pacing lock).
+- [x] (VIF1-register reads no longer wait for the GS thread) Town sometimes stuck at 30 fps until the pause menu is opened and closed (a half-rate pacing lock).
 - [x] The in-game Start menu's Settings opens the game's options screen: should open our menu, as Title > Options does.
 - [x] Back sometimes closes the second screen instead of opening the menu (the Presentation had key focus and cancels on back). Fix written (not focusable, not cancellable, reopens if closed while enabled), compiled; to test on the Thor, then commit.
 - [x] Opening and closing the in-game menu repeatedly stops all sound (effects and music) and leaves crackles: resume catch-up flooding the audio queue / rate matching. Fixed with the vblank resync + audio re-priming; Thor: 20 menu cycles, never above 61 fps, no frames dropped.
