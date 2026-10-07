@@ -300,7 +300,9 @@ namespace rt::game
     {
         NowPlaying np;
         uint8_t radio[0x20];
-        if (!runtime.readIopMemory(kIopRadio, radio, sizeof(radio)))
+        // Peeked: this runs on the presenter's thread, and readIopMemory would run the IOP there
+        // (racing the game thread's IOP: SPU2 heap corruption, crashes).
+        if (!runtime.peekIopMemory(kIopRadio, radio, sizeof(radio)))
             return np;
         const uint32_t flag = at<uint32_t>(radio, 8), time = at<uint32_t>(radio, 0x18), tune = at<uint32_t>(radio, 0x1C);
         if (flag != 2 || tune > 1 || time >= 216000u)

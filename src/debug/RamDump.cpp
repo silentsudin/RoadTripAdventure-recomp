@@ -32,7 +32,7 @@ namespace rt::debug
                             f.write(reinterpret_cast<const char *>(runtime.memory().getRDRAM()), PS2_RAM_SIZE);
                             // IOP RAM too (2 MiB), as iop_<n>.bin.
                             std::vector<char> iop(2u * 1024u * 1024u);
-                            if (runtime.readIopMemory(0, iop.data(), iop.size()))
+                            if (runtime.peekIopMemory(0, iop.data(), iop.size())) // (another thread: no IOP flush)
                             {
                                 std::snprintf(name, sizeof(name), "/iop_%04d.bin", n);
                                 std::ofstream(out + name, std::ios::binary).write(iop.data(), static_cast<std::streamsize>(iop.size()));
