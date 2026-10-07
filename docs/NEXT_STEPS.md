@@ -106,6 +106,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [ ] Open world (field areas between towns): consistently under 60 on the Thor, where the emulator holds 60. Mac profile (field vs town vs race) first, then the Thor at the same spot next to the emulator.
 - [ ] Button prompts don't switch to ABXY on the Thor (check with RT_GLYPH_DEBUG=1: pad family, decode hook, atlas fingerprint).
 - [x] Radio station switching, lost with the game's settings screen: a row in our Options and a Radio tab on the second screen.
+- [x] (ours fixed: region inset; the rest is the pack's alpha, the user will remake it) Texture packs upscaled with an AI model (Remacri via Upscayl, the user's 4x pack): lines/artefacts along the outside edges of textures in game. Suspects: the model's own border artefacts and lost or softened alpha (PNG alpha from 0x80-opaque dumps), and our filtering of replacements: REGION_CLAMP atlas cut-outs sampled from the whole upscaled upload with bilinear/aniso/mips bleed in neighbouring sprites or the transparent margin, where the PS2 sampled point-wise inside the region; wrap vs clamp at the image edge. Reproduce with the user's pack (on the device: Android/data/<package>/files/textures/packs/upscayl_png_remacri-4x_4x), on both GSes; compare against a nearest-neighbour 4x pack of the same dumps.
 - [ ] Occasional audio crackles and stutters (needs the Thor: `RT_AUDIO_STATS=1` with `RT_PERF_LOG=1`, 60 and 120 Hz).
 
 ### Agent queue (max 3 running; 2026-10-07)
