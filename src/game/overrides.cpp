@@ -11,6 +11,7 @@
 #include "ps2x/state_archive.h"
 #include "runtime/ps2_save_state.h"
 
+#include <atomic>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -184,9 +185,100 @@ namespace
             const uint32_t one = 1;
             std::memcpy(rdram + ((parent + 4) & PS2_RAM_MASK), &one, 4);
         }
-        rt::game::requestOptions();
+        rt::game::requestOptions(rt::game::OptionsRequest::Sound);
         std::cout << "[roadtrip] Title > Options: the app's menu (Sound)" << std::endl;
         g_killTask(rdram, ctx, runtime); // a0 is still the task; returns to our caller
+    }
+
+    // The town's Start menu (Pause: Warp / Notebook / Radio / Items / Settings / Map; the task
+    // 0x217148, spawned by the town task at 0x211144) runs one page handler per frame from its
+    // jump table (0x2EAD60) on a state block (a2): +0 the page shown, +4 the page asked for (a
+    // change resets +8, the page's frame count), +0xC leave. Settings (item 5) asks for page 5,
+    // whose handler 0x216738 (a2 = that block) runs the button setup 0x214470 and, when that
+    // returns 0x18F (its Exit), asks for page 0, the Pause list, with the cursor still on
+    // Settings. It is replaced: the page asks for page 0 on its first frame, as its own Exit
+    // does, and the app's menu opens once the list is back. The race's pause menu (Continue /
+    // Retire) has no Settings.
+    constexpr uint32_t kTownSettingsPage = 0x00216738u, kTownPauseList = 0x00214AD0u;
+    PS2Runtime::RecompiledFunction g_townPauseList = nullptr;
+    std::atomic<bool> g_settingsPending{false};
+
+    void townSettingsPage(uint8_t *rdram, R5900Context *ctx, PS2Runtime *)
+    {
+        const uint32_t state = GPR_U32(ctx, 6);
+        const uint32_t root = 0;
+        std::memcpy(rdram + ((state + 4) & PS2_RAM_MASK), &root, 4);
+        g_settingsPending = true;
+        ctx->pc = GPR_U32(ctx, 31);
+    }
+
+    // The Pause list (page 0): our menu opens once it is back on screen, so the game is paused
+    // under it on its own list (not on the frame between the two pages).
+    void townPauseList(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const uint32_t state = GPR_U32(ctx, 6);
+        g_townPauseList(rdram, ctx, runtime);
+        uint32_t frames;
+        std::memcpy(&frames, rdram + ((state + 8) & PS2_RAM_MASK), 4);
+        if (frames >= 2 && g_settingsPending.exchange(false))
+        {
+            rt::game::requestOptions(rt::game::OptionsRequest::Top);
+            std::cout << "[roadtrip] Pause > Settings: the app's menu (Options)" << std::endl;
+        }
+    }
+
+    // ---------------------------------------------------------------- town radio
+    // A station chosen in the app (rt::game::setRadioStation) is switched the way the game's
+    // Pause > Radio page does it (0x2137B0): SNDMOD RPC 0x33 (0x258A48: tune = station - 1, at
+    // the time of day sys+0x14) then 0x34 (0x258AF0: play), or 0x35 (0x258B30: stop) for Off.
+    // It is done at the top of the town's task (0x2105B8, a0 = task, a1 = sys), on the game
+    // thread, only while driving (task +0x25 == 0): the town stops the radio for its Pause menu
+    // and other screens and restarts it from the station byte (0x2590B0) when it comes back.
+    constexpr uint32_t kTownTask = 0x002105B8u, kRadioTune = 0x00258A48u, kRadioPlay = 0x00258AF0u,
+                       kRadioStop = 0x00258B30u;
+    PS2Runtime::RecompiledFunction g_townTask = nullptr, g_radioTune = nullptr, g_radioPlay = nullptr,
+                                   g_radioStop = nullptr;
+
+    // Calls a guest function from a hook's entry and puts the caller's registers back.
+    void callGuest(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime, PS2Runtime::RecompiledFunction fn,
+                   uint32_t pc, uint32_t a0, uint32_t a1)
+    {
+        __m128i saved[32];
+        std::memcpy(saved, ctx->r, sizeof(saved));
+        const uint64_t hi = ctx->hi, lo = ctx->lo, hi1 = ctx->hi1, lo1 = ctx->lo1;
+        const uint32_t savedPc = ctx->pc, branchPc = ctx->branch_pc;
+        const bool delay = ctx->in_delay_slot;
+        SET_GPR_U32(ctx, 4, a0);
+        SET_GPR_U32(ctx, 5, a1);
+        SET_GPR_U32(ctx, 31, savedPc);
+        ctx->pc = pc;
+        fn(rdram, ctx, runtime);
+        std::memcpy(ctx->r, saved, sizeof(saved));
+        ctx->hi = hi, ctx->lo = lo, ctx->hi1 = hi1, ctx->lo1 = lo1;
+        ctx->pc = savedPc, ctx->branch_pc = branchPc, ctx->in_delay_slot = delay;
+    }
+
+    void townTask(uint8_t *rdram, R5900Context *ctx, PS2Runtime *runtime)
+    {
+        const int station = rt::game::takeRadioRequest();
+        if (station >= 0)
+        {
+            const uint32_t task = GPR_U32(ctx, 4), sys = GPR_U32(ctx, 5);
+            if (rdram[(task + 0x25) & PS2_RAM_MASK] == 0) // driving: the radio is live
+            {
+                uint32_t clock;
+                std::memcpy(&clock, rdram + ((sys + 0x14) & PS2_RAM_MASK), 4);
+                if (station == 0)
+                    callGuest(rdram, ctx, runtime, g_radioStop, kRadioStop, 0, 0);
+                else
+                {
+                    callGuest(rdram, ctx, runtime, g_radioTune, kRadioTune, static_cast<uint32_t>(station - 1), clock);
+                    callGuest(rdram, ctx, runtime, g_radioPlay, kRadioPlay, 0, 0);
+                }
+                std::cout << "[roadtrip] radio: " << rt::game::radioStationName(station) << std::endl;
+            }
+        }
+        g_townTask(rdram, ctx, runtime);
     }
 
     // Save states: where the game is, for a slot's label (menus list slots from file headers).
@@ -242,7 +334,8 @@ namespace
         else
             std::cerr << "[roadtrip] sceGsSetHalfOffset not found: progressive fields unavailable\n";
         g_killTask = runtime.lookupFunction(kKillTask);
-        // RT_GAME_OPTIONS=1 keeps the game's own Options screens (the regression tests of them).
+        // RT_GAME_OPTIONS=1 keeps the game's own Options and Pause > Settings screens (the
+        // regression tests of them).
         const char *own = std::getenv("RT_GAME_OPTIONS");
         if (own && *own == '1')
             std::cout << "[roadtrip] RT_GAME_OPTIONS=1: the game's own Options menu\n";
@@ -250,6 +343,25 @@ namespace
             runtime.replaceFunction(kOptionsTask, optionsTask);
         else
             std::cerr << "[roadtrip] Options task not found: the game's own Options menu stays\n";
+        if (!(own && *own == '1'))
+        {
+            g_townPauseList = runtime.lookupFunction(kTownPauseList);
+            if (g_townPauseList && runtime.lookupFunction(kTownSettingsPage))
+            {
+                runtime.replaceFunction(kTownSettingsPage, townSettingsPage);
+                runtime.replaceFunction(kTownPauseList, townPauseList);
+            }
+            else
+                std::cerr << "[roadtrip] Pause > Settings page not found: the game's own stays\n";
+        }
+        g_townTask = runtime.lookupFunction(kTownTask);
+        g_radioTune = runtime.lookupFunction(kRadioTune);
+        g_radioPlay = runtime.lookupFunction(kRadioPlay);
+        g_radioStop = runtime.lookupFunction(kRadioStop);
+        if (g_townTask && g_radioTune && g_radioPlay && g_radioStop)
+            runtime.replaceFunction(kTownTask, townTask);
+        else
+            std::cerr << "[roadtrip] town task or radio calls not found: the app can't switch stations\n";
         g_buildCamera = runtime.lookupFunction(kBuildCamera);
         if (g_buildCamera)
         {

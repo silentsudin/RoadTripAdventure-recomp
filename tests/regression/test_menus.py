@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from rtharness import seconds
+from rtharness import GameError, seconds
 from rtharness.adventure import FIELDS, GAME_MAP, SCENE_TOWN, boot_to_main_menu, continue_to_factory, scene
 
 # Main menu: Adventure / Quick Race / 2 Player / Options / Results.
@@ -206,3 +206,57 @@ def test_pause_settings_replaced(game_factory, own):
     moved = (abs(before.astype(int) - after.astype(int)).sum(axis=2) > 48).mean()
     assert moved > 0.2, f"the drive should go on after the Pause menu ({moved:.0%} of the picture changed)"
     assert game.log_text().count("Pause > Settings: the app's menu") == hooked, "opened once"
+
+
+IOP_RADIO = GAME_MAP["music"]["iop_radio"]
+
+
+def iop_radio(game) -> tuple[int, int]:
+    """SNDMOD's radio (IOP): flag_play (2 = playing) and play_tune (0 PEACH FM, 1 E-RADIO)."""
+    raw = game.read(IOP_RADIO, 0x20, space="iop")
+    return int.from_bytes(raw[8:12], "little"), int.from_bytes(raw[0x1C:0x20], "little")
+
+
+def test_radio_station(game_factory):
+    """The app's radio station switch (rt::game::setRadioStation, the Options row and the second
+    screen's Radio tab): in town the stream switches the game's way, Off stops it, and the
+    choice is the game's own (its Pause menu keeps it)."""
+    game = game_factory()
+    boot_to_main_menu(game)
+    assert not game._call("radio")["available"], "no radio outside an Adventure game"
+    with pytest.raises(GameError):
+        game._call("radio", station=1)  # refused
+    game.close()
+
+    edits = {FIELDS["location"]["offset"]: bytes([1]), FIELDS["licence"]["offset"]: bytes([2])}
+    game = game_factory(checkpoint="adventure_first_save", progress_edits=edits, name="town")
+    continue_to_factory(game)
+    for _ in range(4):  # Drive around town
+        game.press("down")
+    game.press("cross")
+    game.run(seconds(2))
+    game.press("cross")
+    game.run(seconds(10))
+    assert scene(game) == SCENE_TOWN
+    start = game._call("radio")
+    assert start["available"] and start["station"] == 2 and iop_radio(game) == (2, 1), "E-RADIO plays"
+    for station, want in ((1, (2, 0)), (0, None), (2, (2, 1))):
+        reply = game._call("radio", station=station)
+        assert reply["ok"] and reply["station"] == station
+        game.run(seconds(2))
+        flag, tune = iop_radio(game)
+        if want:
+            assert (flag, tune) == want, f"station {station}: IOP radio {flag, tune}"
+        else:
+            assert flag != 2, "Off stops the radio"
+    game.audio()
+    game.run(seconds(3))
+    assert game.audio()["rms"] > 300, "the radio is audible again"
+    # The game's Pause menu stops the radio and restarts it from the station byte.
+    game._call("radio", station=1)
+    game.run(seconds(1))
+    game.press("start")
+    game.run(seconds(2))
+    game.press("triangle")
+    game.run(seconds(3))
+    assert iop_radio(game) == (2, 0), "PEACH FM again after the Pause menu"

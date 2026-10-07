@@ -100,12 +100,12 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [ ] Audit every screen at 16:9 (running: build/scratch/wide-audit).
 - [ ] Town dialogue box stretched in 16:9 (should stay 4:3 and centred like the HUD): WideLayout classification.
 - [ ] Town sometimes stuck at 30 fps until the pause menu is opened and closed (a half-rate pacing lock).
-- [ ] The in-game Start menu's Settings opens the game's options screen: should open our menu, as Title > Options does.
+- [x] The in-game Start menu's Settings opens the game's options screen: should open our menu, as Title > Options does.
 - [x] Back sometimes closes the second screen instead of opening the menu (the Presentation had key focus and cancels on back). Fix written (not focusable, not cancellable, reopens if closed while enabled), compiled; to test on the Thor, then commit.
 - [x] Opening and closing the in-game menu repeatedly stops all sound (effects and music) and leaves crackles: resume catch-up flooding the audio queue / rate matching. Fixed with the vblank resync + audio re-priming; Thor: 20 menu cycles, never above 61 fps, no frames dropped.
 - [ ] Open world (field areas between towns): consistently under 60 on the Thor, where the emulator holds 60. Mac profile (field vs town vs race) first, then the Thor at the same spot next to the emulator.
 - [ ] Button prompts don't switch to ABXY on the Thor (check with RT_GLYPH_DEBUG=1: pad family, decode hook, atlas fingerprint).
-- [ ] Radio station switching, lost with the game's settings screen: a row in our Options and a Radio tab on the second screen.
+- [x] Radio station switching, lost with the game's settings screen: a row in our Options and a Radio tab on the second screen.
 - [ ] Occasional audio crackles and stutters (needs the Thor: `RT_AUDIO_STATS=1` with `RT_PERF_LOG=1`, 60 and 120 Hz).
 
 ### Agent queue (max 3 running; 2026-10-07)

@@ -250,6 +250,12 @@ volume_index = 0x333290       # u32 0..5: 0 = "5(MAX)" (default) .. 5 = "0(mute)
 speaker_set = 0x257B00        # a0: 0 Stereo (default), 1 Mono (SNDMOD RPC 8); IOP u8 0x97CB0 = the mono flag
 options_task = 0x2092D8       # started only by the title main menu 0x209CB0
 sub_tasks = { vibration = 0x208C98, speaker = 0x208F50, volume = 0x2090C0 }
+# The town's Start menu (Pause: Warp / Notebook / Radio / Items / Settings / Map). The race's pause
+# menu (Continue / Retire) is another task (0x26BC08) and has no Settings.
+pause_task = 0x217148         # spawned by the town task at 0x211144; one page handler per frame
+pause_pages = 0x2EAD60        # jump table, 12 pages: 0 the list 0x214AD0, 5 Settings 0x216738, ...
+pause_state = 0x1727B90       # a2 of the handlers: +0 page shown, +4 page asked for, +8 frames on the page, +0xC leave
+settings_page = 0x216738      # Settings = the game's button setup (0x214470; returns 0x18F on Exit, then +4 = 0)
 
 [tasks]
 pool = 0x177A0D0              # 0x30 tasks x 0x30 bytes: +0 active, +4 result to parent, +8 frames run, +0xC fn(task, sys),

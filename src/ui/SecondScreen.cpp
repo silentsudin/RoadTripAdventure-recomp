@@ -2,6 +2,7 @@
 
 #include "ui/SecondScreen.h"
 
+#include "game/GameOptions.h"
 #include "game/GameStats.h"
 #include "platform/Host.h"
 #include "platform/SecondDisplay.h"
@@ -626,10 +627,80 @@ namespace rt::ui
 
         // ---- the screen ----
 
-        enum class Page { Map, Notebook };
+        enum class Page { Map, Notebook, Radio };
         Page g_auto = Page::Notebook; // what the game's state calls for
         Page g_chosen = Page::Notebook;
         bool g_overridden = false; // a tap chose another page; until the context changes
+
+        // Radio page: the stations as three plates (a tap chooses; the game's Pause > Radio does
+        // the same), and what plays now.
+        void drawRadio(ImDrawList *dl, ImVec2 min, ImVec2 max, const rt::game::Stats &st, PS2Runtime &runtime)
+        {
+            if (!rt::game::radioAvailable(runtime))
+            {
+                const char *msg = "The radio plays in town, in an Adventure game.";
+                const ImVec2 sz = measure(body(), msg);
+                outlined(dl, ImVec2((min.x + max.x - sz.x) * 0.5f, (min.y + max.y - sz.y) * 0.5f), body(), c::Label, msg);
+                return;
+            }
+            const int current = rt::game::radioStation(runtime);
+            const int order[3] = {rt::game::kRadioPeachFm, rt::game::kRadioERadio, rt::game::kRadioOff};
+            // The plates are the page (a touch screen): the Notebook's selector style, the chosen
+            // one bright blue with a gold rim, each with a small radio over its name.
+            const float gap = th::px(24), h = std::min(th::px(260), (max.y - min.y) * 0.45f);
+            const float w = (max.x - min.x - 2 * gap) / 3;
+            for (int i = 0; i < 3; ++i)
+            {
+                const ImVec2 bmin(min.x + i * (w + gap), min.y), bmax(bmin.x + w, min.y + h);
+                const bool on = order[i] == current, down = held(bmin, bmax);
+                const float r = th::px(24);
+                dl->AddRectFilled(bmin, bmax, on ? IM_COL32(0x3A, 0x6E, 0xE8, 0xFF) : c::Track, r);
+                dl->AddRect(bmin, bmax, down ? c::Value : on ? kGold : c::TabIdleRim, r, 0, th::px(on ? 5 : 3));
+                const char *name = rt::game::radioStationName(order[i]);
+                const ImVec2 sz = measure(heading(), name);
+                const float ih = th::px(56), cx = (bmin.x + bmax.x) * 0.5f;
+                const float top = (bmin.y + bmax.y - ih - th::px(16) - sz.y) * 0.5f;
+                const ImU32 ink = order[i] == rt::game::kRadioOff ? IM_COL32(0xF8, 0xC8, 0x38, 0x66) : kGold;
+                const ImVec2 rmin(cx - ih * 0.55f, top + ih * 0.35f), rmax(cx + ih * 0.55f, top + ih);
+                dl->AddLine(ImVec2(rmin.x + ih * 0.2f, rmin.y), ImVec2(rmin.x + ih * 0.55f, top), ink, th::px(3));
+                dl->AddRectFilled(rmin, rmax, ink, th::px(6));
+                dl->AddCircleFilled(ImVec2(rmax.x - ih * 0.28f, (rmin.y + rmax.y) * 0.5f), ih * 0.16f,
+                                    on ? IM_COL32(0x3A, 0x6E, 0xE8, 0xFF) : c::Track, 12);
+                outlined(dl, ImVec2(cx - sz.x * 0.5f, top + ih + th::px(16)), heading(), on ? c::Value : c::Label, name);
+                if (tapped(bmin, bmax) && !on)
+                    rt::game::setRadioStation(runtime, order[i]);
+            }
+            float y = min.y + h + th::px(48);
+            const rt::game::NowPlaying np = st.inTown ? rt::game::nowPlaying(runtime) : rt::game::NowPlaying{};
+            if (np.playing)
+            {
+                nowPlayingStrip(dl, ImVec2(min.x, y), ImVec2(max.x, y + th::px(64)), np);
+                y += th::px(64) + th::px(24);
+                // The song, large (the strip above names the station).
+                if (!np.title.empty())
+                {
+                    const std::string fit = ellipsize(np.title, heading(), max.x - min.x - th::px(48));
+                    const ImVec2 sz = measure(heading(), fit.c_str());
+                    outlined(dl, ImVec2((min.x + max.x - sz.x) * 0.5f, y), heading(), c::Value, fit.c_str());
+                    y += sz.y + th::px(20);
+                }
+                if (np.length > 0)
+                {
+                    char t[32];
+                    std::snprintf(t, sizeof(t), "%d:%02d / %d:%02d", static_cast<int>(np.elapsed) / 60, static_cast<int>(np.elapsed) % 60,
+                                  static_cast<int>(np.length) / 60, static_cast<int>(np.length) % 60);
+                    outlined(dl, ImVec2(min.x + th::px(24), y), body(), c::Label, t);
+                }
+            }
+            else
+            {
+                const char *msg = current == rt::game::kRadioOff ? "The radio is off."
+                                  : st.inTown                    ? "It plays while you drive."
+                                                                 : "You'll hear it when you're back in a town.";
+                const ImVec2 sz = measure(body(), msg);
+                outlined(dl, ImVec2((min.x + max.x - sz.x) * 0.5f, y), body(), c::Label, msg);
+            }
+        }
 
         // The active tab: the game's golden plate with two rivets, joined to the panel.
         void activeTab(ImDrawList *dl, ImVec2 min, ImVec2 max, const char *label)
@@ -642,7 +713,9 @@ namespace rt::ui
             const ImVec2 sz = measure(body(), label);
             const float cy = (min.y + max.y - th::px(8)) * 0.5f;
             outlined(dl, ImVec2((min.x + max.x - sz.x) * 0.5f, cy - sz.y * 0.5f), body(), c::Value, label);
-            for (float x : {min.x + th::px(22), max.x - th::px(22)})
+            // The rivets only where they clear the label (three tabs on a narrow screen are tight).
+            if (sz.x + 2 * th::px(22 + 7 + 10) <= max.x - min.x)
+                for (float x : {min.x + th::px(22), max.x - th::px(22)})
             {
                 dl->AddCircleFilled(ImVec2(x, cy), th::px(7), IM_COL32(0x48, 0xB8, 0xF0, 0xFF), 16);
                 dl->AddCircle(ImVec2(x, cy), th::px(7), IM_COL32(0x1A, 0x3C, 0x8C, 0xFF), 16, th::px(2));
@@ -706,18 +779,22 @@ namespace rt::ui
             // The new stamp takes the screen for a moment, whatever was on it (the map stays down).
             const Page page = showingNewStamp ? Page::Notebook : g_overridden ? g_chosen : g_auto;
             // Keep the map on the second screen unless the player chose the notebook over it.
-            presenter.setWantMap(!st.demo && !(g_overridden && g_chosen == Page::Notebook));
+            presenter.setWantMap(!st.demo && !(g_overridden && g_chosen != Page::Map));
 
             const float pad = th::px(24), rowH = th::px(84);
             const ImVec2 pmin(pad, pad + rowH), pmax(size.x - pad, size.y - pad);
-            const float tabW = th::px(240), tabGap = th::px(16), tabTop = pad + th::px(8);
-            const std::pair<Page, const char *> tabs[2] = {{Page::Map, "Map"}, {Page::Notebook, "Notebook"}};
+            // Three tabs, then Menu at the panel's right inset: the tabs share what Menu leaves
+            // (at most 240 wide each), so the third never runs under it on a narrow screen.
+            const float tabGap = th::px(16), tabTop = pad + th::px(8), menuW = th::px(168);
+            const ImVec2 mmax(pmax.x - th::px(24), pmin.y - th::px(8));
+            const float tabW = std::min(th::px(240), (mmax.x - menuW - th::px(24) - (pmin.x + th::px(24)) - 2 * tabGap) / 3);
+            const std::pair<Page, const char *> tabs[3] = {{Page::Map, "Map"}, {Page::Notebook, "Notebook"}, {Page::Radio, "Radio"}};
             auto tabRect = [&](int i, bool active) {
                 const float x = pmin.x + th::px(24) + i * (tabW + tabGap);
                 return std::make_pair(ImVec2(x, active ? pad : tabTop), ImVec2(x + tabW, active ? pmin.y + th::px(6) : pmin.y + th::px(2)));
             };
             // Idle tabs tuck behind the panel; the active one is drawn over its rim.
-            for (int i = 0; i < 2; ++i)
+            for (int i = 0; i < 3; ++i)
                 if (tabs[i].first != page)
                 {
                     const auto [tmin, tmax] = tabRect(i, false);
@@ -726,15 +803,13 @@ namespace rt::ui
                         g_chosen = tabs[i].first, g_overridden = true;
                 }
             panel(dl, pmin, pmax);
-            for (int i = 0; i < 2; ++i)
+            for (int i = 0; i < 3; ++i)
                 if (tabs[i].first == page)
                 {
                     const auto [tmin, tmax] = tabRect(i, true);
                     activeTab(dl, tmin, tmax, tabs[i].second);
                 }
             // Menu: the same height and baseline as the idle tabs, at the panel's right inset.
-            const float menuW = th::px(168);
-            const ImVec2 mmax(pmax.x - th::px(24), pmin.y - th::px(8));
             if (menuButton(dl, ImVec2(mmax.x - menuW, tabTop), mmax))
                 togglePauseMenu();
 
@@ -743,6 +818,11 @@ namespace rt::ui
             if (page == Page::Notebook)
             {
                 drawNotebook(dl, cmin, cmaxAll, st, runtime);
+                return;
+            }
+            if (page == Page::Radio)
+            {
+                drawRadio(dl, cmin, cmaxAll, st, runtime);
                 return;
             }
             // Map page: the map on the left at full height, a column on the right (race or town),

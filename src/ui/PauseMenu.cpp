@@ -1,6 +1,7 @@
 #include "PauseMenu.h"
 
 #include "Theme.h"
+#include "game/GameOptions.h"
 #include "imgui.h"
 #include "platform/Controllers.h"
 #include "platform/Host.h"
@@ -457,6 +458,14 @@ namespace rt::ui
             rows.push_back({"Vibration", [&s] { return std::string(s.vibration ? "On" : "Off"); },
                             [&s](int) { s.vibration = !s.vibration; changed(); }, {},
                             "The game's rumble. How strongly each controller rumbles is set on the Controllers page."});
+            // The town radio (the game's Pause > Radio): in an Adventure game only.
+            if (PS2Runtime *rt = rt::host::runtime(); rt && rt::game::radioAvailable(*rt))
+                rows.push_back({"Radio station", [rt] { return std::string(rt::game::radioStationName(rt::game::radioStation(*rt))); },
+                                [rt](int d) {
+                                    const int n = rt::game::kRadioStations;
+                                    rt::game::setRadioStation(*rt, (rt::game::radioStation(*rt) + d + n) % n);
+                                },
+                                {}, "The radio in town: PEACH FM, E-RADIO or Off. Kept when you save your Adventure."});
             rows.push_back(heading("Graphics"));
             static const std::vector<int> levels = {1, 2, 4, 8, 16};
             rows.push_back({"Supersampling (SSAA)",
@@ -936,6 +945,8 @@ namespace rt::ui
     }
 
     bool pauseMenuOpen() { return g_page != Page::Closed; }
+
+    void openOptions() { open(Page::Options); }
 
     void openSoundOptions()
     {

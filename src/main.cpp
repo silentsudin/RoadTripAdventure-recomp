@@ -717,8 +717,12 @@ int main(int argc, char *argv[])
                 // One ImGui frame for the debug panel (F1) and the in-game menu.
                 auto &panel = static_cast<UiHooks *>(user)->panel;
                 rt::game::applyGameOptions(rt); // the game's vibration switch follows our setting
-                if (rt::game::takeOptionsRequest())
-                    rt::ui::openSoundOptions(); // Title > Options: ours, at its Sound rows
+                switch (rt::game::takeOptionsRequest())
+                {
+                case rt::game::OptionsRequest::Sound: rt::ui::openSoundOptions(); break; // Title > Options
+                case rt::game::OptionsRequest::Top: rt::ui::openOptions(); break;        // Pause > Settings
+                case rt::game::OptionsRequest::None: break;
+                }
                 rt::ui::updatePauseMenu(); // Guide, Back+Start, Esc or F3: the in-game menu (pauses the game)
                 rt::ui::updateButtonGlyphs(); // the game's button glyphs for the pad in use
                 if (rt::host::keyPressed(SDL_SCANCODE_F1))
@@ -768,6 +772,11 @@ int main(int argc, char *argv[])
                 const auto stats = gs ? gs->texturePackStats() : ps2x::gs::PgsControl::TexturePackStats{};
                 return "{\"ok\":true,\"pack_images\":" + std::to_string(stats.packImages) +
                        ",\"replaced\":" + std::to_string(stats.replaced) + "}";
+            }
+            if (cmd == "radio") // {"cmd":"radio"[,"station":0|1|2]}: the town radio (GameOptions.h)
+            {
+                PS2Runtime *rt = rt::host::runtime();
+                return rt ? rt::game::radioCommand(*rt, line) : std::string("{\"ok\":false}");
             }
             if (cmd == "sdlpad")
                 return testSdlPad(line);
