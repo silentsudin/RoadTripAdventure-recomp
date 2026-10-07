@@ -272,9 +272,28 @@ action_map = 0x1780A48       # +0 gas, +2 brake, +4 reverse, +6 jet, +8 wing up,
 allowed_buttons = 0x29C538   # 11 x 20 bytes {u32 mask, x, y, ..}: the buttons the setup offers
 held = 0x33592C              # u16 + port*2, game word order; pressed edges at 0x335930
 player_control = 0x21A820    # (task, sys, car) -> v0 control word: 1 gas, 2 brake, 4 reverse (5 with the reverse button), 8 jet, 0x10 lights, 0x20/0x40 wing, 0x2000/0x8000 steer
-car_object = 0x177AC50       # + k * 0x270 (= cars_address - 0x90): +0x198 port bit, +0x19C 7 contact words (0x2000 road, 0x2353 grass at Peach Raceway, -1 none),
-                             # +0x1C4 u8 skid 0..180 (inferred), +0x1D0 u16 rpm 0..~9000, +0x1D8 u32 |speed|, +0x1FE brake ramp 0..32, +0x1FF gear 1..5
+car_object = 0x177AC50       # + k * 0x270 (= cars_address - 0x90): +0x198 port bit, +0x1D0 u16 rpm 0..~9000, +0x1D8 u32 |speed|,
+                             # +0x1FE brake ramp 0..32, +0x1FF gear 1..5; ground below.
+# Ground contact (0x21B3D0): seven points from the table at 0x29CA80 (car space): +0x19C front body point (0, 0.68),
+# +0x1A0/+0x1A4 rear body points (-/+0.74, -0.66), +0x1A8..+0x1B4 the wheels (-/+0.9, +/-1.5; x < 0 = left). Each
+# word is the ground polygon's attribute under that point (gp-0x53E0 lookup), -1 off the ground mesh (a point
+# pushed into a wall), never -1 in the air. Bits 8-10 = material (the tyre-dust/splash choice in 0x217C68 follows
+# them): 0 asphalt (Peach 0x2000, Night Glow 0x0), 1 dirt/sand/rock floor (Temple 0x111, Lagoon sand 0x2111,
+# Lagoon tunnel 0x11111, Night Glow turf 0x100111; the game raises dust), 3 grass (Peach 0x2353, Night Glow
+# 0x100311), 4 snow (Snow Mountain 0x3444, 0x103444), 5 hard and smooth (Temple bridge boards 0x500, Night Glow
+# brick 0x500 and glass-tunnel panels 0x13500, Lagoon wet sand 0x2511; Snow Mountain's frozen lake 0x12554 with
+# grip class 4 = ice), 6 water (Lagoon sea 0x102651; wading anywhere forces 0x100651 and sets +0x213 = 1);
+# 2 and 7 not seen. Bits 4-6 pick the tyre sound (table 0x29CBA8: 6, 8, 10, 12, then none); the low nibble is
+# the grip class (index into the car's halfwords at +0x21C). Seen on Peach, Temple, Night Glow, Snow Mountain, Lagoon.
+# Air (0x21AF28): +0x1C0/+0x1C4/+0x1C8 s32, how fast the three body points are falling: 0 on the ground, + the
+# course's gravity (~97) each frame off it. All three > 0 = airborne (5-117 frames seen: Temple's and Snow
+# Mountain's jumps, crests at speed). At touchdown, if the fall is >= 0xB3 the game rumbles pattern 1 at
+# strength fall / 16 (11..50 bumps, up to ~500 after a jump), then zeroes it.
 car_update = 0x21A310        # brake force = curve[+0x200][ramp - 1] * 10000 >> 5; gearbox via the pointer at 0x3356D8 (0x21CE48)
 rumble_start = 0x20ACB8      # (sys, port, pattern, strength); gate sys[0xC + port] & 0x33590E; scripts 0x29AD60 -> 0x2EA3D0 (8 bytes each)
-# Seen while driving: pattern 1 from 0x21B360 (suspension bumps, strength 11..41); 3/4/5 from 0x219C6C/0x219C8C (rough ground,
-# by surface type: 4 for 1/4/5, 3 for 2/8/10, 5 for 3/6/7/9; every 2-3 frames off the road); 6 from 0x21793C (collisions, strength 125 into a car).
+# Seen while driving: pattern 1 from 0x21B360 (a body point landing, strength = its fall / 16); 3/4/5 from 0x219C6C/0x219C8C
+# (strength 255, every 2-3 frames while the car scrapes a wall or obstacle: 0x219CB0 tests the course's collision points
+# against the car's quadrants, bits 1 front-left, 2 front-right, 4 rear-left, 8 rear-right; table 0x2EAE60: 1/4/5 (left
+# side) -> 4, 2/8/10 (right side) -> 3, 3/6/7/9 (front, diagonals) -> 5, rear-only 12 and 11/13/14 silent; seen at
+# Peach Raceway's first bend: its left wall 4, then the guardrail on the right 3); 6 from 0x21793C (collisions,
+# strength 125 into a car).

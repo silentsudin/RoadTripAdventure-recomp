@@ -41,9 +41,10 @@ namespace rt::game
         constexpr uint32_t kStillSpeed = 150; // ... below this speed: reverse
         // The car object (a2 of 0x21A820, a1 of 0x21A310): 0x177AC50 + k * 0x270.
         constexpr uint32_t kCarPort = 0x198, kCarRpm = 0x1D0, kCarSpeed = 0x1D8, kCarBrakeRamp = 0x1FE, kCarGear = 0x1FF;
-        // Seven ground contact words (0x2000 road, 0x2353 grass at Peach Raceway, -1 in the air) and
-        // a skid level (0..180, while sliding through turns; inferred).
-        constexpr uint32_t kCarContacts = 0x19C, kCarSkid = 0x1C4;
+        // Seven ground contact words at +0x19C (front, rear left, rear right body points, then the four
+        // wheels at +0x1A8..; feel::surfaceOf; -1 where a point is off the ground mesh, e.g. into a
+        // wall) and the body points' fall speeds (0 on the ground; all three above 0 = in the air).
+        constexpr uint32_t kCarWheelContacts = 0x1A8, kCarFall = 0x1C0;
 
         constexpr const char *kNames[kDriveActions] = {"Gas", "Brake", "Reverse", "Jet", "Wing up", "Wing down",
                                                        "Horn & lights", "View", "Navigator"};
@@ -202,6 +203,8 @@ namespace rt::game
 
         // ------------------------------------------------------------ vibration
         feel::Synth g_synth[2];
+        std::atomic<int> g_surface[2] = {static_cast<int>(feel::Surface::Other), static_cast<int>(feel::Surface::Other)};
+        std::atomic<bool> g_airborne[2] = {false, false};
         RumbleOut g_rumble[2];
         uint64_t g_driveVblank[2] = {};
         bool g_trace = false;
@@ -293,10 +296,25 @@ namespace rt::game
             s.gas = word & kGasBit;
             s.brake = word & kBrakeBit;
             s.reverse = word & kReverseBit;
-            s.airborne = true;
-            for (uint32_t o = 0; o < 7; ++o)
-                s.airborne &= read32(rdram, car + kCarContacts + 4 * o) == 0xFFFFFFFFu;
-            s.skid = rdram[(car + kCarSkid) & PS2_RAM_MASK] / 180.0f;
+            for (uint32_t o = 0; o < 3; ++o)
+                s.fall[o] = static_cast<int32_t>(read32(rdram, car + kCarFall + 4 * o));
+            // The ground under most wheels (a wheel off the mesh doesn't count).
+            {
+                uint32_t w[4];
+                for (uint32_t o = 0; o < 4; ++o)
+                    w[o] = read32(rdram, car + kCarWheelContacts + 4 * o);
+                int best = 0;
+                for (int i = 0; i < 4; ++i)
+                {
+                    if (w[i] == 0xFFFFFFFFu)
+                        continue;
+                    const int n = static_cast<int>(std::count(w, w + 4, w[i]));
+                    if (n > best)
+                        best = n, s.ground = w[i];
+                }
+            }
+            g_surface[port] = static_cast<int>(feel::surfaceOf(s.ground));
+            g_airborne[port] = s.airborne();
             std::lock_guard<std::mutex> lock(g_mutex);
             const feel::Motors m = g_synth[port].step(s);
             // The game's own gate: the pad's mode byte and the vibration switch.
@@ -538,13 +556,20 @@ namespace rt::game
             AnalogInput in;
             RumbleOut r;
             bool driving;
+            std::string scrape;
             {
                 std::lock_guard<std::mutex> lock(g_mutex);
                 in = g_analog[p];
+                for (int side = 0; side < 3; ++side)
+                    if (g_synth[p].scraping(side))
+                        scrape += std::string(scrape.empty() ? "" : ",") + "\"" + (side == 0 ? "left" : side == 1 ? "right" : "front") + "\"";
             }
             driving = dynamicRumble(p, r);
             o << "},\"gas\":" << in.gas << ",\"brake\":" << in.brake << ",\"driving\":" << (driving ? "true" : "false")
-              << ",\"reversing\":" << (g_reversing[p] ? "true" : "false") << ",\"rumble\":[" << r.low << "," << r.high << "," << r.left << "," << r.right << "]}";
+              << ",\"reversing\":" << (g_reversing[p] ? "true" : "false")
+              << ",\"surface\":\"" << feel::surfaceName(static_cast<feel::Surface>(g_surface[p].load())) << "\""
+              << ",\"airborne\":" << (g_airborne[p] ? "true" : "false") << ",\"scrape\":[" << scrape << "]"
+              << ",\"rumble\":[" << r.low << "," << r.high << "," << r.left << "," << r.right << "]}";
         }
         o << "]}";
         return o.str();

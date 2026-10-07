@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <initializer_list>
+#include <utility>
 #include <cstdio>
 
 using namespace rt::game::feel;
@@ -114,22 +115,105 @@ int main()
     b1.event(1, 11);
     b2.event(1, 41);
     CHECK(b1.step(idle).low < b2.step(idle).low);
-    // Rough ground: rumbles while the game keeps saying so, stops soon after.
-    Synth r;
-    CarSample rough = fast;
-    rough.gear = 4;
-    r.step(rough);
-    float roughLow = 0;
-    for (int i = 0; i < 30; ++i)
+    // Wall scrapes (the game's 4 left, 3 right, 5 front): the trigger on that side, while the
+    // game keeps saying so, gone soon after.
+    for (int pattern : {4, 3, 5})
     {
-        if (i % 3 == 0)
-            r.event(3, 255);
-        roughLow = std::max(roughLow, r.step(rough).low);
+        Synth w;
+        CarSample cruise = fast;
+        cruise.gear = 4;
+        w.step(cruise);
+        Motors peak;
+        for (int i = 0; i < 30; ++i)
+        {
+            if (i % 3 == 0)
+                w.event(pattern, 255);
+            const Motors x = w.step(cruise);
+            peak.left = std::max(peak.left, x.left), peak.right = std::max(peak.right, x.right);
+            peak.high = std::max(peak.high, x.high);
+        }
+        CHECK(peak.high > 0.2f);
+        if (pattern == 4)
+            CHECK(peak.left > peak.right + 0.1f);
+        else if (pattern == 3)
+            CHECK(peak.right > peak.left + 0.1f);
+        else
+            CHECK(peak.left > 0.15f && peak.right > 0.15f);
+        for (int i = 0; i < 15; ++i)
+            m = w.step(cruise);
+        CHECK(m.left < 0.3f && m.high < 0.3f); // the engine and the gas trigger stay
     }
-    CHECK(roughLow > 0.25f && roughLow < 0.8f);
-    for (int i = 0; i < 15; ++i)
-        m = r.step(rough);
-    CHECK(m.low < 0.15f);
+
+    // Surfaces: the contact words seen on the courses, named by their material bits.
+    CHECK(surfaceOf(0x2000) == Surface::Asphalt);   // Peach Raceway's road
+    CHECK(surfaceOf(0x2353) == Surface::Grass);     // and its grass
+    CHECK(surfaceOf(0x111) == Surface::Dirt);       // Temple Raceway's dirt
+    CHECK(surfaceOf(0x2111) == Surface::Dirt);      // Lagoon Raceway's sand
+    CHECK(surfaceOf(0x3444) == Surface::Snow);      // Snow Mountain
+    CHECK(surfaceOf(0x12554) == Surface::Ice);      // its frozen lake
+    CHECK(surfaceOf(0x500) == Surface::Boards);     // Temple's bridge, Night Glow's brick
+    CHECK(surfaceOf(0x102651) == Surface::Water);   // Lagoon's sea
+    CHECK(surfaceOf(0x100651) == Surface::Water);   // wading (the game's own word)
+    CHECK(surfaceOf(0xFFFFFFFFu) == Surface::Other);
+    // Each surface feels different at the same speed (mean motors over a second).
+    {
+        CarSample roll;
+        roll.rpm = 5000, roll.speed = 12000, roll.gear = 3;
+        float lows[8] = {}, highs[8] = {};
+        const uint32_t words[] = {0x2000, 0x111, 0x2353, 0x3444, 0x12554, 0x500, 0x102651};
+        for (int k = 0; k < 7; ++k)
+        {
+            Synth g;
+            roll.ground = words[k];
+            for (int i = 0; i < 60; ++i)
+            {
+                const Motors x = g.step(roll);
+                lows[k] += x.low / 60, highs[k] += x.high / 60;
+            }
+        }
+        CHECK(lows[6] > lows[1] && lows[1] > lows[0]); // water > dirt > asphalt
+        CHECK(lows[4] < lows[0] + 0.02f);              // ice: hardly anything below
+        CHECK(highs[1] > highs[2]);                    // dirt grittier than grass
+        CHECK(lows[2] > lows[0]);                      // grass rougher than asphalt
+    }
+
+    // In the air: no ground; landing thumps by how fast the car came down.
+    {
+        auto land = [&](int frames, int perFrame) {
+            Synth j;
+            CarSample c = fast;
+            c.ground = 0x2000;
+            for (int i = 0; i < 10; ++i)
+                j.step(c);
+            CarSample a = c;
+            Motors inAir;
+            for (int i = 1; i <= frames; ++i)
+            {
+                a.fall[0] = a.fall[1] = a.fall[2] = i * perFrame;
+                inAir = j.step(a);
+            }
+            const Motors hit = j.step(c);
+            return std::make_pair(inAir, hit);
+        };
+        const auto [air, hop] = land(6, 97);
+        const auto [air2, jump] = land(50, 97);
+        CHECK(air.low < 0.05f);                 // no road rumble in the air
+        CHECK(hop.low >= 0.3f && hop.low < 0.6f);
+        CHECK(jump.low > 0.9f && jump.left > 0.4f);
+        CHECK(landingStrength(600) <= 0.3f && landingStrength(8000) == 1.0f);
+        // One point off the ground (a crest) is not a jump.
+        Synth k;
+        CarSample crest = fast;
+        crest.ground = 0x2000;
+        Motors last;
+        for (int i = 1; i <= 12; ++i)
+        {
+            crest.fall[0] = i * 97;
+            last = k.step(crest);
+        }
+        crest.fall[0] = 0;
+        CHECK(k.step(crest).low < 0.2f);
+    }
 
     if (g_failed)
         std::fprintf(stderr, "%d check(s) failed\n", g_failed);

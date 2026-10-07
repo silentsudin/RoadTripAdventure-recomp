@@ -110,3 +110,28 @@ def test_dynamic_vibration(game_factory):
     low, high, left, right = d["rumble"]
     assert d["driving"]
     assert 0 < high < 0.5 and right > 0.05 and low < 0.5, d["rumble"]  # graded, not the game's on/off
+
+
+def test_surfaces_and_wall_scrapes(game_factory):
+    """Flat out from Peach Raceway's grid without steering: asphalt, then the grass of the first
+    bend and its left-hand wall (the game's scrape pattern 4: the left trigger), then the
+    guardrail on the right (pattern 3: the right trigger). Wheels on the ground throughout."""
+    game = game_factory()
+    to_start(game)
+    assert driving(game)["ports"][0]["surface"] == "asphalt"
+    surfaces, scrapes, airborne, left = [], [], False, 0.0
+    for _ in range(seconds(16) // 4):
+        game.step(4, ["cross"])
+        d = driving(game)["ports"][0]
+        if not surfaces or surfaces[-1] != d["surface"]:
+            surfaces.append(d["surface"])
+        for side in d["scrape"]:
+            if not scrapes or scrapes[-1] != side:
+                scrapes.append(side)
+        airborne |= d["airborne"]
+        if "left" in d["scrape"]:
+            left = max(left, d["rumble"][2])  # the left trigger (no brake pressed)
+    assert surfaces[:2] == ["asphalt", "grass"], surfaces
+    assert not airborne
+    assert scrapes[:2] == ["left", "right"], scrapes
+    assert left > 0.2
