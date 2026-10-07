@@ -26,9 +26,10 @@ namespace
     constexpr uint32_t kOfx = (2048 - 320) * 16, kOfy = (2048 - 112) * 16;
     constexpr uint32_t PATH1 = 0, PATH2 = 1;
 
-    WideLayout::PrimState state()
+    WideLayout::PrimState state(uint32_t tbp = 0)
     {
         WideLayout::PrimState s;
+        s.tbp[0] = s.tbp[1] = tbp;
         s.ofx[0] = s.ofx[1] = kOfx;
         s.ofy[0] = s.ofy[1] = kOfy;
         return s;
@@ -62,10 +63,12 @@ namespace
     constexpr uint64_t kSprite = 6, kTexSprite = 6 | (1 << 4), kTriStrip = 4;
     bool near(float a, float b) { return std::fabs(a - b) < 0.1f; }
 
-    void run(WideLayout &w, uint32_t path, std::vector<uint8_t> &p)
+    void run(WideLayout &w, uint32_t path, std::vector<uint8_t> &p, uint32_t tbp = 0)
     {
-        w.transformPacket(path, p.data(), static_cast<uint32_t>(p.size()), state());
+        w.transformPacket(path, p.data(), static_cast<uint32_t>(p.size()), state(tbp));
     }
+
+    float centredX(float x) { return 320 + (x - 320) * 0.75f; }
 
     void drivingFrame(WideLayout &w)
     {
@@ -155,6 +158,99 @@ namespace
         CHECK(!w.lastFrameWas2D());
     }
 
+
+    void messageWindow()
+    {
+        // A town conversation's window (Cloud Hill, Dust; RT_WIDE_DEBUG): one packet of sprites,
+        // the frame in three tiles across the screen, the name plate on its top right, the text
+        // in rows on it. With HUD at the edges, the window is one element: it stays whole and
+        // centred (each tile by its own third tore it apart, and the text with it).
+        for (HudPlacement placement : {HudPlacement::Edges, HudPlacement::Centred})
+        {
+            WideLayout w;
+            w.configure(16.0f / 9.0f, placement);
+            drivingFrame(w);
+            const std::vector<std::pair<float, float>> window = {
+                {32, 164}, {72, 192},   {32, 192}, {72, 216},   // left tiles
+                {72, 164}, {568, 192},  {72, 192}, {568, 216},  // middle
+                {568, 164}, {608, 192}, {568, 192}, {608, 216}, // right
+                {304, 208}, {336, 220},                         // the "more" arrow
+                {70, 173}, {85, 185},   {84, 173}, {99, 185},   // text, first row
+                {216, 173}, {231, 185}, {371, 197}, {385, 209}, // ... further on
+                {510, 158}, {518, 172}, {518, 158}, {574, 172}, {574, 158}, {598, 172}, // name plate
+            };
+            auto p = packet(kTexSprite, window);
+            run(w, PATH2, p);
+            bool ok = true;
+            for (size_t i = 0; i < window.size(); ++i)
+                ok = ok && near(xAt(p, i), centredX(window[i].first));
+            CHECK(ok);
+        }
+    }
+
+    void separateElements()
+    {
+        // Elements in one packet that don't touch keep their own anchors.
+        WideLayout w;
+        w.configure(16.0f / 9.0f, HudPlacement::Edges);
+        drivingFrame(w);
+        auto p = packet(kTexSprite, {{20, 10}, {120, 38}, {560, 147}, {620, 196}, {232, 100}, {408, 140}});
+        run(w, PATH2, p);
+        CHECK(near(xAt(p, 0), 15) && near(xAt(p, 1), 90));    // left
+        CHECK(near(xAt(p, 2), 580) && near(xAt(p, 3), 625));  // right
+        CHECK(near(xAt(p, 4), 254) && near(xAt(p, 5), 386));  // centre
+        // Text touching a left-hand element goes with it, though it reaches the middle third.
+        auto q = packet(kTexSprite, {{20, 10}, {120, 38}, {118, 12}, {260, 30}});
+        run(w, PATH2, q);
+        CHECK(near(xAt(q, 0), 15) && near(xAt(q, 1), 90) && near(xAt(q, 2), 88.5f) && near(xAt(q, 3), 195));
+    }
+
+    void newScreenAt4By3()
+    {
+        // The Takara logo (3D) gives way to the title: a full-screen picture is the first draw.
+        // The title's first frame is already 2D-backed (it was shown stretched for 10 frames).
+        WideLayout w;
+        w.configure(16.0f / 9.0f, HudPlacement::Centred);
+        for (int f = 0; f < 5; ++f)
+        {
+            drivingFrame(w);
+            w.framePresented();
+        }
+        CHECK(!w.lastFrameWas2D());
+        w.frameStart();
+        auto title = packet(kTexSprite, {{0, 0}, {640, 224}});
+        run(w, 2, title, 7566); // PATH3, a texture beyond the frame buffers
+        CHECK(w.lastFrameWas2D());
+        w.framePresented();
+        CHECK(w.lastFrameWas2D());
+        // A post-pass first (the frame buffer as its texture) is no such proof: it only votes.
+        WideLayout v;
+        v.configure(16.0f / 9.0f, HudPlacement::Centred);
+        drivingFrame(v);
+        v.frameStart();
+        auto post = packet(kTexSprite, {{0, 0}, {639, 224}});
+        run(v, PATH2, post, 0);
+        CHECK(!v.lastFrameWas2D());
+        // "Now loading": a full-screen black fill, then the text. One such frame keeps the
+        // verdict (a stray 2D-first frame while driving); the second one is 2D-backed.
+        WideLayout l;
+        l.configure(16.0f / 9.0f, HudPlacement::Centred);
+        drivingFrame(l);
+        for (int f = 0; f < 2; ++f)
+        {
+            CHECK(!l.lastFrameWas2D());
+            l.frameStart();
+            auto fill = packet(kSprite, {{0, -16}, {640, 240}});
+            run(l, PATH2, fill);
+        }
+        CHECK(l.lastFrameWas2D());
+        // And back: the first 3D frame after a 2D screen is shown wide at once.
+        w.frameStart();
+        auto world = packet(kTriStrip, {{-200, 50}, {300, 60}, {900, 200}});
+        run(w, PATH1, world);
+        CHECK(!w.lastFrameWas2D());
+    }
+
     void off()
     {
         WideLayout w;
@@ -173,6 +269,9 @@ int main()
     edges();
     screen2D();
     title();
+    messageWindow();
+    separateElements();
+    newScreenAt4By3();
     off();
     if (g_failures)
         std::fprintf(stderr, "%d check(s) failed\n", g_failures);

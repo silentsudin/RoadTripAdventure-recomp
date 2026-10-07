@@ -773,6 +773,18 @@ int main(int argc, char *argv[])
                 return "{\"ok\":true,\"pack_images\":" + std::to_string(stats.packImages) +
                        ",\"replaced\":" + std::to_string(stats.replaced) + "}";
             }
+            if (cmd == "wide")
+            {
+                // Widescreen verdicts (gs_wide_layout.h): the frame on display is shown 4:3
+                // (2D-backed) or wide, and the HUD's horizontal scale.
+                PS2Runtime *rt = rt::host::runtime();
+                if (!rt)
+                    return "{\"ok\":false}";
+                const GS &gs = rt->gsUnsynced();
+                return std::string("{\"ok\":true,\"frame_2d\":") + (gs.lastFrameWas2D() ? "true" : "false") +
+                       ",\"driving\":" + (gs.wideDriving() ? "true" : "false") +
+                       ",\"k\":" + std::to_string(gs.wideHorizontalScale()) + "}";
+            }
             if (cmd == "radio") // {"cmd":"radio"[,"station":0|1|2]}: the town radio (GameOptions.h)
             {
                 PS2Runtime *rt = rt::host::runtime();
