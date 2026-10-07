@@ -95,7 +95,7 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [x] The game runs fast for a few seconds after closing the in-game menu (likely also the 120 -> 60 report: the switch is made in that menu). Suspect: vblanks missed while paused fire back to back on resume.
 - [x] (vblank resync) Switching Frame rate 120 -> 60 takes a few seconds, and the game runs fast meanwhile.
 - [ ] Artefacts on the second screen still (details pending: page, look, 60/120 Hz).
-- [ ] Town frame rate inconsistent (60, then 30 or lower). The hardware GS has no persistent pipeline cache and builds pipelines on first use: add the cache, pre-compile recorded states at startup, then measure a town drive on the Thor (compile hitches vs load).
+- [ ] (VIF1 sync, pipeline cache done; presenting from its own thread next: the driver's present sleep holds locks) Town frame rate inconsistent (60, then 30 or lower). The hardware GS has no persistent pipeline cache and builds pipelines on first use: add the cache, pre-compile recorded states at startup, then measure a town drive on the Thor (compile hitches vs load).
 - [x] 16:9: the title screen shows stretched for a split second after the Takara logo (the 2D verdict lags the first frame).
 - [ ] Audit every screen at 16:9 (queued; the boot/race/town sweeps found nothing else).
 - [x] Town dialogue box stretched in 16:9 (should stay 4:3 and centred like the HUD): WideLayout classification.

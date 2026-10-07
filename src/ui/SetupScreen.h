@@ -21,7 +21,8 @@ namespace rt::ui
         Retry,
         Close,
     };
-    SetupAction drawSetupScreen(const TaskProgress &progress, double now);
+    // `heading`: the panel's title (default "Getting Road Trip ready").
+    SetupAction drawSetupScreen(const TaskProgress &progress, double now, const char *heading = nullptr);
 
     // Before the first setup: what the app needs (the player's own disc image) and a button to
     // choose it. `note`: why the last choice didn't work (no file, not Road Trip), or empty.

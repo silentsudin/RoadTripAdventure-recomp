@@ -121,7 +121,8 @@ namespace
 
     // Runs `task` on a worker thread while showing a small progress window. `finale`: the last
     // setup task (Android: a rumble and a fade into the game when it succeeds).
-    bool runWithProgress(const std::function<bool(rt::TaskProgress &)> &task, bool finale = false)
+    bool runWithProgress(const std::function<bool(rt::TaskProgress &)> &task, bool finale = false,
+                         ps2x::HostPresenter *screenOverride = nullptr)
     {
         rt::TaskProgress progress;
         std::thread worker([&]
@@ -133,7 +134,7 @@ namespace
         // One window per activity on Android: the Vulkan presenter opens now and draws the setup
         // screen (the runtime takes it over afterwards), about 20 times a second.
 #if defined(PS2X_ENABLE_DEBUG_UI)
-        ps2x::HostPresenter *screen = setupPresenter();
+        ps2x::HostPresenter *screen = screenOverride ? screenOverride : setupPresenter();
 #else
         ps2x::HostPresenter *screen = nullptr;
 #endif
@@ -169,7 +170,7 @@ namespace
             {
             }
             // "Try again": the whole task again (each step starts over cleanly).
-            return action == 1 ? runWithProgress(task, finale) : false;
+            return action == 1 ? runWithProgress(task, finale, screenOverride) : false;
         }
 #if defined(PS2X_ENABLE_DEBUG_UI)
         if (finale && screen && !progress.failed)
@@ -242,6 +243,9 @@ namespace
 
     // Whether the image was checked this run: the check is then step 1 of the setup's steps.
     bool g_imageChecked = false;
+    // Whether first-run setup ran (and its steps: graphics preparation continues them).
+    bool g_setupRan = false;
+    int g_setupSteps = 0, g_setupStep = 0;
 
     // Hashes the whole image against the good dump, with the progress screen (step 1 of 5: the
     // check, extracting, translating, compiling, linking).
@@ -423,6 +427,22 @@ namespace
             std::cerr << "[presenter] Vulkan presenter unavailable (" << error << "); using raylib\n";
     }
 
+    // The hardware-rasterizer GS on the presenter's device: RT_GS_BACKEND=hw, and the default on
+    // Android (paraLLEl-GS's compute rasterizer is several times heavier on phone GPUs;
+    // RT_GS_BACKEND=pgs keeps it).
+    bool wantHardwareGs()
+    {
+        const char *choice = std::getenv("RT_GS_BACKEND");
+#if defined(__ANDROID__)
+        return !choice || (std::string(choice) != "pgs" && std::string(choice) != "cpu");
+#else
+        return choice && std::string(choice) == "hw";
+#endif
+    }
+
+    // The hardware GS in use (its pipeline preparation, prepareGraphics), or nullptr.
+    GSRasterBackend *g_hwBackend = nullptr;
+
     // GPU GS (paraLLEl-GS on Vulkan/MoltenVK, or the hardware GS) unless RT_GS_BACKEND=cpu; falls back to
     // the CPU GS.
     void selectGsBackend(PS2Runtime &runtime)
@@ -434,23 +454,17 @@ namespace
             return;
         }
 
-        // The hardware-rasterizer GS on the presenter's device: RT_GS_BACKEND=hw, and the default on
-        // Android (paraLLEl-GS's compute rasterizer is several times heavier on phone GPUs;
-        // RT_GS_BACKEND=pgs keeps it).
-#if defined(__ANDROID__)
-        const bool hardware = !choice || std::string(choice) != "pgs";
-#else
-        const bool hardware = choice && std::string(choice) == "hw";
-#endif
-        if (hardware)
+        if (wantHardwareGs())
         {
             ps2x::gs::HwOptions hw;
             hw.presenter = runtime.presenter();
             hw.vulkanLibrary = vulkanLibrary();
+            hw.pipelineCacheDir = (rt::paths::dataRoot() / "cache").string();
             std::string error;
             ps2x::gs::PgsControl *control = nullptr;
             if (auto backend = ps2x::gs::createHwBackend(hw, error, &control))
             {
+                g_hwBackend = backend.get();
                 runtime.gs().setRasterBackend(std::move(backend));
                 rt::settings::setGsControl(control);
                 rt::settings::capabilities().frameGeneration = true; // re-rendered shadow frames
@@ -628,10 +642,20 @@ namespace
                 return false;
         }
 
+        // With the hardware GS, preparing its graphics (prepareGraphics) is the last step, after
+        // the game has started up; it fades into the game then.
+        g_setupRan = true;
+#if defined(__ANDROID__)
+        const bool graphicsStep = wantHardwareGs();
+#else
+        const bool graphicsStep = false; // (the Mac's setup window is gone by then; they compile in moments)
+#endif
         return runWithProgress([&](rt::TaskProgress &progress)
                                {
                                    // Extracting is one step; translating, compiling and linking three.
-                                   progress.steps = (g_imageChecked ? 1 : 0) + (needInstall ? 1 : 0) + (needBuild ? 3 : 0);
+                                   progress.steps = (g_imageChecked ? 1 : 0) + (needInstall ? 1 : 0) + (needBuild ? 3 : 0) +
+                                                    (graphicsStep ? 1 : 0);
+                                   g_setupSteps = progress.steps;
                                    progress.step = g_imageChecked ? 1 : 0; // the check was step 1
                                    // RT_SETUP_TEST_FAIL=1 (UI reviews): fail at once, with the last build log.
                                    if (const char *f = std::getenv("RT_SETUP_TEST_FAIL"); f && *f == '1')
@@ -642,9 +666,139 @@ namespace
                                    }
                                    if (needInstall && !rt::installFromRom(*rom, progress))
                                        return false;
-                                   return !needBuild ||
-                                          rt::game::build(rt::paths::discDir() / rt::kBootElfName, progress); },
-                               true);
+                                   const bool ok = !needBuild ||
+                                                   rt::game::build(rt::paths::discDir() / rt::kBootElfName, progress);
+                                   g_setupStep = progress.step;
+                                   return ok; },
+                               !graphicsStep);
+    }
+
+    // The hardware GS compiles the draw pipelines it knows as it starts. From the persistent cache
+    // that takes milliseconds, and the game starts at once. When the cache can't serve them (the
+    // first run, a new driver or app build, new states), "Preparing graphics" with its progress bar
+    // shows until they are all compiled, so none compiles in the middle of play. (The setup's last
+    // step on a first run; on the Mac, where they compile quickly, the start just waits.)
+    void prepareGraphics(PS2Runtime &runtime)
+    {
+        ps2x::gs::HwPipelinePrep prep;
+        if (!g_hwBackend || !ps2x::gs::hwPipelinePrep(g_hwBackend, prep))
+            return;
+        using Clock = std::chrono::steady_clock;
+        const auto start = Clock::now();
+        auto since = [](Clock::time_point t) { return std::chrono::duration<double>(Clock::now() - t).count(); };
+        // RT_SETUP_TEST_GRAPHICS=1|2 (UI reviews): 1 the first run's last step, 2 the startup screen,
+        // stretched over 6 s.
+        const char *testEnv = std::getenv("RT_SETUP_TEST_GRAPHICS");
+        const int test = testEnv ? std::atoi(testEnv) : 0;
+        if (test == 1 && !g_setupRan)
+            g_setupRan = true, g_setupSteps = 5, g_setupStep = 4;
+        const bool firstRun = g_setupRan;
+        uint32_t lastDone = 0;
+        auto lastProgress = Clock::now();
+        auto ready = [&]
+        {
+            if (!ps2x::gs::hwPipelinePrep(g_hwBackend, prep))
+                return true;
+            if (test)
+                prep.done = std::min(prep.done, static_cast<uint32_t>(prep.total * std::min(1.0, since(start) / 6.0)));
+            if (prep.done != lastDone)
+                lastDone = prep.done, lastProgress = Clock::now();
+            return prep.done >= prep.total;
+        };
+        // Never held up for good: after 20 s, or 5 s without progress, the game starts and the rest
+        // compile on first use.
+        auto givenUp = [&]
+        {
+            if (since(start) < 20.0 && since(lastProgress) < 5.0)
+                return false;
+            std::cerr << "[setup] graphics: gave up waiting at " << prep.done << " of " << prep.total << " pipelines\n";
+            return true;
+        };
+        // A warm cache is done within a moment: no screen for up to a second (a first run shows its
+        // last step).
+        while (!firstRun && !ready() && since(start) < 1.0 && !givenUp())
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        if (ready() && !firstRun)
+        {
+            std::cout << "[setup] graphics ready (" << prep.total << " pipelines, "
+                      << static_cast<int>(since(start) * 1000.0) << " ms)\n";
+            return;
+        }
+#if defined(PS2X_ENABLE_DEBUG_UI) && defined(__ANDROID__)
+        ps2x::HostPresenter *screen = runtime.presenter();
+#else
+        ps2x::HostPresenter *screen = nullptr; // (the Mac's setup window is gone by now: they compile in moments)
+        (void)runtime;
+#endif
+        if (!screen)
+        {
+            while (!ready() && !givenUp())
+                std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            return;
+        }
+#if defined(PS2X_ENABLE_DEBUG_UI)
+        // "Preparing graphics": the first run's last step, or at a start after an update. Up at least
+        // 0.8 s (the bar eases to the end), faded in and out; the first run holds "Ready!" a moment
+        // and fades into the game with a rumble, as setup's finale did.
+        rt::TaskProgress progress;
+        progress.steps = firstRun ? g_setupSteps : 1;
+        progress.step = firstRun ? g_setupStep : 0;
+        // (On a start after an update, why only once the screen has been up a while.)
+        progress.setPhase("Preparing graphics", firstRun ? "Tuning the picture for this device. This only happens once." : " ");
+        const char *heading = firstRun ? nullptr : "Starting Road Trip";
+        const auto shown = Clock::now();
+        auto draw = [&](float fade)
+        {
+            if (!firstRun && since(shown) > 1.5 && progress.detail() == " ")
+                progress.setDetail("Road Trip or your device was updated. Tuning the picture again.");
+            progress.total = prep.total;
+            progress.done = prep.done;
+            screen->frameUi([&]
+                            {
+                                screen->uiBegin();
+                                rt::ui::drawSetupScreen(progress, since(shown), heading);
+                                if (fade > 0.0f)
+                                    rt::ui::drawFadeOut(fade);
+                                screen->uiEnd(); });
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        };
+        bool done = false;
+        while (!done || since(shown) < 0.8)
+        {
+            if (!done)
+                done = ready() || givenUp();
+            if (done)
+                prep.done = prep.total; // (given up: the rest compile on first use)
+            draw(firstRun ? 0.0f : std::max(0.0f, 1.0f - static_cast<float>(since(shown) / 0.15)));
+        }
+        if (firstRun)
+        {
+            // At 100% the headline says so (no step line), and the note what comes next.
+            heading = "Ready!";
+            progress.steps = 1;
+            progress.renamePhase("");
+            progress.setDetail("All set. Starting your trip...");
+            for (const auto held = Clock::now(); since(held) < 0.25;)
+                draw(0.0f);
+            int count = 0; // a short rumble on the controller, as the setup's finale has
+            SDL_Gamepad *pad = nullptr;
+            if (SDL_JoystickID *pads = SDL_GetGamepads(&count))
+            {
+                if (count > 0 && (pad = SDL_OpenGamepad(pads[0])))
+                    SDL_RumbleGamepad(pad, 0x5000, 0x9000, 180);
+                SDL_free(pads);
+            }
+            for (const auto fade = Clock::now(); since(fade) < 0.5;)
+                draw(static_cast<float>(since(fade) / 0.5));
+            if (pad)
+                SDL_CloseGamepad(pad);
+        }
+        else
+            for (const auto fade = Clock::now(); since(fade) < 0.2;)
+                draw(static_cast<float>(since(fade) / 0.2));
+        std::cout << "[setup] graphics prepared: " << prep.total << " pipelines in "
+                  << static_cast<int>(since(start) * 1000.0) << " ms\n";
+#endif
     }
 }
 
@@ -758,6 +912,7 @@ int main(int argc, char *argv[])
             return 1;
         }
         selectGsBackend(runtime);
+        prepareGraphics(runtime);
         rt::settings::applyAll();
         rt::lifecycle::install(); // Android: pause the game and close audio while the app is away
         // Test-socket commands of the app's own:

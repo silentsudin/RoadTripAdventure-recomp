@@ -236,27 +236,32 @@ namespace rt::ui
                 g_shownFraction = fraction < g_shownFraction ? fraction : g_shownFraction + (fraction - g_shownFraction) * k;
                 x1 = min.x + (max.x - min.x) * std::clamp(g_shownFraction, 0.0f, 1.0f);
             }
+            // The fill is a pill of its own, round at both ends however short (at least as long as
+            // it is tall): deeper gold below, bright above, a highlight along the top, as the game's
+            // gauges have.
+            float right = x1;
             if (x1 - x0 >= 1.0f)
             {
-                dl->PushClipRect(ImVec2(x0, min.y), ImVec2(x1, max.y), true);
-                // Rounded like the track (the clip cuts the right end at the fill): deeper gold below,
-                // bright above, and a highlight along the top, as the game's gauges have.
-                dl->AddRectFilled(min, max, IM_COL32(0xF5, 0xB8, 0x00, 0xFF), r);
-                dl->AddRectFilled(min, ImVec2(max.x, (min.y + max.y) * 0.5f + th::px(2)), IM_COL32(0xFF, 0xE1, 0x4D, 0xFF), r,
+                right = std::min(max.x, std::max(x1, x0 + 2.0f * r));
+                const ImVec2 a(x0, min.y), b(right, max.y);
+                dl->AddRectFilled(a, b, IM_COL32(0xF5, 0xB8, 0x00, 0xFF), r);
+                dl->AddRectFilled(a, ImVec2(right, (min.y + max.y) * 0.5f + th::px(2)), IM_COL32(0xFF, 0xE1, 0x4D, 0xFF), r,
                                   ImDrawFlags_RoundCornersTop);
-                dl->AddRectFilled(ImVec2(min.x + r * 0.6f, min.y + th::px(6)), ImVec2(max.x - r * 0.6f, min.y + th::px(11)),
-                                  IM_COL32(0xFF, 0xF4, 0xB0, 0xC0), th::px(3));
-                dl->PopClipRect();
+                if (right - x0 > r * 1.2f + th::px(6))
+                    dl->AddRectFilled(ImVec2(x0 + r * 0.6f, min.y + th::px(6)), ImVec2(right - r * 0.6f, min.y + th::px(11)),
+                                      IM_COL32(0xFF, 0xF4, 0xB0, 0xC0), th::px(3));
             }
             dl->AddRect(min, max, th::col::Black, r, 0, th::px(2));
-            if (fraction >= 0.0f && x1 > min.x + th::px(40))
-                th::horn(dl, ImVec2(x1 + th::px(6), (min.y + max.y) * 0.5f), th::px(36), static_cast<float>(now));
+            if (fraction > 0.0f && x1 - x0 >= 1.0f)
+                // (The bell stays inside the track at the end.)
+                th::horn(dl, ImVec2(std::min(right + th::px(6), max.x - th::px(6)), (min.y + max.y) * 0.5f), th::px(36),
+                         static_cast<float>(now));
         }
 
         constexpr float kHeadingH = 68, kButtonsH = 110;
     }
 
-    SetupAction drawSetupScreen(const TaskProgress &progress, double now)
+    SetupAction drawSetupScreen(const TaskProgress &progress, double now, const char *heading)
     {
         ImDrawList *dl = ImGui::GetForegroundDrawList();
         const float inner = panelWidth() - th::px(56) * 2;
@@ -302,12 +307,13 @@ namespace rt::ui
 
         const Panel p = panel(th::px(kHeadingH + 56 + 44 + 18 + 40 + 30 + 34));
         float y = p.min.y + p.pad;
-        th::text(dl, ImVec2(p.min.x + p.pad, y), th::Size::Heading, th::col::Heading, "Getting Road Trip ready", th::col::Black);
+        th::text(dl, ImVec2(p.min.x + p.pad, y), th::Size::Heading, th::col::Heading, heading ? heading : "Getting Road Trip ready",
+                 th::col::Black);
         y += th::px(kHeadingH);
 
         char step[64] = "";
         if (progress.steps > 1)
-            std::snprintf(step, sizeof(step), "Step %d of %d:  ", std::max(1, progress.step.load()), progress.steps.load());
+            std::snprintf(step, sizeof(step), "Step %d of %d: ", std::max(1, progress.step.load()), progress.steps.load());
         const std::string phase = step + progress.phase();
         th::text(dl, ImVec2(p.min.x + p.pad, y), th::Size::Body, th::col::White, phase.c_str());
         y += th::px(56);
@@ -325,11 +331,15 @@ namespace rt::ui
             std::snprintf(pct, sizeof(pct), "%d:%02d", s / 60, s % 60);
         }
         th::text(dl, ImVec2(p.min.x + p.pad, y), th::Size::Body, th::col::White, pct);
-        std::string eta = ProgressEta::describe(left);
-        if (eta.empty())
-            eta = fraction >= 0.0f ? "Estimating time left..." : "Working...";
-        const ImVec2 es = th::measure(th::Size::Body, eta.c_str());
-        th::text(dl, ImVec2(p.max.x - p.pad - es.x, y), th::Size::Body, th::col::White, eta.c_str());
+        // The time left once there is an estimate (none for short steps: only the percentage).
+        std::string eta = fraction >= 1.0f ? std::string() : ProgressEta::describe(left);
+        if (eta.empty() && fraction < 0.0f)
+            eta = "Working...";
+        if (!eta.empty())
+        {
+            const ImVec2 es = th::measure(th::Size::Body, eta.c_str());
+            th::text(dl, ImVec2(p.max.x - p.pad - es.x, y), th::Size::Body, th::col::White, eta.c_str());
+        }
         y += th::px(40 + 30);
 
         const std::string detail = progress.detail();

@@ -34,6 +34,12 @@ namespace rt
             total = 0;
             ++step;
         }
+        // The current phase under another name (no new step), e.g. "Ready!" at its end.
+        void renamePhase(std::string phase)
+        {
+            std::lock_guard lock(m_mutex);
+            m_phase = std::move(phase);
+        }
         void setDetail(std::string detail)
         {
             std::lock_guard lock(m_mutex);
