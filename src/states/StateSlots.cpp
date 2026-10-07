@@ -210,16 +210,11 @@ namespace rt::states
 
     std::string Slot::when() const
     {
-        // Relative while recent, then the day and the time of day: never "00:47", which reads like
-        // the race timers next to it.
+        // The day and the time of day it was saved, never a bare "00:47", which reads like the
+        // race timers next to it.
         if (empty || !readable || savedUnixTime <= 0)
             return {};
         const std::time_t t = static_cast<std::time_t>(savedUnixTime), now = std::time(nullptr);
-        const long long ago = static_cast<long long>(now) - static_cast<long long>(t);
-        if (ago >= 0 && ago < 60)
-            return "Just now";
-        if (ago >= 0 && ago < 3600)
-            return std::to_string(ago / 60) + " min ago";
         std::tm at{}, today{};
         localtime_r(&t, &at);
         localtime_r(&now, &today);

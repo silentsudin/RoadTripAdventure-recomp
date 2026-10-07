@@ -779,15 +779,14 @@ namespace rt::ui
             std::function<void()> onYes;
         };
 
-        // "Peach Town, 5 min ago"
+        // "Peach Town, today at 14:32"
         std::string slotSummary(int index)
         {
             for (const rt::states::Slot &slot : rt::states::slots())
                 if (slot.index == index)
                 {
                     std::string when = slot.when();
-                    if (!when.empty() && when.rfind("Today", 0) != 0 && when.rfind("Yesterday", 0) != 0 && when != "Just now" &&
-                        when.find("ago") == std::string::npos)
+                    if (!when.empty() && when.rfind("Today", 0) != 0 && when.rfind("Yesterday", 0) != 0)
                         when = "on " + when;
                     else if (!when.empty())
                         when[0] = static_cast<char>(std::tolower(static_cast<unsigned char>(when[0])));

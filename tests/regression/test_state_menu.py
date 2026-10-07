@@ -84,7 +84,7 @@ def test_slots_save_and_load(game_factory):
     one = listed[0]
     assert not one["empty"] and one["readable"], one
     assert one["detail"] == "Quick Race" and one["title"] and one["title"] != "Empty", one
-    assert one["when"] in ("Just now", "1 min ago", "2 min ago"), one
+    assert one["when"].startswith(("Today at ", "Yesterday at ")), one  # saved moments ago (past midnight: yesterday)
     assert one["thumb_h"] == 180 and 180 <= one["thumb_w"] <= 720, one
     assert all(s["empty"] for s in listed[1:]), listed
     info = game._call("state_info", path=str(game.data_dir / "states" / "slot1.rtstate"))
