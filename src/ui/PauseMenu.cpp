@@ -12,8 +12,12 @@
 #include "settings/Apply.h"
 #include "settings/Capabilities.h"
 #include "settings/Settings.h"
+#include "states/StateSlots.h"
+#include "runtime/ps2_host_presenter.h"
+#include "ps2_runtime.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -21,6 +25,7 @@
 #include <filesystem>
 #include <thread>
 #include <functional>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -43,6 +48,7 @@ namespace rt::ui
             bool heading = false;
             bool preview = false;                     // changes the picture: the scrim lifts a little while focused
             bool note = false;                        // a line of text, not selectable
+            int slot = 0;                             // a save-state slot (1..4): drawn as a picture card
         };
 
         Row heading(const char *label) { return {label, {}, {}, {}, {}, true}; }
@@ -103,7 +109,11 @@ namespace rt::ui
                    (p[1].empty() ? std::string("none") : p[1]);
         }
 
-        enum class Page { Closed, Root, Options, Controllers, Device, Buttons, QuitConfirm, ResetConfirm };
+        enum class Page
+        {
+            Closed, Root, Options, Controllers, Device, Buttons, QuitConfirm, ResetConfirm,
+            SaveSlots, LoadSlots, SaveConfirm, LoadConfirm, StateMessage,
+        };
 
         Page g_page = Page::Closed;
         int g_selected = 0;
@@ -115,6 +125,22 @@ namespace rt::ui
         bool g_toastPending = true;
         double g_toastUntil = 0;
         std::string g_device;        // Device and Buttons pages
+        // Save states: the slot a confirmation is about, the message box's text, a short notice
+        // after the menu closes ("Loaded slot 2."), and the slot pictures as UI textures.
+        int g_stateSlot = 0;
+        std::string g_messageTitle, g_messageText;
+        Page g_messageBack = Page::Root;
+        std::string g_notice;
+        double g_noticeUntil = 0;
+        std::string g_doneText;      // "Saved in slot 2." in the hint band for a moment
+        double g_doneUntil = 0;
+        uint64_t g_stateSeen = 0;    // the last finished operation handled
+        struct SlotTexture
+        {
+            uint64_t stamp = 0, id = 0;
+            int w = 0, h = 0;
+        };
+        std::map<int, SlotTexture> g_slotTextures;
         // RT_MENU_SHOT
         const char *g_shot = std::getenv("RT_MENU_SHOT");
         int g_shotFrames = -1;
@@ -182,14 +208,104 @@ namespace rt::ui
             ps2_test::setPaused(false);
         }
 
+        // Save states can be kept and loaded now (in a game of the player's, no movie, a GS that
+        // can save): otherwise the rows aren't there.
+        bool statesAvailable()
+        {
+            PS2Runtime *rt = rt::host::runtime();
+            return rt && rt::states::available(*rt);
+        }
+
         std::vector<Row> rootRows()
         {
-            return {
-                {"Resume", {}, {}, [] { close(); }, playersSummary()},
-                {"Options", {}, {}, [] { go(Page::Options, 1); }, "Window and picture settings."},
-                {"Controllers", {}, {}, [] { go(Page::Controllers); }, "Who plays, buttons and vibration."},
-                {"Quit", {}, {}, [] { go(Page::QuitConfirm, 1); }, playersSummary()},
+            // Where the cursor starts: saving, the first empty slot (else the oldest, never the
+            // newest by accident); loading, the newest.
+            const auto slotFocus = [](bool saving) {
+                const auto all = rt::states::slots();
+                int best = 0;
+                for (size_t i = 0; i < all.size(); ++i)
+                {
+                    const auto &a = all[i], &b = all[static_cast<size_t>(best)];
+                    if (saving && a.empty)
+                        return static_cast<int>(i);
+                    if (saving ? (!a.empty && a.savedUnixTime < b.savedUnixTime) : (!a.empty && (b.empty || a.savedUnixTime > b.savedUnixTime)))
+                        best = static_cast<int>(i);
+                }
+                return best;
             };
+            std::vector<Row> rows = {{"Resume", {}, {}, [] { close(); }, playersSummary()}};
+            if (statesAvailable())
+            {
+                rows.push_back({"Save state", {}, {}, [slotFocus] { go(Page::SaveSlots, slotFocus(true)); },
+                                "Keep this moment in one of four slots, to come back to. Memory card saves are separate."});
+                rows.push_back({"Load state", {}, {}, [slotFocus] { go(Page::LoadSlots, slotFocus(false)); }, "Go back to a moment you kept."});
+            }
+            rows.push_back({"Options", {}, {}, [] { go(Page::Options, 1); }, "Window and picture settings."});
+            rows.push_back({"Controllers", {}, {}, [] { go(Page::Controllers); }, "Who plays, buttons and vibration."});
+            rows.push_back({"Quit", {}, {}, [] { go(Page::QuitConfirm, 1); }, playersSummary()});
+            return rows;
+        }
+
+        // The root page's row with this label (they come and go with save states).
+        int rootIndex(const char *label)
+        {
+            const auto rows = rootRows();
+            for (size_t i = 0; i < rows.size(); ++i)
+                if (rows[i].label == label)
+                    return static_cast<int>(i);
+            return 0;
+        }
+
+        void showStateMessage(const std::string &title, const std::string &text, Page back)
+        {
+            g_messageTitle = title;
+            g_messageText = text;
+            g_messageBack = back;
+            go(Page::StateMessage, 0);
+        }
+
+        // The four slots, as picture cards. Saving into an empty slot starts at once; a kept one
+        // asks first. Loading always asks.
+        std::vector<Row> slotRows(bool saving)
+        {
+            std::vector<Row> rows;
+            for (const rt::states::Slot &slot : rt::states::slots())
+            {
+                Row r{slot.title()};
+                r.slot = slot.index;
+                const int i = slot.index;
+                if (saving)
+                {
+                    r.hint = slot.empty ? "Save this moment here." : "Replace this slot with the moment now.";
+                    r.activate = [i, empty = slot.empty] {
+                        g_stateSlot = i;
+                        if (empty)
+                            rt::states::beginSave(i);
+                        else
+                            go(Page::SaveConfirm, 1);
+                    };
+                }
+                else if (slot.empty)
+                    r.hint = "Nothing saved here yet.";
+                else if (!slot.readable)
+                {
+                    r.hint = slot.problem;
+                    r.activate = [i, problem = slot.problem] {
+                        g_stateSlot = i;
+                        showStateMessage("Can't load slot " + std::to_string(i), problem, Page::LoadSlots);
+                    };
+                }
+                else
+                {
+                    r.hint = "Go back to this moment.";
+                    r.activate = [i] {
+                        g_stateSlot = i;
+                        go(Page::LoadConfirm, 1);
+                    };
+                }
+                rows.push_back(r);
+            }
+            return rows;
         }
 
         // Named window sizes (the game's 10:7 picture); "Largest" fits the monitor.
@@ -634,6 +750,8 @@ namespace rt::ui
             case Page::Controllers: return controllerRows();
             case Page::Device: return deviceRows();
             case Page::Buttons: return buttonRows();
+            case Page::SaveSlots: return slotRows(true);
+            case Page::LoadSlots: return slotRows(false);
             default: return {};
             }
         }
@@ -656,12 +774,44 @@ namespace rt::ui
         // Confirm boxes: a question and two choices, the safe one (index 1) first in focus.
         struct Confirm
         {
-            const char *question, *detail, *yes, *no;
+            std::string question, detail;
+            const char *yes, *no; // no == nullptr: a message with one button
             std::function<void()> onYes;
         };
 
+        // "Peach Town, 5 min ago"
+        std::string slotSummary(int index)
+        {
+            for (const rt::states::Slot &slot : rt::states::slots())
+                if (slot.index == index)
+                {
+                    std::string when = slot.when();
+                    if (!when.empty() && when.rfind("Today", 0) != 0 && when.rfind("Yesterday", 0) != 0 && when != "Just now" &&
+                        when.find("ago") == std::string::npos)
+                        when = "on " + when;
+                    else if (!when.empty())
+                        when[0] = static_cast<char>(std::tolower(static_cast<unsigned char>(when[0])));
+                    return when.empty() ? slot.title() : slot.title() + ", " + when;
+                }
+            return {};
+        }
+
         Confirm currentConfirm()
         {
+            if (g_page == Page::SaveConfirm)
+                return {"Replace slot " + std::to_string(g_stateSlot) + "?", "Replaces " + slotSummary(g_stateSlot) + ".",
+                        "Replace", "Cancel", [] {
+                            go(Page::SaveSlots, g_stateSlot - 1);
+                            rt::states::beginSave(g_stateSlot);
+                        }};
+            if (g_page == Page::LoadConfirm)
+                return {"Load slot " + std::to_string(g_stateSlot) + "?",
+                        slotSummary(g_stateSlot) + ". Unsaved progress since then is lost.", "Load", "Cancel", [] {
+                            go(Page::LoadSlots, g_stateSlot - 1);
+                            rt::states::beginLoad(g_stateSlot);
+                        }};
+            if (g_page == Page::StateMessage)
+                return {g_messageTitle, g_messageText, "OK", nullptr, [] { go(g_messageBack, std::max(0, g_stateSlot - 1)); }};
             if (g_page == Page::QuitConfirm)
                 return {"Quit Road Trip?", "Anything since you last saved is lost.", "Quit", "Keep playing", [] {
                             close();
@@ -681,8 +831,8 @@ namespace rt::ui
             switch (g_page)
             {
             case Page::Root: close(); break;
-            case Page::Options: go(Page::Root, 1); break;
-            case Page::Controllers: go(Page::Root, 2); break;
+            case Page::Options: go(Page::Root, rootIndex("Options")); break;
+            case Page::Controllers: go(Page::Root, rootIndex("Controllers")); break;
             case Page::Device: go(Page::Controllers, 1); break;
             case Page::Buttons:
                 if (g_device == "keyboard")
@@ -690,24 +840,66 @@ namespace rt::ui
                 else
                     go(Page::Device, 1);
                 break;
-            case Page::QuitConfirm: go(Page::Root, 3); break;
+            case Page::QuitConfirm: go(Page::Root, rootIndex("Quit")); break;
             case Page::ResetConfirm: go(Page::Options, 1); break;
+            case Page::SaveSlots: go(Page::Root, rootIndex("Save state")); break;
+            case Page::LoadSlots: go(Page::Root, rootIndex("Load state")); break;
+            case Page::SaveConfirm: go(Page::SaveSlots, g_stateSlot - 1); break;
+            case Page::LoadConfirm: go(Page::LoadSlots, g_stateSlot - 1); break;
+            case Page::StateMessage: go(g_messageBack, std::max(0, g_stateSlot - 1)); break;
             default: break;
             }
         }
 
         // RT_MENU_SHOT: open the requested page once the game is running, picture it, quit.
-        // RT_MENU_PAGE: root, display, graphics, controllers, device, buttons, quit, reset.
+        // RT_MENU_PAGE: root, display, graphics, controllers, device, buttons, quit, reset, save,
+        // load, save_confirm, load_confirm, state_message.
         void shotStep()
         {
             if (!g_shot)
                 return;
             const char *atText = std::getenv("RT_MENU_AT");
             const uint64_t at = atText ? std::strtoull(atText, nullptr, 10) : 900;
-            if (g_shotFrames < 0 && ps2_test::currentVblank() >= at)
+            // RT_MENU_LOAD=<slot>: load that save state first (at RT_MENU_AT), and open the menu
+            // 30 vblanks after it is in, so the picture behind is a moment of play.
+            static int loadPhase = 0; // 0 not asked, 1 loading, 2 loaded
+            static uint64_t loadedAt = 0;
+            if (const char *slot = std::getenv("RT_MENU_LOAD"); slot && g_shotFrames < 0 && loadPhase < 2)
+            {
+                if (loadPhase == 0 && ps2_test::currentVblank() >= at)
+                {
+                    rt::states::beginLoad(std::atoi(slot));
+                    loadPhase = 1;
+                }
+                if (loadPhase == 1 && !rt::states::busy() && rt::states::status().sequence > 0)
+                {
+                    if (rt::states::status().phase == rt::states::Phase::Failed)
+                        std::fprintf(stderr, "[menu-shot] RT_MENU_LOAD failed: %s\n", rt::states::status().error.c_str());
+                    loadPhase = 2;
+                    loadedAt = ps2_test::currentVblank();
+                }
+                return;
+            }
+            if (g_shotFrames < 0 && ps2_test::currentVblank() >= (loadPhase == 2 ? loadedAt + 30 : at))
             {
                 const std::string page = std::getenv("RT_MENU_PAGE") ? std::getenv("RT_MENU_PAGE") : "root";
                 open(Page::Root);
+                // RT_MENU_SLOT: the slot in focus (save/load pages and their confirmations).
+                const int slot = std::getenv("RT_MENU_SLOT") ? std::atoi(std::getenv("RT_MENU_SLOT")) : 1;
+                g_stateSlot = slot;
+                if (page == "save" || page == "load")
+                    go(page == "save" ? Page::SaveSlots : Page::LoadSlots, slot - 1);
+                else if (page == "save_confirm")
+                    go(Page::SaveConfirm, 1);
+                else if (page == "load_confirm")
+                    go(Page::LoadConfirm, 1);
+                else if (page == "state_message")
+                    showStateMessage("Can't load slot " + std::to_string(slot),
+                                     rt::states::friendlyLoadError("made by an older version of the app (it has no EESC)"), Page::LoadSlots);
+                // RT_MENU_SAVE=1: then save into that slot from the open menu (the game held
+                // behind it); the picture is taken once the save is done.
+                if (page == "save" && std::getenv("RT_MENU_SAVE"))
+                    rt::states::beginSave(slot);
                 if (page == "quit")
                     go(Page::QuitConfirm, 1);
                 else if (page == "reset")
@@ -737,7 +929,11 @@ namespace rt::ui
             }
         }
 
-        bool isConfirm() { return g_page == Page::QuitConfirm || g_page == Page::ResetConfirm; }
+        bool isConfirm()
+        {
+            return g_page == Page::QuitConfirm || g_page == Page::ResetConfirm || g_page == Page::SaveConfirm ||
+                   g_page == Page::LoadConfirm || g_page == Page::StateMessage;
+        }
     }
 
     bool pauseMenuOpen() { return g_page != Page::Closed; }
@@ -759,9 +955,46 @@ namespace rt::ui
             close();
     }
 
+    namespace
+    {
+        // A save or load the menu started: drive it (vblanks behind the menu), and when it ends,
+        // say how it went. A load that worked closes the menu: the game goes on from there.
+        void serviceStates()
+        {
+            rt::states::update();
+            const rt::states::Status st = rt::states::status();
+            if ((st.phase != rt::states::Phase::Done && st.phase != rt::states::Phase::Failed) || st.sequence == g_stateSeen)
+                return;
+            g_stateSeen = st.sequence;
+            rt::states::acknowledge();
+            const double now = rt::host::now();
+            if (st.phase == rt::states::Phase::Done)
+            {
+                if (st.saving)
+                {
+                    g_doneText = st.message;
+                    g_doneUntil = now + 2.5;
+                }
+                else
+                {
+                    g_notice = st.message;
+                    g_noticeUntil = now + 2.5;
+                    if (g_page != Page::Closed)
+                        close();
+                }
+                return;
+            }
+            if (g_page == Page::Closed)
+                return;
+            showStateMessage(st.saving ? "Can't save" : "Can't load slot " + std::to_string(st.slot), st.message,
+                             st.saving ? Page::SaveSlots : Page::LoadSlots);
+        }
+    }
+
     void updatePauseMenu()
     {
         shotStep();
+        serviceStates();
         const rt::input::MenuInput in = rt::input::menuInput();
         // Rebinding takes every control until it is done (or Escape / the time-out cancels it).
         if (rt::input::rebinding() >= 0)
@@ -769,6 +1002,9 @@ namespace rt::ui
             rt::input::pollRebind();
             return;
         }
+        // Saving or loading: a moment, nothing to choose.
+        if (rt::states::busy())
+            return;
         if (in.toggleMenu)
         {
             if (g_page == Page::Closed)
@@ -781,7 +1017,9 @@ namespace rt::ui
             return;
         if (isConfirm())
         {
-            if (in.left || in.right || in.up || in.down)
+            if (!currentConfirm().no)
+                g_selected = 0;
+            else if (in.left || in.right || in.up || in.down)
                 g_selected = 1 - std::clamp(g_selected, 0, 1);
             if (in.confirm)
             {
@@ -839,7 +1077,7 @@ namespace rt::ui
             saveCurrent();
         }
         const double now = rt::host::now();
-        return g_page != Page::Closed || now < g_toastUntil || now < g_closedAt + 0.2;
+        return g_page != Page::Closed || now < g_toastUntil || now < g_closedAt + 0.2 || now < g_noticeUntil;
     }
 
     namespace
@@ -852,11 +1090,19 @@ namespace rt::ui
                 const char *button, *label;
             };
             std::vector<P> ps;
-            if (isConfirm())
-                ps = {{"cross", "Select"}, {"triangle", "Back"}};
+            if (g_page == Page::StateMessage)
+                ps = {{"cross", "OK"}};
+            else if (isConfirm())
+                ps = {{"cross", "Select"},
+                      {"triangle", g_page == Page::SaveConfirm || g_page == Page::LoadConfirm ? "Cancel" : "Back"}};
             else
             {
-                ps.push_back({"cross", "Select"});
+                // An empty slot on the Load page does nothing: no Load prompt there.
+                const auto rows = currentRows();
+                const int n = static_cast<int>(rows.size());
+                const bool acts = !n || rows[std::clamp(g_selected, 0, n - 1)].activate || rows[std::clamp(g_selected, 0, n - 1)].change;
+                if (acts)
+                    ps.push_back({"cross", g_page == Page::SaveSlots ? "Save" : g_page == Page::LoadSlots ? "Load" : "Select"});
                 if (canChange)
                     ps.push_back({"", "Change"});
                 ps.push_back({"triangle", g_page == Page::Root ? "Resume" : "Back"});
@@ -899,19 +1145,30 @@ namespace rt::ui
         void drawConfirm(ImDrawList *dl, ImVec2 vmin, ImVec2 vmax, float appear)
         {
             const Confirm c = currentConfirm();
-            const float w = std::min(th::px(600), (vmax.x - vmin.x) * 0.9f), h = th::px(220);
+            const bool stateBox = g_page == Page::SaveConfirm || g_page == Page::LoadConfirm || g_page == Page::StateMessage;
+            const float w = std::min(th::px(stateBox ? 760 : 600), (vmax.x - vmin.x) * 0.9f);
+            // The detail wrapped to the box (a refusal's reason can run to two or three lines).
+            const std::vector<std::string> lines = wrapHint(c.detail, w - th::px(80));
+            const float lineH = th::measure(th::Size::Hint, "Ag").y;
+            const float h = th::px(220) + lineH * static_cast<float>(std::max<size_t>(lines.size(), 1) - 1);
             const ImVec2 min((vmin.x + vmax.x - w) * 0.5f, (vmin.y + vmax.y - h) * 0.5f + (1 - appear) * th::px(30));
             const ImVec2 max(min.x + w, min.y + h);
-            th::dialogPanel(dl, min, max, c.question);
-            ImVec2 ds = th::measure(th::Size::Hint, c.detail);
-            th::text(dl, ImVec2((min.x + max.x - ds.x) * 0.5f, min.y + th::px(52)), th::Size::Hint, th::col::ListText, c.detail,
-                     th::col::Black);
-            // Two choices side by side; the bar sits behind the focused one.
+            th::dialogPanel(dl, min, max, c.question.c_str());
+            float ly = min.y + th::px(52);
+            for (const std::string &line : lines)
+            {
+                const ImVec2 ds = th::measure(th::Size::Hint, line.c_str());
+                th::text(dl, ImVec2((min.x + max.x - ds.x) * 0.5f, ly), th::Size::Hint,
+                         stateBox ? IM_COL32(0xF4, 0xEE, 0xDC, 0xFF) : th::col::ListText, line.c_str(), th::col::Black);
+                ly += lineH;
+            }
+            // Two choices side by side (or one, for a message); the bar sits behind the focused one.
             const char *labels[2] = {c.yes, c.no};
-            // Two equal bars centred as a pair; the focused one is the selection bar.
-            const float cw = th::px(220), ch = th::px(56), cy = max.y - th::px(40) - ch, gap = th::px(24);
-            const float x0 = (min.x + max.x - (cw * 2 + gap)) * 0.5f;
-            for (int i = 0; i < 2; ++i)
+            const int choices = c.no ? 2 : 1;
+            // Equal bars centred as a group; the focused one is the selection bar.
+            const float cw = th::px(220), ch = th::px(56), cy = max.y - th::px(40) - ch, gap = th::px(stateBox ? 64 : 24);
+            const float x0 = (min.x + max.x - (cw * static_cast<float>(choices) + gap * static_cast<float>(choices - 1))) * 0.5f;
+            for (int i = 0; i < choices; ++i)
             {
                 const ImVec2 a(x0 + i * (cw + gap), cy), b(a.x + cw, cy + ch);
                 if (ImGui::IsMouseHoveringRect(a, b) && (ImGui::GetIO().MouseDelta.x != 0 || ImGui::GetIO().MouseDelta.y != 0))
@@ -927,7 +1184,7 @@ namespace rt::ui
                 const ImVec2 ls = th::measure(th::Size::Body, labels[i]);
                 th::text(dl, ImVec2((a.x + b.x - ls.x) * 0.5f - th::px(8), (a.y + b.y - ls.y) * 0.5f), th::Size::Body,
                          on ? th::col::ListSelected : th::col::ListText, labels[i], on ? th::col::OutlineBlue : th::col::Black);
-                if (ImGui::IsMouseHoveringRect(a, b) && ImGui::IsMouseClicked(0))
+                if (ImGui::IsMouseHoveringRect(a, b) && ImGui::IsMouseClicked(0) && !rt::states::busy())
                 {
                     if (i == 0)
                         c.onYes();
@@ -936,7 +1193,8 @@ namespace rt::ui
                     return;
                 }
             }
-            drawPrompts(dl, max, min.x, false);
+            if (g_page != Page::StateMessage) // its one button says it all
+                drawPrompts(dl, max, min.x, false);
         }
 
         void drawToast(ImDrawList *dl, ImVec2 vmax)
@@ -987,6 +1245,106 @@ namespace rt::ui
         }
     }
 
+    namespace
+    {
+        // A slot's picture as a UI texture, made again when its file changes.
+        uint64_t slotTexture(const rt::states::Slot &slot, int &w, int &h)
+        {
+            SlotTexture &t = g_slotTextures[slot.index];
+            if (t.stamp != slot.stamp)
+            {
+                PS2Runtime *rt = rt::host::runtime();
+                ps2x::HostPresenter *presenter = rt ? rt->presenter() : nullptr;
+                if (presenter && t.id)
+                    presenter->destroyUiTexture(t.id);
+                t = SlotTexture{slot.stamp, 0, slot.thumbWidth, slot.thumbHeight};
+                if (presenter && !slot.thumbnail.empty())
+                    t.id = presenter->createUiTexture(slot.thumbnail.data(), slot.thumbWidth, slot.thumbHeight);
+            }
+            w = t.w;
+            h = t.h;
+            return t.id;
+        }
+
+        // "Saving..." with the dots counting up.
+        std::string working(const char *what)
+        {
+            const int dots = static_cast<int>(rt::host::now() * 3.0) % 4;
+            return std::string(what) + std::string(static_cast<size_t>(dots), '.');
+        }
+
+        // A slot row: its number, the picture of the moment (or an empty frame), where and when.
+        void drawSlotCard(ImDrawList *dl, ImVec2 a, ImVec2 b, const rt::states::Slot &slot, bool on)
+        {
+            const float rowH = b.y - a.y;
+            const ImU32 colour = on ? th::col::ListSelected : th::col::ListText;
+            const ImU32 outline = on ? th::col::OutlineBlue : th::col::Black;
+            const std::string number = std::to_string(slot.index);
+            const ImVec2 ns = th::measure(th::Size::Body, number.c_str());
+            th::text(dl, ImVec2(a.x + th::px(100) - ns.x * 0.5f, a.y + (rowH - ns.y) * 0.5f), th::Size::Body,
+                     on ? th::col::ListSelected : th::col::Heading, number.c_str(), outline);
+            // The picture: a 4:3 frame, the moment filling it (wider pictures cropped at the sides).
+            const float ph = rowH - th::px(28), pw = ph * 4.0f / 3.0f;
+            const ImVec2 p0(a.x + th::px(132), a.y + th::px(14)), p1(p0.x + pw, p0.y + ph);
+            const float r = th::px(6);
+            int tw = 0, thh = 0;
+            const uint64_t tex = slot.empty ? 0 : slotTexture(slot, tw, thh);
+            if (tex && tw > 0 && thh > 0)
+            {
+                const float aspect = static_cast<float>(tw) / static_cast<float>(thh), keep = std::min(1.0f, (4.0f / 3.0f) / aspect);
+                dl->AddImageRounded(static_cast<ImTextureID>(tex), p0, p1, ImVec2(0.5f - keep * 0.5f, 0), ImVec2(0.5f + keep * 0.5f, 1),
+                                    IM_COL32_WHITE, r);
+            }
+            else
+            {
+                // Empty (or no picture): a sunken frame; an empty one shows where a save would go.
+                dl->AddRectFilled(p0, p1, th::col::ListBevelDark, r);
+                if (slot.empty)
+                {
+                    const ImVec2 c((p0.x + p1.x) * 0.5f, (p0.y + p1.y) * 0.5f);
+                    const float arm = th::px(16), thick = th::px(5);
+                    dl->AddRectFilled(ImVec2(c.x - arm, c.y - thick * 0.5f), ImVec2(c.x + arm, c.y + thick * 0.5f), th::col::ListBevelLight, thick * 0.5f);
+                    dl->AddRectFilled(ImVec2(c.x - thick * 0.5f, c.y - arm), ImVec2(c.x + thick * 0.5f, c.y + arm), th::col::ListBevelLight, thick * 0.5f);
+                }
+            }
+            if (!slot.empty)
+                dl->AddRect(p0, p1, on ? th::col::Heading : th::col::ListBevelLight, r, 0, th::px(on ? 3.0f : 2.0f));
+            const rt::states::Status st = rt::states::status();
+            if (rt::states::busy() && st.slot == slot.index)
+            {
+                dl->AddRectFilled(p0, p1, IM_COL32(0x00, 0x0A, 0x28, 0xB0), r);
+                const std::string w = working(st.saving ? "Saving" : "Loading");
+                const ImVec2 ws = th::measure(th::Size::Hint, "Loading...");
+                th::text(dl, ImVec2((p0.x + p1.x - ws.x) * 0.5f, (p0.y + p1.y - ws.y) * 0.5f), th::Size::Hint, th::col::White,
+                         w.c_str(), th::col::Black);
+            }
+            // Where, then what and when.
+            const float tx = p1.x + th::px(28);
+            const std::string title = slot.title();
+            th::text(dl, ImVec2(tx, a.y + rowH * 0.5f - th::fontSize(th::Size::Body) - th::px(2)), th::Size::Body,
+                     slot.empty && !on ? IM_COL32(0xDC, 0xEF, 0xF8, 0xFF) : colour, title.c_str(), outline);
+            std::string detail = slot.detail();
+            if (!slot.when().empty())
+                detail += "   " + slot.when();
+            th::text(dl, ImVec2(tx, a.y + rowH * 0.5f + th::px(8)), th::Size::Hint,
+                     on ? th::col::ListSelected : IM_COL32(0xCF, 0xE8, 0xF5, 0xFF), detail.c_str(), outline);
+        }
+
+        // After a load the menu closes: a short note says which state the game went back to.
+        void drawNotice(ImDrawList *dl, ImVec2 vmax, double now)
+        {
+            const float fade = static_cast<float>(std::clamp((g_noticeUntil - now) / 0.3, 0.0, 1.0));
+            const ImVec2 ts = th::measure(th::Size::Hint, g_notice.c_str());
+            const float h = th::px(66), w = ts.x + th::px(48);
+            const ImVec2 min(vmax.x - w - th::px(32), vmax.y - h - th::px(32)), max(vmax.x - th::px(32), vmax.y - th::px(32));
+            dl->PushClipRect(ImVec2(min.x - th::px(10), min.y - th::px(10)), ImVec2(max.x + th::px(10), max.y + th::px(10)), true);
+            th::promptBox(dl, min, max);
+            th::text(dl, ImVec2(min.x + th::px(24), min.y + (h - ts.y) * 0.5f), th::Size::Hint,
+                     IM_COL32(0xE8, 0xE8, 0xE8, static_cast<int>(255 * fade)), g_notice.c_str(), th::col::OutlineBlue);
+            dl->PopClipRect();
+        }
+    }
+
     void drawPauseMenu()
     {
         ImDrawList *dl = ImGui::GetForegroundDrawList();
@@ -1001,6 +1359,8 @@ namespace rt::ui
                 th::scrim(dl, vmin, vmax, static_cast<float>(1.0 - (now - g_closedAt) / 0.2));
             if (now < g_toastUntil)
                 drawToast(dl, vmax);
+            if (now < g_noticeUntil)
+                drawNotice(dl, vmax, now);
             return;
         }
 
@@ -1026,7 +1386,8 @@ namespace rt::ui
         th::scrim(dl, vmin, vmax, appear * (preview ? 0.55f : 1.0f));
 
         const bool wide = g_page != Page::Root;
-        const float rowH = th::px(62);
+        const bool slotPage = g_page == Page::SaveSlots || g_page == Page::LoadSlots;
+        const float rowH = th::px(slotPage ? 136 : 62);
         const float width = std::min(th::px(wide ? 880 : 520), vp->Size.x * 0.92f);
         const float pad = th::px(30);
         const float promptsH = th::px(90);
@@ -1062,6 +1423,10 @@ namespace rt::ui
         std::string title = "Menu";
         if (g_page == Page::Options)
             title = "Options";
+        else if (g_page == Page::SaveSlots)
+            title = "Save state";
+        else if (g_page == Page::LoadSlots)
+            title = "Load state";
         else if (g_page == Page::Controllers)
             title = "Controllers";
         else if (g_page == Page::Device || g_page == Page::Buttons)
@@ -1081,7 +1446,7 @@ namespace rt::ui
         for (int i = first; i < std::min(n, first + visible); ++i)
         {
             const ImVec2 a(left, rowTop(i)), b(right, rowTop(i) + rowH);
-            if (rows[i].heading)
+            if (rows[i].heading || rt::states::busy())
                 continue;
             if (ImGui::IsMouseHoveringRect(a, b) && (ImGui::GetIO().MouseDelta.x != 0 || ImGui::GetIO().MouseDelta.y != 0))
                 g_selected = i;
@@ -1104,12 +1469,18 @@ namespace rt::ui
         if (n && !rows[sel].heading)
         {
             const ImVec2 bmin(left + th::px(56), g_barY + th::px(7)), bmax(right, g_barY + rowH - th::px(7));
-            th::selectionBar(dl, bmin, bmax);
+            th::selectionBar(dl, bmin, bmax, slotPage ? th::px(48) : 0.0f);
             th::horn(dl, ImVec2(bmin.x + th::px(2), (bmin.y + bmax.y) * 0.5f), th::px(28), static_cast<float>(now));
         }
+        const std::vector<rt::states::Slot> slotInfo = slotPage ? rt::states::slots() : std::vector<rt::states::Slot>{};
         for (int i = first; i < std::min(n, first + visible); ++i)
         {
             const float y0 = rowTop(i);
+            if (rows[i].slot > 0 && rows[i].slot <= static_cast<int>(slotInfo.size()))
+            {
+                drawSlotCard(dl, ImVec2(left, y0), ImVec2(right, y0 + rowH), slotInfo[static_cast<size_t>(rows[i].slot - 1)], i == sel);
+                continue;
+            }
             if (rows[i].note)
             {
                 const ImVec2 ns = th::measure(th::Size::Hint, rows[i].label.c_str());
@@ -1170,20 +1541,27 @@ namespace rt::ui
         const ImVec2 hmin(left, top + bodyH + th::px(16)), hmax(right, top + bodyH + th::px(16) + hintH - th::px(6));
         if (anyHint)
             th::hintBand(dl, hmin, hmax);
-        if (anyHint && n && !rows[sel].hint.empty())
+        // While saving or loading, and for a moment after a save, the band says so.
+        std::string hint = n ? rows[sel].hint : std::string();
+        if (slotPage && rt::states::busy())
+            hint = working(rt::states::status().saving ? "Saving" : "Loading");
+        else if (slotPage && now < g_doneUntil)
+            hint = g_doneText;
+        if (anyHint && !hint.empty())
         {
-            const std::vector<std::string> lines = wrapHint(rows[sel].hint, hintWidth);
+            const std::vector<std::string> lines = wrapHint(hint, hintWidth);
             // Top-aligned, so the first line stays put while moving between rows.
             float y = hintLines == 1 ? (hmin.y + hmax.y - hintLineH) * 0.5f : hmin.y + hintPad;
             for (const std::string &line : lines)
             {
-                th::text(dl, ImVec2(hmin.x + hintInset, y), th::Size::Hint, th::col::ListSelected, line.c_str(), th::col::Black);
+                th::text(dl, ImVec2(hmin.x + (slotPage ? th::px(132) : hintInset), y), th::Size::Hint,
+                         th::col::ListSelected, line.c_str(), th::col::Black);
                 y += hintLineH;
             }
         }
         drawPrompts(dl, max, min.x, n && rows[sel].change != nullptr);
 
-        if (g_shot && g_shotFrames >= 0)
+        if (g_shot && g_shotFrames >= 0 && !rt::states::busy())
             ++g_shotFrames;
     }
 

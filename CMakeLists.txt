@@ -123,6 +123,7 @@ set(RT_APP_SOURCES
     src/settings/Apply.cpp
     src/settings/Capabilities.cpp
     src/settings/Settings.cpp
+    src/states/StateSlots.cpp
 )
 if(APPLE)
     list(APPEND RT_APP_SOURCES src/platform/macos/Dialogs.mm)

@@ -1,10 +1,12 @@
 """Title menus: Options (vibration, speaker, sound volume, each checked for its effect), Results,
-and the attract demo."""
+and the attract demo; the town's Start menu's Settings."""
 
 from __future__ import annotations
 
+import pytest
+
 from rtharness import seconds
-from rtharness.adventure import boot_to_main_menu
+from rtharness.adventure import FIELDS, GAME_MAP, SCENE_TOWN, boot_to_main_menu, continue_to_factory, scene
 
 # Main menu: Adventure / Quick Race / 2 Player / Options / Results.
 OPTIONS, RESULTS = 3, 4
@@ -151,3 +153,56 @@ def test_attract_demo(game_factory, golden, golden_audio):
     sound = game.audio()
     assert sound["rms"] > 300, "the demo race is audible"
     golden_audio("attract_demo_15s", sound)
+
+
+# The town's Start menu (config/game_state.toml [options] pause_*): Warp / Notebook / Radio /
+# Items / Settings / Map; its state block's +0 is the page shown (0 the list, 5 Settings).
+PAUSE_STATE = GAME_MAP["options"]["pause_state"]
+PAUSE_SETTINGS = 4  # the list's 5th entry
+
+
+@pytest.mark.parametrize("own", [False, True], ids=["replaced", "game"])
+def test_pause_settings_replaced(game_factory, own):
+    """In town, Start > Settings (the game's button setup) opens the app's menu instead
+    (src/game/overrides.cpp): the game stays on its Pause list, and leaving it the drive goes on.
+    RT_GAME_OPTIONS=1 keeps the game's own Settings page (the control for the addresses)."""
+    edits = {FIELDS["location"]["offset"]: bytes([1]), FIELDS["licence"]["offset"]: bytes([2])}
+    game = game_factory(checkpoint="adventure_first_save", progress_edits=edits,
+                        env={"RT_GAME_OPTIONS": "1" if own else "0"})
+    continue_to_factory(game)
+    for _ in range(4):  # Change parts / Race / Save data / Quit game / Drive around town
+        game.press("down")
+    game.press("cross")
+    game.run(seconds(2))
+    game.press("cross")  # dismiss "Come again!"
+    game.run(seconds(10))
+    assert scene(game) == SCENE_TOWN, "driving in town"
+    game.press("start")
+    game.run(seconds(2))
+    assert game.u32(PAUSE_STATE) == 0, "the Pause list"
+    for _ in range(PAUSE_SETTINGS):
+        game.press("down")
+    game.press("cross")
+    game.run(seconds(3))
+    hooked = game.log_text().count("Pause > Settings: the app's menu")
+    if own:
+        assert game.u32(PAUSE_STATE) == 5, "RT_GAME_OPTIONS=1: the game's Settings page"
+        assert hooked == 0
+        game.press("triangle")  # the button setup's Exit
+        game.run(seconds(2))
+        assert game.u32(PAUSE_STATE) == 0, "back on the Pause list"
+    else:
+        assert hooked == 1, "the Settings hook should run once"
+        assert game.u32(PAUSE_STATE) == 0, "the game stays on its Pause list"
+    # Leave the Pause list and drive on.
+    game.press("triangle")
+    game.run(seconds(2))
+    assert scene(game) == SCENE_TOWN
+    before = game.frame().array()
+    game.pad("cross")
+    game.run(seconds(4))
+    game.release()
+    after = game.frame().array()
+    moved = (abs(before.astype(int) - after.astype(int)).sum(axis=2) > 48).mean()
+    assert moved > 0.2, f"the drive should go on after the Pause menu ({moved:.0%} of the picture changed)"
+    assert game.log_text().count("Pause > Settings: the app's menu") == hooked, "opened once"

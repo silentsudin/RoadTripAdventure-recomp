@@ -5,8 +5,14 @@
 // open. Options apply live (the game steps a couple of frames so the picture behind updates) and
 // are saved to settings.toml. Render thread only.
 //
-// RT_MENU_SHOT=<png> [RT_MENU_PAGE=root|display|graphics|general|quit] [RT_MENU_AT=<vblank>]:
-// open the menu at that vblank, save a picture of it and quit (for UI reviews without a person).
+// Save state / Load state (in a game of the player's, where the GS can save): four slots with a
+// picture of the moment (src/states/StateSlots).
+//
+// RT_MENU_SHOT=<png> [RT_MENU_PAGE=root|display|graphics|controllers|device|buttons|quit|reset|
+// save|load|save_confirm|load_confirm|state_message] [RT_MENU_AT=<vblank>]: open the menu at that
+// vblank, save a picture of it and quit (for UI reviews without a person). RT_MENU_LOAD=<slot>
+// loads that save state first (the menu opens 30 vblanks after); RT_MENU_SLOT=<n> focuses a slot;
+// RT_MENU_SAVE=1 (page save) saves into it from the open menu before the picture.
 
 namespace rt::ui
 {

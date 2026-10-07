@@ -67,7 +67,8 @@ namespace rt::ui::theme
     // the game's shop and factory lists; speech-style dialogs are olive and rounder.
     void dialogPanel(ImDrawList *dl, ImVec2 min, ImVec2 max, const char *nameTab = nullptr, bool list = true);
     void promptBox(ImDrawList *dl, ImVec2 min, ImVec2 max);
-    void selectionBar(ImDrawList *dl, ImVec2 min, ImVec2 max);
+    // `capHeight` > 0: the gold cap that tall, centred (tall rows), instead of the bar's height.
+    void selectionBar(ImDrawList *dl, ImVec2 min, ImVec2 max, float capHeight = 0.0f);
     void horn(ImDrawList *dl, ImVec2 tip, float height, float time);
     void pillTab(ImDrawList *dl, ImVec2 min, ImVec2 max, bool active, const char *label);
     void scrim(ImDrawList *dl, ImVec2 min, ImVec2 max, float amount = 1.0f);

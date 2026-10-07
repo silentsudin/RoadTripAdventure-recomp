@@ -26,6 +26,7 @@ namespace rt::settings
         bool frameGeneration = false; // the GS renders generated frames (shadow frames: paraLLEl-GS and the hardware GS)
         bool motionVectors = false;   // the GS gives per-pixel motion (TAA)
         bool temporalInputs = false;  // ... and depth too (MetalFX temporal, temporal upscalers); both GPU GSs give both
+        bool saveStates = true;       // the GS can save and restore its state (paraLLEl-GS and the CPU GS; not the hardware GS yet)
     };
 
     struct Availability

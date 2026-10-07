@@ -209,7 +209,7 @@ namespace rt::ui::theme
         frame(dl, min, max, r, colours, widths, 2);
     }
 
-    void selectionBar(ImDrawList *dl, ImVec2 min, ImVec2 max)
+    void selectionBar(ImDrawList *dl, ImVec2 min, ImVec2 max, float capHeight)
     {
         // As the game's: a thin orange edge, a two-tone blue body (lighter top half) and a gold
         // capsule on the right end.
@@ -218,9 +218,12 @@ namespace rt::ui::theme
         const float in = px(3), mid = (min.y + max.y) * 0.5f;
         dl->AddRectFilled(ImVec2(min.x + in, min.y + in), ImVec2(max.x - in, mid), col::BarTop, px(6), ImDrawFlags_RoundCornersTop);
         dl->AddRectFilled(ImVec2(min.x + in, mid), ImVec2(max.x - in, max.y - in), col::BarBottom, px(6), ImDrawFlags_RoundCornersBottom);
-        dl->AddRectFilled(ImVec2(max.x - h * 0.55f, min.y), max, col::BarCapGold, h * 0.5f);
-        dl->AddRectFilled(ImVec2(max.x - h * 0.45f, min.y + px(5)), ImVec2(max.x - px(6), min.y + h * 0.38f), col::BarCapShine,
-                          h * 0.2f);
+        // The cap: as tall as the bar, or `capHeight` (tall rows keep the usual cap, centred).
+        const float c = capHeight > 0 && capHeight < h ? capHeight : h;
+        const float cy = capHeight > 0 && capHeight < h ? mid - c * 0.5f : min.y;
+        const float cx = capHeight > 0 && capHeight < h ? max.x - px(10) : max.x;
+        dl->AddRectFilled(ImVec2(cx - c * 0.55f, cy), ImVec2(cx, cy + c), col::BarCapGold, c * 0.5f);
+        dl->AddRectFilled(ImVec2(cx - c * 0.45f, cy + px(5)), ImVec2(cx - px(6), cy + c * 0.38f), col::BarCapShine, c * 0.2f);
     }
 
     void horn(ImDrawList *dl, ImVec2 tip, float height, float time)

@@ -13,6 +13,7 @@
 #include "debug/PerfStats.h"
 #include "debug/RamDump.h"
 #include "platform/Host.h"
+#include "states/StateSlots.h"
 #include "platform/Input.h"
 #include "platform/Lifecycle.h"
 #include "debug/ThreadDump.h"
@@ -455,6 +456,7 @@ namespace
                 rt::settings::capabilities().frameGeneration = true; // re-rendered shadow frames
                 rt::settings::capabilities().motionVectors = true;  // TAA
                 rt::settings::capabilities().temporalInputs = true; // and depth: MetalFX temporal, temporal upscalers
+                rt::settings::capabilities().saveStates = false;    // its render targets aren't in a state yet
                 return;
             }
             std::cerr << "[gs] hardware GS unavailable (" << error << "); using paraLLEl-GS\n";
@@ -477,6 +479,59 @@ namespace
         }
         else
             std::cerr << "[gs] Vulkan GS unavailable (" << error << "); using CPU backend\n";
+    }
+
+    // Test socket: the in-game menu's save states (src/states/StateSlots), on the menu's own path.
+    //   {"cmd":"state_slots"}                    -> {"available","why","slots":[{slot,empty,title,detail,when,
+    //                                               thumb_w,thumb_h}]} as the menu lists them
+    //   {"cmd":"state_slot","op":"save|load","slot":N}  starts it (a load's file is checked at once)
+    //   {"cmd":"state_slot_status"}              advances it (call between runs) -> {phase,ok,message,...}
+    std::string testStateSlots(const std::string &cmd, const std::string &line)
+    {
+        const auto esc = [](const std::string &in)
+        {
+            std::string out;
+            for (char c : in)
+            {
+                if (c == '"' || c == '\\')
+                    out += '\\';
+                out += (static_cast<unsigned char>(c) < 0x20) ? ' ' : c;
+            }
+            return out;
+        };
+        if (cmd == "state_slots")
+        {
+            std::string why;
+            PS2Runtime *rt = rt::host::runtime();
+            const bool available = rt && rt::states::available(*rt, &why);
+            std::string reply = std::string("{\"ok\":true,\"available\":") + (available ? "true" : "false") + ",\"why\":\"" +
+                                esc(why) + "\",\"slots\":[";
+            bool first = true;
+            for (const rt::states::Slot &slot : rt::states::slots())
+            {
+                reply += std::string(first ? "" : ",") + "{\"slot\":" + std::to_string(slot.index) +
+                         ",\"empty\":" + (slot.empty ? "true" : "false") + ",\"readable\":" + (slot.readable ? "true" : "false") +
+                         ",\"title\":\"" + esc(slot.title()) + "\",\"detail\":\"" + esc(slot.detail()) + "\",\"when\":\"" +
+                         esc(slot.when()) + "\",\"thumb_w\":" + std::to_string(slot.thumbWidth) +
+                         ",\"thumb_h\":" + std::to_string(slot.thumbHeight) + "}";
+                first = false;
+            }
+            return reply + "]}";
+        }
+        if (cmd == "state_slot")
+        {
+            const std::string op = ps2_test::jsonField(line, "op");
+            const int slot = std::atoi(ps2_test::jsonField(line, "slot").c_str());
+            const bool started = op == "save" ? rt::states::beginSave(slot) : op == "load" && rt::states::beginLoad(slot, true);
+            return std::string("{\"ok\":") + (started ? "true" : "false") + (started ? "" : ",\"error\":\"busy or bad slot\"") + "}";
+        }
+        rt::states::update();
+        const rt::states::Status st = rt::states::status();
+        static const char *phases[] = {"idle", "picture", "checking", "waiting", "writing", "settling", "done", "failed"};
+        return std::string("{\"ok\":true,\"phase\":\"") + phases[static_cast<int>(st.phase)] + "\",\"saving\":" +
+               (st.saving ? "true" : "false") + ",\"slot\":" + std::to_string(st.slot) + ",\"refused\":" +
+               (st.refused ? "true" : "false") + ",\"vblanks\":" + std::to_string(st.vblanks) + ",\"sequence\":" +
+               std::to_string(st.sequence) + ",\"message\":\"" + esc(st.message) + "\",\"error\":\"" + esc(st.error) + "\"}";
     }
 
     // Test socket {"cmd":"sdlpad","type":"xbox|ps|switch","buttons":"start,back,..."}: a virtual SDL
@@ -716,6 +771,8 @@ int main(int argc, char *argv[])
             }
             if (cmd == "sdlpad")
                 return testSdlPad(line);
+            if (cmd == "state_slots" || cmd == "state_slot" || cmd == "state_slot_status")
+                return testStateSlots(cmd, line);
             return {};
         });
 

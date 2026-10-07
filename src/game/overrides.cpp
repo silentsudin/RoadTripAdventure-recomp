@@ -4,6 +4,7 @@
 
 #include "game/GameOptions.h"
 #include "game/GameStats.h"
+#include "states/StateSlots.h"
 #include "game_overrides.h"
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
@@ -203,6 +204,9 @@ namespace
                                                 {
                                                     out.emplace_back("mode", "race");
                                                     out.emplace_back("place", st.course);
+                                                    out.emplace_back("race_mode", st.mode == rt::game::Stats::Mode::QuickRace ? "quick"
+                                                                                  : st.mode == rt::game::Stats::Mode::TwoPlayer ? "2p"
+                                                                                                                                 : "adventure");
                                                 }
                                                 else if (st.inTown && !st.demo)
                                                 {
@@ -217,6 +221,9 @@ namespace
                                                     out.emplace_back("money", std::to_string(st.money));
                                                     out.emplace_back("stamps", std::to_string(st.stamps.count()));
                                                 }
+                                                // The menu's picture of the moment (rt::states).
+                                                for (auto &kv : rt::states::takeSaveMetadata())
+                                                    out.push_back(std::move(kv));
                                                 return out;
                                             });
     }

@@ -90,6 +90,22 @@ Adreno 740, two screens). CLAUDE.md has the technical detail for everything name
 - [x] **The Options page jumped between one row and the full list.** The one-row preview mode is
       gone; the panel keeps its size and position, and picture rows only lift the scrim a little.
 
+### Bugs reported 2026-10-07 (Thor)
+- [ ] 120 Hz with GSR 2: ghosting behind fast-moving cars.
+- [ ] The game runs fast for a few seconds after closing the in-game menu (likely also the 120 -> 60 report: the switch is made in that menu). Suspect: vblanks missed while paused fire back to back on resume.
+- [ ] Switching Frame rate 120 -> 60 takes a few seconds, and the game runs fast meanwhile.
+- [ ] Artefacts on the second screen still (details pending: page, look, 60/120 Hz).
+- [ ] Town frame rate inconsistent (60, then 30 or lower). The hardware GS has no persistent pipeline cache and builds pipelines on first use: add the cache, pre-compile recorded states at startup, then measure a town drive on the Thor (compile hitches vs load).
+- [ ] 16:9: the title screen shows stretched for a split second after the Takara logo (the 2D verdict lags the first frame).
+- [ ] Audit every screen at 16:9 (running: build/scratch/wide-audit).
+- [ ] Town dialogue box stretched in 16:9 (should stay 4:3 and centred like the HUD): WideLayout classification.
+- [ ] Town sometimes stuck at 30 fps until the pause menu is opened and closed (a half-rate pacing lock).
+- [ ] The in-game Start menu's Settings opens the game's options screen: should open our menu, as Title > Options does.
+- [ ] Back sometimes closes the second screen instead of opening the menu (the Presentation had key focus and cancels on back). Fix written (not focusable, not cancellable, reopens if closed while enabled), compiled; to test on the Thor, then commit.
+- [ ] Opening and closing the in-game menu repeatedly stops all sound (effects and music) and leaves crackles: resume catch-up flooding the audio queue / rate matching. With the menu-exit speed-up fix.
+- [ ] Open world (field areas between towns): consistently under 60 on the Thor, where the emulator holds 60. Mac profile (field vs town vs race) first, then the Thor at the same spot next to the emulator.
+- [ ] Occasional audio crackles and stutters (needs the Thor: `RT_AUDIO_STATS=1` with `RT_PERF_LOG=1`, 60 and 120 Hz).
+
 ### 1. Finish lifecycle and performance (#17)
 - [ ] Commit and push the lifecycle work if the last session didn't (see "Picking up").
 - [x] Pause and resume with the in-game menu open: the game stays paused under the menu.
