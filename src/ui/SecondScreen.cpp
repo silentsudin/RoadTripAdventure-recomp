@@ -21,6 +21,7 @@
 #include <bitset>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -799,6 +800,23 @@ namespace rt::ui
             const Page page = showingNewStamp ? Page::Notebook : g_overridden ? g_chosen : g_auto;
             // Keep the map on the second screen unless the player chose the notebook over it.
             presenter.setWantMap(!st.demo && mapTime && !(g_overridden && g_chosen != Page::Map));
+            // RT_SECOND_DEBUG=1: a line whenever what decides the page changes.
+            {
+                static const bool debug = [] { const char *e = std::getenv("RT_SECOND_DEBUG"); return e && *e == '1'; }();
+                static std::string last;
+                if (debug)
+                {
+                    char line[200];
+                    std::snprintf(line, sizeof(line), "racing %d town %d drive %d demo %d mapTime %d haveMap %d context %d page %d auto %d chosen %d/%d",
+                                  st.racing, st.inTown, st.canDrive, st.demo, mapTime, haveMap, mapContext, static_cast<int>(page),
+                                  static_cast<int>(g_auto), g_overridden, static_cast<int>(g_chosen));
+                    if (last != line)
+                    {
+                        last = line;
+                        std::fprintf(stderr, "[second] %s\n", line);
+                    }
+                }
+            }
 
             const float pad = th::px(24), rowH = th::px(84);
             const ImVec2 pmin(pad, pad + rowH), pmax(size.x - pad, size.y - pad);

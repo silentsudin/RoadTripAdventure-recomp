@@ -166,6 +166,7 @@ namespace rt::ui
         std::string g_notice;
         double g_noticeUntil = 0;
         float g_packProgress = -1.0f; // the selected pack being got ready (0..1), else -1
+        bool g_packWasRunning = false; // it was, at the last frame of the open menu (the "ready" pulse)
         std::string g_doneText;      // "Saved in slot 2." in the hint band for a moment
         double g_doneUntil = 0;
         uint64_t g_stateSeen = 0;    // the last finished operation handled
@@ -236,8 +237,16 @@ namespace rt::ui
 
         void close()
         {
-            rt::textures::packprep::stop(); // (a pack conversion runs only while the game is held)
+            // A pack conversion runs only while the game is held: closing stops it, and says so.
+            const auto pack = rt::textures::packprep::status();
+            if (pack.running && pack.done < pack.total)
+            {
+                g_notice = "The texture pack will finish getting ready next time you start.";
+                g_noticeUntil = rt::host::now() + 2.5;
+            }
+            rt::textures::packprep::stop();
             g_packProgress = -1.0f;
+            g_packWasRunning = false;
             g_page = Page::Closed;
             g_closedAt = rt::host::now();
             rt::input::blockGameInput(false);
@@ -595,6 +604,10 @@ namespace rt::ui
                                std::to_string(st.total) + left + ". Keep the menu open, or it'll finish next time you start.";
                     }
                     ready = st.finished;
+                    // Done while the player waited: a short pulse on the pad, and the hint says Ready.
+                    if (g_packWasRunning && ready)
+                        rt::input::sampleVibration(2);
+                    g_packWasRunning = st.running;
                 }
                 // Proof the pack is doing something: how much of it the game has drawn so far.
                 if (!s.texturePack.empty() && !missing && !converting)

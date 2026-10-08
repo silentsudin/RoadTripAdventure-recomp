@@ -220,8 +220,10 @@ namespace rt::input
                         Devices::rumble(d, 0.15f * k, 0.35f * k, 350);
                         Devices::rumbleTriggers(d, 0.25f * k, 0.4f * k, 350);
                     }
-                    else // Classic: the game's on/off buzz
+                    else if (style == 1) // Classic: the game's on/off buzz
                         Devices::rumble(d, 0.6f * k, 1.0f * k, 250);
+                    else // 2: something is ready (as setup's finale)
+                        Devices::rumble(d, 0.3f * k, 0.55f * k, 180);
                 }
     }
 

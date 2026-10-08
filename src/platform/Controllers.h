@@ -29,7 +29,7 @@ namespace rt::input
     // The label family of a device ("keyboard", "ps", "xbox", "nintendo").
     std::string familyOf(const std::string &id);
     // A short taste of a vibration style on player 1's controllers: 0 Dynamic, 1 Classic.
-    void sampleVibration(int style);
+    void sampleVibration(int style); // 0 Dynamic, 1 Classic, 2 a short "ready" pulse
 
     // The next control used on that device replaces the button's first control (Escape, Guide or
     // 6 s cancel). A control already on another button swaps places with it.
