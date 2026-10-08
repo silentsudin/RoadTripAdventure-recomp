@@ -9,6 +9,7 @@
 #include "game_overrides.h"
 #include "ps2_runtime.h"
 #include "ps2_runtime_macros.h"
+#include "ps2x/iop/iop_native.h"
 #include "ps2x/state_archive.h"
 #include "runtime/ps2_save_state.h"
 
@@ -321,8 +322,69 @@ namespace
                                             });
     }
 
+    // SNDMOD.IRX's set_reverb(voice, on) (IOP, module offset 0x2EE0, built without optimisation):
+    // for 40 entries of two 28-byte voice tables (addresses from its relocated lui/addiu pairs),
+    // where (int16 entry[0] & mask) == voice (mask 0xFFFF, or 0xFF00 when voice's low byte is 0)
+    // it sets entry[0x17] = on. Called hundreds of times a second, it was ~76% of the IOP's
+    // interpreted instructions (RT_IOP_PROFILE=1). Native, it leaves what the routine leaves (the
+    // tables, its stack frame, v0 = 48, v1 = 0, a0 = mask) and is charged its instruction count
+    // (state hashes match RT_IOP_NATIVE=0 run for run).
+    uint64_t sndmodSetReverb(ps2x::iop::NativeContext &c)
+    {
+        ps2x::iop::NativeMemory &m = *c.memory;
+        uint32_t *r = c.gpr;
+        auto pair = [&](uint32_t hi, uint32_t lo) {
+            return ((m.read32(c.function + hi) & 0xFFFFu) << 16) +
+                   static_cast<uint32_t>(static_cast<int32_t>(static_cast<int16_t>(m.read32(c.function + lo) & 0xFFFFu)));
+        };
+        uint32_t p[2] = {pair(0x1C, 0x20), pair(0x28, 0x2C)};
+        const uint32_t voice = r[4], on = r[5];
+        const uint32_t mask = (voice & 0xFFu) ? 0xFFFFu : 0xFF00u;
+        uint64_t n = (voice & 0xFFu) ? 20u : 22u; // the prologue
+        for (int i = 8; i < 0x30; ++i)
+        {
+            n += 39u; // the loop test and the body's two table steps
+            for (uint32_t &e : p)
+            {
+                const uint32_t h = static_cast<uint32_t>(static_cast<int32_t>(static_cast<int16_t>(m.read16(e))));
+                if ((h & mask) == voice)
+                {
+                    m.write8(e + 0x17u, static_cast<uint8_t>(on));
+                    n += 4u;
+                }
+                e += 0x1Cu;
+            }
+        }
+        n += 12u; // the last test and the epilogue
+        const uint32_t sp = r[29], fp = sp - 0x18u;
+        m.write32(fp + 0x10u, r[30]); // the caller's $fp, saved
+        m.write32(sp, voice);
+        m.write32(sp + 4u, on);
+        m.write32(fp, p[0]);
+        m.write32(fp + 4u, p[1]);
+        m.write32(fp + 8u, 0x30u);
+        m.write32(fp + 0xCu, mask);
+        r[2] = 0x30u;
+        r[3] = 0u;
+        r[4] = mask;
+        return n;
+    }
+
     void applyRoadTrip(PS2Runtime &runtime)
     {
+        static bool nativeIop = false;
+        if (!nativeIop)
+        {
+            nativeIop = true;
+            ps2x::iop::NativeFunction f;
+            f.module = "SNDMOD";
+            f.offset = 0x2EE0u;
+            f.words = 76u;
+            f.hash = 0x864F8BB350BFA8BAull; // the routine's code without its relocated words
+            f.relocated = {7u, 8u, 10u, 11u, 27u, 69u};
+            f.run = sndmodSetReverb;
+            ps2x::iop::registerNativeFunction(std::move(f));
+        }
         registerStateMetadata(runtime);
         std::cout << "[roadtrip] applying SLUS-20398 overrides\n";
         g_setHalfOffset[0] = runtime.lookupFunction(kSetHalfOffset[0]);
