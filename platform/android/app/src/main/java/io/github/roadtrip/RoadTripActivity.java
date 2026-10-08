@@ -3,7 +3,13 @@ package io.github.roadtrip;
 import android.app.Presentation;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationAttributes;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.os.VibratorManager;
+import android.media.AudioAttributes;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -148,5 +154,64 @@ public class RoadTripActivity extends SDLActivity {
             controller.hide(WindowInsets.Type.systemBars());
             controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         }
+    }
+
+    // The device's own vibrator, for pads without motors (the Thor's built-in controller has
+    // none; src/platform/input/SystemVibrator.cpp mixes the motors into one amplitude).
+    private Vibrator vibrator;
+    private boolean vibratorAmplitude;
+
+    private synchronized Vibrator vibrator() {
+        if (vibrator == null) {
+            VibratorManager vm = (VibratorManager) getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+            Vibrator v = vm != null ? vm.getDefaultVibrator() : null;
+            if (v != null && v.hasVibrator()) {
+                vibrator = v;
+                vibratorAmplitude = v.hasAmplitudeControl();
+            }
+        }
+        return vibrator;
+    }
+
+    /** From native code: 0 none, 1 on/off only, 2 with amplitude control. */
+    public int systemVibratorKind() {
+        Vibrator v = vibrator();
+        return v == null ? 0 : vibratorAmplitude ? 2 : 1;
+    }
+
+    /** From native code (any thread): amplitude 1..255 for `ms`, or 0 to stop. */
+    public void systemVibrate(int amplitude, int ms) {
+        Vibrator v = vibrator();
+        if (v == null) {
+            return;
+        }
+        try {
+            if (amplitude <= 0 || ms <= 0) {
+                v.cancel();
+                return;
+            }
+            if (!vibratorAmplitude && amplitude < 96) {
+                v.cancel(); // on/off only: a light rumble stays still rather than buzzing at full
+                return;
+            }
+            VibrationEffect e = VibrationEffect.createOneShot(ms,
+                    vibratorAmplitude ? Math.min(255, amplitude) : VibrationEffect.DEFAULT_AMPLITUDE);
+            if (Build.VERSION.SDK_INT >= 33) {
+                v.vibrate(e, VibrationAttributes.createForUsage(VibrationAttributes.USAGE_MEDIA));
+            } else {
+                v.vibrate(e, new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).build());
+            }
+        } catch (RuntimeException ignored) {
+            // a vibrator service hiccup must not take the game down
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        Vibrator v = vibrator;
+        if (v != null) {
+            v.cancel();
+        }
+        super.onPause();
     }
 }

@@ -1,6 +1,7 @@
 // Pausing in the background (see Lifecycle.h).
 
 #include "platform/Lifecycle.h"
+#include "platform/input/SystemVibrator.h"
 
 #include "runtime/ps2_audio_suspend.h"
 #include "runtime/ps2_test_harness.h"
@@ -28,6 +29,7 @@ namespace rt::lifecycle
             if (g_pausedByUs)
                 ps2_test::setPaused(true);
             ps2AudioOutSuspend(true);
+            rt::input::systemvibrator::stop();
             std::fprintf(stderr, "[lifecycle] background: game paused, audio off\n");
         }
 

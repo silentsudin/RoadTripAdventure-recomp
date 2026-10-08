@@ -38,6 +38,7 @@ namespace rt::states
         // The operation in flight.
         uint64_t g_resultSeq = 0, g_writeSeq = 0;
         uint64_t g_lastStepVblank = UINT64_MAX, g_startVblank = 0;
+        uint64_t g_liveVblank = 0; // the last vblank a live (not held) wait saw
         uint32_t g_settle = 0;
         std::chrono::steady_clock::time_point g_pictureDeadline;
         float g_pictureAspect = 4.0f / 3.0f;
@@ -156,7 +157,7 @@ namespace rt::states
         {
             g_status.phase = Phase::Waiting;
             g_lastStepVblank = UINT64_MAX;
-            g_startVblank = ps2_test::currentVblank();
+            g_startVblank = g_liveVblank = ps2_test::currentVblank();
             g_status.vblanks = 0;
         }
 
@@ -177,7 +178,13 @@ namespace rt::states
                 }
                 return true;
             }
-            g_status.vblanks = static_cast<uint32_t>(now - std::min(now, g_startVblank));
+            // Counted as they pass: a load moves the vblank counter to the state's (thousands
+            // away, either way) before its result is published, so a jump counts as one.
+            if (now != g_liveVblank)
+            {
+                g_status.vblanks += now > g_liveVblank && now - g_liveVblank <= 8 ? static_cast<uint32_t>(now - g_liveVblank) : 1u;
+                g_liveVblank = now;
+            }
             return g_status.vblanks <= kLiveMaxVblanks;
         }
     }
@@ -379,6 +386,10 @@ namespace rt::states
             }
             if (!stepLocked(kMaxVblanks))
             {
+                // Served meanwhile (a load restores the vblank counter before it publishes its
+                // result): the next update reports it.
+                if (ss::lastResult().sequence != g_resultSeq)
+                    return;
                 // (r is still the previous request's result: this one was never served.)
                 uint64_t loopTops = 0;
                 const std::string blockers = ss::pendingBlockers(&loopTops);
@@ -401,7 +412,7 @@ namespace rt::states
             // requestLoadFile has asked already; a result may even be in by now.
             g_status.phase = Phase::Waiting;
             g_lastStepVblank = UINT64_MAX;
-            g_startVblank = ps2_test::currentVblank();
+            g_startVblank = g_liveVblank = ps2_test::currentVblank();
             g_status.vblanks = 0;
             if (ss::lastResult().sequence == g_resultSeq)
                 stepLocked(kMaxVblanks);

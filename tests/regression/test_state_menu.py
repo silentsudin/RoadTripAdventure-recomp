@@ -221,3 +221,60 @@ def test_menu_states_real_time(game_factory):
     for _ in range(3):  # again, from different moments
         assert held("load", 1)["phase"] == "done"
         game.run(seconds(1))
+
+
+def test_socket_load_live_runs_on(game_factory):
+    """Real time, not held by the menu (as the Thor's test socket does it): a load reports the
+    load's own result (it used to report "no savable point" when the vblank counter jumped to the
+    state's before the result was in), and the game runs on at once from the loaded vblank, both
+    loading back in time and (in a fresh process, where the state is ahead) forward."""
+    import shutil
+
+    from rtharness.adventure import boot_to_main_menu
+
+    live = {"RT_TIME": "real", "RT_TEST_LIVE": "1"}
+
+    def live_op(game, op: str, slot: int) -> dict:
+        assert game._call("state_slot", op=op, slot=slot)["ok"]
+        end = time.time() + 30
+        while time.time() < end:
+            s = status(game)  # polled often: the load is served between two polls
+            if s["phase"] in ("done", "failed"):
+                return s
+            time.sleep(0.002)
+        raise AssertionError(f"stuck: {status(game)}")
+
+    def runs_on(game) -> None:
+        loaded = game.run(0)
+        start = time.time()
+        while time.time() - start < 1.0:
+            if game.run(1) - loaded >= 30:
+                return
+        raise AssertionError(f"no progress 1 s after the load: vblank {loaded} -> {game.run(0)}")
+
+    game = game_factory(name="state_socket_live", render=True, env=live)
+    boot_to_main_menu(game)
+    game.press("down")
+    game.run(seconds(2))
+    for _ in range(8):
+        game.press("cross")
+        game.run(seconds(4))
+    game.pad("cross")
+    game.run(seconds(5))
+    saved = live_op(game, "save", 2)
+    assert saved["phase"] == "done", saved
+    game.run(seconds(10))
+    for _ in range(3):  # back in time
+        loaded = live_op(game, "load", 2)
+        assert loaded["phase"] == "done" and loaded["message"] == "Loaded slot 2.", loaded
+        runs_on(game)
+        game.run(seconds(3))
+    states = game.data_dir / "states"
+    game.close()
+
+    fresh = game_factory(name="state_socket_live_fresh", render=True, env=live)
+    shutil.copytree(states, fresh.data_dir / "states")
+    boot_to_main_menu(fresh)  # far fewer vblanks than the state's
+    loaded = live_op(fresh, "load", 2)
+    assert loaded["phase"] == "done" and loaded["message"] == "Loaded slot 2.", loaded
+    runs_on(fresh)

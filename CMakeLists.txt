@@ -113,6 +113,7 @@ set(RT_APP_SOURCES
     src/platform/input/Config.cpp
     src/platform/input/Devices.cpp
     src/platform/input/Input.cpp
+    src/platform/input/SystemVibrator.cpp
     src/platform/Host.cpp
     src/platform/Lifecycle.cpp
     src/platform/SecondDisplay.cpp
@@ -247,6 +248,7 @@ if(BUILD_TESTING AND NOT ANDROID)
 
     add_executable(input_test tests/input_test.cpp
         src/platform/input/Config.cpp src/platform/input/Devices.cpp src/platform/input/Mapping.cpp
+        src/platform/input/SystemVibrator.cpp
         src/platform/input/Players.cpp src/platform/input/Types.cpp)
     target_include_directories(input_test PRIVATE src)
     target_link_libraries(input_test PRIVATE SDL3::SDL3 toml11::toml11)

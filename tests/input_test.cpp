@@ -5,6 +5,7 @@
 #include "platform/input/Devices.h"
 #include "platform/input/Mapping.h"
 #include "platform/input/Players.h"
+#include "platform/input/SystemVibrator.h"
 
 #include <SDL3/SDL.h>
 
@@ -209,6 +210,58 @@ namespace
         devices.shutdown();
         SDL_Quit();
     }
+    // The device's vibrator for pads without motors: the mix and how often it is called.
+    void systemVibrator()
+    {
+        using namespace rt::input::systemvibrator::detail;
+        CHECK(mixAmplitude(0, 0, 0, 0) == 0);
+        CHECK(mixAmplitude(1, 1, 1, 1) == 248 || mixAmplitude(1, 1, 1, 1) == 255);
+        CHECK(mixAmplitude(0.5f, 0, 0, 0) > mixAmplitude(0.25f, 0, 0, 0));
+        CHECK(mixAmplitude(0.2f, 0, 0, 0) > 51);                           // the curve lifts low levels
+        CHECK(mixAmplitude(0, 0.5f, 0, 0) < mixAmplitude(0.5f, 0, 0, 0));  // the small motor weighs less
+        CHECK(mixAmplitude(0.3f, 0.3f, 0, 0) > mixAmplitude(0.3f, 0, 0, 0));
+        CHECK(mixAmplitude(0, 0, 0, 0.5f) > 0);                            // the trigger motors count
+        CHECK(mixAmplitude(0.3f, 0, 0, 0) % 8 == 0);
+
+        // Cruising: the caller sends 250 ms pulses every 100 ms (input frames every 16 ms,
+        // tick() between), the level flickering between 120 and 200 every 50 ms.
+        auto cruise = [](bool flicker) {
+            Limiter l;
+            int sends = 0;
+            int64_t until = 0;
+            for (int64_t t = 0; t < 2000; t += 16)
+            {
+                if (t % 96 == 0)
+                    until = t + 250;
+                const int amp = flicker ? ((t / 48) % 2 ? 200 : 120) : 96;
+                sends += l.decide(amp, t, until).send;
+            }
+            return sends;
+        };
+        const int steady = cruise(false), flickering = cruise(true);
+        CHECK(steady >= 9 && steady <= 12);       // ~every 200 ms
+        CHECK(flickering <= 16);                  // <= 8 a second
+        std::printf("system vibrator: %d sends in 2 s steady, %d flickering\n", steady, flickering);
+
+        Limiter l;
+        auto d = l.decide(96, 0, 250);
+        CHECK(d.send && d.amplitude == 96 && d.durationMs == 300); // a start at once (50 ms past the pulse)
+        CHECK(!l.decide(200, 20, 250).send);                       // a rise waits 40 ms
+        d = l.decide(200, 40, 250);
+        CHECK(d.send && d.amplitude == 200 && d.durationMs == 260);
+        CHECK(!l.decide(120, 60, 250).send);                       // a fall must last 150 ms
+        CHECK(!l.decide(120, 200, 250).send);
+        d = l.decide(120, 210, 250);
+        CHECK(d.send && d.amplitude == 120);
+        CHECK(!l.decide(128, 220, 250).send);                      // a small change: 300 ms
+        CHECK(!l.decide(128, 240, 600).send);                      // no renewal 30 ms after a send
+        d = l.decide(128, 520, 600);
+        CHECK(d.send && d.amplitude == 128);
+        d = l.decide(0, 530, 600);
+        CHECK(d.send && d.amplitude == 0 && l.sentAmp == 0);       // a stop at once
+        CHECK(!l.decide(0, 540, 600).send);                        // once
+        CHECK(!l.decide(96, 700, 600).send);                       // nothing past the pulse's end
+    }
 }
 
 int main()
@@ -217,6 +270,7 @@ int main()
     players();
     config();
     virtualController();
+    systemVibrator();
     if (g_failures)
         std::fprintf(stderr, "%d check(s) failed\n", g_failures);
     else

@@ -25,6 +25,7 @@ namespace rt::input
         std::string name;
         std::string type;           // "ps5", "ps4", "xboxone", "switchpro", "standard", ...
         int batteryPercent = -1;    // -1 unknown / wired
+        bool systemVibrator = false; // no motors of its own: rumble goes to the device's vibrator (Android)
         AxisLatch latch;
     };
 

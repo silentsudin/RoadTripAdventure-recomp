@@ -83,6 +83,44 @@ namespace rt::debug
         const long tenths = readNumber("/sys/class/power_supply/battery/temp");
         s.batteryC = tenths > 0 ? tenths / 10.0 : -1.0;
 #endif
+#if defined(__ANDROID__)
+        // GPU headroom for frame generation: with the GPU at 85% or more for two windows the
+        // generated frames pause (the Thor's display fell behind near 100%: garbage strips on the
+        // lower screen in towns and Q's Factory at 120 Hz). They come back when the scene gets
+        // lighter: the GPU 12 points under its load in the first 2 s of the pause, for 2 s (leaving
+        // Q's Factory, a loading screen). Not on a timer: a retry in the same heavy scene garbled
+        // the lower screen again; and not by predicting their cost (1.6x the busy time at 60 kept
+        // town and the field at 60 for good).
+        {
+            static int high = 0, sampled = 0, lighter = 0, baseline = 0;
+            static double pausedSince = -1.0;
+            const double now = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count()) / 1000.0;
+            const bool fg = presenter && presenter->frameGenerationFactor() > 1u;
+            if (!fg || s.gpuBusy < 0)
+                high = 0, pausedSince = -1.0;
+            else if (pausedSince < 0.0)
+            {
+                high = s.gpuBusy >= 85 ? high + 1 : 0;
+                if (high >= 2)
+                    pausedSince = now, high = 0, sampled = 0, lighter = 0, baseline = 0;
+            }
+            else if (sampled < 5) // 2 s at 60 (after the window the pause began in): this scene's load
+            {
+                if (sampled++ > 0)
+                    baseline = std::max(baseline, s.gpuBusy);
+            }
+            else
+            {
+                lighter = s.gpuBusy <= baseline - 12 ? lighter + 1 : 0;
+                if (lighter >= 4)
+                    pausedSince = -1.0;
+            }
+            runtime.gsUnsynced().setGpuOverload(pausedSince >= 0.0);
+            s.gpuOverload = pausedSince >= 0.0;
+            if (s.gpuOverload)
+                s.shownFps = s.fps;
+        }
+#endif
         // RT_PERF_LOG=1: every window to the log (measurements over a whole run).
         static const bool log = [] { const char *e = std::getenv("RT_PERF_LOG"); return e && *e == '1'; }();
         if (log)

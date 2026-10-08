@@ -263,7 +263,7 @@ namespace rt::input
                                        stickByte(out.ry)});
             ps2_test::setLiveConnected(p, Players::pluggedIn(g_slots, p));
         }
-        applyRumble(!focused);
+        applyRumble(!focused || ps2_test::paused()); // the menu, the background or a paused game: still
 
         // Recording (RT_MOVIE_RECORD): F5 marks a moment, F6 a golden frame, F7 the end of a section.
         if (host::keyPressed(SDL_SCANCODE_F5))

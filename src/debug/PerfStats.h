@@ -18,6 +18,7 @@ namespace rt::debug
         double gsBusy = -1.0;      // % of one core
         double appCpu = -1.0;      // % of one core, every thread of the app
         int gpuBusy = -1;          // % (Android)
+        bool gpuOverload = false;  // generated frames paused for GPU headroom (Android)
         int gpuMHz = -1;           // (Android)
         double batteryC = -1.0;    // °C (Android)
     };

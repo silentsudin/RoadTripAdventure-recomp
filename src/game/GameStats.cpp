@@ -111,6 +111,7 @@ namespace rt::game
         // player's (not the attract demo, mode 8; the scene values stay stale at the title after
         // it, and after quitting to the title, so the title's own context rules them out too).
         s.demo = ram[kGameMode] == 8;
+        s.canDrive = !s.demo && (at<uint32_t>(ram, kDriveFlags) & 0x04u) != 0;
         const bool scene3d = at<uint32_t>(ram, kScene3D) == 2 && !s.demo && at<uint32_t>(ram, kUiContext) != kTitleContext;
         s.inTown = scene3d && at<uint32_t>(ram, kScene3DHandler) == kTownHandler && s.adventure;
         if (s.inTown)

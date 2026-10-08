@@ -741,7 +741,18 @@ namespace rt::ui
             const rt::game::Stats st = rt::game::readStats(runtime);
             float uv[4], aspect;
             // The attract demo leaves both screens alone: its map stays on top.
-            const bool haveMap = !st.demo && presenter.mapRegion(uv, aspect);
+            // Only while driving or racing: in buildings, Q's Factory and dialogues other drawings
+            // can match the map's signature, and junk showed (and the page flicked to Map).
+            // The drive flag drops for single frames while driving, and each drop sent the map back
+            // to the top screen for a frame (both screens flashed): a change has to hold 0.5 s.
+            const bool mapTimeNow = st.racing || (st.inTown && st.canDrive); // not Q's Factory either
+            static bool mapTime = false;
+            static double mapTimeSince = 0;
+            if (mapTimeNow == mapTime)
+                mapTimeSince = ImGui::GetTime();
+            else if (ImGui::GetTime() - mapTimeSince > 0.5)
+                mapTime = mapTimeNow;
+            const bool haveMap = !st.demo && mapTime && presenter.mapRegion(uv, aspect);
             const float now = static_cast<float>(ImGui::GetTime());
 
             // A stamp earned just now (one new bit; loading a save changes many): show it.
@@ -769,7 +780,15 @@ namespace rt::ui
 
             // The page follows the game (the map while driving or racing), unless a tap chose. A
             // change of context has to hold for a moment first: cuts and loads don't flash pages.
-            const Page wanted = haveMap || st.racing ? Page::Map : Page::Notebook;
+            // When the player chose a page other than Map, the map goes back to the top screen, so
+            // haveMap turns false: that's the choice, not a change of context (taken as one, it
+            // undid the choice 0.75 s later and stepped Radio -> Notebook -> Map). Keep the last
+            // context while the map is handed away.
+            static bool mapContext = false;
+            const bool mapHandedAway = g_overridden && g_chosen != Page::Map;
+            if (!mapHandedAway || st.racing)
+                mapContext = haveMap || st.racing;
+            const Page wanted = mapContext ? Page::Map : Page::Notebook;
             static Page candidate = Page::Notebook;
             static float candidateSince = 0;
             if (wanted != candidate)
@@ -779,7 +798,7 @@ namespace rt::ui
             // The new stamp takes the screen for a moment, whatever was on it (the map stays down).
             const Page page = showingNewStamp ? Page::Notebook : g_overridden ? g_chosen : g_auto;
             // Keep the map on the second screen unless the player chose the notebook over it.
-            presenter.setWantMap(!st.demo && !(g_overridden && g_chosen != Page::Map));
+            presenter.setWantMap(!st.demo && mapTime && !(g_overridden && g_chosen != Page::Map));
 
             const float pad = th::px(24), rowH = th::px(84);
             const ImVec2 pmin(pad, pad + rowH), pmax(size.x - pad, size.y - pad);
@@ -895,6 +914,16 @@ namespace rt::ui
             return;
         }
 
+        // At most 30 pictures a second (at once for a touch): the panel keeps the last one, and
+        // drawing it after every main-screen present (120 a second with generated frames) cost the
+        // GPU the game needs, which on a busy device is what garbled this screen.
+        {
+            static double lastDrawn = 0;
+            const double t = rt::host::now();
+            if (touches.empty() && t - lastDrawn < 1.0 / 30.0 - 0.002)
+                return;
+            lastDrawn = t;
+        }
         ImGuiContext *previous = ImGui::GetCurrentContext();
         if (!g_context)
         {
