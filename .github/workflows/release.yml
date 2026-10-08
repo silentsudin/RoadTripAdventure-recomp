@@ -104,6 +104,17 @@ jobs:
           codesign --force --deep --options runtime --timestamp \
             --entitlements platform/macos/RoadTrip.entitlements \
             --sign "$MACOS_SIGNING_IDENTITY" build/macos-release/RoadTrip.app
+      # Without a Developer ID: sign the whole bundle ad hoc. Only the executable carried the
+      # linker's signature, and the resources and MoltenVK copied into the bundle broke the seal,
+      # so macOS called the downloaded app damaged. Ad hoc, it says it can't check the developer
+      # (System Settings > Privacy & Security > Open Anyway).
+      - name: Sign (ad hoc)
+        if: env.HAS_CERT != 'true'
+        run: |
+          codesign --force --deep --sign - --entitlements platform/macos/RoadTrip.entitlements \
+            build/macos-release/RoadTrip.app
+      - name: Check the signature
+        run: codesign --verify --deep --strict --verbose=2 build/macos-release/RoadTrip.app
       - name: DMG
         env:
           SEMVER: ${{ needs.version.outputs.semver }}
