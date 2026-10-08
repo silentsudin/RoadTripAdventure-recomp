@@ -43,19 +43,26 @@ jobs:
     outputs:
       semver: ${{ steps.gv.outputs.semVer }}
       version: ${{ steps.gv.outputs.majorMinorPatch }}
-      code: ${{ steps.code.outputs.code }}
+      code: ${{ steps.gv.outputs.code }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: gittools/actions/gitversion/setup@v3
+      - uses: actions/setup-dotnet@v4
         with:
-          versionSpec: '6.x'
+          dotnet-version: '8.0.x'
       - id: gv
-        uses: gittools/actions/gitversion/execute@v3
-      - id: code
-        # Android versionCode: MAJOR*10000 + MINOR*100 + PATCH (each part below 100).
-        run: echo "code=$(( ${{ steps.gv.outputs.major }} * 10000 + ${{ steps.gv.outputs.minor }} * 100 + ${{ steps.gv.outputs.patch }} ))" >> "$GITHUB_OUTPUT"
+        # GitVersion's JSON, read directly (the gittools action mixed its log into the JSON).
+        run: |
+          dotnet tool install --global GitVersion.Tool --version '6.*'
+          dotnet-gitversion /output json /l gitversion.log > gitversion.json
+          cat gitversion.json
+          {
+            echo "semVer=$(jq -r .SemVer gitversion.json)"
+            echo "majorMinorPatch=$(jq -r .MajorMinorPatch gitversion.json)"
+            # Android versionCode: MAJOR*10000 + MINOR*100 + PATCH (each part below 100).
+            echo "code=$(jq -r '.Major * 10000 + .Minor * 100 + .Patch' gitversion.json)"
+          } >> "$GITHUB_OUTPUT"
 
   macos:
     needs: version
