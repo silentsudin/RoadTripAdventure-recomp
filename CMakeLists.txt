@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(RoadTripRecomp VERSION 0.1.0 LANGUAGES C CXX)
+# The app's version: CI sets it from GitVersion (-DRT_VERSION=1.2.3).
+set(RT_VERSION "0.1.0" CACHE STRING "App version (major.minor.patch)")
+project(RoadTripRecomp VERSION ${RT_VERSION} LANGUAGES C CXX)
 
 if(APPLE)
     enable_language(OBJC OBJCXX)
@@ -153,7 +155,10 @@ if(ANDROID)
     add_dependencies(main rt_game_sdk_probe)
 else()
     set(RT_APP_TARGET RoadTrip)
-    add_executable(RoadTrip MACOSX_BUNDLE ${RT_APP_SOURCES})
+    # The icon (scripts/make_android_icon.py draws it, the same picture as the Android app's).
+    set(RT_MAC_ICON "${CMAKE_CURRENT_SOURCE_DIR}/platform/macos/RoadTrip.icns")
+    set_source_files_properties(${RT_MAC_ICON} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    add_executable(RoadTrip MACOSX_BUNDLE ${RT_APP_SOURCES} ${RT_MAC_ICON})
     add_dependencies(RoadTrip ps2_recomp rt_game_sdk_probe)
     # The game library is linked with -undefined dynamic_lookup and resolves the runtime from the
     # executable, so every runtime symbol must be present and exported.

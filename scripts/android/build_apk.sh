@@ -44,7 +44,9 @@ cd "$ROOT/platform/android"
 # Debug build (debuggable: `adb shell run-as` reaches its files) unless --release.
 VARIANT=debug; TASK=assembleDebug
 for a in "$@"; do [ "$a" = "--release" ] && VARIANT=release && TASK=assembleRelease; done
-./gradlew -q "$TASK"
+# GRADLE_ARGS: extra Gradle arguments (CI: -PrtVersionName=... -PrtVersionCode=...).
+# shellcheck disable=SC2086
+./gradlew -q "$TASK" ${GRADLE_ARGS:-}
 APK="$ROOT/platform/android/app/build/outputs/apk/$VARIANT/app-$VARIANT.apk"
 ls -la "$APK"
 for a in "$@"; do [ "$a" = "--install" ] && adb install -r "$APK"; done

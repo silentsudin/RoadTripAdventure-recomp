@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Draws the Android launcher icon (our own art: a chubby toy car on a road, in the UI's palette)
-and writes the adaptive icon layers and the legacy icons into platform/android's res/.
+"""Draws the app icon (our own art: a chubby toy car on a road, in the UI's palette) and writes the
+Android adaptive icon layers and legacy icons into platform/android's res/, and the macOS icon
+(platform/macos/RoadTrip.icns, the same picture as the legacy icon; needs macOS's iconutil).
 
     build/regress-venv/bin/python scripts/make_android_icon.py   (needs Pillow)
 
@@ -105,6 +106,39 @@ def save(img: Image.Image, folder: str, name: str, px: int):
     img.resize((px, px), Image.Resampling.LANCZOS).save(out / name)
 
 
+def mac_icon(full: Image.Image):
+    """macOS: the legacy icon's picture (the visible 72 dp) as an 824 px rounded square on a
+    1024 canvas with a soft shadow (Apple's icon grid), at every .iconset size."""
+    import shutil
+    import subprocess
+    import tempfile
+    crop = full.crop((int(S * 18 / 108), int(S * 18 / 108), int(S * 90 / 108), int(S * 90 / 108)))
+    side, inset = 824, 100
+    tile = crop.resize((side, side), Image.Resampling.LANCZOS)
+    mask = Image.new("L", (side, side), 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, side - 1, side - 1], radius=185, fill=255)
+    tile.putalpha(mask)
+    canvas = Image.new("RGBA", (1024, 1024), CLEAR)
+    shadow = Image.new("RGBA", (1024, 1024), CLEAR)
+    ImageDraw.Draw(shadow).rounded_rectangle([inset, inset + 12, inset + side, inset + side + 12], radius=185,
+                                             fill=(0, 0, 0, 90))
+    canvas = Image.alpha_composite(canvas, shadow.filter(ImageFilter.GaussianBlur(14)))
+    canvas.alpha_composite(tile, (inset, inset))
+    out = ROOT / "platform/macos"
+    canvas.save(out / "icon_1024.png")
+    if not shutil.which("iconutil"):
+        print("iconutil not found: wrote", out / "icon_1024.png", "only")
+        return
+    with tempfile.TemporaryDirectory() as tmp:
+        iconset = Path(tmp) / "RoadTrip.iconset"
+        iconset.mkdir()
+        for px in (16, 32, 128, 256, 512):
+            canvas.resize((px, px), Image.Resampling.LANCZOS).save(iconset / f"icon_{px}x{px}.png")
+            canvas.resize((px * 2, px * 2), Image.Resampling.LANCZOS).save(iconset / f"icon_{px}x{px}@2x.png")
+        subprocess.run(["iconutil", "-c", "icns", str(iconset), "-o", str(out / "RoadTrip.icns")], check=True)
+    print("wrote", out / "RoadTrip.icns")
+
+
 def main():
     bg, fg, mono = background(), car(), car(silhouette=True)
     # Adaptive layers: 108 dp per density.
@@ -122,6 +156,7 @@ def main():
     for folder, px in (("mipmap-mdpi", 48), ("mipmap-hdpi", 72), ("mipmap-xhdpi", 96), ("mipmap-xxhdpi", 144),
                        ("mipmap-xxxhdpi", 192)):
         save(crop, folder, "ic_launcher.png", px)
+    mac_icon(full)
     anydpi = RES / "mipmap-anydpi-v26"
     anydpi.mkdir(parents=True, exist_ok=True)
     (anydpi / "ic_launcher.xml").write_text(

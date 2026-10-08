@@ -1,0 +1,15 @@
+# Version numbers for builds and releases (.github/workflows/release.yml).
+# Releases are tags vMAJOR.MINOR.PATCH; commits after a tag get the next patch number until the
+# next tag. "+semver: minor" / "+semver: major" in a commit message bumps further.
+workflow: GitFlow/v1
+tag-prefix: '[vV]'
+mode: ContinuousDelivery
+branches:
+  main:
+    label: ''
+    increment: Patch
+  feature:
+    regex: ^(?!main$).+
+    label: '{BranchName}'
+    increment: Inherit
+    source-branches: [main]
