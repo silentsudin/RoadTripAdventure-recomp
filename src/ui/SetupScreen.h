@@ -20,9 +20,12 @@ namespace rt::ui
         None,
         Retry,
         Close,
+        Skip,
     };
-    // `heading`: the panel's title (default "Getting Road Trip ready").
-    SetupAction drawSetupScreen(const TaskProgress &progress, double now, const char *heading = nullptr);
+    // `heading`: the panel's title (default "Getting Road Trip ready"). `skip`: a button that ends
+    // the wait (Skip), for work that can be finished later.
+    SetupAction drawSetupScreen(const TaskProgress &progress, double now, const char *heading = nullptr,
+                                const char *skip = nullptr);
 
     // Before the first setup: what the app needs (the player's own disc image) and a button to
     // choose it. `note`: why the last choice didn't work (no file, not Road Trip), or empty.

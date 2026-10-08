@@ -114,6 +114,7 @@ set(RT_APP_SOURCES
     src/platform/input/Devices.cpp
     src/platform/input/Input.cpp
     src/platform/input/SystemVibrator.cpp
+    src/textures/PackPrep.cpp
     src/platform/Host.cpp
     src/platform/Lifecycle.cpp
     src/platform/SecondDisplay.cpp

@@ -38,6 +38,7 @@ COMPONENTS = [
     ("SMAA", "anti-aliasing shaders and tables (MIT)", "repo:third_party/PS2Recomp/ps2xRuntime/src/lib/gs/post/smaa", ["LICENSE.txt"]),
     ("Snapdragon GSR", "upscaling shader (BSD-3-Clause)", "repo:third_party/PS2Recomp/ps2xRuntime/src/lib/gs/post/sgsr", ["LICENSE"]),
     ("Arm ASR", "temporal upscaler, from AMD FSR 2 (MIT)", "deps:arm_asr", ["LICENSES/MIT.txt"]),
+    ("Arm ASTC Encoder", "texture pack compression (Apache-2.0)", "deps:astcenc", ["LICENSE.txt"]),
 ]
 
 

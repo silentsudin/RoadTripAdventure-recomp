@@ -1,4 +1,5 @@
 #include "PauseMenu.h"
+#include "textures/PackPrep.h"
 
 #include "Theme.h"
 #include "game/Driving.h"
@@ -164,6 +165,7 @@ namespace rt::ui
         Page g_messageBack = Page::Root;
         std::string g_notice;
         double g_noticeUntil = 0;
+        float g_packProgress = -1.0f; // the selected pack being got ready (0..1), else -1
         std::string g_doneText;      // "Saved in slot 2." in the hint band for a moment
         double g_doneUntil = 0;
         uint64_t g_stateSeen = 0;    // the last finished operation handled
@@ -234,6 +236,8 @@ namespace rt::ui
 
         void close()
         {
+            rt::textures::packprep::stop(); // (a pack conversion runs only while the game is held)
+            g_packProgress = -1.0f;
             g_page = Page::Closed;
             g_closedAt = rt::host::now();
             rt::input::blockGameInput(false);
@@ -569,20 +573,44 @@ namespace rt::ui
                 const bool missing = !s.texturePack.empty() && indexOf(packs, s.texturePack) < 0;
                 std::string hint = packs.empty() && s.texturePack.empty()
                                        ? "None installed. Add pack folders to " + rt::paths::displayPath(packsDir)
-                                       : "Swap the game's textures for a high-detail pack. Pick None to see the original.";
+                                       : "Swap the game's textures for a high-detail pack. Pick None for the originals.";
+                // The hardware GS draws packs from an ASTC copy: one chosen here is converted while the
+                // menu is open (the game is held), its progress in place of the usage line.
+                bool converting = false, ready = false;
+                g_packProgress = -1.0f;
+                if (capabilities().hardwareGs)
+                {
+                    rt::textures::packprep::want(s.texturePack.empty() || missing ? std::string()
+                                                                                    : (packsDir / s.texturePack).string());
+                    const auto st = rt::textures::packprep::status();
+                    if (st.running && st.total)
+                    {
+                        converting = true;
+                        g_packProgress = static_cast<float>(st.done) / static_cast<float>(st.total);
+                        std::string left;
+                        if (st.secondsLeft >= 0.0)
+                            left = st.secondsLeft < 60.0 ? ", under a minute left" :
+                                   ", about " + std::to_string(static_cast<int>(st.secondsLeft / 60.0 + 0.5)) + " min left";
+                        hint = "Getting " + s.texturePack + " ready for smooth loading: " + std::to_string(st.done) + " of " +
+                               std::to_string(st.total) + left + ". Keep the menu open, or it'll finish next time you start.";
+                    }
+                    ready = st.finished;
+                }
                 // Proof the pack is doing something: how much of it the game has drawn so far.
-                if (!s.texturePack.empty() && !missing)
+                if (!s.texturePack.empty() && !missing && !converting)
                     if (ps2x::gs::PgsControl *gs = gsControl())
                     {
                         const auto stats = gs->texturePackStats();
-                        hint = std::to_string(stats.replaced) + " of the pack's " + std::to_string(stats.packImages) +
-                               " textures in use so far. " + hint;
+                        hint = (ready ? std::string("Ready: it loads smoothly now. ") : std::string()) + hint + " In use so far: " +
+                               std::to_string(stats.replaced) + " of " + std::to_string(stats.packImages) + ".";
                     }
                 rows.push_back({"Texture pack",
                                 [&s, missing] {
                                     if (s.texturePack.empty())
                                         return std::string(packs.empty() ? "None installed" : "None (original)");
                                     std::string name = s.texturePack.size() > 24 ? s.texturePack.substr(0, 23) + "\u2026" : s.texturePack;
+                                    if (g_packProgress >= 0.0f) // getting it ready: how far, beside its name
+                                        return name + "  " + std::to_string(static_cast<int>(g_packProgress * 100.0f)) + "%";
                                     return missing ? name + " (missing)" : name;
                                 },
                                 // Nothing to choose from: no arrows.
@@ -1956,6 +1984,20 @@ namespace rt::ui
                 th::text(dl, ImVec2(hmin.x + (slotPage ? th::px(132) : hintInset), y), th::Size::Hint,
                          th::col::ListSelected, line.c_str(), th::col::Black);
                 y += hintLineH;
+            }
+            // A texture pack being got ready: its progress as a bar under the words, where the
+            // band has room (the band never changes size).
+            if (g_packProgress >= 0.0f && rows[sel].label == std::string("Texture pack"))
+            {
+                const float by = y + th::px(10), bh = th::px(12);
+                if (by + bh <= hmax.y - th::px(8))
+                {
+                    const ImVec2 b0(hmin.x + hintInset, by), b1(hmax.x - hintInset, by + bh);
+                    dl->AddRectFilled(b0, b1, IM_COL32(0x0B, 0x4F, 0x8A, 0xFF), bh * 0.5f);
+                    const float fx = b0.x + (b1.x - b0.x) * std::clamp(g_packProgress, 0.02f, 1.0f);
+                    dl->AddRectFilled(b0, ImVec2(fx, b1.y), IM_COL32(0xFF, 0xC8, 0x3D, 0xFF), bh * 0.5f);
+                    dl->AddRect(b0, b1, IM_COL32(0xE8, 0x60, 0x1C, 0xFF), bh * 0.5f, 0, th::px(2));
+                }
             }
         }
         drawPrompts(dl, max, min.x, n && rows[sel].change != nullptr);

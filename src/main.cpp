@@ -36,6 +36,7 @@
 #include "runtime/ps2_test_harness.h"
 #include "runtime/gs/gs_frontend.h"
 #include "runtime/gs/gs_hw_backend.h"
+#include "runtime/gs/gs_texture_pack_cache.h"
 #include "runtime/gs/gs_pgs_backend.h"
 #include "Stubs/CD.h"
 #if defined(PS2X_ENABLE_DEBUG_UI)
@@ -828,6 +829,82 @@ namespace
     }
 }
 
+namespace
+{
+    // A texture pack is drawn from an ASTC copy (gs_texture_pack_cache.h): no PNG decoding during
+    // play, a quarter of the memory. Its images without a current copy are converted here, before
+    // the game starts, with "Preparing texture pack" and a progress bar (once per pack; again only
+    // for images that changed). Hardware GS only (paraLLEl-GS takes the PNGs).
+    void prepareTexturePack(PS2Runtime &runtime)
+    {
+        const std::string pack = rt::settings::texturePackDir();
+        // RT_TEXTURE_PREPARE=0: not here (the menu converts it while open; tests of that).
+        const char *off = std::getenv("RT_TEXTURE_PREPARE");
+        if (!g_hwBackend || pack.empty() || !ps2x::gs::packcache::available() || !std::filesystem::is_directory(pack) ||
+            (off && *off == '0'))
+            return;
+        using Clock = std::chrono::steady_clock;
+        const auto start = Clock::now();
+        auto since = [](Clock::time_point t) { return std::chrono::duration<double>(Clock::now() - t).count(); };
+        if (ps2x::gs::packcache::missing(pack) == 0)
+            return;
+        ps2x::gs::packcache::Progress prep;
+        std::atomic<bool> finished{false};
+        std::thread worker([&] {
+            ps2x::gs::packcache::prepare(pack, prep);
+            finished = true;
+        });
+#if defined(PS2X_ENABLE_DEBUG_UI) && defined(__ANDROID__)
+        ps2x::HostPresenter *screen = runtime.presenter();
+#else
+        ps2x::HostPresenter *screen = nullptr;
+        (void)runtime;
+#endif
+#if defined(PS2X_ENABLE_DEBUG_UI)
+        if (screen)
+        {
+            rt::TaskProgress progress;
+            progress.steps = 1;
+            progress.step = 0;
+            // The pack's name, as the menu shows it (the folder's).
+            std::string name = std::filesystem::path(pack).lexically_normal().filename().string();
+            if (name.empty())
+                name = std::filesystem::path(pack).lexically_normal().parent_path().filename().string();
+            const std::string heading = "Getting " + (name.size() > 24 ? name.substr(0, 23) + "\u2026" : name) + " ready";
+            progress.setPhase("Your texture pack", "So it loads smoothly while you play. This only happens once for each pack.");
+            const auto shown = Clock::now();
+            bool skipped = false;
+            auto draw = [&](float fade) {
+                progress.total = prep.total;
+                progress.done = prep.done;
+                screen->frameUi([&] {
+                    screen->uiBegin();
+                    // A long one can be left for next time (the pack works meanwhile, loading
+                    // slower): a few images finish before the button would matter.
+                    const bool offer = prep.total > 40u && fade == 0.0f;
+                    if (rt::ui::drawSetupScreen(progress, since(shown), heading.c_str(), offer ? "Play now (finishes next time)" : nullptr) ==
+                        rt::ui::SetupAction::Skip)
+                        skipped = true;
+                    if (fade > 0.0f)
+                        rt::ui::drawFadeOut(fade);
+                    screen->uiEnd();
+                });
+                std::this_thread::sleep_for(std::chrono::milliseconds(33));
+            };
+            while ((!finished && !skipped) || since(shown) < 0.8)
+                draw(std::max(0.0f, 1.0f - static_cast<float>(since(shown) / 0.15)));
+            if (skipped)
+                prep.cancel = true;
+            for (const auto fade = Clock::now(); since(fade) < 0.2;)
+                draw(static_cast<float>(since(fade) / 0.2));
+        }
+#endif
+        worker.join();
+        std::cout << "[setup] texture pack prepared: " << prep.done << " images (" << prep.failed << " failed) in "
+                  << static_cast<int>(since(start)) << " s\n";
+    }
+}
+
 int main(int argc, char *argv[])
 {
 #if defined(__ANDROID__)
@@ -939,6 +1016,7 @@ int main(int argc, char *argv[])
         }
         selectGsBackend(runtime);
         prepareGraphics(runtime);
+        prepareTexturePack(runtime);
         rt::settings::applyAll();
         rt::lifecycle::install(); // Android: pause the game and close audio while the app is away
         // Test-socket commands of the app's own:

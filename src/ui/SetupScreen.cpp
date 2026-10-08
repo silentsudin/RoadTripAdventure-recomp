@@ -261,7 +261,7 @@ namespace rt::ui
         constexpr float kHeadingH = 68, kButtonsH = 110;
     }
 
-    SetupAction drawSetupScreen(const TaskProgress &progress, double now, const char *heading)
+    SetupAction drawSetupScreen(const TaskProgress &progress, double now, const char *heading, const char *skip)
     {
         ImDrawList *dl = ImGui::GetForegroundDrawList();
         const float inner = panelWidth() - th::px(56) * 2;
@@ -305,7 +305,7 @@ namespace rt::ui
         const uint64_t done = progress.done.load(), total = progress.total.load();
         const float fraction = total ? static_cast<float>(std::min<double>(1.0, static_cast<double>(done) / total)) : -1.0f;
 
-        const Panel p = panel(th::px(kHeadingH + 56 + 44 + 18 + 40 + 30 + 34));
+        const Panel p = panel(th::px(kHeadingH + 56 + 44 + 18 + 40 + 30 + 34) + (skip ? th::px(kButtonsH) : 0.0f));
         float y = p.min.y + p.pad;
         th::text(dl, ImVec2(p.min.x + p.pad, y), th::Size::Heading, th::col::Heading, heading ? heading : "Getting Road Trip ready",
                  th::col::Black);
@@ -345,6 +345,8 @@ namespace rt::ui
         const std::string detail = progress.detail();
         wrapped(dl, ImVec2(p.min.x + p.pad, y), th::Size::Hint, th::col::White,
                 detail.empty() ? "This only happens once. You can switch to other apps meanwhile." : detail, p.inner);
+        if (skip && buttons(p, {skip}, 0, now) == 0)
+            return SetupAction::Skip;
         return SetupAction::None;
     }
 

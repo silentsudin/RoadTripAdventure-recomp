@@ -108,12 +108,19 @@ namespace rt::settings
         // RT_TEXTURE_DUMP, RT_TEXTURE_PACK (directories) and RT_ANISOTROPY override the settings.
         const std::filesystem::path textures = rt::paths::texturesDir();
         const char *dumpEnv = std::getenv("RT_TEXTURE_DUMP");
-        const char *packEnv = g_packOverride ? g_packOverride->c_str() : std::getenv("RT_TEXTURE_PACK");
         const char *anisoEnv = std::getenv("RT_ANISOTROPY");
         const int aniso = anisoEnv ? std::atoi(anisoEnv) : s.anisotropy;
         g_gs->setAnisotropy(static_cast<uint32_t>(anisotropyAvailability(aniso).ok ? std::clamp(aniso, 1, 16) : 1));
-        g_gs->setTextures(dumpEnv ? dumpEnv : s.dumpTextures ? (textures / "dumps").string() : std::string(),
-                          packEnv ? packEnv : s.texturePack.empty() ? std::string() : (textures / "packs" / s.texturePack).string());
+        g_gs->setTextures(dumpEnv ? dumpEnv : s.dumpTextures ? (textures / "dumps").string() : std::string(), texturePackDir());
+    }
+
+    std::string texturePackDir()
+    {
+        const char *packEnv = g_packOverride ? g_packOverride->c_str() : std::getenv("RT_TEXTURE_PACK");
+        if (packEnv)
+            return packEnv;
+        const Settings &s = current();
+        return s.texturePack.empty() ? std::string() : (rt::paths::texturesDir() / "packs" / s.texturePack).string();
     }
 
     void applyAspect()

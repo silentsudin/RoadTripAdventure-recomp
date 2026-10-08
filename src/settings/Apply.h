@@ -17,6 +17,9 @@ namespace rt::settings
     ps2x::gs::PgsControl *gsControl();
     // Use this pack directory (empty: none) whatever the settings say (tests).
     void overrideTexturePack(const std::string &dir);
+    // The texture pack in use: RT_TEXTURE_PACK / the test socket's, else the setting's folder under
+    // textures/packs ("" = none).
+    std::string texturePackDir();
 
     void applyWindow();   // window mode and size
     void applyGraphics(); // supersampling, sharp textures
