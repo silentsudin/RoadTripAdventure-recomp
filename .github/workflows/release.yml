@@ -1,8 +1,9 @@
 # Builds the macOS app (DMG) and the Android app (APK), versioned by GitVersion from git tags.
 #
 # - Push to main (a merged pull request): builds both and, once both have built, tags the commit
-#   vX.Y.Z (GitVersion's version) and publishes a GitHub Release with the DMG and the APK.
-# - Pull request / push to another branch: builds both, attached to the run as artifacts.
+#   vX.Y.Z (GitVersion's MAJOR.MINOR.PATCH) and publishes a GitHub Release with the DMG and the
+#   APK (`gh release create --generate-notes`: notes from the merged pull requests).
+# - Pull request: builds both, attached to the run as artifacts.
 # - Push a tag vX.Y.Z, or run manually with "release" ticked: the same release, for that commit.
 #
 # Neither app contains game code or data: each recompiles the game from the player's own disc on
@@ -16,7 +17,7 @@ name: Build and release
 
 on:
   push:
-    branches: [main, android-port]
+    branches: [main]
     tags: ['v*']
   pull_request:
     branches: [main]
@@ -58,8 +59,16 @@ jobs:
           dotnet tool install --global GitVersion.Tool --version '6.*'
           dotnet-gitversion /output json /l gitversion.log > gitversion.json
           cat gitversion.json
+          # Releases (main, v* tags, manual) are MAJOR.MINOR.PATCH; other branches' builds keep
+          # GitVersion's label (0.1.1-my-branch.3). On main GitVersion adds the commit count as a
+          # pre-release number (0.1.0-116), which made the first release a pre-release.
+          if [ "$GITHUB_REF" = refs/heads/main ] || [[ "$GITHUB_REF" == refs/tags/* ]] || [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            semver=$(jq -r .MajorMinorPatch gitversion.json)
+          else
+            semver=$(jq -r .SemVer gitversion.json)
+          fi
           {
-            echo "semVer=$(jq -r .SemVer gitversion.json)"
+            echo "semVer=$semver"
             echo "majorMinorPatch=$(jq -r .MajorMinorPatch gitversion.json)"
             # Android versionCode: MAJOR*10000 + MINOR*100 + PATCH (each part below 100).
             echo "code=$(jq -r '.Major * 10000 + .Minor * 100 + .Patch' gitversion.json)"
@@ -220,11 +229,19 @@ jobs:
           path: dist
           merge-multiple: true
       - name: Publish
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}', needs.version.outputs.semver) }}
-          target_commitish: ${{ github.sha }}
-          name: Road Trip Recomp ${{ needs.version.outputs.semver }}
-          prerelease: ${{ contains(needs.version.outputs.semver, '-') }}
-          generate_release_notes: true
-          files: dist/*
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SEMVER: ${{ needs.version.outputs.semver }}
+          # A pushed v* tag keeps its own name; otherwise vMAJOR.MINOR.PATCH, created on this commit.
+          TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}', needs.version.outputs.semver) }}
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            # A re-run: replace the files of the release already there.
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" dist/* \
+              --target "$GITHUB_SHA" \
+              --title "Road Trip Recomp $SEMVER" \
+              --generate-notes \
+              --latest
+          fi
