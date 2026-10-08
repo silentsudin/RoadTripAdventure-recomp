@@ -178,6 +178,13 @@ def android_kit(a, flags: list[str], includes: list[str], copied: int) -> None:
         h.update(p.read_bytes())
     if a.compiler and a.compiler.exists():
         h.update(a.compiler.read_bytes())
+    # The recompilers (EE and VU1) live in the app on Android, not in the kit: their sources make
+    # the id too, so a change to the code they emit rebuilds the game on launch.
+    recomp = Path(__file__).resolve().parent.parent / "third_party" / "PS2Recomp"
+    for p in sorted(x for d in ("ps2xRecomp/src", "ps2xRecomp/include", "ps2xRuntime/tools/vu1_recomp")
+                    for x in (recomp / d).rglob("*") if x.is_file()):
+        h.update(str(p.relative_to(recomp)).encode())
+        h.update(p.read_bytes())
     build_id = h.hexdigest()
     (stage / "sdk" / "build_id").write_text(build_id + "\n")
 
