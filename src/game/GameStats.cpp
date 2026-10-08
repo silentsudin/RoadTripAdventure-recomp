@@ -149,7 +149,15 @@ namespace rt::game
             s.carZ = pos[2];
             s.mapZoom = ram[kMapMode] ? 25 : 50;
         }
-        s.racing = scene3d && at<uint32_t>(ram, kScene3DHandler) == kRaceHandler;
+        // The race's 3D scene, and the race itself: racing (drive_flags 0x20), not drivable yet (the
+        // countdown's lights) or the countdown showing (GO). Driving into town after a race, the
+        // town's 3D starts while the handler is still the race's for ~2.5 s (the second screen
+        // jumped to Map and drew the race column in town): drivable, not racing, no countdown.
+        {
+            const uint32_t flags = at<uint32_t>(ram, kDriveFlags), countdown = at<uint32_t>(ram, kCountdown);
+            s.racing = scene3d && at<uint32_t>(ram, kScene3DHandler) == kRaceHandler &&
+                       ((flags & 0x20u) || !(flags & 0x04u) || (countdown >= 2u && countdown <= 6u));
+        }
         if (!s.racing)
             return s;
         const uint32_t race = at<uint32_t>(ram, kRace) & 0x1FFFFFFu;
