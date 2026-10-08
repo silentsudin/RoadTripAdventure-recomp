@@ -1,0 +1,230 @@
+# Builds the macOS app (DMG) and the Android app (APK), versioned by GitVersion from git tags.
+#
+# - Push to main (a merged pull request): builds both and, once both have built, tags the commit
+#   vX.Y.Z (GitVersion's version) and publishes a GitHub Release with the DMG and the APK.
+# - Pull request / push to another branch: builds both, attached to the run as artifacts.
+# - Push a tag vX.Y.Z, or run manually with "release" ticked: the same release, for that commit.
+#
+# Neither app contains game code or data: each recompiles the game from the player's own disc on
+# first launch. The "no game code" check below fails the build if any slips in.
+#
+# Optional secrets (unsigned / debug-signed builds without them):
+#   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+#   MACOS_CERTIFICATE_P12_BASE64, MACOS_CERTIFICATE_PASSWORD, MACOS_SIGNING_IDENTITY
+#   APPLE_ID, APPLE_TEAM_ID, APPLE_APP_PASSWORD (notarization)
+name: Build and release
+
+on:
+  push:
+    branches: [main, android-port]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Tag this commit with the computed version and publish a release
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  LLVM_TAG: llvmorg-21.1.8
+  NDK_VERSION: 30.0.16248370
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.gv.outputs.semVer }}
+      version: ${{ steps.gv.outputs.majorMinorPatch }}
+      code: ${{ steps.gv.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - id: gv
+        # GitVersion's JSON, read directly (the gittools action mixed its log into the JSON).
+        run: |
+          dotnet tool install --global GitVersion.Tool --version '6.*'
+          dotnet-gitversion /output json /l gitversion.log > gitversion.json
+          cat gitversion.json
+          {
+            echo "semVer=$(jq -r .SemVer gitversion.json)"
+            echo "majorMinorPatch=$(jq -r .MajorMinorPatch gitversion.json)"
+            # Android versionCode: MAJOR*10000 + MINOR*100 + PATCH (each part below 100).
+            echo "code=$(jq -r '.Major * 10000 + .Minor * 100 + .Patch' gitversion.json)"
+          } >> "$GITHUB_OUTPUT"
+
+  macos:
+    needs: version
+    runs-on: macos-15
+    env:
+      HAS_CERT: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 != '' }}
+      HAS_NOTARY: ${{ secrets.APPLE_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools
+        run: brew install cmake ninja molten-vk
+      - name: Submodules
+        run: python3 scripts/pipeline.py bootstrap
+      - name: Build
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          cmake --preset macos-release "-DRT_VERSION=$VERSION"
+          cmake --build --preset macos-release
+      - name: No game code in the app
+        run: |
+          n=$(nm build/macos-release/RoadTrip.app/Contents/MacOS/RoadTrip | grep -c sub_00 || true)
+          echo "game functions in the binary: $n"
+          test "$n" = "0"
+      - name: Sign
+        if: env.HAS_CERT == 'true'
+        env:
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+        run: |
+          echo "$MACOS_CERTIFICATE_P12_BASE64" | base64 --decode > cert.p12
+          security create-keychain -p ci build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p ci build.keychain
+          security import cert.p12 -k build.keychain -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k ci build.keychain
+          codesign --force --deep --options runtime --timestamp \
+            --entitlements platform/macos/RoadTrip.entitlements \
+            --sign "$MACOS_SIGNING_IDENTITY" build/macos-release/RoadTrip.app
+      # Without a Developer ID: sign the whole bundle ad hoc. Only the executable carried the
+      # linker's signature, and the resources and MoltenVK copied into the bundle broke the seal,
+      # so macOS called the downloaded app damaged. Ad hoc, it says it can't check the developer
+      # (System Settings > Privacy & Security > Open Anyway).
+      - name: Sign (ad hoc)
+        if: env.HAS_CERT != 'true'
+        run: |
+          codesign --force --deep --sign - --entitlements platform/macos/RoadTrip.entitlements \
+            build/macos-release/RoadTrip.app
+      - name: Check the signature
+        run: codesign --verify --deep --strict --verbose=2 build/macos-release/RoadTrip.app
+      - name: DMG
+        env:
+          SEMVER: ${{ needs.version.outputs.semver }}
+        run: |
+          mkdir -p dmg && cp -R build/macos-release/RoadTrip.app dmg/ && ln -s /Applications dmg/Applications
+          hdiutil create -volname "Road Trip" -srcfolder dmg -ov -format UDZO "RoadTripRecomp-$SEMVER-macOS.dmg"
+      - name: Notarize
+        if: env.HAS_CERT == 'true' && env.HAS_NOTARY == 'true'
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          SEMVER: ${{ needs.version.outputs.semver }}
+        run: |
+          DMG="RoadTripRecomp-$SEMVER-macOS.dmg"
+          xcrun notarytool submit "$DMG" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
+            --password "$APPLE_APP_PASSWORD" --wait
+          xcrun stapler staple "$DMG"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: RoadTripRecomp-*-macOS.dmg
+
+  android:
+    needs: version
+    runs-on: macos-15
+    env:
+      HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Tools
+        run: brew install cmake ninja
+      - name: Android SDK and NDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;$NDK_VERSION" "platforms;android-36" "build-tools;36.0.0"
+          echo "NDK=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+      - name: Submodules
+        run: python3 scripts/pipeline.py bootstrap
+      # The compiler the app ships to build the game on the phone (about an hour to build: cached).
+      - name: Cache the on-device compiler
+        id: llvm
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/android-llvm/jniLibs
+            build/android-llvm/clang-resource
+            build/android-llvm/src/LICENSE.TXT
+            build/android-llvm/src/llvm/LICENSE.TXT
+            build/android-llvm/src/clang/LICENSE.TXT
+            build/android-llvm/src/lld/LICENSE.TXT
+            build/android-llvm/src/libcxx/LICENSE.TXT
+          key: android-llvm-${{ env.LLVM_TAG }}-ndk-${{ env.NDK_VERSION }}-${{ hashFiles('scripts/android/build_llvm.sh') }}
+      - name: Build the on-device compiler
+        if: steps.llvm.outputs.cache-hit != 'true'
+        run: scripts/android/build_llvm.sh
+      - name: Keystore
+        if: env.HAS_KEYSTORE == 'true'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+          echo "RT_KEYSTORE_FILE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+      - name: Build
+        env:
+          RT_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          RT_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          RT_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          SEMVER: ${{ needs.version.outputs.semver }}
+          CODE: ${{ needs.version.outputs.code }}
+        run: |
+          export GRADLE_ARGS="-PrtVersionName=$SEMVER -PrtVersionCode=$CODE"
+          scripts/android/build_apk.sh --release
+          cp platform/android/app/build/outputs/apk/release/app-release.apk "RoadTripRecomp-$SEMVER-Android-arm64.apk"
+      - name: No game code in the app
+        run: |
+          n=$("$NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-nm" build/android-jni/arm64-v8a/libmain.so | grep -c sub_00 || true)
+          echo "game functions in libmain.so: $n"
+          test "$n" = "0"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: RoadTripRecomp-*-Android-arm64.apk
+
+  release:
+    needs: [version, macos, android]
+    # Only after both apps built. (The tag it creates doesn't start another run: tags made with
+    # the workflow's token don't trigger workflows.)
+    if: >-
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))) ||
+      (github.event_name == 'workflow_dispatch' && inputs.release)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}', needs.version.outputs.semver) }}
+          target_commitish: ${{ github.sha }}
+          name: Road Trip Recomp ${{ needs.version.outputs.semver }}
+          prerelease: ${{ contains(needs.version.outputs.semver, '-') }}
+          generate_release_notes: true
+          files: dist/*

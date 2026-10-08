@@ -5,11 +5,22 @@
 
 #include <dlfcn.h>
 #include <fcntl.h>
+#if defined(__ANDROID__)
+#include "ps2recomp/ps2_recompiler.h"
+#include <asm/hwcap.h>
+#include <sched.h>
+#include <sys/auxv.h>
+#include <sys/resource.h>
+#include <sys/stat.h>
+// ps2xRuntime/tools/vu1_recomp (ps2_vu1_recomp_lib): the VU1 recompiler as a function.
+int ps2x_vu1_recomp_main(int argc, char **argv);
+#endif
 #include <spawn.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include <algorithm>
+#include <chrono>
 #include <atomic>
 #include <fstream>
 #include <iostream>
@@ -26,7 +37,11 @@ namespace rt::game
 
     namespace
     {
+#if defined(__ANDROID__)
+        constexpr const char *kLibName = "libroadtrip_game.so";
+#else
         constexpr const char *kLibName = "libroadtrip_game.dylib";
+#endif
         constexpr size_t kUnityBatch = 24;
 
         fs::path libPath() { return paths::gameDir() / kLibName; }
@@ -49,7 +64,16 @@ namespace rt::game
             return s;
         }
 
-        std::string bundleBuildId() { return trim(readFile(sdkDir() / "build_id")); }
+        // The kit's hash; on Android also the device compile flags below (bump when they change).
+        std::string bundleBuildId()
+        {
+            std::string id = trim(readFile(sdkDir() / "build_id"));
+#if defined(__ANDROID__)
+            if (!id.empty())
+                id += "-device2";
+#endif
+            return id;
+        }
 
         // Runs argv with stdout/stderr appended to `log`; returns the exit status (or -1).
         int run(const std::vector<std::string> &argv, const fs::path &log, const fs::path &cwd = {})
@@ -58,8 +82,10 @@ namespace rt::game
             posix_spawn_file_actions_init(&actions);
             posix_spawn_file_actions_addopen(&actions, 1, log.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
             posix_spawn_file_actions_adddup2(&actions, 1, 2);
+#if !defined(__ANDROID__) // bionic has it from API 34 only; Android passes absolute paths
             if (!cwd.empty())
                 posix_spawn_file_actions_addchdir_np(&actions, cwd.c_str());
+#endif
 
             std::vector<char *> args;
             for (const auto &a : argv)
@@ -159,6 +185,12 @@ namespace rt::game
 
     std::optional<fs::path> findCompiler()
     {
+#if defined(__ANDROID__)
+        // The shipped compiler: one LLVM binary (clang + lld) in the native library directory.
+        const fs::path llvm = paths::toolDir() / "libllvm.so";
+        std::error_code ec;
+        return fs::exists(llvm, ec) ? std::optional<fs::path>(llvm) : std::nullopt;
+#endif
         const std::string p = capture({"/usr/bin/xcrun", "--find", "clang++"});
         if (p.empty() || !fs::exists(p))
             return std::nullopt;
@@ -186,9 +218,16 @@ namespace rt::game
         if (buildId.empty())
             return fail("The app bundle is missing its build kit (Contents/Resources/sdk).");
         const auto compiler = findCompiler();
+#if defined(__ANDROID__)
+        const fs::path res = paths::bundleResources();
+        const std::string sysroot = (res / "sysroot").string();
+        if (!compiler)
+            return fail("The app's compiler is missing (lib/arm64/libllvm.so).");
+#else
         const std::string sysroot = capture({"/usr/bin/xcrun", "--show-sdk-path"});
         if (!compiler || sysroot.empty())
             return fail("Xcode Command Line Tools are required to build the game.");
+#endif
 
         const fs::path work = paths::gameDir() / "work";
         const fs::path generated = work / "generated";
@@ -202,22 +241,41 @@ namespace rt::game
             return fail("Cannot create " + work.string() + ": " + ec.message());
 
         // 1. MIPS -> C++
-        progress.setPhase("Translating the game's code (one-time setup)");
-        progress.done = 0;
-        progress.total = 1;
+        progress.setPhase("Translating the game's code");
         const fs::path config = work / "roadtrip.toml";
         if (!writeConfig(elf, generated, config))
             return fail("Cannot write recompiler config.");
+        const fs::path vu1Source = work / "vu1_native.cpp";
+#if defined(__ANDROID__)
+        // In-process: Android doesn't let an app run programs it wrote, and these are libraries here.
+        try
+        {
+            ps2recomp::PS2Recompiler recompiler(config.string());
+            if (!recompiler.initialize() || !recompiler.recompile())
+                return fail("The recompiler failed.");
+            recompiler.generateOutput();
+        }
+        catch (const std::exception &e)
+        {
+            return fail(std::string("The recompiler failed: ") + e.what());
+        }
+        // VU1 microcode -> C++. Optional: without it the VU1 interpreter runs the 3D code.
+        std::vector<std::string> vu1Args{"ps2_vu1_recomp", "--elf", elf.string(), "--out", vu1Source.string(), "--split"};
+        std::vector<char *> vu1Argv;
+        for (auto &a : vu1Args)
+            vu1Argv.push_back(a.data());
+        const bool haveVu1 = ps2x_vu1_recomp_main(int(vu1Argv.size()), vu1Argv.data()) == 0 && fs::exists(vu1Source);
+#else
         if (run({(recompDir() / "ps2_recomp").string(), config.string()}, buildLog(), work) != 0)
             return fail("The recompiler failed.");
 
         // VU1 microcode -> C++. Optional: without it the VU1 interpreter runs the 3D code.
-        const fs::path vu1Source = work / "vu1_native.cpp";
         const bool haveVu1 =
             fs::exists(recompDir() / "ps2_vu1_recomp") &&
-            run({(recompDir() / "ps2_vu1_recomp").string(), "--elf", elf.string(), "--out", vu1Source.string()},
+            run({(recompDir() / "ps2_vu1_recomp").string(), "--elf", elf.string(), "--out", vu1Source.string(), "--split"},
                 buildLog(), work) == 0 &&
             fs::exists(vu1Source);
+#endif
 
         // 2. Group generated sources into unity files (much faster to compile).
         std::vector<fs::path> sources;
@@ -228,28 +286,90 @@ namespace rt::game
         if (sources.empty())
             return fail("The recompiler produced no code.");
 
+        // Each unit's weight (the progress bar, and the order: heaviest first, so no big unit is
+        // left compiling alone at the end), in bytes of game code, from compile times measured on
+        // the AYN Thor (the "[build]" lines): the runtime headers every unit parses cost as much as
+        // 210 KB of game code; a VU1 microprogram costs 10x per byte and parses more headers
+        // (465 KB); the VU1 dispatcher is mostly tables and costs its headers only.
         std::vector<fs::path> units;
+        std::vector<uint64_t> weights;
+        constexpr uint64_t kHeaderWeight = 210000, kVu1HeaderWeight = 465000, kVu1ByteWeight = 10;
+        auto sizeOf = [](const fs::path &p)
+        {
+            std::error_code e;
+            const auto n = fs::file_size(p, e);
+            return e ? uint64_t(1) : std::max<uint64_t>(n, 1);
+        };
         for (size_t i = 0; i < sources.size(); i += kUnityBatch)
         {
             const fs::path unit = work / ("unity_" + std::to_string(units.size()) + ".cpp");
             std::ofstream u(unit);
+            uint64_t weight = 0;
             for (size_t j = i; j < std::min(sources.size(), i + kUnityBatch); ++j)
+            {
                 u << "#include " << tomlString(sources[j]) << "\n";
+                weight += sizeOf(sources[j]);
+            }
             units.push_back(unit);
+            weights.push_back(kHeaderWeight + weight);
         }
         units.push_back(sdkDir() / "game_shim.cpp");
+        weights.push_back(kHeaderWeight + sizeOf(units.back()));
         if (haveVu1)
+        {
+            // The dispatcher and one file per microprogram (ps2_vu1_recomp --split).
             units.push_back(vu1Source);
+            weights.push_back(kHeaderWeight);
+            for (const auto &e : fs::directory_iterator(work))
+            {
+                const std::string name = e.path().filename().string();
+                if (name.rfind(vu1Source.stem().string() + ".part", 0) == 0 && e.path().extension() == ".cpp")
+                {
+                    units.push_back(e.path());
+                    weights.push_back(kVu1HeaderWeight + kVu1ByteWeight * sizeOf(e.path()));
+                }
+            }
+        }
+        {
+            std::vector<size_t> order(units.size());
+            for (size_t i = 0; i < order.size(); ++i)
+                order[i] = i;
+            std::stable_sort(order.begin(), order.end(), [&](size_t a, size_t b) { return weights[a] > weights[b]; });
+            std::vector<fs::path> u;
+            std::vector<uint64_t> w;
+            for (size_t i : order)
+            {
+                u.push_back(units[i]);
+                w.push_back(weights[i]);
+            }
+            units.swap(u);
+            weights.swap(w);
+        }
 
         // 3. Compile.
         const std::string sdkJson = readFile(sdkDir() / "flags.json");
+#if defined(__ANDROID__)
+        std::vector<std::string> base{compiler->string(), "clang", "--driver-mode=g++", "--target=aarch64-linux-android31",
+                                      "--sysroot=" + sysroot, "-resource-dir=" + (res / "clang").string(), "-fPIC"};
+        // The game is built on the device it runs on: inline LSE atomics when the kernel reports them
+        // (instead of libc's out-of-line helpers), and no NDK stack-protector/fortify defaults, which
+        // the SDK flags inherit and the Mac build doesn't have. Not -mcpu=native: it detects SVE on
+        // Snapdragon cores whose kernel has it disabled (SIGILL).
+        std::vector<std::string> deviceFlags{"-fno-stack-protector", "-U_FORTIFY_SOURCE"};
+        if (getauxval(AT_HWCAP) & HWCAP_ATOMICS)
+            deviceFlags.push_back("-march=armv8.1-a");
+#else
         std::vector<std::string> base{compiler->string(), "-isysroot", sysroot};
+#endif
         for (auto &f : jsonStringArray(sdkJson, "flags"))
             base.push_back(f);
         for (auto &inc : jsonStringArray(sdkJson, "includes"))
             base.push_back("-I" + (sdkDir() / inc).string());
         base.push_back("-I" + generated.string());
         base.push_back("-w");
+#if defined(__ANDROID__)
+        base.insert(base.end(), deviceFlags.begin(), deviceFlags.end());
+#endif
         for (const char *sym : {"g_ps2RecompiledFunctionTable", "g_ps2RecompiledFunctionTableBase",
                                 "g_ps2RecompiledFunctionTableEnd", "g_ps2RecompiledFunctionTableSlotCount"})
             base.push_back(std::string("-D") + sym + "=rt_game_" + (sym + 2));
@@ -263,25 +383,56 @@ namespace rt::game
                 base.push_back(w);
         }
 
-        progress.setPhase("Compiling the game for your Mac (one-time setup)");
-        progress.done = 0;
-        progress.total = units.size();
+#if defined(__ANDROID__)
+        progress.setPhase("Compiling the game for this device");
+#else
+        progress.setPhase("Compiling the game for your Mac");
+#endif
+        uint64_t totalWeight = 0;
+        for (uint64_t w : weights)
+            totalWeight += w;
+        progress.total = totalWeight;
         std::atomic<size_t> next{0};
+        std::atomic<int> slots{0};
         std::atomic<bool> compileFailed{false};
         std::vector<fs::path> objects(units.size());
         auto worker = [&]
         {
+            const int slot = slots++;
+#if defined(__ANDROID__)
+            // On the big cores (cpu3-7 on Snapdragon 8 Gen 2 and kin) at a lower priority, so the
+            // UI stays smooth; the compiler processes inherit both from this thread.
+            cpu_set_t big;
+            CPU_ZERO(&big);
+            const unsigned cpus = std::thread::hardware_concurrency();
+            for (unsigned c = cpus > 4 ? 3 : 0; c < cpus; ++c)
+                CPU_SET(c, &big);
+            sched_setaffinity(0, sizeof(big), &big);
+            setpriority(PRIO_PROCESS, 0, 10);
+#endif
             for (size_t i; !compileFailed && (i = next++) < units.size();)
             {
                 objects[i] = objDir / ("u" + std::to_string(i) + ".o");
                 std::vector<std::string> argv = base;
                 argv.insert(argv.end(), {"-c", units[i].string(), "-o", objects[i].string()});
+                const auto t0 = std::chrono::steady_clock::now();
+                progress.beginUnit(slot, weights[i]);
                 if (run(argv, buildLog()) != 0)
                     compileFailed = true;
-                ++progress.done;
+                progress.endUnit(slot);
+                progress.done += weights[i];
+                // Per-unit times (weights are calibrated from these).
+                std::cout << "[build] " << units[i].filename().string() << " weight " << weights[i] << ": "
+                          << std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count() << " s\n";
             }
         };
+#if defined(__ANDROID__)
+        const unsigned cpus = std::thread::hardware_concurrency();
+        const unsigned jobs = cpus > 4 ? cpus - 3 : std::max(1u, cpus); // the big cores
+#else
         const unsigned jobs = std::max(1u, std::thread::hardware_concurrency());
+#endif
+        progress.beginUnits(static_cast<int>(jobs));
         std::vector<std::thread> pool;
         for (unsigned j = 0; j < jobs; ++j)
             pool.emplace_back(worker);
@@ -293,6 +444,23 @@ namespace rt::game
         // 4. Link. Runtime symbols resolve against the app executable at load time.
         progress.setPhase("Linking");
         const fs::path tmpLib = work / kLibName;
+#if defined(__ANDROID__)
+        // The runtime resolves through DT_NEEDED libmain.so (already loaded by the activity).
+        const fs::path libs = fs::path(sysroot) / "usr/lib/aarch64-linux-android";
+        std::vector<std::string> link{compiler->string(), "lld", "-flavor", "gnu", "-shared", "-soname", kLibName,
+                                      "--eh-frame-hdr", // the runtime switches guest threads by unwinding through game code
+                                      "-z", "noexecstack", "-z", "relro", "-z", "now", "--hash-style=gnu", "--build-id",
+                                      "-z", "max-page-size=16384", "-o", tmpLib.string(),
+                                      (libs / "31/crtbegin_so.o").string()};
+        for (auto &o : objects)
+            link.push_back(o.string());
+        for (const char *lib : {"libmain.so", "libc++_shared.so"})
+            link.push_back((paths::toolDir() / lib).string());
+        for (std::string extra : {"-L" + (libs / "31").string(), std::string("-lc"), std::string("-lm"), std::string("-ldl"),
+                                  (res / "clang/lib/linux/libclang_rt.builtins-aarch64-android.a").string(),
+                                  (libs / "31/crtend_so.o").string()})
+            link.push_back(extra);
+#else
         std::vector<std::string> link{compiler->string(), "-isysroot", sysroot, "-dynamiclib", "-undefined", "dynamic_lookup",
                                       "-install_name", "@rpath/" + std::string(kLibName), "-o", tmpLib.string()};
         for (auto &f : jsonStringArray(sdkJson, "flags"))
@@ -300,6 +468,7 @@ namespace rt::game
                 link.push_back(f);
         for (auto &o : objects)
             link.push_back(o.string());
+#endif
         if (run(link, buildLog()) != 0)
             return fail("Linking the game failed.");
 

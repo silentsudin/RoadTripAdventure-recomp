@@ -1,7 +1,8 @@
-// Checks IsoReader against the user's disc image. Needs RT_ROM=<path to .cue/.bin/.iso>;
+// Checks IsoReader against the user's disc image. Needs RT_ROM=<path to .cue/.bin/.iso/.chd>;
 // skipped (exit 77) when it is not set, so CI without a ROM still passes.
 
 #include "rom/IsoReader.h"
+#include "rom/RomInstaller.h"
 #include "rom/Sha1.h"
 
 #include <cstdlib>
@@ -56,6 +57,24 @@ int main()
     CHECK(iso.readFile(e, [&](const uint8_t *p, size_t n)
                        { sha.update(p, n); return true; }));
     CHECK(sha.hexdigest() == "2431de1ec3edd0df4be37ba564658d70c4049089");
+
+    // The whole image hashes to the good dump in its format (.bin, .iso, CHD from either).
+    std::string image;
+    uint64_t lastDone = 0;
+    CHECK(iso.hashImage([&](uint64_t done, uint64_t) { lastDone = done; }, image));
+    std::cout << "image sha1: " << image << "\n";
+    CHECK(lastDone > 0);
+    switch (iso.format())
+    {
+    case rt::IsoReader::Format::Raw: CHECK(image == rt::kImageSha1Bin); break;
+    case rt::IsoReader::Format::Cooked: CHECK(image == rt::kImageSha1Iso); break;
+    case rt::IsoReader::Format::Chd:
+        CHECK(image == iso.chdDataSha1());
+        CHECK(image == rt::kImageSha1ChdCd || image == rt::kImageSha1Iso);
+        break;
+    }
+    // Still readable after hashing (the CHD hunk cache).
+    CHECK(iso.find("SLUS_203.98", e));
 
     std::cout << "ok\n";
     return 0;

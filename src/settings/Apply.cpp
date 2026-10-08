@@ -4,10 +4,12 @@
 #include "Settings.h"
 #include "platform/Host.h"
 #include "platform/Paths.h"
+#include "platform/SecondDisplay.h"
 
 #include <SDL3/SDL.h>
 #include "ps2_runtime.h"
 #include "runtime/gs/gs_pgs_backend.h"
+#include "runtime/ps2_audio_suspend.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -60,6 +62,11 @@ namespace rt::settings
             return;
         const Settings &s = current();
         capabilities().displayRefresh = rt::host::displayRefreshRate();
+#if defined(__ANDROID__)
+        // Always the whole screen (immersive: no status or navigation bar).
+        SDL_SetWindowFullscreen(w, true);
+        return;
+#endif
         const bool fullscreen = SDL_GetWindowFlags(w) & SDL_WINDOW_FULLSCREEN;
         if (s.windowMode == WindowMode::Windowed)
         {
@@ -99,14 +106,21 @@ namespace rt::settings
         g_gs->setSharpTextures(s.sharpTextures);
         // Texture dumps go to textures/dumps; packs are folders under textures/packs.
         // RT_TEXTURE_DUMP, RT_TEXTURE_PACK (directories) and RT_ANISOTROPY override the settings.
-        const std::filesystem::path textures = rt::paths::dataRoot() / "textures";
+        const std::filesystem::path textures = rt::paths::texturesDir();
         const char *dumpEnv = std::getenv("RT_TEXTURE_DUMP");
-        const char *packEnv = g_packOverride ? g_packOverride->c_str() : std::getenv("RT_TEXTURE_PACK");
         const char *anisoEnv = std::getenv("RT_ANISOTROPY");
         const int aniso = anisoEnv ? std::atoi(anisoEnv) : s.anisotropy;
         g_gs->setAnisotropy(static_cast<uint32_t>(anisotropyAvailability(aniso).ok ? std::clamp(aniso, 1, 16) : 1));
-        g_gs->setTextures(dumpEnv ? dumpEnv : s.dumpTextures ? (textures / "dumps").string() : std::string(),
-                          packEnv ? packEnv : s.texturePack.empty() ? std::string() : (textures / "packs" / s.texturePack).string());
+        g_gs->setTextures(dumpEnv ? dumpEnv : s.dumpTextures ? (textures / "dumps").string() : std::string(), texturePackDir());
+    }
+
+    std::string texturePackDir()
+    {
+        const char *packEnv = g_packOverride ? g_packOverride->c_str() : std::getenv("RT_TEXTURE_PACK");
+        if (packEnv)
+            return packEnv;
+        const Settings &s = current();
+        return s.texturePack.empty() ? std::string() : (rt::paths::texturesDir() / "packs" / s.texturePack).string();
     }
 
     void applyAspect()
@@ -125,6 +139,12 @@ namespace rt::settings
         // keeps the original fields).
         const char *pf = std::getenv("RT_PROGRESSIVE_FIELDS");
         rt->gs().setProgressiveFields(pf ? std::strcmp(pf, "0") != 0 : s.progressiveFields);
+        // Frame skip: RT_FRAME_SKIP=0|1 overrides the setting; guest time (RT_TIME=virtual: tests)
+        // never falls behind the host, and keeps every frame.
+        const char *fs = std::getenv("RT_FRAME_SKIP");
+        const char *time = std::getenv("RT_TIME");
+        const bool virtualTime = time && std::strcmp(time, "virtual") == 0;
+        rt->gs().setFrameSkip(fs ? std::strcmp(fs, "0") != 0 : s.frameSkip && !virtualTime);
         if (ps2x::HostPresenter *p = rt->presenter())
         {
             p->setDisplayAspect(aspect);
@@ -137,11 +157,14 @@ namespace rt::settings
             post.scaling = s.upscaler == Upscaler::Fsr1             ? ps2x::HostPresenter::PostProcess::Scaling::Fsr1
                            : s.upscaler == Upscaler::MetalFxSpatial ? ps2x::HostPresenter::PostProcess::Scaling::MetalFxSpatial
                            : s.upscaler == Upscaler::MetalFxTemporal ? ps2x::HostPresenter::PostProcess::Scaling::MetalFxTemporal
+                           : s.upscaler == Upscaler::SnapdragonGsr1  ? ps2x::HostPresenter::PostProcess::Scaling::SnapdragonGsr1
+                           : s.upscaler == Upscaler::SnapdragonGsr2  ? ps2x::HostPresenter::PostProcess::Scaling::SnapdragonGsr2
+                           : s.upscaler == Upscaler::ArmAsr          ? ps2x::HostPresenter::PostProcess::Scaling::ArmAsr
                                                                     : ps2x::HostPresenter::PostProcess::Scaling::Bilinear;
             post.sharpness = s.sharpness;
             p->setPostProcess(post);
             ps2x::HostPresenter::FrameGeneration fg;
-            if (refreshAvailability(capabilities(), s.refreshRate).ok)
+            if (refreshAvailability(capabilities(), s.refreshRate).ok && frameGenerationWith(capabilities(), s.upscaler))
                 fg.factor = static_cast<uint32_t>(s.refreshRate / 60);
             const char *warp = std::getenv("RT_FRAME_GEN");
             fg.rerender = s.frameMode == FrameMode::Rerender || !(warp && *warp == '1');
@@ -155,5 +178,7 @@ namespace rt::settings
         applyWindow();
         applyGraphics();
         applyAspect();
+        rt::seconddisplay::setEnabled(current().secondScreen);
+        ps2AudioOutSetMix(current().volume, current().mono);
     }
 }

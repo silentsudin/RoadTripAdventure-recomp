@@ -62,6 +62,16 @@ namespace rt::input
             return swapped;
         }
 
+        // The Driving controls page's capture.
+        int g_capturePlayer = -1;
+        Clock::time_point g_captureStart;
+        std::optional<CapturedControl> g_captured;
+        std::vector<GamepadSnapshot> g_captureHeld; // per device in the player's slot, at the start
+        // The pad's back button held while waiting: a tap binds it, holding it cancels.
+        constexpr float kCancelHoldSeconds = 0.8f;
+        std::string g_backDevice;
+        Clock::time_point g_backSince;
+
         int g_swappedWith = -1;
         Clock::time_point g_swappedAt;
 
@@ -72,13 +82,29 @@ namespace rt::input
             g_rebinding = -1;
         }
 
-        // A controller's own profile, made from the shared one on its first edit.
+        // The shared bindings in this controller's family layout (Mapping.h familyProfile).
+        GamepadProfile sharedFor(const std::string &id)
+        {
+            for (const DeviceStatus &d : devices())
+                if (d.id == id)
+                    return familyProfile(detail::config().gamepad, padFamily(d.type));
+            return detail::config().gamepad;
+        }
+
+        // A controller's own profile, made from the shared one (in its layout) on its first edit.
         GamepadProfile &ownProfile(const std::string &id)
         {
             Config &c = detail::config();
             if (!c.gamepads.count(id))
-                c.gamepads[id] = c.gamepad;
+                c.gamepads[id] = sharedFor(id);
             return c.gamepads[id];
+        }
+
+        // The bindings a controller plays with: its own, else the shared ones in its layout.
+        GamepadProfile sharedOrOwn(const std::string &id)
+        {
+            const Config &c = detail::config();
+            return c.gamepads.count(id) ? c.gamepads.at(id) : sharedFor(id);
         }
     }
 
@@ -108,12 +134,14 @@ namespace rt::input
         {
             switch (static_cast<PadAxis>(s.index))
             {
-            case PadAxis::LeftTrigger: return type.rfind("xbox", 0) == 0 ? "LT" : type == "switchpro" ? "ZL" : "L2";
-            case PadAxis::RightTrigger: return type.rfind("xbox", 0) == 0 ? "RT" : type == "switchpro" ? "ZR" : "R2";
+            case PadAxis::LeftTrigger: return padFamily(type) == "xbox" ? "LT" : type == "switchpro" ? "ZL" : "L2";
+            case PadAxis::RightTrigger: return padFamily(type) == "xbox" ? "RT" : type == "switchpro" ? "ZR" : "R2";
             default: return padSourceName(s);
             }
         }
-        const bool xbox = type.rfind("xbox", 0) == 0, nin = type == "switchpro" || type == "joycon";
+        // Labels by the pad's family (Mapping.h padFamily): "standard" pads such as the AYN Thor's
+        // are labelled the Xbox way.
+        const bool xbox = padFamily(type) == "xbox", nin = type == "switchpro" || type == "joycon";
         switch (static_cast<PadButton>(s.index))
         {
         case PadButton::South: return xbox ? "A" : nin ? "B" : "Cross";
@@ -146,10 +174,57 @@ namespace rt::input
         {
             const Device *d = device(id);
             const std::string type = d ? d->type : "";
-            for (const PadSource &s : c.profileFor(id).buttons[button])
+            // What it plays with: its own bindings, else the shared ones in its family's layout.
+            const GamepadProfile profile = sharedOrOwn(id); // (a temporary would die before the loop)
+            for (const PadSource &s : profile.buttons[button])
                 out += (out.empty() ? "" : ", ") + controlName(type, s);
         }
         return out.empty() ? "-" : out;
+    }
+
+    std::string familyOf(const std::string &id)
+    {
+        if (id == kKeyboardId)
+            return "keyboard";
+        const Device *d = device(id);
+        return padFamily(d ? d->type : "");
+    }
+
+    std::vector<ControlGlyph> bindingGlyphs(const std::string &id, int button)
+    {
+        std::vector<ControlGlyph> out;
+        if (button < 0 || button >= kPs2ButtonCount)
+            return out;
+        const std::string family = familyOf(id);
+        if (id == kKeyboardId)
+        {
+            for (const std::string &k : detail::config().keyButtons[button])
+                out.push_back({family, 0, 0, k});
+            return out;
+        }
+        const GamepadProfile profile = sharedOrOwn(id);
+        for (const PadSource &s : profile.buttons[button])
+            out.push_back({family, static_cast<int>(s.kind), s.index, {}});
+        return out;
+    }
+
+    void sampleVibration(int style)
+    {
+        for (const std::string &id : detail::slots()[0])
+            for (const Device &d : detail::devices().list())
+                if (d.id == id)
+                {
+                    const float k = detail::config().rumble * detail::config().profileFor(id).rumble;
+                    if (style == 0) // Dynamic: a soft engine hum with the triggers
+                    {
+                        Devices::rumble(d, 0.15f * k, 0.35f * k, 350);
+                        Devices::rumbleTriggers(d, 0.25f * k, 0.4f * k, 350);
+                    }
+                    else if (style == 1) // Classic: the game's on/off buzz
+                        Devices::rumble(d, 0.6f * k, 1.0f * k, 250);
+                    else // 2: something is ready (as setup's finale)
+                        Devices::rumble(d, 0.3f * k, 0.55f * k, 180);
+                }
     }
 
     void startRebind(const std::string &id, int button)
@@ -181,8 +256,12 @@ namespace rt::input
         return g_swappedWith;
     }
 
+    void pollCapture();
+
     void pollRebind()
     {
+        if (g_capturePlayer >= 0)
+            pollCapture();
         if (g_rebinding < 0)
             return;
         if (host::keyPressed(SDL_SCANCODE_ESCAPE) || Clock::now() - g_rebindStart > std::chrono::seconds(6))
@@ -252,7 +331,7 @@ namespace rt::input
             c.keyStickDirs = defaults.keyStickDirs;
         }
         else if (c.gamepads.count(id))
-            c.gamepads[id].buttons = c.gamepad.buttons;
+            c.gamepads[id].buttons = sharedFor(id).buttons;
         detail::applyConfig();
         detail::save();
     }
@@ -287,4 +366,200 @@ namespace rt::input
     }
 
     void testVibration(const std::string &id) { detail::testRumble(id); }
+}
+
+namespace rt::input
+{
+    namespace
+    {
+        // The DS2 button a control presses on a device (first match), or -1.
+        int buttonOfControl(const std::string &id, const CapturedControl &c)
+        {
+            const Config &cfg = detail::config();
+            const GamepadProfile profile = id == kKeyboardId ? GamepadProfile{} : sharedOrOwn(id);
+            for (int b = 0; b < kPs2ButtonCount; ++b)
+            {
+                if (id == kKeyboardId)
+                {
+                    for (const std::string &k : cfg.keyButtons[b])
+                        if (k == c.key)
+                            return b;
+                }
+                else
+                    for (const PadSource &s : profile.buttons[b])
+                        if (static_cast<int>(s.kind) == c.padKind && s.index == c.padIndex)
+                            return b;
+            }
+            return -1;
+        }
+    }
+
+    void startCapture(int player)
+    {
+        g_capturePlayer = player;
+        g_captureStart = Clock::now();
+        g_captured.reset();
+        g_captureHeld.clear();
+        g_backDevice.clear();
+        for (const std::string &id : detail::slots()[player])
+            if (const Device *d = device(id))
+                g_captureHeld.push_back(Devices::snapshot(*d));
+            else
+                g_captureHeld.push_back({});
+        int count = 0;
+        const bool *keys = SDL_GetKeyboardState(&count);
+        g_heldKeys.assign(keys, keys + count);
+    }
+
+    bool capturing() { return g_capturePlayer >= 0; }
+
+    float captureCancelHold()
+    {
+        if (g_capturePlayer < 0 || g_backDevice.empty())
+            return -1.0f;
+        return std::min(1.0f, std::chrono::duration<float>(Clock::now() - g_backSince).count() / kCancelHoldSeconds);
+    }
+
+    float captureSecondsLeft()
+    {
+        if (g_capturePlayer < 0)
+            return 0;
+        return std::max(0.0f, 6.0f - std::chrono::duration<float>(Clock::now() - g_captureStart).count());
+    }
+
+    std::optional<CapturedControl> takeCapture()
+    {
+        std::optional<CapturedControl> c;
+        c.swap(g_captured);
+        return c;
+    }
+
+    void pollCapture()
+    {
+        const int player = g_capturePlayer;
+        if (host::keyPressed(SDL_SCANCODE_ESCAPE) || Clock::now() - g_captureStart > std::chrono::seconds(6) ||
+            player < 0 || player >= kPlayers)
+        {
+            g_capturePlayer = -1;
+            return;
+        }
+        const auto &slot = detail::slots()[player];
+        auto done = [&](CapturedControl c) {
+            c.ps2Button = buttonOfControl(c.device, c);
+            g_captured = c;
+            g_capturePlayer = -1;
+            g_backDevice.clear();
+            if (const Device *d = device(c.device))
+                Devices::rumble(*d, 0.35f, 0.35f, 100); // "got it", on the control's own pad
+        };
+        for (size_t i = 0; i < slot.size(); ++i)
+        {
+            const std::string &id = slot[i];
+            if (id == kKeyboardId)
+            {
+                int count = 0;
+                const bool *keys = SDL_GetKeyboardState(&count);
+                g_heldKeys.resize(count, false);
+                for (int code = 0; keys && code < count; ++code)
+                {
+                    if (!keys[code])
+                        g_heldKeys[code] = false;
+                    if (keys[code] && !g_heldKeys[code] && code != SDL_SCANCODE_ESCAPE)
+                    {
+                        CapturedControl c;
+                        c.device = id;
+                        c.key = SDL_GetScancodeName(static_cast<SDL_Scancode>(code));
+                        return done(c);
+                    }
+                }
+                continue;
+            }
+            const Device *d = device(id);
+            if (!d || i >= g_captureHeld.size())
+                continue;
+            const GamepadSnapshot s = Devices::snapshot(*d);
+            if (s.buttons[static_cast<int>(PadButton::Guide)])
+            {
+                g_capturePlayer = -1;
+                return;
+            }
+            GamepadSnapshot &held = g_captureHeld[i];
+            // The back button: bound on release after a tap, cancels once held.
+            const int back = static_cast<int>(padFamily(d->type) == "nintendo" ? PadButton::South : PadButton::East);
+            if (g_backDevice == id)
+            {
+                if (!s.buttons[back])
+                {
+                    CapturedControl c;
+                    c.device = id;
+                    c.padKind = static_cast<int>(PadSource::Kind::Button);
+                    c.padIndex = back;
+                    return done(c);
+                }
+                if (captureCancelHold() >= 1.0f)
+                {
+                    g_capturePlayer = -1;
+                    g_backDevice.clear();
+                    held.buttons[back] = true; // it stays held into the menu: not a Back there
+                    return;
+                }
+            }
+            else if (s.buttons[back] && !held.buttons[back] && g_backDevice.empty())
+            {
+                g_backDevice = id;
+                g_backSince = Clock::now();
+            }
+            for (int b = 0; b < kPadButtonCount; ++b)
+                held.buttons[b] = held.buttons[b] && s.buttons[b];
+            for (int a = 0; a < kPadAxisCount; ++a)
+                if (std::fabs(s.axes[a]) < 0.25f)
+                    held.axes[a] = 0;
+            for (int b = 0; b < kPadButtonCount; ++b)
+                if (s.buttons[b] && !held.buttons[b] && b != static_cast<int>(PadButton::Guide) && b != back)
+                {
+                    CapturedControl c;
+                    c.device = id;
+                    c.padKind = static_cast<int>(PadSource::Kind::Button);
+                    c.padIndex = b;
+                    return done(c);
+                }
+            for (int a = 0; a < kPadAxisCount; ++a)
+                if (std::fabs(s.axes[a]) > 0.5f && std::fabs(held.axes[a]) < 0.25f)
+                {
+                    CapturedControl c;
+                    c.device = id;
+                    c.padKind = static_cast<int>(s.axes[a] > 0 ? PadSource::Kind::AxisPlus : PadSource::Kind::AxisMinus);
+                    c.padIndex = a;
+                    return done(c);
+                }
+        }
+    }
+
+    void bindCaptured(const CapturedControl &c, int button)
+    {
+        if (button < 0 || button >= kPs2ButtonCount)
+            return;
+        Config &cfg = detail::config();
+        if (c.device == kKeyboardId)
+        {
+            finished(bindControl(cfg.keyButtons, button, c.key));
+            detail::applyConfig();
+        }
+        else
+        {
+            const PadSource src{static_cast<PadSource::Kind>(c.padKind), static_cast<uint8_t>(c.padIndex)};
+            finished(bindControl(ownProfile(c.device).buttons, button, src));
+        }
+        detail::save();
+    }
+
+    std::string primaryDevice(int player)
+    {
+        if (player < 0 || player >= kPlayers)
+            return kKeyboardId;
+        for (const std::string &id : detail::slots()[player])
+            if (id != kKeyboardId)
+                return id;
+        return kKeyboardId;
+    }
 }

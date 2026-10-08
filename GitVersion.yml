@@ -1,0 +1,11 @@
+# Version numbers for builds and releases (.github/workflows/release.yml).
+# Releases are tags vMAJOR.MINOR.PATCH; commits after a tag get the next patch number until the
+# next tag ("+semver: minor" / "+semver: major" in a commit message bumps further). Builds of
+# other branches are labelled with the branch name (0.1.1-android-port.3).
+workflow: GitHubFlow/v1
+tag-prefix: '[vV]?'
+next-version: '0.1.0'
+branches:
+  main:
+    label: ''
+    increment: Patch

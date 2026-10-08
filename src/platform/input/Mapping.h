@@ -6,6 +6,7 @@
 
 #include <array>
 #include <functional>
+#include <string>
 #include <vector>
 
 namespace rt::input
@@ -41,6 +42,16 @@ namespace rt::input
     };
 
     GamepadProfile defaultGamepadProfile(); // keyboard defaults are scancode names: see Config
+
+    // The face-button layout family of a controller (SDL type name): "ps" for PlayStation pads,
+    // "nintendo" for Nintendo ones, "xbox" for everything else (Xbox pads, and the "standard" pads
+    // SDL can't name, such as the AYN Thor's, which are labelled the Xbox way).
+    std::string padFamily(const std::string &type);
+    // `base` (bindings by PlayStation position: the game's ✕ at the bottom, △ at the top) laid out
+    // for the family's own conventions, so confirm and back are where its players expect them:
+    // Xbox A (bottom) ✕ and B (right) △, ○ moving to Y (top); Nintendo A (right) ✕ and B (bottom)
+    // △, ○ moving to X (top). PlayStation pads keep `base`.
+    GamepadProfile familyProfile(const GamepadProfile &base, const std::string &family);
 
     // Axes used as buttons remember whether they are pressed (hysteresis), per device.
     struct AxisLatch

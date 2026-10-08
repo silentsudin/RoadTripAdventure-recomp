@@ -6,6 +6,7 @@
 #include <SDL3/SDL.h>
 
 #include <array>
+#include <atomic>
 
 namespace rt::host
 {
@@ -20,8 +21,27 @@ namespace rt::host
     void setRuntime(PS2Runtime *runtime) { g_runtime = runtime; }
     PS2Runtime *runtime() { return g_runtime; }
 
+    namespace
+    {
+        // Key-down events latched as they arrive: a press and release within one frame (Android's
+        // Back button, injected keys) never shows in the keyboard state.
+        std::array<std::atomic<bool>, SDL_SCANCODE_COUNT> g_latched{};
+        std::array<bool, SDL_SCANCODE_COUNT> g_pressedEvent{};
+
+        bool SDLCALL latchKeyDown(void *, SDL_Event *e)
+        {
+            if (e->type == SDL_EVENT_KEY_DOWN && !e->key.repeat && e->key.scancode > 0 && e->key.scancode < SDL_SCANCODE_COUNT)
+                g_latched[e->key.scancode].store(true, std::memory_order_relaxed);
+            return true;
+        }
+    }
+
     void beginFrame()
     {
+        static const bool watching = SDL_AddEventWatch(latchKeyDown, nullptr);
+        (void)watching;
+        for (int k = 0; k < SDL_SCANCODE_COUNT; ++k)
+            g_pressedEvent[k] = g_latched[k].exchange(false, std::memory_order_relaxed);
         g_was = g_down;
         int count = 0;
         const bool *keys = SDL_GetKeyboardState(&count);
@@ -43,7 +63,10 @@ namespace rt::host
 
     double now() { return static_cast<double>(SDL_GetTicksNS()) * 1e-9; }
 
-    bool keyPressed(int k) { return k > 0 && k < SDL_SCANCODE_COUNT && g_down[k] && !g_was[k]; }
+    bool keyPressed(int k)
+    {
+        return k > 0 && k < SDL_SCANCODE_COUNT && g_pressedEvent[k]; // one per key-down event
+    }
 
     bool keyPressedRepeat(int k) { return k > 0 && k < SDL_SCANCODE_COUNT && g_repeat[k]; }
 

@@ -1,19 +1,27 @@
 #include "PauseMenu.h"
+#include "textures/PackPrep.h"
 
 #include "Theme.h"
+#include "game/Driving.h"
+#include "game/GameOptions.h"
 #include "imgui.h"
 #include "platform/Controllers.h"
 #include "platform/Host.h"
 #include "platform/Input.h"
 #include "platform/Paths.h"
+#include "platform/input/Types.h"
 #include "raylib.h"
 #include "runtime/gs/gs_pgs_backend.h"
 #include "runtime/ps2_test_harness.h"
 #include "settings/Apply.h"
 #include "settings/Capabilities.h"
 #include "settings/Settings.h"
+#include "states/StateSlots.h"
+#include "runtime/ps2_host_presenter.h"
+#include "ps2_runtime.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -21,6 +29,7 @@
 #include <filesystem>
 #include <thread>
 #include <functional>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -41,8 +50,16 @@ namespace rt::ui
             std::function<void()> activate;           // Cross / Enter / click
             std::string hint;                         // shown when focused
             bool heading = false;
-            bool preview = false;                     // changes the picture: show the game while focused
+            bool preview = false;                     // changes the picture: the scrim lifts a little while focused
             bool note = false;                        // a line of text, not selectable
+            int slot = 0;                             // a save-state slot (1..4): drawn as a picture card
+            // A binding: the controls drawn as badges in the value column (Theme control()).
+            std::function<std::vector<rt::input::ControlGlyph>()> glyphs;
+            std::function<float()> waiting;           // 0..1 of the time left while waiting for a control, < 0 not
+            float flash = 0;                          // 0..1: the value just changed (a gold glow)
+            bool disabled = false;                    // greyed (does nothing in this state)
+            bool opens = false;                       // its value leads to a page: a › after it
+            bool alwaysArrows = false;                // ◄ value ► whether focused or not (a switcher)
         };
 
         Row heading(const char *label) { return {label, {}, {}, {}, {}, true}; }
@@ -103,18 +120,62 @@ namespace rt::ui
                    (p[1].empty() ? std::string("none") : p[1]);
         }
 
-        enum class Page { Closed, Root, Options, Controllers, Device, Buttons, QuitConfirm, ResetConfirm };
+        enum class Page
+        {
+            Closed, Root, Options, Controllers, Device, Buttons, Driving, QuitConfirm, ResetConfirm,
+            SaveSlots, LoadSlots, SaveConfirm, LoadConfirm, StateMessage,
+        };
 
         Page g_page = Page::Closed;
         int g_selected = 0;
         float g_scroll = 0;          // first visible row
         float g_barY = -1;           // animated selection bar position
-        float g_panelY = -1;         // animated panel top (it moves down while previewing)
+        float g_panelY = -1;         // animated panel top (slides in as the menu opens)
         double g_openedAt = 0;
         double g_closedAt = -10;
         bool g_toastPending = true;
+        double g_modernToastUntil = 0; // first drive with Modern controls: where gas and brake are
         double g_toastUntil = 0;
         std::string g_device;        // Device and Buttons pages
+        int g_driveAction = -1;      // ... the action waiting for a control
+        std::string g_driveNote;     // ... what the last change did
+        double g_driveNoteUntil = 0;
+        std::map<std::string, double> g_flashAt; // row label -> when its value changed
+
+        float flashOf(const std::string &label)
+        {
+            const auto it = g_flashAt.find(label);
+            if (it == g_flashAt.end())
+                return 0;
+            const double t = rt::host::now() - it->second;
+            return t < 0.6 ? static_cast<float>(1.0 - t / 0.6) : 0.0f;
+        }
+        void flashRow(const std::string &label) { g_flashAt[label] = rt::host::now(); }
+
+        // The confirm button's name on the pad in hand ("A", "Cross", "Enter").
+        std::string confirmName()
+        {
+            const std::string f = th::padFamilyName();
+            return f == "keyboard" ? "Enter" : f == "ps" ? "Cross" : "A";
+        }
+        // Save states: the slot a confirmation is about, the message box's text, a short notice
+        // after the menu closes ("Loaded slot 2."), and the slot pictures as UI textures.
+        int g_stateSlot = 0;
+        std::string g_messageTitle, g_messageText;
+        Page g_messageBack = Page::Root;
+        std::string g_notice;
+        double g_noticeUntil = 0;
+        float g_packProgress = -1.0f; // the selected pack being got ready (0..1), else -1
+        bool g_packWasRunning = false; // it was, at the last frame of the open menu (the "ready" pulse)
+        std::string g_doneText;      // "Saved in slot 2." in the hint band for a moment
+        double g_doneUntil = 0;
+        uint64_t g_stateSeen = 0;    // the last finished operation handled
+        struct SlotTexture
+        {
+            uint64_t stamp = 0, id = 0;
+            int w = 0, h = 0;
+        };
+        std::map<int, SlotTexture> g_slotTextures;
         // RT_MENU_SHOT
         const char *g_shot = std::getenv("RT_MENU_SHOT");
         int g_shotFrames = -1;
@@ -176,20 +237,120 @@ namespace rt::ui
 
         void close()
         {
+            // A pack conversion runs only while the game is held: closing stops it, and says so.
+            const auto pack = rt::textures::packprep::status();
+            if (pack.running && pack.done < pack.total)
+            {
+                g_notice = "The texture pack will finish getting ready next time you start.";
+                g_noticeUntil = rt::host::now() + 2.5;
+            }
+            rt::textures::packprep::stop();
+            g_packProgress = -1.0f;
+            g_packWasRunning = false;
             g_page = Page::Closed;
             g_closedAt = rt::host::now();
             rt::input::blockGameInput(false);
             ps2_test::setPaused(false);
         }
 
+        // Save states can be kept and loaded now (in a game of the player's, no movie, a GS that
+        // can save): otherwise the rows aren't there.
+        bool statesAvailable()
+        {
+            PS2Runtime *rt = rt::host::runtime();
+            return rt && rt::states::available(*rt);
+        }
+
         std::vector<Row> rootRows()
         {
-            return {
-                {"Resume", {}, {}, [] { close(); }, playersSummary()},
-                {"Options", {}, {}, [] { go(Page::Options, 1); }, "Window and picture settings."},
-                {"Controllers", {}, {}, [] { go(Page::Controllers); }, "Who plays, buttons and vibration."},
-                {"Quit", {}, {}, [] { go(Page::QuitConfirm, 1); }, playersSummary()},
+            // Where the cursor starts: saving, the first empty slot (else the oldest, never the
+            // newest by accident); loading, the newest.
+            const auto slotFocus = [](bool saving) {
+                const auto all = rt::states::slots();
+                int best = 0;
+                for (size_t i = 0; i < all.size(); ++i)
+                {
+                    const auto &a = all[i], &b = all[static_cast<size_t>(best)];
+                    if (saving && a.empty)
+                        return static_cast<int>(i);
+                    if (saving ? (!a.empty && a.savedUnixTime < b.savedUnixTime) : (!a.empty && (b.empty || a.savedUnixTime > b.savedUnixTime)))
+                        best = static_cast<int>(i);
+                }
+                return best;
             };
+            std::vector<Row> rows = {{"Resume", {}, {}, [] { close(); }, playersSummary()}};
+            if (statesAvailable())
+            {
+                rows.push_back({"Save state", {}, {}, [slotFocus] { go(Page::SaveSlots, slotFocus(true)); },
+                                "Keep this moment in one of four slots, to come back to. Memory card saves are separate."});
+                rows.push_back({"Load state", {}, {}, [slotFocus] { go(Page::LoadSlots, slotFocus(false)); }, "Go back to a moment you kept."});
+            }
+            rows.push_back({"Options", {}, {}, [] { go(Page::Options, 1); }, "Window and picture settings."});
+            rows.push_back({"Controllers", {}, {}, [] { go(Page::Controllers); }, "Who plays, buttons and vibration."});
+            rows.push_back({"Quit", {}, {}, [] { go(Page::QuitConfirm, 1); }, playersSummary()});
+            return rows;
+        }
+
+        // The root page's row with this label (they come and go with save states).
+        int rootIndex(const char *label)
+        {
+            const auto rows = rootRows();
+            for (size_t i = 0; i < rows.size(); ++i)
+                if (rows[i].label == label)
+                    return static_cast<int>(i);
+            return 0;
+        }
+
+        void showStateMessage(const std::string &title, const std::string &text, Page back)
+        {
+            g_messageTitle = title;
+            g_messageText = text;
+            g_messageBack = back;
+            go(Page::StateMessage, 0);
+        }
+
+        // The four slots, as picture cards. Saving into an empty slot starts at once; a kept one
+        // asks first. Loading always asks.
+        std::vector<Row> slotRows(bool saving)
+        {
+            std::vector<Row> rows;
+            for (const rt::states::Slot &slot : rt::states::slots())
+            {
+                Row r{slot.title()};
+                r.slot = slot.index;
+                const int i = slot.index;
+                if (saving)
+                {
+                    r.hint = slot.empty ? "Save this moment here." : "Replace this slot with the moment now.";
+                    r.activate = [i, empty = slot.empty] {
+                        g_stateSlot = i;
+                        if (empty)
+                            rt::states::beginSave(i);
+                        else
+                            go(Page::SaveConfirm, 1);
+                    };
+                }
+                else if (slot.empty)
+                    r.hint = "Nothing saved here yet.";
+                else if (!slot.readable)
+                {
+                    r.hint = slot.problem;
+                    r.activate = [i, problem = slot.problem] {
+                        g_stateSlot = i;
+                        showStateMessage("Can't load slot " + std::to_string(i), problem, Page::LoadSlots);
+                    };
+                }
+                else
+                {
+                    r.hint = "Go back to this moment.";
+                    r.activate = [i] {
+                        g_stateSlot = i;
+                        go(Page::LoadConfirm, 1);
+                    };
+                }
+                rows.push_back(r);
+            }
+            return rows;
         }
 
         // Named window sizes (the game's 10:7 picture); "Largest" fits the monitor.
@@ -222,14 +383,17 @@ namespace rt::ui
             Settings &s = current();
             std::vector<Row> rows;
             rows.push_back(heading("Display"));
-            rows.push_back({"Window",
+            // Phones and handhelds are always full screen: no window rows there.
+            const bool hasWindow = capabilities().os != Os::Android;
+            if (hasWindow)
+                rows.push_back({"Window",
                             [&s] { return std::string(s.windowMode == WindowMode::Windowed ? "Windowed" : "Borderless full screen"); },
                             [&s](int) {
                                 s.windowMode = s.windowMode == WindowMode::Windowed ? WindowMode::Borderless : WindowMode::Windowed;
                                 changed();
                             },
                             {}, "Play in a window or fill the screen."});
-            if (s.windowMode == WindowMode::Windowed)
+            if (hasWindow && s.windowMode == WindowMode::Windowed)
             {
                 rows.push_back({"Window size",
                                 [&s] {
@@ -276,15 +440,22 @@ namespace rt::ui
             if (refreshAvailability(capabilities(), 120).ok)
             {
                 static const std::vector<int> rates = {60, 120, 240};
-                rows.push_back({"Frame rate", [&s] { return s.refreshRate == 60 ? std::string("60 fps (original)") : std::to_string(s.refreshRate) + " fps (generated)"; },
+                const bool fgOk = frameGenerationWith(capabilities(), s.upscaler);
+                rows.push_back({"Frame rate", [&s, fgOk] {
+                                    if (s.refreshRate > 60 && !fgOk)
+                                        return std::string("60 fps (with Arm ASR)");
+                                    return s.refreshRate == 60 ? std::string("60 fps (original)") : std::to_string(s.refreshRate) + " fps (generated)";
+                                },
                                 [&s](int d) {
                                     do
                                         cycle(s.refreshRate, rates, d);
                                     while (!refreshAvailability(capabilities(), s.refreshRate).ok);
                                     changed();
                                 },
-                                {}, "The game runs at 60. Higher rates add frames re-rendered from the game's own geometry, each object moved on "
-                                    "along its motion: no added delay."});
+                                {}, fgOk ? "The game runs at 60. Higher rates add frames re-rendered from the game's own geometry, each object "
+                                           "moved on along its motion: no added delay."
+                                         : "Arm ASR leaves no room for added frames on this device: it runs at 60. Pick another upscaler "
+                                           "for higher rates."});
                 // The picture-warping modes are for comparison only (RT_FRAME_GEN=1).
                 const char *warp = std::getenv("RT_FRAME_GEN");
                 if (s.refreshRate > 60 && warp && *warp == '1')
@@ -302,6 +473,45 @@ namespace rt::ui
                 }
             }
 
+            rows.push_back({"Frame skip", [&s] { return std::string(s.frameSkip ? "Auto" : "Off"); },
+                            [&s](int) { s.frameSkip = !s.frameSkip; changed(); }, {},
+                            std::string("If the device can't keep up, Auto shows fewer pictures so driving and music stay at full "
+                                        "speed. Off shows every picture, but the game and its sound slow down.") +
+                                (s.refreshRate > 60 ? " Above 60 fps, the extra frames pause first." : "")});
+            {
+                static const std::vector<PerfOverlay> levels = {PerfOverlay::Off, PerfOverlay::Fps, PerfOverlay::Detailed};
+                rows.push_back({"Performance overlay",
+                                [&s] {
+                                    return std::string(s.perfOverlay == PerfOverlay::Off   ? "Off"
+                                                       : s.perfOverlay == PerfOverlay::Fps ? "Frame rate"
+                                                                                           : "Detailed");
+                                },
+                                [&s](int d) { cycle(s.perfOverlay, levels, d); changed(); }, {},
+                                "The frame rate along the bottom of the screen; Detailed adds the longest frame, CPU and GPU load "
+                                "and temperature."});
+            }
+            if (capabilities().secondDisplay)
+                rows.push_back({"Second screen", [&s] { return std::string(s.secondScreen ? "On" : "Off"); },
+                                [&s](int) { s.secondScreen = !s.secondScreen; changed(); }, {},
+                                "The lower screen shows the map, your race place, journey and stamps. Off gives it back to "
+                                "Android."});
+            rows.push_back(heading("Sound"));
+            rows.push_back({"Volume", [&s] { return percent(s.volume); },
+                            [&s](int d) {
+                                s.volume = std::clamp(std::round(s.volume * 10.0f + d) / 10.0f, 0.0f, 1.0f);
+                                changed();
+                            },
+                            {}, "Everything the game plays: music, radio and effects."});
+            rows.push_back({"Speaker", [&s] { return std::string(s.mono ? "Mono" : "Stereo"); },
+                            [&s](int) { s.mono = !s.mono; changed(); }, {}, "Mono plays both channels from every speaker."});
+            // The town radio (the game's Pause > Radio): in an Adventure game only.
+            if (PS2Runtime *rt = rt::host::runtime(); rt && rt::game::radioAvailable(*rt))
+                rows.push_back({"Radio station", [rt] { return std::string(rt::game::radioStationName(rt::game::radioStation(*rt))); },
+                                [rt](int d) {
+                                    const int n = rt::game::kRadioStations;
+                                    rt::game::setRadioStation(*rt, (rt::game::radioStation(*rt) + d + n) % n);
+                                },
+                                {}, "The radio in town: PEACH FM, E-RADIO or Off. Kept when you save your Adventure."});
             rows.push_back(heading("Graphics"));
             static const std::vector<int> levels = {1, 2, 4, 8, 16};
             rows.push_back({"Supersampling (SSAA)",
@@ -310,6 +520,16 @@ namespace rt::ui
                                 // progressive fields take twice as many lines as columns from the
                                 // samples; interlaced ones get 2x2 from 4x up.
                                 const int n = std::min(s.superSampling, capabilities().maxSuperSampling);
+                                if (capabilities().hardwareGs)
+                                {
+                                    // The hardware GS draws at a render scale, the square root of the
+                                    // samples rounded down (1, 2: 1x; 4, 8: 2x; 16: 4x), without
+                                    // anti-aliasing.
+                                    const int scale = n >= 16 ? 4 : n >= 4 ? 2 : 1;
+                                    const int lines = 448 * scale;
+                                    const std::string size = " (" + std::to_string(640 * scale) + "x" + std::to_string(lines) + ")";
+                                    return (n == 1 ? std::string("Off") : std::to_string(n) + "x") + size;
+                                }
                                 if (s.progressiveFields)
                                 {
                                     switch (n)
@@ -352,30 +572,58 @@ namespace rt::ui
                 {
                     packs.clear();
                     std::error_code ec;
-                    for (const auto &e : std::filesystem::directory_iterator(rt::paths::dataRoot() / "textures" / "packs", ec))
+                    for (const auto &e : std::filesystem::directory_iterator(rt::paths::texturesDir() / "packs", ec))
                         if (e.is_directory())
                             packs.push_back(e.path().filename().string());
                     std::sort(packs.begin(), packs.end());
                     scannedAt = nowMs;
                 }
-                const auto packsDir = rt::paths::dataRoot() / "textures" / "packs";
+                const auto packsDir = rt::paths::texturesDir() / "packs";
                 const bool missing = !s.texturePack.empty() && indexOf(packs, s.texturePack) < 0;
                 std::string hint = packs.empty() && s.texturePack.empty()
-                                       ? "None installed. Add pack folders to " + packsDir.string()
-                                       : "Swap the game's textures for a high-detail pack. Pick None to see the original.";
+                                       ? "None installed. Add pack folders to " + rt::paths::displayPath(packsDir)
+                                       : "Swap the game's textures for a high-detail pack. Pick None for the originals.";
+                // The hardware GS draws packs from an ASTC copy: one chosen here is converted while the
+                // menu is open (the game is held), its progress in place of the usage line.
+                bool converting = false, ready = false;
+                g_packProgress = -1.0f;
+                if (capabilities().hardwareGs)
+                {
+                    rt::textures::packprep::want(s.texturePack.empty() || missing ? std::string()
+                                                                                    : (packsDir / s.texturePack).string());
+                    const auto st = rt::textures::packprep::status();
+                    if (st.running && st.total)
+                    {
+                        converting = true;
+                        g_packProgress = static_cast<float>(st.done) / static_cast<float>(st.total);
+                        std::string left;
+                        if (st.secondsLeft >= 0.0)
+                            left = st.secondsLeft < 60.0 ? ", under a minute left" :
+                                   ", about " + std::to_string(static_cast<int>(st.secondsLeft / 60.0 + 0.5)) + " min left";
+                        hint = "Getting " + s.texturePack + " ready for smooth loading: " + std::to_string(st.done) + " of " +
+                               std::to_string(st.total) + left + ". Keep the menu open, or it'll finish next time you start.";
+                    }
+                    ready = st.finished;
+                    // Done while the player waited: a short pulse on the pad, and the hint says Ready.
+                    if (g_packWasRunning && ready)
+                        rt::input::sampleVibration(2);
+                    g_packWasRunning = st.running;
+                }
                 // Proof the pack is doing something: how much of it the game has drawn so far.
-                if (!s.texturePack.empty() && !missing)
+                if (!s.texturePack.empty() && !missing && !converting)
                     if (ps2x::gs::PgsControl *gs = gsControl())
                     {
                         const auto stats = gs->texturePackStats();
-                        hint = std::to_string(stats.replaced) + " of the pack's " + std::to_string(stats.packImages) +
-                               " textures in use so far. " + hint;
+                        hint = (ready ? std::string("Ready: it loads smoothly now. ") : std::string()) + hint + " In use so far: " +
+                               std::to_string(stats.replaced) + " of " + std::to_string(stats.packImages) + ".";
                     }
                 rows.push_back({"Texture pack",
                                 [&s, missing] {
                                     if (s.texturePack.empty())
                                         return std::string(packs.empty() ? "None installed" : "None (original)");
                                     std::string name = s.texturePack.size() > 24 ? s.texturePack.substr(0, 23) + "\u2026" : s.texturePack;
+                                    if (g_packProgress >= 0.0f) // getting it ready: how far, beside its name
+                                        return name + "  " + std::to_string(static_cast<int>(g_packProgress * 100.0f)) + "%";
                                     return missing ? name + " (missing)" : name;
                                 },
                                 // Nothing to choose from: no arrows.
@@ -416,11 +664,15 @@ namespace rt::ui
             }
             if (availability(capabilities(), Upscaler::Fsr1).ok)
             {
-                static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1, Upscaler::MetalFxSpatial,
+                static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1, Upscaler::SnapdragonGsr1,
+                                                          Upscaler::SnapdragonGsr2, Upscaler::ArmAsr, Upscaler::MetalFxSpatial,
                                                           Upscaler::MetalFxTemporal};
                 rows.push_back({"Upscaling",
                                 [&s] {
                                     return std::string(s.upscaler == Upscaler::Fsr1             ? "AMD FSR 1"
+                                                       : s.upscaler == Upscaler::SnapdragonGsr1 ? "Snapdragon GSR 1"
+                                                       : s.upscaler == Upscaler::SnapdragonGsr2 ? "Snapdragon GSR 2"
+                                                       : s.upscaler == Upscaler::ArmAsr         ? "Arm ASR"
                                                        : s.upscaler == Upscaler::MetalFxSpatial ? "MetalFX spatial"
                                                        : s.upscaler == Upscaler::MetalFxTemporal ? "MetalFX temporal"
                                                                                                 : "Bilinear");
@@ -431,14 +683,16 @@ namespace rt::ui
                                     while (!availability(capabilities(), s.upscaler).ok);
                                     changed();
                                 },
-                                {}, "How the picture is scaled up to the window. FSR 1 and MetalFX keep edges sharp.", false, true});
-                if (s.upscaler == Upscaler::Fsr1)
+                                {}, "How the picture is scaled up to the window. FSR 1, Snapdragon GSR and MetalFX keep edges sharp; GSR 2, "
+                                "Arm ASR and MetalFX temporal also smooth them over frames, using the game's motion.",
+                                false, true});
+                if (s.upscaler == Upscaler::Fsr1 || s.upscaler == Upscaler::SnapdragonGsr2 || s.upscaler == Upscaler::ArmAsr)
                     rows.push_back({"Sharpening", [&s] { return std::to_string(static_cast<int>(std::lround(s.sharpness * 100))) + "%"; },
                                     [&s](int d) {
                                         s.sharpness = std::clamp(std::round(s.sharpness * 10.0f + d) / 10.0f, 0.0f, 1.0f);
                                         changed();
                                     },
-                                    {}, "FSR 1 sharpening (RCAS) after upscaling.", false, true});
+                                    {}, "Sharpening (AMD's RCAS) after upscaling.", false, true});
             }
             return rows;
         }
@@ -483,6 +737,8 @@ namespace rt::ui
             return nullptr;
         }
 
+        Row schemeRow(bool opens);
+
         std::vector<Row> controllerRows()
         {
             std::vector<Row> rows;
@@ -511,10 +767,37 @@ namespace rt::ui
             }
             if (!rt::input::anyGamepad())
                 rows.push_back(note("Connect a controller and it appears here."));
-            else
-                rows.push_back({"Vibration", [] { return percent(rt::input::vibrationOverall()); },
-                                [](int d) { rt::input::setVibrationOverall(stepQuarter(rt::input::vibrationOverall(), d)); }, {},
-                                "How strongly every controller shakes."});
+            rows.push_back(heading("Driving"));
+            rows.push_back(schemeRow(true));
+            if (rt::input::anyGamepad())
+            {
+                rows.push_back(heading("Vibration"));
+                rows.push_back({"Vibration", [] { return std::string(!current().vibration ? "Off" : current().dynamicVibration ? "Dynamic" : "Classic"); },
+                                [](int d) {
+                                    Settings &s = current();
+                                    // Dynamic -> Classic -> Off, and round; each change plays a taste of it.
+                                    int v = !s.vibration ? 2 : s.dynamicVibration ? 0 : 1;
+                                    v = (v + d + 3) % 3;
+                                    s.vibration = v != 2;
+                                    s.dynamicVibration = v == 0;
+                                    changed();
+                                    if (v != 2)
+                                        rt::input::sampleVibration(v);
+                                },
+                                {},
+                                "Dynamic: feel the engine, the road, the brakes and every knock, on both motors and the "
+                                "triggers. Classic: the game's own buzz."});
+                Row strength{"Strength", [] { return percent(rt::input::vibrationOverall()); },
+                             [](int d) {
+                                 if (!current().vibration)
+                                     return;
+                                 rt::input::setVibrationOverall(stepQuarter(rt::input::vibrationOverall(), d));
+                                 rt::input::sampleVibration(current().dynamicVibration ? 0 : 1);
+                             },
+                             {}, current().vibration ? "How strongly every controller shakes." : "Vibration is off."};
+                strength.disabled = !current().vibration;
+                rows.push_back(strength);
+            }
             return rows;
         }
 
@@ -580,6 +863,171 @@ namespace rt::ui
             return rows;
         }
 
+        const char *schemeName(ControlScheme c)
+        {
+            return c == ControlScheme::Modern ? "Modern" : c == ControlScheme::Classic ? "Classic" : "Custom";
+        }
+
+        // Custom starts from the layout in use (the scheme's, as the game has it).
+        void beginCustom(PS2Runtime &rt)
+        {
+            if (current().controlScheme == ControlScheme::Custom)
+                return;
+            int layout[rt::game::kDriveActions];
+            rt::game::schemeLayout(static_cast<int>(current().controlScheme), layout);
+            std::string text;
+            for (int a = 0; a < rt::game::kDriveActions; ++a)
+                text += (a ? " " : "") + std::string(rt::input::ps2Name(static_cast<rt::input::Ps2Button>(layout[a])));
+            current().customControls = text;
+            current().controlScheme = ControlScheme::Custom;
+        }
+
+        // "Controls: Modern / Classic / Custom" (Left/Right); on the Controllers page it also opens the
+        // Driving controls page.
+        Row schemeRow(bool opens)
+        {
+            Row r{"Controls", [] { return std::string(schemeName(current().controlScheme)); },
+                  [](int d) {
+                      cycle(current().controlScheme, {ControlScheme::Modern, ControlScheme::Classic, ControlScheme::Custom}, d);
+                      changed(false);
+                      if (PS2Runtime *rt = rt::host::runtime())
+                          rt::game::applyControlScheme(*rt);
+                  },
+                  {},
+                  "Modern: right trigger gas, left trigger brake. Classic: the game's own. Custom: yours." +
+                      (opens ? " " + confirmName() + ": see or change each control." : std::string())};
+            r.flash = flashOf("Controls");
+            r.alwaysArrows = true;
+            if (opens)
+                r.activate = [] { go(Page::Driving, 1); };
+            return r;
+        }
+
+        // The driving actions and where the scheme puts them (the game's own button setup,
+        // Driving.h; saved with the game too).
+        std::vector<Row> drivingRows()
+        {
+            std::vector<Row> rows;
+            PS2Runtime *rt = rt::host::runtime();
+            rows.push_back(heading("Layout"));
+            rows.push_back(schemeRow(false));
+            Row header = heading("Action");
+            header.value = [] { return std::string("Your control"); };
+            rows.push_back(header);
+            const bool waiting = rt::input::capturing() && g_driveAction >= 0;
+            std::string hint = "Select, then press the control you want. Changing one makes the controls Custom.";
+            if (waiting)
+                hint = std::string("Press a control for ") +
+                       rt::game::driveActionName(static_cast<rt::game::DriveAction>(g_driveAction)) + ".";
+            else if (rt::host::now() < g_driveNoteUntil)
+                hint = g_driveNote;
+            const std::string device = rt::input::primaryDevice(0);
+            const bool live = rt && rt::game::actionButton(*rt, 0, rt::game::DriveAction::Gas) >= 0;
+            for (int a = 0; a < rt::game::kDriveActions; ++a)
+            {
+                const auto action = static_cast<rt::game::DriveAction>(a);
+                Row r{rt::game::driveActionName(action), {}, {},
+                      live ? std::function<void()>([a] {
+                          g_driveAction = a;
+                          rt::input::startCapture(0);
+                      })
+                           : std::function<void()>(),
+                      !live ? std::string("You can change these once the game has started.")
+                      : action == rt::game::DriveAction::Brake && !waiting && rt::host::now() >= g_driveNoteUntil
+                          ? "Hold it when stopped to reverse. " + hint
+                          : hint};
+                r.glyphs = [rt, a, action, device, live] {
+                    // The game's setup once it is in memory, else the scheme's layout.
+                    int b = live ? rt::game::actionButton(*rt, 0, action) : -1;
+                    if (b < 0)
+                    {
+                        int layout[rt::game::kDriveActions];
+                        rt::game::schemeLayout(static_cast<int>(current().controlScheme), layout);
+                        b = layout[a];
+                    }
+                    std::vector<rt::input::ControlGlyph> gs = rt::input::bindingGlyphs(device, b);
+                    // Modern and Custom also reverse on the brake held at a standstill.
+                    if (action == rt::game::DriveAction::Reverse && current().controlScheme != ControlScheme::Classic && live)
+                    {
+                        gs.push_back({"text", 0, 0, "or hold"});
+                        for (const auto &g : rt::input::bindingGlyphs(device, rt::game::actionButton(*rt, 0, rt::game::DriveAction::Brake)))
+                            gs.push_back(g);
+                    }
+                    return gs;
+                };
+                if (waiting && g_driveAction == a)
+                    r.waiting = [] {
+                        // The ring: time left, or (filling up) how long the back button has been held.
+                        const float hold = rt::input::captureCancelHold();
+                        return hold >= 0 ? -1.0f - hold : rt::input::captureSecondsLeft() / 6.0f;
+                    };
+                r.flash = flashOf(r.label);
+                rows.push_back(r);
+            }
+            if (rt::input::anyGamepad())
+            {
+                rows.push_back(heading("Feel"));
+                rows.push_back({"Analogue triggers", [] { return std::string(current().analogTriggers ? "On" : "Off"); },
+                                [](int) {
+                                    current().analogTriggers = !current().analogTriggers;
+                                    changed(false);
+                                },
+                                {}, "Gas and brake on triggers respond to how far you press them."});
+            }
+            return rows;
+        }
+
+        // A control caught on the Driving controls page: the action moves to the game button the
+        // control presses if the game allows that button for it (an action already there takes
+        // this one's old button); any other control is made to press the action's game button.
+        void applyDriveCapture(const rt::input::CapturedControl &c)
+        {
+            PS2Runtime *rt = rt::host::runtime();
+            const int a = g_driveAction;
+            g_driveAction = -1;
+            if (!rt || a < 0)
+                return;
+            const auto action = static_cast<rt::game::DriveAction>(a);
+            const int mine = rt::game::actionButton(*rt, 0, action);
+            if (mine < 0)
+                return;
+            g_driveNoteUntil = rt::host::now() + 3.0;
+            const std::string name = rt::game::driveActionName(action);
+            if (c.ps2Button == mine)
+            {
+                g_driveNote = name + ": " + rt::input::bindingText(rt::input::primaryDevice(0), mine) + ", as before.";
+                return;
+            }
+            const std::string device = rt::input::primaryDevice(0);
+            if (c.ps2Button >= 0 && rt::game::actionButtonAllowed(*rt, c.ps2Button))
+            {
+                int other = -1;
+                for (int o = 0; o < rt::game::kDriveActions; ++o)
+                    if (o != a && rt::game::actionButton(*rt, 0, static_cast<rt::game::DriveAction>(o)) == c.ps2Button)
+                        other = o;
+                if (current().controlScheme != ControlScheme::Custom)
+                    flashRow("Controls");
+                beginCustom(*rt);
+                rt::game::setActionButton(*rt, 0, action, c.ps2Button);
+                current().customControls = rt::game::layoutText(*rt);
+                changed(false);
+                rt::game::applyControlScheme(*rt); // player 2 too
+                flashRow(name);
+                g_driveNote = name + ": " + rt::input::bindingText(device, c.ps2Button) + ".";
+                if (other >= 0)
+                {
+                    const std::string otherName = rt::game::driveActionName(static_cast<rt::game::DriveAction>(other));
+                    flashRow(otherName);
+                    g_driveNote += " " + otherName + " moved to " + rt::input::bindingText(device, mine) + ".";
+                }
+                return;
+            }
+            // A control the game's setup doesn't offer: it presses the action's game button now.
+            rt::input::bindCaptured(c, mine);
+            flashRow(name);
+            g_driveNote = name + ": " + rt::input::bindingText(device, mine) + ".";
+        }
+
         std::vector<Row> currentRows()
         {
             switch (g_page)
@@ -589,6 +1037,9 @@ namespace rt::ui
             case Page::Controllers: return controllerRows();
             case Page::Device: return deviceRows();
             case Page::Buttons: return buttonRows();
+            case Page::Driving: return drivingRows();
+            case Page::SaveSlots: return slotRows(true);
+            case Page::LoadSlots: return slotRows(false);
             default: return {};
             }
         }
@@ -611,12 +1062,43 @@ namespace rt::ui
         // Confirm boxes: a question and two choices, the safe one (index 1) first in focus.
         struct Confirm
         {
-            const char *question, *detail, *yes, *no;
+            std::string question, detail;
+            const char *yes, *no; // no == nullptr: a message with one button
             std::function<void()> onYes;
         };
 
+        // "Peach Town, today at 14:32"
+        std::string slotSummary(int index)
+        {
+            for (const rt::states::Slot &slot : rt::states::slots())
+                if (slot.index == index)
+                {
+                    std::string when = slot.when();
+                    if (!when.empty() && when.rfind("Today", 0) != 0 && when.rfind("Yesterday", 0) != 0)
+                        when = "on " + when;
+                    else if (!when.empty())
+                        when[0] = static_cast<char>(std::tolower(static_cast<unsigned char>(when[0])));
+                    return when.empty() ? slot.title() : slot.title() + ", " + when;
+                }
+            return {};
+        }
+
         Confirm currentConfirm()
         {
+            if (g_page == Page::SaveConfirm)
+                return {"Replace slot " + std::to_string(g_stateSlot) + "?", "Replaces " + slotSummary(g_stateSlot) + ".",
+                        "Replace", "Cancel", [] {
+                            go(Page::SaveSlots, g_stateSlot - 1);
+                            rt::states::beginSave(g_stateSlot);
+                        }};
+            if (g_page == Page::LoadConfirm)
+                return {"Load slot " + std::to_string(g_stateSlot) + "?",
+                        slotSummary(g_stateSlot) + ". Unsaved progress since then is lost.", "Load", "Cancel", [] {
+                            go(Page::LoadSlots, g_stateSlot - 1);
+                            rt::states::beginLoad(g_stateSlot);
+                        }};
+            if (g_page == Page::StateMessage)
+                return {g_messageTitle, g_messageText, "OK", nullptr, [] { go(g_messageBack, std::max(0, g_stateSlot - 1)); }};
             if (g_page == Page::QuitConfirm)
                 return {"Quit Road Trip?", "Anything since you last saved is lost.", "Quit", "Keep playing", [] {
                             close();
@@ -636,33 +1118,84 @@ namespace rt::ui
             switch (g_page)
             {
             case Page::Root: close(); break;
-            case Page::Options: go(Page::Root, 1); break;
-            case Page::Controllers: go(Page::Root, 2); break;
+            case Page::Options: go(Page::Root, rootIndex("Options")); break;
+            case Page::Controllers: go(Page::Root, rootIndex("Controllers")); break;
             case Page::Device: go(Page::Controllers, 1); break;
+            case Page::Driving:
+            {
+                const auto rows = controllerRows();
+                int i = 0;
+                while (i < static_cast<int>(rows.size()) && rows[i].label != "Controls")
+                    ++i;
+                go(Page::Controllers, i);
+                break;
+            }
             case Page::Buttons:
                 if (g_device == "keyboard")
                     go(Page::Controllers, 1);
                 else
                     go(Page::Device, 1);
                 break;
-            case Page::QuitConfirm: go(Page::Root, 3); break;
+            case Page::QuitConfirm: go(Page::Root, rootIndex("Quit")); break;
             case Page::ResetConfirm: go(Page::Options, 1); break;
+            case Page::SaveSlots: go(Page::Root, rootIndex("Save state")); break;
+            case Page::LoadSlots: go(Page::Root, rootIndex("Load state")); break;
+            case Page::SaveConfirm: go(Page::SaveSlots, g_stateSlot - 1); break;
+            case Page::LoadConfirm: go(Page::LoadSlots, g_stateSlot - 1); break;
+            case Page::StateMessage: go(g_messageBack, std::max(0, g_stateSlot - 1)); break;
             default: break;
             }
         }
 
         // RT_MENU_SHOT: open the requested page once the game is running, picture it, quit.
-        // RT_MENU_PAGE: root, display, graphics, controllers, device, buttons, quit, reset.
+        // RT_MENU_PAGE: root, display, graphics, controllers, device, buttons, quit, reset, save,
+        // load, save_confirm, load_confirm, state_message.
         void shotStep()
         {
             if (!g_shot)
                 return;
             const char *atText = std::getenv("RT_MENU_AT");
             const uint64_t at = atText ? std::strtoull(atText, nullptr, 10) : 900;
-            if (g_shotFrames < 0 && ps2_test::currentVblank() >= at)
+            // RT_MENU_LOAD=<slot>: load that save state first (at RT_MENU_AT), and open the menu
+            // 30 vblanks after it is in, so the picture behind is a moment of play.
+            static int loadPhase = 0; // 0 not asked, 1 loading, 2 loaded
+            static uint64_t loadedAt = 0;
+            if (const char *slot = std::getenv("RT_MENU_LOAD"); slot && g_shotFrames < 0 && loadPhase < 2)
+            {
+                if (loadPhase == 0 && ps2_test::currentVblank() >= at)
+                {
+                    rt::states::beginLoad(std::atoi(slot));
+                    loadPhase = 1;
+                }
+                if (loadPhase == 1 && !rt::states::busy() && rt::states::status().sequence > 0)
+                {
+                    if (rt::states::status().phase == rt::states::Phase::Failed)
+                        std::fprintf(stderr, "[menu-shot] RT_MENU_LOAD failed: %s\n", rt::states::status().error.c_str());
+                    loadPhase = 2;
+                    loadedAt = ps2_test::currentVblank();
+                }
+                return;
+            }
+            if (g_shotFrames < 0 && ps2_test::currentVblank() >= (loadPhase == 2 ? loadedAt + 30 : at))
             {
                 const std::string page = std::getenv("RT_MENU_PAGE") ? std::getenv("RT_MENU_PAGE") : "root";
                 open(Page::Root);
+                // RT_MENU_SLOT: the slot in focus (save/load pages and their confirmations).
+                const int slot = std::getenv("RT_MENU_SLOT") ? std::atoi(std::getenv("RT_MENU_SLOT")) : 1;
+                g_stateSlot = slot;
+                if (page == "save" || page == "load")
+                    go(page == "save" ? Page::SaveSlots : Page::LoadSlots, slot - 1);
+                else if (page == "save_confirm")
+                    go(Page::SaveConfirm, 1);
+                else if (page == "load_confirm")
+                    go(Page::LoadConfirm, 1);
+                else if (page == "state_message")
+                    showStateMessage("Can't load slot " + std::to_string(slot),
+                                     rt::states::friendlyLoadError("made by an older version of the app (it has no EESC)"), Page::LoadSlots);
+                // RT_MENU_SAVE=1: then save into that slot from the open menu (the game held
+                // behind it); the picture is taken once the save is done.
+                if (page == "save" && std::getenv("RT_MENU_SAVE"))
+                    rt::states::beginSave(slot);
                 if (page == "quit")
                     go(Page::QuitConfirm, 1);
                 else if (page == "reset")
@@ -682,6 +1215,8 @@ namespace rt::ui
                 }
                 else if (page == "controllers")
                     go(Page::Controllers, 1);
+                else if (page == "driving")
+                    go(Page::Driving, 1);
                 else if (page == "device" || page == "buttons")
                 {
                     const auto all = rt::input::devices();
@@ -692,19 +1227,88 @@ namespace rt::ui
             }
         }
 
-        bool isConfirm() { return g_page == Page::QuitConfirm || g_page == Page::ResetConfirm; }
+        bool isConfirm()
+        {
+            return g_page == Page::QuitConfirm || g_page == Page::ResetConfirm || g_page == Page::SaveConfirm ||
+                   g_page == Page::LoadConfirm || g_page == Page::StateMessage;
+        }
+    }
+
+    bool pauseMenuOpen() { return g_page != Page::Closed; }
+
+    void openOptions() { open(Page::Options); }
+
+    void openSoundOptions()
+    {
+        open(Page::Options);
+        const auto rows = optionRows();
+        for (size_t i = 0; i < rows.size(); ++i)
+            if (std::string(rows[i].label) == "Volume")
+                g_selected = static_cast<int>(i);
+    }
+
+    void togglePauseMenu()
+    {
+        if (g_page == Page::Closed)
+            open(Page::Root);
+        else
+            close();
+    }
+
+    namespace
+    {
+        // A save or load the menu started: drive it (vblanks behind the menu), and when it ends,
+        // say how it went. A load that worked closes the menu: the game goes on from there.
+        void serviceStates()
+        {
+            rt::states::update();
+            const rt::states::Status st = rt::states::status();
+            if ((st.phase != rt::states::Phase::Done && st.phase != rt::states::Phase::Failed) || st.sequence == g_stateSeen)
+                return;
+            g_stateSeen = st.sequence;
+            rt::states::acknowledge();
+            const double now = rt::host::now();
+            if (st.phase == rt::states::Phase::Done)
+            {
+                if (st.saving)
+                {
+                    g_doneText = st.message;
+                    g_doneUntil = now + 2.5;
+                }
+                else
+                {
+                    g_notice = st.message;
+                    g_noticeUntil = now + 2.5;
+                    if (g_page != Page::Closed)
+                        close();
+                }
+                return;
+            }
+            if (g_page == Page::Closed)
+                return;
+            showStateMessage(st.saving ? "Can't save" : "Can't load slot " + std::to_string(st.slot), st.message,
+                             st.saving ? Page::SaveSlots : Page::LoadSlots);
+        }
     }
 
     void updatePauseMenu()
     {
         shotStep();
+        serviceStates();
         const rt::input::MenuInput in = rt::input::menuInput();
         // Rebinding takes every control until it is done (or Escape / the time-out cancels it).
-        if (rt::input::rebinding() >= 0)
+        if (rt::input::rebinding() >= 0 || rt::input::capturing())
         {
             rt::input::pollRebind();
+            if (auto c = rt::input::takeCapture())
+                applyDriveCapture(*c);
+            else if (!rt::input::capturing())
+                g_driveAction = -1;
             return;
         }
+        // Saving or loading: a moment, nothing to choose.
+        if (rt::states::busy())
+            return;
         if (in.toggleMenu)
         {
             if (g_page == Page::Closed)
@@ -717,7 +1321,9 @@ namespace rt::ui
             return;
         if (isConfirm())
         {
-            if (in.left || in.right || in.up || in.down)
+            if (!currentConfirm().no)
+                g_selected = 0;
+            else if (in.left || in.right || in.up || in.down)
                 g_selected = 1 - std::clamp(g_selected, 0, 1);
             if (in.confirm)
             {
@@ -762,6 +1368,17 @@ namespace rt::ui
                 go(Page::ResetConfirm, 1);
             else if (g_page == Page::Buttons)
                 rt::input::resetBindings(g_device);
+            else if (g_page == Page::Driving && current().controlScheme != ControlScheme::Modern)
+            {
+                // Custom's layout is kept: Controls ◄► brings it back.
+                flashRow("Controls");
+                current().controlScheme = ControlScheme::Modern;
+                changed(false);
+                if (PS2Runtime *rt = rt::host::runtime())
+                    rt::game::applyControlScheme(*rt);
+                g_driveNote = "Modern controls.";
+                g_driveNoteUntil = rt::host::now() + 3.0;
+            }
         }
     }
 
@@ -775,7 +1392,15 @@ namespace rt::ui
             saveCurrent();
         }
         const double now = rt::host::now();
-        return g_page != Page::Closed || now < g_toastUntil || now < g_closedAt + 0.2;
+        rt::game::RumbleOut driving;
+        if (!current().modernHintShown && current().controlScheme == ControlScheme::Modern && rt::game::controlSchemeActive() &&
+            rt::game::dynamicRumble(0, driving) && rt::input::anyGamepad())
+        {
+            current().modernHintShown = true;
+            saveCurrent();
+            g_modernToastUntil = now + 3.0;
+        }
+        return g_page != Page::Closed || now < g_toastUntil || now < g_modernToastUntil || now < g_closedAt + 0.2 || now < g_noticeUntil;
     }
 
     namespace
@@ -788,11 +1413,21 @@ namespace rt::ui
                 const char *button, *label;
             };
             std::vector<P> ps;
-            if (isConfirm())
-                ps = {{"cross", "Select"}, {"triangle", "Back"}};
+            if (g_page == Page::StateMessage)
+                ps = {{"cross", "OK"}};
+            else if (rt::input::capturing())
+                ps = {{th::padFamilyName() == "keyboard" ? "Esc" : "hold", "Cancel"}};
+            else if (isConfirm())
+                ps = {{"cross", "Select"},
+                      {"triangle", g_page == Page::SaveConfirm || g_page == Page::LoadConfirm ? "Cancel" : "Back"}};
             else
             {
-                ps.push_back({"cross", "Select"});
+                // An empty slot on the Load page does nothing: no Load prompt there.
+                const auto rows = currentRows();
+                const int n = static_cast<int>(rows.size());
+                const bool acts = !n || rows[std::clamp(g_selected, 0, n - 1)].activate || rows[std::clamp(g_selected, 0, n - 1)].change;
+                if (acts)
+                    ps.push_back({"cross", g_page == Page::SaveSlots ? "Save" : g_page == Page::LoadSlots ? "Load" : "Select"});
                 if (canChange)
                     ps.push_back({"", "Change"});
                 ps.push_back({"triangle", g_page == Page::Root ? "Resume" : "Back"});
@@ -800,13 +1435,23 @@ namespace rt::ui
                     ps.push_back({"square", "Reset all"});
                 if (g_page == Page::Buttons)
                     ps.push_back({"square", "Default buttons"});
+                if (g_page == Page::Driving && current().controlScheme != ControlScheme::Modern)
+                    ps.push_back({"square", "Reset to Modern"});
             }
             // Measured first, then drawn in a box right-aligned under the panel.
             const float gap = th::px(26), padX = th::px(20), h = th::px(58);
             auto drawAll = [&](float x, float y) {
                 for (const P &p : ps)
                 {
-                    if (!*p.button)
+                    if (std::string(p.button) == "hold")
+                    {
+                        // "Hold B Cancel": the pad's back button (B; ○ on PlayStation) held.
+                        const ImVec2 hs = th::measure(th::Size::Hint, "Hold");
+                        th::text(dl, ImVec2(x, y + (th::px(40) - hs.y) * 0.5f), th::Size::Hint, th::col::Silver, "Hold", th::col::OutlineBlue);
+                        x += hs.x + th::px(10);
+                        x += th::prompt(dl, ImVec2(x, y), th::padFamilyName() == "ps" ? "circle" : "triangle", p.label) + gap;
+                    }
+                    else if (!*p.button)
                     {
                         // Left/Right: two small arrows and the label.
                         th::arrow(dl, ImVec2(x + th::px(8), y + th::px(20)), false);
@@ -835,19 +1480,30 @@ namespace rt::ui
         void drawConfirm(ImDrawList *dl, ImVec2 vmin, ImVec2 vmax, float appear)
         {
             const Confirm c = currentConfirm();
-            const float w = std::min(th::px(600), (vmax.x - vmin.x) * 0.9f), h = th::px(220);
+            const bool stateBox = g_page == Page::SaveConfirm || g_page == Page::LoadConfirm || g_page == Page::StateMessage;
+            const float w = std::min(th::px(stateBox ? 760 : 600), (vmax.x - vmin.x) * 0.9f);
+            // The detail wrapped to the box (a refusal's reason can run to two or three lines).
+            const std::vector<std::string> lines = wrapHint(c.detail, w - th::px(80));
+            const float lineH = th::measure(th::Size::Hint, "Ag").y;
+            const float h = th::px(220) + lineH * static_cast<float>(std::max<size_t>(lines.size(), 1) - 1);
             const ImVec2 min((vmin.x + vmax.x - w) * 0.5f, (vmin.y + vmax.y - h) * 0.5f + (1 - appear) * th::px(30));
             const ImVec2 max(min.x + w, min.y + h);
-            th::dialogPanel(dl, min, max, c.question);
-            ImVec2 ds = th::measure(th::Size::Hint, c.detail);
-            th::text(dl, ImVec2((min.x + max.x - ds.x) * 0.5f, min.y + th::px(52)), th::Size::Hint, th::col::ListText, c.detail,
-                     th::col::Black);
-            // Two choices side by side; the bar sits behind the focused one.
+            th::dialogPanel(dl, min, max, c.question.c_str());
+            float ly = min.y + th::px(52);
+            for (const std::string &line : lines)
+            {
+                const ImVec2 ds = th::measure(th::Size::Hint, line.c_str());
+                th::text(dl, ImVec2((min.x + max.x - ds.x) * 0.5f, ly), th::Size::Hint,
+                         stateBox ? IM_COL32(0xF4, 0xEE, 0xDC, 0xFF) : th::col::ListText, line.c_str(), th::col::Black);
+                ly += lineH;
+            }
+            // Two choices side by side (or one, for a message); the bar sits behind the focused one.
             const char *labels[2] = {c.yes, c.no};
-            // Two equal bars centred as a pair; the focused one is the selection bar.
-            const float cw = th::px(220), ch = th::px(56), cy = max.y - th::px(40) - ch, gap = th::px(24);
-            const float x0 = (min.x + max.x - (cw * 2 + gap)) * 0.5f;
-            for (int i = 0; i < 2; ++i)
+            const int choices = c.no ? 2 : 1;
+            // Equal bars centred as a group; the focused one is the selection bar.
+            const float cw = th::px(220), ch = th::px(56), cy = max.y - th::px(40) - ch, gap = th::px(stateBox ? 64 : 24);
+            const float x0 = (min.x + max.x - (cw * static_cast<float>(choices) + gap * static_cast<float>(choices - 1))) * 0.5f;
+            for (int i = 0; i < choices; ++i)
             {
                 const ImVec2 a(x0 + i * (cw + gap), cy), b(a.x + cw, cy + ch);
                 if (ImGui::IsMouseHoveringRect(a, b) && (ImGui::GetIO().MouseDelta.x != 0 || ImGui::GetIO().MouseDelta.y != 0))
@@ -863,7 +1519,7 @@ namespace rt::ui
                 const ImVec2 ls = th::measure(th::Size::Body, labels[i]);
                 th::text(dl, ImVec2((a.x + b.x - ls.x) * 0.5f - th::px(8), (a.y + b.y - ls.y) * 0.5f), th::Size::Body,
                          on ? th::col::ListSelected : th::col::ListText, labels[i], on ? th::col::OutlineBlue : th::col::Black);
-                if (ImGui::IsMouseHoveringRect(a, b) && ImGui::IsMouseClicked(0))
+                if (ImGui::IsMouseHoveringRect(a, b) && ImGui::IsMouseClicked(0) && !rt::states::busy())
                 {
                     if (i == 0)
                         c.onYes();
@@ -872,7 +1528,48 @@ namespace rt::ui
                     return;
                 }
             }
-            drawPrompts(dl, max, min.x, false);
+            if (g_page != Page::StateMessage) // its one button says it all
+                drawPrompts(dl, max, min.x, false);
+        }
+
+        // "RT gas · LT brake · hold LT to reverse", with player 1's own glyphs, for 3 s.
+        void drawModernToast(ImDrawList *dl, ImVec2 vmax)
+        {
+            const float h = th::px(66);
+            // Clear of the performance overlay along the bottom (PerfOverlay.cpp: its top is
+            // 12 px + its height above the edge), 16 px above it.
+            float bottom = vmax.y - th::px(32);
+            if (current().perfOverlay != PerfOverlay::Off)
+                bottom = std::min(bottom, vmax.y - th::px(12) - (th::fontSize(th::Size::Body) * 0.9f + th::px(16)) - th::px(16));
+            const float y = bottom - h;
+            const std::string device = rt::input::primaryDevice(0);
+            const std::string family = rt::input::familyOf(device);
+            auto layout = [&](float x0, bool draw) {
+                float x = x0;
+                const float gy = y + (h - th::px(40)) * 0.5f, ty = y + (h - th::fontSize(th::Size::Hint)) * 0.5f;
+                auto word = [&](const char *s) {
+                    if (draw)
+                        th::text(dl, ImVec2(x, ty), th::Size::Hint, th::col::Silver, s, th::col::OutlineBlue);
+                    x += th::measure(th::Size::Hint, s).x + th::px(10);
+                };
+                auto trigger = [&](int axis) {
+                    x += th::control(draw ? dl : nullptr, ImVec2(x, gy), family, 1, axis, {}) + th::px(10);
+                };
+                trigger(5);
+                word("gas");
+                x += th::px(18);
+                trigger(4);
+                word("brake");
+                x += th::px(18);
+                word("hold");
+                trigger(4);
+                word("to reverse");
+                return x - x0;
+            };
+            const float w = layout(0, false) + th::px(36);
+            const ImVec2 min(vmax.x - w - th::px(32), y), max(vmax.x - th::px(32), y + h);
+            th::promptBox(dl, min, max);
+            layout(min.x + th::px(22), true);
         }
 
         void drawToast(ImDrawList *dl, ImVec2 vmax)
@@ -923,6 +1620,106 @@ namespace rt::ui
         }
     }
 
+    namespace
+    {
+        // A slot's picture as a UI texture, made again when its file changes.
+        uint64_t slotTexture(const rt::states::Slot &slot, int &w, int &h)
+        {
+            SlotTexture &t = g_slotTextures[slot.index];
+            if (t.stamp != slot.stamp)
+            {
+                PS2Runtime *rt = rt::host::runtime();
+                ps2x::HostPresenter *presenter = rt ? rt->presenter() : nullptr;
+                if (presenter && t.id)
+                    presenter->destroyUiTexture(t.id);
+                t = SlotTexture{slot.stamp, 0, slot.thumbWidth, slot.thumbHeight};
+                if (presenter && !slot.thumbnail.empty())
+                    t.id = presenter->createUiTexture(slot.thumbnail.data(), slot.thumbWidth, slot.thumbHeight);
+            }
+            w = t.w;
+            h = t.h;
+            return t.id;
+        }
+
+        // "Saving..." with the dots counting up.
+        std::string working(const char *what)
+        {
+            const int dots = static_cast<int>(rt::host::now() * 3.0) % 4;
+            return std::string(what) + std::string(static_cast<size_t>(dots), '.');
+        }
+
+        // A slot row: its number, the picture of the moment (or an empty frame), where and when.
+        void drawSlotCard(ImDrawList *dl, ImVec2 a, ImVec2 b, const rt::states::Slot &slot, bool on)
+        {
+            const float rowH = b.y - a.y;
+            const ImU32 colour = on ? th::col::ListSelected : th::col::ListText;
+            const ImU32 outline = on ? th::col::OutlineBlue : th::col::Black;
+            const std::string number = std::to_string(slot.index);
+            const ImVec2 ns = th::measure(th::Size::Body, number.c_str());
+            th::text(dl, ImVec2(a.x + th::px(100) - ns.x * 0.5f, a.y + (rowH - ns.y) * 0.5f), th::Size::Body,
+                     on ? th::col::ListSelected : th::col::Heading, number.c_str(), outline);
+            // The picture: a 4:3 frame, the moment filling it (wider pictures cropped at the sides).
+            const float ph = rowH - th::px(28), pw = ph * 4.0f / 3.0f;
+            const ImVec2 p0(a.x + th::px(132), a.y + th::px(14)), p1(p0.x + pw, p0.y + ph);
+            const float r = th::px(6);
+            int tw = 0, thh = 0;
+            const uint64_t tex = slot.empty ? 0 : slotTexture(slot, tw, thh);
+            if (tex && tw > 0 && thh > 0)
+            {
+                const float aspect = static_cast<float>(tw) / static_cast<float>(thh), keep = std::min(1.0f, (4.0f / 3.0f) / aspect);
+                dl->AddImageRounded(static_cast<ImTextureID>(tex), p0, p1, ImVec2(0.5f - keep * 0.5f, 0), ImVec2(0.5f + keep * 0.5f, 1),
+                                    IM_COL32_WHITE, r);
+            }
+            else
+            {
+                // Empty (or no picture): a sunken frame; an empty one shows where a save would go.
+                dl->AddRectFilled(p0, p1, th::col::ListBevelDark, r);
+                if (slot.empty)
+                {
+                    const ImVec2 c((p0.x + p1.x) * 0.5f, (p0.y + p1.y) * 0.5f);
+                    const float arm = th::px(16), thick = th::px(5);
+                    dl->AddRectFilled(ImVec2(c.x - arm, c.y - thick * 0.5f), ImVec2(c.x + arm, c.y + thick * 0.5f), th::col::ListBevelLight, thick * 0.5f);
+                    dl->AddRectFilled(ImVec2(c.x - thick * 0.5f, c.y - arm), ImVec2(c.x + thick * 0.5f, c.y + arm), th::col::ListBevelLight, thick * 0.5f);
+                }
+            }
+            if (!slot.empty)
+                dl->AddRect(p0, p1, on ? th::col::Heading : th::col::ListBevelLight, r, 0, th::px(on ? 3.0f : 2.0f));
+            const rt::states::Status st = rt::states::status();
+            if (rt::states::busy() && st.slot == slot.index)
+            {
+                dl->AddRectFilled(p0, p1, IM_COL32(0x00, 0x0A, 0x28, 0xB0), r);
+                const std::string w = working(st.saving ? "Saving" : "Loading");
+                const ImVec2 ws = th::measure(th::Size::Hint, "Loading...");
+                th::text(dl, ImVec2((p0.x + p1.x - ws.x) * 0.5f, (p0.y + p1.y - ws.y) * 0.5f), th::Size::Hint, th::col::White,
+                         w.c_str(), th::col::Black);
+            }
+            // Where, then what and when.
+            const float tx = p1.x + th::px(28);
+            const std::string title = slot.title();
+            th::text(dl, ImVec2(tx, a.y + rowH * 0.5f - th::fontSize(th::Size::Body) - th::px(2)), th::Size::Body,
+                     slot.empty && !on ? IM_COL32(0xDC, 0xEF, 0xF8, 0xFF) : colour, title.c_str(), outline);
+            std::string detail = slot.detail();
+            if (!slot.when().empty())
+                detail += "   " + slot.when();
+            th::text(dl, ImVec2(tx, a.y + rowH * 0.5f + th::px(8)), th::Size::Hint,
+                     on ? th::col::ListSelected : IM_COL32(0xCF, 0xE8, 0xF5, 0xFF), detail.c_str(), outline);
+        }
+
+        // After a load the menu closes: a short note says which state the game went back to.
+        void drawNotice(ImDrawList *dl, ImVec2 vmax, double now)
+        {
+            const float fade = static_cast<float>(std::clamp((g_noticeUntil - now) / 0.3, 0.0, 1.0));
+            const ImVec2 ts = th::measure(th::Size::Hint, g_notice.c_str());
+            const float h = th::px(66), w = ts.x + th::px(48);
+            const ImVec2 min(vmax.x - w - th::px(32), vmax.y - h - th::px(32)), max(vmax.x - th::px(32), vmax.y - th::px(32));
+            dl->PushClipRect(ImVec2(min.x - th::px(10), min.y - th::px(10)), ImVec2(max.x + th::px(10), max.y + th::px(10)), true);
+            th::promptBox(dl, min, max);
+            th::text(dl, ImVec2(min.x + th::px(24), min.y + (h - ts.y) * 0.5f), th::Size::Hint,
+                     IM_COL32(0xE8, 0xE8, 0xE8, static_cast<int>(255 * fade)), g_notice.c_str(), th::col::OutlineBlue);
+            dl->PopClipRect();
+        }
+    }
+
     void drawPauseMenu()
     {
         ImDrawList *dl = ImGui::GetForegroundDrawList();
@@ -937,6 +1734,10 @@ namespace rt::ui
                 th::scrim(dl, vmin, vmax, static_cast<float>(1.0 - (now - g_closedAt) / 0.2));
             if (now < g_toastUntil)
                 drawToast(dl, vmax);
+            if (now < g_modernToastUntil)
+                drawModernToast(dl, vmax);
+            if (now < g_noticeUntil)
+                drawNotice(dl, vmax, now);
             return;
         }
 
@@ -956,13 +1757,14 @@ namespace rt::ui
         const std::vector<Row> rows = currentRows();
         const int n = static_cast<int>(rows.size());
         const int sel = n ? std::clamp(g_selected, 0, n - 1) : 0;
-        // A focused picture option moves the panel to the bottom and lifts the scrim, so the change
-        // can be seen.
+        // A focused picture option lifts the scrim a little, so the change can be seen. The panel
+        // itself never changes size or position as the focus moves.
         const bool preview = n && rows[sel].preview;
-        th::scrim(dl, vmin, vmax, appear * (preview ? 0.3f : 1.0f));
+        th::scrim(dl, vmin, vmax, appear * (preview ? 0.55f : 1.0f));
 
         const bool wide = g_page != Page::Root;
-        const float rowH = th::px(62);
+        const bool slotPage = g_page == Page::SaveSlots || g_page == Page::LoadSlots;
+        float rowH = th::px(slotPage ? 136 : 80);
         const float width = std::min(th::px(wide ? 880 : 520), vp->Size.x * 0.92f);
         const float pad = th::px(30);
         const float promptsH = th::px(90);
@@ -976,33 +1778,51 @@ namespace rt::ui
         for (const Row &r : rows)
             if (!r.hint.empty())
                 hintLines = std::max(hintLines, wrapHint(r.hint, hintWidth).size());
+        if (wide && !slotPage)
+            hintLines = std::max<size_t>(hintLines, 2); // at least two lines; steady within a page
         const float hintH = std::max(th::px(62), hintLineH * static_cast<float>(hintLines) + 2.0f * hintPad + th::px(6));
-        // While previewing, the panel is a strip with just the focused row and its hint.
-        const int visible = preview ? 1 : std::max(1, std::min(n, static_cast<int>(vp->Size.y * 0.62f / rowH)));
-        const float bodyH = rowH * visible;
-        bool anyHint = false;
+        bool anyHint = wide && !slotPage;
         for (const Row &r : rows)
             anyHint |= !r.hint.empty();
-        const float height = pad + bodyH + (anyHint ? th::px(10) + hintH : 0.0f) + pad * 0.6f;
+        // The panel, its name tab above and the prompts below stay at least 24 px inside the
+        // screen; rows beyond that scroll. Every wide page has the same frame (as many rows as
+        // fit), so moving between pages never resizes it.
+        const float margin = th::px(24), tabH = th::px(44);
+        const float chrome = pad + (anyHint ? th::px(10) + hintH : 0.0f) + pad * 0.6f;
+        const float avail = vp->Size.y - 2.0f * margin - tabH - promptsH - chrome;
+        // Handhelds (the UI grows with how small the screen is) still get 6-7 rows a page: the rows
+        // close up towards 1.5 lines of text rather than show fewer.
+        if (wide && !slotPage && avail / rowH < 6.0f)
+            rowH = std::max(th::fontSize(th::Size::Body) * 1.5f, avail / 7.0f);
+        const int fit = std::max(1, static_cast<int>(avail / rowH));
+        const int cap = std::min(fit, std::max(1, static_cast<int>(vp->Size.y * 0.62f / rowH)));
+        const int visible = wide && !slotPage ? cap : std::max(1, std::min(n, cap));
+        const float bodyH = rowH * visible;
+        const float height = pad + bodyH + chrome - pad;
         // Keep the cursor in view (with the heading above it when there is room).
-        if (preview)
-            g_scroll = static_cast<float>(sel);
-        else if (sel < g_scroll + 0.5f)
+        if (sel < g_scroll + 0.5f)
             g_scroll = static_cast<float>(std::max(0, sel - (sel > 0 && rows[sel - 1].heading ? 1 : 0)));
         if (sel > g_scroll + visible - 1)
             g_scroll = static_cast<float>(sel - visible + 1);
         g_scroll = std::clamp(g_scroll, 0.0f, static_cast<float>(std::max(0, n - visible)));
         const int first = static_cast<int>(g_scroll);
 
-        const float targetY = preview ? vmax.y - height - promptsH : vp->Pos.y + (vp->Size.y - height - promptsH * 0.5f) * 0.5f;
+        const float targetY = std::clamp(vp->Pos.y + (vp->Size.y - height - promptsH * 0.5f) * 0.5f, vp->Pos.y + margin + tabH,
+                                         std::max(vp->Pos.y + margin + tabH, vp->Pos.y + vp->Size.y - margin - promptsH - height));
         g_panelY = g_panelY < 0 ? targetY : g_panelY + (targetY - g_panelY) * std::min(1.0f, dt * 14.0f);
         const ImVec2 min(vp->Pos.x + (vp->Size.x - width) * 0.5f, g_panelY + (1 - appear) * th::px(40));
         const ImVec2 max(min.x + width, min.y + height);
         std::string title = "Menu";
         if (g_page == Page::Options)
             title = "Options";
+        else if (g_page == Page::SaveSlots)
+            title = "Save state";
+        else if (g_page == Page::LoadSlots)
+            title = "Load state";
         else if (g_page == Page::Controllers)
             title = "Controllers";
+        else if (g_page == Page::Driving)
+            title = "Driving controls";
         else if (g_page == Page::Device || g_page == Page::Buttons)
         {
             const auto all = rt::input::devices();
@@ -1020,7 +1840,7 @@ namespace rt::ui
         for (int i = first; i < std::min(n, first + visible); ++i)
         {
             const ImVec2 a(left, rowTop(i)), b(right, rowTop(i) + rowH);
-            if (rows[i].heading)
+            if (rows[i].heading || rt::states::busy())
                 continue;
             if (ImGui::IsMouseHoveringRect(a, b) && (ImGui::GetIO().MouseDelta.x != 0 || ImGui::GetIO().MouseDelta.y != 0))
                 g_selected = i;
@@ -1042,13 +1862,21 @@ namespace rt::ui
         g_barY = g_barY < 0 ? target : g_barY + (target - g_barY) * std::min(1.0f, dt * 18.0f);
         if (n && !rows[sel].heading)
         {
-            const ImVec2 bmin(left + th::px(56), g_barY + th::px(7)), bmax(right, g_barY + rowH - th::px(7));
-            th::selectionBar(dl, bmin, bmax);
+            // A 64 px bar in the row (taller rows only space them out).
+            const float inset = slotPage ? th::px(7) : (rowH - std::min(th::px(64), rowH - th::px(10))) * 0.5f;
+            const ImVec2 bmin(left + th::px(56), g_barY + inset), bmax(right, g_barY + rowH - inset);
+            th::selectionBar(dl, bmin, bmax, slotPage ? th::px(48) : 0.0f);
             th::horn(dl, ImVec2(bmin.x + th::px(2), (bmin.y + bmax.y) * 0.5f), th::px(28), static_cast<float>(now));
         }
+        const std::vector<rt::states::Slot> slotInfo = slotPage ? rt::states::slots() : std::vector<rt::states::Slot>{};
         for (int i = first; i < std::min(n, first + visible); ++i)
         {
             const float y0 = rowTop(i);
+            if (rows[i].slot > 0 && rows[i].slot <= static_cast<int>(slotInfo.size()))
+            {
+                drawSlotCard(dl, ImVec2(left, y0), ImVec2(right, y0 + rowH), slotInfo[static_cast<size_t>(rows[i].slot - 1)], i == sel);
+                continue;
+            }
             if (rows[i].note)
             {
                 const ImVec2 ns = th::measure(th::Size::Hint, rows[i].label.c_str());
@@ -1077,31 +1905,75 @@ namespace rt::ui
             }
             const bool on = i == sel;
             const float y = y0 + (rowH - th::fontSize(th::Size::Body)) * 0.5f;
-            const ImU32 colour = on ? th::col::ListSelected : th::col::ListText;
+            const ImU32 grey = IM_COL32(0x9C, 0xB4, 0xC4, 0xFF);
+            const ImU32 colour = rows[i].disabled ? grey : on ? th::col::ListSelected : th::col::ListText;
             const ImU32 outline = on ? th::col::OutlineBlue : th::col::Black;
             th::text(dl, ImVec2(left + th::px(84), y), th::Size::Body, colour, rows[i].label.c_str(), outline);
+            const float cy = y0 + rowH * 0.5f;
+            // A value that just changed glows gold for a moment.
+            if (rows[i].flash > 0) // a gold outline round the row, fading over 600 ms
+                dl->AddRect(ImVec2(left + th::px(56), y0 + th::px(8)), ImVec2(right, y0 + rowH - th::px(8)),
+                            IM_COL32(0xFF, 0xD2, 0x3C, static_cast<int>(255 * rows[i].flash)), th::px(12), 0, th::px(3));
+            if (rows[i].waiting)
+            {
+                // Waiting for a control: a pulsing gold "Press…" and a ring that empties as time runs out.
+                const float w01 = rows[i].waiting();
+                const bool holding = w01 < 0; // -1 - hold: the cancel hold filling the ring
+                const float left01 = holding ? std::clamp(-1.0f - w01, 0.0f, 1.0f) : std::clamp(w01, 0.0f, 1.0f);
+                const float pulse = 0.55f + 0.45f * std::sin(static_cast<float>(now) * 6.0f);
+                const ImVec2 rc(right - th::px(56), cy);
+                const float rr = th::px(14);
+                dl->AddCircle(rc, rr, IM_COL32(0x10, 0x30, 0x60, 0xFF), 0, th::px(4));
+                dl->PathArcTo(rc, rr, -1.5708f, -1.5708f + 6.2832f * left01, 32);
+                dl->PathStroke(holding ? IM_COL32(0xE8, 0x50, 0x40, 0xFF) : IM_COL32(0xFF, 0xD2, 0x4A, 0xFF), 0, th::px(4));
+                const char *press = "Press\u2026";
+                const ImVec2 ps = th::measure(th::Size::Body, press);
+                th::text(dl, ImVec2(rc.x - rr - th::px(16) - ps.x, y), th::Size::Body,
+                         IM_COL32(0xFF, 0xD2, 0x4A, static_cast<int>(255 * pulse)), press, outline);
+                continue;
+            }
+            if (rows[i].glyphs)
+            {
+                // The controls as the pad in hand shows them, right-aligned.
+                const std::vector<rt::input::ControlGlyph> gs = rows[i].glyphs();
+                float w = 0;
+                for (const auto &g : gs)
+                    w += th::control(nullptr, ImVec2(), g.family, g.kind, g.index, g.key) + th::px(8);
+                float gx = right - th::px(40) - w + th::px(8);
+                if (gs.empty())
+                    th::text(dl, ImVec2(right - th::px(40) - th::measure(th::Size::Body, "-").x, y), th::Size::Body, th::col::White, "-", outline);
+                for (const auto &g : gs)
+                    gx += th::control(dl, ImVec2(gx, cy - th::px(20)), g.family, g.kind, g.index, g.key) + th::px(8);
+                continue;
+            }
             if (rows[i].value)
             {
                 const std::string v = rows[i].value();
                 const ImVec2 size = th::measure(th::Size::Body, v.c_str());
-                const float vx = right - th::px(on && rows[i].change ? 72 : 40) - size.x;
+                const bool arrows = (on || rows[i].alwaysArrows) && rows[i].change && !rows[i].disabled;
+                const float vx = right - th::px(arrows ? 72 : rows[i].opens ? 62 : 40) - size.x;
                 // Bindings (an action's control) in white so they read apart from the action.
-                const ImU32 vc = on ? th::col::ListSelected : g_page == Page::Buttons ? th::col::White : th::col::ListText;
+                const ImU32 vc = rows[i].disabled ? grey : on ? th::col::ListSelected : g_page == Page::Buttons ? th::col::White : th::col::ListText;
                 th::text(dl, ImVec2(vx, y), th::Size::Body, vc, v.c_str(), outline);
-                if (on && rows[i].change)
+                if (arrows)
                 {
-                    const float cy = y0 + rowH * 0.5f;
                     th::arrow(dl, ImVec2(vx - th::px(20), cy), false);
                     th::arrow(dl, ImVec2(right - th::px(54), cy), true);
+                }
+                else if (rows[i].opens) // leads to a page: ›
+                {
+                    const float ax = right - th::px(44), ah = th::px(9);
+                    dl->AddLine(ImVec2(ax - ah * 0.6f, cy - ah), ImVec2(ax + ah * 0.4f, cy), vc, th::px(4));
+                    dl->AddLine(ImVec2(ax + ah * 0.4f, cy), ImVec2(ax - ah * 0.6f, cy + ah), vc, th::px(4));
                 }
             }
         }
         dl->PopClipRect();
-        // More rows above or below: small arrows at the list's edge (not on the preview strip).
-        if (first > 0 && !preview)
+        // More rows above or below: small arrows at the list's edge.
+        if (first > 0)
             dl->AddTriangleFilled(ImVec2(max.x - th::px(60), top - th::px(4)), ImVec2(max.x - th::px(48), top - th::px(16)),
                                   ImVec2(max.x - th::px(36), top - th::px(4)), th::col::Heading);
-        if (first + visible < n && !preview)
+        if (first + visible < n)
             dl->AddTriangleFilled(ImVec2(max.x - th::px(60), top + bodyH + th::px(2)), ImVec2(max.x - th::px(36), top + bodyH + th::px(2)),
                                   ImVec2(max.x - th::px(48), top + bodyH + th::px(14)), th::col::Heading);
 
@@ -1109,20 +1981,41 @@ namespace rt::ui
         const ImVec2 hmin(left, top + bodyH + th::px(16)), hmax(right, top + bodyH + th::px(16) + hintH - th::px(6));
         if (anyHint)
             th::hintBand(dl, hmin, hmax);
-        if (anyHint && n && !rows[sel].hint.empty())
+        // While saving or loading, and for a moment after a save, the band says so.
+        std::string hint = n ? rows[sel].hint : std::string();
+        if (slotPage && rt::states::busy())
+            hint = working(rt::states::status().saving ? "Saving" : "Loading");
+        else if (slotPage && now < g_doneUntil)
+            hint = g_doneText;
+        if (anyHint && !hint.empty())
         {
-            const std::vector<std::string> lines = wrapHint(rows[sel].hint, hintWidth);
+            const std::vector<std::string> lines = wrapHint(hint, hintWidth);
             // Top-aligned, so the first line stays put while moving between rows.
             float y = hintLines == 1 ? (hmin.y + hmax.y - hintLineH) * 0.5f : hmin.y + hintPad;
             for (const std::string &line : lines)
             {
-                th::text(dl, ImVec2(hmin.x + hintInset, y), th::Size::Hint, th::col::ListSelected, line.c_str(), th::col::Black);
+                th::text(dl, ImVec2(hmin.x + (slotPage ? th::px(132) : hintInset), y), th::Size::Hint,
+                         th::col::ListSelected, line.c_str(), th::col::Black);
                 y += hintLineH;
+            }
+            // A texture pack being got ready: its progress as a bar under the words, where the
+            // band has room (the band never changes size).
+            if (g_packProgress >= 0.0f && rows[sel].label == std::string("Texture pack"))
+            {
+                const float by = y + th::px(10), bh = th::px(12);
+                if (by + bh <= hmax.y - th::px(8))
+                {
+                    const ImVec2 b0(hmin.x + hintInset, by), b1(hmax.x - hintInset, by + bh);
+                    dl->AddRectFilled(b0, b1, IM_COL32(0x0B, 0x4F, 0x8A, 0xFF), bh * 0.5f);
+                    const float fx = b0.x + (b1.x - b0.x) * std::clamp(g_packProgress, 0.02f, 1.0f);
+                    dl->AddRectFilled(b0, ImVec2(fx, b1.y), IM_COL32(0xFF, 0xC8, 0x3D, 0xFF), bh * 0.5f);
+                    dl->AddRect(b0, b1, IM_COL32(0xE8, 0x60, 0x1C, 0xFF), bh * 0.5f, 0, th::px(2));
+                }
             }
         }
         drawPrompts(dl, max, min.x, n && rows[sel].change != nullptr);
 
-        if (g_shot && g_shotFrames >= 0)
+        if (g_shot && g_shotFrames >= 0 && !rt::states::busy())
             ++g_shotFrames;
     }
 

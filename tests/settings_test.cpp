@@ -71,6 +71,11 @@ namespace
         CHECK(refreshAvailability(mac, 60).ok);
         CHECK(!availability(mac, Upscaler::Fsr1).ok && !availability(mac, AntiAliasing::Fxaa).ok); // raylib presenter
         mac.postProcess = true;
+        // No generated frames (the hardware GS): only 60.
+        CHECK(!refreshAvailability(mac, 120).ok);
+        mac.frameGeneration = true; // paraLLEl-GS
+        mac.temporalInputs = true;
+        mac.motionVectors = true;
         CHECK(availability(mac, Upscaler::Fsr1).ok && availability(mac, AntiAliasing::Fxaa).ok); // Vulkan presenter
         CHECK(availability(mac, Upscaler::MetalFxSpatial).ok);
         CHECK(refreshAvailability(mac, 240).reason.find("120 Hz") != std::string::npos);
@@ -83,6 +88,20 @@ namespace
         CHECK(availability(thor, Upscaler::MetalFxSpatial).reason.find("macOS") != std::string::npos);
         CHECK(availability(thor, Upscaler::ArmNss).reason.find("Mali") != std::string::npos);
         CHECK(availability(thor, Upscaler::Dlss).reason.find("NVIDIA") != std::string::npos);
+        // The hardware GS: post-processing and motion vectors (TAA), no depth yet.
+        thor.postProcess = true;
+        CHECK(availability(thor, AntiAliasing::Fxaa).ok);
+        CHECK(availability(thor, AntiAliasing::Taa).reason.find("motion") != std::string::npos);
+        thor.motionVectors = true;
+        CHECK(availability(thor, AntiAliasing::Taa).ok);
+        CHECK(availability(thor, Upscaler::SnapdragonGsr1).ok);
+        CHECK(availability(thor, Upscaler::SnapdragonGsr2).reason.find("depth") != std::string::npos);
+        CHECK(!availability(thor, Upscaler::ArmAsr).ok);
+        thor.temporalInputs = true; // the hardware GS: motion and depth
+        CHECK(availability(thor, Upscaler::SnapdragonGsr2).ok);
+        CHECK(availability(thor, Upscaler::ArmAsr).ok);
+        CHECK(!frameGenerationWith(thor, Upscaler::ArmAsr)); // ASR stays at 60 on Android
+        CHECK(frameGenerationWith(thor, Upscaler::SnapdragonGsr2));
 
         Capabilities rtx;
         rtx.os = Os::Windows;

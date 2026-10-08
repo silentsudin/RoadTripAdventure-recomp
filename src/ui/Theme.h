@@ -67,7 +67,8 @@ namespace rt::ui::theme
     // the game's shop and factory lists; speech-style dialogs are olive and rounder.
     void dialogPanel(ImDrawList *dl, ImVec2 min, ImVec2 max, const char *nameTab = nullptr, bool list = true);
     void promptBox(ImDrawList *dl, ImVec2 min, ImVec2 max);
-    void selectionBar(ImDrawList *dl, ImVec2 min, ImVec2 max);
+    // `capHeight` > 0: the gold cap that tall, centred (tall rows), instead of the bar's height.
+    void selectionBar(ImDrawList *dl, ImVec2 min, ImVec2 max, float capHeight = 0.0f);
     void horn(ImDrawList *dl, ImVec2 tip, float height, float time);
     void pillTab(ImDrawList *dl, ImVec2 min, ImVec2 max, bool active, const char *label);
     void scrim(ImDrawList *dl, ImVec2 min, ImVec2 max, float amount = 1.0f);
@@ -80,4 +81,14 @@ namespace rt::ui::theme
     // "start", or a key name) as the connected pad shows it, followed by `label`; returns the width.
     // On the keyboard cross is Enter, triangle Esc and square R.
     float prompt(ImDrawList *dl, ImVec2 pos, const char *button, const char *label);
+    // A physical control as the pad in hand shows it: face buttons as round badges (A/B/X/Y in
+    // their colours, ✕ ○ □ △ on PlayStation), shoulders, triggers and the rest as pills, keys as
+    // keycaps. family: "keyboard" (key = its name), "ps", "xbox", "nintendo", or "text" (key = a
+    // word drawn between badges); kind 0 = a button
+    // (index: SDL gamepad button), 1 / 2 = an axis pushed + / - (index: SDL gamepad axis).
+    // Returns the width; dl == nullptr only measures.
+    float control(ImDrawList *dl, ImVec2 pos, const std::string &family, int kind, int index, const std::string &key);
+
+    // The glyph family of the first connected controller: "ps", "xbox", "nintendo", or "keyboard".
+    std::string padFamilyName();
 }

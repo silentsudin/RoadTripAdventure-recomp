@@ -21,7 +21,13 @@ namespace rt::settings
         bool armNeuralAccel = false; // Arm Mali with neural accelerators (Arm NSS)
         bool postProcess = false;    // the presenter runs post-processing passes (the Vulkan one)
         int maxSuperSampling = 16;   // samples per pixel the GS supports on this GPU (4, 8 or 16)
-        bool gpuGs = false;          // the paraLLEl-GS backend runs (texture dumps and packs need it)
+        bool gpuGs = false;          // a GPU GS runs (paraLLEl-GS or the hardware GS; texture dumps and packs need it)
+        bool secondDisplay = false;   // a second display the app can draw on (Android presentation display)
+        bool frameGeneration = false; // the GS renders generated frames (shadow frames: paraLLEl-GS and the hardware GS)
+        bool motionVectors = false;   // the GS gives per-pixel motion (TAA)
+        bool temporalInputs = false;  // ... and depth too (MetalFX temporal, temporal upscalers); both GPU GSs give both
+        bool saveStates = true;       // the GS can save and restore its state (every GS: the hardware GS redraws its render targets after a load)
+        bool hardwareGs = false;      // the hardware GS: supersampling is a render scale (floor of the square root), no anti-aliasing
     };
 
     struct Availability
@@ -37,6 +43,9 @@ namespace rt::settings
     Availability availability(const Capabilities &c, Upscaler u);
     Availability availability(const Capabilities &c, AntiAliasing a);
     Availability refreshAvailability(const Capabilities &c, int hz);
+    // Frame generation's extra frames with this upscaler (Android: Arm ASR alone takes the GPU, 31
+    // fps at 120 Hz on the Thor, so it stays at 60).
+    bool frameGenerationWith(const Capabilities &c, Upscaler u);
     Availability aspectAvailability(Aspect a);
     Availability anisotropyAvailability(int level);
     Availability texturePackAvailability();

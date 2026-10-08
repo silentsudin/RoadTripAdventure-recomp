@@ -1,4 +1,5 @@
 #include "IsoReader.h"
+#include "Sha1.h"
 
 #include <algorithm>
 #include <cctype>
@@ -6,6 +7,13 @@
 #include <fstream>
 #include <regex>
 #include <sstream>
+
+#include <libchdr/chd.h>
+
+#if defined(__ANDROID__)
+#include <SDL3/SDL_iostream.h>
+#include <unistd.h>
+#endif
 
 namespace rt
 {
@@ -45,6 +53,11 @@ namespace rt
 
     void IsoReader::close()
     {
+        if (m_chd)
+            chd_close(static_cast<chd_file *>(m_chd)); // leaves m_file open (chd_open_file)
+        m_chd = nullptr;
+        m_hunk.clear();
+        m_hunkIndex = -1;
         if (m_file)
             std::fclose(m_file);
         m_file = nullptr;
@@ -62,7 +75,24 @@ namespace rt
                 return false;
         }
 
-        m_file = std::fopen(data.string().c_str(), "rb");
+#if defined(__ANDROID__)
+        // A document picked through the storage access framework: a content:// URI, opened by the
+        // content resolver (SDL) and read through our own copy of its file descriptor.
+        if (data.string().rfind("content://", 0) == 0)
+        {
+            if (SDL_IOStream *io = SDL_IOFromFile(data.string().c_str(), "rb"))
+            {
+                auto *fp = static_cast<std::FILE *>(
+                    SDL_GetPointerProperty(SDL_GetIOProperties(io), SDL_PROP_IOSTREAM_STDIO_FILE_POINTER, nullptr));
+                const int fd = fp ? dup(fileno(fp)) : -1;
+                SDL_CloseIO(io);
+                if (fd >= 0 && !(m_file = fdopen(fd, "rb")))
+                    ::close(fd);
+            }
+        }
+        else
+#endif
+            m_file = std::fopen(data.string().c_str(), "rb");
         if (!m_file)
         {
             error = "cannot open " + data.string();
@@ -73,7 +103,43 @@ namespace rt
         static const uint8_t kSync[12] = {0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00};
         uint8_t head[16] = {};
         std::fread(head, 1, sizeof(head), m_file);
-        if (std::memcmp(head, kSync, sizeof(kSync)) == 0)
+        if (std::memcmp(head, "MComprHD", 8) == 0)
+        {
+            // A CHD: units of 2448 bytes (a CD frame: 2352 + 96 subcode) or 2048 (DVD), several per
+            // hunk. Where the 2048 user bytes sit in a unit: wherever sector 16 has the volume descriptor.
+            std::fseek(m_file, 0, SEEK_SET);
+            chd_file *chd = nullptr;
+            if (chd_open_file(m_file, CHD_OPEN_READ, nullptr, &chd) != CHDERR_NONE)
+            {
+                error = "cannot read this CHD file";
+                close();
+                return false;
+            }
+            m_chd = chd;
+            const chd_header *h = chd_get_header(chd);
+            m_unitBytes = h->unitbytes;
+            m_unitsPerHunk = h->unitbytes ? h->hunkbytes / h->unitbytes : 0;
+            m_hunk.resize(h->hunkbytes);
+            m_rawSectorSize = m_unitBytes;
+            m_dataOffset = 0;
+            std::vector<uint8_t> unit(m_unitBytes);
+            bool found = false;
+            if (m_unitsPerHunk && m_unitBytes >= kSector && readChdUnit(16, unit.data()))
+                for (uint32_t off : {0u, 16u, 24u})
+                    if (off + kSector <= m_unitBytes && std::memcmp(unit.data() + off + 1, "CD001", 5) == 0)
+                    {
+                        m_dataOffset = off;
+                        found = true;
+                        break;
+                    }
+            if (!found)
+            {
+                error = "not an ISO9660 disc inside this CHD";
+                close();
+                return false;
+            }
+        }
+        else if (std::memcmp(head, kSync, sizeof(kSync)) == 0)
         {
             m_rawSectorSize = 2352;
             uint8_t mode = 0;
@@ -102,10 +168,37 @@ namespace rt
         return true;
     }
 
+    bool IsoReader::readChdUnit(uint32_t unit, uint8_t *out)
+    {
+        const int64_t hunk = unit / m_unitsPerHunk;
+        if (hunk != m_hunkIndex)
+        {
+            if (chd_read(static_cast<chd_file *>(m_chd), static_cast<uint32_t>(hunk), m_hunk.data()) != CHDERR_NONE)
+            {
+                m_hunkIndex = -1;
+                return false;
+            }
+            m_hunkIndex = hunk;
+        }
+        std::memcpy(out, m_hunk.data() + static_cast<size_t>(unit % m_unitsPerHunk) * m_unitBytes, m_unitBytes);
+        return true;
+    }
+
     bool IsoReader::readSectors(uint32_t lba, uint32_t count, uint8_t *out)
     {
         if (!m_file)
             return false;
+        if (m_chd)
+        {
+            std::vector<uint8_t> unit(m_unitBytes);
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                if (!readChdUnit(lba + i, unit.data()))
+                    return false;
+                std::memcpy(out + static_cast<size_t>(i) * kSector, unit.data() + m_dataOffset, kSector);
+            }
+            return true;
+        }
         if (m_rawSectorSize == kSector)
         {
             if (std::fseek(m_file, static_cast<long>(lba) * kSector, SEEK_SET) != 0)
@@ -202,6 +295,65 @@ namespace rt
             remaining -= static_cast<uint32_t>(n);
             lba += sectors;
         }
+        return true;
+    }
+
+    std::string IsoReader::chdDataSha1() const
+    {
+        if (!m_chd)
+            return {};
+        const chd_header *h = chd_get_header(static_cast<chd_file *>(m_chd));
+        static const char *digits = "0123456789abcdef";
+        std::string hex;
+        for (uint8_t b : h->rawsha1)
+        {
+            hex += digits[b >> 4];
+            hex += digits[b & 15];
+        }
+        return hex;
+    }
+
+    bool IsoReader::hashImage(const std::function<void(uint64_t, uint64_t)> &progress, std::string &hex)
+    {
+        if (!m_file)
+            return false;
+        Sha1 sha;
+        if (m_chd)
+        {
+            chd_file *chd = static_cast<chd_file *>(m_chd);
+            const chd_header *h = chd_get_header(chd);
+            std::vector<uint8_t> hunk(h->hunkbytes);
+            uint64_t left = h->logicalbytes;
+            for (uint32_t i = 0; i < h->totalhunks && left > 0; ++i)
+            {
+                if (chd_read(chd, i, hunk.data()) != CHDERR_NONE)
+                    return false;
+                const size_t n = static_cast<size_t>(std::min<uint64_t>(left, h->hunkbytes));
+                sha.update(hunk.data(), n);
+                left -= n;
+                if (progress && (i & 63u) == 0u)
+                    progress(h->logicalbytes - left, h->logicalbytes);
+            }
+            m_hunkIndex = -1; // the shared buffer wasn't used, but keep the cache honest
+        }
+        else
+        {
+            std::fseek(m_file, 0, SEEK_END);
+            const uint64_t total = static_cast<uint64_t>(std::ftell(m_file));
+            std::fseek(m_file, 0, SEEK_SET);
+            std::vector<uint8_t> buf(1u << 20);
+            uint64_t done = 0;
+            for (size_t n; (n = std::fread(buf.data(), 1, buf.size(), m_file)) > 0;)
+            {
+                sha.update(buf.data(), n);
+                done += n;
+                if (progress)
+                    progress(done, total);
+            }
+            if (std::ferror(m_file) || done != total)
+                return false;
+        }
+        hex = sha.hexdigest();
         return true;
     }
 }

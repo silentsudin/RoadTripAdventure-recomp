@@ -13,7 +13,7 @@ player_name   = { offset = 0x62C, type = "str", length = 19, confidence = "confi
 currency_name = { offset = 0x63F, type = "str", length = 21, confidence = "confirmed" }  # "Enter currency unit"
 money         = { offset = 0x654, type = "u32", confidence = "confirmed" }               # 1000 at the start
 scene         = { offset = 0x538, type = "u32", confidence = "likely" }                  # low word of a 128-bit state/story flag set (WGP stage flags live higher up): 6 = Q's Factory menu, 2 = driving in town, 10 = racing, 3 = race over
-town_entered  = { offset = 0x528, type = "u32", confidence = "guess" }                   # 0 -> 1 on first drive around town
+town_entered  = { offset = 0x528, type = "u32", confidence = "guess" }                   # part of a story-flag word (town 1 sets bit 0, town 3 bit 22), not a counter
 parts         = { offset = 0x00D, type = "bytes", length = 6, confidence = "likely" }    # equipped part per category; 0x0E = engine (confirmed: index into the engine table)
 licence       = { offset = 0x651, type = "u8", confidence = "confirmed" }                # 0 none, 1 B, 2 A, 3 Super A (race menu compares it with each race's rank)
 mileage_m     = { offset = 0x658, type = "u32", confidence = "confirmed" }               # metres; the save summary shows /1609 as miles
@@ -21,6 +21,15 @@ race_results  = { offset = 0xFF0, type = "bytes", length = 35, confidence = "con
 location      = { offset = 0x12DC, type = "u8", confidence = "confirmed" }               # town of the save point: 1 Peach Town .. 9 My City (loads into that town's Q's Factory)
 ski_jump_best = { offset = 0x12C8, type = "u32", confidence = "confirmed" }             # White Mountain Ski Jumping record, metres (0 until the first jump; stock car ~101, Panther engine ~106)
 unvisited_doors = { offset = 0xBD8, type = "bytes", length = 40, confidence = "confirmed" } # per location a u32: bit n set = door n not visited yet
+coins_missing   = { offset = 0x548, type = "bytes", length = 16, confidence = "confirmed" }  # bit n-1 set = Choro Q coin n not found; found = 100 - popcount (status screen 0x2165B0)
+towns_unvisited = { offset = 0x12DA, type = "u16", confidence = "confirmed" }  # bit n set = town n never reached (0x3FF at the start)
+mail_count      = { offset = 0x628, type = "u32", confidence = "confirmed" }   # mails received (max 128; 0x23DF38)
+mail_inbox      = { offset = 0x5A8, type = "bytes", length = 128, confidence = "confirmed" }  # per slot: mail id | 0x80 once read
+photos_taken    = { offset = 0x508, type = "bytes", length = 16, confidence = "confirmed" }  # bit n-1 = photo n (Quick-Pic Shop No.n) taken (0x23C5C0 sets, 0x23D8E8 tests)
+last_photo      = { offset = 0x12E2, type = "u16", confidence = "confirmed" }  # index (n-1) of the last photo taken
+radio_station   = { offset = 0x12DD, type = "u8", confidence = "confirmed" }   # 0 off, 1 PEACH FM (SOUND/1CH), 2 E-RADIO (SOUND/3CH)
+best_lap        = { offset = 0x1040, type = "bytes", length = 312, confidence = "likely" }  # u32 frames per race-table index, 0x7FFFFFFF = none
+best_total      = { offset = 0x1178, type = "bytes", length = 312, confidence = "likely" }  # same layout, whole race
 
 # Races (Quick Race and Adventure). 24 car structures; the race code keeps them at fixed addresses.
 [race]
@@ -132,6 +141,8 @@ body_offset = 0x5A8
 earned_offset = 0x518
 queue_offset = 0x3300
 award_function = 0x23C8A8
+icon_file = "SYS/STAMP.GSL"   # stamp n: a 64x64 PSMT4 upload at 0x94F0 + 0x960*(n-1) and its 16x2 CT32 palette at 0x9D60 + 0x960*(n-1) (data at +0x60; bank 0 = row 0 [0..7] + row 1 [0..7]); drawn by 0x265128
+captions_address = 0x32E240  # "mail %d/%d" (EE RAM = ELF vaddr), then the 100 captions, stamp 100 first, '#' = line break
 
 [dialogue]
 # The message window: open flag (u8), the script cursor (u32, a pointer into the ELF's text),
@@ -163,13 +174,126 @@ spawn_table = 0x2C2E78
 # location's stamp (a byte per location at stamp_table) is awarded (0x23D878).
 unvisited_doors = 0xBD8
 stamp_table = 0x2A2B20
+# New-game unvisited_doors masks (0x2277B0): a door is a house to visit iff its bit starts set.
+initial_unvisited = [0, 0x3DFFF, 0x7FBFF, 0x1FFFFF, 0xFBF, 0xF, 0xFFFFF, 0x3FFFF, 0x17F, 0x7FFFDF]
 # Who is behind each door: a pointer per location to 16-byte entries (the fourth word points at
 # the resident's name), one per door, then one per driver about town (count in byte 7 of the
 # location's entry in the 8-byte table at 0x2BE438). A resident out driving turns you away.
 residents = 0x2C22C8
 
 [clock]
-# Time of day: a u32 counting vblanks since midnight (151.5 per game minute; a game day is about
-# 60 real minutes). The night sky starts in the evening; shops stay open.
+# Time of day: a u32 counting vblanks since midnight, 150 per game minute (the radio panel's clock
+# shows exactly clock / 150; a day is 216000 vblanks, an hour of real time, the radio's loop too).
+# The night sky starts in the evening; shops stay open.
 time_address = 0x335914
-vblanks_per_minute = 151.5
+vblanks_per_minute = 150
+
+[map]
+# Every course-map and town-minimap draw has TEST_2 = 0x3380B (CTXT=1, PATH1, untextured strips; template
+# A+D at ELF 0x2A43B0 with ALPHA_2 0x8000000044), nothing else uses it. Town bezel: three PATH2 sprites
+# TBP 7828, PSMT4, CBP 7892, CSA 10 at 30..174 x 152..212. Race maps' size depends on the course.
+gs_test = 0x3380B
+draw_functions = { town = 0x242438, race = 0x2427D0, scissored = 0x242A88 }
+town_scissor = [45, 156, 158, 207]
+# Town minimap: north-up, never rotates, centred on the car at (102, 183) in field pixels. A world
+# point (x, z), car (px, pz), s = zoom scale: fx = 102 + (x - px) * s / 200, fy = 183 - (z - pz) * 0.47 * s / 200
+# (before widescreen narrows the HUD). Verified against the game's Quick-Pic icons (<= 1.5 px).
+zoom_table = 0x2A42C0      # {X0, Y0, s, 0}: mode 0 = (302, 89, 50) near, mode 1 = (202, 136, 25) far
+mode_address = 0x177A215   # u8 0/1, Select toggles it
+coin_table = 0x2A3970      # 100 x {x, y, z, FLD tile code}
+
+[photos]
+# Photo booths are Quick-Pic Shops: doors whose resident is "Quick-Pic Shop No.n" (script op 0x11 n,
+# 0x23C5C0, free). 100 photos: 77 in towns, 23 in the field areas; album full -> stamp 96.
+count = 100
+take_function = 0x23C5C0
+
+[locations]
+table = 0x2BE438  # 8 bytes per location: name ptr, u16 FLD tile code, u8 doors, u8 drivers (10..21 are field areas)
+
+[game]
+# Globals (likely unless noted).
+location_address = 0x335923  # u8 current town (not the save point); stale after quitting Adventure
+race_address = 0x335910      # u32 -> race record {course, cars, laps, licence, ...}; stays set after the race
+race_tables = { adventure = 0x2BDDD0, quick_race = 0x2BE158, two_player = 0x2BE1D8 }
+course_names = 0x2BE398      # u32[] name pointers by course byte
+scene3d_active = 0x3356C4    # 2 while the town/race 3D scene runs (pause menu too), else 1 (confirmed)
+scene3d_handler = 0x3356D8   # 0x21CE48 race, 0x21CF80 town (confirmed)
+ui_context = 0x3356CC        # 0x29AFA0 at the title/main menu: the progress block is stale there
+game_mode = 0x33590A          # u8: 0 Adventure, 1 Quick Race, 2/3/6 2 Player, 8 attract demo (set only by the demo task
+                              # 0x20A150; stays 8 at the title after a demo until a mode is picked)
+drive_flags = 0x335928       # bits: 0x04 can drive, 0x20 racing, 0x08 finished; 0x10000 hides the HUD
+
+[race.live]
+# Valid only during a race (the work area is reused by towns). Times are frames (60 per second).
+total_time = 0x15AFC1C       # HUD TOTAL TIME (confirmed)
+countdown = 0x15AFB8C        # 2..5 lights, 6 GO, 0 after (confirmed)
+lap_times = 0x15B0044        # lap j at + 0x18*j; shown flag at 0x15B0034 + 0x18*j
+# Per car (cars_address + k * car_stride): +0x10B u8 laps completed, +0x1B7 u8 place - 1 (all cars),
+# +0x1D0 u32 current lap frames, +0x174 u32 distance, +0x148 |speed| (mph = v * 0.004096, fitted).
+
+[music]
+# Town radio (Pause > Radio): a station plays its hour-long VAG pair at the time of day (play_time/60 s).
+radio_streams = ["SOUND/1CH", "SOUND/3CH", "SOUND/2CH"]  # IOP play_tune; 2CH is never selected
+iop_radio = 0x542C4          # SNDMOD SDDRradio (IOP, module at 0x49300): +8 flag_play (2 = playing), +0x18 play_time, +0x1C play_tune
+iop_bgmbuf = 0x97CAC         # slot << 8 | song of the last PlayBGM (stale when stopped)
+iop_tsq_slots = 0x5416C      # 4 x 68 bytes {load, bank, lsn, size, name[52]}
+iop_muwork = 0x54788         # 48 x 28 bytes; byte 0 = active voice
+file_table = 0x29ADF0        # 12-byte {name, lsn, sectors}
+play_bgm = 0x258EC8          # a0 = 0x0A ff ss nn (file, slot, song)
+race_bgm_table = 0x29F5B0    # 18 codes by course id
+
+[options]
+# Title > Options (Vibration / Speaker / Sound Volume / Exit): never saved; game defaults at every boot.
+vibration = 0x33590E          # u8: 4 On, 0 Off, 2 "ANALOG mode button" (default); rumble gate sys[0xC+port] & this (0x20ACB8)
+volume_index = 0x333290       # u32 0..5: 0 = "5(MAX)" (default) .. 5 = "0(mute)"; applied by 0x2583F0 (SPU2 core 1 MVOL)
+speaker_set = 0x257B00        # a0: 0 Stereo (default), 1 Mono (SNDMOD RPC 8); IOP u8 0x97CB0 = the mono flag
+options_task = 0x2092D8       # started only by the title main menu 0x209CB0
+sub_tasks = { vibration = 0x208C98, speaker = 0x208F50, volume = 0x2090C0 }
+# The town's Start menu (Pause: Warp / Notebook / Radio / Items / Settings / Map). The race's pause
+# menu (Continue / Retire) is another task (0x26BC08) and has no Settings.
+pause_task = 0x217148         # spawned by the town task at 0x211144; one page handler per frame
+pause_pages = 0x2EAD60        # jump table, 12 pages: 0 the list 0x214AD0, 5 Settings 0x216738, ...
+pause_state = 0x1727B90       # a2 of the handlers: +0 page shown, +4 page asked for, +8 frames on the page, +0xC leave
+settings_page = 0x216738      # Settings = the game's button setup (0x214470; returns 0x18F on Exit, then +4 = 0)
+
+[tasks]
+pool = 0x177A0D0              # 0x30 tasks x 0x30 bytes: +0 active, +4 result to parent, +8 frames run, +0xC fn(task, sys),
+                              # +0x10 first child, +0x14 sibling, +0x18 parent, +0x24 child-returned pulse, +0x28 widget
+walker = 0x204F98             # main loop 0x200534: walker(pool, 0x335900)
+spawn = 0x204C48              # (parent, fn, arg) -> task
+kill = 0x204DE8               # (task)
+
+[controls]
+# The game's driving button setup (progress block 0x177F760 + port * 0x3448), u16 masks in the
+# game's word order (the DS2 data bytes swapped from SCE's: Cross 0x0040, Square 0x0080, Circle
+# 0x0020, Triangle 0x0010, R1 0x0008, L1 0x0004, R2 0x0002, L2 0x0001, Select 0x0100, Up 0x1000, Down 0x4000).
+action_map = 0x1780A48       # +0 gas, +2 brake, +4 reverse, +6 jet, +8 wing up, +A wing down, +C horn, +E view, +10 lights (= horn), +12 navigator
+allowed_buttons = 0x29C538   # 11 x 20 bytes {u32 mask, x, y, ..}: the buttons the setup offers
+held = 0x33592C              # u16 + port*2, game word order; pressed edges at 0x335930
+player_control = 0x21A820    # (task, sys, car) -> v0 control word: 1 gas, 2 brake, 4 reverse (5 with the reverse button), 8 jet, 0x10 lights, 0x20/0x40 wing, 0x2000/0x8000 steer
+car_object = 0x177AC50       # + k * 0x270 (= cars_address - 0x90): +0x198 port bit, +0x1D0 u16 rpm 0..~9000, +0x1D8 u32 |speed|,
+                             # +0x1FE brake ramp 0..32, +0x1FF gear 1..5; ground below.
+# Ground contact (0x21B3D0): seven points from the table at 0x29CA80 (car space): +0x19C front body point (0, 0.68),
+# +0x1A0/+0x1A4 rear body points (-/+0.74, -0.66), +0x1A8..+0x1B4 the wheels (-/+0.9, +/-1.5; x < 0 = left). Each
+# word is the ground polygon's attribute under that point (gp-0x53E0 lookup), -1 off the ground mesh (a point
+# pushed into a wall), never -1 in the air. Bits 8-10 = material (the tyre-dust/splash choice in 0x217C68 follows
+# them): 0 asphalt (Peach 0x2000, Night Glow 0x0), 1 dirt/sand/rock floor (Temple 0x111, Lagoon sand 0x2111,
+# Lagoon tunnel 0x11111, Night Glow turf 0x100111; the game raises dust), 3 grass (Peach 0x2353, Night Glow
+# 0x100311), 4 snow (Snow Mountain 0x3444, 0x103444), 5 hard and smooth (Temple bridge boards 0x500, Night Glow
+# brick 0x500 and glass-tunnel panels 0x13500, Lagoon wet sand 0x2511; Snow Mountain's frozen lake 0x12554 with
+# grip class 4 = ice), 6 water (Lagoon sea 0x102651; wading anywhere forces 0x100651 and sets +0x213 = 1);
+# 2 and 7 not seen. Bits 4-6 pick the tyre sound (table 0x29CBA8: 6, 8, 10, 12, then none); the low nibble is
+# the grip class (index into the car's halfwords at +0x21C). Seen on Peach, Temple, Night Glow, Snow Mountain, Lagoon.
+# Air (0x21AF28): +0x1C0/+0x1C4/+0x1C8 s32, how fast the three body points are falling: 0 on the ground, + the
+# course's gravity (~97) each frame off it. All three > 0 = airborne (5-117 frames seen: Temple's and Snow
+# Mountain's jumps, crests at speed). At touchdown, if the fall is >= 0xB3 the game rumbles pattern 1 at
+# strength fall / 16 (11..50 bumps, up to ~500 after a jump), then zeroes it.
+car_update = 0x21A310        # brake force = curve[+0x200][ramp - 1] * 10000 >> 5; gearbox via the pointer at 0x3356D8 (0x21CE48)
+rumble_start = 0x20ACB8      # (sys, port, pattern, strength); gate sys[0xC + port] & 0x33590E; scripts 0x29AD60 -> 0x2EA3D0 (8 bytes each)
+# Seen while driving: pattern 1 from 0x21B360 (a body point landing, strength = its fall / 16); 3/4/5 from 0x219C6C/0x219C8C
+# (strength 255, every 2-3 frames while the car scrapes a wall or obstacle: 0x219CB0 tests the course's collision points
+# against the car's quadrants, bits 1 front-left, 2 front-right, 4 rear-left, 8 rear-right; table 0x2EAE60: 1/4/5 (left
+# side) -> 4, 2/8/10 (right side) -> 3, 3/6/7/9 (front, diagonals) -> 5, rear-only 12 and 11/13/14 silent; seen at
+# Peach Raceway's first bend: its left wall 4, then the guardrail on the right 3); 6 from 0x21793C (collisions,
+# strength 125 into a car).

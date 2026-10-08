@@ -8,7 +8,7 @@
 
 namespace rt::dialogs
 {
-    // Prompts for a disc image (.cue/.bin/.iso). Empty if cancelled or unsupported.
+    // Prompts for a disc image (.cue/.bin/.iso/.chd). Empty if cancelled or unsupported.
     std::optional<std::filesystem::path> pickRomImage();
 
     // Shows a modal message. Returns true if the user pressed the primary button.

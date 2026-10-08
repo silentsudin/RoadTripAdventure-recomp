@@ -105,7 +105,8 @@ class Game:
                  card2: Path | None = None,
                  speed: str = "max", fake_clock: int = 1_000_000_000, app: Path = DEFAULT_APP,
                  state_hash: bool = False, env: dict | None = None,
-                 progress_edits: dict[int, bytes] | None = None, render: bool = False):
+                 progress_edits: dict[int, bytes] | None = None, render: bool = False,
+                 settings: str | None = None):
         self.base_data = Path(base_data)
         self.work_dir = Path(work_dir)
         self.checkpoint = checkpoint
@@ -118,6 +119,8 @@ class Game:
         # offset -> bytes patched into the Adventure save on memory card 1 before boot
         # (config/game_state.toml), e.g. to start in another town or with a licence.
         self.progress_edits = progress_edits or {}
+        # settings.toml for the app's own options (e.g. '[display]\naspect = "16:9"'); default: none.
+        self.settings = settings
         # Rendering (VU1 + drawing) only when a picture is taken; see frame(). RT_TEST_RENDER_ALWAYS=1
         # draws every frame (e.g. with RT_TEXTURE_DUMP, to dump every texture the suite shows).
         self.rendering = render or RENDER_ALWAYS
@@ -149,6 +152,8 @@ class Game:
             shutil.copytree(self.checkpoint, self.saves_dir / "mc0")
         else:
             (self.saves_dir / "mc0").mkdir()
+        if self.settings is not None:
+            (self.data_dir / "settings.toml").write_text(self.settings + "\n")
         if self.progress_edits:
             save = self.saves_dir / "mc0/BASLUS-20398/BASLUS-20398"
             data = bytearray(save.read_bytes())
@@ -170,6 +175,9 @@ class Game:
             # The original interlaced fields at 4x: goldens and state hashes record the game as is.
             "RT_PROGRESSIVE_FIELDS": "0",
             "RT_GS_SSAA": "4",
+            # The game's own Title > Options screens (test_menus checks them); the app's
+            # replacement is tested with this off (test_options_replaced).
+            "RT_GAME_OPTIONS": "1",
         })
         if self.state_hash:
             env["RT_STATE_HASH"] = str(self.work_dir / "state_hash.txt")
@@ -358,6 +366,15 @@ class Game:
         path = self.work_dir / "frame.rgba"
         reply = self._call("frame", path=str(path))
         return Frame(reply["width"], reply["height"], path.read_bytes())
+
+    def log_text(self) -> str:
+        """What the app has logged so far (stdout and stderr)."""
+        self.log.flush()
+        return (self.work_dir / "app.log").read_text(errors="replace")
+
+    def wide(self) -> dict:
+        """Widescreen verdicts: frame_2d (the frame on display is shown 4:3), driving, k."""
+        return self._call("wide")
 
     def stats(self) -> dict:
         return self._call("stats")

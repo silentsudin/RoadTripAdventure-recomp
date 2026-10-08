@@ -36,3 +36,11 @@ ps2_log.txt
 # Claude Code local state
 .claude/settings.local.json
 .claude/worktrees/
+# Android project (Gradle state, local SDK path)
+/platform/android/local.properties
+/platform/android/.gradle/
+/platform/android/build/
+/platform/android/app/build/
+
+# Save states (derived from the game)
+*.rtstate

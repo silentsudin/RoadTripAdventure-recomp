@@ -639,6 +639,11 @@
     "sha256": "dae21b2ed6ea42b8c7fce5dcacc9621efdcea0dcb34d5c32e49123466cf5e1c0",
     "width": 1280
   },
+  "options_replaced": {
+    "height": 447,
+    "sha256": "b0d6e6ed522aa4b742ee1880615070ff2c66b48072509a205a214a6c70f4bb7d",
+    "width": 1280
+  },
   "options_sound_volume": {
     "height": 447,
     "sha256": "d33870f86ab8b893c0b62686527396e62211c3cb0dcdb68668cee7477457039c",

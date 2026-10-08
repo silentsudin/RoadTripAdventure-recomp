@@ -1,8 +1,11 @@
 #include "Theme.h"
 
+#include "platform/Host.h"
 #include "platform/Input.h"
 #include "platform/Paths.h"
 #include "raylib.h"
+
+#include <SDL3/SDL_video.h>
 
 #include <algorithm>
 #include <cmath>
@@ -42,25 +45,48 @@ namespace rt::ui::theme
             }
         }
 
-        // Which glyph family the player is holding: PlayStation shapes unless a non-PlayStation pad
-        // is the first connected controller (then its face letters).
+        // Which glyph family the player is holding, from the first connected controller: PlayStation
+        // shapes for PlayStation pads, Nintendo letters for Nintendo ones, and Xbox letters for the
+        // rest: Xbox pads, and the "standard" pads SDL can't name (handhelds such as the AYN Thor and
+        // Odin, most Bluetooth and Android pads), which are labelled A/B/X/Y the Xbox way.
         std::string padFamily()
         {
             for (const rt::input::DeviceStatus &d : rt::input::devices())
             {
                 if (d.type == "keyboard")
                     continue;
-                if (d.type.rfind("xbox", 0) == 0)
-                    return "xbox";
+                if (d.type.rfind("ps", 0) == 0)
+                    return "ps";
                 if (d.type == "switchpro" || d.type == "joycon")
                     return "nintendo";
-                return "ps";
+                return "xbox";
             }
             return "keyboard";
         }
     }
 
-    float scale() { return std::max(0.5f, ImGui::GetIO().DisplaySize.y / 1080.0f); }
+    // Handheld screens: the same pixels are physically much smaller than on a desk monitor, so the
+    // UI grows with how small the screen is (Android reports its density; desktops stay at 1).
+    float handheldBoost()
+    {
+        static const float boost = [] {
+#if defined(__ANDROID__)
+            SDL_Window *w = rt::host::window();
+            const SDL_DisplayID display = w ? SDL_GetDisplayForWindow(w) : SDL_GetPrimaryDisplay();
+            const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode(display);
+            const float dpi = SDL_GetDisplayContentScale(display) * 160.0f; // Android density
+            if (mode && dpi > 0.0f)
+            {
+                const float heightInches = float(std::min(mode->w, mode->h)) / dpi;
+                return std::clamp(4.5f / heightInches, 1.0f, 1.7f);
+            }
+#endif
+            return 1.0f;
+        }();
+        return boost;
+    }
+
+    float scale() { return std::max(0.5f, ImGui::GetIO().DisplaySize.y / 1080.0f * handheldBoost()); }
     float px(float at1080p) { return at1080p * scale(); }
     ImFont *font() { return g_font ? g_font : ImGui::GetFont(); }
 
@@ -80,7 +106,9 @@ namespace rt::ui::theme
         ImGuiIO &io = ImGui::GetIO();
         const auto path = rt::paths::bundleResources() / "fonts" / "Fredoka-SemiBold.ttf";
         std::error_code ec;
-        if (std::filesystem::exists(path, ec))
+        if (g_font)
+            ; // already (the setup screen ran first)
+        else if (std::filesystem::exists(path, ec))
             g_font = io.Fonts->AddFontFromFileTTF(path.string().c_str(), 30.0f);
         else
             std::fprintf(stderr, "[ui] font missing: %s\n", path.string().c_str());
@@ -181,7 +209,7 @@ namespace rt::ui::theme
         frame(dl, min, max, r, colours, widths, 2);
     }
 
-    void selectionBar(ImDrawList *dl, ImVec2 min, ImVec2 max)
+    void selectionBar(ImDrawList *dl, ImVec2 min, ImVec2 max, float capHeight)
     {
         // As the game's: a thin orange edge, a two-tone blue body (lighter top half) and a gold
         // capsule on the right end.
@@ -190,9 +218,12 @@ namespace rt::ui::theme
         const float in = px(3), mid = (min.y + max.y) * 0.5f;
         dl->AddRectFilled(ImVec2(min.x + in, min.y + in), ImVec2(max.x - in, mid), col::BarTop, px(6), ImDrawFlags_RoundCornersTop);
         dl->AddRectFilled(ImVec2(min.x + in, mid), ImVec2(max.x - in, max.y - in), col::BarBottom, px(6), ImDrawFlags_RoundCornersBottom);
-        dl->AddRectFilled(ImVec2(max.x - h * 0.55f, min.y), max, col::BarCapGold, h * 0.5f);
-        dl->AddRectFilled(ImVec2(max.x - h * 0.45f, min.y + px(5)), ImVec2(max.x - px(6), min.y + h * 0.38f), col::BarCapShine,
-                          h * 0.2f);
+        // The cap: as tall as the bar, or `capHeight` (tall rows keep the usual cap, centred).
+        const float c = capHeight > 0 && capHeight < h ? capHeight : h;
+        const float cy = capHeight > 0 && capHeight < h ? mid - c * 0.5f : min.y;
+        const float cx = capHeight > 0 && capHeight < h ? max.x - px(10) : max.x;
+        dl->AddRectFilled(ImVec2(cx - c * 0.55f, cy), ImVec2(cx, cy + c), col::BarCapGold, c * 0.5f);
+        dl->AddRectFilled(ImVec2(cx - c * 0.45f, cy + px(5)), ImVec2(cx - px(6), cy + c * 0.38f), col::BarCapShine, c * 0.2f);
     }
 
     void horn(ImDrawList *dl, ImVec2 tip, float height, float time)
@@ -252,6 +283,8 @@ namespace rt::ui::theme
         dl->AddRectFilled(ImVec2(min.x + px(6), min.y), ImVec2(max.x - px(6), min.y + px(3)), col::ListBevelDark);
     }
 
+    std::string padFamilyName() { return padFamily(); }
+
     float prompt(ImDrawList *dl, ImVec2 pos, const char *button, const char *label)
     {
         const std::string fam = padFamily();
@@ -287,16 +320,15 @@ namespace rt::ui::theme
             key(fam == "xbox" ? (b == "l1" ? "LB" : "RB") : fam == "nintendo" ? (b == "l1" ? "L" : "R") : (b == "l1" ? "L1" : "R1"));
         else if (fam == "xbox" || fam == "nintendo")
         {
-            // Positional: cross = bottom, circle = right, square = left, triangle = top.
+            // The game's buttons in the pad's own layout (input Mapping.h familyProfile): ✕ (confirm)
+            // is A and △ (back) is B on both; ○ is Y on Xbox, X on Nintendo; □ the other.
             const bool xbox = fam == "xbox";
-            if (b == "cross")
-                badge(IM_COL32(0x3C, 0xA0, 0x3C, 0xFF), xbox ? "A" : "B");
-            else if (b == "circle")
-                badge(IM_COL32(0xC8, 0x3C, 0x3C, 0xFF), xbox ? "B" : "A");
-            else if (b == "square")
-                badge(IM_COL32(0x3C, 0x64, 0xC8, 0xFF), xbox ? "X" : "Y");
-            else
-                badge(IM_COL32(0xC8, 0xA0, 0x28, 0xFF), xbox ? "Y" : "X");
+            const char *letter = b == "cross" ? "A" : b == "triangle" ? "B" : b == "circle" ? (xbox ? "Y" : "X") : (xbox ? "X" : "Y");
+            const ImU32 colour = letter[0] == 'A'   ? IM_COL32(0x3C, 0xA0, 0x3C, 0xFF)
+                                 : letter[0] == 'B' ? IM_COL32(0xC8, 0x3C, 0x3C, 0xFF)
+                                 : letter[0] == 'X' ? IM_COL32(0x3C, 0x64, 0xC8, 0xFF)
+                                                    : IM_COL32(0xC8, 0xA0, 0x28, 0xFF);
+            badge(colour, letter);
         }
         else
         {
@@ -321,5 +353,113 @@ namespace rt::ui::theme
         const ImVec2 ls = measure(Size::Hint, label);
         text(dl, ImVec2(pos.x + used + px(10), pos.y + (d - ls.y) * 0.5f), Size::Hint, col::Silver, label, col::OutlineBlue);
         return used + px(10) + ls.x;
+    }
+
+    float control(ImDrawList *dl, ImVec2 pos, const std::string &family, int kind, int index, const std::string &key)
+    {
+        const float d = px(40), fs = px(22);
+        const ImVec2 c(pos.x + d * 0.5f, pos.y + d * 0.5f);
+        auto textSize = [&](const char *t) { return font()->CalcTextSizeA(fs, FLT_MAX, 0.0f, t); };
+        auto keycap = [&](const char *name) {
+            const ImVec2 ls = textSize(name);
+            const ImVec2 kmax(pos.x + ls.x + px(28), pos.y + d);
+            if (dl)
+            {
+                dl->AddRectFilled(pos, kmax, IM_COL32(0xA8, 0xA8, 0xA8, 0xFF), px(8));
+                dl->AddRectFilled(pos, ImVec2(kmax.x, kmax.y - px(3)), IM_COL32(0xF4, 0xF4, 0xF4, 0xFF), px(8));
+                dl->AddRect(pos, kmax, col::Outline, px(8), 0, px(2));
+                dl->AddText(font(), fs, ImVec2(pos.x + px(14), pos.y + (d - ls.y) * 0.5f), col::Outline, name);
+            }
+            return kmax.x - pos.x;
+        };
+        // Shoulders, triggers, sticks and the middle buttons: a dark pill with the pad's name.
+        auto pill = [&](const char *name) {
+            const ImVec2 ls = textSize(name);
+            const ImVec2 pmax(pos.x + ls.x + px(30), pos.y + d);
+            if (dl)
+            {
+                dl->AddRectFilled(pos, pmax, IM_COL32(0x20, 0x20, 0x28, 0xFF), d * 0.5f);
+                dl->AddRect(pos, pmax, col::Outline, d * 0.5f, 0, px(2));
+                dl->AddText(font(), fs, ImVec2(pos.x + px(15), pos.y + (d - ls.y) * 0.5f), col::Silver, name);
+            }
+            return pmax.x - pos.x;
+        };
+        auto letter = [&](const char *l) {
+            if (dl)
+            {
+                const ImU32 colour = l[0] == 'A'   ? IM_COL32(0x3C, 0xA0, 0x3C, 0xFF)
+                                     : l[0] == 'B' ? IM_COL32(0xC8, 0x3C, 0x3C, 0xFF)
+                                     : l[0] == 'X' ? IM_COL32(0x3C, 0x64, 0xC8, 0xFF)
+                                                   : IM_COL32(0xC8, 0xA0, 0x28, 0xFF);
+                dl->AddCircleFilled(c, d * 0.5f, colour);
+                dl->AddCircle(c, d * 0.5f, col::Outline, 0, px(2));
+                const ImVec2 ls = textSize(l);
+                dl->AddText(font(), fs, ImVec2(c.x - ls.x * 0.5f, c.y - ls.y * 0.5f), col::Silver, l);
+            }
+            return d;
+        };
+        auto shape = [&](int face) { // PlayStation: 0 ✕, 1 ○, 2 □, 3 △
+            if (dl)
+            {
+                dl->AddCircleFilled(c, d * 0.5f, IM_COL32(0x20, 0x20, 0x28, 0xFF));
+                const float sz = d * 0.22f, t = px(2.5f);
+                if (face == 0)
+                {
+                    dl->AddLine(ImVec2(c.x - sz, c.y - sz), ImVec2(c.x + sz, c.y + sz), IM_COL32(0x8F, 0xB4, 0xF0, 0xFF), t);
+                    dl->AddLine(ImVec2(c.x - sz, c.y + sz), ImVec2(c.x + sz, c.y - sz), IM_COL32(0x8F, 0xB4, 0xF0, 0xFF), t);
+                }
+                else if (face == 1)
+                    dl->AddCircle(c, sz * 1.1f, IM_COL32(0xF0, 0x7A, 0x7A, 0xFF), 0, t);
+                else if (face == 2)
+                    dl->AddRect(ImVec2(c.x - sz, c.y - sz), ImVec2(c.x + sz, c.y + sz), IM_COL32(0xE6, 0x8F, 0xD6, 0xFF), 0, 0, t);
+                else
+                    dl->AddTriangle(ImVec2(c.x, c.y - sz * 1.1f), ImVec2(c.x + sz * 1.1f, c.y + sz * 0.8f),
+                                    ImVec2(c.x - sz * 1.1f, c.y + sz * 0.8f), IM_COL32(0x5E, 0xD8, 0xB8, 0xFF), t);
+            }
+            return d;
+        };
+        if (family == "text") // a word between badges
+        {
+            const ImVec2 ls = measure(Size::Hint, key.c_str());
+            if (dl)
+                text(dl, ImVec2(pos.x + px(2), pos.y + (d - ls.y) * 0.5f), Size::Hint, col::White, key.c_str(), col::Black);
+            return ls.x + px(4);
+        }
+        if (family == "keyboard")
+            return keycap(key.c_str());
+        const bool xbox = family == "xbox", nin = family == "nintendo";
+        if (kind != 0)
+        {
+            static const char *axes[] = {"Left stick", "Left stick", "Right stick", "Right stick"};
+            if (index == 4)
+                return pill(xbox ? "LT" : nin ? "ZL" : "L2");
+            if (index == 5)
+                return pill(xbox ? "RT" : nin ? "ZR" : "R2");
+            return pill(index >= 0 && index < 4 ? axes[index] : "Axis");
+        }
+        if (index <= 3) // south, east, west, north
+        {
+            if (xbox)
+                return letter(index == 0 ? "A" : index == 1 ? "B" : index == 2 ? "X" : "Y");
+            if (nin)
+                return letter(index == 0 ? "B" : index == 1 ? "A" : index == 2 ? "Y" : "X");
+            return shape(index == 0 ? 0 : index == 1 ? 1 : index == 2 ? 2 : 3);
+        }
+        switch (index)
+        {
+        case 4: return pill(xbox ? "View" : nin ? "-" : "Create");
+        case 5: return pill(xbox ? "Xbox" : nin ? "Home" : "PS");
+        case 6: return pill(xbox ? "Menu" : nin ? "+" : "Options");
+        case 7: return pill(xbox || nin ? "LS" : "L3");
+        case 8: return pill(xbox || nin ? "RS" : "R3");
+        case 9: return pill(xbox ? "LB" : nin ? "L" : "L1");
+        case 10: return pill(xbox ? "RB" : nin ? "R" : "R1");
+        case 11: return pill("D-pad up");
+        case 12: return pill("D-pad down");
+        case 13: return pill("D-pad left");
+        case 14: return pill("D-pad right");
+        case 20: return pill("Touchpad");
+        default: return pill("Extra");
+        }
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <string>
 
 namespace rt::paths
 {
@@ -18,4 +19,11 @@ namespace rt::paths
     std::filesystem::path bundleResources();
     // Tab-separated "path<TAB>lbn<TAB>size" for every file on the disc.
     std::filesystem::path lbnMap();
+    // Where shipped executables live (Android: the native library directory, which may run them).
+    std::filesystem::path toolDir();
+    // Texture dumps and packs (textures/dumps, textures/packs). On Android the app's external files
+    // (Android/data/<package>/files), which a computer reaches over USB, unlike the private data.
+    std::filesystem::path texturesDir();
+    // A path as the player would find it (Android: from the shared storage's root).
+    std::string displayPath(const std::filesystem::path &path);
 }

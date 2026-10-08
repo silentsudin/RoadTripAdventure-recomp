@@ -1,10 +1,12 @@
 """Title menus: Options (vibration, speaker, sound volume, each checked for its effect), Results,
-and the attract demo."""
+and the attract demo; the town's Start menu's Settings."""
 
 from __future__ import annotations
 
-from rtharness import seconds
-from rtharness.adventure import boot_to_main_menu
+import pytest
+
+from rtharness import GameError, seconds
+from rtharness.adventure import FIELDS, GAME_MAP, SCENE_TOWN, boot_to_main_menu, continue_to_factory, scene
 
 # Main menu: Adventure / Quick Race / 2 Player / Options / Results.
 OPTIONS, RESULTS = 3, 4
@@ -109,6 +111,19 @@ def test_speaker_stereo_differs(game_factory):
     assert any(v[2] != v[3] for v in game.voice_volumes()), "stereo: some voices are panned"
 
 
+def test_options_replaced(game_factory, golden):
+    """The app's menu stands in for the game's Options: choosing it leaves the title menu as it
+    was (no Options screen) and hands over to the app (src/game/overrides.cpp)."""
+    game = game_factory(env={"RT_GAME_OPTIONS": "0"})
+    boot_to_main_menu(game)
+    open_main_item(game, OPTIONS)
+    golden("options_replaced", game.frame())
+    assert "Title > Options: the app's menu" in game.log_text(), "the Options hook didn't run"
+    # The title menu still works: Quick Race starts from it.
+    sound = quick_race_sound(game)
+    assert sound["rms"] > 300, "the title menu should carry on after Options"
+
+
 def test_results_screen(game_factory, golden):
     game = game_factory(checkpoint="adventure_first_save")
     boot_to_main_menu(game)
@@ -138,3 +153,110 @@ def test_attract_demo(game_factory, golden, golden_audio):
     sound = game.audio()
     assert sound["rms"] > 300, "the demo race is audible"
     golden_audio("attract_demo_15s", sound)
+
+
+# The town's Start menu (config/game_state.toml [options] pause_*): Warp / Notebook / Radio /
+# Items / Settings / Map; its state block's +0 is the page shown (0 the list, 5 Settings).
+PAUSE_STATE = GAME_MAP["options"]["pause_state"]
+PAUSE_SETTINGS = 4  # the list's 5th entry
+
+
+@pytest.mark.parametrize("own", [False, True], ids=["replaced", "game"])
+def test_pause_settings_replaced(game_factory, own):
+    """In town, Start > Settings (the game's button setup) opens the app's menu instead
+    (src/game/overrides.cpp): the game stays on its Pause list, and leaving it the drive goes on.
+    RT_GAME_OPTIONS=1 keeps the game's own Settings page (the control for the addresses)."""
+    edits = {FIELDS["location"]["offset"]: bytes([1]), FIELDS["licence"]["offset"]: bytes([2])}
+    game = game_factory(checkpoint="adventure_first_save", progress_edits=edits,
+                        env={"RT_GAME_OPTIONS": "1" if own else "0"})
+    continue_to_factory(game)
+    for _ in range(4):  # Change parts / Race / Save data / Quit game / Drive around town
+        game.press("down")
+    game.press("cross")
+    game.run(seconds(2))
+    game.press("cross")  # dismiss "Come again!"
+    game.run(seconds(10))
+    assert scene(game) == SCENE_TOWN, "driving in town"
+    game.press("start")
+    game.run(seconds(2))
+    assert game.u32(PAUSE_STATE) == 0, "the Pause list"
+    for _ in range(PAUSE_SETTINGS):
+        game.press("down")
+    game.press("cross")
+    game.run(seconds(3))
+    hooked = game.log_text().count("Pause > Settings: the app's menu")
+    if own:
+        assert game.u32(PAUSE_STATE) == 5, "RT_GAME_OPTIONS=1: the game's Settings page"
+        assert hooked == 0
+        game.press("triangle")  # the button setup's Exit
+        game.run(seconds(2))
+        assert game.u32(PAUSE_STATE) == 0, "back on the Pause list"
+    else:
+        assert hooked == 1, "the Settings hook should run once"
+        assert game.u32(PAUSE_STATE) == 0, "the game stays on its Pause list"
+    # Leave the Pause list and drive on.
+    game.press("triangle")
+    game.run(seconds(2))
+    assert scene(game) == SCENE_TOWN
+    before = game.frame().array()
+    game.pad("cross")
+    game.run(seconds(4))
+    game.release()
+    after = game.frame().array()
+    moved = (abs(before.astype(int) - after.astype(int)).sum(axis=2) > 48).mean()
+    assert moved > 0.2, f"the drive should go on after the Pause menu ({moved:.0%} of the picture changed)"
+    assert game.log_text().count("Pause > Settings: the app's menu") == hooked, "opened once"
+
+
+IOP_RADIO = GAME_MAP["music"]["iop_radio"]
+
+
+def iop_radio(game) -> tuple[int, int]:
+    """SNDMOD's radio (IOP): flag_play (2 = playing) and play_tune (0 PEACH FM, 1 E-RADIO)."""
+    raw = game.read(IOP_RADIO, 0x20, space="iop")
+    return int.from_bytes(raw[8:12], "little"), int.from_bytes(raw[0x1C:0x20], "little")
+
+
+def test_radio_station(game_factory):
+    """The app's radio station switch (rt::game::setRadioStation, the Options row and the second
+    screen's Radio tab): in town the stream switches the game's way, Off stops it, and the
+    choice is the game's own (its Pause menu keeps it)."""
+    game = game_factory()
+    boot_to_main_menu(game)
+    assert not game._call("radio")["available"], "no radio outside an Adventure game"
+    with pytest.raises(GameError):
+        game._call("radio", station=1)  # refused
+    game.close()
+
+    edits = {FIELDS["location"]["offset"]: bytes([1]), FIELDS["licence"]["offset"]: bytes([2])}
+    game = game_factory(checkpoint="adventure_first_save", progress_edits=edits, name="town")
+    continue_to_factory(game)
+    for _ in range(4):  # Drive around town
+        game.press("down")
+    game.press("cross")
+    game.run(seconds(2))
+    game.press("cross")
+    game.run(seconds(10))
+    assert scene(game) == SCENE_TOWN
+    start = game._call("radio")
+    assert start["available"] and start["station"] == 2 and iop_radio(game) == (2, 1), "E-RADIO plays"
+    for station, want in ((1, (2, 0)), (0, None), (2, (2, 1))):
+        reply = game._call("radio", station=station)
+        assert reply["ok"] and reply["station"] == station
+        game.run(seconds(2))
+        flag, tune = iop_radio(game)
+        if want:
+            assert (flag, tune) == want, f"station {station}: IOP radio {flag, tune}"
+        else:
+            assert flag != 2, "Off stops the radio"
+    game.audio()
+    game.run(seconds(3))
+    assert game.audio()["rms"] > 300, "the radio is audible again"
+    # The game's Pause menu stops the radio and restarts it from the station byte.
+    game._call("radio", station=1)
+    game.run(seconds(1))
+    game.press("start")
+    game.run(seconds(2))
+    game.press("triangle")
+    game.run(seconds(3))
+    assert iop_radio(game) == (2, 0), "PEACH FM again after the Pause menu"

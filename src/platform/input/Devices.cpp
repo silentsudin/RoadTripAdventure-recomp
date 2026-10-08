@@ -1,4 +1,5 @@
 #include "Devices.h"
+#include "SystemVibrator.h"
 
 #include <SDL3/SDL.h>
 
@@ -66,6 +67,7 @@ namespace rt::input
     {
         if (!m_ready)
             return;
+        systemvibrator::stop();
         for (Device &d : m_devices)
         {
             SDL_RumbleGamepad(d.pad, 0, 0, 0);
@@ -82,6 +84,7 @@ namespace rt::input
         if (!m_ready)
             return false;
         // Also poll now and then: some platforms report hotplug only through the joystick layer.
+        systemvibrator::tick();
         static int frames = 0;
         if (!m_dirty.exchange(false) && ++frames % 120 != 0)
         {
@@ -137,7 +140,17 @@ namespace rt::input
                     same += o.id.rfind(guid, 0) == 0;
                 d.id = std::string(guid) + "#" + std::to_string(same + 1);
             }
-            std::fprintf(stderr, "[input] connected: %s (%s, %s)\n", d.name.c_str(), d.type.c_str(), d.id.c_str());
+            // A pad without motors (the AYN Thor's built-in one) vibrates the device instead.
+            const bool motors = SDL_GetBooleanProperty(SDL_GetGamepadProperties(pad), SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
+            d.systemVibrator = (!motors || systemvibrator::forced()) && systemvibrator::available();
+            std::fprintf(stderr, "[input] connected: %s (%s, %s)%s\n", d.name.c_str(), d.type.c_str(), d.id.c_str(),
+                         d.systemVibrator ? ", vibrates the device" : motors ? "" : ", no vibration");
+            if (const char *dbg = std::getenv("RT_INPUT_DEBUG"); dbg && *dbg == '1')
+                if (char *mapping = SDL_GetGamepadMapping(d.pad))
+                {
+                    std::fprintf(stderr, "[input]   mapping: %s\n", mapping);
+                    SDL_free(mapping);
+                }
             m_devices.push_back(std::move(d));
             changed = true;
         }
@@ -157,8 +170,21 @@ namespace rt::input
 
     void Devices::rumble(const Device &d, float low, float high, uint32_t ms)
     {
+        if (d.systemVibrator)
+            return systemvibrator::motors(low, high, ms);
         auto u16 = [](float v) { return static_cast<Uint16>(std::clamp(v, 0.0f, 1.0f) * 65535.0f); };
         SDL_RumbleGamepad(d.pad, u16(low), u16(high), ms);
+    }
+
+    bool Devices::rumbleTriggers(const Device &d, float left, float right, uint32_t ms)
+    {
+        if (d.systemVibrator)
+        {
+            systemvibrator::triggers(left, right, ms);
+            return true;
+        }
+        auto u16 = [](float v) { return static_cast<Uint16>(std::clamp(v, 0.0f, 1.0f) * 65535.0f); };
+        return SDL_RumbleGamepadTriggers(d.pad, u16(left), u16(right), ms);
     }
 
     void Devices::showPlayer(const Device &d, int player)

@@ -55,12 +55,19 @@ namespace rt::settings
         case Upscaler::MetalFxTemporal:
             if (c.os != Os::MacOS)
                 return no("MetalFX is Apple's: macOS only");
+            if (c.postProcess && !c.temporalInputs)
+                return no("Needs the paraLLEl-GS renderer (motion vectors)");
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::SnapdragonGsr1:
+            if (c.os == Os::MacOS)
+                return no("Snapdragon GSR is for Android and PC GPUs");
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::SnapdragonGsr2:
             if (c.os == Os::MacOS)
                 return no("Snapdragon GSR is for Android and PC GPUs");
-            return later();
+            if (c.postProcess && !c.temporalInputs)
+                return no("Needs the GS's motion vectors and depth");
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::ArmNss:
             if (c.os != Os::Android || c.gpuVendor != kArm || !c.armNeuralAccel)
                 return no("Needs an Arm Mali GPU with neural accelerators");
@@ -80,6 +87,11 @@ namespace rt::settings
         case Upscaler::Fsr1:
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::ArmAsr:
+            if (c.os == Os::MacOS)
+                return no("Arm ASR is for Android and PC GPUs");
+            if (c.postProcess && !c.temporalInputs)
+                return no("Needs the GS's motion vectors and depth");
+            return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::Fsr3:
         default:
             return later();
@@ -90,10 +102,14 @@ namespace rt::settings
     {
         if (a == AntiAliasing::None)
             return {};
+        if (a == AntiAliasing::Taa && c.postProcess && !c.motionVectors)
+            return no("Needs the GS's motion vectors");
         if (a == AntiAliasing::Fxaa || a == AntiAliasing::Smaa || a == AntiAliasing::Taa)
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         return later();
     }
+
+    bool frameGenerationWith(const Capabilities &c, Upscaler u) { return !(u == Upscaler::ArmAsr && c.os == Os::Android); }
 
     Availability refreshAvailability(const Capabilities &c, int hz)
     {
@@ -101,6 +117,10 @@ namespace rt::settings
             return {};
         if (!c.postProcess)
             return no("Needs the Vulkan presenter");
+        // Without generated frames the extra presents only repeat the last picture, unevenly on a
+        // FIFO swapchain (the game looks as if it speeds up and slows down).
+        if (!c.frameGeneration)
+            return no("Needs a GPU renderer");
         if (hz % 60 != 0)
             return no("Not a whole multiple of the game's 60 Hz");
         if (hz > c.displayRefresh)
@@ -109,10 +129,10 @@ namespace rt::settings
     }
 
     Availability aspectAvailability(Aspect) { return {}; }
-    // Texture-pack images are sampled trilinear with up to 16x anisotropy (paraLLEl-GS).
+    // Texture-pack images are sampled trilinear with up to 16x anisotropy (paraLLEl-GS or the hardware GS).
     Availability anisotropyAvailability(int level)
     {
-        return level <= 1 || capabilities().gpuGs ? Availability{} : no("Needs the GPU GS (paraLLEl-GS)");
+        return level <= 1 || capabilities().gpuGs ? Availability{} : no("Needs a GPU GS");
     }
-    Availability texturePackAvailability() { return capabilities().gpuGs ? Availability{} : no("Needs the GPU GS (paraLLEl-GS)"); }
+    Availability texturePackAvailability() { return capabilities().gpuGs ? Availability{} : no("Needs a GPU GS"); }
 }
