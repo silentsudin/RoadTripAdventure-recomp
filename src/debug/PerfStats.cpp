@@ -124,9 +124,27 @@ namespace rt::debug
         // RT_PERF_LOG=1: every window to the log (measurements over a whole run).
         static const bool log = [] { const char *e = std::getenv("RT_PERF_LOG"); return e && *e == '1'; }();
         if (log)
-            std::fprintf(stderr, "[perf] %.1f fps (shown %.0f), worst %.1f ms, VU1 %.0f%%, GS %.0f%%, CPU %.0f%%, GPU %d%% at %d MHz, skip level %u (%llu skipped)\n",
+        {
+            // The CPU clusters' clocks now (Android: little, mid, prime on the Thor), so a slow
+            // window can be told from one the governor clocked down.
+            char clocks[64] = "";
+#if defined(__ANDROID__)
+            int at = 0;
+            for (int c : {0, 3, 7})
+            {
+                char path[80];
+                std::snprintf(path, sizeof(path), "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_cur_freq", c);
+                const long khz = readNumber(path);
+                if (khz > 0 && at < static_cast<int>(sizeof(clocks)) - 12)
+                    at += std::snprintf(clocks + at, sizeof(clocks) - at, "%s%.2f", at ? "/" : ", clocks ", khz / 1e6);
+            }
+            if (at)
+                std::snprintf(clocks + at, sizeof(clocks) - at, " GHz");
+#endif
+            std::fprintf(stderr, "[perf] %.1f fps (shown %.0f), worst %.1f ms, VU1 %.0f%%, GS %.0f%%, CPU %.0f%%, GPU %d%% at %d MHz, skip level %u (%llu skipped)%s\n",
                          s.fps, s.shownFps, s.worstFrameMs, s.vu1Busy, s.gsBusy, s.appCpu, s.gpuBusy, s.gpuMHz, skipLevel,
-                         static_cast<unsigned long long>(skipped - lastSkipped));
+                         static_cast<unsigned long long>(skipped - lastSkipped), clocks);
+        }
         lastSkipped = skipped;
         g_stats = s;
         windowStart = now;
