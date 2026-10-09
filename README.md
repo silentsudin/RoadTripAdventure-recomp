@@ -65,9 +65,30 @@ The app checks it against the known good dump (Redump) and tells you if yours lo
 Download the latest **zip** (Windows), **DMG** (Mac) or **APK** (Android) from
 [Releases](https://github.com/silentsudin/RoadTripAdventure-recomp/releases).
 
-**Windows:** unzip it anywhere you can write to (not *Program Files*) and run `RoadTrip.exe`.
-SmartScreen may warn about an unsigned app: *More info → Run anyway*. Settings, saves and the game
-built on your PC live in `%LOCALAPPDATA%\RoadTripRecomp`.
+**Windows:** unzip `RoadTripRecomp-<version>-Windows-x64.zip` anywhere you can write to (not
+*Program Files*; the folder must stay together) and run `RoadTrip.exe`. SmartScreen may warn about
+an unsigned app: *More info → Run anyway*. Settings, saves and the game built on your PC live in
+`%LOCALAPPDATA%\RoadTripRecomp`. AMD FSR 3 is included and works on any GPU.
+
+*Optional, for NVIDIA DLSS and Intel XeSS:* download `RoadTripRecomp-<version>-Windows-x64-DLSS-XeSS-addon.zip`
+from the same release and unzip its files **into the same folder as `RoadTrip.exe`** (next to
+`rt_fsr3.dll`; say yes to merging the `licenses` folder). They are a separate download because
+NVIDIA's and Intel's licences don't allow bundling their libraries into this GPL app. Then pick the
+upscaler in **Options → Graphics → Upscaling**; an upscaler only shows in the list when it works on
+your GPU:
+
+| Upscaler | Needs |
+|---|---|
+| AMD FSR 3 | any GPU (included) |
+| NVIDIA DLSS | an NVIDIA RTX GPU with a current driver, and the add-on |
+| Intel XeSS | a recent GPU (Intel Arc runs it best; NVIDIA and AMD work too), and the add-on |
+
+An upscaler only has work to do when the window is bigger than the game's render resolution. At the
+default **Supersampling** (8x) the game renders 1280x896, so you'll see the difference in a larger
+window or fullscreen on a 1440p or 4K display; a lower Supersampling renders smaller and gives the
+upscaler more to do (faster, softer).
+If DLSS or XeSS is missing from the list, check that the add-on's files sit beside `RoadTrip.exe`,
+that your GPU is supported, and that your graphics driver is up to date.
 
 **macOS:** open the DMG and drag *Road Trip* to Applications. If macOS says the app can't be
 checked for malicious software, open **System Settings → Privacy & Security** and choose
@@ -139,6 +160,8 @@ Where the folders are:
 - **macOS:** `~/Library/Application Support/RoadTripRecomp/`, holding `disc/` (the game files from
   your disc), `game/` (the game built from them), `saves/` (memory cards), `states/` (save states)
   and `settings.toml`.
+- **Windows:** `%LOCALAPPDATA%\RoadTripRecomp`, with the same contents as on macOS (open it with
+  `%LOCALAPPDATA%` in the Explorer address bar). Texture packs go in `textures\packs`.
 - **Android:** the app's own storage; texture packs and dumps as above.
 
 **Don't share anything from these folders except your own texture packs:** they hold the game's
@@ -146,7 +169,7 @@ files.
 
 ## Status and known issues
 
-Adventure (towns, fields, shops, races) and Quick Race are playable on both platforms. Known
+Adventure (towns, fields, shops, races) and Quick Race are playable on all three platforms. Known
 issues are tracked in
 [Issues](https://github.com/silentsudin/RoadTripAdventure-recomp/issues). Bug reports are welcome:
 please say which device, and attach the log if you can (Android: `adb logcat -s RoadTrip`).
@@ -182,7 +205,8 @@ No disc image is needed to build the app.
 This project is licensed under the **GNU General Public License v3.0** ([LICENSE](LICENSE)), as is
 PS2Recomp, which it's built on. The apps also include third-party components under their own
 licences (LGPL, MIT, BSD, zlib, Apache-2.0, SIL OFL); their notices ship with the apps (in the
-Mac app's `Contents/Resources/licenses` and the APK's `assets/licenses`) and are listed in
+Mac app's `Contents/Resources/licenses`, the Windows build's `Resources\licenses` (the DLSS/XeSS
+add-on carries NVIDIA's and Intel's own in its `licenses` folder) and the APK's `assets/licenses`) and are listed in
 [`scripts/collect_licenses.py`](scripts/collect_licenses.py).
 
 *Road Trip* and *Choro Q* are trademarks of their owners (Takara / E-game; published in North
