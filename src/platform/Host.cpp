@@ -68,6 +68,13 @@ namespace rt::host
         return k > 0 && k < SDL_SCANCODE_COUNT && g_pressedEvent[k]; // one per key-down event
     }
 
+    bool keyHeld(int k)
+    {
+        int count = 0;
+        const bool *keys = SDL_GetKeyboardState(&count);
+        return keys && k > 0 && k < count && keys[k];
+    }
+
     bool keyPressedRepeat(int k) { return k > 0 && k < SDL_SCANCODE_COUNT && g_repeat[k]; }
 
     SDL_Window *window()

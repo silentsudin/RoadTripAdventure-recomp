@@ -209,7 +209,8 @@ namespace rt::input
         const bool focused = (host::windowFocused() || g_config.backgroundInput) && !g_blocked;
 
         const bool *keys = SDL_GetKeyboardState(nullptr);
-        const bool useKeys = focused && keys && !keyboardBlocked();
+        // Alt held (Alt+Enter toggles full screen): the game reads no keys, so Enter is not its Start.
+        const bool useKeys = focused && keys && !keyboardBlocked() && !keys[SDL_SCANCODE_LALT] && !keys[SDL_SCANCODE_RALT];
         const bool analog = rt::settings::current().analogTriggers;
         for (int p = 0; p < kPlayers; ++p)
         {
@@ -360,7 +361,8 @@ namespace rt::input
         m.down = fire[Down] || host::keyPressed(SDL_SCANCODE_DOWN) || host::keyPressedRepeat(SDL_SCANCODE_DOWN);
         m.left = fire[Left] || host::keyPressed(SDL_SCANCODE_LEFT) || host::keyPressedRepeat(SDL_SCANCODE_LEFT);
         m.right = fire[Right] || host::keyPressed(SDL_SCANCODE_RIGHT) || host::keyPressedRepeat(SDL_SCANCODE_RIGHT);
-        m.confirm = fire[Confirm] || host::keyPressed(SDL_SCANCODE_RETURN) || host::keyPressed(SDL_SCANCODE_SPACE);
+        m.confirm = fire[Confirm] || (host::keyPressed(SDL_SCANCODE_RETURN) && !host::keyHeld(SDL_SCANCODE_LALT) && !host::keyHeld(SDL_SCANCODE_RALT)) ||
+                    host::keyPressed(SDL_SCANCODE_SPACE);
         m.back = fire[Back] || host::keyPressed(SDL_SCANCODE_BACKSPACE);
         m.extra = fire[Extra] || host::keyPressed(SDL_SCANCODE_R);
         static const bool debug = [] { const char *e = std::getenv("RT_INPUT_DEBUG"); return e && *e == '1'; }();

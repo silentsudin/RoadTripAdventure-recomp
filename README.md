@@ -18,7 +18,7 @@ your device, from **your own disc**, the first time you open it.
 - **Native speed.** The game, its vector unit (VU1) microcode and the sound driver run as native
   code; graphics are drawn on your GPU through Vulkan (Metal on the Mac).
 - **Sharper picture.** Up to 4x render resolution, a progressive picture without the PS2's
-  interlacing, and upscalers: AMD FSR 1, Snapdragon GSR 1/2, Arm ASR, MetalFX (Mac), plus FXAA,
+  interlacing, and upscalers: AMD FSR 1 and FSR 3, NVIDIA DLSS and Intel XeSS (Windows), Snapdragon GSR 1/2, Arm ASR, MetalFX (Mac), plus FXAA,
   SMAA and TAA.
 - **Widescreen.** 16:9, 16:10, 21:9 and 32:9, with the HUD kept at its shape, centred or at the
   screen edges.
@@ -111,7 +111,8 @@ strength and which controller belongs to which player under **Menu → Controlle
 
 Everything is in the in-game menu (**Options**). A few highlights:
 
-- **Display:** aspect ratio and HUD position; **Frame rate** 60/120/240; **Frame skip** (Auto keeps
+- **Display:** **Display mode** (Window, Borderless fullscreen or Fullscreen on Mac and Windows;
+  Alt+Enter or F11 switches), aspect ratio and HUD position; **Frame rate** 60/120/240; **Frame skip** (Auto keeps
   the game at full speed on slower devices by pausing generated frames first).
 - **Graphics:** render resolution (supersampling), the upscaler, anti-aliasing and sharpness;
   **Interlacing** off (default) gives a clean progressive picture.

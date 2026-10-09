@@ -27,6 +27,7 @@ namespace rt::settings
         bool motionVectors = false;   // the GS gives per-pixel motion (TAA)
         bool temporalInputs = false;  // ... and depth too (MetalFX temporal, temporal upscalers); both GPU GSs give both
         bool saveStates = true;       // the GS can save and restore its state (every GS: the hardware GS redraws its render targets after a load)
+        uint32_t upscalerPlugins = 0; // the upscaler plugins that work here (Windows): 1 FSR 3, 2 DLSS, 4 XeSS
         bool hardwareGs = false;      // the hardware GS: supersampling is a render scale (floor of the square root), no anti-aliasing
     };
 

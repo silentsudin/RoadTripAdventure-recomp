@@ -386,13 +386,18 @@ namespace rt::ui
             // Phones and handhelds are always full screen: no window rows there.
             const bool hasWindow = capabilities().os != Os::Android;
             if (hasWindow)
-                rows.push_back({"Window",
-                            [&s] { return std::string(s.windowMode == WindowMode::Windowed ? "Windowed" : "Borderless full screen"); },
-                            [&s](int) {
-                                s.windowMode = s.windowMode == WindowMode::Windowed ? WindowMode::Borderless : WindowMode::Windowed;
+                rows.push_back({"Display mode",
+                            [&s] {
+                                return std::string(s.windowMode == WindowMode::Windowed     ? "Window"
+                                                   : s.windowMode == WindowMode::Borderless ? "Borderless fullscreen"
+                                                                                            : "Fullscreen");
+                            },
+                            [&s](int d) {
+                                static const std::vector<WindowMode> modes = {WindowMode::Windowed, WindowMode::Borderless, WindowMode::Fullscreen};
+                                cycle(s.windowMode, modes, d);
                                 changed();
                             },
-                            {}, "Play in a window or fill the screen."});
+                            {}, "Window, a borderless window over the whole screen, or fullscreen with its own display mode (the desktop's size). Alt+Enter or F11 switches."});
             if (hasWindow && s.windowMode == WindowMode::Windowed)
             {
                 rows.push_back({"Window size",
@@ -665,7 +670,8 @@ namespace rt::ui
             if (availability(capabilities(), Upscaler::Fsr1).ok)
             {
                 static const std::vector<Upscaler> ups = {Upscaler::None, Upscaler::Fsr1, Upscaler::SnapdragonGsr1,
-                                                          Upscaler::SnapdragonGsr2, Upscaler::ArmAsr, Upscaler::MetalFxSpatial,
+                                                          Upscaler::SnapdragonGsr2, Upscaler::ArmAsr, Upscaler::Fsr3,
+                                                          Upscaler::Dlss, Upscaler::Xess, Upscaler::MetalFxSpatial,
                                                           Upscaler::MetalFxTemporal};
                 rows.push_back({"Upscaling",
                                 [&s] {
@@ -673,6 +679,9 @@ namespace rt::ui
                                                        : s.upscaler == Upscaler::SnapdragonGsr1 ? "Snapdragon GSR 1"
                                                        : s.upscaler == Upscaler::SnapdragonGsr2 ? "Snapdragon GSR 2"
                                                        : s.upscaler == Upscaler::ArmAsr         ? "Arm ASR"
+                                                       : s.upscaler == Upscaler::Fsr3           ? "AMD FSR 3"
+                                                       : s.upscaler == Upscaler::Dlss           ? "NVIDIA DLSS"
+                                                       : s.upscaler == Upscaler::Xess           ? "Intel XeSS"
                                                        : s.upscaler == Upscaler::MetalFxSpatial ? "MetalFX spatial"
                                                        : s.upscaler == Upscaler::MetalFxTemporal ? "MetalFX temporal"
                                                                                                 : "Bilinear");
@@ -684,9 +693,10 @@ namespace rt::ui
                                     changed();
                                 },
                                 {}, "How the picture is scaled up to the window. FSR 1, Snapdragon GSR and MetalFX keep edges sharp; GSR 2, "
-                                "Arm ASR and MetalFX temporal also smooth them over frames, using the game's motion.",
+                                "Arm ASR, FSR 3, DLSS, XeSS and MetalFX temporal also smooth them over frames, using the game's motion.",
                                 false, true});
-                if (s.upscaler == Upscaler::Fsr1 || s.upscaler == Upscaler::SnapdragonGsr2 || s.upscaler == Upscaler::ArmAsr)
+                if (s.upscaler == Upscaler::Fsr1 || s.upscaler == Upscaler::SnapdragonGsr2 || s.upscaler == Upscaler::ArmAsr ||
+                    s.upscaler == Upscaler::Fsr3 || s.upscaler == Upscaler::Dlss || s.upscaler == Upscaler::Xess)
                     rows.push_back({"Sharpening", [&s] { return std::to_string(static_cast<int>(std::lround(s.sharpness * 100))) + "%"; },
                                     [&s](int d) {
                                         s.sharpness = std::clamp(std::round(s.sharpness * 10.0f + d) / 10.0f, 0.0f, 1.0f);
@@ -1293,6 +1303,7 @@ namespace rt::ui
 
     void updatePauseMenu()
     {
+        rt::settings::serviceWindow(g_page != Page::Closed);
         shotStep();
         serviceStates();
         const rt::input::MenuInput in = rt::input::menuInput();

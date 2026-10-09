@@ -11,6 +11,19 @@ namespace rt::settings
         Availability no(std::string why) { return {false, std::move(why)}; }
         Availability later() { return no("Coming in a later update"); }
 
+        // FSR 3, DLSS and XeSS are plugins beside the executable (Windows): offered when the plugin
+        // is there and this GPU runs it, and the GS gives the temporal inputs.
+        Availability pluginAvailability(const Capabilities &c, uint32_t bit, const char *name)
+        {
+            if (!c.postProcess)
+                return no("Needs the Vulkan presenter");
+            if (!c.temporalInputs)
+                return no("Needs the GS's motion vectors and depth");
+            if (!(c.upscalerPlugins & bit))
+                return no(std::string(name) + " isn't installed, or this GPU or driver can't run it");
+            return {};
+        }
+
         Os buildOs()
         {
 #if defined(__ANDROID__)
@@ -75,7 +88,7 @@ namespace rt::settings
         case Upscaler::Dlss:
             if (!desktop || c.gpuVendor != kNvidia)
                 return no("Needs an NVIDIA RTX GPU on Windows or Linux");
-            return later();
+            return pluginAvailability(c, 2u, "DLSS");
         case Upscaler::Fsr4:
             if (!desktop || c.gpuVendor != kAmd)
                 return no("Needs an AMD Radeon RX 9000 GPU on Windows or Linux");
@@ -83,7 +96,7 @@ namespace rt::settings
         case Upscaler::Xess:
             if (c.os == Os::MacOS)
                 return no("XeSS has no macOS version");
-            return later();
+            return pluginAvailability(c, 4u, "XeSS");
         case Upscaler::Fsr1:
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::ArmAsr:
@@ -93,6 +106,9 @@ namespace rt::settings
                 return no("Needs the GS's motion vectors and depth");
             return c.postProcess ? Availability{} : no("Needs the Vulkan presenter");
         case Upscaler::Fsr3:
+            if (c.os != Os::Windows)
+                return no("FSR 3 is built for Windows");
+            return pluginAvailability(c, 1u, "FSR 3");
         default:
             return later();
         }

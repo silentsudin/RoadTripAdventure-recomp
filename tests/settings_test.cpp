@@ -55,6 +55,16 @@ namespace
         const Settings c = load(path);
         CHECK(c.refreshRate == 120 && c.aspect == Aspect::R4_3 && c.superSampling == 4);
         CHECK(c.hud == HudMode::FourThree); // there is no stretched HUD
+        // The display mode: every kind round-trips, an unknown name is the window.
+        for (WindowMode m : {WindowMode::Windowed, WindowMode::Borderless, WindowMode::Fullscreen})
+        {
+            Settings f;
+            f.windowMode = m;
+            save(path, f);
+            CHECK(load(path).windowMode == m);
+        }
+        std::ofstream(path) << "[display]\nwindow_mode = \"exclusive\"\n";
+        CHECK(load(path).windowMode == WindowMode::Windowed);
         std::filesystem::remove_all(dir);
     }
 
@@ -106,8 +116,23 @@ namespace
         Capabilities rtx;
         rtx.os = Os::Windows;
         rtx.gpuVendor = 0x10DE;
-        // Possible on this machine, not built yet: greyed out as "later", not as impossible.
-        CHECK(availability(rtx, Upscaler::Dlss).reason.find("later") != std::string::npos);
+        // The vendor upscalers are plugins: offered when the plugin works on this GPU and the GS gives
+        // motion and depth, otherwise greyed out with the reason.
+        CHECK(availability(rtx, Upscaler::Dlss).reason.find("Vulkan presenter") != std::string::npos);
+        rtx.postProcess = true;
+        CHECK(availability(rtx, Upscaler::Dlss).reason.find("depth") != std::string::npos);
+        rtx.temporalInputs = true;
+        CHECK(availability(rtx, Upscaler::Dlss).reason.find("installed") != std::string::npos);
+        rtx.upscalerPlugins = 1u | 2u | 4u;
+        CHECK(availability(rtx, Upscaler::Dlss).ok);
+        CHECK(availability(rtx, Upscaler::Fsr3).ok);
+        CHECK(availability(rtx, Upscaler::Xess).ok);
+        rtx.upscalerPlugins = 1u;
+        CHECK(availability(rtx, Upscaler::Fsr3).ok && !availability(rtx, Upscaler::Dlss).ok);
+        Capabilities amd = rtx;
+        amd.gpuVendor = 0x1002;
+        amd.upscalerPlugins = 2u; // a plugin that claims DLSS on an AMD GPU is still not offered
+        CHECK(availability(amd, Upscaler::Dlss).reason.find("NVIDIA") != std::string::npos);
     }
 }
 
