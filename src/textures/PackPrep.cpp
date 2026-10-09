@@ -4,6 +4,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstdio>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -49,7 +50,10 @@ namespace rt::textures::packprep
         g_job->pack = packDir;
         Job *job = g_job.get();
         job->thread = std::thread([job] {
-            const bool todo = ps2x::gs::packcache::missing(job->pack) != 0;
+            const auto missing = ps2x::gs::packcache::missing(job->pack);
+            const bool todo = missing != 0;
+            // (a pack that converts again and again: this says how many images it thinks are missing)
+            std::fprintf(stderr, "[textures] pack check %s: %zu image(s) to convert\n", job->pack.c_str(), static_cast<size_t>(missing));
             job->checking = false;
             if (todo && !job->progress.cancel)
                 ps2x::gs::packcache::prepare(job->pack, job->progress);

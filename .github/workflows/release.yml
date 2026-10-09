@@ -1,12 +1,13 @@
-# Builds the macOS app (DMG) and the Android app (APK), versioned by GitVersion from git tags.
+# Builds the macOS app (DMG), the Android app (APK) and the Windows app (zip), versioned by GitVersion
+# from git tags.
 #
 # - Push to main (a merged pull request): builds both and, once both have built, tags the commit
-#   vX.Y.Z (GitVersion's MAJOR.MINOR.PATCH) and publishes a GitHub Release with the DMG and the
-#   APK (`gh release create --generate-notes`: notes from the merged pull requests).
+#   vX.Y.Z (GitVersion's MAJOR.MINOR.PATCH) and publishes a GitHub Release with the DMG, the APK
+#   and the Windows zip (`gh release create --generate-notes`: notes from the merged pull requests).
 # - Pull request: builds both, attached to the run as artifacts.
 # - Push a tag vX.Y.Z, or run manually with "release" ticked: the same release, for that commit.
 #
-# Neither app contains game code or data: each recompiles the game from the player's own disc on
+# No app contains game code or data: each recompiles the game from the player's own disc on
 # first launch. The "no game code" check below fails the build if any slips in.
 #
 # Optional secrets (unsigned / debug-signed builds without them):
@@ -212,9 +213,103 @@ jobs:
           name: android-apk
           path: RoadTripRecomp-*-Android-arm64.apk
 
+  windows:
+    needs: version
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      # llvm-mingw (clang + lld + libc++ + mingw-w64) builds the app and ships, trimmed, inside it:
+      # the player's PC compiles the game with it on first launch. Pinned in the script, SHA-256 checked.
+      - name: llvm-mingw cache
+        uses: actions/cache@v4
+        with:
+          path: build/llvm-mingw
+          key: llvm-mingw-${{ hashFiles('scripts/fetch_llvm_mingw.py') }}
+      - name: Submodules and toolchain
+        run: |
+          git config --system core.longpaths true
+          python scripts/pipeline.py bootstrap
+          echo "LLVM_MINGW_ROOT=$(python scripts/fetch_llvm_mingw.py)" >> "$GITHUB_ENV"
+      - name: Build
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          export PATH="$LLVM_MINGW_ROOT/bin:$PATH"
+          cmake --preset windows-release "-DRT_VERSION=$VERSION" "-DLLVM_MINGW_ROOT=$LLVM_MINGW_ROOT"
+          cmake --build --preset windows-release
+      - name: Unit tests
+        run: |
+          export PATH="$LLVM_MINGW_ROOT/bin:$PATH"
+          # The preset builds only the app bundle and iso_reader_test; the other tests are built here.
+          cmake --build build/windows-release --target input_test drive_feel_test settings_test wide_layout_test
+          ctest --preset windows-release
+      - name: No game code in the app
+        run: |
+          export PATH="$LLVM_MINGW_ROOT/bin:$PATH"
+          n=$(llvm-nm build/windows-release/RoadTrip.exe | grep -c sub_00 || true)
+          echo "game functions in the binary: $n"
+          test "$n" = "0"
+      # The upscaler SDKs (pinned, checked) and the plugins built against them: FSR 3 (MIT) with
+      # llvm-mingw like the app; DLSS and XeSS with MSVC, as the separate add-on (NVIDIA's and Intel's
+      # licences don't allow linking their SDKs into a GPL program, so they never go in the app).
+      - name: Upscaler SDKs
+        uses: actions/cache@v4
+        with:
+          path: build/sdks
+          key: upscaler-sdks-${{ hashFiles('scripts/fetch_upscaler_sdks.py') }}
+      - name: Upscaler plugins (FSR 3)
+        run: |
+          export PATH="$LLVM_MINGW_ROOT/bin:$PATH"
+          python scripts/fetch_upscaler_sdks.py > sdk-options.txt
+          cmake -S plugins/upscalers -B build/plugins -G Ninja -DCMAKE_BUILD_TYPE=Release             -DCMAKE_TOOLCHAIN_FILE="$PWD/cmake/toolchains/llvm-mingw.cmake" -DLLVM_MINGW_ROOT="$LLVM_MINGW_ROOT"             "-DFFX_SDK_DIR=$PWD/build/sdks/ffx"
+          cmake --build build/plugins
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Upscaler add-on (DLSS, XeSS)
+        run: |
+          cmake -S plugins/upscalers/vendor -B build/plugins-vendor -G Ninja -DCMAKE_BUILD_TYPE=Release             "-DDLSS_SDK_DIR=$PWD/build/sdks/dlss" "-DXESS_SDK_DIR=$PWD/build/sdks/xess"
+          cmake --build build/plugins-vendor
+      - name: Package
+        env:
+          SEMVER: ${{ needs.version.outputs.semver }}
+        run: |
+          out="RoadTripRecomp-$SEMVER-Windows-x64"
+          mkdir -p "$out"
+          cp build/windows-release/RoadTrip.exe build/windows-release/libc++.dll              build/windows-release/libunwind.dll build/windows-release/libwinpthread-1.dll "$out/"
+          cp -r build/windows-release/Resources "$out/Resources"
+          # FSR 3 (MIT) with AMD's signed DLL, and its licence.
+          cp build/plugins/rt_fsr3.dll build/plugins/amd_fidelityfx_vk.dll "$out/"
+          cp build/sdks/ffx/LICENSE.txt "$out/Resources/licenses/FidelityFX-SDK-LICENSE.txt"
+          7z a -tzip -mx=5 "$out.zip" "$out" > /dev/null
+          ls -l "$out.zip"
+          # The add-on: unzip beside RoadTrip.exe. Each vendor's licence travels with its binaries.
+          addon="RoadTripRecomp-$SEMVER-Windows-x64-DLSS-XeSS-addon"
+          mkdir -p "$addon/licenses"
+          cp build/plugins-vendor/rt_vendor_upscalers.dll build/plugins-vendor/nvngx_dlss.dll build/plugins-vendor/libxess.dll "$addon/"
+          cp build/sdks/dlss/LICENSE.txt "$addon/licenses/NVIDIA-RTX-SDKs-LICENSE.txt"
+          cp build/sdks/xess/LICENSE.txt "$addon/licenses/Intel-XeSS-LICENSE.txt"
+          cp build/sdks/xess/third-party-programs.txt "$addon/licenses/Intel-XeSS-third-party-programs.txt"
+          cat > "$addon/README.txt" <<'EOF'
+          DLSS and XeSS for Road Trip Recomp.
+          Unzip these files next to RoadTrip.exe (in the folder with rt_fsr3.dll).
+          NVIDIA DLSS needs an NVIDIA RTX GPU; Intel XeSS works on any recent GPU.
+          The libraries are NVIDIA's and Intel's, under the licences in the licenses folder.
+          Then pick them in Options -> Upscaling.
+          EOF
+          7z a -tzip -mx=5 "$addon.zip" "$addon" > /dev/null
+          ls -l "$addon.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: |
+            RoadTripRecomp-*-Windows-x64.zip
+            RoadTripRecomp-*-Windows-x64-DLSS-XeSS-addon.zip
+
   release:
-    needs: [version, macos, android]
-    # Only after both apps built. (The tag it creates doesn't start another run: tags made with
+    needs: [version, macos, android, windows]
+    # Only after all apps built. (The tag it creates doesn't start another run: tags made with
     # the workflow's token don't trigger workflows.)
     if: >-
       (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))) ||

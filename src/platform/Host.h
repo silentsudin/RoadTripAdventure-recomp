@@ -20,6 +20,7 @@ namespace rt::host
     // SDL scancodes. Pressed: went down since the last frame; repeat: held, every 50 ms after 400 ms.
     bool keyPressed(int scancode);
     bool keyPressedRepeat(int scancode);
+    bool keyHeld(int scancode);
 
     SDL_Window *window();
     bool windowFocused();

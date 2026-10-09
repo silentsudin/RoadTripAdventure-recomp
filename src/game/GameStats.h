@@ -55,6 +55,11 @@ namespace rt::game
 
     Stats readStats(PS2Runtime &runtime);
 
+    // The 3D gameplay scene is running (a race, or driving in a town or field area: the scene is 3D and
+    // its handler the race's or the town's; the attract demo's race counts). Cheap: for per-frame use
+    // from the camera hook, which gives logos and menus less temporal jitter than the game itself.
+    bool inGameplay3D(const uint8_t *ram);
+
     // The town radio (Pause > Radio): what's on now. Read from the sound driver (SNDMOD) in IOP
     // RAM; songs are named from our own tracklist (titles and artists only, [music] in
     // config/game_state.toml), empty where unknown.

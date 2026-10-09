@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Draws the app icon (our own art: a chubby toy car on a road, in the UI's palette) and writes the
 Android adaptive icon layers and legacy icons into platform/android's res/, and the macOS icon
-(platform/macos/RoadTrip.icns, the same picture as the legacy icon; needs macOS's iconutil).
+(platform/macos/RoadTrip.icns, the same picture as the legacy icon; needs macOS's iconutil), and
+the Windows icon (platform/windows/RoadTrip.ico, the macOS picture at 16-256 px; any platform).
 
     build/regress-venv/bin/python scripts/make_android_icon.py   (needs Pillow)
 
@@ -106,6 +107,19 @@ def save(img: Image.Image, folder: str, name: str, px: int):
     img.resize((px, px), Image.Resampling.LANCZOS).save(out / name)
 
 
+def windows_icon(canvas: Image.Image):
+    """Windows: the macOS picture (the rounded tile on the 1024 canvas), cropped to the tile and its
+    shadow so it fills the icon, as a multi-size .ico (the exe's icon and the taskbar's)."""
+    out = ROOT / "platform/windows"
+    out.mkdir(parents=True, exist_ok=True)
+    tile = canvas.crop((70, 70, 954, 954))  # the 824 px tile is centred at 512; a little room for the shadow
+    sizes = (16, 24, 32, 48, 64, 128, 256)
+    # Pillow's ICO writer scales the one image it is given: pre-scaled copies keep small sizes crisp.
+    icons = [tile.resize((px, px), Image.Resampling.LANCZOS) for px in sizes]
+    icons[-1].save(out / "RoadTrip.ico", format="ICO", sizes=[(px, px) for px in sizes], append_images=icons[:-1])
+    print("wrote", out / "RoadTrip.ico")
+
+
 def mac_icon(full: Image.Image):
     """macOS: the legacy icon's picture (the visible 72 dp) as an 824 px rounded square on a
     1024 canvas with a soft shadow (Apple's icon grid), at every .iconset size."""
@@ -126,6 +140,7 @@ def mac_icon(full: Image.Image):
     canvas.alpha_composite(tile, (inset, inset))
     out = ROOT / "platform/macos"
     canvas.save(out / "icon_1024.png")
+    windows_icon(canvas)
     if not shutil.which("iconutil"):
         print("iconutil not found: wrote", out / "icon_1024.png", "only")
         return

@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "Devices.h"
 #include "SystemVibrator.h"
 

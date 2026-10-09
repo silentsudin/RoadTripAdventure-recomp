@@ -1,4 +1,5 @@
 #include "Apply.h"
+#include "ps2x_compat.h"
 
 #include "Capabilities.h"
 #include "Settings.h"
@@ -12,6 +13,7 @@
 #include "runtime/ps2_audio_suspend.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <optional>
@@ -52,7 +54,11 @@ namespace rt::settings
         // The GS starts with the chosen supersampling (an explicit RT_GS_SSAA still wins).
         g_ssaaFromEnv = std::getenv("RT_GS_SSAA") != nullptr;
         if (!g_ssaaFromEnv)
-            setenv("RT_GS_SSAA", std::to_string(current().superSampling).c_str(), 1);
+            ps2x::setEnv("RT_GS_SSAA", std::to_string(current().superSampling).c_str());
+#if defined(__APPLE__)
+        // Full screen without a Space of its own: switching is instant, and the Metal layer just resizes.
+        SDL_SetHint(SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES, "0");
+#endif
     }
 
     void applyWindow()
@@ -71,15 +77,30 @@ namespace rt::settings
         if (s.windowMode == WindowMode::Windowed)
         {
             if (fullscreen)
-                SDL_SetWindowFullscreen(w, false);
-            int cw = 0, ch = 0;
-            SDL_GetWindowSize(w, &cw, &ch);
-            if (cw != s.windowWidth || ch != s.windowHeight)
-                SDL_SetWindowSize(w, s.windowWidth, s.windowHeight);
+            {
+                SDL_SetWindowFullscreen(w, false); // SDL puts the window back where it was
+                SDL_SyncWindow(w);
+            }
+            // The size is set only when the setting changes (or the window has never had it):
+            // any other option applies the window too, and must not undo a drag of its edges.
+            static int appliedW = 0, appliedH = 0;
+            if (appliedW != s.windowWidth || appliedH != s.windowHeight)
+            {
+                appliedW = s.windowWidth;
+                appliedH = s.windowHeight;
+                int cw = 0, ch = 0;
+                SDL_GetWindowSize(w, &cw, &ch);
+                if (cw != s.windowWidth || ch != s.windowHeight)
+                {
+                    SDL_SetWindowSize(w, s.windowWidth, s.windowHeight);
+                    SDL_SetWindowPosition(w, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+                }
+            }
             return;
         }
-        // Borderless: the desktop's own mode (no mode switch). Fullscreen: exclusive, the desktop
-        // resolution at the highest refresh rate it offers.
+        // Borderless: the desktop's own mode (SDL's desktop fullscreen, no mode switch).
+        // Fullscreen: a display mode of its own, the desktop's resolution at the desktop's
+        // refresh rate (never another resolution).
         const SDL_DisplayMode *mode = nullptr;
         if (s.windowMode == WindowMode::Fullscreen)
         {
@@ -87,13 +108,66 @@ namespace rt::settings
             if (const SDL_DisplayMode *desktop = SDL_GetDesktopDisplayMode(display))
             {
                 static SDL_DisplayMode closest;
-                if (SDL_GetClosestFullscreenDisplayMode(display, desktop->w, desktop->h, 0.0f, true, &closest))
+                if (SDL_GetClosestFullscreenDisplayMode(display, desktop->w, desktop->h, desktop->refresh_rate, true, &closest))
                     mode = &closest;
             }
         }
         SDL_SetWindowFullscreenMode(w, mode);
         if (!fullscreen)
             SDL_SetWindowFullscreen(w, true);
+        if (std::getenv("RT_WINDOW_DEBUG"))
+        {
+            SDL_SyncWindow(w);
+            int x = 0, y = 0, ww = 0, hh = 0;
+            SDL_GetWindowPosition(w, &x, &y);
+            SDL_GetWindowSize(w, &ww, &hh);
+            SDL_Rect b{};
+            SDL_GetDisplayBounds(SDL_GetDisplayForWindow(w), &b);
+            std::fprintf(stderr, "[window] mode %d pos %d,%d size %dx%d flags 0x%llx display %d,%d %dx%d\n", int(s.windowMode), x, y, ww, hh,
+                         (unsigned long long)SDL_GetWindowFlags(w), b.x, b.y, b.w, b.h);
+        }
+    }
+
+    void toggleFullscreen()
+    {
+#if !defined(__ANDROID__)
+        if (!rt::host::window())
+            return;
+        static WindowMode lastFullscreen = WindowMode::Borderless;
+        Settings &s = current();
+        if (s.windowMode != WindowMode::Windowed)
+        {
+            lastFullscreen = s.windowMode;
+            s.windowMode = WindowMode::Windowed;
+        }
+        else
+            s.windowMode = lastFullscreen;
+        saveCurrent();
+        applyWindow();
+#endif
+    }
+
+    void serviceWindow(bool menuOpen)
+    {
+#if !defined(__ANDROID__)
+        SDL_Window *w = rt::host::window();
+        if (!w)
+            return;
+        // Alt+Enter and F11 (the game does not use them).
+        const bool alt = rt::host::keyHeld(SDL_SCANCODE_LALT) || rt::host::keyHeld(SDL_SCANCODE_RALT);
+        if (rt::host::keyPressed(SDL_SCANCODE_F11) || (alt && rt::host::keyPressed(SDL_SCANCODE_RETURN)))
+            toggleFullscreen();
+        // The pointer is hidden in the fullscreen modes while playing.
+        static int cursorShown = -1;
+        const int want = (menuOpen || current().windowMode == WindowMode::Windowed) ? 1 : 0;
+        if (want != cursorShown)
+        {
+            cursorShown = want;
+            want ? SDL_ShowCursor() : SDL_HideCursor();
+        }
+#else
+        (void)menuOpen;
+#endif
     }
 
     void applyGraphics()
@@ -149,6 +223,7 @@ namespace rt::settings
         {
             p->setDisplayAspect(aspect);
             capabilities().postProcess = p->supportsPostProcess();
+            capabilities().upscalerPlugins = p->availableUpscalerPlugins();
             ps2x::HostPresenter::PostProcess post;
             post.aa = s.aa == AntiAliasing::Fxaa   ? ps2x::HostPresenter::PostProcess::AntiAliasing::Fxaa
                       : s.aa == AntiAliasing::Smaa ? ps2x::HostPresenter::PostProcess::AntiAliasing::Smaa
@@ -160,6 +235,9 @@ namespace rt::settings
                            : s.upscaler == Upscaler::SnapdragonGsr1  ? ps2x::HostPresenter::PostProcess::Scaling::SnapdragonGsr1
                            : s.upscaler == Upscaler::SnapdragonGsr2  ? ps2x::HostPresenter::PostProcess::Scaling::SnapdragonGsr2
                            : s.upscaler == Upscaler::ArmAsr          ? ps2x::HostPresenter::PostProcess::Scaling::ArmAsr
+                           : s.upscaler == Upscaler::Fsr3            ? ps2x::HostPresenter::PostProcess::Scaling::Fsr3
+                           : s.upscaler == Upscaler::Dlss            ? ps2x::HostPresenter::PostProcess::Scaling::Dlss
+                           : s.upscaler == Upscaler::Xess            ? ps2x::HostPresenter::PostProcess::Scaling::Xess
                                                                     : ps2x::HostPresenter::PostProcess::Scaling::Bilinear;
             post.sharpness = s.sharpness;
             p->setPostProcess(post);

@@ -5,7 +5,11 @@
 #include "ps2_runtime.h"
 #include "runtime/ps2_host_presenter.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <sys/resource.h>
+#endif
 
 #include <algorithm>
 #include <chrono>
@@ -23,9 +27,18 @@ namespace rt::debug
 
         double cpuSeconds()
         {
+#ifdef _WIN32
+            FILETIME created, exited, kernel, user;
+            if (!GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user))
+                return 0.0;
+            auto seconds = [](const FILETIME &f)
+            { return double((uint64_t(f.dwHighDateTime) << 32) | f.dwLowDateTime) * 1e-7; }; // 100 ns ticks
+            return seconds(kernel) + seconds(user);
+#else
             rusage u{};
             getrusage(RUSAGE_SELF, &u);
             return u.ru_utime.tv_sec + u.ru_stime.tv_sec + (u.ru_utime.tv_usec + u.ru_stime.tv_usec) / 1e6;
+#endif
         }
 
 #if defined(__ANDROID__)

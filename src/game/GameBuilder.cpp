@@ -3,8 +3,13 @@
 #include "platform/Paths.h"
 #include "ps2_runtime.h"
 
+#if defined(_WIN32)
+#include "platform/Process.h"
+#include <windows.h>
+#else
 #include <dlfcn.h>
 #include <fcntl.h>
+#endif
 #if defined(__ANDROID__)
 #include "ps2recomp/ps2_recompiler.h"
 #include <asm/hwcap.h>
@@ -15,9 +20,11 @@
 // ps2xRuntime/tools/vu1_recomp (ps2_vu1_recomp_lib): the VU1 recompiler as a function.
 int ps2x_vu1_recomp_main(int argc, char **argv);
 #endif
+#if !defined(_WIN32)
 #include <spawn.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#endif
 
 #include <algorithm>
 #include <chrono>
@@ -29,7 +36,9 @@ int ps2x_vu1_recomp_main(int argc, char **argv);
 #include <thread>
 #include <vector>
 
+#if !defined(_WIN32)
 extern char **environ;
+#endif
 
 namespace rt::game
 {
@@ -39,6 +48,8 @@ namespace rt::game
     {
 #if defined(__ANDROID__)
         constexpr const char *kLibName = "libroadtrip_game.so";
+#elif defined(_WIN32)
+        constexpr const char *kLibName = "roadtrip_game.dll";
 #else
         constexpr const char *kLibName = "libroadtrip_game.dylib";
 #endif
@@ -48,6 +59,12 @@ namespace rt::game
         fs::path stampPath() { return paths::gameDir() / "build_id"; }
         fs::path sdkDir() { return paths::bundleResources() / "sdk"; }
         fs::path recompDir() { return paths::bundleResources() / "recomp"; }
+#if defined(_WIN32)
+        constexpr const char *kExe = ".exe";
+        fs::path toolchainDir() { return paths::bundleResources() / "toolchain"; }
+#else
+        constexpr const char *kExe = "";
+#endif
 
         std::string readFile(const fs::path &p)
         {
@@ -75,6 +92,14 @@ namespace rt::game
             return id;
         }
 
+#if defined(_WIN32)
+        int run(const std::vector<std::string> &argv, const fs::path &log, const fs::path &cwd = {})
+        {
+            return process::run(argv, log, cwd);
+        }
+
+        std::string capture(const std::vector<std::string> &argv) { return process::capture(argv); }
+#else
         // Runs argv with stdout/stderr appended to `log`; returns the exit status (or -1).
         int run(const std::vector<std::string> &argv, const fs::path &log, const fs::path &cwd = {})
         {
@@ -112,6 +137,7 @@ namespace rt::game
             fs::remove(tmp);
             return rc == 0 ? out : std::string{};
         }
+#endif
 
         // flags.json is written by scripts/bundle_sdk.py: {"flags": [...], "includes": [...]}.
         std::vector<std::string> jsonStringArray(const std::string &json, const std::string &key)
@@ -148,11 +174,13 @@ namespace rt::game
         bool writeConfig(const fs::path &elf, const fs::path &outDir, const fs::path &dst)
         {
             std::istringstream in(readFile(recompDir() / "roadtrip.toml"));
-            std::ofstream out(dst, std::ios::trunc);
+            std::ofstream out(dst, std::ios::trunc | std::ios::binary); // LF only, on every platform
             std::string line;
             bool sawInput = false, sawOutput = false;
             while (std::getline(in, line))
             {
+                if (!line.empty() && line.back() == 0x0D) // a CRLF checkout of the config
+                    line.pop_back();
                 if (!sawInput && line.rfind("input =", 0) == 0)
                 {
                     line = "input = " + tomlString(elf);
@@ -190,6 +218,11 @@ namespace rt::game
         const fs::path llvm = paths::toolDir() / "libllvm.so";
         std::error_code ec;
         return fs::exists(llvm, ec) ? std::optional<fs::path>(llvm) : std::nullopt;
+#elif defined(_WIN32)
+        // The shipped llvm-mingw (clang + lld + libc++ + mingw-w64), trimmed.
+        const fs::path clang = toolchainDir() / "bin" / "clang++.exe";
+        std::error_code ec;
+        return fs::exists(clang, ec) ? std::optional<fs::path>(clang) : std::nullopt;
 #endif
         const std::string p = capture({"/usr/bin/xcrun", "--find", "clang++"});
         if (p.empty() || !fs::exists(p))
@@ -199,6 +232,9 @@ namespace rt::game
 
     void requestCommandLineTools()
     {
+#if defined(_WIN32)
+        return; // nothing to install: the toolchain ships in Resources/toolchain
+#endif
         run({"/usr/bin/xcode-select", "--install"}, "/dev/null");
     }
 
@@ -223,6 +259,10 @@ namespace rt::game
         const std::string sysroot = (res / "sysroot").string();
         if (!compiler)
             return fail("The app's compiler is missing (lib/arm64/libllvm.so).");
+#elif defined(_WIN32)
+        const std::string sysroot = toolchainDir().string();
+        if (!compiler)
+            return fail("The app's compiler is missing (Resources/toolchain). Reinstall Road Trip.");
 #else
         const std::string sysroot = capture({"/usr/bin/xcrun", "--show-sdk-path"});
         if (!compiler || sysroot.empty())
@@ -266,13 +306,13 @@ namespace rt::game
             vu1Argv.push_back(a.data());
         const bool haveVu1 = ps2x_vu1_recomp_main(int(vu1Argv.size()), vu1Argv.data()) == 0 && fs::exists(vu1Source);
 #else
-        if (run({(recompDir() / "ps2_recomp").string(), config.string()}, buildLog(), work) != 0)
+        if (run({(recompDir() / (std::string("ps2_recomp") + kExe)).string(), config.string()}, buildLog(), work) != 0)
             return fail("The recompiler failed.");
 
         // VU1 microcode -> C++. Optional: without it the VU1 interpreter runs the 3D code.
         const bool haveVu1 =
-            fs::exists(recompDir() / "ps2_vu1_recomp") &&
-            run({(recompDir() / "ps2_vu1_recomp").string(), "--elf", elf.string(), "--out", vu1Source.string(), "--split"},
+            fs::exists(recompDir() / (std::string("ps2_vu1_recomp") + kExe)) &&
+            run({(recompDir() / (std::string("ps2_vu1_recomp") + kExe)).string(), "--elf", elf.string(), "--out", vu1Source.string(), "--split"},
                 buildLog(), work) == 0 &&
             fs::exists(vu1Source);
 #endif
@@ -358,6 +398,10 @@ namespace rt::game
         std::vector<std::string> deviceFlags{"-fno-stack-protector", "-U_FORTIFY_SOURCE"};
         if (getauxval(AT_HWCAP) & HWCAP_ATOMICS)
             deviceFlags.push_back("-march=armv8.1-a");
+#elif defined(_WIN32)
+        // llvm-mingw finds its headers and libraries relative to the clang binary; libc++ is the STL
+        // the runtime was built with.
+        std::vector<std::string> base{compiler->string(), "--target=x86_64-w64-windows-gnu", "-stdlib=libc++"};
 #else
         std::vector<std::string> base{compiler->string(), "-isysroot", sysroot};
 #endif
@@ -385,6 +429,8 @@ namespace rt::game
 
 #if defined(__ANDROID__)
         progress.setPhase("Compiling the game for this device");
+#elif defined(_WIN32)
+        progress.setPhase("Compiling the game for your PC");
 #else
         progress.setPhase("Compiling the game for your Mac");
 #endif
@@ -412,7 +458,7 @@ namespace rt::game
 #endif
             for (size_t i; !compileFailed && (i = next++) < units.size();)
             {
-                objects[i] = objDir / ("u" + std::to_string(i) + ".o");
+                objects[i] = objDir / ("u" + std::to_string(i) + (kExe[0] ? ".obj" : ".o"));
                 std::vector<std::string> argv = base;
                 argv.insert(argv.end(), {"-c", units[i].string(), "-o", objects[i].string()});
                 const auto t0 = std::chrono::steady_clock::now();
@@ -460,6 +506,14 @@ namespace rt::game
                                   (res / "clang/lib/linux/libclang_rt.builtins-aarch64-android.a").string(),
                                   (libs / "31/crtend_so.o").string()})
             link.push_back(extra);
+#elif defined(_WIN32)
+        // Runtime symbols resolve against RoadTrip.exe through the import library the build kit
+        // carries (the exe exports them); libc++ is a DLL next to the exe, like the runtime's.
+        std::vector<std::string> link{compiler->string(), "--target=x86_64-w64-windows-gnu", "-stdlib=libc++",
+                                      "-shared", "-fuse-ld=lld", "-o", tmpLib.string()};
+        for (auto &o : objects)
+            link.push_back(o.string());
+        link.push_back((sdkDir() / "RoadTrip.dll.a").string());
 #else
         std::vector<std::string> link{compiler->string(), "-isysroot", sysroot, "-dynamiclib", "-undefined", "dynamic_lookup",
                                       "-install_name", "@rpath/" + std::string(kLibName), "-o", tmpLib.string()};
@@ -482,14 +536,43 @@ namespace rt::game
         return true;
     }
 
+#if defined(_WIN32)
+    namespace
+    {
+        std::string lastError(DWORD code)
+        {
+            char buf[512];
+            const DWORD n = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, code, 0,
+                                           buf, sizeof(buf), nullptr);
+            std::string m(buf, n);
+            while (!m.empty() && std::isspace(static_cast<unsigned char>(m.back())))
+                m.pop_back();
+            return m + " (" + std::to_string(code) + ")";
+        }
+        void *dlsym(void *handle, const char *name)
+        {
+            return reinterpret_cast<void *>(GetProcAddress(static_cast<HMODULE>(handle), name));
+        }
+    }
+#endif
+
     bool load(std::string &error)
     {
+#if defined(_WIN32)
+        void *handle = LoadLibraryW(libPath().c_str());
+        if (!handle)
+        {
+            error = lastError(GetLastError());
+            return false;
+        }
+#else
         void *handle = dlopen(libPath().c_str(), RTLD_NOW | RTLD_LOCAL);
         if (!handle)
         {
             error = dlerror();
             return false;
         }
+#endif
         using RegisterFn = int (*)(PS2Runtime::RecompiledFunction *, uint32_t, uint32_t);
         using BuildIdFn = const char *(*)();
         auto reg = reinterpret_cast<RegisterFn>(dlsym(handle, "rt_game_register"));

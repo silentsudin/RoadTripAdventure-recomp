@@ -29,6 +29,62 @@ takes about an hour.
 
 The pipeline accepts `.cue`, raw `.bin` (MODE1 or MODE2/2352) or cooked `.iso`. Only the boot ELF's hash is checked, so any good dump of this version works.
 
+## Building the app (Windows x64)
+
+Prerequisites: Python 3, CMake and Ninja (`winget install Kitware.CMake Ninja-build.Ninja`), Git.
+The toolchain is **llvm-mingw** (clang + lld + libc++ + mingw-w64, UCRT): the runtime and the
+recompiled game need clang (`ext_vector_type`, `__builtin_elementwise_*`), and the app ships a
+trimmed copy so the player's PC can compile the game on first launch, as Android ships its LLVM.
+`scripts/fetch_llvm_mingw.py` downloads the pinned release (SHA-256 checked); `LLVM_MINGW_ROOT`
+points at one you already have.
+
+```sh
+python scripts/pipeline.py bootstrap build      # preset windows-release -> build/windows-release/
+python scripts/pipeline.py run --rom "<disc>.cue"
+```
+
+Do not `git submodule update --recursive`: Granite's test-only nested submodules exceed Windows
+path limits; `bootstrap` initialises only what the build needs.
+
+How it differs from the Mac build:
+- `RoadTrip.exe` exports the whole runtime (`--export-all-symbols`, ~17.5k symbols; the PE limit is
+  65,535) and CMake writes its import library `RoadTrip.dll.a`, which goes in `Resources/sdk`. The
+  game DLL (`roadtrip_game.dll`, built on the player's PC) links against it where the Mac uses
+  `-undefined dynamic_lookup`; data is imported through lld's auto-import.
+- **State shared with the game DLL must be one exported variable, never a function-local static of
+  an inline function or an `inline` variable**: the DLL would get its own copy (the scratchpad host
+  pointer and the display field phase were; see `ps2_memory.cpp`).
+- libc++, libunwind and libwinpthread are DLLs next to the exe: exceptions and types cross the
+  exe/game boundary (guest threads switch by unwinding through game code).
+- `Resources/toolchain` is the trimmed llvm-mingw (`bundle_sdk.py --windows`, `KIT_REV` in the
+  script forces a refresh when its file list changes). The recompilers are `Resources/recomp/*.exe`.
+- The exe's manifest (`platform/windows/RoadTrip.manifest`) makes the ANSI code page UTF-8, so
+  `std::filesystem::path::string()` and the narrow Win32 calls agree with SDL's strings.
+- `windows.h` and `raylib.h` clash (`Rectangle`, `CloseWindow`, `ShowCursor`): the runtime defines
+  `NOGDI NOUSER NOMINMAX WIN32_LEAN_AND_MEAN`, and Granite's DXGI interop is off.
+- The test socket is TCP on the loopback here: `RT_TEST_SOCKET=tcp:<port>` (port 0 picks one and
+  prints it); Python on Windows has no `AF_UNIX`.
+- The icon is the same picture as macOS's and Android's: `scripts/make_android_icon.py` writes `platform/windows/RoadTrip.ico` (16-256 px, from the macOS 1024 px master) and the exe embeds it (`platform/windows/RoadTrip.rc.in`); SDL takes the exe's first icon for the window and taskbar.
+- Data and saves: `%LOCALAPPDATA%\RoadTripRecomp` (`RT_DATA_DIR` overrides).
+
+### Upscaler plugins (Windows)
+
+FSR 3, DLSS and XeSS are separate DLLs behind `rt_upscaler_api.h` (a C interface), so the vendors'
+SDKs stay out of the GPL app: NVIDIA's and Intel's licences forbid linking them into it, and
+they ship as an optional add-on zip instead.
+
+```sh
+python scripts/fetch_upscaler_sdks.py      # pinned SDKs into build/sdks; prints the CMake options
+# FSR 3: AMD FidelityFX 1.1.4 (MIT; the 2.x SDK has no Vulkan), with the llvm-mingw toolchain
+cmake -S plugins/upscalers -B build/plugins -G Ninja -DCMAKE_BUILD_TYPE=Release       -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/llvm-mingw.cmake -DLLVM_MINGW_ROOT=<llvm-mingw> -DFFX_SDK_DIR=build/sdks/ffx
+# DLSS + XeSS: MSVC (NGX is a static MSVC library), from a VS developer prompt
+cmake -S plugins/upscalers/vendor -B build/plugins-vendor -G Ninja -DCMAKE_BUILD_TYPE=Release       -DDLSS_SDK_DIR=build/sdks/dlss -DXESS_SDK_DIR=build/sdks/xess
+```
+
+Copy the DLLs (and the vendor DLLs beside them) next to `RoadTrip.exe`, or point `RT_UPSCALER_PLUGINS`
+at them. The Options row for each appears only when its plugin loads and the GPU runs it. In
+the presenter, `upscalePlugin()` follows `upscaleArmAsr()`; see CLAUDE.md for the conventions.
+
 ## Building the app (macOS arm64)
 
 Prerequisites: Xcode Command Line Tools and `brew install cmake ninja python molten-vk`. **No ROM is needed to build the app.**

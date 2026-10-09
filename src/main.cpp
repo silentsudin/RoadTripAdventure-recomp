@@ -9,6 +9,7 @@
 // the extracted tree and mc0: onto the saves directory.
 
 #include "debug/FpsOverlay.h"
+#include "ps2x_compat.h"
 #include "debug/FrameDump.h"
 #include "debug/PerfStats.h"
 #include "debug/RamDump.h"
@@ -914,7 +915,7 @@ int main(int argc, char *argv[])
         std::ifstream env(rt::paths::dataRoot() / "env.txt");
         for (std::string line; std::getline(env, line);)
             if (const size_t eq = line.find('='); eq != std::string::npos && line[0] != '#')
-                setenv(line.substr(0, eq).c_str(), line.substr(eq + 1).c_str(), 1);
+                ps2x::setEnv(line.substr(0, eq).c_str(), line.substr(eq + 1).c_str());
     }
 #endif
     const Options opts = parseArgs(argc, argv);

@@ -55,13 +55,36 @@ def log(msg: str) -> None:
     print(f"\033[1;34m==>\033[0m {msg}", flush=True)
 
 
-def run(cmd: Sequence[str | os.PathLike], cwd: Path | None = None, check: bool = True) -> int:
+def run(cmd: Sequence[str | os.PathLike], cwd: Path | None = None, check: bool = True,
+        env: dict[str, str] | None = None) -> int:
     print("   $", " ".join(str(c) for c in cmd), flush=True)
-    return subprocess.run([str(c) for c in cmd], cwd=cwd, check=check).returncode
+    return subprocess.run([str(c) for c in cmd], cwd=cwd, check=check, env=env).returncode
+
+
+WINDOWS = sys.platform == "win32"
+EXE = ".exe" if WINDOWS else ""
+
+
+def llvm_mingw() -> Path:
+    """Windows: the llvm-mingw directory (LLVM_MINGW_ROOT, else fetched into build/llvm-mingw)."""
+    env = os.environ.get("LLVM_MINGW_ROOT")
+    if env:
+        return Path(env)
+    out = subprocess.run([sys.executable, str(ROOT / "scripts" / "fetch_llvm_mingw.py")],
+                         check=True, capture_output=True, text=True).stdout.strip().splitlines()[-1]
+    return Path(out)
+
+
+def windows_env() -> dict[str, str]:
+    """The environment CMake and Ninja run in for the llvm-mingw toolchain."""
+    root = llvm_mingw()
+    env = dict(os.environ, LLVM_MINGW_ROOT=str(root))
+    env["PATH"] = str(root / "bin") + os.pathsep + env["PATH"]
+    return env
 
 
 def tool(name: str) -> Path:
-    for candidate in TOOLS_BUILD.rglob(name):
+    for candidate in TOOLS_BUILD.rglob(name + EXE):
         if candidate.is_file() and os.access(candidate, os.X_OK):
             return candidate
     sys.exit(f"{name} not found under {TOOLS_BUILD}; run the 'tools' step first")
@@ -83,16 +106,18 @@ def step_bootstrap(_: argparse.Namespace) -> None:
         print("note: install MoltenVK (brew install molten-vk) for the Vulkan GS backend")
     for exe in ("cmake", "ninja"):
         if not shutil.which(exe):
-            sys.exit(f"missing '{exe}' (brew install cmake ninja)")
+            sys.exit(f"missing '{exe}' ({'winget install Kitware.CMake Ninja-build.Ninja' if WINDOWS else 'brew install cmake ninja'})")
 
 
 def step_tools(args: argparse.Namespace) -> None:
     log("Building host tools (ps2_analyzer, ps2_recomp)")
+    extra = ["-DCMAKE_TOOLCHAIN_FILE=" + str(ROOT / "cmake" / "toolchains" / "llvm-mingw.cmake")] if WINDOWS else []
+    env = windows_env() if WINDOWS else None
     run(["cmake", "-S", UPSTREAM, "-B", TOOLS_BUILD, "-G", "Ninja",
          "-DCMAKE_BUILD_TYPE=Release",
-         "-DPS2X_BUILD_RUNTIME=OFF", "-DPS2X_BUILD_TEST=OFF", "-DPS2X_BUILD_STUDIO=OFF"])
+         "-DPS2X_BUILD_RUNTIME=OFF", "-DPS2X_BUILD_TEST=OFF", "-DPS2X_BUILD_STUDIO=OFF", *extra], env=env)
     run(["cmake", "--build", TOOLS_BUILD, "--target", "ps2_analyzer", "ps2_recomp",
-         "-j", str(args.jobs)])
+         "-j", str(args.jobs)], env=env)
 
 
 def find_rom(args: argparse.Namespace) -> Path:
@@ -150,16 +175,23 @@ def step_recomp(_: argparse.Namespace) -> None:
 
 
 def step_build(args: argparse.Namespace) -> None:
-    log("Building RoadTrip.app")
-    run(["cmake", "--preset", args.preset], cwd=ROOT)
-    run(["cmake", "--build", "--preset", args.preset, "-j", str(args.jobs)], cwd=ROOT)
+    log("Building the app")
+    env = windows_env() if WINDOWS else None
+    run(["cmake", "--preset", args.preset], cwd=ROOT, env=env)
+    run(["cmake", "--build", "--preset", args.preset, "-j", str(args.jobs)], cwd=ROOT, env=env)
 
 
 def step_run(args: argparse.Namespace) -> None:
-    app = next(BUILD.glob(f"{args.preset}/**/RoadTrip.app"), None)
-    if not app:
-        sys.exit("RoadTrip.app not found; run the 'build' step first")
-    cmd = [app / "Contents" / "MacOS" / "RoadTrip"]
+    if WINDOWS:
+        exe = BUILD / args.preset / "RoadTrip.exe"
+        if not exe.exists():
+            sys.exit("RoadTrip.exe not found; run the 'build' step first")
+        cmd = [exe]
+    else:
+        app = next(BUILD.glob(f"{args.preset}/**/RoadTrip.app"), None)
+        if not app:
+            sys.exit("RoadTrip.app not found; run the 'build' step first")
+        cmd = [app / "Contents" / "MacOS" / "RoadTrip"]
     if args.rom:
         cmd += ["--rom", Path(args.rom).expanduser()]
     run(cmd, check=False)
@@ -180,7 +212,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("steps", nargs="+", choices=STEPS + ["all"])
     ap.add_argument("--rom", help="path to your Road Trip (USA) .cue/.bin/.iso (or set RT_ROM)")
-    ap.add_argument("--preset", default="macos-release", help="CMake preset for build/run")
+    ap.add_argument("--preset", default="windows-release" if WINDOWS else "macos-release",
+                    help="CMake preset for build/run")
     ap.add_argument("--force", action="store_true", help="continue on ELF hash mismatch")
     ap.add_argument("-j", "--jobs", type=int, default=os.cpu_count() or 4)
     args = ap.parse_args()

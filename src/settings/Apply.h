@@ -22,6 +22,10 @@ namespace rt::settings
     std::string texturePackDir();
 
     void applyWindow();   // window mode and size
+    // Window <-> the last full screen kind (Alt+Enter, F11). Desktop only.
+    void toggleFullscreen();
+    // Each frame: the shortcuts, and the pointer (hidden while playing in full screen).
+    void serviceWindow(bool menuOpen);
     void applyGraphics(); // supersampling, sharp textures
     void applyAspect();
     void applyAll();

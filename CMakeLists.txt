@@ -38,6 +38,12 @@ set(PS2X_HOST_PLATFORM "SDL3" CACHE STRING "" FORCE)
 set(ENABLE_DECOMPRESSION OFF CACHE BOOL "" FORCE)
 # Android recompiles the game on the device too: the recompiler is linked into the app.
 set(PS2X_ANDROID_RECOMP ON CACHE BOOL "" FORCE)
+# Windows has no MoltenVK-style default: the Vulkan GS is the renderer there too (system vulkan-1.dll).
+if(WIN32)
+    set(PS2X_ENABLE_PGS ON CACHE BOOL "" FORCE)
+    # Granite's DXGI swapchain interop pulls d3d12.h/ole2.h, which need the USER types raylib.h clashes with.
+    set(GRANITE_VULKAN_DXGI_INTEROP OFF CACHE BOOL "" FORCE)
+endif()
 add_subdirectory(third_party/PS2Recomp EXCLUDE_FROM_ALL)
 
 set(PS2X_RUNTIME_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/PS2Recomp/ps2xRuntime")
@@ -133,6 +139,8 @@ set(RT_APP_SOURCES
 )
 if(APPLE)
     list(APPEND RT_APP_SOURCES src/platform/macos/Dialogs.mm)
+elseif(WIN32)
+    list(APPEND RT_APP_SOURCES src/platform/windows/Dialogs.cpp src/platform/Process.cpp)
 elseif(ANDROID)
     list(APPEND RT_APP_SOURCES
         src/platform/android/Assets.cpp
@@ -153,6 +161,44 @@ if(ANDROID)
         "$<LINK_LIBRARY:WHOLE_ARCHIVE,ps2_runtime>" "$<LINK_LIBRARY:WHOLE_ARCHIVE,ps2_iop>"
         ps2_recomp_lib ps2_vu1_recomp_lib android log GLESv3)
     add_dependencies(main rt_game_sdk_probe)
+elseif(WIN32)
+    # RoadTrip.exe exports the runtime: the game DLL (built on the player's PC) links against the
+    # import library written next to it, so every runtime symbol must be in the exe and exported.
+    set(RT_APP_TARGET RoadTrip)
+    # Manifest (UTF-8 code page, long paths, DPI), version info and the icon, from platform/windows.
+    enable_language(RC)
+    set(RT_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+    set(RT_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+    set(RT_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+    set(RT_ICON_LINE "")
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/platform/windows/RoadTrip.ico")
+        set(RT_ICON_LINE "2 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/platform/windows/RoadTrip.ico\"")
+    endif()
+    configure_file(platform/windows/RoadTrip.rc.in "${CMAKE_CURRENT_BINARY_DIR}/RoadTrip.rc" @ONLY)
+    set_property(SOURCE "${CMAKE_CURRENT_BINARY_DIR}/RoadTrip.rc" PROPERTY OBJECT_DEPENDS
+                 "${CMAKE_CURRENT_SOURCE_DIR}/platform/windows/RoadTrip.manifest")
+    add_executable(RoadTrip WIN32 ${RT_APP_SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/RoadTrip.rc")
+    target_include_directories(RoadTrip PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/platform/windows")
+    add_dependencies(RoadTrip ps2_recomp rt_game_sdk_probe)
+    set_target_properties(RoadTrip PROPERTIES ENABLE_EXPORTS ON
+                          WINDOWS_EXPORT_ALL_SYMBOLS OFF
+                          IMPORT_PREFIX "" IMPORT_SUFFIX ".dll.a")
+    target_link_libraries(RoadTrip PRIVATE
+        "$<LINK_LIBRARY:WHOLE_ARCHIVE,ps2_runtime>" "$<LINK_LIBRARY:WHOLE_ARCHIVE,ps2_iop>")
+    target_link_options(RoadTrip PRIVATE "LINKER:--export-all-symbols")
+    # llvm-mingw's root: the cache variable, else the one above the compiler's bin directory.
+    if(NOT LLVM_MINGW_ROOT)
+        get_filename_component(_rt_cc_dir "${CMAKE_CXX_COMPILER}" DIRECTORY)
+        get_filename_component(LLVM_MINGW_ROOT "${_rt_cc_dir}/.." ABSOLUTE)
+    endif()
+    # libc++ and friends are DLLs here (the game DLL shares them and the exe's types and exceptions).
+    add_custom_command(TARGET RoadTrip POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${LLVM_MINGW_ROOT}/x86_64-w64-mingw32/bin/libc++.dll"
+                "${LLVM_MINGW_ROOT}/x86_64-w64-mingw32/bin/libunwind.dll"
+                "${LLVM_MINGW_ROOT}/x86_64-w64-mingw32/bin/libwinpthread-1.dll"
+                "$<TARGET_FILE_DIR:RoadTrip>"
+        VERBATIM)
 else()
     set(RT_APP_TARGET RoadTrip)
     # The icon (scripts/make_android_icon.py draws it, the same picture as the Android app's).
@@ -190,9 +236,19 @@ if(APPLE)
 endif()
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
+if(APPLE)
+    set(RT_RESOURCES_DIR "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources")
+else()
+    set(RT_RESOURCES_DIR "$<TARGET_FILE_DIR:RoadTrip>/Resources")
+endif()
 if(NOT ANDROID)
 # Always re-run (cheap): picks up a rebuilt ps2_recomp, header or config change even when the
 # app executable itself didn't relink.
+if(WIN32)
+    set(RT_BUNDLE_EXTRA --windows --implib "$<TARGET_LINKER_FILE:RoadTrip>"
+                        --toolchain "${LLVM_MINGW_ROOT}")
+    set(RT_LICENSE_EXTRA --llvm-mingw "${LLVM_MINGW_ROOT}")
+endif()
 add_custom_target(rt_bundle ALL
     COMMAND Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/scripts/bundle_sdk.py"
             --compile-commands "${CMAKE_BINARY_DIR}/compile_commands.json"
@@ -201,21 +257,22 @@ add_custom_target(rt_bundle ALL
             --recomp "$<TARGET_FILE:ps2_recomp>"
             --config "${CMAKE_CURRENT_SOURCE_DIR}/config/roadtrip.toml"
             --vu1recomp "$<TARGET_FILE:ps2_vu1_recomp>"
-            --resources "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources"
-    COMMENT "Bundling recompiler + game SDK (no game code) into RoadTrip.app"
+            --resources "${RT_RESOURCES_DIR}"
+            ${RT_BUNDLE_EXTRA}
+    COMMENT "Bundling recompiler + game SDK (no game code) into the app's Resources"
     VERBATIM)
 add_dependencies(rt_bundle RoadTrip ps2_recomp ps2_vu1_recomp rt_game_sdk_probe)
 # The UI's font (Fredoka, SIL Open Font License; licence alongside).
 add_custom_command(TARGET rt_bundle POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/fonts"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${RT_RESOURCES_DIR}/fonts"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts/Fredoka-SemiBold.ttf"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts/Fredoka-Bold.ttf"
             "${CMAKE_CURRENT_SOURCE_DIR}/resources/fonts/OFL.txt"
-            "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/fonts"
+            "${RT_RESOURCES_DIR}/fonts"
     # Every third-party component's licence (scripts/collect_licenses.py fails on a missing one).
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/collect_licenses.py" "${CMAKE_BINARY_DIR}"
-            "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/licenses"
+            "${RT_RESOURCES_DIR}/licenses" ${RT_LICENSE_EXTRA}
     VERBATIM)
 endif()
 
@@ -236,9 +293,9 @@ if(APPLE AND PS2X_ENABLE_PGS)
         COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Frameworks"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${RT_MOLTENVK_LIBRARY}"
                 "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Frameworks/libMoltenVK.dylib"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/licenses"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${RT_RESOURCES_DIR}/licenses"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_rt_mvk_prefix}/LICENSE"
-                "$<TARGET_BUNDLE_CONTENT_DIR:RoadTrip>/Resources/licenses/MoltenVK-LICENSE.txt"
+                "${RT_RESOURCES_DIR}/licenses/MoltenVK-LICENSE.txt"
         COMMENT "Bundling MoltenVK"
         VERBATIM)
 endif()

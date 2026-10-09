@@ -6,6 +6,10 @@
 
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
+#elif defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
 #elif defined(__ANDROID__)
 #include <SDL3/SDL_system.h>
 #include <dlfcn.h>
@@ -20,6 +24,11 @@ namespace rt::paths
 #if defined(__APPLE__)
         const char *home = std::getenv("HOME");
         return std::filesystem::path(home ? home : ".") / "Library" / "Application Support" / "RoadTripRecomp";
+#elif defined(_WIN32)
+        // %LOCALAPPDATA%/RoadTripRecomp (wide: the user's name may not be ASCII)
+        if (const wchar_t *local = _wgetenv(L"LOCALAPPDATA"); local && *local)
+            return std::filesystem::path(local) / "RoadTripRecomp";
+        return std::filesystem::path(".") / "RoadTripRecomp";
 #elif defined(__ANDROID__)
         const char *internal = SDL_GetAndroidInternalStoragePath(); // the app's files/ directory
         return internal ? std::filesystem::path(internal) : std::filesystem::path(".");
@@ -90,6 +99,11 @@ namespace rt::paths
             if (!ec)
                 return exe.parent_path().parent_path() / "Resources"; // Contents/MacOS/.. -> Contents/Resources
         }
+#elif defined(_WIN32)
+        wchar_t buf[32768];
+        const DWORD n = GetModuleFileNameW(nullptr, buf, static_cast<DWORD>(sizeof(buf) / sizeof(buf[0])));
+        if (n > 0 && n < sizeof(buf) / sizeof(buf[0]))
+            return std::filesystem::path(buf).parent_path() / "Resources"; // next to RoadTrip.exe
 #elif defined(__ANDROID__)
         return dataRoot() / "res"; // extracted from the APK's assets
 #endif
