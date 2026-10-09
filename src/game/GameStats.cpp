@@ -78,6 +78,12 @@ namespace rt::game
         }
     }
 
+    bool inGameplay3D(const uint8_t *ram)
+    {
+        return at<uint32_t>(ram, kScene3D) == 2 &&
+               (at<uint32_t>(ram, kScene3DHandler) == kRaceHandler || at<uint32_t>(ram, kScene3DHandler) == kTownHandler);
+    }
+
     Stats readStats(PS2Runtime &runtime)
     {
         Stats s;

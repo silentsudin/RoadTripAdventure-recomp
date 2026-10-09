@@ -134,7 +134,7 @@ namespace
             GS &gs = runtime->gsUnsynced();
             if (gs.wideDriving())
                 k = gs.wideHorizontalScale();
-            jitter = gs.cameraJitter(jx, jy);
+            jitter = gs.cameraJitter(jx, jy, rt::game::inGameplay3D(rdram));
         }
         setFrustumScale(rdram, k);
         g_build = {k < 0.999f || jitter, cam, GPR_U32(ctx, 31), k, jitter, jx, jy};
