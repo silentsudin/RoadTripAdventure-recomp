@@ -27,7 +27,7 @@ def main() -> None:
     args = ap.parse_args()
     root = args.out / NAME
     if (root / "bin" / "x86_64-w64-mingw32-clang++.exe").exists():
-        print(root)
+        print(root.as_posix())
         return
     args.out.mkdir(parents=True, exist_ok=True)
     archive = args.out / f"{NAME}.zip"
@@ -39,7 +39,7 @@ def main() -> None:
         sys.exit(f"fetch_llvm_mingw: {archive.name} has SHA-256 {digest}, expected {SHA256}")
     with zipfile.ZipFile(archive) as z:
         z.extractall(args.out)
-    print(root)
+    print(root.as_posix())
 
 
 if __name__ == "__main__":

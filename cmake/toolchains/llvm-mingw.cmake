@@ -10,6 +10,11 @@ if(NOT LLVM_MINGW_ROOT AND DEFINED ENV{LLVM_MINGW_ROOT})
 endif()
 set(_rt_triple x86_64-w64-mingw32)
 if(LLVM_MINGW_ROOT)
+    # Windows paths arrive with backslashes (Python's Path, %VAR%); CMake writes them into generated
+    # files inside quoted strings, where a backslash followed by a letter is an invalid escape: use
+    # forward slashes only.
+    file(TO_CMAKE_PATH "${LLVM_MINGW_ROOT}" LLVM_MINGW_ROOT)
+    set(LLVM_MINGW_ROOT "${LLVM_MINGW_ROOT}" CACHE PATH "llvm-mingw directory" FORCE)
     set(_rt_bin "${LLVM_MINGW_ROOT}/bin")
     set(CMAKE_C_COMPILER   "${_rt_bin}/${_rt_triple}-clang.exe")
     set(CMAKE_CXX_COMPILER "${_rt_bin}/${_rt_triple}-clang++.exe")
