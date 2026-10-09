@@ -1,4 +1,5 @@
 #include "Apply.h"
+#include "ps2x_compat.h"
 
 #include "Capabilities.h"
 #include "Settings.h"
@@ -52,7 +53,7 @@ namespace rt::settings
         // The GS starts with the chosen supersampling (an explicit RT_GS_SSAA still wins).
         g_ssaaFromEnv = std::getenv("RT_GS_SSAA") != nullptr;
         if (!g_ssaaFromEnv)
-            setenv("RT_GS_SSAA", std::to_string(current().superSampling).c_str(), 1);
+            ps2x::setEnv("RT_GS_SSAA", std::to_string(current().superSampling).c_str());
     }
 
     void applyWindow()

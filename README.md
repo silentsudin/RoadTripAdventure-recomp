@@ -1,6 +1,6 @@
 # Road Trip Recomp
 
-**Road Trip** (*Choro Q HG 2*, PS2, 2002), running natively on **macOS** and **Android**, with
+**Road Trip** (*Choro Q HG 2*, PS2, 2002), running natively on **Windows**, **macOS** and **Android**, with
 widescreen, high resolution, 120 Hz, HD texture packs, save states and a second-screen map.
 
 This isn't an emulator. The game's program is *statically recompiled* into native code, built on
@@ -49,6 +49,12 @@ The app checks it against the known good dump (Redump) and tells you if yours lo
 - Apple's Command Line Tools (a free download from Apple). If they're missing, the app offers to
   install them; you can also run `xcode-select --install` in Terminal.
 
+**Windows**
+- Windows 10 (1903) or 11 on a 64-bit x86 PC (SSE4.1 or newer), with a Vulkan 1.3 GPU and driver
+  (NVIDIA, AMD or Intel; any current driver).
+- About 2 GB free for the game files and the build. Nothing else to install: the compiler the app
+  builds the game with ships inside it.
+
 **Android**
 - Android 12 or later on a 64-bit ARM device with a Vulkan GPU. Developed on the AYN Thor
   (Snapdragon 8 Gen 2); other Snapdragon 8-series handhelds and phones should work.
@@ -56,8 +62,12 @@ The app checks it against the known good dump (Redump) and tells you if yours lo
 
 ## Install
 
-Download the latest **DMG** (Mac) or **APK** (Android) from
+Download the latest **zip** (Windows), **DMG** (Mac) or **APK** (Android) from
 [Releases](https://github.com/silentsudin/RoadTripAdventure-recomp/releases).
+
+**Windows:** unzip it anywhere you can write to (not *Program Files*) and run `RoadTrip.exe`.
+SmartScreen may warn about an unsigned app: *More info → Run anyway*. Settings, saves and the game
+built on your PC live in `%LOCALAPPDATA%\RoadTripRecomp`.
 
 **macOS:** open the DMG and drag *Road Trip* to Applications. If macOS says the app can't be
 checked for malicious software, open **System Settings → Privacy & Security** and choose
@@ -143,7 +153,9 @@ please say which device, and attach the log if you can (Android: `adb logcat -s 
 ## Building it yourself
 
 See [docs/DEVELOPING.md](docs/DEVELOPING.md) for building the Mac and Android apps, the regression
-suite and how the recomp works. In short, on an Apple Silicon Mac:
+suite and how the recomp works. In short, on an Apple Silicon Mac (on Windows,
+`python scripts/pipeline.py bootstrap build run` after `winget install Kitware.CMake Ninja-build.Ninja`;
+it fetches the pinned llvm-mingw toolchain itself):
 
 ```sh
 brew install cmake ninja python molten-vk

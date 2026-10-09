@@ -223,8 +223,13 @@ namespace rt::states
             return {};
         const std::time_t t = static_cast<std::time_t>(savedUnixTime), now = std::time(nullptr);
         std::tm at{}, today{};
+#ifdef _WIN32
+        localtime_s(&at, &t);
+        localtime_s(&today, &now);
+#else
         localtime_r(&t, &at);
         localtime_r(&now, &today);
+#endif
         char clock[16];
         std::strftime(clock, sizeof(clock), "%H:%M", &at);
         std::tm yesterday = today;

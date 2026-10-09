@@ -10,6 +10,11 @@ RoadTrip.app/Contents/Resources. Nothing here is derived from the game:
   sdk/flags.json          compiler flags matching the app's runtime ABI
   sdk/build_id            hash of all of the above; a change triggers a rebuild on launch
 
+With --windows the app is built with llvm-mingw, and the same kit carries a trimmed copy of it
+(toolchain/: clang + lld + libc++ + mingw-w64 headers and import libraries) plus sdk/RoadTrip.dll.a,
+the import library of the exe: the game DLL built on the player's PC links against it, since the
+exe exports the runtime. The recompilers are copied as .exe with the DLLs they need.
+
 With --android it writes the Android app's build kit instead, as assets/rt.tar + assets/rt.id
 (the app extracts it to files/res): sdk/ and recomp/roadtrip.toml as above (the recompilers are
 linked into the app), plus what the shipped compiler needs to build for the device: the NDK's
@@ -29,14 +34,30 @@ import sys
 import tarfile
 from pathlib import Path
 
-KEEP_PREFIXES = ("-D", "-std=", "-O", "-mmacosx-version-min=", "-f")
+KEEP_PREFIXES = ("-D", "-std=", "-O", "-mmacosx-version-min=", "-f", "-march=")
 DROP_EXACT = {"-g", "-c", "-w", "-Winvalid-pch"}
+
+
+def split_command(command: str) -> list[str]:
+    """Splits a compile command the way the OS shell would (Windows paths keep their backslashes)."""
+    if sys.platform != "win32":
+        return shlex.split(command)
+    import ctypes
+    from ctypes import wintypes
+    shell32 = ctypes.WinDLL("shell32", use_last_error=True)
+    shell32.CommandLineToArgvW.restype = ctypes.POINTER(wintypes.LPWSTR)
+    shell32.CommandLineToArgvW.argtypes = [wintypes.LPCWSTR, ctypes.POINTER(ctypes.c_int)]
+    n = ctypes.c_int(0)
+    argv = shell32.CommandLineToArgvW(command, ctypes.byref(n))
+    out = [argv[i] for i in range(n.value)]
+    ctypes.WinDLL("kernel32").LocalFree(argv)
+    return out
 
 
 def probe_command(compile_commands: Path, probe: Path) -> tuple[str, list[str], str]:
     for entry in json.loads(compile_commands.read_text()):
         if Path(entry["file"]).resolve() == probe.resolve():
-            args = entry.get("arguments") or shlex.split(entry["command"])
+            args = entry.get("arguments") or split_command(entry["command"])
             return args[0], args[1:], entry["directory"]
     sys.exit(f"bundle_sdk: {probe} not found in {compile_commands}")
 
@@ -97,6 +118,9 @@ def main() -> None:
     ap.add_argument("--clang-resource", type=Path, help="our LLVM's lib/clang/<v> (include/ inside)")
     ap.add_argument("--builtins", type=Path, help="libclang_rt.builtins-aarch64-android.a")
     ap.add_argument("--compiler", type=Path, help="the shipped compiler (its hash joins the build id)")
+    ap.add_argument("--windows", action="store_true", help="Windows (llvm-mingw): ship the toolchain and the exe's import library")
+    ap.add_argument("--implib", type=Path, help="--windows: RoadTrip.dll.a, the exe's import library")
+    ap.add_argument("--toolchain", type=Path, help="--windows: the llvm-mingw release directory")
     a = ap.parse_args()
 
     compiler, args, cwd = probe_command(a.compile_commands, a.probe)
@@ -137,16 +161,67 @@ def main() -> None:
     if a.android:
         android_kit(a, flags, includes, copied)
         return
-    shutil.copy2(a.recomp, recomp / "ps2_recomp")
+    suffix = a.recomp.suffix  # ".exe" on Windows
+    shutil.copy2(a.recomp, recomp / ("ps2_recomp" + suffix))
     if a.vu1recomp:
-        shutil.copy2(a.vu1recomp, recomp / "ps2_vu1_recomp")
+        shutil.copy2(a.vu1recomp, recomp / ("ps2_vu1_recomp" + suffix))
+    if a.windows:
+        windows_kit(a)
 
     h = hashlib.sha1()
+    toolchain = a.resources / "toolchain"
     for p in sorted(x for x in a.resources.rglob("*") if x.is_file() and x.name != "build_id"):
         h.update(str(p.relative_to(a.resources)).encode())
-        h.update(p.read_bytes())
+        if toolchain in p.parents:
+            h.update(str(p.stat().st_size).encode())  # the release is pinned; names and sizes say enough
+        else:
+            h.update(p.read_bytes())
     (sdk / "build_id").write_text(h.hexdigest() + "\n")
     print(f"bundle_sdk: {copied} headers, {len(flags)} flags, build id {h.hexdigest()[:12]}")
+
+
+# What the shipped compiler needs from an llvm-mingw release, relative to its root: the driver and
+# its wrappers, lld, the LLVM/clang DLLs they load, libc++ for them and for the programs they build,
+# the headers, and the x86_64 libraries. Everything else (other architectures, debuggers, clangd,
+# widl, python, sanitizers) stays out.
+TOOLCHAIN_BIN = ("x86_64-w64-mingw32-clang.exe", "x86_64-w64-mingw32-clang++.exe", "clang.exe", "clang++.exe",
+                 "clang-target-wrapper.exe", "ld.lld.exe", "libLLVM-*.dll", "libclang-cpp.dll", "libc++.dll",
+                 "libunwind.dll", "libwinpthread-1.dll", "clang-[0-9]*.exe",
+                 "mingw32-common.cfg", "x86_64-*.cfg")  # the cfgs set -rtlib=compiler-rt, libunwind, lld per triple
+KIT_REV = 2  # bump when the set above changes: a staged toolchain from an older rev is replaced
+RUNTIME_DLLS = ("libc++.dll", "libunwind.dll", "libwinpthread-1.dll")
+
+
+def windows_kit(a) -> None:
+    """--windows: toolchain/ (trimmed llvm-mingw), sdk/RoadTrip.dll.a, and the DLLs the recompilers load."""
+    root = a.toolchain
+    if not root or not (root / "bin").is_dir():
+        sys.exit("bundle_sdk --windows: --toolchain must be an llvm-mingw directory")
+    stage = a.resources / "toolchain"
+    marker = stage / ".source"
+    want = f"{KIT_REV} {root.resolve()} {sorted(p.name for p in (root / 'bin').glob('libLLVM-*.dll'))}"
+    if not (marker.exists() and marker.read_text() == want):
+        if stage.exists():
+            shutil.rmtree(stage)
+        (stage / "bin").mkdir(parents=True)
+        for pattern in TOOLCHAIN_BIN:
+            for f in (root / "bin").glob(pattern):
+                shutil.copy2(f, stage / "bin" / f.name)
+        shutil.copytree(root / "include", stage / "include",
+                        ignore=shutil.ignore_patterns("*.idl", "ddk", "mshtml*", "*.rc"))
+        shutil.copytree(root / "x86_64-w64-mingw32", stage / "x86_64-w64-mingw32")
+        for clang in (root / "lib" / "clang").iterdir():  # lib/clang/<version>
+            dst = stage / "lib" / "clang" / clang.name
+            shutil.copytree(clang / "include", dst / "include")
+            (dst / "lib" / "windows").mkdir(parents=True)
+            shutil.copy2(clang / "lib" / "windows" / "libclang_rt.builtins-x86_64.a", dst / "lib" / "windows")
+        shutil.copy2(root / "LICENSE.TXT", stage / "LICENSE.TXT")
+        marker.write_text(want)
+    # The import library of the exe, what the game DLL links against.
+    shutil.copy2(a.implib, a.resources / "sdk" / "RoadTrip.dll.a")
+    # The recompilers are built with the same libc++; they find its DLLs beside them.
+    for name in RUNTIME_DLLS:
+        shutil.copy2(root / "x86_64-w64-mingw32" / "bin" / name, a.resources / "recomp" / name)
 
 
 def android_kit(a, flags: list[str], includes: list[str], copied: int) -> None:

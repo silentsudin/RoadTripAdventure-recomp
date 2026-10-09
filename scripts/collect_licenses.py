@@ -48,13 +48,18 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--llvm", help="LLVM source dir (Android: the on-device compiler, libc++)")
     ap.add_argument("--moltenvk", help="MoltenVK's LICENSE (Mac)")
+    ap.add_argument("--llvm-mingw", help="llvm-mingw directory (Windows: the shipped compiler, libc++, mingw-w64)")
     args = ap.parse_args()
     build, out = Path(args.build), Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
-    comps = list(COMPONENTS)
+    # sse2neon is fetched for ARM builds only.
+    comps = [c for c in COMPONENTS if c[0] != "sse2neon" or (build / "_deps" / "sse2neon-src").is_dir()]
     if args.llvm:
         comps.append(("LLVM", "the on-device compiler (clang, lld) and libc++", f"abs:{args.llvm}", ["LICENSE.TXT"]))
+    if args.llvm_mingw:
+        comps.append(("llvm-mingw", "the shipped compiler: clang, lld, libc++, mingw-w64 (Windows)",
+                      f"abs:{args.llvm_mingw}", ["LICENSE.TXT"]))
     if args.moltenvk:
         comps.append(("MoltenVK", "Vulkan on Metal", f"absfile:{args.moltenvk}", []))
 
@@ -71,15 +76,15 @@ def main():
             if not p.is_file():
                 missing.append(f"{name}: {p}")
                 continue
-            texts.append(p.read_text(errors="replace"))
+            texts.append(p.read_text(encoding="utf-8", errors="replace"))
         if not texts:
             continue
         body = "\n\n".join(texts)
-        (out / f"{name.replace(' ', '')}-LICENSE.txt").write_text(body)
+        (out / f"{name.replace(' ', '')}-LICENSE.txt").write_text(body, encoding="utf-8")
         notices.append(f"{'=' * 78}\n{name} ({what})\n{'=' * 78}\n\n{body.strip()}\n")
     (out / "THIRD_PARTY_NOTICES.txt").write_text(
         "Road Trip recomp ships the following third-party software under their own licences.\n"
-        "The app's source, including how these are built and linked, is public.\n\n" + "\n\n".join(notices))
+        "The app's source, including how these are built and linked, is public.\n\n" + "\n\n".join(notices), encoding="utf-8")
     if missing:
         sys.exit("collect_licenses: missing licence files:\n  " + "\n  ".join(missing))
     print(f"collect_licenses: {len(notices)} components -> {out}")
