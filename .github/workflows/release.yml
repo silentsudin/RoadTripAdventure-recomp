@@ -131,7 +131,15 @@ jobs:
           SEMVER: ${{ needs.version.outputs.semver }}
         run: |
           mkdir -p dmg && cp -R build/macos-release/RoadTrip.app dmg/ && ln -s /Applications dmg/Applications
-          hdiutil create -volname "Road Trip" -srcfolder dmg -ov -format UDZO "RoadTripRecomp-$SEMVER-macOS.dmg"
+          # hdiutil now and then fails with "Resource busy" on the runners (Spotlight or another
+          # disk-image job holding the device): try again a few times before failing the job
+          for attempt in 1 2 3 4 5; do
+            hdiutil create -volname "Road Trip" -srcfolder dmg -ov -format UDZO "RoadTripRecomp-$SEMVER-macOS.dmg" && break
+            if [ "$attempt" = 5 ]; then exit 1; fi
+            echo "hdiutil create failed (attempt $attempt), retrying in $((attempt * 10)) s"
+            hdiutil info || true
+            sleep $((attempt * 10))
+          done
       - name: Notarize
         if: env.HAS_CERT == 'true' && env.HAS_NOTARY == 'true'
         env:
