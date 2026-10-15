@@ -151,6 +151,17 @@ visible world is this tile + the quadrant neighbours chosen by the same id
 walk; 4 tile slots stream, matching the 4 × `0x3A8000` slots in
 `fieldTileData`.
 
+Two things stay open and need one live trace (`gs_tasks_spawn` arg captures at
+id-change), because the decompiler shows inputs already in a fixed-point space
+whose scale can't be pinned from this function alone:
+- the fixed-unit ↔ game-unit scale (quadrant steps are ±`0x1000000`/±`0x2000000`,
+  wrap `0x2000000`; not a clean multiple of the 1600-unit tile, so it is
+  authored-space, not world units), and
+- the row-parity term `b`: it makes id bit0 track row parity, implying either
+  a staggered grid or a pack-order unrelated to spatial columns. The
+  id formula is recorded verbatim above; the digit↔filename mapping is
+  inferred and unconfirmed.
+
 ## What remains for real terrain
 
 - Map `materialRef` (and the 256-entry attribute table) to the tile's texture
