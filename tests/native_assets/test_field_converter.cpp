@@ -17,6 +17,7 @@
 using rt::native::assets::FieldTileError;
 using rt::native::assets::FieldTileResult;
 using rt::native::assets::convertFieldTile;
+using rt::native::assets::extractFieldPackets;
 using rt::native::assets::parseFieldTileHeader;
 
 namespace {
@@ -159,7 +160,7 @@ Bytes buildCatalogTile(std::uint32_t magic, bool monotonicDirectory) {
     const std::uint32_t offA = 0x20;
     const std::uint32_t subRegionBytes = 0x80;
     const std::uint32_t offB = offA + 65 * 4 + 256 * 4 + subRegionBytes;
-    const std::uint32_t pmpSpan = 0x1C4;
+    const std::uint32_t pmpSpan = 0x320;
     const std::uint32_t offC = offB + pmpSpan;
 
     Bytes bytes;
@@ -183,8 +184,26 @@ Bytes buildCatalogTile(std::uint32_t magic, bool monotonicDirectory) {
     while (bytes.size() < offB) pushU32(bytes, 0x10000259);
     pushU32(bytes, magic);
     pushU32(bytes, 0x20);
-    pushU32(bytes, 0x40);
-    pushU32(bytes, 0x60);
+    pushU32(bytes, 0xB0);
+    pushU32(bytes, 0x220);
+    while (bytes.size() < offB + 0x20) pushU32(bytes, 0);
+    // One packet in section 0: header (5 verts) + 5 vertices + 3 normals.
+    pushU32(bytes, 0x8005);
+    pushU32(bytes, 0x20224000);
+    pushU32(bytes, 0x41);
+    pushU32(bytes, 0x00100651);
+    for (int v = 0; v < 5; ++v) {
+        pushU32(bytes, 0x41200000u + static_cast<std::uint32_t>(v));  // x=10.x
+        pushU32(bytes, 0xc1200000u - static_cast<std::uint32_t>(v));  // z=-10.x
+        pushU32(bytes, 0x41200000u + static_cast<std::uint32_t>(v));  // y=10.x
+        pushU32(bytes, 0x3f800000u);                                   // q=1
+    }
+    for (int n = 0; n < 3; ++n) {
+        pushU32(bytes, 0x3d4ccccdu);  // nx=0.05
+        pushU32(bytes, 0x3f800000u);  // ny=1
+        pushU32(bytes, 0x3d4ccccdu);  // nz=0.05
+        pushU32(bytes, 0x3f800000u);  // w=1
+    }
     while (bytes.size() < offB + 0x180) pushU32(bytes, 0);
     pushU32(bytes, 0x184);  // extension offset, relative to offB
     while (bytes.size() < offC + 8) pushU32(bytes, 0);
@@ -204,7 +223,7 @@ void testCatalogValid() {
     check(catalog->pmpSections.size() == 3, "catalog: three sections");
     const std::uint32_t offB = 0x20 + 65 * 4 + 256 * 4 + 0x80;
     check(catalog->pmpSections[0] == offB + 0x20 &&
-          catalog->pmpSections[2] == offB + 0x60,
+          catalog->pmpSections[2] == offB + 0x220,
           "catalog: section targets are offB-relative");
     check(catalog->pmpExtensionOffset == offB + 0x184,
           "catalog: new-style extension offset resolved");
@@ -225,6 +244,24 @@ void testCatalogRejectsBadShapes() {
     check(rt::native::assets::catalogFieldTile(nonMonotonic).error() ==
               FieldTileError::BadHeader,
           "catalog: non-monotonic directory rejected");
+}
+
+void testExtractsPacketsFromSyntheticTile() {
+    const Bytes bytes = buildCatalogTile(0x608, true);
+    const auto catalog = rt::native::assets::catalogFieldTile(bytes);
+    check(catalog.has_value(), "packets: synthetic tile catalogs");
+    if (!catalog) return;
+    const auto packets = rt::native::assets::extractFieldPackets(bytes, *catalog);
+    check(packets.size() == 1, "packets: one packet extracted");
+    if (packets.empty()) return;
+    check(packets[0].vertices.size() == 5, "packets: five vertices");
+    check(packets[0].faceNormals.size() == 3, "packets: N-2 face normals");
+    check(packets[0].materialRef == 0x100651, "packets: material ref");
+    check(packets[0].sectionIndex == 0, "packets: section index");
+    const auto& v = packets[0].vertices[0];
+    check(std::abs(v.px - 10.0f) < 0.01f && std::abs(v.pz + 10.0f) < 0.01f,
+          "packets: vertex float decode");
+    check(std::abs(v.u - 0.25f) < 0.01f, "packets: planar UV at grid spacing");
 }
 
 std::filesystem::path discRoot() {
@@ -271,6 +308,19 @@ void testRealFieldTileWhenAvailable() {
                   << catalog->attributeCount << " pmp-sections="
                   << catalog->pmpSections.size() << '\n';
     }
+
+    const auto packets = extractFieldPackets(bytes, *catalog);
+    check(packets.size() == 6185, "real FLD/000.BIN: packet count");
+    std::size_t packetVertices = 0;
+    std::size_t normals = 0;
+    for (const auto& packet : packets) {
+        packetVertices += packet.vertices.size();
+        normals += packet.faceNormals.size();
+    }
+    check(packetVertices == 25590, "real FLD/000.BIN: packet vertex count");
+    check(normals == 13220, "real FLD/000.BIN: face normal count");
+    std::cout << "test_field_converter: FLD/000.BIN packets=" << packets.size()
+              << " vertices=" << packetVertices << " tris=" << normals << '\n';
 
     const FieldTileResult result =
         convertFieldTile(bytes, "FLD/000.BIN", testDigest());
@@ -332,6 +382,7 @@ void testCatalogCorpusWhenAvailable() {
     std::size_t parsed = 0;
     std::size_t variantLayout = 0;
     std::size_t variantHeader = 0;
+    std::size_t tilesWithGeometry = 0;
     for (const auto& entry : std::filesystem::directory_iterator(dir)) {
         if (entry.path().extension() != ".BIN") {
             continue;
@@ -340,8 +391,12 @@ void testCatalogCorpusWhenAvailable() {
         const Bytes bytes((std::istreambuf_iterator<char>(input)),
                          std::istreambuf_iterator<char>());
         ++total;
-        if (rt::native::assets::catalogFieldTile(bytes)) {
+        const auto tileCatalog = rt::native::assets::catalogFieldTile(bytes);
+        if (tileCatalog) {
             ++parsed;
+            if (!extractFieldPackets(bytes, *tileCatalog).empty()) {
+                ++tilesWithGeometry;
+            }
             continue;
         }
         // Distinguish the known variant population: files whose first word is
@@ -361,9 +416,12 @@ void testCatalogCorpusWhenAvailable() {
     check(total == 64, "catalog corpus: 64 tiles present");
     check(parsed == 50 && variantLayout == 13 && variantHeader == 1,
           "catalog corpus: 50 canonical / 13 layout variants / 1 header variant");
+    check(tilesWithGeometry == parsed,
+          "geometry corpus: every canonical tile yields packets");
     std::cout << "test_field_converter: catalog corpus canonical=" << parsed
               << " layout-variants=" << variantLayout
-              << " header-variants=" << variantHeader << " of " << total << '\n';
+              << " header-variants=" << variantHeader
+              << " with-geometry=" << tilesWithGeometry << " of " << total << '\n';
 }
 
 } // namespace
@@ -375,6 +433,7 @@ int main() {
     testRejectsMeshVertexRangeOutsideFile();
     testCatalogValid();
     testCatalogRejectsBadShapes();
+    testExtractsPacketsFromSyntheticTile();
     testRealFieldTileWhenAvailable();
     testCatalogCorpusWhenAvailable();
 

@@ -25,6 +25,11 @@ constexpr std::size_t kAttributeTableEntries = 256;
 constexpr std::uint32_t kPmpMagicOld = 0x600;
 constexpr std::uint32_t kPmpMagicNew = 0x608;
 constexpr std::size_t kPmpExtensionWordOffset = 0x180;
+constexpr std::uint32_t kPacketHeaderFlag = 0x8000;
+constexpr std::uint32_t kPacketHeaderTag = 0x20224000;
+constexpr std::uint32_t kPacketHeaderKind = 0x41;
+constexpr std::uint32_t kPacketMaxVertices = 0x400;
+constexpr float kPacketGridSpacing = 40.0f;
 
 std::uint32_t readU32LE(std::span<const std::uint8_t> bytes, std::size_t offset) noexcept {
     return static_cast<std::uint32_t>(bytes[offset]) |
@@ -170,6 +175,108 @@ catalogFieldTile(std::span<const std::uint8_t> tileFile) {
     }
 
     return catalog;
+}
+
+namespace {
+
+bool plausiblePacketVertex(std::span<const std::uint8_t> file, std::size_t at) noexcept {
+    const float x = readFloatLE(file, at);
+    const float z = readFloatLE(file, at + sizeof(float));
+    const float y = readFloatLE(file, at + 2 * sizeof(float));
+    const float q = readFloatLE(file, at + 3 * sizeof(float));
+    return std::isfinite(x) && std::isfinite(y) && std::isfinite(z) && std::isfinite(q) &&
+           std::abs(x) < 5000.0f && std::abs(y) < 5000.0f && std::abs(z) < 5000.0f &&
+           q > 0.25f && q < 4.0f;
+}
+
+bool plausibleFaceNormal(std::span<const std::uint8_t> file, std::size_t at) noexcept {
+    const float nx = readFloatLE(file, at);
+    const float ny = readFloatLE(file, at + sizeof(float));
+    const float nz = readFloatLE(file, at + 2 * sizeof(float));
+    const float w = readFloatLE(file, at + 3 * sizeof(float));
+    return std::isfinite(nx) && std::isfinite(ny) && std::isfinite(nz) && std::isfinite(w) &&
+           std::abs(nx) < 1e6f && std::abs(nz) < 1e6f;
+}
+
+} // namespace
+
+std::vector<FieldPacket>
+extractFieldPackets(std::span<const std::uint8_t> tileFile,
+                   const FieldTileCatalog& catalog) {
+    std::vector<FieldPacket> packets;
+    const std::size_t sectionCount = catalog.pmpSections.size();
+    for (std::size_t section = 0; section < sectionCount; ++section) {
+        const std::size_t limit = section + 1 < sectionCount
+                                     ? catalog.pmpSections[section + 1]
+                                     : catalog.header.offC;
+        // Anchoring on packet headers (word1/word2 constants are denormal-as-
+        // float bit patterns that never collide with live vertex data) keeps
+        // the walk drift-free even where attribute gaps deviate.
+        std::vector<std::pair<std::size_t, std::uint32_t>> headers;
+        for (std::size_t cursor = catalog.pmpSections[section]; cursor + 16 <= limit;
+             cursor += 16) {
+            const std::uint32_t word0 = readU32LE(tileFile, cursor);
+            if ((word0 & 0xF000u) == kPacketHeaderFlag &&
+                readU32LE(tileFile, cursor + 4) == kPacketHeaderTag &&
+                readU32LE(tileFile, cursor + 8) == kPacketHeaderKind) {
+                headers.emplace_back(cursor, word0 & 0x0FFFu);
+            }
+        }
+        for (std::size_t index = 0; index < headers.size(); ++index) {
+            const std::size_t start = headers[index].first;
+            const std::uint32_t vertexCount = headers[index].second;
+            const std::size_t nextHeader =
+                index + 1 < headers.size() ? headers[index + 1].first : limit;
+            if (vertexCount < 3 || vertexCount > kPacketMaxVertices ||
+                start + 16 + static_cast<std::size_t>(vertexCount) * 16 > nextHeader) {
+                continue;
+            }
+            FieldPacket packet;
+            packet.sectionIndex = static_cast<std::uint32_t>(section);
+            packet.materialRef = readU32LE(tileFile, start + 12) & 0x00FF'FFFFu;
+            packet.vertices.reserve(vertexCount);
+            bool verticesOk = true;
+            std::size_t cursor = start + 16;
+            for (std::uint32_t vertex = 0; vertex < vertexCount; ++vertex) {
+                if (!plausiblePacketVertex(tileFile, cursor)) {
+                    verticesOk = false;
+                    break;
+                }
+                // Disc layout is (x, z, y, q); host vertices are x/y/z with a
+                // planar UV at the observed grid spacing.
+                Vertex decoded{};
+                decoded.px = readFloatLE(tileFile, cursor);
+                decoded.py = readFloatLE(tileFile, cursor + 2 * sizeof(float));
+                decoded.pz = readFloatLE(tileFile, cursor + sizeof(float));
+                decoded.u = decoded.px / kPacketGridSpacing;
+                decoded.v = decoded.pz / kPacketGridSpacing;
+                packet.vertices.push_back(decoded);
+                cursor += 4 * sizeof(float);
+            }
+            if (!verticesOk) {
+                continue;
+            }
+            // Trailing quads are per-face attributes; when the gap is exactly
+            // N-2 they are the flat-shading face normals (nx, ny, nz, w).
+            const std::size_t gap = (nextHeader - cursor) / (4 * sizeof(float));
+            if (gap == vertexCount - 2) {
+                packet.faceNormals.reserve(gap);
+                for (std::uint32_t face = 0; face + 2 < vertexCount; ++face) {
+                    if (!plausibleFaceNormal(tileFile, cursor)) {
+                        packet.faceNormals.clear();
+                        break;
+                    }
+                    packet.faceNormals.push_back(
+                        {readFloatLE(tileFile, cursor),
+                         readFloatLE(tileFile, cursor + sizeof(float)),
+                         readFloatLE(tileFile, cursor + 2 * sizeof(float))});
+                    cursor += 4 * sizeof(float);
+                }
+            }
+            packets.push_back(std::move(packet));
+        }
+    }
+    return packets;
 }
 
 FieldTileResult convertFieldTile(std::span<const std::uint8_t> tileFile,

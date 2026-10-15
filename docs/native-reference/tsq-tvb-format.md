@@ -95,11 +95,11 @@ is not evidence of an opcode.
   and shows program `0x12`, pitch-scale `0x10EE`, keys `0x16`/`0x1D`, and
   repeated release timing.
 
-Remaining work: execute or decompile the shipped `SNDMOD.IRX` play routine to
-prove tick rate, `00` handling, E0 gain conversion, E4/E5/EA pitch equations,
-F1/F9 semantics, and whether the reverb labels map directly to SPU calls.
-Until then, these labels are sufficient for a bounded event decoder/MIDI-like
-export, but not for bit-accurate playback.
+All of the above has since been PROVEN against `SNDMOD.IRX` itself
+(`sndmod-irx.md`): tick rate, opcode dispatch/widths (incl. `E3` tempo = 2
+operands, `F1` = priority change, `F9` = external channel, `E6/E7/E8/E9` =
+reverb mode/depth/on/off), gain math, and the pitch table. Remaining open
+work is only bit-accurate SPU ADSR/reverb curves.
 
 ## Native offline-render constants (now PROVEN against SNDMOD.IRX)
 

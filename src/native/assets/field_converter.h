@@ -67,6 +67,22 @@ struct FieldTileCatalog {
 expected<FieldTileCatalog, FieldTileError>
 catalogFieldTile(std::span<const std::uint8_t> tileFile);
 
+// One decoded GPU packet from the PMP sections: header
+// [0x8000|vertexCount, 0x20224000, 0x41, materialRef] followed by N
+// float4 vertices (x, z, y, q) and N-2 face normals (nx, 1, nz).  Vertices
+// form a triangle fan; UVs are a planar projection at the observed 40-unit
+// grid spacing (authentic UV provenance still lives in the VU0 path).
+struct FieldPacket {
+    std::uint32_t sectionIndex = 0;
+    std::uint32_t materialRef = 0;  // header word3, low 24 bits
+    std::vector<Vertex> vertices;
+    std::vector<std::array<float, 3>> faceNormals;
+};
+
+std::vector<FieldPacket>
+extractFieldPackets(std::span<const std::uint8_t> tileFile,
+                   const FieldTileCatalog& catalog);
+
 expected<FieldTileHeader, FieldTileError>
 parseFieldTileHeader(std::span<const std::uint8_t> tileFile);
 

@@ -53,16 +53,40 @@ size-check `< 0x750000`, copy `DAT_00100004..end` into
 Variant parsing is deferred; the split is asserted in the suite so drift is
 caught.
 
+## Section packet grammar (PROVEN, extraction implemented)
+
+`extractFieldPackets()` walks each section anchored on packet headers —
+`[0x8000|vertexCount, 0x20224000, 0x41, materialRef]` — whose word1/word2
+are denormal-as-float bit patterns that never collide with live vertex data,
+making the walk drift-free. Each packet is:
+
+1. `N` float4 vertices `(x, z, y, q)` (q≈1.0),
+2. `N-2` trailing quads `(nx, ny, nz, w)` — face data whose components are
+   **slope-encoded** (near-vertical faces carry components in the thousands,
+   so they are gradient/slope records, not unit normals).
+
+Vertices form a triangle fan. Coordinates sit on a 40-unit grid (observed
+values are multiples of 40), so host UVs use a planar projection `coord/40`
+as the documented stand-in until authentic UVs are traced through the VU0
+path.
+
+Corpus totals (all 50 canonical tiles): **288,745 packets, 1,235,837
+vertices, ~658k triangles**; section gap equals N-2 on 288,732/288,745
+packets (99.995%). FLD/000.BIN: 6,185 packets / 25,590 vertices / 13,220
+face records — pinned by the test suite.
+
 ## What remains for real terrain
 
-- Parse PMP sections from the `offB` section table (counts live in the
-  section blocks; vertex stride f6 `(x,z,y,S,T,Q)` already observed).
+- Map `materialRef` (and the 256-entry attribute table) to the tile's texture
+  set so packets render with authentic textures instead of planar UVs.
 - Interpret the 65 sub-block DMA payload streams (VIF-adjacent, feeds VU0
-  macros) — only needed for per-cell placement/materials, not for the tile
-  mesh itself, which the PMP block carries.
-- 256-entry attribute table semantics.
+  macros) — needed for per-cell placement/prop detail, not the tile mesh.
+- Parse the 13 `offB < offA` layout-variant tiles and the `0x160`-header
+  variant (asserted counts in the corpus test).
 
-`assets/field_converter.{h,cpp}` should be extended to implement: header →
-directory walk → PMP magic/section table → vertex extraction. The
+`assets/field_converter.{h,cpp}` exposes `catalogFieldTile()` (header →
+directory walk → attribute count → PMP magic/section table → extension
+offset) and `extractFieldPackets()` (drift-proof anchored packet walk). The
 "needs a VU0 macro disassembler" blocker applies only to sub-block payload
-detail and COURSE route streams, not to tile geometry.
+detail, authentic UVs/material binding, and COURSE route streams — tile
+geometry itself is fully extracted today.
