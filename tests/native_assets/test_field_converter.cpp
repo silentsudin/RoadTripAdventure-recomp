@@ -14,10 +14,12 @@
 #include <string>
 #include <vector>
 
+using rt::native::assets::FieldTexture;
 using rt::native::assets::FieldTileError;
 using rt::native::assets::FieldTileResult;
 using rt::native::assets::convertFieldTile;
 using rt::native::assets::extractFieldPackets;
+using rt::native::assets::fieldTextureCatalog;
 using rt::native::assets::parseFieldTileHeader;
 
 namespace {
@@ -281,6 +283,258 @@ void testBuildsRenderTerrain() {
           "terrain: y-up coordinate mapping at scale");
 }
 
+// ── fieldTextureCatalog ──────────────────────────────────────────────────
+//
+// Grammar proven on all 3,097 uploads of the 64 disc FLD tiles (see
+// docs/native-reference/field-textures.md): within [headerSize, offA) a DMA
+// REF-tag chain (byte3 0x10, inline payload qwc*16) of A+D GIF packets with
+// BITBLTBUF/TRXPOS/TRXREG/TRXDIR (DIR 0, DSAX/DSAY 0) plus IMAGE data,
+// terminated by an END tag (byte3 0x70).
+
+std::filesystem::path discRoot();
+
+void appendWord(Bytes& bytes, std::uint32_t value) {
+    bytes.push_back(static_cast<std::uint8_t>(value & 0xFF));
+    bytes.push_back(static_cast<std::uint8_t>((value >> 8) & 0xFF));
+    bytes.push_back(static_cast<std::uint8_t>((value >> 16) & 0xFF));
+    bytes.push_back(static_cast<std::uint8_t>((value >> 24) & 0xFF));
+}
+
+void appendDword(Bytes& bytes, std::uint64_t value) {
+    for (std::size_t i = 0; i < 8; ++i) {
+        bytes.push_back(static_cast<std::uint8_t>((value >> (8 * i)) & 0xFF));
+    }
+}
+
+// One texture upload as its own REF frame; returns the frame's tag offset.
+std::size_t appendUpload(Bytes& bytes, std::uint32_t dbp, std::uint32_t dbw,
+                        std::uint32_t psm, std::uint32_t width, std::uint32_t height,
+                        std::uint32_t dataBytes, std::size_t& imageTagOffsetOut) {
+    const std::size_t dataQuads = dataBytes / 16;
+    const std::uint32_t qwc = 5 + static_cast<std::uint32_t>(1 + dataQuads);
+    const std::size_t tagOffset = bytes.size();
+    appendWord(bytes, (0x10u << 24) | qwc);  // REF tag, inline payload
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    // A+D setup: NLOOP 4, EOP, NREG 1; REGS descriptor low nibble 0xE.
+    appendDword(bytes, 4ull | (1ull << 15) | (1ull << 60));
+    appendDword(bytes, 0xEull);
+    appendDword(bytes, (static_cast<std::uint64_t>(dbw) << 48) |
+                           (static_cast<std::uint64_t>(dbp) << 32) |
+                           (static_cast<std::uint64_t>(psm) << 56));
+    appendDword(bytes, 0x50);  // BITBLTBUF
+    appendDword(bytes, 0);
+    appendDword(bytes, 0x51);  // TRXPOS (whole image: DSAX/DSAY zero)
+    appendDword(bytes, (static_cast<std::uint64_t>(height) << 32) | width);
+    appendDword(bytes, 0x52);  // TRXREG
+    appendDword(bytes, 0);
+    appendDword(bytes, 0x53);  // TRXDIR (DIR = 0)
+    imageTagOffsetOut = bytes.size();
+    appendDword(bytes, dataQuads | (1ull << 15) | (2ull << 58));  // IMAGE mode
+    appendDword(bytes, 0);
+    for (std::size_t quad = 0; quad < dataQuads; ++quad) {
+        appendDword(bytes, 0x1122334455667700ull + quad);
+        appendDword(bytes, 0x8899AABBCCDDEEFFull + quad);
+    }
+    return tagOffset;
+}
+
+// header + uploads + END + trailing strip up to offA.
+Bytes makeChainFile(const Bytes& uploads, std::size_t stripBytes, std::size_t& offAOut) {
+    Bytes bytes(0x20, 0);
+    setU32(bytes, 0x00, 0x20);  // header size
+    offAOut = 0x20 + uploads.size() + 16 + stripBytes;
+    setU32(bytes, 0x04, static_cast<std::uint32_t>(offAOut));
+    bytes.insert(bytes.end(), uploads.begin(), uploads.end());
+    appendWord(bytes, 0x70u << 24);  // END tag
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    bytes.insert(bytes.end(), stripBytes, 0xAA);
+    return bytes;
+}
+
+void testTextureCatalogSyntheticChain() {
+    Bytes uploads;
+    std::size_t image0 = 0, image1 = 0, image2 = 0;
+    // T8 8x8 (64 B) at page 0x100 + its trailing CT32 16x2 palette (128 B)
+    // at page 0x101; then a T4 8x8 (32 B) at 0x200 whose palette is shared
+    // (no trailing CLUT upload) and so stays unlinked.
+    const std::size_t tag0 = appendUpload(uploads, 0x100, 1, 0x13, 8, 8, 64, image0);
+    const std::size_t tag1 = appendUpload(uploads, 0x101, 1, 0x00, 16, 2, 128, image1);
+    const std::size_t tag2 = appendUpload(uploads, 0x200, 1, 0x14, 8, 8, 32, image2);
+    std::size_t offA = 0;
+    const Bytes bytes = makeChainFile(uploads, 0x40, offA);
+
+    const auto catalog = fieldTextureCatalog(bytes);
+    check(catalog.has_value(), "texcatalog: synthetic chain parses");
+    if (!catalog) {
+        return;
+    }
+    check(catalog->size() == 3, "texcatalog: three uploads reported");
+    if (catalog->size() != 3) {
+        return;
+    }
+    // Offsets returned by the fixture builder are into `uploads`; the catalog
+    // reports absolute file offsets behind the 0x20 header.
+    const std::size_t base = 0x20;
+    const FieldTexture& t0 = (*catalog)[0];
+    check(t0.tagOffset == tag0 + base && t0.gifOffset == tag0 + base + 16 &&
+              t0.dataOffset == image0 + base + 16,
+          "texcatalog: tag/gif/data offsets");
+    check(!t0.isClut && t0.psm == 0x13 && t0.width == 8 && t0.height == 8 &&
+              t0.dataBytes == 64 && t0.dbp == 0x100 && t0.dbw == 1,
+          "texcatalog: T8 8x8 descriptor");
+    check(t0.clutDbp == 0x101 && t0.clutOffset == tag1 + base,
+          "texcatalog: texture paired with trailing palette");
+    const FieldTexture& t1 = (*catalog)[1];
+    check(t1.isClut && t1.psm == 0x00 && t1.width == 16 && t1.height == 2 &&
+              t1.dataBytes == 128 && t1.tagOffset == tag1 + base,
+          "texcatalog: CT32 palette record flagged");
+    const FieldTexture& t2 = (*catalog)[2];
+    check(!t2.isClut && t2.psm == 0x14 && t2.dataBytes == 32 && t2.tagOffset == tag2 + base,
+          "texcatalog: T4 8x8 descriptor");
+    check(t2.clutOffset == 0 && t2.clutDbp == 0,
+          "texcatalog: shared palette stays unlinked");
+}
+
+void testTextureCatalogErrors() {
+    Bytes uploads;
+    std::size_t image = 0;
+    appendUpload(uploads, 0x100, 1, 0x13, 8, 8, 64, image);
+    std::size_t offA = 0;
+    const Bytes good = makeChainFile(uploads, 0x10, offA);
+    check(fieldTextureCatalog(good).has_value(), "texcatalog: valid chain parses");
+
+    Bytes tooShort(12, 0);
+    check(fieldTextureCatalog(tooShort).error() == FieldTileError::Truncated,
+          "texcatalog: file shorter than header is Truncated");
+
+    Bytes badHeader = good;
+    setU32(badHeader, 0x00, 0x10);  // header size below 0x20
+    check(fieldTextureCatalog(badHeader).error() == FieldTileError::BadHeader,
+          "texcatalog: implausible header size is BadHeader");
+
+    Bytes offPastFile = good;
+    setU32(offPastFile, 0x04, static_cast<std::uint32_t>(good.size() + 0x10));
+    check(fieldTextureCatalog(offPastFile).error() == FieldTileError::BadHeader,
+          "texcatalog: offA past file is BadHeader");
+
+    Bytes badTag = good;
+    badTag[0x23] = 0x20;  // first frame tag id is not REF/END
+    check(fieldTextureCatalog(badTag).error() == FieldTileError::ChainDecode,
+          "texcatalog: unknown tag id is ChainDecode");
+
+    Bytes noEnd = good;
+    setU32(noEnd, 0x20 + uploads.size(), 0x10u << 24);  // END replaced by an empty REF
+    check(fieldTextureCatalog(noEnd).error() == FieldTileError::ChainDecode,
+          "texcatalog: chain without END tag is ChainDecode");
+
+    Bytes overrun = good;
+    setU32(overrun, 0x20, (0x10u << 24) | 0xFFFFu);  // payload reaches far past offA
+    check(fieldTextureCatalog(overrun).error() == FieldTileError::Truncated,
+          "texcatalog: payload past offA is Truncated");
+
+    // IMAGE data overshooting w*h*bpp/8 breaks the byte-exact accounting that
+    // holds for every disc upload, so the strict walk must reject it.
+    Bytes lyingUploads;
+    appendUpload(lyingUploads, 0x100, 1, 0x13, 8, 4, 64, image);  // 8x4 needs 32 B
+    std::size_t lyingOffA = 0;
+    const Bytes paddedTail = makeChainFile(lyingUploads, 0x10, lyingOffA);
+    check(fieldTextureCatalog(paddedTail).error() == FieldTileError::ChainDecode,
+          "texcatalog: IMAGE byte count must equal w*h*bpp/8 exactly");
+}
+
+void testTextureCatalogRealTiles() {
+    const std::filesystem::path dir = discRoot() / "FLD";
+    if (dir.empty() || !std::filesystem::exists(dir)) {
+        std::cout << "test_field_converter: SKIP real FLD texture catalog (not found)\n";
+        return;
+    }
+
+    std::size_t tiles = 0, uploads = 0, textures = 0, cluts = 0;
+    for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+        if (entry.path().extension() != ".BIN") {
+            continue;
+        }
+        std::ifstream input(entry.path(), std::ios::binary);
+        const Bytes bytes((std::istreambuf_iterator<char>(input)),
+                         std::istreambuf_iterator<char>());
+        const auto catalog = fieldTextureCatalog(bytes);
+        check(catalog.has_value(), "texcatalog corpus: " + entry.path().filename().string());
+        if (!catalog) {
+            continue;
+        }
+        ++tiles;
+        uploads += catalog->size();
+        std::uint32_t minDbp = UINT32_MAX;
+        for (const auto& texture : *catalog) {
+            minDbp = std::min(minDbp, texture.dbp);
+            if (texture.isClut) {
+                ++cluts;
+            } else {
+                ++textures;
+                if (texture.clutOffset != 0) {
+                    // A linked CLUT must be a palette upload in this tile.
+                    const FieldTexture* linked = nullptr;
+                    for (const auto& candidate : *catalog) {
+                        if (candidate.tagOffset == texture.clutOffset) {
+                            linked = &candidate;
+                            break;
+                        }
+                    }
+                    check(linked != nullptr && linked->isClut,
+                          "texcatalog corpus: clutOffset names a palette upload");
+                }
+                if (texture.clutDbp != 0) {
+                    check(texture.clutDbp ==
+                              texture.dbp + (texture.dataBytes + 255) / 256,
+                          "texcatalog corpus: palette page follows texture pages");
+                }
+            }
+        }
+        // VRAM placement rule: chain base page 0x285E + lastDigit * 0x420.
+        const int tileIndex = std::stoi(entry.path().stem().string());
+        check(minDbp == 0x285Eu + static_cast<std::uint32_t>(tileIndex % 10) * 0x420u,
+              "texcatalog corpus: min dbp matches tile base rule");
+    }
+    // Corpus-wide proven counts across all 64 tiles.
+    check(tiles == 64, "texcatalog corpus: all 64 tiles parse");
+    check(uploads == 3097, "texcatalog corpus: 3097 uploads");
+    check(textures == 1685, "texcatalog corpus: 1685 textures");
+    check(cluts == 1412, "texcatalog corpus: 1412 CLUT uploads");
+
+    std::ifstream input0(dir / "000.BIN", std::ios::binary);
+    const Bytes bytes0((std::istreambuf_iterator<char>(input0)),
+                       std::istreambuf_iterator<char>());
+    const auto catalog0 = fieldTextureCatalog(bytes0);
+    check(catalog0.has_value() && catalog0->size() == 10, "texcatalog 000: 10 uploads");
+    if (catalog0 && catalog0->size() == 10) {
+        const FieldTexture& t = catalog0->at(0);
+        check(t.dbp == 0x285E && t.psm == 0x13 && t.width == 64 && t.height == 64 &&
+                  t.dataBytes == 4096 && t.clutDbp == 0x286E && !t.isClut,
+              "texcatalog 000: first upload is the T8 64x64 tile at 0x285E");
+        std::size_t tex = 0, clut = 0;
+        std::uint64_t textureBytes = 0, uploadBytes = 0;
+        for (const auto& texture : *catalog0) {
+            uploadBytes += texture.dataBytes;
+            if (texture.isClut) {
+                ++clut;
+            } else {
+                ++tex;
+                textureBytes += texture.dataBytes;
+            }
+        }
+        check(tex == 7 && clut == 3, "texcatalog 000: 7 textures + 3 palettes");
+        check(textureBytes == 18176 && uploadBytes == 19456,
+              "texcatalog 000: 18176 texture bytes, 19456 bytes with palettes");
+    }
+    std::cout << "test_field_converter: texcatalog corpus tiles=" << tiles
+              << " uploads=" << uploads << " textures=" << textures << " cluts=" << cluts
+              << '\n';
+}
+
 std::filesystem::path discRoot() {
     if (const char* root = std::getenv("RT_DISC")) {
         return root;
@@ -467,6 +721,9 @@ int main() {
     testCatalogRejectsBadShapes();
     testExtractsPacketsFromSyntheticTile();
     testBuildsRenderTerrain();
+    testTextureCatalogSyntheticChain();
+    testTextureCatalogErrors();
+    testTextureCatalogRealTiles();
     testRealFieldTileWhenAvailable();
     testCatalogCorpusWhenAvailable();
 

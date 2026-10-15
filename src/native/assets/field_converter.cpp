@@ -31,12 +31,25 @@ constexpr std::uint32_t kPacketHeaderTag = 0x20224000;
 constexpr std::uint32_t kPacketHeaderKind = 0x41;
 constexpr std::uint32_t kPacketMaxVertices = 0x400;
 constexpr float kPacketGridSpacing = 40.0f;
+constexpr std::uint8_t kChainTagRef = 0x10;   // DMA REF tag id (byte 3)
+constexpr std::uint8_t kChainTagEnd = 0x70;   // DMA REF-End tag id ('p', byte 3)
+constexpr std::uint32_t kGifRegAddrAndData = 0xE;  // GIF REGS field: A+D packed
+constexpr std::uint32_t kGifRegBlitBuf = 0x50;
+constexpr std::uint32_t kGifRegTransferPos = 0x51;
+constexpr std::uint32_t kGifRegTransferReg = 0x52;
+constexpr std::uint32_t kGifRegTransferDir = 0x53;
+constexpr std::size_t kGsPageBytes = 256;
 
 std::uint32_t readU32LE(std::span<const std::uint8_t> bytes, std::size_t offset) noexcept {
     return static_cast<std::uint32_t>(bytes[offset]) |
            (static_cast<std::uint32_t>(bytes[offset + 1]) << 8) |
            (static_cast<std::uint32_t>(bytes[offset + 2]) << 16) |
            (static_cast<std::uint32_t>(bytes[offset + 3]) << 24);
+}
+
+std::uint64_t readU64LE(std::span<const std::uint8_t> bytes, std::size_t offset) noexcept {
+    return static_cast<std::uint64_t>(readU32LE(bytes, offset)) |
+           (static_cast<std::uint64_t>(readU32LE(bytes, offset + 4)) << 32);
 }
 
 std::uint16_t readU16LE(std::span<const std::uint8_t> bytes, std::size_t offset) noexcept {
@@ -303,6 +316,191 @@ FieldRenderTerrain buildFieldRenderTerrain(std::span<const std::uint8_t> tileFil
         }
     }
     return terrain;
+}
+
+namespace {
+
+// Pixel-storage modes observed on disc (native-textures.md §1: CT32, CT24,
+// CT16, T8, T4; the H/S variants are carried for completeness and never
+// occur in the FLD corpus).
+std::uint32_t psmBitsPerPixel(std::uint32_t psm) noexcept {
+    switch (psm) {
+    case 0x00: return 32;  // PSMCT32
+    case 0x01: return 24;  // PSMCT24
+    case 0x02:
+    case 0x0A: return 16;  // PSMCT16 / PSMCT16S
+    case 0x13:
+    case 0x1B: return 8;   // PSMT8 / PSMT8H
+    case 0x14:
+    case 0x24:
+    case 0x2C: return 4;   // PSMT4 / PSMT4HL / PSMT4HH
+    default: return 0;
+    }
+}
+
+// Palette-shaped upload (direct colour, at most 16 columns and 256 entries),
+// the same predicate the image converter uses for CLUT uploads.
+bool isClutShaped(std::uint32_t psm, std::uint32_t width, std::uint32_t height) noexcept {
+    const bool directColour =
+        psm == 0x00 || psm == 0x01 || psm == 0x02 || psm == 0x0A;
+    return directColour && width <= 16 &&
+           (height <= 2 || (width == 16 && height == 16) || (width == 8 && height == 8));
+}
+
+} // namespace
+
+expected<std::vector<FieldTexture>, FieldTileError>
+fieldTextureCatalog(std::span<const std::uint8_t> tileFile) {
+    if (tileFile.size() < kHeaderBytes) {
+        return FieldTileError::Truncated;
+    }
+    // Word0 is the header size: 0x20 canonical, 0x160 for the 023.BIN
+    // variant; the chain always starts at the end of the header.  offB/offC
+    // are deliberately not validated here: the chain region [headerSize,
+    // offA) is unaffected by the 13 layout-variant tiles (offB < offA).
+    const std::uint32_t headerSize = readU32LE(tileFile, 0x00);
+    const std::uint32_t offA = readU32LE(tileFile, 0x04);
+    if (headerSize < kHeaderBytes || offA <= headerSize ||
+        static_cast<std::uint64_t>(offA) > tileFile.size()) {
+        return FieldTileError::BadHeader;
+    }
+
+    std::vector<FieldTexture> textures;
+    bool terminated = false;
+    std::size_t cursor = headerSize;
+    while (cursor + 16 <= offA) {
+        const std::uint32_t tagWord = readU32LE(tileFile, cursor);
+        const std::uint8_t id = static_cast<std::uint8_t>(tagWord >> 24);
+        if (id == kChainTagEnd) {
+            terminated = true; // END payload is not entered (loader semantics)
+            break;
+        }
+        if (id != kChainTagRef) {
+            return FieldTileError::ChainDecode;
+        }
+        const std::size_t qwc = tagWord & 0xFFFFu;
+        const std::size_t payloadStart = cursor + 16;
+        const std::size_t payloadEnd = payloadStart + qwc * 16;
+        if (payloadEnd > offA || payloadEnd > tileFile.size()) {
+            return FieldTileError::Truncated;
+        }
+
+        std::size_t pos = payloadStart;
+        while (pos + 16 <= payloadEnd) {
+            const std::uint64_t gifTag = readU64LE(tileFile, pos);
+            const std::uint32_t flg = static_cast<std::uint32_t>((gifTag >> 58) & 0x3u);
+            const std::uint32_t nloop = static_cast<std::uint32_t>(gifTag & 0x7FFFu);
+            const std::uint32_t nreg = static_cast<std::uint32_t>((gifTag >> 60) & 0xFu);
+            if (flg != 0 || nreg != 1 ||
+                (readU64LE(tileFile, pos + 8) & 0xFu) != kGifRegAddrAndData ||
+                nloop == 0 || nloop > 64) {
+                // IMAGE and REGLIST packets never stand alone in this chain.
+                return FieldTileError::ChainDecode;
+            }
+            const std::size_t dataStart = pos + 16;
+            const std::size_t packetEnd = dataStart + static_cast<std::size_t>(nloop) * 16;
+            if (packetEnd > payloadEnd) {
+                return FieldTileError::Truncated;
+            }
+            const std::size_t gifStart = pos;
+            std::uint64_t blitBuf = 0;
+            std::uint64_t transferPos = 0;
+            std::uint64_t transferReg = 0;
+            std::uint64_t transferDir = 0;
+            bool haveBlit = false;
+            bool havePos = false;
+            bool haveReg = false;
+            bool haveDir = false;
+            for (std::uint32_t i = 0; i < nloop; ++i) {
+                const std::size_t at = dataStart + static_cast<std::size_t>(i) * 16;
+                const std::uint64_t value = readU64LE(tileFile, at);
+                switch (readU32LE(tileFile, at + 8) & 0xFFu) {
+                case kGifRegBlitBuf: blitBuf = value; haveBlit = true; break;
+                case kGifRegTransferPos: transferPos = value; havePos = true; break;
+                case kGifRegTransferReg: transferReg = value; haveReg = true; break;
+                case kGifRegTransferDir: transferDir = value & 3u; haveDir = true; break;
+                default: break; // other registers (texture state) are not part of an upload
+                }
+            }
+            pos = packetEnd;
+            if (!(haveBlit && havePos && haveReg && haveDir && transferDir == 0)) {
+                continue; // not a host-to-local upload; no IMAGE data follows
+            }
+
+            FieldTexture texture;
+            texture.tagOffset = static_cast<std::uint32_t>(cursor);
+            texture.gifOffset = static_cast<std::uint32_t>(gifStart);
+            texture.dbp = static_cast<std::uint32_t>((blitBuf >> 32) & 0x3FFFu);
+            texture.dbw = static_cast<std::uint32_t>((blitBuf >> 48) & 0x3Fu);
+            texture.psm = static_cast<std::uint32_t>((blitBuf >> 56) & 0x3Fu);
+            texture.width = static_cast<std::uint32_t>(transferReg & 0xFFFu);
+            texture.height = static_cast<std::uint32_t>((transferReg >> 32) & 0xFFFu);
+            // DSAX/DSAY live in TRXPOS bits 32..42/48..58; every disc upload
+            // is a whole image (native-textures.md §3.1).
+            if (((transferPos >> 32) & 0x7FFu) != 0 || ((transferPos >> 48) & 0x7FFu) != 0) {
+                return FieldTileError::ChainDecode; // partial uploads never occur on disc
+            }
+            const std::uint32_t bpp = psmBitsPerPixel(texture.psm);
+            if (bpp == 0 || texture.width == 0 || texture.height == 0 || texture.dbw == 0) {
+                return FieldTileError::ChainDecode;
+            }
+            const std::size_t pixelBytes =
+                (static_cast<std::size_t>(texture.width) * texture.height * bpp + 7u) / 8u;
+            texture.dataBytes = static_cast<std::uint32_t>(pixelBytes);
+            texture.isClut = isClutShaped(texture.psm, texture.width, texture.height);
+
+            std::size_t pixels = 0;
+            while (pixels < pixelBytes) {
+                if (pos + 16 > payloadEnd) {
+                    return FieldTileError::Truncated;
+                }
+                const std::uint64_t imageTag = readU64LE(tileFile, pos);
+                if (((imageTag >> 58) & 0x3u) != 2) {
+                    return FieldTileError::ChainDecode; // upload without its IMAGE data
+                }
+                const std::size_t chunk = static_cast<std::size_t>(imageTag & 0x7FFFu) * 16;
+                if (pos + 16 + chunk > payloadEnd) {
+                    return FieldTileError::Truncated;
+                }
+                if (pixels == 0) {
+                    texture.dataOffset = static_cast<std::uint32_t>(pos + 16);
+                }
+                pixels += chunk;
+                pos += 16 + chunk;
+            }
+            if (pixels != pixelBytes) {
+                // Byte-exact accounting held for all 3,097 disc uploads; a
+                // padded IMAGE tail means this is not the proven grammar.
+                return FieldTileError::ChainDecode;
+            }
+            textures.push_back(texture);
+        }
+        if (pos != payloadEnd) {
+            return FieldTileError::ChainDecode; // dangling bytes inside the CNT payload
+        }
+        cursor = payloadEnd;
+    }
+    if (!terminated) {
+        return FieldTileError::ChainDecode;
+    }
+
+    // Pair each texture with the CLUT upload whose page starts exactly where
+    // the texture's pages end (disc rule: texture first, then its palette).
+    for (std::size_t i = 0; i < textures.size(); ++i) {
+        if (textures[i].isClut) {
+            continue;
+        }
+        const std::uint32_t pages =
+            static_cast<std::uint32_t>((textures[i].dataBytes + kGsPageBytes - 1) / kGsPageBytes);
+        for (std::size_t j = i + 1; j < textures.size(); ++j) {
+            if (textures[j].isClut && textures[j].dbp == textures[i].dbp + pages) {
+                textures[i].clutOffset = textures[j].tagOffset;
+                textures[i].clutDbp = textures[j].dbp;
+                break;
+            }
+        }
+    }
+    return textures;
 }
 
 FieldTileResult convertFieldTile(std::span<const std::uint8_t> tileFile,

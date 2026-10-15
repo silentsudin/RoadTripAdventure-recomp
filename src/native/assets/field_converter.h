@@ -95,6 +95,42 @@ struct FieldRenderTerrain {
 FieldRenderTerrain buildFieldRenderTerrain(std::span<const std::uint8_t> tileFile,
                                           const FieldTileCatalog& catalog, float scale);
 
+// One host-to-local texture upload in the tile's DMA REF-tag chain at
+// [headerSize, offA) (headerSize = header word0: 0x20 canonical, 0x160 for
+// the 023.BIN header variant).  `psm` is the GS pixel-storage mode declared
+// by BITBLTBUF — the proven FLD inventory is CLUT4 (0x14), CLUT8 (0x13),
+// PSMCT24 (0x01) textures plus PSMCT32 (0x00) CLUTs; see
+// docs/native-reference/field-textures.md.  Chain uploads carry absolute GS
+// pages: base 0x285E + (tileName.lastDigit * 0x420), never rebased at load.
+// CLUT-shaped uploads (CT32 16x2 / 16x16) are reported with isClut = true;
+// every texture whose CLUT is the upload starting on the page right after
+// its own pixels records that CLUT's tag offset in clutOffset (else 0 —
+// textures sharing an earlier palette resolve via material-block CBP).
+struct FieldTexture {
+    std::uint32_t tagOffset = 0;   // absolute file offset of the DMA REF tag
+    std::uint32_t gifOffset = 0;   // absolute offset of the A+D GIF tag
+    std::uint32_t dataOffset = 0;  // absolute offset of the first pixel byte
+    std::uint32_t dataBytes = 0;   // width * height * bpp / 8 (exact, never padded)
+    std::uint32_t dbp = 0;        // GS destination page (256-byte blocks)
+    std::uint32_t dbw = 0;        // GS destination buffer width (64-byte units)
+    std::uint32_t psm = 0;        // GS pixel-storage mode (pixel format)
+    std::uint32_t width = 0;
+    std::uint32_t height = 0;
+    std::uint32_t clutOffset = 0; // tagOffset of the trailing CLUT upload, 0 if none
+    std::uint32_t clutDbp = 0;    // its GS page, 0 if none
+    bool isClut = false;          // palette-shaped direct-colour upload
+};
+
+// Strict walk of the upload chain: REF tags (byte3 == 0x10) with inline
+// payloads terminated by an END tag (byte3 == 0x70); every payload must be an
+// A+D packet carrying BITBLTBUF/TRXPOS/TRXREG/TRXDIR (DIR == 0, DSAX/DSAY 0)
+// followed by IMAGE packets whose byte count equals width*height*bpp/8
+// exactly.  Malformed structure yields ChainDecode, overrun of offA or of the
+// file yields Truncated, an implausible header yields BadHeader.  Proven
+// byte-exact on all 3,097 uploads of the 64 disc FLD tiles.
+expected<std::vector<FieldTexture>, FieldTileError>
+fieldTextureCatalog(std::span<const std::uint8_t> tileFile);
+
 expected<FieldTileHeader, FieldTileError>
 parseFieldTileHeader(std::span<const std::uint8_t> tileFile);
 
