@@ -9,10 +9,10 @@ the repo) and are pinned by `tests/native_assets/test_field_converter.cpp`.
 ## Chain grammar (PROVEN, byte-exact on 3,097/3,097 uploads)
 
 The upload chain occupies `[headerSize, offA)`, where `headerSize` is header
-word 0 — `0x20` canonical, `0x160` on `023.BIN`. The chain region is
-orthogonal to the 13 layout-variant tiles (`offB < offA`): all 64 tiles parse
-byte-exact with the same grammar, and `fileSize` (word 4) is unreliable on
-those variants and deliberately unchecked.
+word 0 — `0x20` canonical, `0x160` on `023.BIN`. The chain grammar is
+identical on all 64 tiles; the 14 tiles whose declared `fileSize` (word 4)
+is smaller than the physical file (trailing padding) parse byte-exact with
+the same grammar, so `fileSize` is deliberately unchecked here.
 
 - **Frames.** DMA REF tags (byte 3 `0x10`) with inline payloads of
   `qwc × 16` bytes, terminated by a REF-End tag (byte 3 `0x70`). The

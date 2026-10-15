@@ -666,9 +666,16 @@ void testCatalogCorpusWhenAvailable() {
     }
     std::size_t total = 0;
     std::size_t parsed = 0;
-    std::size_t variantLayout = 0;
+    std::size_t variantPadding = 0;
     std::size_t variantHeader = 0;
     std::size_t tilesWithGeometry = 0;
+    std::size_t parseFailures = 0;
+    const auto read32 = [](const Bytes& b, std::size_t o) {
+        return static_cast<std::uint32_t>(b[o]) |
+               (static_cast<std::uint32_t>(b[o + 1]) << 8) |
+               (static_cast<std::uint32_t>(b[o + 2]) << 16) |
+               (static_cast<std::uint32_t>(b[o + 3]) << 24);
+    };
     for (const auto& entry : std::filesystem::directory_iterator(dir)) {
         if (entry.path().extension() != ".BIN") {
             continue;
@@ -680,34 +687,37 @@ void testCatalogCorpusWhenAvailable() {
         const auto tileCatalog = rt::native::assets::catalogFieldTile(bytes);
         if (tileCatalog) {
             ++parsed;
+            // Classification only: 14 tiles declare fileSize < physical size
+            // (trailing padding) and one (023.BIN, also padded) a 0x160-byte
+            // header; the offA <= offB <= offC ordering holds for all 64.
+            if (bytes.size() >= 0x14) {
+                if (read32(bytes, 0x10) < static_cast<std::uint32_t>(bytes.size())) {
+                    ++variantPadding;
+                }
+                if (read32(bytes, 0x00) != 0x20) {
+                    ++variantHeader;
+                }
+            }
             if (!extractFieldPackets(bytes, *tileCatalog).empty()) {
                 ++tilesWithGeometry;
             }
             continue;
         }
-        // Distinguish the known variant population: files whose first word is
-        // not the 0x20 header marker versus files with the marker but a
-        // region-offset ordering that differs (offB < offA observed).
-        if (bytes.size() >= 8 && rt::native::assets::parseFieldTileHeader(bytes).error() ==
-                                     FieldTileError::BadHeader &&
-            bytes[0] == 0x20) {
-            ++variantLayout;
-        } else {
-            ++variantHeader;
-        }
+        ++parseFailures;
     }
-    // 50/64 tiles are canonical; 13 use an alternate region ordering and one
-    // (023.BIN) carries a 0x160 header.  Variants are documented in
-    // docs/native-reference/field-topology-status.md and parsed later.
+    // All 64 tiles parse with the proven relaxations (header-size range and
+    // fileSize <= physical size) — see docs/native-reference/
+    // field-topology-status.md "Corpus behaviour".
     check(total == 64, "catalog corpus: 64 tiles present");
-    check(parsed == 50 && variantLayout == 13 && variantHeader == 1,
-          "catalog corpus: 50 canonical / 13 layout variants / 1 header variant");
+    check(parseFailures == 0 && parsed == 64, "catalog corpus: 64/64 parse");
+    check(variantPadding == 14 && variantHeader == 1,
+          "catalog corpus: 14 padded / 1 extended-header, all parsed");
     check(tilesWithGeometry == parsed,
-          "geometry corpus: every canonical tile yields packets");
-    std::cout << "test_field_converter: catalog corpus canonical=" << parsed
-              << " layout-variants=" << variantLayout
-              << " header-variants=" << variantHeader
-              << " with-geometry=" << tilesWithGeometry << " of " << total << '\n';
+          "geometry corpus: every tile yields packets");
+    std::cout << "test_field_converter: catalog corpus parsed=" << parsed
+              << " (padded=" << variantPadding
+              << ", extended-header=" << variantHeader
+              << ") with-geometry=" << tilesWithGeometry << " of " << total << '\n';
 }
 
 } // namespace

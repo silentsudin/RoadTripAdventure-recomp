@@ -65,22 +65,23 @@ corpus (64/64) parses with two relaxations plus one new constant anchor:
 
 1. header first word (header size) may be `0x20` **or larger** — `023.BIN`
    uses `0x160`; bounded by `0x20 ≤ hdrsz ≤ 0x1000` and `offA ≥ hdrsz`.
-2. `fileSize` (header word 4) may be **≤** the actual file length — 13 tiles
+2. `fileSize` (header word 4) may be **≤** the actual file length — 14 tiles
    carry trailing padding (e.g. `011.BIN`: field `0x2a9f00`, actual
-   `0x2b0190`).
+   `0x2b0190`); `023.BIN` is padded *and* header-extended.
 3. the directory's first entry is `0x190` (relative to `offA`) on **all 64
    tiles** — a usable additional anchor.
 
-Ordering note: `offA` (directory) may sit after `offB` (PMP block) in the
-file; PMP magic + packet anchoring make region order irrelevant.
+Ordering note: the `offA ≤ offB ≤ offC` ordering **holds for all 64 tiles** —
+the earlier "13 reordered-dir variants" note was a hex digit-count misread
+(`0x1e800` < `0x1e3dc0`); those tiles differ only in trailing padding.
 
 Totals with relaxed validation: **383,287 packets / 1,639,813 vertices
 (~880k triangles) across all 64 tiles** (per-tile samples: `011.BIN` =
 5901 pkts / 26523 verts, `023.BIN` = 3303 / 15252).
 
-`tests/native_assets/test_field_converter.cpp` currently asserts the strict
-split (50 parse / 13 `offB < offA` / 1 header variant) so drift is caught;
-update these counts to 64/0/0 together with the parser relaxations.
+`tests/native_assets/test_field_converter.cpp` now asserts the relaxed
+corpus (64/64 parse, 14 padded / 1 extended-header classification) so drift
+in either direction is caught.
 
 ## Section packet grammar (PROVEN, extraction implemented)
 
@@ -204,10 +205,10 @@ one tile buffer; the directory indexes their chains. Chain-level layout mapping
   vertex processing is VU1, whose shared image is located and disassembled
   (`vu1-programs.md`) with a golden-verified standalone disassembler
   (`/private/var/folders/.../opencode/vu-dis/vu-dis`).
-- Apply the validation relaxations (header-size, fileSize-padding, dir/PMP
-  order) to `parseFieldTileHeader`/`catalogFieldTile` and bump corpus counts
-  to 64/64 — semantics already verified corpus-wide; code change pending
-  (coordinate with the texture work touching the same files).
+- ~~Apply validation relaxations~~ — **done 2026-10-16**: `parseFieldTileHeader`
+   accepts `0x20 ≤ hdrsz ≤ 0x1000` and `fileSize ≤` physical size; corpus
+   tests now assert 64/64 parse (14 padded / 1 extended-header). The rumored
+   dir/PMP reordering did not exist (hex misread, corrected above).
 
 `assets/field_converter.{h,cpp}` exposes `catalogFieldTile()` (header →
 directory walk → attribute count → PMP magic/section table → extension

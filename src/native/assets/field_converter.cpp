@@ -90,7 +90,14 @@ parseFieldTileHeader(std::span<const std::uint8_t> tileFile) {
         return FieldTileError::Truncated;
     }
 
-    if (readU32LE(tileFile, 0x00) != kHeaderBytes) {
+    // Word 0 is the header size: 0x20 canonical, 0x160 for 023.BIN.  The
+    // declared fileSize may be smaller than the physical file (14 tiles carry
+    // trailing padding).  Region ordering offA <= offB <= offC holds for all
+    // 64 tiles — an earlier "13 reordered-dir variants" note was a hex
+    // digit-count misread (0x1e800 < 0x1e3dc0); those tiles differ only in
+    // padding.  See docs/native-reference/field-topology-status.md.
+    const std::uint32_t headerSize = readU32LE(tileFile, 0x00);
+    if (headerSize < kHeaderBytes || headerSize > 0x1000) {
         return FieldTileError::BadHeader;
     }
 
@@ -100,8 +107,8 @@ parseFieldTileHeader(std::span<const std::uint8_t> tileFile) {
         .offC = readU32LE(tileFile, 0x0C),
         .fileSize = readU32LE(tileFile, 0x10),
     };
-    if (static_cast<std::uint64_t>(header.fileSize) != actualFileSize ||
-        header.offA < kHeaderBytes || header.offA > header.offB ||
+    if (static_cast<std::uint64_t>(header.fileSize) > actualFileSize ||
+        header.offA < headerSize || header.offA > header.offB ||
         header.offB > header.offC || header.offC > header.fileSize) {
         return FieldTileError::BadHeader;
     }
@@ -357,7 +364,8 @@ fieldTextureCatalog(std::span<const std::uint8_t> tileFile) {
     // Word0 is the header size: 0x20 canonical, 0x160 for the 023.BIN
     // variant; the chain always starts at the end of the header.  offB/offC
     // are deliberately not validated here: the chain region [headerSize,
-    // offA) is unaffected by the 13 layout-variant tiles (offB < offA).
+    // offA) is unaffected by the 14 padded tiles (declared fileSize <
+    // physical size).
     const std::uint32_t headerSize = readU32LE(tileFile, 0x00);
     const std::uint32_t offA = readU32LE(tileFile, 0x04);
     if (headerSize < kHeaderBytes || offA <= headerSize ||
