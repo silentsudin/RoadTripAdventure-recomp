@@ -23,8 +23,12 @@ which hand the container semantics directly. Verified numerically against
    All 65 non-zero and in-range for 000.BIN; each target begins with a DMA
    tag word (`0x10000259`-style: QWC + `EN|TADR` bits) followed by its
    payload — one sub-block per model chunk.
-3. **Immediately after: 256-entry attribute table** (248 non-zero,
-   non-monotonic — material/attribute words, semantics still open).
+3. **~~256-entry attribute table~~ — REJECTED (see `cell-vif-chains.md`)**:
+   the window at `offA + 65*4` overlaps cell 0's inline DMA chain (cell 0's
+   chain begins at `offA + 0x190`), so those "entries" are chain payload, not
+   a table. Material state instead travels inside each chain as
+   `UNPACK V3-32 @ 0x192` A+D/GIF payloads — see
+   `docs/native-reference/cell-vif-chains.md`.
 4. **`offB`: PMP model block** — magic word **`0x608`** (or `0x600`),
    literally printed by the loader as `"Old Style PMP format"` for 0x600.
    Followed by a monotonic section-pointer table (`0x1ab8, 0x1ff8, 0x2488,
@@ -40,8 +44,9 @@ which hand the container semantics directly. Verified numerically against
 `0x100000`. `case 2`: walk the REF-tag chain (`byte3 == 0x10`, terminate
 `byte3 == 'p'` = `0x70` = REF-End), sync DMA chan 1, `sendTexturePackets`,
 size-check `< 0x750000`, copy `DAT_00100004..end` into
-`fieldTileData + slot * 0x3A8000`. `case 3`: relativize the 65-entry and
-256-entry tables by the tile base, read the PMP magic at
+`fieldTileData + slot * 0x3A8000`. `case 3`: relativize the 65-entry
+directory by the tile base (the previously assumed second "256-entry table"
+is rejected — `cell-vif-chains.md`), read the PMP magic at
 `(header[2]-header[1])`-style offset, store `fieldCellTables[slot]`.
 
 ## Corpus behaviour (64 tiles — ALL parseable with relaxed validation)
@@ -107,7 +112,8 @@ The renderer iterates each loaded tile as **8×8 cells of 200 units**
 height `z ∈ [-53, +51]`). Per cell it runs `cellVisible(origin +
 col*200 + 100, origin + row*200 + 100)` frustum culling and, when visible,
 `vifCallModel(fieldCellTables[slot*4 + cell])` — the 65-entry directory's
-first 64 slots are the per-cell model refs (slot 65 = attribute table base).
+first 64 slots are the per-cell model refs (slot 65's role unresolved — the
+older "attribute table base" reading was rejected, see `cell-vif-chains.md`).
 Up to four parallel cell tables (`DAT_0177ab20/24/28` verified, fourth
 sibling implied by the fourth render block) render four tile
 layers simultaneously, each anchored by a vec4 origin from
@@ -185,11 +191,13 @@ one tile buffer; the directory indexes their chains. Chain-level layout mapping
 
 ## What remains for real terrain
 
-- Map `materialRef` (and the 256-entry attribute table) to the tile's texture
-  set so packets render with authentic textures instead of planar UVs. UVs are
-  known to be **streamed** (5-qword vertex records per `vu1-programs.md`);
-  locating the ST payload + texture binding is the active work
-  (`cell-vif-chains.md`, `field-textures.md`).
+- Bind materials end-to-end: parse each chain's `UNPACK V3-32 @ 0x192`
+  A+D/GIF payload (TEX0/CLUT/FRAME register words) and connect to texture
+  pages carried in the same tile (`sendTexturePackets` uploads them at load).
+  UV location itself is solved — per-vertex `(s,t,alphaAdd)` is streamed
+  (`cell-vif-chains.md`); `materialRef` is not literal in chains and its
+  old attribute-table path is rejected, so binding must come from the GIF
+  register payloads per chain. Active: `field-textures.md` (texture pages).
 - ~~VU0 macro disassembler~~ — **resolved 2026-10-15**: the game contains no
   VU0 macro usage at all (VCALLMS = 0; zero MPG uploads across 4,834 VIF
   chains); VU0 runs only inline macro-mode math utilities in the ELF. All

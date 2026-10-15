@@ -90,8 +90,9 @@ step.
    loads.  The executable may provide the VU0 microprograms, or it may load a
    different streamed asset class not present in this FLD/COURSE chain grammar.
 2. For the FLD texture task, trace the ordinary VU1 material path from the
-   `UNPACK V3-32 @ 0x192` A+D/GIF register data and the 256-entry attribute
-   table, rather than looking for a VU0 macro upload.
+   `UNPACK V3-32 @ 0x192` A+D/GIF register data per chain — the earlier
+   "256-entry attribute table" reading is rejected (`cell-vif-chains.md`) —
+   plus the load-time texture pages uploaded via `sendTexturePackets`.
 3. If another asset type is found, require a structural VIF parse followed by
    `MPG` carving (slot, instruction count, source range, SHA-256) before
    treating any `0x4a`/`0xca` byte pattern as microcode.
