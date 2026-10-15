@@ -162,12 +162,40 @@ whose scale can't be pinned from this function alone:
   id formula is recorded verbatim above; the digit↔filename mapping is
   inferred and unconfirmed.
 
+## Runtime chain construction (PROVEN from loader case 3 @ 0x20C430 region)
+
+`FUN_0020c188` after DMA-completing the tile into `fieldTileData[slot*0x3A8000]`:
+- sets `fieldCellTables[slot] = tileBase` and **relativizes all 65 directory
+  entries in place** (65 iterations, entry += tileBase) — they become absolute
+  addresses of **per-cell VIF/DMA chains inside the loaded tile** (entry0 =
+  tileBase+0x190).
+- a parallel tag-walk (case 2) patches each DMA tag's address qword
+  (`tag+0x10`) to absolute and calls `sendTexturePackets(chainStart)` —
+  textures upload at LOAD time, before any model call.
+- the request type byte (`param+0x22`) selects chain-table start index 4 or 5
+  (`'\x12'..'\x1c'`→5, `'&'`→4) and walks nonzero directory words from there,
+  size-capped at 0x750000 ("Total Size=" / `Field Size Over!` fatal). Index 4/5
+  matches the MSCALF imm 0x4/0x8 VU1 entries — terrain categories, with more
+  categories reachable via other type bytes.
+
+So: VIF chains, vertex/UV payloads, textures and model calls all live inside
+one tile buffer; the directory indexes their chains. Chain-level layout mapping
+(UNPACK offsets, stride, material binding) is tracked in
+`vu0-macro-streams.md` / `vu1-programs.md` / `cell-vif-chains.md`.
+
 ## What remains for real terrain
 
 - Map `materialRef` (and the 256-entry attribute table) to the tile's texture
-  set so packets render with authentic textures instead of planar UVs.
-- Interpret the 65 sub-block DMA payload streams (VIF-adjacent, feeds VU0
-  macros) — needed for per-cell placement/prop detail, not the tile mesh.
+  set so packets render with authentic textures instead of planar UVs. UVs are
+  known to be **streamed** (5-qword vertex records per `vu1-programs.md`);
+  locating the ST payload + texture binding is the active work
+  (`cell-vif-chains.md`, `field-textures.md`).
+- ~~VU0 macro disassembler~~ — **resolved 2026-10-15**: the game contains no
+  VU0 macro usage at all (VCALLMS = 0; zero MPG uploads across 4,834 VIF
+  chains); VU0 runs only inline macro-mode math utilities in the ELF. All
+  vertex processing is VU1, whose shared image is located and disassembled
+  (`vu1-programs.md`) with a golden-verified standalone disassembler
+  (`/private/var/folders/.../opencode/vu-dis/vu-dis`).
 - Apply the validation relaxations (header-size, fileSize-padding, dir/PMP
   order) to `parseFieldTileHeader`/`catalogFieldTile` and bump corpus counts
   to 64/64 — semantics already verified corpus-wide; code change pending
@@ -175,7 +203,6 @@ whose scale can't be pinned from this function alone:
 
 `assets/field_converter.{h,cpp}` exposes `catalogFieldTile()` (header →
 directory walk → attribute count → PMP magic/section table → extension
-offset) and `extractFieldPackets()` (drift-proof anchored packet walk). The
-"needs a VU0 macro disassembler" blocker applies only to sub-block payload
-detail, authentic UVs/material binding, and COURSE route streams — tile
-geometry itself is fully extracted today.
+offset) and `extractFieldPackets()` (drift-proof anchored packet walk). Tile
+geometry itself is fully extracted today; authentic UV/material binding is
+tracked in the companion VU docs, not blocked on VU RE anymore.
