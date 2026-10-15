@@ -44,7 +44,7 @@ size-check `< 0x750000`, copy `DAT_00100004..end` into
 256-entry tables by the tile base, read the PMP magic at
 `(header[2]-header[1])`-style offset, store `fieldCellTables[slot]`.
 
-## Corpus behaviour (64 tiles)
+## Corpus behaviour (64 tiles — ALL parseable with relaxed validation)
 
 Tile names are a 3-digit `ABC.BIN` structure: all 64 combinations of
 `{0-3}{0-3}{0-3}` exist (16 per leading digit, four leading digits). Packet
@@ -54,12 +54,28 @@ from `FUN_0021c8d0` (see "Tile identity & streaming") closes most of the gap,
 but the digit↔filename ordering and the fixed-point scale still need one
 runtime cross-check before wiring tiles to absolute map coordinates.
 
-`tests/native_assets/test_field_converter.cpp` catalogs all `FLD/*.BIN`:
-**50 canonical** (this layout), **13 layout variants** where `offB < offA`
-(alternate region ordering — e.g. `011.BIN`: `offA=0x1e800`,
-`offB=0x1e3dc0`), and **1 header variant** (`023.BIN`, first word `0x160`).
-Variant parsing is deferred; the split is asserted in the suite so drift is
-caught.
+An earlier split "50 canonical / 13 layout variants / 1 header variant" was
+**an artifact of overly strict validation**, not format families. The full
+corpus (64/64) parses with two relaxations plus one new constant anchor:
+
+1. header first word (header size) may be `0x20` **or larger** — `023.BIN`
+   uses `0x160`; bounded by `0x20 ≤ hdrsz ≤ 0x1000` and `offA ≥ hdrsz`.
+2. `fileSize` (header word 4) may be **≤** the actual file length — 13 tiles
+   carry trailing padding (e.g. `011.BIN`: field `0x2a9f00`, actual
+   `0x2b0190`).
+3. the directory's first entry is `0x190` (relative to `offA`) on **all 64
+   tiles** — a usable additional anchor.
+
+Ordering note: `offA` (directory) may sit after `offB` (PMP block) in the
+file; PMP magic + packet anchoring make region order irrelevant.
+
+Totals with relaxed validation: **383,287 packets / 1,639,813 vertices
+(~880k triangles) across all 64 tiles** (per-tile samples: `011.BIN` =
+5901 pkts / 26523 verts, `023.BIN` = 3303 / 15252).
+
+`tests/native_assets/test_field_converter.cpp` currently asserts the strict
+split (50 parse / 13 `offB < offA` / 1 header variant) so drift is caught;
+update these counts to 64/0/0 together with the parser relaxations.
 
 ## Section packet grammar (PROVEN, extraction implemented)
 
@@ -78,8 +94,9 @@ values are multiples of 40), so host UVs use a planar projection `coord/40`
 as the documented stand-in until authentic UVs are traced through the VU0
 path.
 
-Corpus totals (all 50 canonical tiles): **288,745 packets, 1,235,837
-vertices, ~658k triangles**; section gap equals N-2 on 288,732/288,745
+Corpus totals (strict-validation 50 tiles): **288,745 packets, 1,235,837
+vertices, ~658k triangles**; relaxed totals (all 64): **383,287 / 1,639,813 /
+~880k**. Section gap equals N-2 on 288,732/288,745
 packets (99.995%). FLD/000.BIN: 6,185 packets / 25,590 vertices / 13,220
 face records — pinned by the test suite.
 
@@ -140,8 +157,10 @@ walk; 4 tile slots stream, matching the 4 × `0x3A8000` slots in
   set so packets render with authentic textures instead of planar UVs.
 - Interpret the 65 sub-block DMA payload streams (VIF-adjacent, feeds VU0
   macros) — needed for per-cell placement/prop detail, not the tile mesh.
-- Parse the 13 `offB < offA` layout-variant tiles and the `0x160`-header
-  variant (asserted counts in the corpus test).
+- Apply the validation relaxations (header-size, fileSize-padding, dir/PMP
+  order) to `parseFieldTileHeader`/`catalogFieldTile` and bump corpus counts
+  to 64/64 — semantics already verified corpus-wide; code change pending
+  (coordinate with the texture work touching the same files).
 
 `assets/field_converter.{h,cpp}` exposes `catalogFieldTile()` (header →
 directory walk → attribute count → PMP magic/section table → extension
