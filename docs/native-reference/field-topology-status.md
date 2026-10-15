@@ -46,6 +46,13 @@ size-check `< 0x750000`, copy `DAT_00100004..end` into
 
 ## Corpus behaviour (64 tiles)
 
+Tile names are a 3-digit `ABC.BIN` structure: all 64 combinations of
+`{0-3}{0-3}{0-3}` exist (16 per leading digit, four leading digits). Packet
+vertices sit on a 40-unit grid spanning roughly 1000 units per tile. The
+naming is consistent with a 4-region × 4×4 grid world, but the
+digit-to-world placement is not yet cross-referenced against `world.cpp`;
+confirm it before wiring tiles to absolute map coordinates.
+
 `tests/native_assets/test_field_converter.cpp` catalogs all `FLD/*.BIN`:
 **50 canonical** (this layout), **13 layout variants** where `offB < offA`
 (alternate region ordering — e.g. `011.BIN`: `offA=0x1e800`,
