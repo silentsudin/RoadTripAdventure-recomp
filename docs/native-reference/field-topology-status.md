@@ -49,9 +49,10 @@ size-check `< 0x750000`, copy `DAT_00100004..end` into
 Tile names are a 3-digit `ABC.BIN` structure: all 64 combinations of
 `{0-3}{0-3}{0-3}` exist (16 per leading digit, four leading digits). Packet
 vertices sit on a 40-unit grid spanning roughly 1000 units per tile. The
-naming is consistent with a 4-region × 4×4 grid world, but the
-digit-to-world placement is not yet cross-referenced against `world.cpp`;
-confirm it before wiring tiles to absolute map coordinates.
+naming is consistent with a 4-region × 4×4 grid world; the id formula derived
+from `FUN_0021c8d0` (see "Tile identity & streaming") closes most of the gap,
+but the digit↔filename ordering and the fixed-point scale still need one
+runtime cross-check before wiring tiles to absolute map coordinates.
 
 `tests/native_assets/test_field_converter.cpp` catalogs all `FLD/*.BIN`:
 **50 canonical** (this layout), **13 layout variants** where `offB < offA`
@@ -101,6 +102,37 @@ player. Which of the 64 `ABC.BIN` files occupies which world grid position
 is still chosen by the streaming-request code (`FUN_0020aef0`/`FUN_0020b348`)
 and remains to be pinned; the per-tile geometry→world transform is simply
 `origin + local(x, z, y)`.
+
+## Tile identity & streaming (PROVEN from `FUN_0021c8d0` / `FUN_002201c0`)
+
+`FUN_0021c8d0(x, y)` maps fixed-point world coordinates (offsets relative to
+the section origin pair at `+0x58/+0x5C`, negatives wrapped modulo
+`0x1FFFFFF`/`0xFFFFFF`) to a **6-bit tile id** — exactly 64 tiles, matching
+the 64 `ABC.BIN` files:
+
+```c
+b  = (y >> 25) & 1;                          // row-parity bit
+id = ((y >> 25) & 6) * 8                   // Y-region (y bits 26-25) * 16
+   + (((x >> 24) - b) & 0xE)               // X index, parity-shifted, bits 1-3
+   + b;                                     // parity in bit 0
+```
+
+X granularity is `1<<24` per half-index; the neighbour-quadrant picker
+`FUN_002201c0` steps origins by ±`0x1000000`/±`0x2000000` around the car
+(`+0x58/+0x5C`), computes up to four neighbour tile ids (centre, the four
+diagonals — cardinal neighbours appear implicitly through the x-shift), and
+for each: assigns a render slot (`DAT_003335b8..bb` = quadrant codes 0–6)
+and, on id change, spawns a loader task
+`gs_tasks_spawn(…, FUN_0020dc50, id | 0x390000)` — request type tag
+`0x390000` with the 6-bit tile id in the low bits. The debug format
+`[%d%d%d]` (@0x2EEAD8, xrefs in the same file) prints the id as the three
+filename digits — consistent with `A = id>>4`, `B = (id>>2)&3`, `C = id&3`,
+though the digit↔file ordering itself is inferred, not observed.
+
+Practical consequence for the native app: with the car at world `(x, z)`, the
+visible world is this tile + the quadrant neighbours chosen by the same id
+walk; 4 tile slots stream, matching the 4 × `0x3A8000` slots in
+`fieldTileData`.
 
 ## What remains for real terrain
 
