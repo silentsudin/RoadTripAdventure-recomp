@@ -264,6 +264,23 @@ void testExtractsPacketsFromSyntheticTile() {
     check(std::abs(v.u - 0.25f) < 0.01f, "packets: planar UV at grid spacing");
 }
 
+void testBuildsRenderTerrain() {
+    const Bytes bytes = buildCatalogTile(0x608, true);
+    const auto catalog = rt::native::assets::catalogFieldTile(bytes);
+    check(catalog.has_value(), "terrain: synthetic tile catalogs");
+    if (!catalog) return;
+    const auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
+    check(terrain.positions.size() == 5, "terrain: five positions");
+    check(terrain.indices.size() == 9, "terrain: fan expanded to triangle list");
+    check(terrain.triangleMaterials.size() == 3 &&
+          terrain.triangleMaterials[0] == 0x100651, "terrain: per-triangle materials");
+    // Height (disc float index 1) lands in y: x=10, h=-10, depth=10 at 0.1.
+    check(std::abs(terrain.positions[0][0] - 1.0f) < 0.01f &&
+          std::abs(terrain.positions[0][1] + 1.0f) < 0.01f &&
+          std::abs(terrain.positions[0][2] - 1.0f) < 0.01f,
+          "terrain: y-up coordinate mapping at scale");
+}
+
 std::filesystem::path discRoot() {
     if (const char* root = std::getenv("RT_DISC")) {
         return root;
@@ -321,6 +338,21 @@ void testRealFieldTileWhenAvailable() {
     check(normals == 13220, "real FLD/000.BIN: face normal count");
     std::cout << "test_field_converter: FLD/000.BIN packets=" << packets.size()
               << " vertices=" << packetVertices << " tris=" << normals << '\n';
+
+    const auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
+    check(terrain.indices.size() == 13220 * 3, "real FLD/000.BIN: render triangle count");
+    bool extentsOk = !terrain.positions.empty();
+    float minH = 1e9f, maxH = -1e9f;
+    for (const auto& p : terrain.positions) {
+        extentsOk = extentsOk && p[0] >= -0.1f && p[0] <= 160.1f &&
+                    p[2] >= -0.1f && p[2] <= 160.1f;
+        minH = std::min(minH, p[1]);
+        maxH = std::max(maxH, p[1]);
+    }
+    check(extentsOk, "real FLD/000.BIN: terrain fits the 160-unit render field");
+    check(minH > -10.f && maxH < 10.f, "real FLD/000.BIN: heights sane in render units");
+    std::cout << "test_field_converter: FLD/000.BIN render tris=" << terrain.indices.size() / 3
+              << " height range=[" << minH << ", " << maxH << "]\n";
 
     const FieldTileResult result =
         convertFieldTile(bytes, "FLD/000.BIN", testDigest());
@@ -434,6 +466,7 @@ int main() {
     testCatalogValid();
     testCatalogRejectsBadShapes();
     testExtractsPacketsFromSyntheticTile();
+    testBuildsRenderTerrain();
     testRealFieldTileWhenAvailable();
     testCatalogCorpusWhenAvailable();
 

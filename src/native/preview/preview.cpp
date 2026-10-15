@@ -535,15 +535,49 @@ static void argbToRgb(std::uint32_t argb, float out[3]) {
 }
 
 bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gameplay::FrameSnapshot& s,
-                        const gameplay::World& world, std::vector<std::uint8_t>& rgbaOut, std::string& error) {
+                        const gameplay::World& world, std::vector<std::uint8_t>& rgbaOut, std::string& error,
+                        const TerrainMesh* terrain) {
     std::vector<SceneVertex> vertices;
     std::vector<std::uint32_t> indices;
     const float grass[3] = {.16f, .42f, .18f}, asphalt[3] = {.10f, .11f, .12f};
     // Field ground in render units: World is 1600 units, snapshots use a 0.1 scale.
     const std::uint32_t groundBase = 0;
-    for (const auto& p : {gameplay::Vec2{0, 0}, {160, 0}, {160, 160}, {0, 160}})
-        vertices.push_back({p.x, 0.f, p.z, grass[0], grass[1], grass[2]});
-    for (std::uint32_t i : {0u, 2u, 1u, 0u, 3u, 2u}) indices.push_back(groundBase + i);
+    const bool useTerrain = terrain != nullptr && !terrain->positions.empty() &&
+                            terrain->indices.size() >= 3 && terrain->indices.size() % 3 == 0;
+    if (!useTerrain) {
+        for (const auto& p : {gameplay::Vec2{0, 0}, {160, 0}, {160, 160}, {0, 160}})
+            vertices.push_back({p.x, 0.f, p.z, grass[0], grass[1], grass[2]});
+        for (std::uint32_t i : {0u, 2u, 1u, 0u, 3u, 2u}) indices.push_back(groundBase + i);
+    } else {
+        // Underlay so tile-edge cracks never show sky; slight drop keeps it
+        // below the terrain's lowest heights under the default depth test.
+        for (const auto& p : {gameplay::Vec2{-4, -4}, {164, -4}, {164, 164}, {-4, 164}})
+            vertices.push_back({p.x, -.4f, p.z, grass[0] * .5f, grass[1] * .5f, grass[2] * .5f});
+        for (std::uint32_t i : {0u, 2u, 1u, 0u, 3u, 2u}) indices.push_back(groundBase + i);
+        const std::uint32_t terrainBase = static_cast<std::uint32_t>(vertices.size());
+        for (std::size_t i = 0; i < terrain->positions.size(); ++i) {
+            const auto& p = terrain->positions[i];
+            // Height banding: low ground grass, mid dirt, high rock; material
+            // id adds deterministic per-patch tint until textures bind.
+            const float h = p[1];
+            float col[3];
+            if (h < 1.0f) {
+                col[0] = grass[0]; col[1] = grass[1]; col[2] = grass[2];
+            } else if (h < 3.0f) {
+                col[0] = .38f; col[1] = .32f; col[2] = .20f;
+            } else {
+                col[0] = .45f; col[1] = .45f; col[2] = .47f;
+            }
+            const std::uint32_t material = i / 3 < terrain->triangleMaterials.size()
+                                             ? terrain->triangleMaterials[i / 3] : 0;
+            const float tint = 1.f + static_cast<float>(material % 16u) * 0.012f;
+            vertices.push_back({p[0], p[1], p[2], col[0] * tint, col[1] * tint, col[2] * tint});
+        }
+        indices.reserve(indices.size() + terrain->indices.size());
+        for (const std::uint32_t index : terrain->indices) {
+            indices.push_back(terrainBase + index);
+        }
+    }
     const auto& path = world.roadWaypoints;
     const std::size_t count = path.size();
     const std::size_t segments = count > 1 ? (world.roadClosed ? count : count - 1) : 0;

@@ -1,6 +1,7 @@
 // Minimal SDL3 + Vulkan host for the authored GameLoop.  The scene itself is
 // rendered by previewRenderScene(), so this presentation layer deliberately
 // contains no duplicate road/car/shader code.
+#include "assets/field_converter.h"
 #include "assets/native_model.h"
 #include "audio/bgm_player.h"
 #include "audio/engine.h"
@@ -27,6 +28,7 @@
 #include <cstring>
 #include <cstdio>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -341,6 +343,37 @@ rt::native::assets::NativeModel demoCar() {
 }
 int envFrames() { const char* value = std::getenv("RT_APP_FRAMES"); return value ? std::max(0, std::atoi(value)) : 0; }
 
+// RT_APP_TERRAIN=1 replaces the flat grass quad with real terrain extracted
+// from a shipped FLD tile in the disc extract (RT_APP_TERRAIN_FILE overrides
+// the tile; default FLD/000.BIN).  Absent/malformed input falls back to the
+// authored quad, never a failure.
+rt::native::preview::TerrainMesh loadTerrainMesh() {
+    rt::native::preview::TerrainMesh mesh;
+    if (std::getenv("RT_APP_TERRAIN") == nullptr) return mesh;
+    const std::filesystem::path root = [] {
+        if (const char* value = std::getenv("RT_DISC")) return std::filesystem::path(value);
+        if (const char* home = std::getenv("HOME"))
+            return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp/disc";
+        return std::filesystem::path{};
+    }();
+    const char* named = std::getenv("RT_APP_TERRAIN_FILE");
+    const std::filesystem::path path =
+        named ? std::filesystem::path(named) : root / "FLD/000.BIN";
+    std::ifstream input(path, std::ios::binary);
+    if (!input) { std::cout << "rt-app terrain: SKIP (no tile at " << path << ")\n"; return mesh; }
+    const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
+                                         std::istreambuf_iterator<char>());
+    const auto catalog = rt::native::assets::catalogFieldTile(bytes);
+    if (!catalog) { std::cout << "rt-app terrain: catalog failed for " << path << "\n"; return mesh; }
+    auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
+    mesh.positions = std::move(terrain.positions);
+    mesh.indices = std::move(terrain.indices);
+    mesh.triangleMaterials = std::move(terrain.triangleMaterials);
+    std::cout << "rt-app terrain: loaded " << path.filename().string()
+              << " triangles=" << mesh.indices.size() / 3 << "\n";
+    return mesh;
+}
+
 enum class AppState { TITLE, MENU, PLAYING };
 
 const char* appStateName(AppState state) {
@@ -425,6 +458,7 @@ int main() {
     rt::native::preview::Renderer* renderer = rt::native::preview::previewInit(width, height, error, nullptr);
     if (!renderer) { std::cerr << "scene renderer init: " << error << "\n"; destroy(presenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
     const bool noRender = std::getenv("RT_APP_NORENDER") != nullptr; const int maxFrames = envFrames();
+    const rt::native::preview::TerrainMesh terrainMesh = loadTerrainMesh();
     AudioHost audio;
     if (std::getenv("RT_APP_NOAUDIO") == nullptr) (void)initAudio(audio);
     const auto recreateSwapchain = [&]() {
@@ -624,7 +658,9 @@ int main() {
                 std::vector<std::uint8_t> pixels;
                 bool rendered = false;
                 if (state == AppState::PLAYING) {
-                    rendered = rt::native::preview::previewRenderScene(renderer, car, snapshot, session.world(), pixels, error);
+                    rendered = rt::native::preview::previewRenderScene(
+                        renderer, car, snapshot, session.world(), pixels, error,
+                        terrainMesh.indices.empty() ? nullptr : &terrainMesh);
                     if (rendered) {
                         std::vector<std::uint8_t> hudPixels;
                         rendered = rt::native::preview::previewRender2D(

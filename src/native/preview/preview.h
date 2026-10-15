@@ -40,11 +40,22 @@ Renderer* previewInit(std::uint32_t width, std::uint32_t height, std::string& er
 // Re-uses the context; null view/proj => auto-fit camera. Geometry is re-uploaded per call.
 bool previewRender(Renderer* r, const assets::NativeModel& model, const float* view, const float* proj,
                    std::vector<std::uint8_t>& rgbaOut, std::string& error);
+// Optional real-terrain overlay for the scene path: y-up render-unit
+// positions with a triangle list and one material id per triangle (used for
+// colour banding until authentic textures bind).
+struct TerrainMesh {
+    std::vector<std::array<float, 3>> positions;
+    std::vector<std::uint32_t> indices;
+    std::vector<std::uint32_t> triangleMaterials;
+};
+
 // Draws the authored field (grass and an explicit road ribbon) plus `car`, using
-// the camera and time-of-day lighting emitted by GameLoop.
+// the camera and time-of-day lighting emitted by GameLoop. When `terrain` is
+// non-null it replaces the flat grass quad with real extracted terrain.
 bool previewRenderScene(Renderer* r, const assets::NativeModel& car,
                         const gameplay::FrameSnapshot& snapshot, const gameplay::World& world,
-                        std::vector<std::uint8_t>& rgbaOut, std::string& error);
+                        std::vector<std::uint8_t>& rgbaOut, std::string& error,
+                        const TerrainMesh* terrain = nullptr);
 // Draws solid screen-space rectangles over clearColor. Rectangle coordinates
 // are target pixels with a top-left origin; this path has no lighting, depth,
 // or texture sampling.

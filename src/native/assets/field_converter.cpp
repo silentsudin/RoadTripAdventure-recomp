@@ -4,6 +4,7 @@
 #include "field_converter.h"
 
 #include <algorithm>
+#include <array>
 #include <bit>
 #include <cmath>
 #include <cstddef>
@@ -277,6 +278,31 @@ extractFieldPackets(std::span<const std::uint8_t> tileFile,
         }
     }
     return packets;
+}
+
+FieldRenderTerrain buildFieldRenderTerrain(std::span<const std::uint8_t> tileFile,
+                                          const FieldTileCatalog& catalog, float scale) {
+    FieldRenderTerrain terrain;
+    const std::vector<FieldPacket> packets = extractFieldPackets(tileFile, catalog);
+    for (const FieldPacket& packet : packets) {
+        if (packet.vertices.size() < 3) {
+            continue;
+        }
+        const std::uint32_t base = static_cast<std::uint32_t>(terrain.positions.size());
+        for (const Vertex& vertex : packet.vertices) {
+            // FieldPacket vertices are (px=x, py=disc-y, pz=height); render
+            // space is y-up.
+            terrain.positions.push_back({vertex.px * scale, vertex.pz * scale,
+                                        vertex.py * scale});
+        }
+        for (std::uint32_t fan = 1; fan + 2 <= packet.vertices.size(); ++fan) {
+            terrain.indices.push_back(base);
+            terrain.indices.push_back(base + fan);
+            terrain.indices.push_back(base + fan + 1);
+            terrain.triangleMaterials.push_back(packet.materialRef);
+        }
+    }
+    return terrain;
 }
 
 FieldTileResult convertFieldTile(std::span<const std::uint8_t> tileFile,

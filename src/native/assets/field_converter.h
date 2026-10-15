@@ -83,6 +83,18 @@ std::vector<FieldPacket>
 extractFieldPackets(std::span<const std::uint8_t> tileFile,
                    const FieldTileCatalog& catalog);
 
+// Y-up render-space terrain for the preview scene: packet fans converted to
+// a triangle list, positions scaled (e.g. 0.1 for the app's render units),
+// disc (x, height, depth) mapped to (x, y=height*scale, z=depth*scale).
+struct FieldRenderTerrain {
+    std::vector<std::array<float, 3>> positions;
+    std::vector<std::uint32_t> indices;           // triangle list
+    std::vector<std::uint32_t> triangleMaterials; // one materialRef per triangle
+};
+
+FieldRenderTerrain buildFieldRenderTerrain(std::span<const std::uint8_t> tileFile,
+                                          const FieldTileCatalog& catalog, float scale);
+
 expected<FieldTileHeader, FieldTileError>
 parseFieldTileHeader(std::span<const std::uint8_t> tileFile);
 
