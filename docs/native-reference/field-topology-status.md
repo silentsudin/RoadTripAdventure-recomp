@@ -82,6 +82,26 @@ vertices, ~658k triangles**; section gap equals N-2 on 288,732/288,745
 packets (99.995%). FLD/000.BIN: 6,185 packets / 25,590 vertices / 13,220
 face records — pinned by the test suite.
 
+## World placement (PROVEN from `drawFieldTiles` @ 0x21FC24)
+
+The renderer iterates each loaded tile as **8×8 cells of 200 units**
+(1600×1600 total — exactly matching packet vertex extents `x,y ∈ [0,1600]`,
+height `z ∈ [-53, +51]`). Per cell it runs `cellVisible(origin +
+col*200 + 100, origin + row*200 + 100)` frustum culling and, when visible,
+`vifCallModel(fieldCellTables[slot*4 + cell])` — the 65-entry directory's
+first 64 slots are the per-cell model refs (slot 65 = attribute table base).
+Up to four parallel cell tables (`DAT_0177ab20/24/28` verified, fourth
+sibling implied by the fourth render block) render four tile
+layers simultaneously, each anchored by a vec4 origin from
+`tileQuadrantOrigins @ 0x29d080` — observed entries `(-800,0,1600)`,
+`(800,0,1600)`, `(-1600,0,0)`, `(0,0,0)` = half/full-tile relative anchor
+offsets for neighbouring/streamed tiles. `fieldTileData` holds 4 slots of
+0x3A8000 (`slot * 0x3A8000` in the loader), so ~4 tiles stream around the
+player. Which of the 64 `ABC.BIN` files occupies which world grid position
+is still chosen by the streaming-request code (`FUN_0020aef0`/`FUN_0020b348`)
+and remains to be pinned; the per-tile geometry→world transform is simply
+`origin + local(x, z, y)`.
+
 ## What remains for real terrain
 
 - Map `materialRef` (and the 256-entry attribute table) to the tile's texture
