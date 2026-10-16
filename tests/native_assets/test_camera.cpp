@@ -14,6 +14,24 @@ static int g_fail = 0;
 
 static bool nearEq(float a, float b, float eps) { return std::fabs(a - b) <= eps; }
 
+// Binary pins: preset 0 at 0x29ce00 and the projection constants consumed by
+// buildCamera (0x21f698).  These are not presentation guesses.
+static void testExtractedCameraConstants() {
+    const CameraParams p;
+    CHECK(nearEq(p.distanceNear, 7.f, 1e-6f));
+    CHECK(nearEq(p.distanceFar, 7.f, 1e-6f));
+    CHECK(nearEq(p.baseHeight, 2.f, 1e-6f));
+    CHECK(nearEq(p.pitchLow, 0.08590293f, 1e-6f));  // 0x0380 turns
+    CHECK(nearEq(p.pitchHigh, p.pitchLow, 1e-6f));
+    CHECK(nearEq(p.pitchSlewPerTick, 0.02454369f, 1e-6f));  // 0x80 turns
+    CHECK(nearEq(p.springAccelerationPerTick, 0.001f, 1e-8f));
+    CHECK(nearEq(p.projectionFocal, 500.f, 1e-6f));
+    CHECK(nearEq(p.projectionHorizontalScale, 0.47f, 1e-6f));  // 0x00332c80
+    CHECK(nearEq(p.projectionVerticalScale, 0.8f, 1e-6f));     // 0x00332c84
+    CHECK(nearEq(p.viewNear, 2048.f, 1e-6f));
+    CHECK(nearEq(p.viewFar, 2048.f, 1e-6f));
+}
+
 // Run the camera to a settled state at a constant speed/heading.
 static CameraState settle(const CarPose& car, float speed, int ticks = 600) {
     CameraState cam;
@@ -40,23 +58,21 @@ static void testBehindAndAbove() {
     }
 }
 
-// Steady-state distance is strictly monotonic in speed (zooms out as speed
-// rises) and matches the authored near/far ramp.
-static void testZoomMonotonicWithSpeed() {
+// The shipped task chooses a preset rather than a speed ramp; the default
+// preset's chase distance remains fixed for every host speed input.
+static void testDefaultPresetDistanceIsSpeedIndependent() {
     CarPose car{{0.f, 0.f, 0.f}, 0.4f};
     const float speeds[] = {0.f, 20000.f, 60000.f, 110000.f, 163840.f};
     float prev = -1.f;
     for (float s : speeds) {
         CameraState cam = settle(car, s);
         const float dist = length(cam.eye - cam.target);
-        if (prev >= 0.f) CHECK(dist > prev + 1e-4f);
+        if (prev >= 0.f) CHECK(nearEq(dist, prev, 1e-4f));
         prev = dist;
         // Distance stays inside the authored ramp bounds.
-        CHECK(dist >= 8.9f && dist <= 18.6f);  // <= sqrt(far^2)+height slack
+        CHECK(dist >= 6.9f && dist <= 7.2f);
         // Matches the speed-scaled target distance (horizontal component).
-        const float t = std::min(s / 163840.f, 1.f);
-        const float expected = 9.f + (16.f - 9.f) * t;
-        CHECK(nearEq(cam.distance, expected, 1e-3f));
+        CHECK(nearEq(cam.distance, 7.f, 1e-3f));
     }
     // Speeds beyond the reference clamp: distance stops growing.
     CameraState a = settle(car, 163840.f);
@@ -64,15 +80,14 @@ static void testZoomMonotonicWithSpeed() {
     CHECK(nearEq(a.distance, b.distance, 1e-6f));
 }
 
-// Pitch eases smoothly: after a sudden speed jump the per-tick pitch delta is
-// bounded by the slew limit, and pitch converges monotonically to the target.
-static void testPitchEasesSmoothly() {
+// The selected default preset's pitch does not change for a speed jump.
+static void testDefaultPresetPitchIsSpeedIndependent() {
     CarPose car{{0.f, 0.f, 0.f}, 0.f};
     CameraState cam = settle(car, 0.f);
     const float startPitch = cam.pitch;
-    CHECK(nearEq(startPitch, 0.0873f, 1e-5f));  // settled at the low-speed pitch
+    CHECK(nearEq(startPitch, 0.08590293f, 1e-5f));  // preset-0 pitch target
 
-    const float slew = 0.0307f;
+    const float slew = 0.02454369f;
     float prev = cam.pitch;
     float maxDelta = 0.f;
     int ticksToSettle = -1;
@@ -80,14 +95,14 @@ static void testPitchEasesSmoothly() {
         updateCamera(cam, car, 163840.f);  // sudden full-speed jump
         const float d = std::fabs(cam.pitch - prev);
         maxDelta = std::max(maxDelta, d);
-        CHECK(cam.pitch >= prev - 1e-7f);  // monotonic rise toward the target
+        CHECK(nearEq(cam.pitch, prev, 1e-7f));  // speed cannot alter the preset pitch
         prev = cam.pitch;
-        if (ticksToSettle < 0 && nearEq(cam.pitch, 0.4363f, 1e-4f)) ticksToSettle = i;
+        if (ticksToSettle < 0 && nearEq(cam.pitch, 0.08590293f, 1e-4f)) ticksToSettle = i;
     }
     CHECK(maxDelta <= slew + 1e-6f);        // bounded per-tick delta
-    CHECK(maxDelta > 0.5f * slew);          // ...and it actually moves
-    CHECK(ticksToSettle > 5 && ticksToSettle < 100);  // eases over several ticks
-    CHECK(nearEq(cam.pitch, 0.4363f, 1e-4f));
+    CHECK(maxDelta < 1e-7f);
+    CHECK(ticksToSettle == 0);
+    CHECK(nearEq(cam.pitch, 0.08590293f, 1e-4f));
 }
 
 // The rotation part of the view matrix is orthonormal (rows unit-length and
@@ -137,9 +152,10 @@ static void testYawFollow() {
 }
 
 int main() {
+    testExtractedCameraConstants();
     testBehindAndAbove();
-    testZoomMonotonicWithSpeed();
-    testPitchEasesSmoothly();
+    testDefaultPresetDistanceIsSpeedIndependent();
+    testDefaultPresetPitchIsSpeedIndependent();
     testViewMatrixOrthonormal();
     testYawFollow();
     if (g_fail) { std::fprintf(stderr, "%d failure(s)\n", g_fail); return 1; }

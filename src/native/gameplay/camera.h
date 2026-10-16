@@ -51,37 +51,50 @@ inline Vec3 carForward(const CarPose& car) {
 // ---------------------------------------------------------------- tuning
 
 struct CameraParams {
-    // Speed scale: full-scale forward speed in car-physics units (the original
-    // AI code treats 0x28000 as the speed reference).
+    // Retained for source compatibility with callers that supply a speed. The
+    // shipped chase task selects a camera preset; it does not ramp its default
+    // preset from vehicle speed (RunCarCameraTask, 0x0021e690).
     float speedRef = 163840.f;
 
-    // Zoom (camera-to-car distance) eases between these as speed rises.
-    float distanceNear = 9.f;    // at zero speed
-    float distanceFar = 16.f;    // at speedRef and above
-    float zoomEase = 0.08f;      // exponential approach per tick (0..1)
-    float zoomSlewPerTick = 0.5f;  // hard rate limit, units/tick
+    // Default chase-preset offset (preset 0 at 0x0029ce00): (0, 2, -7, 1).
+    // The host orbit represents its -Z component as distance and its Y
+    // component as baseHeight.
+    float distanceNear = 7.f;
+    float distanceFar = 7.f;
+    float zoomEase = 1.f;
+    float zoomSlewPerTick = 7.f;
 
-    // Pitch eases from looking slightly down at rest to more overhead at speed.
-    float pitchLow = 0.0873f;    // ~5 deg above the horizon plane, zero speed
-    float pitchHigh = 0.4363f;   // ~25 deg, full speed
-    // Original slews pitch at most ±0x80/frame in 0x10000 angle units
-    // (0x80/0x10000 * 2pi ~= 0.031 rad); keep the same feel.
-    float pitchSlewPerTick = 0.0307f;
+    // Default preset pitch is 0x0380 in a 0x10000-turn angle. The original
+    // targets this fixed value and clamps movement to +/-0x80 each 60 Hz tick
+    // (0x0021eb50..0x0021eb74), rather than scaling it by car speed.
+    float pitchLow = 0.08590293f;
+    float pitchHigh = 0.08590293f;
+    float pitchSlewPerTick = 0.02454369f;
 
     // Yaw follows the car heading through the shortest arc.
     float yawEase = 0.15f;
 
-    // Look-at point rides this far above the car origin.
+    // Host-only look-at convention; the ELF builds basis vectors rather than a
+    // host-style target point, so no direct source scalar exists for this.
     float lookAtHeight = 1.5f;
-    // Base camera height offset (the original spring block's third float fixes
-    // the height when the spring mode is off).
+    // Preset-0 Y offset at 0x0029ce04 (instruction-verified by the 32-byte
+    // copy in LoadCameraPreset, 0x0021fae8).
     float baseHeight = 2.0f;
 
-    // Spring block (original DAT_0172FF30 + constants DAT_00332C30..C44):
-    // rate += (target - value) * k; rate *= damping; clamp; value += rate.
-    float springK = 0.09f;
-    float springDamping = 0.82f;
-    float springRateLimit = 0.35f;  // units/tick, per channel
+    // DAT_00332c30..44 are +/-0.001f. ComputeChaseCameraBasis
+    // (0x0021dc18) adds this signed amount to the previous delta and clips it
+    // to the remaining displacement; this is an acceleration-limited slew,
+    // not the previous guessed damped spring.
+    float springAccelerationPerTick = 0.001f;
+
+    // Projection values used by buildCamera (0x0021f698). They are exposed as
+    // evidence-backed authored constants; this view-only module does not own
+    // FrameSnapshot's host projection matrix.
+    float projectionFocal = 500.f;          // preset 0 +0x10, 0x0029ce10
+    float projectionHorizontalScale = 0.47f; // DAT_00332c80
+    float projectionVerticalScale = 0.8f;    // DAT_00332c84
+    float viewNear = 2048.f;                 // 0x45000000 -> 0x0021f910
+    float viewFar = 2048.f;                  // 0x45000000 -> 0x0021f910
 };
 
 // ---------------------------------------------------------------- state

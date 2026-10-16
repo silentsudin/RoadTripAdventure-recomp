@@ -8,8 +8,6 @@
 namespace rt::native::gameplay {
 namespace {
 
-float clamp01(float v) { return std::clamp(v, 0.f, 1.f); }
-
 // Move `value` toward `target` by at most `maxStep` (slew limit), mirroring the
 // original's per-frame pitch clamp (±0x80 in 0x10000 angle units).
 float slewToward(float value, float target, float maxStep) {
@@ -18,12 +16,17 @@ float slewToward(float value, float target, float maxStep) {
     return value + (d > 0.f ? maxStep : -maxStep);
 }
 
-// One spring-damper tick (original chase spring block): accelerate toward the
-// target, damp, clamp the rate, integrate.
+// One chase slew tick. ComputeChaseCameraBasis (0x0021dd08..0x0021dd78 and
+// 0x0021de08..0x0021def0) accelerates the stored delta by +/-0.001 and clips
+// it to the remaining displacement before integrating; it does not damp.
 void springStep(float& value, float& rate, float target, const CameraParams& p) {
-    rate += (target - value) * p.springK;
-    rate *= p.springDamping;
-    rate = std::clamp(rate, -p.springRateLimit, p.springRateLimit);
+    const float remaining = target - value;
+    if (remaining > 0.f)
+        rate = std::min(rate + p.springAccelerationPerTick, remaining);
+    else if (remaining < 0.f)
+        rate = std::max(rate - p.springAccelerationPerTick, remaining);
+    else
+        rate = 0.f;
     value += rate;
 }
 
@@ -45,9 +48,11 @@ Mat4 lookAtMatrix(Vec3 eye, Vec3 target, Vec3 up) {
 
 void updateCamera(CameraState& cam, const CarPose& car, float speed,
                   const CameraParams& params) {
-    const float speedNorm = clamp01(speed / params.speedRef);
+    (void)speed;  // Default ELF preset is not continuously speed-scaled.
+    const float speedNorm = 0.f;
 
-    // Speed-scaled targets: zoom out and raise pitch as speed rises.
+    // Default-preset targets. The native task swaps complete presets, rather
+    // than interpolating its offset/pitch from forward speed.
     const float targetDistance =
         params.distanceNear + (params.distanceFar - params.distanceNear) * speedNorm;
     const float targetPitch =
@@ -65,7 +70,8 @@ void updateCamera(CameraState& cam, const CarPose& car, float speed,
         cam.springHeightRate = 0.f;
         cam.initialized = true;
     } else {
-        // Zoom: exponential ease with a hard per-tick slew limit.
+        // Kept as a host transition hook; equal default endpoints make this a
+        // no-op for the binary-backed preset.
         const float zoomStep = (targetDistance - cam.distance) * params.zoomEase;
         cam.distance += std::clamp(zoomStep, -params.zoomSlewPerTick,
                                    params.zoomSlewPerTick);
