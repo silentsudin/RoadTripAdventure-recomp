@@ -35,6 +35,7 @@ set(RT_NATIVE_ASSET_SOURCES
     assets/vif_chain.cpp        # VIF/DMA chain -> vertex batches
     assets/model_converter.cpp  # CAR (CARn/Qnn.BIN) -> mesh-only HostAssetContainer
     assets/field_converter.cpp  # FLD/COURSE field-tile VIF region -> mesh-only HostAssetContainer
+    assets/field_tile_index.cpp # ROM LBA descriptor table -> streaming id/FLD filename index
     assets/course_data.cpp      # COURSE container header/region parser (route semantics deferred)
     assets/image_converter.cpp  # texture upload chain -> RGBA8 ImageRecord
     assets/image_loader.cpp     # ImageRecord -> NativeImage
@@ -183,6 +184,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(native_assets_field_converter_test PRIVATE rt_native_assets)
     target_compile_features(native_assets_field_converter_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_field_converter_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(native_assets_field_tile_index_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_field_tile_index.cpp")
+    target_link_libraries(native_assets_field_tile_index_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_field_tile_index_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_field_tile_index_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
     add_executable(native_assets_course_data_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_course_data.cpp")
