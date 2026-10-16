@@ -81,6 +81,8 @@ row norender   RT_APP_STATE=PLAYING RT_APP_NORENDER=1 RT_APP_NOAUDIO=1 \
 row snapshot   RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 -- "rt-app snapshot:"
 [ -s "$TMP/snapshot.ppm" ] && { echo "PASS snapshot-file-nonempty"; pass=$((pass+1)); } \
                           || { echo "FAIL snapshot-file-nonempty"; fail=$((fail+1)); }
+row interp     RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_NOAUDIO=1 RT_APP_INTERP=1 \
+               -- "rt-app interp: fixed-step sim"
 
 # --- disc-dependent -----------------------------------------------------------
 row_required_disc single_tile RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 \

@@ -13,6 +13,7 @@
 #include "gameplay/collectibles.h"
 #include "gameplay/dialogue.h"
 #include "gameplay/input.h"
+#include "gameplay/interp.h"
 #include "gameplay/menu.h"
 #include "gameplay/nav_drive.h"
 #include "gameplay/session.h"
@@ -39,6 +40,7 @@
 #include <iostream>
 #include <optional>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 
@@ -351,6 +353,31 @@ rt::native::assets::NativeModel demoCar() {
     return car;
 }
 int envFrames() { const char* value = std::getenv("RT_APP_FRAMES"); return value ? std::max(0, std::atoi(value)) : 0; }
+
+// RT_APP_INTERP=1 enables split pacing (gameplay/interp): logic keeps the
+// fixed 60-Hz quantum PROVEN in docs/native-reference/frame-timing.md
+// (verdict a) while renders run at host refresh with poses interpolated
+// between completed logic steps. Default (unset or RT_APP_INTERP=0) keeps
+// the one-logic-step-per-frame host loop byte-identical.
+bool envInterpEnabled() {
+    const char* value = std::getenv("RT_APP_INTERP");
+    return value != nullptr && std::strcmp(value, "0") != 0;
+}
+
+// RT_APP_INTERP_CAP=<n>: maximum logic steps drained per host frame when
+// catching up after a stall (default 2).
+int envInterpCap() {
+    const char* value = std::getenv("RT_APP_INTERP_CAP");
+    return value && *value ? std::max(1, std::atoi(value))
+                           : rt::native::gameplay::FixedStepClock::kDefaultCatchUpCap;
+}
+
+// RT_APP_INTERP_RATE=<n>: optional explicit render fps cap; 0/absent means
+// the swapchain presentation cadence (vsync) paces rendering.
+int envInterpRate() {
+    const char* value = std::getenv("RT_APP_INTERP_RATE");
+    return value && *value ? std::max(0, std::atoi(value)) : 0;
+}
 
 // RT_APP_TERRAIN=1 replaces the flat grass quad with real terrain extracted
 // from shipped FLD tiles in the disc extract.  Default renders the full
@@ -713,6 +740,24 @@ const char* sessionStateName(rt::native::gameplay::SessionState state) {
     return "UNKNOWN";
 }
 
+// The render-visible pose of a finished logic step, i.e. exactly what
+// previewRenderScene consumes for placement: the snapshot's car and camera
+// fields, plus the optional RT_APP_ROUTE follower override the render block
+// applies to the car placement. gameplay::RenderPose carries precisely the
+// consumed set, so pipeline-external state (HUD, clock, lighting) stays on
+// the fixed step.
+rt::native::gameplay::RenderPose renderPoseOfSnapshot(
+    const rt::native::gameplay::FrameSnapshot& snapshot,
+    const std::optional<rt::native::gameplay::NavDrive>& navDrive) {
+    rt::native::gameplay::RenderPose pose = rt::native::gameplay::renderPoseOf(snapshot);
+    if (navDrive) {
+        const rt::native::gameplay::NavPose nav = navDrive->pose();
+        pose.carPosition = {nav.position.x, nav.position.z};
+        pose.heading = nav.heading;
+    }
+    return pose;
+}
+
 AppState initialAppState() {
     const char* value = std::getenv("RT_APP_STATE");
     if (value && std::strcmp(value, "MENU") == 0) return AppState::MENU;
@@ -1020,8 +1065,45 @@ int main() {
     bool loggedAppState = false, loggedSessionState = false;
     AppState lastLoggedAppState = state;
     rt::native::gameplay::SessionState lastLoggedSessionState = session.state();
+    // Session snapshot of the last completed logic step. Hoisted so render-only
+    // iterations under split pacing reuse the last step boundary; in the
+    // default pacing each iteration overwrites it exactly where it used to be
+    // declared. HUD, streaming demand and collects always read this boundary.
+    rt::native::gameplay::FrameSnapshot snapshot;
+    // RT_APP_INTERP=1 split pacing state (gameplay/interp; design and
+    // determinism contract in docs/native-reference/frame-interpolation.md).
+    const bool interpEnabled = envInterpEnabled();
+    rt::native::gameplay::FixedStepClock interpClock(envInterpCap());
+    const int interpRenderRate = envInterpRate();
+    // Poses of the two most recent completed logic steps (the capture path
+    // and the blend source for interpolated rendering).
+    rt::native::gameplay::RenderPose interpPrevPose = renderPoseOfSnapshot(snapshot, navDrive);
+    rt::native::gameplay::RenderPose interpCurPose = interpPrevPose;
+    bool haveInterpPose = false;
+    std::uint64_t interpRenders = 0;
+    auto lastPresent = std::chrono::steady_clock::now();
+    int effectiveInterpRenderRate = interpRenderRate;
+    if (interpEnabled) {
+        // Effective render cadence: explicit RT_APP_INTERP_RATE wins,
+        // otherwise the queried display refresh (swapchain cadence paces
+        // rendering when the query fails).
+        const SDL_DisplayMode* desktop = SDL_GetDesktopDisplayMode(SDL_GetDisplayForWindow(window));
+        if (effectiveInterpRenderRate <= 0 && desktop && desktop->refresh_rate > 0.f)
+            effectiveInterpRenderRate = static_cast<int>(desktop->refresh_rate + 0.5f);
+        std::cout << "rt-app interp: fixed-step sim 60Hz render-rate="
+                  << (effectiveInterpRenderRate > 0 ? std::to_string(effectiveInterpRenderRate)
+                                                     : std::string("vsync"))
+                  << " catch-up cap=" << interpClock.catchUpCap() << "\n";
+    }
     auto previous = std::chrono::steady_clock::now();
     while (running && (!maxFrames || frames < maxFrames)) {
+        if (interpEnabled && effectiveInterpRenderRate > 0) {
+            const auto minimumFrame = std::chrono::duration<double>(1.0 / effectiveInterpRenderRate);
+            const auto elapsed = std::chrono::steady_clock::now() - lastPresent;
+            if (elapsed < minimumFrame)
+                std::this_thread::sleep_for(minimumFrame - elapsed);
+            lastPresent = std::chrono::steady_clock::now();
+        }
         SDL_Event event; bool resize = false;
         rt::native::gameplay::MenuInput menuInput;
         bool titleAdvance = false, returnToMenu = false;
@@ -1093,97 +1175,136 @@ int main() {
             rt::native::gameplay::setPressed(pad, controllerConfig.getButtonConfig(rt::native::gameplay::ControllerAction::REVERSE));
         const auto input = rt::native::gameplay::playerCarInput(pad, axes, controllerConfig);
         (void)input;
-        rt::native::gameplay::FrameSnapshot snapshot;
-        if (state == AppState::PLAYING) {
-            // GameSession owns the race loop.  Its current public update path
-            // is AI-driven; Tab remains the race-mode selection control for
-            // the host UI and is logged below.
-            session.update(menuInput);
-            snapshot = session.lastSnapshot();
-            simulationFrame = snapshot.frame;
-            if (navDrive) {
-                // Advance the render-only follower once per authored frame and
-                // announce each completed closed lap.
-                const rt::native::gameplay::NavPose pose = navDrive->step(kNavRouteSpeedUnitsPerFrame);
-                if (pose.lap > navRouteLap) {
-                    navRouteLap = pose.lap;
-                    std::cout << "rt-app route: lap " << pose.lap << " complete\n";
+        // One logic step of the fixed 60-Hz quantum: everything that must keep
+        // the original VBlank-paced cadence (session tick, route follower,
+        // shop/dialogue/collectibles, state/session logs, stream demand) per
+        // docs/native-reference/frame-timing.md. Default pacing runs it exactly
+        // once per iteration exactly here, so the default host loop stays
+        // identical to the pre-interp one; split pacing (RT_APP_INTERP=1)
+        // drains it from the accumulator below.
+        const auto stepLogic = [&] {
+            if (state == AppState::PLAYING) {
+                // GameSession owns the race loop.  Its current public update path
+                // is AI-driven; Tab remains the race-mode selection control for
+                // the host UI and is logged below.
+                session.update(menuInput);
+                snapshot = session.lastSnapshot();
+                simulationFrame = snapshot.frame;
+                if (navDrive) {
+                    // Advance the render-only follower once per authored frame and
+                    // announce each completed closed lap.
+                    const rt::native::gameplay::NavPose pose = navDrive->step(kNavRouteSpeedUnitsPerFrame);
+                    if (pose.lap > navRouteLap) {
+                        navRouteLap = pose.lap;
+                        std::cout << "rt-app route: lap " << pose.lap << " complete\n";
+                    }
                 }
-            }
 
-            if (session.state() == rt::native::gameplay::SessionState::EXPLORE) {
-                if (openShop && !shopOpen) {
-                    shopOpen = true;
-                    std::cout << "rt-app shop opened: 1=road map, 2=fuel can, 3=lucky charm\n";
-                }
-                if (openDialogue && !dialogue.isActive()) {
-                    dialogue.open(dialogueLines);
-                    const auto* line = dialogue.currentLine();
-                    std::cout << "rt-app dialogue " << line->speaker << ": " << line->text << "\n";
-                }
-                if (shopOpen && shopSelection >= 0) {
-                    // GameSession owns a mutable SaveData; its public accessor is
-                    // read-only for callers that only display progress.
-                    auto& progress = const_cast<rt::native::gameplay::SaveData&>(session.progress());
-                    const std::uint32_t moneyBefore = progress.money;
-                    const bool bought = shop.buy(progress, static_cast<std::size_t>(shopSelection));
-                    const char* itemName = shopSelection < static_cast<int>(shop.items.size())
-                        ? shop.items[static_cast<std::size_t>(shopSelection)].name.c_str() : "invalid item";
-                    std::cout << "rt-app shop buy " << itemName << " result=" << (bought ? "ok" : "failed")
-                              << " money=" << moneyBefore << "->" << progress.money << "\n";
-                }
-                if (advanceDialogue && dialogue.isActive()) {
-                    const bool finished = dialogue.advance({.confirm = true});
-                    if (finished)
-                        std::cout << "rt-app dialogue closed\n";
-                    else {
+                if (session.state() == rt::native::gameplay::SessionState::EXPLORE) {
+                    if (openShop && !shopOpen) {
+                        shopOpen = true;
+                        std::cout << "rt-app shop opened: 1=road map, 2=fuel can, 3=lucky charm\n";
+                    }
+                    if (openDialogue && !dialogue.isActive()) {
+                        dialogue.open(dialogueLines);
                         const auto* line = dialogue.currentLine();
                         std::cout << "rt-app dialogue " << line->speaker << ": " << line->text << "\n";
                     }
+                    if (shopOpen && shopSelection >= 0) {
+                        // GameSession owns a mutable SaveData; its public accessor is
+                        // read-only for callers that only display progress.
+                        auto& progress = const_cast<rt::native::gameplay::SaveData&>(session.progress());
+                        const std::uint32_t moneyBefore = progress.money;
+                        const bool bought = shop.buy(progress, static_cast<std::size_t>(shopSelection));
+                        const char* itemName = shopSelection < static_cast<int>(shop.items.size())
+                                ? shop.items[static_cast<std::size_t>(shopSelection)].name.c_str() : "invalid item";
+                        std::cout << "rt-app shop buy " << itemName << " result=" << (bought ? "ok" : "failed")
+                                  << " money=" << moneyBefore << "->" << progress.money << "\n";
+                    }
+                    if (advanceDialogue && dialogue.isActive()) {
+                        const bool finished = dialogue.advance({.confirm = true});
+                        if (finished)
+                            std::cout << "rt-app dialogue closed\n";
+                        else {
+                            const auto* line = dialogue.currentLine();
+                            std::cout << "rt-app dialogue " << line->speaker << ": " << line->text << "\n";
+                        }
+                    }
+                    if (startRace) session.startRace();
                 }
-                if (startRace) session.startRace();
-            }
 
-            // In EXPLORE, this uses the retained session snapshot.  The AI
-            // drives during RACE, too, so checking that snapshot there makes
-            // the synthetic pickup path observable in a headless launch.
-            if (session.state() == rt::native::gameplay::SessionState::EXPLORE ||
-                (session.state() == rt::native::gameplay::SessionState::RACE && !playerDriven)) {
-                auto& progress = const_cast<rt::native::gameplay::SaveData&>(session.progress());
-                for (auto& collectible : collectibles) {
-                    if (!rt::native::gameplay::tryCollect(collectible, snapshot.carPosition, progress)) continue;
-                    std::cout << "rt-app collected "
-                              << (collectible.kind == rt::native::gameplay::CollectibleKind::STAMP ? "stamp " : "coin ")
-                              << collectible.index << " total="
-                              << rt::native::gameplay::collectedCount(collectibles) << "\n";
+                // In EXPLORE, this uses the retained session snapshot.  The AI
+                // drives during RACE, too, so checking that snapshot there makes
+                // the synthetic pickup path observable in a headless launch.
+                if (session.state() == rt::native::gameplay::SessionState::EXPLORE ||
+                    (session.state() == rt::native::gameplay::SessionState::RACE && !playerDriven)) {
+                    auto& progress = const_cast<rt::native::gameplay::SaveData&>(session.progress());
+                    for (auto& collectible : collectibles) {
+                        if (!rt::native::gameplay::tryCollect(collectible, snapshot.carPosition, progress)) continue;
+                        std::cout << "rt-app collected "
+                                  << (collectible.kind == rt::native::gameplay::CollectibleKind::STAMP ? "stamp " : "coin ")
+                                  << collectible.index << " total="
+                                  << rt::native::gameplay::collectedCount(collectibles) << "\n";
+                    }
                 }
             }
-        }
-        if (!loggedAppState || state != lastLoggedAppState) {
-            std::cout << "rt-app state=" << appStateName(state) << "\n";
-            lastLoggedAppState = state;
-            loggedAppState = true;
-        }
-        if (state == AppState::PLAYING && (!loggedSessionState || session.state() != lastLoggedSessionState)) {
-            std::cout << "rt-app session state=" << sessionStateName(session.state())
-                      << " lap=" << snapshot.lap << " finished=" << snapshot.finished
-                      << " money=" << session.progress().money << "\n";
-            lastLoggedSessionState = session.state();
-            loggedSessionState = true;
-        }
-        if (state == AppState::PLAYING && directStartRace) {
-            session.startRace();
-            directStartRace = false;
-        }
-        if (streamed) {
-            // RT_APP_STREAM_POS=1: authentic position-driven demand (the car's
-            // fixed-unit world position drives the 4-slot window); default
-            // keeps the scripted serpentine sweep for the deterministic matrix.
-            const bool changed = std::getenv("RT_APP_STREAM_POS") != nullptr
-                ? streamed->refreshAt(carFixedUnits(snapshot.carPosition).x,
-                                     carFixedUnits(snapshot.carPosition).z)
-                : streamed->refresh();
-            if (changed) streamed->buildMesh(terrainMesh);
+            if (!loggedAppState || state != lastLoggedAppState) {
+                std::cout << "rt-app state=" << appStateName(state) << "\n";
+                lastLoggedAppState = state;
+                loggedAppState = true;
+            }
+            if (state == AppState::PLAYING && (!loggedSessionState || session.state() != lastLoggedSessionState)) {
+                std::cout << "rt-app session state=" << sessionStateName(session.state())
+                          << " lap=" << snapshot.lap << " finished=" << snapshot.finished
+                          << " money=" << session.progress().money << "\n";
+                lastLoggedSessionState = session.state();
+                loggedSessionState = true;
+            }
+            if (state == AppState::PLAYING && directStartRace) {
+                session.startRace();
+                directStartRace = false;
+            }
+            if (streamed) {
+                // RT_APP_STREAM_POS=1: authentic position-driven demand (the car's
+                // fixed-unit world position drives the 4-slot window); default
+                // keeps the scripted serpentine sweep for the deterministic matrix.
+                const bool changed = std::getenv("RT_APP_STREAM_POS") != nullptr
+                    ? streamed->refreshAt(carFixedUnits(snapshot.carPosition).x,
+                                         carFixedUnits(snapshot.carPosition).z)
+                    : streamed->refresh();
+                if (changed) streamed->buildMesh(terrainMesh);
+            }
+            // Event-derived one-shot commands belong to a single logic step;
+            // clearing them keeps a multi-step catch-up drain from applying
+            // one key event to every drained step (default pacing is
+            // unaffected: the poll remakes the flags each iteration).
+            openShop = openDialogue = advanceDialogue = startRace = false;
+            shopSelection = -1;
+        };
+        if (interpEnabled) {
+            // Split pacing: bank real time, then drain at most catchUpCap
+            // logic steps per host frame. RT_APP_FRAMES still counts logic
+            // steps (`frames` increments only inside the drain), so the exit
+            // log's steps=N equals RT_APP_FRAMES whatever the render rate —
+            // the proof that the simulation rate is unchanged.
+            interpClock.addElapsed(dt);
+            const int owed = interpClock.stepsReady();
+            for (int i = 0; i < owed; ++i) {
+                if (maxFrames && frames >= maxFrames) break;
+                interpPrevPose = interpCurPose;
+                stepLogic();
+                interpCurPose = renderPoseOfSnapshot(snapshot, navDrive);
+                if (!haveInterpPose) {
+                    // There is no older completed step at startup; rendering
+                    // the first completed pose avoids blending from zeros.
+                    interpPrevPose = interpCurPose;
+                    haveInterpPose = true;
+                }
+                interpClock.takeStep();
+                ++frames;
+            }
+        } else {
+            stepLogic();
         }
         if (!noRender && presenter.extent.width && presenter.extent.height) {
             bool retry = false;
@@ -1191,7 +1312,16 @@ int main() {
             // without disturbing session authoring state (lap/collectible logic
             // above still reads the authored snapshot).
             rt::native::gameplay::FrameSnapshot renderSnapshot = snapshot;
-            if (navDrive) {
+            if (interpEnabled && haveInterpPose) {
+                // RT_APP_SNAPSHOT is a logic-step-boundary (t=0) capture
+                // contract. It deliberately uses the completed snapshot,
+                // rather than a host-time blend, preserving P6 determinism.
+                const auto pose = std::getenv("RT_APP_SNAPSHOT")
+                                      ? interpCurPose
+                                      : rt::native::gameplay::lerpRenderPose(
+                                            interpPrevPose, interpCurPose, interpClock.alpha());
+                renderSnapshot = rt::native::gameplay::snapshotWithRenderPose(snapshot, pose);
+            } else if (navDrive) {
                 const rt::native::gameplay::NavPose pose = navDrive->pose();
                 // carPosition is consumed in game units (preview scales .1).
                 renderSnapshot.carPosition = {pose.position.x, pose.position.z};
@@ -1259,6 +1389,7 @@ int main() {
                 if (!rendered || !present(presenter, pixels, retry, error)) {
                     std::cerr << "render: " << error << "\n"; running = false; break;
                 }
+                if (interpEnabled) ++interpRenders;
                 if (const char* snap = std::getenv("RT_APP_SNAPSHOT")) {
                     std::ofstream snapStream(snap, std::ios::binary);
                     snapStream << "P6\n" << presenter.extent.width << ' ' << presenter.extent.height
@@ -1274,9 +1405,12 @@ int main() {
                 if (retry && !recreateSwapchain()) { running = false; break; }
             } while (retry && presenter.extent.width && presenter.extent.height);
         }
-        ++frames;
+        if (!interpEnabled) ++frames;
     }
     std::cout << "rt-app frames=" << frames << " simulation_frame=" << simulationFrame << "\n";
+    if (interpEnabled)
+        std::cout << "rt-app interp: steps=" << interpClock.stepsTaken()
+                  << " renders=" << interpRenders << "\n";
     if (streamed) {
         std::cout << "rt-app stream: loads=" << streamed->loads
                   << " final window row=" << streamed->streamer.row()
