@@ -26,6 +26,7 @@ struct FieldTileIndexEntry {
     std::uint32_t sectorOffset = 0;   // disc sector offset from the ROM table
     std::uint32_t sectorCount = 0;    // length in 2048-byte sectors
     bool sizeOnlyFallback = false;    // assigned by unique size, not formula
+    bool fromLbnMap = false;         // matched exactly against .lbn_map.tsv LBAs
 };
 
 // 64 entries indexed by streaming id (the low 8 bits of the spawn tag
@@ -33,10 +34,10 @@ struct FieldTileIndexEntry {
 using FieldTileIndex = std::array<FieldTileIndexEntry, kFieldTileCount>;
 
 // Note: the disc extract also ships `.lbn_map.tsv` (filename -> real disc
-// LBA), which matches the descriptor table 384/384 exactly (see
-// docs/native-reference/asset-map.md). A future revision can prefer parsing
-// that sidecar over size+formula matching when present; the current path is
-// proven 64/64 on the shipped extract either way.
+// LBA + byte size), which matches the descriptor table 384/384 exactly (see
+// docs/native-reference/asset-map.md).  Resolution therefore prefers an
+// exact (LBA, sectorCount) agreement from that sidecar (fromLbnMap), and
+// falls back to the digit formula + unique-size matching without it.
 
 // Digit formula: filename ABC.BIN -> streaming id.  swap2 swaps the two bits
 // of C.  Returns -1 unless every digit is in range.

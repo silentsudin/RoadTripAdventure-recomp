@@ -97,6 +97,10 @@ std::filesystem::path syntheticDisc(bool allNames) {
     out.write(reinterpret_cast<const char*>(elf.data()), static_cast<std::streamsize>(elf.size()));
     out.close();
     if (allNames) {
+        const auto invSwap2 = [](std::uint32_t low2) {
+            return ((low2 >> 1) & 1u) | ((low2 & 1u) << 1);
+        };
+        std::ofstream map(root / ".lbn_map.tsv", std::ios::binary);
         for (std::uint32_t a = 0; a < 4; ++a) {
             for (std::uint32_t b = 0; b < 4; ++b) {
                 for (std::uint32_t c = 0; c < 4; ++c) {
@@ -105,6 +109,13 @@ std::filesystem::path syntheticDisc(bool allNames) {
                     writeFile(root / "FLD" / name, 2048);
                 }
             }
+        }
+        // Exact-LBA sidecar lines in id order: offset = 0x100 + id*2, 1 sector.
+        for (std::uint32_t id = 0; id < 64; ++id) {
+            const std::string name =
+                std::to_string(id >> 4) + std::to_string((id >> 2) & 3) +
+                std::to_string(invSwap2(id & 3)) + ".BIN";
+            map << "FLD/" << name << '\t' << (0x100 + id * 2) << "\t2048\n";
         }
     } else {
         writeFile(root / "FLD" / "000.BIN", 2048);
@@ -134,6 +145,7 @@ void testSyntheticDisc() {
     }
     std::size_t mismatches = 0;
     std::size_t fallbacks = 0;
+    std::size_t exact = 0;
     for (std::size_t id = 0; id < 64; ++id) {
         if ((*result)[id].fileName.empty()) {
             ++mismatches;
@@ -141,12 +153,48 @@ void testSyntheticDisc() {
         if ((*result)[id].sizeOnlyFallback) {
             ++fallbacks;
         }
+        if ((*result)[id].fromLbnMap) {
+            ++exact;
+        }
     }
     check(mismatches == 0, "synthetic: all 64 ids named");
-    check(fallbacks == 0, "synthetic: every id matched by formula");
+    check(fallbacks == 0, "synthetic: every id matched by exact LBA map");
+    check(exact == 64, "synthetic: sidecar marks all ids exact");
     check((*result)[1].fileName == "002.BIN", "synthetic: id 1 is 002.BIN");
     check((*result)[29].fileName == "132.BIN", "synthetic: id 29 is 132.BIN");
     std::error_code ec;
+    std::filesystem::remove_all(root, ec);
+}
+
+void testSidecarMismatchFallsBack() {
+    // A map line whose byte size disagrees with the descriptor sector count
+    // must fall through to the formula path (still resolved, not exact).
+    const std::filesystem::path root = syntheticDisc(true);
+    std::error_code ec;
+    {
+        std::ifstream in(root / ".lbn_map.tsv");
+        std::string content((std::istreambuf_iterator<char>(in)),
+                           std::istreambuf_iterator<char>());
+        // id 7 line: "FLD/013.BIN\t114\t2048" -> size 4096 (2 sectors != 1).
+        std::size_t pos = content.find("FLD/013.BIN");
+        pos = content.find('\t', pos);
+        pos = content.find('\t', pos + 1);
+        content.replace(pos + 1, 4, "4096");
+        std::ofstream out(root / ".lbn_map.tsv", std::ios::binary);
+        out << content;
+    }
+    const auto result = buildFieldTileIndex(root);
+    check(result.has_value(), "sidecar mismatch: still resolves");
+    if (result) {
+        check((*result)[7].fileName == "013.BIN", "sidecar mismatch: formula still names id 7");
+        check(!(*result)[7].fromLbnMap, "sidecar mismatch: id 7 not marked exact");
+        check(!(*result)[7].sizeOnlyFallback, "sidecar mismatch: id 7 formula-named");
+        std::size_t exact = 0;
+        for (std::size_t id = 0; id < 64; ++id) {
+            exact += (*result)[id].fromLbnMap ? 1 : 0;
+        }
+        check(exact == 63, "sidecar mismatch: other ids remain exact");
+    }
     std::filesystem::remove_all(root, ec);
 }
 
@@ -221,7 +269,13 @@ void testRealDiscWhenAvailable() {
     }
     check(formulaAgreement == 64, "disc: all ids agree with the digit formula");
     check(fallbacks == 0, "disc: no size-only fallbacks needed");
-    std::cout << "test_field_tile_index: disc index 64/64, formula agreement 64/64"
+    std::size_t exact = 0;
+    for (std::size_t id = 0; id < 64; ++id) {
+        exact += (*result)[id].fromLbnMap ? 1 : 0;
+    }
+    check(exact == 64, "disc: all ids matched via .lbn_map.tsv exact LBAs");
+    std::cout << "test_field_tile_index: disc index 64/64, formula agreement 64/64, exact-LBA "
+              << exact << "/64"
               << " (e.g. id0=" << (*result)[0].fileName << " id29=" << (*result)[29].fileName
               << " id41=" << (*result)[41].fileName << ")\n";
 }
@@ -231,6 +285,7 @@ void testRealDiscWhenAvailable() {
 int main() {
     testFormula();
     testSyntheticDisc();
+    testSidecarMismatchFallsBack();
     testErrorPaths();
     testRealDiscWhenAvailable();
 

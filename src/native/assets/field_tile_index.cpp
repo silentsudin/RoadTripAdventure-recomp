@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdlib>
 #include <fstream>
 #include <iterator>
 #include <limits>
@@ -148,42 +149,81 @@ expected<FieldTileIndex, FieldTileError> buildFieldTileIndex(
         std::sort(names.begin(), names.end());
     }
 
+    // Optional exact-LBA sidecar shipped with PS2Recomp extracts:
+    // "<dir>/<name>\t<lba>\t<sizeBytes>".  An LBA + sectorCount agreement with
+    // the descriptor is definitive and preferred over size+formula matching
+    // (see docs/native-reference/asset-map.md).
+    std::map<std::uint32_t, std::pair<std::uint32_t, std::string>> lbnBySector;
+    if (std::ifstream lbnStream(discRoot / ".lbn_map.tsv"); lbnStream) {
+        std::string line;
+        while (std::getline(lbnStream, line)) {
+            const std::size_t t1 = line.find('\t');
+            const std::size_t t2 = line.find('\t', t1 + 1);
+            if (t1 == std::string::npos || t2 == std::string::npos) {
+                continue;
+            }
+            const std::string_view path(line);
+            constexpr std::string_view kFldPrefix = "FLD/";
+            if (!path.starts_with(kFldPrefix)) {
+                continue;
+            }
+            const std::size_t slash = line.find_last_of('/');
+            const std::size_t stemStart =
+                (slash == std::string::npos) ? 0 : slash + 1;
+            const std::string stem = line.substr(stemStart, t1 - stemStart);
+            const unsigned long lba =
+                std::strtoul(line.substr(t1 + 1, t2 - t1 - 1).c_str(), nullptr, 10);
+            const unsigned long bytes = std::strtoul(line.substr(t2 + 1).c_str(), nullptr, 10);
+            lbnBySector[static_cast<std::uint32_t>(lba)] = {ceilSectors(bytes), stem};
+        }
+    }
+
     FieldTileIndex index{};
     std::vector<std::string> used;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> ranges;
     for (std::size_t id = 0; id < kFieldTileCount; ++id) {
         const Descriptor& desc = descriptors[id];
-        auto it = bySectorCount.find(desc.sectorCount);
-        if (it == bySectorCount.end()) {
-            continue;  // Provenance gap; flagged below.
-        }
-        // Primary rule: the digit formula identifies exactly one name per id.
-        // Fallback: a single remaining name with matching sector count.
-        const std::vector<std::string>& candidates = it->second;
         std::string chosen;
         bool fallback = false;
-        int formulaMatches = 0;
-        for (const std::string& name : candidates) {
-            if (std::find(used.begin(), used.end(), name) != used.end()) {
-                continue;
-            }
-            if (fieldTileIdFromName(name) == static_cast<int>(id)) {
-                chosen = name;
-                ++formulaMatches;
-            }
+        bool exact = false;
+        if (auto mit = lbnBySector.find(desc.sectorOffset); mit != lbnBySector.end() &&
+            mit->second.first == desc.sectorCount &&
+            std::find(used.begin(), used.end(), mit->second.second) == used.end()) {
+            chosen = mit->second.second;
+            exact = true;
         }
-        if (formulaMatches != 1) {
-            chosen.clear();
+        if (!exact) {
+            auto it = bySectorCount.find(desc.sectorCount);
+            if (it == bySectorCount.end()) {
+                continue;  // Provenance gap; flagged below.
+            }
+            // Primary rule: the digit formula identifies exactly one name per
+            // id.  Fallback: a single remaining name with matching sector
+            // count.
+            const std::vector<std::string>& candidates = it->second;
+            int formulaMatches = 0;
             for (const std::string& name : candidates) {
-                if (std::find(used.begin(), used.end(), name) == used.end()) {
-                    if (!chosen.empty()) {  // Ambiguous even by size.
-                        chosen.clear();
-                        break;
-                    }
+                if (std::find(used.begin(), used.end(), name) != used.end()) {
+                    continue;
+                }
+                if (fieldTileIdFromName(name) == static_cast<int>(id)) {
                     chosen = name;
+                    ++formulaMatches;
                 }
             }
-            fallback = !chosen.empty();
+            if (formulaMatches != 1) {
+                chosen.clear();
+                for (const std::string& name : candidates) {
+                    if (std::find(used.begin(), used.end(), name) == used.end()) {
+                        if (!chosen.empty()) {  // Ambiguous even by size.
+                            chosen.clear();
+                            break;
+                        }
+                        chosen = name;
+                    }
+                }
+                fallback = !chosen.empty();
+            }
         }
         if (chosen.empty()) {
             continue;
@@ -193,6 +233,7 @@ expected<FieldTileIndex, FieldTileError> buildFieldTileIndex(
         index[id].sectorOffset = desc.sectorOffset;
         index[id].sectorCount = desc.sectorCount;
         index[id].sizeOnlyFallback = fallback;
+        index[id].fromLbnMap = exact;
         ranges.emplace_back(desc.sectorOffset, desc.sectorCount);
     }
     // Disc LBA ranges must be pairwise disjoint (proven invariant of the
