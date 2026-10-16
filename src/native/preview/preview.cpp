@@ -1,4 +1,5 @@
 #include "preview.h"
+#include "preview_hud_shaders.h"
 #include "preview_shaders.h"
 
 #include <vulkan/vulkan.h>
@@ -180,6 +181,17 @@ struct Renderer {
         VkDescriptorSet set = VK_NULL_HANDLE;
     };
     std::unordered_map<std::uint64_t, TexEntry> texCache;
+    // HUD glyph pass (FONTE text): NDC quads sampling the uploaded atlas;
+    // depth off, no GPU blend (the host composites src-over, mirroring the
+    // ScreenQuad HUD flow).  Pipeline layout reuses the textured-path set
+    // layout (single combined sampler at set 0 binding 0); no push constants.
+    VkShaderModule hudVs = VK_NULL_HANDLE, hudFs = VK_NULL_HANDLE;
+    VkPipeline hudPipe = VK_NULL_HANDLE;
+    VkBuffer hudVb = VK_NULL_HANDLE;
+    VkDeviceMemory hudVbm = VK_NULL_HANDLE;
+    VkDeviceSize hudVbCap = 0;
+    TexEntry hudAtlas{};
+    bool hudAtlasReady = false;
 };
 
 static const VkMemoryPropertyFlags kHostMem = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -258,6 +270,11 @@ void previewDestroy(Renderer* R) {
         if (R->uiPl) vkDestroyPipelineLayout(R->dev, R->uiPl, nullptr);
         if (R->uiVs) vkDestroyShaderModule(R->dev, R->uiVs, nullptr);
         if (R->uiFs) vkDestroyShaderModule(R->dev, R->uiFs, nullptr);
+        if (R->hudPipe) vkDestroyPipeline(R->dev, R->hudPipe, nullptr);
+        if (R->hudVs) vkDestroyShaderModule(R->dev, R->hudVs, nullptr);
+        if (R->hudFs) vkDestroyShaderModule(R->dev, R->hudFs, nullptr);
+        if (R->hudVb) vkDestroyBuffer(R->dev, R->hudVb, nullptr);
+        if (R->hudVbm) vkFreeMemory(R->dev, R->hudVbm, nullptr);
         if (R->fb) vkDestroyFramebuffer(R->dev, R->fb, nullptr);
         if (R->rp) vkDestroyRenderPass(R->dev, R->rp, nullptr);
         if (R->colView) vkDestroyImageView(R->dev, R->colView, nullptr);
@@ -465,6 +482,29 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     texGpi.stageCount = 2; texGpi.pStages = texStages; texGpi.pVertexInputState = &texVin;
     texGpi.layout = R.texPl;
     VK_TRY(vkCreateGraphicsPipelines(dev, VK_NULL_HANDLE, 1, &texGpi, nullptr, &R.texPipe), "vkCreateGraphicsPipelines(tex)");
+
+    // HUD glyph pipeline (FONTE text pass): NDC position + atlas UV + colour,
+    // depth off, single sampled atlas via the textured-path set layout, no
+    // blending (host composites src-over).  Empty atlas texels discard.
+    if (!makeShader(kPreviewHudVertSpv, sizeof(kPreviewHudVertSpv), R.hudVs)) return false;
+    if (!makeShader(kPreviewHudFragSpv, sizeof(kPreviewHudFragSpv), R.hudFs)) return false;
+    VkPipelineShaderStageCreateInfo hudStages[2]{};
+    hudStages[0] = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_VERTEX_BIT, R.hudVs, "main", nullptr};
+    hudStages[1] = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_FRAGMENT_BIT, R.hudFs, "main", nullptr};
+    VkVertexInputBindingDescription hudBind{0, 32, VK_VERTEX_INPUT_RATE_VERTEX};
+    VkVertexInputAttributeDescription hudAttrs[3] = {
+        {0, 0, VK_FORMAT_R32G32_SFLOAT, 0},
+        {1, 0, VK_FORMAT_R32G32_SFLOAT, 8},
+        {2, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 16},
+    };
+    VkPipelineVertexInputStateCreateInfo hudVin{VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
+    hudVin.vertexBindingDescriptionCount = 1; hudVin.pVertexBindingDescriptions = &hudBind;
+    hudVin.vertexAttributeDescriptionCount = 3; hudVin.pVertexAttributeDescriptions = hudAttrs;
+    VkPipelineDepthStencilStateCreateInfo hudDs{VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO};
+    VkGraphicsPipelineCreateInfo hudGpi = gpi;
+    hudGpi.stageCount = 2; hudGpi.pStages = hudStages; hudGpi.pVertexInputState = &hudVin;
+    hudGpi.pDepthStencilState = &hudDs; hudGpi.layout = R.texPl;
+    VK_TRY(vkCreateGraphicsPipelines(dev, VK_NULL_HANDLE, 1, &hudGpi, nullptr, &R.hudPipe), "vkCreateGraphicsPipelines(hud)");
     // GS-style sampling: nearest, wrapping REPEAT at integer page fractions.
     VkSamplerCreateInfo texSi{VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
     texSi.magFilter = VK_FILTER_NEAREST; texSi.minFilter = VK_FILTER_NEAREST;
@@ -1071,6 +1111,76 @@ bool previewRender2D(Renderer* Rp, const std::vector<ScreenQuad>& quads,
     const VkDeviceSize rbSize = static_cast<VkDeviceSize>(R.W) * R.H * 4;
     rgbaOut.resize(rbSize);
     VK_TRY(vkMapMemory(R.dev, R.rbm, 0, rbSize, 0, &p), "vkMapMemory(readback ui)");
+    std::memcpy(rgbaOut.data(), p, rbSize);
+    vkUnmapMemory(R.dev, R.rbm);
+    return true;
+}
+
+struct HudVertex { float x, y, u, v, r, g, b, a; };
+
+bool previewUploadFontAtlas(Renderer* Rp, const PreviewTexture& atlas, std::string& error) {
+    if (!Rp) { error = "null renderer"; return false; }
+    Renderer& R = *Rp;
+    if (R.hudAtlasReady) return true;
+    if (!ensurePageTexture(R, error, atlas, R.hudAtlas)) return false;
+    R.hudAtlasReady = true;
+    return true;
+}
+
+bool previewRender2DTextured(Renderer* Rp, const std::vector<HudQuad>& quads,
+                             const std::array<float, 4>& clearColor,
+                             std::vector<std::uint8_t>& rgbaOut, std::string& error) {
+    if (!Rp) { error = "null renderer"; return false; }
+    Renderer& R = *Rp;
+    if (!R.hudAtlasReady) { error = "font atlas not uploaded"; return false; }
+    std::vector<HudVertex> vertices;
+    vertices.reserve(quads.size() * 6);
+    const auto ndcX = [&](float x) { return x * 2.0f / static_cast<float>(R.W) - 1.0f; };
+    const auto ndcY = [&](float y) { return y * 2.0f / static_cast<float>(R.H) - 1.0f; };
+    for (const HudQuad& q : quads) {
+        if (q.width <= 0 || q.height <= 0) continue;
+        const HudVertex a{ndcX(q.x), ndcY(q.y), q.u0, q.v0, q.color[0], q.color[1], q.color[2], q.color[3]};
+        const HudVertex b{ndcX(q.x + q.width), ndcY(q.y), q.u1, q.v0, q.color[0], q.color[1], q.color[2], q.color[3]};
+        const HudVertex c{ndcX(q.x + q.width), ndcY(q.y + q.height), q.u1, q.v1, q.color[0], q.color[1], q.color[2], q.color[3]};
+        const HudVertex d{ndcX(q.x), ndcY(q.y + q.height), q.u0, q.v1, q.color[0], q.color[1], q.color[2], q.color[3]};
+        vertices.insert(vertices.end(), {a, c, b, a, d, c});
+    }
+    if (vertices.empty()) { error = "no non-empty hud quads"; return false; }
+    const VkDeviceSize vbSize = vertices.size() * sizeof(HudVertex);
+    if (!growBuffer(R, error, vbSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, R.hudVb, R.hudVbm, R.hudVbCap)) return false;
+    void* p;
+    VK_TRY(vkMapMemory(R.dev, R.hudVbm, 0, vbSize, 0, &p), "vkMapMemory(hud)");
+    std::memcpy(p, vertices.data(), vbSize); vkUnmapMemory(R.dev, R.hudVbm);
+
+    VkCommandBuffer cmd = R.cmd;
+    vkResetCommandBuffer(cmd, 0);
+    VkCommandBufferBeginInfo bbi{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+    vkBeginCommandBuffer(cmd, &bbi);
+    VkClearValue clears[2]{};
+    clears[0].color = {{clearColor[0], clearColor[1], clearColor[2], clearColor[3]}};
+    clears[1].depthStencil = {1.0f, 0};
+    VkRenderPassBeginInfo rbi{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
+    rbi.renderPass = R.rp; rbi.framebuffer = R.fb; rbi.renderArea = {{0, 0}, {R.W, R.H}};
+    rbi.clearValueCount = 2; rbi.pClearValues = clears;
+    vkCmdBeginRenderPass(cmd, &rbi, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.hudPipe);
+    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.texPl, 0, 1, &R.hudAtlas.set, 0, nullptr);
+    VkDeviceSize offset = 0;
+    vkCmdBindVertexBuffers(cmd, 0, 1, &R.hudVb, &offset);
+    vkCmdDraw(cmd, static_cast<std::uint32_t>(vertices.size()), 1, 0, 0);
+    vkCmdEndRenderPass(cmd);
+    VkBufferImageCopy copy{};
+    copy.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    copy.imageExtent = {R.W, R.H, 1};
+    vkCmdCopyImageToBuffer(cmd, R.colImg, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, R.rb, 1, &copy);
+    vkEndCommandBuffer(cmd);
+    VkSubmitInfo si{VK_STRUCTURE_TYPE_SUBMIT_INFO};
+    si.commandBufferCount = 1; si.pCommandBuffers = &cmd;
+    VK_TRY(vkQueueSubmit(R.queue, 1, &si, VK_NULL_HANDLE), "vkQueueSubmit(hud)");
+    VK_TRY(vkQueueWaitIdle(R.queue), "vkQueueWaitIdle(hud)");
+    const VkDeviceSize rbSize = static_cast<VkDeviceSize>(R.W) * R.H * 4;
+    rgbaOut.resize(rbSize);
+    VK_TRY(vkMapMemory(R.dev, R.rbm, 0, rbSize, 0, &p), "vkMapMemory(readback hud)");
     std::memcpy(rgbaOut.data(), p, rbSize);
     vkUnmapMemory(R.dev, R.rbm);
     return true;

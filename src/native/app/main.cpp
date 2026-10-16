@@ -3,6 +3,7 @@
 // contains no duplicate road/car/shader code.
 #include "assets/field_converter.h"
 #include "assets/field_tile_index.h"
+#include "assets/glyph_atlas.h"
 #include "assets/native_model.h"
 #include "assets/nav_routes.h"
 #include "audio/bgm_player.h"
@@ -856,6 +857,36 @@ int main() {
             }
         }
     }
+    // RT_APP_HUDTEXT=1 presents HUD text through the textured pass: decode
+    // the shipped FONTE glyph atlas once (SYS/FONTE.GSL) and place race
+    // lap/time + clock strings at the ROM-proven elements
+    // (docs/native-reference/hud-layout.md; glyph grid per
+    // docs/native-reference/sys-gsl-packs.md §4 corrected 2026-10-16).
+    bool hudTextEnabled = std::getenv("RT_APP_HUDTEXT") != nullptr;
+    bool hudTextWarned = false;
+    rt::native::assets::GlyphAtlas fontAtlas;
+    if (hudTextEnabled) {
+        std::ifstream input(discRoot() / "SYS" / "FONTE.GSL", std::ios::binary);
+        if (!input) {
+            std::cout << "rt-app hudtext: SKIP (FONTE.GSL missing)\n";
+            hudTextEnabled = false;
+        } else {
+            std::vector<std::uint8_t> gsl((std::istreambuf_iterator<char>(input)),
+                                         std::istreambuf_iterator<char>());
+            auto decoded = rt::native::assets::decodeGlyphAtlas(gsl);
+            if (decoded.value.width == 0) {
+                std::cout << "rt-app hudtext: SKIP (decode err=" << static_cast<int>(decoded.err)
+                          << " offset=" << decoded.errorOffset << ")\n";
+                hudTextEnabled = false;
+            } else {
+                fontAtlas = std::move(decoded.value);
+                unsigned glyphCount = 0;
+                for (bool occupied : fontAtlas.slotNonEmpty) glyphCount += occupied ? 1u : 0u;
+                std::cout << "rt-app hudtext: FONTE decoded " << fontAtlas.width << "x"
+                          << fontAtlas.height << " non-empty slots=" << glyphCount << "\n";
+            }
+        }
+    }
     AudioHost audio;
     if (std::getenv("RT_APP_NOAUDIO") == nullptr) (void)initAudio(audio);
     const auto recreateSwapchain = [&]() {
@@ -1095,6 +1126,30 @@ int main() {
                                                                          static_cast<int>(presenter.extent.width), static_cast<int>(presenter.extent.height)),
                             {0.f, 0.f, 0.f, 0.f}, hudPixels, error);
                         if (rendered) compositeOver(pixels, hudPixels);
+                        if (hudTextEnabled && rendered) {
+                            // Idempotent per renderer: re-uploads only after a
+                            // renderer recreate (resize path), no-op otherwise.
+                            const rt::native::preview::PreviewTexture atlasTex{
+                                fontAtlas.width, fontAtlas.height, fontAtlas.pixels};
+                            std::string texError;
+                            if (rt::native::preview::previewUploadFontAtlas(renderer, atlasTex, texError)) {
+                                const int w = static_cast<int>(presenter.extent.width);
+                                const int h = static_cast<int>(presenter.extent.height);
+                                std::vector<rt::native::preview::HudQuad> textQuads =
+                                    session.state() == rt::native::gameplay::SessionState::RACE
+                                        ? rt::native::preview::raceHudTextQuads(snapshot,
+                                                                               session.totalLaps(), w, h)
+                                        : rt::native::preview::townClockTextQuads(snapshot.clock, w, h);
+                                std::vector<std::uint8_t> textPixels;
+                                if (!textQuads.empty() &&
+                                    rt::native::preview::previewRender2DTextured(
+                                        renderer, textQuads, {0.f, 0.f, 0.f, 0.f}, textPixels, error))
+                                    compositeOver(pixels, textPixels);
+                            } else if (!hudTextWarned) {
+                                hudTextWarned = true;
+                                std::cout << "rt-app hudtext: upload failed: " << texError << "\n";
+                            }
+                        }
                     }
                 } else {
                     rendered = rt::native::preview::previewRender2D(renderer, menuQuads(state, menuFlow,

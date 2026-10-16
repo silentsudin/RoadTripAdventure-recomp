@@ -14,6 +14,7 @@
 
 #include "../../src/native/assets/glyph_atlas.h"
 
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -26,6 +27,9 @@ using rt::native::assets::GlyphAtlas;
 using rt::native::assets::GlyphAtlasError;
 using rt::native::assets::GlyphAtlasResult;
 using rt::native::assets::GslUnitStats;
+using rt::native::assets::GlyphUv;
+using rt::native::assets::fonteSlotForChar;
+using rt::native::assets::fonteSlotUv;
 using rt::native::assets::cellGlyph;
 using rt::native::assets::decodeGlyphAtlas;
 using rt::native::assets::kGlyphAtlasHeight;
@@ -426,6 +430,28 @@ void testRealFonteWhenAvailable() {
               << " fnv=0x" << std::hex << fnv1a64(atlas.pixels) << std::dec << '\n';
 }
 
+// Char->slot + UV pins for the proven FONTE ordering (sys-gsl-packs.md §4
+// corrected 2026-10-16: 31 glyphs/row from slot 0 = '!', col-31 icons).
+void testSourceMapping() {
+    check(fonteSlotForChar('!') == 0, "'!' slot 0");
+    check(fonteSlotForChar('A') == 33, "'A' slot 33");
+    check(fonteSlotForChar('^') == 62, "'^' slot 62");
+    check(fonteSlotForChar('_') == 64, "'_' slot 64");
+    check(fonteSlotForChar('`') == 65, "'`' slot 65");
+    check(fonteSlotForChar('~') == 96, "'~' slot 96 (row 3 col 0)");
+    check(fonteSlotForChar(' ') == -1, "space has no glyph");
+    check(fonteSlotForChar('\x7f') == -1, "0x7f out of range");
+    check(fonteSlotForChar('\x20') == -1, "0x20 out of range");
+    const GlyphUv first = fonteSlotUv(0);
+    check(first.u0 > 0.f && first.v0 > 0.f, "slot 0 uv inset > 0");
+    check(first.u1 < 1.f && first.v1 < 1.f, "slot 0 uv within atlas");
+    check(std::abs(first.u1 - first.u0 - 15.f / 512.f) < 1e-5f, "slot uv width = cell-1texel");
+    check(std::abs(first.v1 - first.v0 - 23.f / 384.f) < 1e-5f, "slot uv height = cell-1texel");
+    const GlyphUv a = fonteSlotUv(33);  // col 1, row 1
+    check(std::abs(a.u0 - 16.5f / 512.f) < 1e-5f, "'A' u0 = col1 + inset");
+    check(std::abs(a.v0 - 24.5f / 384.f) < 1e-5f, "'A' v0 = row1 + inset");
+}
+
 } // namespace
 
 int main() {
@@ -433,6 +459,7 @@ int main() {
     testNibbleOrderAndCsm1();
     testSlotGridAndCellGlyph();
     testErrorPaths();
+    testSourceMapping();
     testRealFonteWhenAvailable();
 
     std::cout << "test_glyph_atlas: " << (g_checks - g_failures) << "/" << g_checks

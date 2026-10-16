@@ -355,8 +355,11 @@ inline constexpr std::int32_t kLapHidden = -1;
 inline constexpr std::int32_t kLapNone = 0;  // draws the 32x16 flag glyph
 
 // Money (DAT_0177FDB4 mirror of progress+0x654) and clock scale.
-inline constexpr std::int32_t kMoneyCap = 999999;
-inline constexpr std::int32_t kMoneyNewGame = 1000;
+// Duplicated intentionally as HUD-space constants (mirrors of save.h
+// kMoneyCap/kMoneyNewGame and rules_tables.h kMoneyCap — those live in
+// translation units the HUD layer must not pull in).
+inline constexpr std::int32_t kHudMoneyCap = 999999;
+inline constexpr std::int32_t kHudMoneyNewGame = 1000;
 inline constexpr std::int32_t kClockTicksPerHour = 9000;   // DAT_00335730
 inline constexpr std::int32_t kClockTicksPerMinute = 150;
 

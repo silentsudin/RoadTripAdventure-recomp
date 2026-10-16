@@ -95,4 +95,37 @@ GlyphAtlasResult decodeGlyphAtlas(std::span<const std::uint8_t> gsl,
 // vector for an out-of-range slot or a default-constructed atlas.
 std::vector<std::uint8_t> cellGlyph(const GlyphAtlas& atlas, std::uint32_t slot);
 
+// Character -> atlas slot using the PROVEN ordering (docs/native-reference/
+// sys-gsl-packs.md §4 corrected 2026-10-16): 31 glyphs per row from slot 0 =
+// '!' (0x21); each row's col-31 slot is a coloured icon, not text; the range
+// verified glyph-per-glyph runs '!' (0x21) through '~' (0x7E). Returns -1 for
+// codes with no proven glyph, including space (blank: advance without a quad).
+constexpr int fonteSlotForChar(char c) {
+    const unsigned u = static_cast<unsigned char>(c);
+    if (u < 0x21u || u > 0x7Eu) return -1;
+    const unsigned g = u - 0x21u;
+    const unsigned row = g / 31u;
+    const unsigned col = g % 31u;
+    if (row >= kGlyphGridRows) return -1;
+    return static_cast<int>(row * kGlyphGridColumns + col);
+}
+
+// UV rect of a slot inside the kGlyphAtlasWidth x kGlyphAtlasHeight atlas,
+// inset by half a texel so NEAREST sampling always lands strictly inside the
+// cell (no neighbour bleed at cell edges).
+struct GlyphUv {
+    float u0, v0, u1, v1;
+};
+constexpr GlyphUv fonteSlotUv(int slot) {
+    const float col = static_cast<float>(slot % static_cast<int>(kGlyphGridColumns));
+    const float row = static_cast<float>(slot / static_cast<int>(kGlyphGridColumns));
+    const float eu = 0.5f / static_cast<float>(kGlyphAtlasWidth);
+    const float ev = 0.5f / static_cast<float>(kGlyphAtlasHeight);
+    const float u0 = col * static_cast<float>(kGlyphCellWidth) / static_cast<float>(kGlyphAtlasWidth);
+    const float v0 = row * static_cast<float>(kGlyphCellHeight) / static_cast<float>(kGlyphAtlasHeight);
+    const float du = static_cast<float>(kGlyphCellWidth) / static_cast<float>(kGlyphAtlasWidth);
+    const float dv = static_cast<float>(kGlyphCellHeight) / static_cast<float>(kGlyphAtlasHeight);
+    return {u0 + eu, v0 + ev, u0 + du - eu, v0 + dv - ev};
+}
+
 } // namespace rt::native::assets

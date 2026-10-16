@@ -91,6 +91,32 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car,
 bool previewRender2D(Renderer* r, const std::vector<ScreenQuad>& quads,
                      const std::array<float, 4>& clearColor,
                      std::vector<std::uint8_t>& rgbaOut, std::string& error);
+
+// HUD glyph pass (FONTE text). A HudQuad is a screen-space pixel rectangle
+// (top-left origin) with atlas UVs and a modulate colour — build these from
+// rt::native::assets::fonteSlotUv/fonteSlotForChar (see preview/race_hud.h
+// for the shared builder).
+struct HudQuad {
+    float x = 0;
+    float y = 0;
+    float width = 0;
+    float height = 0;
+    float u0 = 0, v0 = 0, u1 = 0, v1 = 0;
+    std::array<float, 4> color{1, 1, 1, 1};
+};
+
+// Uploads the glyph atlas (RGBA8, e.g. the decoded 512x384 FONTE atlas from
+// assets/glyph_atlas.h) for previewRender2DTextured(). Idempotent per content
+// (cached by hash). Returns false without side effects on upload failure.
+bool previewUploadFontAtlas(Renderer* r, const PreviewTexture& atlas, std::string& error);
+
+// Like previewRender2D but draws textured glyph quads (nearest sampling, no
+// depth, no GPU blending — empty atlas texels are discarded in the fragment
+// stage and the caller composites the returned RGBA over the scene, matching
+// the existing HUD flow).
+bool previewRender2DTextured(Renderer* r, const std::vector<HudQuad>& quads,
+                             const std::array<float, 4>& clearColor,
+                             std::vector<std::uint8_t>& rgbaOut, std::string& error);
 void previewDestroy(Renderer* r);
 
 // One-shot convenience wrappers (init -> render -> destroy).

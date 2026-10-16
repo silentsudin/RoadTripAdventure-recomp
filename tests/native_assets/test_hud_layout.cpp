@@ -107,8 +107,8 @@ void testNormalizationBounds() {
 
 void testSentinelsAndConventions() {
     check(kLapHidden == -1);
-    check(kMoneyCap == 999999);
-    check(kMoneyNewGame == 1000);
+    check(kHudMoneyCap == 999999);
+    check(kHudMoneyNewGame == 1000);
     check(kClockTicksPerHour == 9000 && kClockTicksPerMinute == 150);
     check(kTimeFramesPerHour == 3600 && kTimeFramesPerSecond == 60);
     check(kTimeFramesMax == 360000);
