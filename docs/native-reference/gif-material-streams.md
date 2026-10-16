@@ -7,11 +7,25 @@ inspection images were written under `/tmp/rt-tex/` only.
 
 ## Result
 
-**PROVEN:** texture state reaches the GS through hypothesis **(a)**, but at
-the **per-cell** cadence rather than per strip: the initial `UNPACK V3-32,
-NUM=5,@TOPS+0x192` is a five-qword GIF A+D packet. WorldStrip tests its
-NLOOP, `XGKICK`s that packet once, then clears NLOOP and XGKICKs every strip
-packet. The packet sets `TEX1_2`, `TEX0_2`, `CLAMP_2`, and `MIPTBP1_2`.
+**PROVEN:** texture state reaches the GS through hypothesis **(a)** — the
+`UNPACK V3-32, NUM=5,@TOPS+0x192` is a five-qword GIF A+D packet. WorldStrip
+tests its NLOOP, `XGKICK`s that packet once, then clears NLOOP and XGKICKs
+every strip packet. The packet sets `TEX1_2`, `TEX0_2`, `CLAMP_2`, and
+`MIPTBP1_2`.
+
+> **Cadence correction (2026-10-16, `extractCellStrips`).** This pass framed
+> the header as firing once per cell; the full corpus walk shows headers fire
+> **per material switch**, 1–182 times per chain — 3,431 corpus cells (all 64
+> of `000.BIN`) switch texture *mid-chain*, not once at cell start. Strips
+> inherit the most-recent preceding header. The "identical across cells
+> 0,1,3,4" observation was cell 0's *last* header, not its first (cell 0's
+> first header is the PSMT4 `0x2880` record). Counts below ("one header per
+> cell", 3,028 cells, 135 records) are this pass's *first-header-per-cell*
+> subset and understate the true header count (16,463 corpus-wide) and record
+> variety. See the "Extractor implementation" section of
+> `cell-vif-chains.md` for the authoritative walk. Everything below still
+> holds structurally: TEX0→staged-page binding, sampler-mode CLAMP variants,
+> no VIF DIRECT, materialRef vestigial.
 
 The first material in `000.BIN`, for example, selects the PSMT4 image uploaded
 to GS page `0x2880` (128x128), and its TEX0 CLUT base is `0x28a0`; those are
