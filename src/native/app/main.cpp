@@ -2,6 +2,7 @@
 // rendered by previewRenderScene(), so this presentation layer deliberately
 // contains no duplicate road/car/shader code.
 #include "assets/field_converter.h"
+#include "assets/field_tile_index.h"
 #include "assets/native_model.h"
 #include "audio/bgm_player.h"
 #include "audio/engine.h"
@@ -344,9 +345,10 @@ rt::native::assets::NativeModel demoCar() {
 int envFrames() { const char* value = std::getenv("RT_APP_FRAMES"); return value ? std::max(0, std::atoi(value)) : 0; }
 
 // RT_APP_TERRAIN=1 replaces the flat grass quad with real terrain extracted
-// from a shipped FLD tile in the disc extract (RT_APP_TERRAIN_FILE overrides
-// the tile; default FLD/000.BIN).  Absent/malformed input falls back to the
-// authored quad, never a failure.
+// from shipped FLD tiles in the disc extract.  Default renders the full
+// 64-tile world grid; RT_APP_TERRAIN_FILE=PATH overrides with one explicit
+// tile.  Absent/malformed input falls back to the authored quad, never a
+// failure.
 rt::native::preview::TerrainMesh loadTerrainMesh() {
     rt::native::preview::TerrainMesh mesh;
     if (std::getenv("RT_APP_TERRAIN") == nullptr) return mesh;
@@ -357,19 +359,61 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         return std::filesystem::path{};
     }();
     const char* named = std::getenv("RT_APP_TERRAIN_FILE");
-    const std::filesystem::path path =
-        named ? std::filesystem::path(named) : root / "FLD/000.BIN";
-    std::ifstream input(path, std::ios::binary);
-    if (!input) { std::cout << "rt-app terrain: SKIP (no tile at " << path << ")\n"; return mesh; }
-    const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
-                                         std::istreambuf_iterator<char>());
-    const auto catalog = rt::native::assets::catalogFieldTile(bytes);
-    if (!catalog) { std::cout << "rt-app terrain: catalog failed for " << path << "\n"; return mesh; }
-    auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
-    mesh.positions = std::move(terrain.positions);
-    mesh.indices = std::move(terrain.indices);
-    mesh.triangleMaterials = std::move(terrain.triangleMaterials);
-    std::cout << "rt-app terrain: loaded " << path.filename().string()
+    if (named != nullptr) {
+        const std::filesystem::path path{named};
+        std::ifstream input(path, std::ios::binary);
+        if (!input) { std::cout << "rt-app terrain: SKIP (no tile at " << path << ")\n"; return mesh; }
+        const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
+                                             std::istreambuf_iterator<char>());
+        const auto catalog = rt::native::assets::catalogFieldTile(bytes);
+        if (!catalog) { std::cout << "rt-app terrain: catalog failed for " << path << "\n"; return mesh; }
+        auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
+        mesh.positions = std::move(terrain.positions);
+        mesh.indices = std::move(terrain.indices);
+        mesh.triangleMaterials = std::move(terrain.triangleMaterials);
+        std::cout << "rt-app terrain: loaded " << path.filename().string()
+                  << " triangles=" << mesh.indices.size() / 3 << "\n";
+        return mesh;
+    }
+
+    // Multi-tile path: resolve streaming ids via the ROM LBA descriptor table
+    // + size matching (field_tile_index), place tile (col = id&0xF,
+    // row = id>>4) at slot offsets — x step 80 render units (half-tile: the
+    // lattice is a staggered brick grid), z step 160.
+    const auto index = rt::native::assets::buildFieldTileIndex(root);
+    if (!index) {
+        std::cout << "rt-app terrain: SKIP (no tile index; err="
+                  << static_cast<int>(index.error()) << ")\n";
+        return mesh;
+    }
+    std::size_t tilesLoaded = 0;
+    for (std::size_t id = 0; id < rt::native::assets::kFieldTileCount; ++id) {
+        const std::string& name = (*index)[id].fileName;
+        if (name.empty()) continue;
+        std::ifstream input(root / "FLD" / name, std::ios::binary);
+        if (!input) continue;
+        const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
+                                             std::istreambuf_iterator<char>());
+        const auto catalog = rt::native::assets::catalogFieldTile(bytes);
+        if (!catalog) continue;
+        auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
+        const std::uint32_t vertexBase = static_cast<std::uint32_t>(mesh.positions.size());
+        const float xOffset = static_cast<float>(id & 0xFu) * 80.0f;
+        const float zOffset = static_cast<float>(id >> 4) * 160.0f;
+        mesh.positions.reserve(mesh.positions.size() + terrain.positions.size());
+        for (auto& p : terrain.positions) {
+            p[0] += xOffset;
+            p[2] += zOffset;
+            mesh.positions.push_back(p);
+        }
+        mesh.indices.reserve(mesh.indices.size() + terrain.indices.size());
+        for (std::uint32_t i : terrain.indices) mesh.indices.push_back(vertexBase + i);
+        mesh.triangleMaterials.insert(mesh.triangleMaterials.end(),
+                                     terrain.triangleMaterials.begin(),
+                                     terrain.triangleMaterials.end());
+        ++tilesLoaded;
+    }
+    std::cout << "rt-app terrain: tiles=" << tilesLoaded
               << " triangles=" << mesh.indices.size() / 3 << "\n";
     return mesh;
 }
