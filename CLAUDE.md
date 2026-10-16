@@ -53,6 +53,18 @@ provider is not exhaustion:
   reset time and resume premium after the reset.
 
 NEVER fall back to local.
+
+## UI PARITY MANDATE (user directive 2026-10-16)
+
+The native app's UI must be IDENTICAL to the PS2Recomp app's UI — an invisible
+upgrade for users who don't know the backend changed. The recomp's own
+`src/ui/` (PauseMenu, Theme, SetupScreen, SecondScreen, MapView, PerfOverlay)
+is ground truth: port exact labels, geometry, colors, focus behavior, and
+hiding rules; render all text through the same FONTE ascii path. Spec +
+deviation ledger: `docs/native-reference/ui-parity.md`. Anything not listed as
+an acceptable deviation there (renderer-AA character, progressive-by-mandate,
+widescreen, no-compile-wording) is a defect. Pending GPU features stay HIDDEN
+until ready — never show a row the recomp didn't have.
 - This is a static recomp of the PS2 game Road Trip (USA, SLUS-20398) using PS2Recomp (submodule `third_party/PS2Recomp`, pinned).
 - **The built app must never contain game code.** The game is recompiled and compiled on the user's machine at first launch (`src/game/GameBuilder.cpp`), and `scripts/bundle_sdk.py` ships only the recompiler, runtime headers and config. Verify with `nm RoadTrip.app/Contents/MacOS/RoadTrip | grep -c sub_00`, which must print 0.
 - **Never commit game data or derived code.** That covers anything under `generated/` and `build/`, disc images, ELFs, and extracted files. `.gitignore` covers them; check `git status` before committing.
