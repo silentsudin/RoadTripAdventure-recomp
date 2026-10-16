@@ -24,11 +24,15 @@
   so courses and tiles never overlap. `C12..C20` are claimed by other
   descriptor tables in the wider `0x29aexx`–`0x29bfxx` region (see
   `asset-map.md` for the full sweep).
-- Conclusion (updated 2026-10-16): the earlier "blocked on VU0 macro RE"
+- Conclusion (updated 2026-10-16, refined by
+  [`course-routes.md`](course-routes.md)): the earlier "blocked on VU0 macro RE"
   verdict is **void** — the game contains no VU0 macro streams at all
-  (`vu0-macro-streams.md`). COURSE region content is VIF1/VU1 packed data in
-  the same family as FLD cell chains (`vu1-programs.md`), so route/checkpoint
-  records are extractable with cell-chain-style parsing once terrain texturing
-  lands. The native app's authored monotonic-zone routes (`gameplay/route.*`)
-  remain the shipped stand-in; per-course scalar anchors (prop count `N`,
-  region sizes) are available via `assets/course_data.*`.
+  (`vu0-macro-streams.md`). The bounded pass found COURSE tails are **prop
+  render chains** (`N` == MSCALF `0xA` prop-draw count per course), not
+  route/checkpoint records; AI navigation instead consumes ROM-resident
+  24-byte segment + 8-byte transition tables (`FUN_00250068` /
+  `FUN_0024fcd8`) whose COURSE linkage remains open. The native app's
+  authored monotonic-zone routes (`gameplay/route.*`) remain the shipped
+  stand-in; a runtime ROM-table route extractor is the next candidate;
+  per-course scalar anchors (prop count `N`, region sizes) are available via
+  `assets/course_data.*`.

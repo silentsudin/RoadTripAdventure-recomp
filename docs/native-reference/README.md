@@ -22,7 +22,9 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`field-texture-rendering.md`](field-texture-rendering.md) | decodeFieldTextures() payload-linear decode verdict (oracle-exact), CLUT/alpha pins, UV semantics, textured preview pipeline | current |
 | [`vu0-macro-streams.md`](vu0-macro-streams.md) | VIF word grammar; proof there are **no VU0 macro streams** | current |
 | [`vu1-programs.md`](vu1-programs.md) | Shared VU1 microprogram images + entry map (WorldStrip = entry 4) | current |
-| [`course-data-status.md`](course-data-status.md) | COURSE container regions | earlier pass |
+| [`course-data-status.md`](course-data-status.md) | COURSE container regions | current |
+| [`course-routes.md`](course-routes.md) | COURSE tail grammar — prop-draw chains (bounded negative result), AI-nav table pointers | current |
+| [`action-data-status.md`](action-data-status.md) | ACTION container grammar, 21/21 descriptor join, header variants | current |
 | [`tsq-tvb-format.md`](tsq-tvb-format.md) / [`sndmod-irx.md`](sndmod-irx.md) | Music stack | done |
 
 Code: `src/native/assets/field_converter.{h,cpp}` (packets, textures, terrain),
