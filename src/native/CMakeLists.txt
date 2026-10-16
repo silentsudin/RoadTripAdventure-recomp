@@ -37,6 +37,7 @@ set(RT_NATIVE_ASSET_SOURCES
     assets/field_converter.cpp  # FLD/COURSE field-tile VIF region -> mesh-only HostAssetContainer
     assets/field_tile_index.cpp # ROM LBA descriptor table -> streaming id/FLD filename index
     assets/course_data.cpp      # COURSE container header/region parser (route semantics deferred)
+    assets/nav_routes.cpp       # ROM-resident AI route-graph runtime reader (no embedded tables)
     assets/image_converter.cpp  # texture upload chain -> RGBA8 ImageRecord
     assets/image_loader.cpp     # ImageRecord -> NativeImage
     assets/model_loader.cpp     # MeshRecord + images -> NativeModel
@@ -56,6 +57,7 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/geometry.cpp       # authored ground-plane zone predicates and arrival checks
     gameplay/minigames.cpp      # authored mini-game scoring predicates and score model
     gameplay/route.cpp          # authored race-route zones, progress, and arrival model
+    gameplay/tile_streamer.cpp  # hardware-style 4-slot field-tile streaming algebra (slot = id & 3)
     audio/vag.cpp               # authored PS ADPCM (VAG) decoder (no PS2/guest code)
     audio/vag_loader.cpp        # authored VAG file/raw-stream loader -> PCM source storage
     audio/mixer.cpp             # authored mixer model: N channels -> stereo out, no device
@@ -190,6 +192,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(native_assets_field_tile_index_test PRIVATE rt_native_assets)
     target_compile_features(native_assets_field_tile_index_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_field_tile_index_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(native_assets_nav_routes_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_nav_routes.cpp")
+    target_link_libraries(native_assets_nav_routes_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_nav_routes_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_nav_routes_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
     add_executable(native_assets_course_data_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_course_data.cpp")
@@ -364,6 +372,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_compile_features(native_assets_route_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_route_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
+    add_executable(native_assets_tile_streamer_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_tile_streamer.cpp")
+    target_link_libraries(native_assets_tile_streamer_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_tile_streamer_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_tile_streamer_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
     add_executable(native_assets_game_loop_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_game_loop.cpp")
     target_link_libraries(native_assets_game_loop_test PRIVATE rt_native_assets)
@@ -450,6 +464,8 @@ if(RT_NATIVE_ASSETS_COVERAGE)
         list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_geometry_test)
         list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_minigames_test)
         list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_route_test)
+        list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_tile_streamer_test)
+        list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_nav_routes_test)
     endif()
     foreach(rt_native_cov_target IN LISTS RT_NATIVE_COVERAGE_TARGETS)
         target_compile_options(${rt_native_cov_target} PRIVATE ${RT_NATIVE_COVERAGE_FLAGS})

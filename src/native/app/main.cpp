@@ -13,6 +13,7 @@
 #include "gameplay/menu.h"
 #include "gameplay/session.h"
 #include "gameplay/shop.h"
+#include "gameplay/tile_streamer.h"
 #include "preview/preview.h"
 #include "preview/race_hud.h"
 
@@ -31,6 +32,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -402,6 +404,105 @@ void appendTexturedTile(rt::native::preview::TerrainMesh& mesh,
         mesh.triangleMaterials.push_back(local < 0 ? 0u : static_cast<std::uint32_t>(local));
     }
 }
+
+std::filesystem::path discRoot() {
+    if (const char* value = std::getenv("RT_DISC")) return std::filesystem::path(value);
+    if (const char* home = std::getenv("HOME"))
+        return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp/disc";
+    return {};
+}
+
+// RT_APP_STREAM=1 (with RT_APP_TERRAIN=1) streams tiles through four
+// hardware-style resident slots instead of the eager 64-tile load: slot
+// index = id & 3 (the four 0x3A8000-byte fieldTileData buffers), resident
+// set = a 4-column window of one id-grid row, one slot swapped per column
+// step (docs/native-reference/field-topology-status.md).  The window follows
+// a scripted serpentine sweep because the authentic camera-to-tile selection
+// (nav tables, docs/native-reference/nav-tables.md) is not yet consumed.
+// Rebuilds the terrain mesh only on swap frames; loads are synchronous (the
+// host has no async I/O path yet).
+struct StreamedTerrain {
+    StreamedTerrain() : streamer(10, 1, 0) {}
+
+    // Advances one host frame; returns true when a slot reloaded and the
+    // caller should rebuild the mesh.
+    bool refresh() {
+        if (!dirty && !streamer.tick()) return false;
+        dirty = false;
+        bool reloaded = false;
+        for (int slot = 0; slot < rt::native::gameplay::kFieldTileSlots; ++slot) {
+            const int id = streamer.idInSlot(slot);
+            if (slotId[static_cast<std::size_t>(slot)] == id) continue;
+            const std::string& name = index[static_cast<std::size_t>(id)].fileName;
+            if (name.empty()) continue;
+            std::ifstream input(root / "FLD" / name, std::ios::binary);
+            if (!input) continue;
+            slotBytes[static_cast<std::size_t>(slot)] =
+                std::vector<std::uint8_t>((std::istreambuf_iterator<char>(input)),
+                                         std::istreambuf_iterator<char>());
+            slotId[static_cast<std::size_t>(slot)] = id;
+            slotTexturedValid[static_cast<std::size_t>(slot)] = false;
+            if (wantTextures) {
+                auto textured = rt::native::assets::buildFieldTexturedTerrain(
+                    slotBytes[static_cast<std::size_t>(slot)], 0.1f);
+                if (textured) {
+                    slotTextured[static_cast<std::size_t>(slot)] = std::move(*textured);
+                    slotTexturedValid[static_cast<std::size_t>(slot)] = true;
+                } else {
+                    std::cout << "rt-app stream: textured build failed for " << name << "\n";
+                }
+            }
+            ++loads;
+            reloaded = true;
+            std::cout << "rt-app stream: slot " << slot << " <- id " << id << ' ' << name
+                      << " (window row " << streamer.row() << " col " << streamer.colStart() << ")\n";
+        }
+        return reloaded;
+    }
+
+    // Rebuilds the render mesh from the four resident slots with the same
+    // staggered-grid placement as the eager loader (x step 80, z step 160).
+    void buildMesh(rt::native::preview::TerrainMesh& mesh) const {
+        mesh = rt::native::preview::TerrainMesh{};
+        std::unordered_map<std::uint64_t, std::uint32_t> pagesByHash;
+        for (int slot = 0; slot < rt::native::gameplay::kFieldTileSlots; ++slot) {
+            const int id = slotId[static_cast<std::size_t>(slot)];
+            if (id < 0) continue;
+            const float xOffset = static_cast<float>(id & 0xFu) * 80.0f - 8.0f * 80.0f;
+            const float zOffset = static_cast<float>(id >> 4) * 160.0f - 1.5f * 160.0f;
+            const std::size_t slotIndex = static_cast<std::size_t>(slot);
+            if (wantTextures) {
+                if (slotTexturedValid[slotIndex])
+                    appendTexturedTile(mesh, slotTextured[slotIndex], xOffset, zOffset, pagesByHash);
+                continue;
+            }
+            const auto catalog = rt::native::assets::catalogFieldTile(slotBytes[slotIndex]);
+            if (!catalog) continue;
+            auto terrain = rt::native::assets::buildFieldRenderTerrain(slotBytes[slotIndex], *catalog, 0.1f);
+            const std::uint32_t vertexBase = static_cast<std::uint32_t>(mesh.positions.size());
+            for (auto& p : terrain.positions) {
+                p[0] += xOffset;
+                p[2] += zOffset;
+                mesh.positions.push_back(p);
+            }
+            for (std::uint32_t i : terrain.indices) mesh.indices.push_back(vertexBase + i);
+            mesh.triangleMaterials.insert(mesh.triangleMaterials.end(),
+                                         terrain.triangleMaterials.begin(),
+                                         terrain.triangleMaterials.end());
+        }
+    }
+
+    rt::native::gameplay::TileStreamer streamer;
+    rt::native::assets::FieldTileIndex index{};
+    std::filesystem::path root;
+    bool wantTextures = false;
+    bool dirty = true;
+    std::size_t loads = 0;
+    std::array<int, 4> slotId{{-1, -1, -1, -1}};
+    std::array<std::vector<std::uint8_t>, 4> slotBytes;
+    std::array<rt::native::assets::FieldTexturedTerrain, 4> slotTextured;
+    std::array<bool, 4> slotTexturedValid{{false, false, false, false}};
+};
 } // namespace
 
 rt::native::preview::TerrainMesh loadTerrainMesh() {
@@ -409,12 +510,7 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
     if (std::getenv("RT_APP_TERRAIN") == nullptr) return mesh;
     const bool wantTextures = std::getenv("RT_APP_TEXTURES") != nullptr;
     std::unordered_map<std::uint64_t, std::uint32_t> pagesByHash;
-    const std::filesystem::path root = [] {
-        if (const char* value = std::getenv("RT_DISC")) return std::filesystem::path(value);
-        if (const char* home = std::getenv("HOME"))
-            return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp/disc";
-        return std::filesystem::path{};
-    }();
+    const std::filesystem::path root = discRoot();
     const char* named = std::getenv("RT_APP_TERRAIN_FILE");
     if (named != nullptr) {
         const std::filesystem::path path{named};
@@ -595,7 +691,34 @@ int main() {
     rt::native::preview::Renderer* renderer = rt::native::preview::previewInit(width, height, error, nullptr);
     if (!renderer) { std::cerr << "scene renderer init: " << error << "\n"; destroy(presenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
     const bool noRender = std::getenv("RT_APP_NORENDER") != nullptr; const int maxFrames = envFrames();
-    const rt::native::preview::TerrainMesh terrainMesh = loadTerrainMesh();
+    // RT_APP_STREAM=1 (with RT_APP_TERRAIN=1) replaces the eager 64-tile
+    // load with hardware-style 4-slot streaming (slot = id & 3).
+    rt::native::preview::TerrainMesh terrainMesh;
+    std::optional<StreamedTerrain> streamed;
+    if (std::getenv("RT_APP_STREAM") != nullptr && std::getenv("RT_APP_TERRAIN") != nullptr) {
+        if (std::getenv("RT_APP_TERRAIN_FILE") != nullptr)
+            std::cout << "rt-app stream: RT_APP_TERRAIN_FILE ignored under stream mode\n";
+        auto index = rt::native::assets::buildFieldTileIndex(discRoot());
+        if (!index) {
+            std::cout << "rt-app stream: SKIP (no tile index; err="
+                      << static_cast<int>(index.error()) << ")\n";
+        } else {
+            StreamedTerrain st;
+            st.root = discRoot();
+            st.index = *index;
+            st.wantTextures = std::getenv("RT_APP_TEXTURES") != nullptr;
+            const char* stepValue = std::getenv("RT_APP_STREAM_STEP_FRAMES");
+            const char* rowValue = std::getenv("RT_APP_STREAM_ROW");
+            const int step = stepValue ? std::atoi(stepValue) : 10;
+            const int startRow = rowValue ? std::atoi(rowValue) : 1;
+            st.streamer = rt::native::gameplay::TileStreamer(step, startRow, 0);
+            streamed = std::move(st);
+            std::cout << "rt-app stream: 4-slot streaming textured=" << (streamed->wantTextures ? 1 : 0)
+                      << " step=" << step << " startRow=" << startRow << "\n";
+        }
+    } else {
+        terrainMesh = loadTerrainMesh();
+    }
     AudioHost audio;
     if (std::getenv("RT_APP_NOAUDIO") == nullptr) (void)initAudio(audio);
     const auto recreateSwapchain = [&]() {
@@ -789,6 +912,7 @@ int main() {
             session.startRace();
             directStartRace = false;
         }
+        if (streamed && streamed->refresh()) streamed->buildMesh(terrainMesh);
         if (!noRender && presenter.extent.width && presenter.extent.height) {
             bool retry = false;
             do {
@@ -832,6 +956,11 @@ int main() {
         ++frames;
     }
     std::cout << "rt-app frames=" << frames << " simulation_frame=" << simulationFrame << "\n";
+    if (streamed) {
+        std::cout << "rt-app stream: loads=" << streamed->loads
+                  << " final window row=" << streamed->streamer.row()
+                  << " col=" << streamed->streamer.colStart() << "\n";
+    }
     destroyAudio(audio);
     rt::native::preview::previewDestroy(renderer); destroy(presenter); SDL_DestroyWindow(window); SDL_Quit();
     return 0;
