@@ -73,10 +73,18 @@ struct TerrainMesh {
 // Draws the authored field (grass and an explicit road ribbon) plus `car`, using
 // the camera and time-of-day lighting emitted by GameLoop. When `terrain` is
 // non-null it replaces the flat grass quad with real extracted terrain.
+// `routes` (optional) draws nav-graph centerlines as flat colored strips just
+// above the ground — the RT_APP_NAV=1 visualizer for the ROM route graphs
+// (docs/native-reference/nav-tables.md); coordinates are render units.
+struct RouteLine {
+    float ax, az, bx, bz;
+    float r, g, b;
+};
 bool previewRenderScene(Renderer* r, const assets::NativeModel& car,
                         const gameplay::FrameSnapshot& snapshot, const gameplay::World& world,
                         std::vector<std::uint8_t>& rgbaOut, std::string& error,
-                        const TerrainMesh* terrain = nullptr);
+                        const TerrainMesh* terrain = nullptr,
+                        const std::vector<RouteLine>* routes = nullptr);
 // Draws solid screen-space rectangles over clearColor. Rectangle coordinates
 // are target pixels with a top-left origin; this path has no lighting, depth,
 // or texture sampling.

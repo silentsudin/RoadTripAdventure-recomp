@@ -812,7 +812,7 @@ static void argbToRgb(std::uint32_t argb, float out[3]) {
 
 bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gameplay::FrameSnapshot& s,
                         const gameplay::World& world, std::vector<std::uint8_t>& rgbaOut, std::string& error,
-                        const TerrainMesh* terrain) {
+                        const TerrainMesh* terrain, const std::vector<RouteLine>* routes) {
     std::vector<SceneVertex> vertices;
     std::vector<std::uint32_t> indices;
     const float grass[3] = {.16f, .42f, .18f}, asphalt[3] = {.10f, .11f, .12f};
@@ -863,6 +863,25 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     for (std::size_t i = 0; i < segments; ++i) {
         const auto& a = path[i]; const auto& b = path[(i + 1) % count];
         addQuad(vertices, indices, {a.x * .1f, a.z * .1f}, {b.x * .1f, b.z * .1f}, world.roadHalfWidth * .1f, asphalt);
+    }
+    if (routes != nullptr) {
+        // Nav-graph centerline strips (RT_APP_NAV=1): flat ribbons above the
+        // ground and road, drawn through the untextured pipeline so they read
+        // over both the banded and textured terrain passes.
+        constexpr float kHalf = 1.2f;
+        for (const RouteLine& line : *routes) {
+            const float dx = line.bx - line.ax, dz = line.bz - line.az;
+            const float len = std::sqrt(dx * dx + dz * dz);
+            if (len < 1e-3f) continue;
+            const float nx = -dz / len * kHalf, nz = dx / len * kHalf;
+            const std::uint32_t base = static_cast<std::uint32_t>(vertices.size());
+            for (const auto& p : {std::array<float, 2>{line.ax + nx, line.az + nz},
+                                 {line.bx + nx, line.bz + nz},
+                                 {line.bx - nx, line.bz - nz},
+                                 {line.ax - nx, line.az - nz}})
+                vertices.push_back({p[0], .05f, p[1], line.r, line.g, line.b});
+            for (std::uint32_t i : {0u, 2u, 1u, 0u, 3u, 2u}) indices.push_back(base + i);
+        }
     }
     const ModelStats st = computeStats(car);
     const float cx = .5f * (st.bmin[0] + st.bmax[0]), cz = .5f * (st.bmin[2] + st.bmax[2]);

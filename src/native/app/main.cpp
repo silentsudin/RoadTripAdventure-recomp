@@ -4,6 +4,7 @@
 #include "assets/field_converter.h"
 #include "assets/field_tile_index.h"
 #include "assets/native_model.h"
+#include "assets/nav_routes.h"
 #include "audio/bgm_player.h"
 #include "audio/engine.h"
 #include "audio/vag_loader.h"
@@ -719,6 +720,29 @@ int main() {
     } else {
         terrainMesh = loadTerrainMesh();
     }
+    // RT_APP_NAV=1 overlays a ROM nav-graph's centerline segments (the
+    // candidate Peach Town static graph) as bright yellow strips.  The
+    // tile-local [0,1600] graph is mapped across the authored world's
+    // [0,160] render-unit span so it is always inside the follow-camera
+    // view; authentic geography anchoring lands with the fixed-point mapping.
+    std::vector<rt::native::preview::RouteLine> navLines;
+    if (std::getenv("RT_APP_NAV") != nullptr) {
+        auto tables = rt::native::assets::NavRouteTables::open(discRoot() / "SLUS_203.98");
+        if (!tables) {
+            std::cout << "rt-app nav: SKIP (ELF unavailable, err=" << static_cast<int>(tables.error()) << ")\n";
+        } else {
+            auto graph = tables->staticGraph(0);
+            if (!graph) {
+                std::cout << "rt-app nav: SKIP (static graph 0 absent)\n";
+            } else {
+                for (const auto& seg : graph->segments)
+                    navLines.push_back({seg.ax * .1f, seg.az * .1f, seg.bx * .1f, seg.bz * .1f,
+                                       1.f, .85f, .15f});
+                std::cout << "rt-app nav: static graph 0 segments=" << navLines.size()
+                          << " vaddr=0x" << std::hex << graph->segmentVaddr << std::dec << "\n";
+            }
+        }
+    }
     AudioHost audio;
     if (std::getenv("RT_APP_NOAUDIO") == nullptr) (void)initAudio(audio);
     const auto recreateSwapchain = [&]() {
@@ -921,7 +945,8 @@ int main() {
                 if (state == AppState::PLAYING) {
                     rendered = rt::native::preview::previewRenderScene(
                         renderer, car, snapshot, session.world(), pixels, error,
-                        terrainMesh.indices.empty() ? nullptr : &terrainMesh);
+                        terrainMesh.indices.empty() ? nullptr : &terrainMesh,
+                        navLines.empty() ? nullptr : &navLines);
                     if (rendered) {
                         std::vector<std::uint8_t> hudPixels;
                         rendered = rt::native::preview::previewRender2D(
