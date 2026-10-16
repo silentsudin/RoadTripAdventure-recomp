@@ -28,11 +28,21 @@
 //   5. loadModel yields a NativeModel consistent with each mesh (same
 //      vertices and indices, one unresolved material image slot per
 //      material), both before and after the wire round trip.
+//   6. car_models completion over the same real file + the real ELF:
+//      parseCarTableE returns the 151 tagged descriptor records (record 0
+//      joins this Q00 file by its exact sector count); parseCarHeader
+//      exposes the 12-word header (words 8..11 zero, chain start + 0x4510 ==
+//      EOF); extractCarLivery decodes the file's own PSMT8 128x128 livery
+//      (single palette bank); bindCarModels resolves every material to that
+//      image; loadCarAssets composes all stages into a fully-bound
+//      container (no unresolved sentinel, serialize round-trip intact).
 //
 // Failure accounting is plain counters and if-statements (no assert()), so
 // behaviour is NDEBUG-independent; any failed check exits nonzero.
 
+#include "../../../src/native/assets/car_models.h"
 #include "../../../src/native/assets/container.h"
+#include "../../../src/native/assets/image_converter.h"
 #include "../../../src/native/assets/model_converter.h"
 #include "../../../src/native/assets/model_loader.h"
 
@@ -50,20 +60,39 @@
 #include <string>
 #include <vector>
 
+using rt::native::assets::CarAssetError;
+using rt::native::assets::CarAssetResult;
+using rt::native::assets::CarBindError;
+using rt::native::assets::CarBindResult;
+using rt::native::assets::CarHeaderError;
+using rt::native::assets::CarHeaderResult;
+using rt::native::assets::CarLiveryError;
+using rt::native::assets::CarLiveryResult;
 using rt::native::assets::CarModelError;
 using rt::native::assets::CarModelResult;
+using rt::native::assets::CarTableError;
+using rt::native::assets::CarTableResult;
 using rt::native::assets::ContainerError;
 using rt::native::assets::ContainerResult;
 using rt::native::assets::HostAssetContainer;
+using rt::native::assets::ImageRecord;
 using rt::native::assets::MaterialRef;
 using rt::native::assets::MeshRecord;
 using rt::native::assets::NativeModel;
+using rt::native::assets::Provenance;
 using rt::native::assets::Vertex;
+using rt::native::assets::bindCarModels;
 using rt::native::assets::convertCarModels;
+using rt::native::assets::convertImageBankCount;
 using rt::native::assets::deserialize;
+using rt::native::assets::extractCarLivery;
 using rt::native::assets::hasValidProvenance;
 using rt::native::assets::kContainerVersion;
+using rt::native::assets::kCarRecordCount;
+using rt::native::assets::loadCarAssets;
 using rt::native::assets::loadModel;
+using rt::native::assets::parseCarHeader;
+using rt::native::assets::parseCarTableE;
 using rt::native::assets::serialize;
 
 namespace {
@@ -359,6 +388,149 @@ int main() {
                     ? &back.value.meshes[i]
                     : nullptr;
             checkLoadModel(container.meshes[i], roundTripped, i);
+        }
+    }
+
+    // --- 6. car_models: table E, 12-word header, livery, bound models -----
+    {
+        const std::filesystem::path elfPath =
+            std::filesystem::path(root) / "SLUS_203.98";
+        Bytes elf;
+        check(readFileBytes(elfPath.string(), elf), "the disc ELF is readable");
+        if (elf.empty()) {
+            std::cerr << "test_car_integration: cannot read '" << elfPath.string()
+                      << "'; table-E/livery checks skipped\n";
+        }
+
+        if (!elf.empty()) {
+            // Table E out of the real ELF: 151 tagged records, record 0
+            // joining this Q00 file by its exact (LBA, sector count).
+            const CarTableResult table = parseCarTableE(elf);
+            check(table.err == CarTableError::Ok,
+                  "table E parses 151 tagged records out of the real ELF");
+            check(table.records.size() == kCarRecordCount,
+                  "table E holds one record per Q-file (151)");
+            if (table.err == CarTableError::Ok) {
+                check(table.records.front().sectorCount == (bytes.size() + 2047) / 2048,
+                      "table-E record 0 (Q00) names this file's exact sector count");
+                check(table.records.front().sectorOffset > 0,
+                      "table-E record 0 carries a real disc LBA");
+            }
+
+            // The 12-word header over the same real file.
+            const CarHeaderResult header = parseCarHeader(bytes);
+            check(header.err == CarHeaderError::Ok,
+                  "parseCarHeader accepts the real Q-file header");
+            if (header.err == CarHeaderError::Ok) {
+                check(header.info.fileSize == bytes.size(),
+                      "header info: file size word equals the real size");
+                check(header.info.textureChainStart == word[6],
+                      "header info: texture-chain start equals word +0x18");
+                check(header.info.modelStarts[0] == word[0],
+                      "header info: model starts come from words 0..5");
+                check(header.info.textureChainStart + 0x4510 == bytes.size(),
+                      "header info: the chain region is the trailing 0x4510 bytes");
+                bool paddingZero = true;
+                for (std::size_t o = 0x20; o < 0x30; o += 4) {
+                    if (readU32LE(bytes, o) != 0) {
+                        paddingZero = false;
+                    }
+                }
+                check(paddingZero, "header words 8..11 (0x20..0x2F) are zero");
+            }
+
+            // Livery: the file's own PSMT8 128x128 texture decodes through
+            // the image pipeline with the single palette in the same chain.
+            Provenance liveryProvenance{};
+            liveryProvenance.sourceFile = carPath.string();
+            liveryProvenance.offset = word[6];
+            liveryProvenance.length = bytes.size() - static_cast<std::size_t>(word[6]);
+            liveryProvenance.sha256 = digest;
+            const CarLiveryResult livery = extractCarLivery(bytes, liveryProvenance, "livery");
+            check(livery.err == CarLiveryError::Ok,
+                  "extractCarLivery decodes the real car's own texture chain");
+            check(livery.chainStart == word[6],
+                  "livery result names the real chain start");
+            if (livery.err == CarLiveryError::Ok) {
+                check(livery.image.width == 128 && livery.image.height == 128,
+                      "real livery is the pinned PSMT8 128x128 texture");
+                check(livery.image.mipCount == 1,
+                      "real livery carries a single mip level");
+                check(livery.image.pixels.size() == 128u * 128u * 4u,
+                      "real livery pixels fill 128*128*4 bytes");
+                check(livery.image.provenance == liveryProvenance,
+                      "real livery provenance is the chain span identity");
+                check(livery.image.sourceVariantId == "livery",
+                      "real livery variant id propagated");
+            }
+            check(convertImageBankCount(
+                      std::span<const std::uint8_t>(bytes).subspan(word[6])) == 1,
+                  "the real chain offers exactly one palette selection");
+
+            // Binding: every mesh material resolves to the livery image.
+            if (livery.err == CarLiveryError::Ok) {
+                const ImageRecord liveryImages[1] = {livery.image};
+                const CarBindResult bound = bindCarModels(
+                    result.value.meshes, std::span<const ImageRecord>(liveryImages, 1), 0);
+                check(bound.err == CarBindError::Ok,
+                      "bindCarModels resolves the real car's whole mesh set");
+                check(bound.models.size() == result.value.meshes.size(),
+                      "binding yields one NativeModel per real mesh");
+                if (bound.err == CarBindError::Ok) {
+                    bool allZero = true;
+                    for (const NativeModel& model : bound.models) {
+                        for (std::uint32_t imageIndex : model.materialImage) {
+                            if (imageIndex != 0) {
+                                allZero = false;
+                            }
+                        }
+                    }
+                    check(allZero,
+                          "every material of every bound model resolves to image 0 "
+                          "(no sentinel left)");
+                }
+            }
+
+            // The composite over the same real bytes: fully-bound, wire-
+            // serializable container plus its NativeModels.
+            const CarAssetResult assets = loadCarAssets(bytes, carPath.string(), digest);
+            check(assets.err == CarAssetError::Ok,
+                  "loadCarAssets loads the real car end to end");
+            if (assets.err == CarAssetError::Ok) {
+                check(assets.container.meshes.size() == result.value.meshes.size(),
+                      "composite container keeps every mesh convertCarModels made");
+                check(assets.container.images.size() == 1,
+                      "composite container carries exactly the one livery image");
+                check(assets.container.version == kContainerVersion,
+                      "composite container version is kContainerVersion");
+                bool noSentinel = true;
+                bool allResolved = true;
+                for (const MeshRecord& mesh : assets.container.meshes) {
+                    for (const MaterialRef& material : mesh.materials) {
+                        if (material.imageIndex == 0xFFFFFFFFu) {
+                            noSentinel = false;
+                        }
+                        if (material.imageIndex >= assets.container.images.size()) {
+                            allResolved = false;
+                        }
+                    }
+                }
+                check(noSentinel, "composite container keeps no unresolved sentinel");
+                check(allResolved, "composite materials all point at the livery image");
+                check(assets.models.size() == assets.container.meshes.size(),
+                      "composite models parallel the container meshes");
+
+                try {
+                    const Bytes boundWire = serialize(assets.container);
+                    const ContainerResult boundBack = deserialize(boundWire);
+                    check(boundBack.err == ContainerError::Ok,
+                          "the fully-bound container serializes and deserializes");
+                    check(boundBack.value == assets.container,
+                          "the bound container round-trips to an equal value");
+                } catch (const std::exception& e) {
+                    check(false, std::string("bound serialize threw: ") + e.what());
+                }
+            }
         }
     }
 
