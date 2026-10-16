@@ -141,6 +141,88 @@ inline std::vector<HudQuad> raceHudTextQuads(const gameplay::FrameSnapshot& snap
     return quads;
 }
 
+// Presentation selector for the experimental SCORE/METER text route. These
+// values select native presentation content only; they do not identify a
+// shipped PS2 UI state.
+enum class ScoreMeterPage : std::uint8_t {
+    None,
+    Score,
+    Meter,
+};
+
+// SCORE-page text for the livery-test presentation.
+//
+// CONFIRMED: the timer starts at RaceTimeDigits (64,56), the ElementC digit
+// strip emitted by 0x22F750/0x233F10 (hud-layout.md §1.1).
+// AUTHORED: SCORE at (192,216), MONEY at (352,216), their labels, six-digit
+// zero padding, and the association of `score`/`money` with this page. The
+// evidence ledger contains no livery-test SCORE-page builder, score/money
+// placement, or field source; do not treat those presentation choices as ROM
+// facts. `money` is clamped to the proven live-counter cap only so the UI has
+// a bounded display contract.
+inline std::vector<HudQuad> scorePageTextQuads(const gameplay::FrameSnapshot& snapshot,
+                                               int score, int money, int width, int height) {
+    namespace hud = rt::native::gameplay;
+    constexpr std::array<float, 4> kWhite{1.f, 1.f, 1.f, .95f};
+    constexpr float kAuthoredScoreX = 192.f;
+    constexpr float kAuthoredScoreY = 216.f;
+    constexpr float kAuthoredMoneyX = 352.f;
+    constexpr float kAuthoredMoneyY = 216.f;
+    std::vector<HudQuad> quads;
+    char buf[32];
+
+    const int shownScore = std::clamp(score, 0, hud::kHudMoneyCap);
+    std::snprintf(buf, sizeof(buf), "SCORE %06d", shownScore);
+    appendFonteText(quads, buf, kAuthoredScoreX, kAuthoredScoreY, kWhite, width, height);
+
+    // The timer placement is proven; this FONTE spelling remains a native
+    // stand-in for the SCORE.GSL 16x16 digit sprites.
+    const unsigned seconds = snapshot.elapsedFrames / 60u;
+    std::snprintf(buf, sizeof(buf), "%u:%02u", seconds / 60u, seconds % 60u);
+    if (const auto* digits = hud::findHudElement(hud::HudElement::RaceTimeDigits))
+        appendFonteText(quads, buf, digits->ui.x, digits->ui.y, kWhite, width, height);
+
+    const int shownMoney = std::clamp(money, 0, hud::kHudMoneyCap);
+    std::snprintf(buf, sizeof(buf), "MONEY %06d", shownMoney);
+    appendFonteText(quads, buf, kAuthoredMoneyX, kAuthoredMoneyY, kWhite, width, height);
+    return quads;
+}
+
+// METER-page speed text for the livery-test presentation.
+// CONFIRMED: DriveSpeedDigits is (532,385), emitted by 0x24E1A0 at the 1P
+// dial anchor (hud-layout.md §1.2). AUTHORED: converting FrameSnapshot::speed
+// to an integer and presenting it as three decimal digits; the ledger does not
+// pin the game's speed-value conversion or a livery-test METER page state.
+inline std::vector<HudQuad> meterPageTextQuads(const gameplay::FrameSnapshot& snapshot,
+                                               int width, int height) {
+    namespace hud = rt::native::gameplay;
+    constexpr std::array<float, 4> kWhite{1.f, 1.f, 1.f, .95f};
+    std::vector<HudQuad> quads;
+    char buf[8];
+    const int shownSpeed = std::clamp(static_cast<int>(snapshot.speed), 0, 999);
+    std::snprintf(buf, sizeof(buf), "%03d", shownSpeed);
+    if (const auto* digits = hud::findHudElement(hud::HudElement::DriveSpeedDigits))
+        appendFonteText(quads, buf, digits->ui.x, digits->ui.y, kWhite, width, height);
+    return quads;
+}
+
+// Selects exactly one SCORE/METER presentation builder. `score` and `money`
+// are intentionally caller-supplied until the livery-test state has proven
+// snapshot fields; Meter ignores them.
+inline std::vector<HudQuad> scoreMeterPageTextQuads(ScoreMeterPage page,
+                                                    const gameplay::FrameSnapshot& snapshot,
+                                                    int score, int money, int width, int height) {
+    switch (page) {
+        case ScoreMeterPage::Score:
+            return scorePageTextQuads(snapshot, score, money, width, height);
+        case ScoreMeterPage::Meter:
+            return meterPageTextQuads(snapshot, width, height);
+        case ScoreMeterPage::None:
+            return {};
+    }
+    return {};
+}
+
 // Time-of-day readout at the TownClockText placement ("%2d:%02d", matching
 // the shipped digital clock; ticks per hour/minute per DAT_00335730 —
 // kClockTicksPerHour/kClockTicksPerMinute).

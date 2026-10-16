@@ -2,6 +2,7 @@
 // geometry of docs/native-reference/hud-layout.md (evidence ledger) against
 // the constexpr tables in src/native/gameplay/hud_layout.h.
 #include "../../src/native/gameplay/hud_layout.h"
+#include "../../src/native/preview/race_hud.h"
 
 #include <cstdio>
 #include <cstdint>
@@ -170,6 +171,46 @@ void testGlyphSetTables() {
           money.cellH == 20 && money.atlas == HudAtlas::UiBatchFontAtlas);
 }
 
+void testScoreMeterTextPins() {
+    using rt::native::assets::fonteSlotForChar;
+    using rt::native::preview::ScoreMeterPage;
+    using rt::native::preview::meterPageTextQuads;
+    using rt::native::preview::scoreMeterPageTextQuads;
+    using rt::native::preview::scorePageTextQuads;
+
+    // FONTE's stream is 31 characters per row, with the final column reserved
+    // for an icon; numeric glyphs occupy the first row after '!'.
+    for (char digit = '0'; digit <= '9'; ++digit)
+        check(fonteSlotForChar(digit) == digit - '!');
+
+    FrameSnapshot snapshot{};
+    snapshot.elapsedFrames = 3723;  // 1:02
+    snapshot.speed = 87.f;
+
+    const auto score43 = scorePageTextQuads(snapshot, 42, 9001, 640, 480);
+    // "SCORE 000042" + "1:02" + "MONEY 009001": spaces advance without quads.
+    check(score43.size() == 26u);
+    check(score43[0].x == 192.f && score43[0].y == 232.f);
+    check(score43[11].x == 64.f && score43[11].y == 72.f);
+    check(score43[15].x == 352.f && score43[15].y == 232.f);
+
+    const auto scoreWide = scorePageTextQuads(snapshot, 42, 9001, 1280, 720);
+    check(scoreWide.size() == score43.size());
+    check(scoreWide[0].x == 384.f && scoreWide[0].y == 348.f);
+    check(scoreWide[11].x == 128.f && scoreWide[11].y == 108.f);
+    check(scoreWide[15].x == 704.f && scoreWide[15].y == 348.f);
+
+    const auto meter = meterPageTextQuads(snapshot, 640, 480);
+    check(meter.size() == 3u);
+    check(meter[0].x == 532.f && meter[0].y == 401.f);
+
+    check(scoreMeterPageTextQuads(ScoreMeterPage::None, snapshot, 42, 9001, 640, 480).empty());
+    check(scoreMeterPageTextQuads(ScoreMeterPage::Score, snapshot, 42, 9001, 640, 480).size() ==
+          score43.size());
+    check(scoreMeterPageTextQuads(ScoreMeterPage::Meter, snapshot, 42, 9001, 640, 480).size() ==
+          meter.size());
+}
+
 }  // namespace
 
 int main() {
@@ -177,6 +218,7 @@ int main() {
     testNormalizationBounds();
     testSentinelsAndConventions();
     testGlyphSetTables();
+    testScoreMeterTextPins();
     if (g_fail) {
         std::fprintf(stderr, "%d/%d checks failed\n", g_fail, g_checks);
         return 1;

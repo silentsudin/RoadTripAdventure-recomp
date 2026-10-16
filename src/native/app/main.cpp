@@ -873,6 +873,14 @@ int main() {
     // (docs/native-reference/hud-layout.md; glyph grid per
     // docs/native-reference/sys-gsl-packs.md §4 corrected 2026-10-16).
     bool hudTextEnabled = std::getenv("RT_APP_HUDTEXT") != nullptr;
+    // RT_APP_SCOREHUD[=meter]: overlay the SCORE/METER page text builders
+    // (livery-test style presentation).  Timer + speed-digit placements are
+    // hud-layout.md CONFIRMED race-HUD anchors; the score/money label block
+    // is AUTHORED (no ROM evidence for the livery-test page layout), and
+    // score value here is a demo aggregate of collected collectibles.
+    const char* scoreHudEnv = std::getenv("RT_APP_SCOREHUD");
+    bool scoreHudEnabled = scoreHudEnv != nullptr;
+    const bool scoreHudMeter = scoreHudEnv && std::string(scoreHudEnv) == "meter";
     bool hudTextWarned = false;
     rt::native::assets::GlyphAtlas fontAtlas;
     if (hudTextEnabled) {
@@ -1215,10 +1223,23 @@ int main() {
                                 const int w = static_cast<int>(presenter.extent.width);
                                 const int h = static_cast<int>(presenter.extent.height);
                                 std::vector<rt::native::preview::HudQuad> textQuads =
-                                    session.state() == rt::native::gameplay::SessionState::RACE
-                                        ? rt::native::preview::raceHudTextQuads(snapshot,
-                                                                               session.totalLaps(), w, h)
-                                        : rt::native::preview::townClockTextQuads(snapshot.clock, w, h);
+                                    scoreHudEnabled
+                                        ? rt::native::preview::scoreMeterPageTextQuads(
+                                              scoreHudMeter
+                                                  ? rt::native::preview::ScoreMeterPage::Meter
+                                                  : rt::native::preview::ScoreMeterPage::Score,
+                                              snapshot,
+                                              static_cast<int>(rt::native::gameplay::collectedCount(collectibles)) * 500,
+                                              static_cast<int>(session.progress().money), w, h)
+                                        : session.state() == rt::native::gameplay::SessionState::RACE
+                                              ? rt::native::preview::raceHudTextQuads(snapshot,
+                                                                                     session.totalLaps(), w, h)
+                                              : rt::native::preview::townClockTextQuads(snapshot.clock, w, h);
+                                if (scoreHudEnabled && !hudTextWarned) {
+                                    hudTextWarned = true;
+                                    std::cout << "rt-app scorehud: page=" << (scoreHudMeter ? "METER" : "SCORE")
+                                              << " (AUTHORED label block; digit anchors per hud-layout.md)\n";
+                                }
                                 std::vector<std::uint8_t> textPixels;
                                 if (!textQuads.empty() &&
                                     rt::native::preview::previewRender2DTextured(
