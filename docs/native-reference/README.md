@@ -30,6 +30,7 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`nav-route-traversal.md`](nav-route-traversal.md) | FUN_00250068 follower predicate + host deterministic centerline rule (nav_path) | current |
 | [`nav-route-consumer.md`](nav-route-consumer.md) | NavPath → authored RaceRoute zone bridge, adaptive width clamps, pinned Peach Town prefix | current |
 | [`nav-walkable.md`](nav-walkable.md) | Waypoint arc-length traversal — full-coverage proof (Peach Town 34/34 nodes, lap 1652.558 units) + corpus closure table | current |
+| [`nav-drive.md`](nav-drive.md) | RT_APP_ROUTE=1 — deterministic kinematic follower driving the demo car along graph 0 (lap counter, render-local override) | current |
 | [`nav-index-binding.md`](nav-index-binding.md) | static nav index = pack-type byte (+0x22); outer-T semantics; graph-pair overlap matrix | current |
 | [`action-data-status.md`](action-data-status.md) | ACTION container grammar, 21/21 descriptor join, header variants | current |
 | [`action-mscalf6.md`](action-mscalf6.md) | MSCALF imm semantics (6 = ObjectStrip origin+5q records, 8 = WorldStrip), `NUM=1+5n` payload grammar, per-file usage table | current |

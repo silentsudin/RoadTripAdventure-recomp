@@ -12,6 +12,7 @@
 #include "gameplay/dialogue.h"
 #include "gameplay/input.h"
 #include "gameplay/menu.h"
+#include "gameplay/nav_drive.h"
 #include "gameplay/session.h"
 #include "gameplay/shop.h"
 #include "gameplay/tile_streamer.h"
@@ -743,6 +744,34 @@ int main() {
             }
         }
     }
+    // RT_APP_ROUTE=1 drives the render-visible demo car along the authentic
+    // Peach Town centerline (static graph 0) with a deterministic arc-length
+    // follower (gameplay/nav_drive).  Session authoring keeps its own car
+    // state; only the snapshot handed to the scene renderer is overridden.
+    std::optional<rt::native::gameplay::NavDrive> navDrive;
+    constexpr float kNavRouteSpeedUnitsPerFrame = 30.f;
+    int navRouteLap = 0;
+    if (std::getenv("RT_APP_ROUTE") != nullptr) {
+        auto tables = rt::native::assets::NavRouteTables::open(discRoot() / "SLUS_203.98");
+        if (!tables) {
+            std::cout << "rt-app route: SKIP (ELF unavailable, err=" << static_cast<int>(tables.error()) << ")\n";
+        } else {
+            auto graph = tables->staticGraph(0);
+            if (!graph) {
+                std::cout << "rt-app route: SKIP (static graph 0 absent)\n";
+            } else {
+                const rt::native::gameplay::NavPath path = rt::native::gameplay::buildNavPath(*graph);
+                if (path.centerline.size() < 2) {
+                    std::cout << "rt-app route: SKIP (centerline has no segments)\n";
+                } else {
+                    navDrive.emplace(path);
+                    std::cout << "rt-app route: nav lap drive segments="
+                              << navDrive->segmentCount()
+                              << " length=" << navDrive->totalLength() << "\n";
+                }
+            }
+        }
+    }
     AudioHost audio;
     if (std::getenv("RT_APP_NOAUDIO") == nullptr) (void)initAudio(audio);
     const auto recreateSwapchain = [&]() {
@@ -871,6 +900,15 @@ int main() {
             session.update(menuInput);
             snapshot = session.lastSnapshot();
             simulationFrame = snapshot.frame;
+            if (navDrive) {
+                // Advance the render-only follower once per authored frame and
+                // announce each completed closed lap.
+                const rt::native::gameplay::NavPose pose = navDrive->step(kNavRouteSpeedUnitsPerFrame);
+                if (pose.lap > navRouteLap) {
+                    navRouteLap = pose.lap;
+                    std::cout << "rt-app route: lap " << pose.lap << " complete\n";
+                }
+            }
 
             if (session.state() == rt::native::gameplay::SessionState::EXPLORE) {
                 if (openShop && !shopOpen) {
@@ -939,12 +977,21 @@ int main() {
         if (streamed && streamed->refresh()) streamed->buildMesh(terrainMesh);
         if (!noRender && presenter.extent.width && presenter.extent.height) {
             bool retry = false;
+            // Render-local copy so the route follower can move the visible car
+            // without disturbing session authoring state (lap/collectible logic
+            // above still reads the authored snapshot).
+            rt::native::gameplay::FrameSnapshot renderSnapshot = snapshot;
+            if (navDrive) {
+                const rt::native::gameplay::NavPose pose = navDrive->pose();
+                renderSnapshot.carPosition = {pose.position.x, pose.position.z};
+                renderSnapshot.heading = pose.heading;
+            }
             do {
                 std::vector<std::uint8_t> pixels;
                 bool rendered = false;
                 if (state == AppState::PLAYING) {
                     rendered = rt::native::preview::previewRenderScene(
-                        renderer, car, snapshot, session.world(), pixels, error,
+                        renderer, car, renderSnapshot, session.world(), pixels, error,
                         terrainMesh.indices.empty() ? nullptr : &terrainMesh,
                         navLines.empty() ? nullptr : &navLines);
                     if (rendered) {
