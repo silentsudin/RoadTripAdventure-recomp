@@ -15,7 +15,8 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | Doc | Subject | State |
 |---|---|---|
 | [`field-topology-status.md`](field-topology-status.md) | FLD container grammar, 64/64 corpus, tile id/streaming (digit order **proven**), loader chain | current |
-| [`world-geography.md`](world-geography.md) | fixed-unit scale **proven** (1 tile = `0x02000000`, divisor f32 @`0x332c0c`), 8×16 half-column torus + row shear, parity-claim correction, Peach Town worked example | current |
+| [`world-geography.md`](world-geography.md) | fixed-unit scale **proven** (1 tile = `0x02000000`, divisor f32 @`0x332c0c`), 8×16 half-column torus + row shear, parity-claim correction, Peach Town worked example (id 43 / `FLD/223.BIN`, corrected per scene-tile-map.md) | current |
+| [`scene-tile-map.md`](scene-tile-map.md) | Authoritative scene→tile identity @`0x2be438`: My Garage = tile 11 / `FLD/023.BIN`, Peach Town = tile 43 / `FLD/223.BIN`; static nav dir `0x2bd578` is pack-type-indexed (graph 0 = `COURSE/C00` race route), town street graphs in outer dir `0x2d98a8` indexed by scene id (T=1 Peach, 84 segments) | current |
 | [`asset-map.md`](asset-map.md) | All ROM descriptor tables, 384/384 exact LBA↔file matches, disc layout, orphan/id puzzles | current |
 | [`cell-vif-chains.md`](cell-vif-chains.md) | Per-cell VIF chains: 60B vertex records incl. **streamed UVs**; attribute-table rejection | current |
 | [`gif-material-streams.md`](gif-material-streams.md) | GIF A+D material header per cell, TEX0→page binding, 3,097 IMAGE transfers | current |
@@ -28,8 +29,8 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`course-prop-chains.md`](course-prop-chains.md) | Full prop-draw record decode (N=MSCALF-0xA 18/18, GIFtag 0x264/{ST,RGBAQ,XYZF2}, tile-local floats, header boundary list, C16 zero tail) + parser contract | current |
 | [`nav-tables.md`](nav-tables.md) | ROM-resident AI route graphs: static directory `0x2bd578`, 24B f32 segment + 8B transition grammar, runtime extraction spec | current |
 | [`nav-route-traversal.md`](nav-route-traversal.md) | FUN_00250068 follower predicate + host deterministic centerline rule (nav_path) | current |
-| [`nav-route-consumer.md`](nav-route-consumer.md) | NavPath → authored RaceRoute zone bridge, adaptive width clamps, pinned Peach Town prefix | current |
-| [`nav-walkable.md`](nav-walkable.md) | Waypoint arc-length traversal — full-coverage proof (Peach Town 34/34 nodes, lap 1652.558 units) + corpus closure table | current |
+| [`nav-route-consumer.md`](nav-route-consumer.md) | NavPath → authored RaceRoute zone bridge, adaptive width clamps, pinned static-graph-0 (`COURSE/C00`) prefix | current |
+| [`nav-walkable.md`](nav-walkable.md) | Waypoint arc-length traversal — full-coverage proof (static graph 0 = `COURSE/C00`: 34/34 nodes, lap 1652.558 units) + corpus closure table | current |
 | [`nav-drive.md`](nav-drive.md) | RT_APP_ROUTE=1 — deterministic kinematic follower driving the demo car along graph 0 (lap counter, render-local override) | current |
 | [`nav-index-binding.md`](nav-index-binding.md) | static nav index = pack-type byte (+0x22); outer-T semantics; graph-pair overlap matrix | current |
 | [`action-data-status.md`](action-data-status.md) | ACTION container grammar, 21/21 descriptor join, header variants | current |

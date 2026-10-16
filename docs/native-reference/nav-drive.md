@@ -56,7 +56,8 @@ authored car untouched.
 
 ## Disc evidence
 
-With the user's `SLUS_203.98`, static graph 0 (candidate Peach Town) yields a
+With the user's `SLUS_203.98`, static graph 0 (`COURSE/C00` race route —
+relabelled 2026-10-16 per scene-tile-map.md; it is not Peach Town) yields a
 closed centerline with **34 nonzero segments** and pinned length **1652.558**
 tile-local units — matching `nav_walkable`'s independently computed length. A
 10-unit cursor walked `ceil(1652.558/10) = 166` steps to complete exactly one
@@ -69,6 +70,6 @@ lap, wrapping to within one step of the start.
 | `NavDrive` advances a straight segment by exactly `speed` units | PROVEN (unit test) |
 | Closed square lap has perimeter 12 and pinned corner-midpoint headings | PROVEN (unit test) |
 | Cursor wraps and increments `lap` once per closed traversal | PROVEN (unit test + disc) |
-| Peach Town centerline drives 34 segments / 1652.558 units per lap | PROVEN (disc test) |
+| Static graph 0 (`COURSE/C00`) centerline drives 34 segments / 1652.558 units per lap | PROVEN (disc test) |
 | The demo car's render-visible pose follows the authentic centerline | DEMONSTRATED (RT_APP_ROUTE smoke: lap 1/2 complete, exit 0) |
 | The follower matches the game's position-driven vehicle dynamics | OPEN — car physics/collision are outside this kinematic follower |

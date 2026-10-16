@@ -18,7 +18,7 @@
 - Vertex order follows `pointInConvexPolygon`'s z-first cross convention
   (its "CCW"; clockwise under the standard x-z shoelace).
 
-## Verified behaviour (disc, static graph 0 / candidate Peach Town)
+## Verified behaviour (disc, static graph 0 = `COURSE/C00` race route — relabelled 2026-10-16 per scene-tile-map.md, not Peach Town)
 
 - `zones = 34`, path `closed = yes` — sequential walk of leg midpoints
   reaches `progress = 16` then stalls at leg 17: the ROM path switchbacks so
@@ -50,7 +50,7 @@
 | claim | status |
 |---|---|
 | Centerline → zones conversion deterministic, lap-capable | PROVEN (synthetic lap + 50% disc coverage pinned) |
-| Peach Town prefix progress 16/34 | PROVEN (deterministic pin) |
+| Static graph 0 (`COURSE/C00`) prefix progress 16/34 | PROVEN (deterministic pin) |
 | Switchback at leg 17 causes cascade stall | PROVEN (test diagnostic `zoneOf(mid_17) = 16`) |
 | Tile-local == world placement | OPEN (geography mapping pending) |
 | Per-segment speed limits | OPEN (aux floats unresolved) |

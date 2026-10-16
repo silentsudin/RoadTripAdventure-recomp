@@ -116,21 +116,25 @@ match over `0x21c8d0`–`0x21c920`; all 64 derived placements round-trip through
 the formula back to their ids; the disc `FLD/` filename set maps exactly onto
 the 64-id space.
 
-## Worked example — Peach Town, id 11 / `FLD/023.BIN`
+## Worked example — Peach Town, id 43 / `FLD/223.BIN`
 
-`11 = 0b001011`; therefore `A=0`, `B=2`, `C=3`:
+(Corrected 2026-10-16 per scene-tile-map.md: the earlier draft worked id 11 /
+`FLD/023.BIN` and called it Peach Town — id 11 is **My Garage**. Peach Town is
+tile 43, same half-column, four rows south.)
+
+`43 = 0b101011`; therefore `A=2`, `B=2`, `C=3`:
 
 ```
-b=1, row=1, col=5
-X0=0x0b000000, Z0=0x02000000
+b=1, row=5, col=5
+X0=0x0b000000, Z0=0x0a000000
 
-fixed extent: X=[0x0b000000,0x0d000000), Z=[0x02000000,0x04000000)
-unwrapped terrain units: X=[8800,10400), Z=[1600,3200)
+fixed extent: X=[0x0b000000,0x0d000000), Z=[0x0a000000,0x0c000000)
+unwrapped terrain units: X=[8800,10400), Z=[8000,9600)
 ```
 
 For gameplay rendering the odd-row rebase maps it to `renderX=localX` and
 `renderZ=localZ`, both `[0,1600]`; the absolute origin remains raw fixed
-`(0x0b000000,0x02000000)`, not renderer-local `(0,0)`.
+`(0x0b000000,0x0a000000)`, not renderer-local `(0,0)`.
 
 ## Navigation cross-check
 
@@ -145,22 +149,29 @@ I independently decoded static graph 0 from the user ELF:
   `(590,569)->(590,571)` and `(600,569)->(600,571)`.
 
 These endpoints already fit `[0,1600]^2`, proving tile-local storage, not
-fixed point. If graph 0 is used with Peach (the name association is still only
-a candidate), its centering constants are:
+fixed point. (Corrected 2026-10-16 per scene-tile-map.md: the static
+directory `0x2bd578` is pack-type-indexed, so graph 0 is the `COURSE/C00.BIN`
+race route, not a town street graph — the earlier "candidate Peach" framing
+was wrong.) The centering exercise below uses the tile-11 (`FLD/023.BIN`,
+My Garage/My City) origin and is retained as scale/axis validation only:
 
 ```
 fixed graph point = (0x0b000000 + S*x, 0x02000000 + S*z)
 unwrapped units   = (8800 + x, 1600 + z)
 ```
 
-Its bounds become `[9158,9622] × [1928,2172]`, inside Peach's derived extent.
-This validates scale/axes, not the graph-to-town identity.
+Its bounds become `[9158,9622] × [1928,2172]`, inside the tile-11
+(My Garage/My City) extent. This validates scale/axes, not the
+graph-to-town identity.
 
 ## OPEN evidence
 
-* **Static graph 0 = Peach:** compatible bounds do not bind static C00
-  selection to scripted Peach. Trace its selector/type at setup while entering
-  Peach, or find a direct producer/table association.
+* **Static graph 0 = Peach: RESOLVED (2026-10-16) — false.** The static
+  directory `0x2bd578` is pack-type-indexed, so graph 0 is the
+  `COURSE/C00.BIN` race route, not a town street graph. Peach Town's street
+  graph lives in the outer directory `0x2d98a8` at scene index `T=1`
+  (pair `{0x2c5ff0,0x2c67d0}`, 84 segments). Full proof chain:
+  [scene-tile-map.md](scene-tile-map.md).
 * **Scripted category-9 load role:** `FUN_00210158` loads the scene-table id,
   but a transition trace plus following car fixed `(X,Z)` is needed to show
   preload, teleport, or resident replacement semantics.

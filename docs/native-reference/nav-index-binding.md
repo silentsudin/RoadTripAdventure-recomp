@@ -58,11 +58,12 @@ slot sequence: indices 15--17 are `C18`, `C19`, `C20`.
 | 23 | `ACTION/A05.BIN` | null |
 
 The town names in the scripted scene table are **not** an additional direct
-static-index naming scheme.  For example, the table proves scene 0 is Peach
-Town and its scripted tile is `FLD/023.BIN`; it does not prove that static
-index 0 names Peach Town.  Static index 0 is proven to be the `C00` pack type;
-its graph's Peach-sized bounds are compatible with, but do not identify, that
-course geography.
+static-index naming scheme.  (Corrected 2026-10-16 per scene-tile-map.md: the
+earlier draft said the table "proves scene 0 is Peach Town" — scene 0 is
+**My Garage** (tile 11, `FLD/023.BIN`); **Peach Town is scene 1** (tile 43,
+`FLD/223.BIN`).)  Nothing in the table names a static index.  Static index 0
+is proven to be the `C00` pack type; its graph's bounds are compatible with,
+but do not identify, that course geography.
 
 ## Outer directory: `T = (taskTag >> 10) & 0x1f`
 
@@ -74,40 +75,46 @@ is the scripted-scene/event ID, whose authoritative names are the records at
 first `{segments, transitions}` pair at that directory (shown to make the
 binding reproducible).
 
+(Corrected 2026-10-16 per scene-tile-map.md: the name column below was
+previously the scene-table names shifted by one — it skipped My Garage and My
+City and put `LightHouse` on T=7 — and left the SJIS records untranslated.
+Names are now the `0x002be438` record strings at each `T`; directory and pair
+pointers are unchanged.)
+
 | T | binding from scripted scene table | dir | car0 graph pair |
 |---:|---|---:|---|
-| 0 | Peach Town | `0x002d9558` | `0x002d5750/0x002d5a20` |
-| 1 | Fuji City | `0x002d9310` | `0x002c5ff0/0x002c67d0` |
-| 2 | Sandpolis | `0x002d9368` | null car 0 |
-| 3 | Chestnut Canyon | `0x002d93c0` | `0x002ca910/0x002cac58` |
-| 4 | Mushroom Road | `0x002d9408` | `0x002cf810/0x002cfb28` |
-| 5 | White Mountain | null | — |
-| 6 | Papaya Island | `0x002d9460` | `0x002d08f0/0x002d0a40` |
-| 7 | LightHouse | `0x002d94b0` | `0x002d1c10/0x002d1ee0` |
+| 0 | My Garage | `0x002d9558` | `0x002d5750/0x002d5a20` |
+| 1 | Peach Town | `0x002d9310` | `0x002c5ff0/0x002c67d0` |
+| 2 | Fuji City | `0x002d9368` | null car 0 |
+| 3 | Sandpolis | `0x002d93c0` | `0x002ca910/0x002cac58` |
+| 4 | Chestnut Canyon | `0x002d9408` | `0x002cf810/0x002cfb28` |
+| 5 | Mushroom Road | null | — |
+| 6 | White Mountain | `0x002d9460` | `0x002d08f0/0x002d0a40` |
+| 7 | Papaya Island | `0x002d94b0` | `0x002d1c10/0x002d1ee0` |
 | 8 | Cloud Hill | `0x002d9500` | null car 0 |
-| 9 | `???` (literal scene string) | `0x002d9558` | `0x002d5750/0x002d5a20` |
-| 10 | Bridge | null | — |
-| 11 | UFO | null | — |
-| 12 | Ruins | null | — |
-| 13 | `022` (literal scene string) | `0x002d9590` | `0x002d5f70/0x002d6288` |
-| 14 | SJIS string; untranslated | null | — |
-| 15 | `022` (literal scene string) | null | — |
+| 9 | My City | `0x002d9558` | `0x002d5750/0x002d5a20` |
+| 10 | `???` (literal scene string) | null | — |
+| 11 | Bridge | null | — |
+| 12 | UFO | null | — |
+| 13 | Ruins | null | — |
+| 14 | LightHouse | null | — |
+| 15 | `022` (literal FLD name) | null | — |
 | 16 | `110` (literal scene string) | null | — |
 | 17 | `120` (literal scene string) | null | — |
 | 18 | `202` (literal scene string) | `0x002d9598` | `0x002d6390/0x002d6600` |
 | 19 | `212` (literal scene string) | null | — |
 | 20 | `221` (literal scene string) | null | — |
 | 21 | `232` (literal scene string) | null | — |
-| 22 | SJIS string; untranslated | `0x002d95a0` | `0x002d66d0/0x002d67a8` |
-| 23 | SJIS string; untranslated | `0x002d9848` | `0x002d8850/0x002d9060` |
-| 24 | SJIS string; untranslated | `0x002d97e8` | `0x002d81f0/0x002d86b8` |
-| 25 | SJIS string; untranslated | `0x002d9778` | `0x002d7b90/0x002d7cb0` |
-| 26 | SJIS string; untranslated | `0x002d9788` | `0x002d7d10/0x002d80b8` |
-| 27 | SJIS string; untranslated | `0x002d9648` | `0x002d67f0/0x002d6b20` |
-| 28 | SJIS string; untranslated | `0x002d96a8` | `0x002d6c30/0x002d6db0` |
-| 29 | SJIS string; untranslated | `0x002d96b0` | `0x002d6e30/0x002d7580` |
-| 30 | SJIS string; untranslated | `0x002d9710` | `0x002d77f0/0x002d7958` |
-| 31 | SJIS string; untranslated | `0x002d9718` | `0x002d79d0/0x002d7b20` |
+| 22 | クラウド (SJIS "Cloud") | `0x002d95a0` | `0x002d66d0/0x002d67a8` |
+| 23 | パパイヤ (SJIS "Papaya") | `0x002d9848` | `0x002d8850/0x002d9060` |
+| 24 | ホワイト (SJIS "White") | `0x002d97e8` | `0x002d81f0/0x002d86b8` |
+| 25 | いせき (SJIS "ruins") | `0x002d9778` | `0x002d7b90/0x002d7cb0` |
+| 26 | マロン (SJIS "Marron/chestnut") | `0x002d9788` | `0x002d7d10/0x002d80b8` |
+| 27 | ピーチ (SJIS "Peach") | `0x002d9648` | `0x002d67f0/0x002d6b20` |
+| 28 | はし (SJIS "bridge") | `0x002d96a8` | `0x002d6c30/0x002d6db0` |
+| 29 | フジ (SJIS "Fuji") | `0x002d96b0` | `0x002d6e30/0x002d7580` |
+| 30 | こうそく (SJIS "highway") | `0x002d9710` | `0x002d77f0/0x002d7958` |
+| 31 | サンド (SJIS "Sand") | `0x002d9718` | `0x002d79d0/0x002d7b20` |
 
 `T=0` and `T=9` intentionally share the same outer directory pointer.
 `car0` being null at T=2/8 does not make the outer directory null: later car

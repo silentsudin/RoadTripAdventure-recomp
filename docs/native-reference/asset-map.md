@@ -240,25 +240,33 @@ now simply segregates the odd-parity ids the scripted table favours).
 The disc extract contains every resulting
 `FLD/ABC.BIN`; the human scene strings are locations/POIs rather than alternate
 disc filenames.  `SJIS` means the pointed string is non-ASCII Shift-JIS bytes;
-it is deliberately not guessed as an English name here.
+it is deliberately not guessed as an English name here (scene-tile-map.md
+resolves these `namePtr`s and records the kana readings).
+
+(Corrected 2026-10-16 per scene-tile-map.md: the name column below was
+mis-resolved — most rows carried the next record's name (row 0 was labelled
+`Peach Town`, which is record 1's string), record 7 `Papaya Island` was
+labelled `LightHouse` (record 14's string), and record 14 `LightHouse` was
+shown as `SJIS`.  Names now come from each record's `namePtr`; tile ids, FLD
+filenames, `extra`, and `bad` are unchanged.)
 
 | # | tile id | FLD filename | name string at `namePtr` | extra | bad |
 |---:|---:|---|---|---:|:---:|
-| 0 | 11 | `023.BIN` | `Peach Town` | `0x0001` | yes |
-| 1 | 43 | `223.BIN` | `Fuji City` | `0x0B1C` | yes |
-| 2 | 23 | `113.BIN` | `Sandpolis` | `0x0B1D` | no |
-| 3 | 7 | `013.BIN` | `Chestnut Canyon` | `0x0921` | yes |
-| 4 | 19 | `103.BIN` | `Mushroom Road` | `0x0B11` | no |
-| 5 | 36 | `210.BIN` | `White Mountain` | `0x000B` | no |
-| 6 | 35 | `203.BIN` | `Papaya Island` | `0x0A1B` | yes |
-| 7 | 47 | `233.BIN` | `LightHouse` | `0x0A1C` | yes |
+| 0 | 11 | `023.BIN` | `My Garage` | `0x0001` | yes |
+| 1 | 43 | `223.BIN` | `Peach Town` | `0x0B1C` | yes |
+| 2 | 23 | `113.BIN` | `Fuji City` | `0x0B1D` | no |
+| 3 | 7 | `013.BIN` | `Sandpolis` | `0x0921` | yes |
+| 4 | 19 | `103.BIN` | `Chestnut Canyon` | `0x0B11` | no |
+| 5 | 36 | `210.BIN` | `Mushroom Road` | `0x000B` | no |
+| 6 | 35 | `203.BIN` | `White Mountain` | `0x0A1B` | yes |
+| 7 | 47 | `233.BIN` | `Papaya Island` | `0x0A1C` | yes |
 | 8 | 64 | — (see anomaly) | `Cloud Hill` | `0x0B0E` | n/a |
-| 9 | 11 | `023.BIN` | `???` | `0x0617` | yes |
-| 10 | 39 | `213.BIN` | `Bridge` | `0x0004` | yes |
-| 11 | 40 | `220.BIN` | `UFO` | `0x0004` | no |
-| 12 | 22 | `111.BIN` | `Ruins` | `0x0004` | yes |
-| 13 | 5 | `012.BIN` | `022` | `0x0105` | yes |
-| 14 | 6 | `011.BIN` | SJIS | `0x0004` | no |
+| 9 | 11 | `023.BIN` | `My City` | `0x0617` | yes |
+| 10 | 39 | `213.BIN` | `???` | `0x0004` | yes |
+| 11 | 40 | `220.BIN` | `Bridge` | `0x0004` | no |
+| 12 | 22 | `111.BIN` | `UFO` | `0x0004` | yes |
+| 13 | 5 | `012.BIN` | `Ruins` | `0x0105` | yes |
+| 14 | 6 | `011.BIN` | `LightHouse` | `0x0004` | no |
 | 15 | 9 | `022.BIN` | `022` | `0x0006` | yes |
 | 16 | 20 | `110.BIN` | `110` | `0x0002` | yes |
 | 17 | 24 | `120.BIN` | `120` | `0x0001` | yes |

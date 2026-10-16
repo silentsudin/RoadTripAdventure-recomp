@@ -98,11 +98,14 @@ count array needed.
 The first populated pair is `{0x002ac620, 0x002ac968}`.  Its 35 segments
 validate the rule: the first four endpoint pairs are `(590,569)->(590,571)`,
 `(600,569)->(600,571)`, `(615,558)->(615,562)`, and
-`(640,550)->(640,554)`.  All 35 of its endpoints are in `[0,1600]²`.  This is
-the candidate scene-index-0 / **Peach Town** graph: `asset-map.md` identifies
-scene-table entry 0 as Peach Town, tile id 11, `FLD/023.BIN`.  The index-to-name
-binding remains **INFERRED** until the producer of the AI type byte is traced,
-but the tile-local bounds check is PROVEN.
+`(640,550)->(640,554)`.  All 35 of its endpoints are in `[0,1600]²`.
+(Corrected 2026-10-16 per scene-tile-map.md: the earlier draft called this the
+"candidate scene-index-0 / **Peach Town** graph" — the static directory is
+**pack-type-indexed**, not scene-indexed, so index 0 is the `COURSE/C00.BIN`
+race-route graph; and the scripted scene table's entry 0 is **My Garage**
+(tile id 11, `FLD/023.BIN`), not Peach Town — Peach Town is entry 1
+(tile id 43, `FLD/223.BIN`), whose street graph lives in the outer directory
+`0x2d98a8` at `T=1`.)  The tile-local bounds check is PROVEN.
 
 The first transition in that graph is the diagnostic byte sequence
 `00 01 22 22 01 01 00 00`; it demonstrates that candidate bytes are transition
@@ -111,9 +114,10 @@ indices (not coordinates or fixed-point metadata).
 ## Scale verdict
 
 **PROVEN:** route endpoints are direct IEEE-754 single-precision, tile-local
-world coordinates.  They require no `2^25` conversion.  The Peach candidate
-above provides a direct numeric validation against the 1600-unit `023.BIN`
-footprint.
+world coordinates.  They require no `2^25` conversion.  Static graph 0 above
+provides a direct numeric validation against the 1600-unit `023.BIN` footprint
+(the My Garage/My City tile; graph 0 itself is the `C00` pack route graph —
+corrected 2026-10-16 per scene-tile-map.md).
 
 `1 << 25` remains the fixed-point *streaming-grid* scale documented in
 `field-topology-status.md`: it locates a 1600-unit tile in the larger world.
@@ -166,6 +170,6 @@ embed table bytes.
 | Segment stride/layout through endpoint B | PROVEN | `* 0x18` indexing and float accesses in `FUN_00250068` |
 | Transition stride and graph-candidate role | PROVEN / INFERRED as marked | `* 8` indexing and branch-following logic in `FUN_00250068` |
 | Route coordinates use `2^25` fixed point | REJECTED | ROM bytes decode as in-range `f32` endpoints |
-| Static graph 0 lies in Peach Town's tile | PROVEN bounds; town-name binding INFERRED | all 35 endpoints in `[0,1600]²`; scene table entry 0 is Peach Town/023 |
+| Static graph 0 lies in Peach Town's tile | REJECTED (corrected 2026-10-16 per scene-tile-map.md) | static directory `0x2bd578` is pack-type-indexed: graph 0 is the `COURSE/C00.BIN` route graph; scene table entry 0 is My Garage/`023.BIN` (tile 11), Peach Town is entry 1 (tile 43, `223.BIN`) |
 | Explicit start/goal marker, segment speed limit, and auxiliary-float meaning | OPEN | no reader establishes these semantics |
 | Complete names for static type indices and course `T`/entity labels | OPEN | requires tracing the producer tables, not guessing from adjacent assets |

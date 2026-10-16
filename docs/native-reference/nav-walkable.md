@@ -10,8 +10,9 @@ polygons nor selects graph branches.
 
 `nav_route_bridge` makes wide authored containment zones for `RaceRoute`. That
 is useful for car-progress gameplay, but it has an unavoidable ambiguity where
-the Peach Town switchback's leg-17 midpoint lies on leg 16's axis: first-match
-zone containment pins its sequential progress at 16 of 34.
+the static-graph-0 (`COURSE/C00`) switchback's leg-17 midpoint lies on leg
+16's axis: first-match zone containment pins its sequential progress at 16 of
+34.
 
 The waypoint walk uses the ordered ROM-derived centerline directly. It has no
 overlapping containment region to choose between, so a cursor can traverse all
@@ -26,7 +27,8 @@ checkpoint behavior.
 
 ## Disc evidence
 
-With the user's `SLUS_203.98`, static graph 0 (candidate Peach Town) builds a
+With the user's `SLUS_203.98`, static graph 0 (`COURSE/C00` race route —
+relabelled 2026-10-16 per scene-tile-map.md; it is not Peach Town) builds a
 closed `NavPath` with pinned length **1652.558** tile-local units. A 10-unit
 cursor step visits 100% of that length, returns within `1e-3` of its start, and
 reports node coverage 34/34. The independent containment bridge remains
@@ -68,8 +70,8 @@ aliases of 6 and 15, respectively.
 | claim | status |
 |---|---|
 | Constructed ROM centerlines can be walked end-to-end without containment ambiguity | PROVEN for all 21 populated static entries under host `buildNavPath` ordering |
-| Candidate Peach Town centerline completes a closed 1652.558-unit lap | PROVEN |
-| Peach Town authored containment progress reaches 34 zones | REJECTED; it remains pinned at 16/34 by the documented switchback overlap |
+| Static graph 0 (`COURSE/C00`) centerline completes a closed 1652.558-unit lap | PROVEN |
+| Static graph 0 (`COURSE/C00`) authored containment progress reaches 34 zones | REJECTED; it remains pinned at 16/34 by the documented switchback overlap |
 | ROM geometry alone proves a vehicle can drive every route | OPEN — car dynamics, collision/road surface, and placement are outside this walk |
 | The host ordering matches the game's branch choices at every junction | OPEN — `buildNavPath` has an explicit straight-ahead policy |
 | A route has a proven junction-choice/checkpoint policy | OPEN |
