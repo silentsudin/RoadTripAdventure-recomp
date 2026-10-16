@@ -44,7 +44,7 @@ dereferenced — the GIF consumes everything inline.
 | `T+16` | 16 | tool junk — serialized C++ object-header remnant (`04 00 00 00` + host pointers). Part of the GIF payload stream but field-masked into harmlessness |
 | `T+32` | 64 | four GIF A+D packed quads `{u64 value, u32 reg}`: regs `0x50 BITBLTBUF`, `0x51 TRXPOS`, `0x52 TRXREG`, `0x53 TRXDIR` |
 | `T+96` | 16 | GIF IMAGE-mode tag (FLG = 2), `NLOOP = image_bytes/16`; hi qword = tool junk (ignored) |
-| `T+112`| `NLOOP*16` | raw image data, byte-exact `w*h*bpp/8`, never padded |
+| `T+112`| `NLOOP*16` | raw image data; span = `NLOOP·16` ≥ `ceil(w·h·bpp/8)`. Byte-exact for all but **four PSMT4 units** whose non-quad-aligned logical sizes (`SELECT` 200×150, `METER4` 40×150 + 140×36, `METER5` 28×55) round up through NLOOP with <16 B overhang (the qwc invariant is unaffected) |
 
 **Invariant (asserted on all 1142 units): `qwc * 16 == 96 + NLOOP*16`.**
 
@@ -66,8 +66,12 @@ Every texture unit is immediately followed by its palette unit (surplus count no
 (a 16-entry palette is `16×2` in CT32 or `16×2`…`16×16` in CT16 — TRXREG just sizes the
 VRAM block; entry count is what matters.)
 
-Corpus: **1142 upload units across all 49 files** — **SYS: 968 units** (= 483 textures
-[440 PSMT4 + 43 PSMT8] + 485 CLUTs, 1:1 pairing with two surplus palette-only uploads)
+Corpus: **1142 upload units across SYS+ITEM (49 files)** — **SYS: 968 units** (= **485
+textures** [440 PSMT4 + 43 PSMT8 + **2 PSMCT24 32×32** at `SYS/S00.GSL` `0x1440`/`0x12710`]
++ **483 CLUTs** [393 CT32 16×2 + 47 CT16 16×16 + 43 CT32 16×16]; every palette immediately
+follows its texture — strict 1:1 with **zero surplus palettes**; the two surplus uploads are
+the CT24 textures in `S00`. *(An earlier pass had the texture/CLUT counts inverted and called
+the surplus uploads palette-only; corrected against the full-corpus extraction.))*
 + **ITEM: 174 units** (`METER0..10` 52 + `PARTS` 122). *(The original pass quoted 968 as
 the corpus total; the re-walk shows that figure covers SYS only.)*
 
@@ -138,7 +142,7 @@ All 37 `SYS/*.GSL` + 12 `ITEM/*.GSL` parse to a clean END tag. Shape = `psm widt
 | `OPTION2.GSL` | 2 | T8 256×128 + CT32 (options screen) |
 | `POSE.GSL` | 8 | T8 256×128, T4 256×256, 2× T4 256×128 + 4 CLUTs (notebook poses) |
 | `SCORE.GSL` | 6 | 2× T4 256×256 + T8 64×64 + 3 CT16 |
-| `SCOREA00..20.GSL` (21) | 4–26 | per-race score screens; the size-twins share `{2× T4 256×256 + CT16}`; `SCOREA05` 9× T8 192×320 + 2× T4 256×256 + 256×40 + 64×64; `SCOREA06` 2× T8 **640×448** + SCORE-like tail; `SCOREA07` 7× T4 256×256 + 256×40 + 64×64×2 with 16×2 CT32s |
+| `SCOREA00..20.GSL` (20 files — `SCOREA16.GSL` does not exist on disc) | 4–26 | per-race score screens; the size-twins share `{2× T4 256×256 + CT16}`; `SCOREA05` 9× T8 192×320 + 2× T4 256×256 + 256×40 + 64×64; `SCOREA06` 2× T8 **640×448** + SCORE-like tail; `SCOREA07` 7× T4 256×256 + 256×40 + 64×64×2 with 16×2 CT32s |
 | `EFFECT.GSL` | 72 | 30× T4 32×32, 6× T4 64×32, 36× 16×2 CT32 (garage parts staging) |
 | `STAMP.GSL` | 202 | 100× {T4 64×64 + 16×2 CT32} pairs + T8 192×192 + 16×16 CT32 head (stamp-note icons) |
 | `PUTI.GSL` | 204 | T8 192×192 + T4 320×128 head + 100× {T4 64×47 + 16×2 CT32} pairs |
@@ -159,10 +163,15 @@ CSM1 CLUT) to `FONTE.GSL`:
 
 - Unit 0 declares TRXREG **512×384 PSMT4**; image data occupies file `0x70..0x18070`
   (98,304 B = 512·384/2 exactly). Rows are 256 B = 512 px, linear (no GS swizzle on disc).
-- **Cell geometry:** 16 px wide × **12 px pitch**, 32 columns × 32 rows = 1024 slots;
-  slot `i` at `(col = i%32, row = i//32)`. **ASCII-ordered starting at slot 0 = `0x20`
-  (space)**: slot 1 `!`, 2 `"`, 3 `#`, 4 `$`, 5 `%`, 6 `&`, 7 `'` … caps `A..G` render
-  cleanly at slots 33–39, e.g. (`#`=index 2, `+`=3, `.`=1, space=0):
+- **Cell geometry (corrected by full decode, `assets/glyph_atlas.cpp`):** 16 px wide ×
+  **24 px pitch**, 32 columns × 16 rows = **512 slots** — the earlier 12-px/1024-slot
+  reading was wrong (text rows land on exact 24-px boundaries; the 12-px grid split every
+  glyph across two bands and put slot 33 on a zero row). Glyph stream starts at
+  slot 0 = `0x21` (`!`), **31 characters per row**, each row's col-31 slot holding a
+  coloured icon (circled numerals / button art in the yellow ramp). Char→slot:
+  `g = code−0x21; slot = (g/31)*32 + (g%31)` — verified `A`=33, `^`=62, `_`=64
+  (row 2 col 0), `` ` ``=65, with pixel-perfect A/B/C/D renders at slots 33–36 (both
+  numbering schemes coincide there, e.g. (`#`=index 2, `+`=3, `.`=1, space=0):
 
   ```
   A            B            C            D
@@ -178,16 +187,35 @@ CSM1 CLUT) to `FONTE.GSL`:
   gray outline), **2 = `0x7fff` (white — the glyph core)**, 4 = light gray, 7 = mid gray,
   5/6/8–15 = warm yellow ramp (the UI accent color family). Index histogram over the atlas
   uses all 16 logical entries, dominated by 0 (background).
-- **Alpha quirk [OPEN]:** every CT16 entry has the alpha bit clear, including the white
-  core (`0x7fff`). Text is plainly visible in game, so CLUT alpha is either overridden
-  (TEXA/blending setup) or inverted by the draw path — not resolvable statically here.
+- **Alpha (ratified convention):** every CT16 entry has the alpha bit clear, including the
+  white core (`0x7fff`). The native decoder follows `image_converter`'s TEXA/AEM convention
+  (TEXA 0x80 → nonzero alpha = 255, palette entry 0 transparent) — renders correct glyphs
+  in the app; byte-exact against the `convertImage` oracle.
 - **Verdict: MATCH.** The FLD palette grammar decodes the font byte-exact; `FONT.GSL` is
   the same container with a different (JP) glyph payload — 39,430 differing bytes, only 3
   differing bytes in the first `0x70` (tool pointers). Whether FONT's slots beyond ASCII
   follow Shift-JIS index order is [OPEN].
 
 `DrawDialogTextLine` (`0x00202D10`) / `FUN_002017B0` glyph loop draw from this atlas;
-the glyph metrics (16×12 advance grid) above are the values their sprite code must assume.
+the **16×12 grid is the text-layout advance** (12-px line advance over 24-tall shadowed
+bitmaps), not the atlas cell pitch — atlas geometry is 16×24 per the correction above.
+
+### Full-corpus extraction (rt-pack-extract, PROVEN over the user's disc)
+
+`src/native/tools/pack_extract_main.cpp` + `pack_catalog.hpp` catalog all **222 packs /
+1490 units** (SYS 37, ITEM 12, SHOP 22, CAR 151), validate `qwc==6+NLOOP` on every unit,
+and emit deterministic JSON catalogs (two runs byte-identical; `native_assets_packs_integration_test`).
+Notes established by that pass:
+
+- **`.lbn_map.tsv` column 3 is BYTES** (equals the real file size on all 376 mapped
+  entries), not sectors; sectors = `ceil(bytes/2048)`.
+- **SHOP layout:** `T00..T20.BIN` = texture chain at file offset 0 (T8 640×384 + CT32
+  16×16, END at `0x3c510`) + trailing model payload; `GARAGE.BIN` starts with a 16-byte
+  region directory, chain `0x19990..0x52380` (2 tex + 2 pal) + trailing payload.
+- CAR pack chains are **CNT (ID 1), not REF** — see `car-data-status.md` correction.
+- `convertImage()` cannot decode pack units directly (packs carry 16 B tool junk where the
+  strict FLD A+D parse demands a GIF packet header); `pack_catalog.hpp` mirrors its proven
+  bitfield extraction read-only instead.
 
 ---
 

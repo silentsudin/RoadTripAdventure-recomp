@@ -103,9 +103,12 @@ because each car carries its own livery texture (verified: Q00 vs Q01 differ in
 
 | rel. offset | frame | contents |
 |---|---|---|
-| `+0x0000` | REF `qwc 0x406` | 128×128 **PSMT8** (`0x13`) upload → **DBP 0, DBW 2** |
-| `+0x4070` | REF `qwc 70` | 16×16 **PSMCT32** upload → **DBP 64** (256-entry CLUT) |
+| `+0x0000` | **CNT** `qwc 0x406` (DMA tag ID 1, byte 3 = `0x10`; qword0 `0x0000000010120406`) | 128×128 **PSMT8** (`0x13`) upload → **DBP 0, DBW 2** |
+| `+0x4070` | **CNT** `qwc 70` | 16×16 **PSMCT32** upload → **DBP 64** (256-entry CLUT) |
 | `+0x44e0` | END | terminator |
+
+*(These are CNT tags with inline payloads, not REF — corrected by full-corpus extraction;
+only the CNT reading satisfies `qwc == 6 + NLOOP` (1030 = 6+1024, 70 = 6+64).)*
 
 151/151 files END-terminated, 302 uploads total (151 textures + 151 palettes),
 DSAX/DSAY zero, payload byte-exact (`128·128` and `16·16·4` bytes), no parse
@@ -163,7 +166,7 @@ concept.
 fatals if word 6 > 0x34000, `memmove`s **only word-6 bytes** into
 `carModelData + slot*0x34000`, rebuilds the six model pointers as
 `&carModels[slot*6 + i] = dest + word_i`, then walks the staged texture chain
-(REF/END tags, exactly the FLD frame grammar) applying the DBP rebase above
+(CNT/END tags, exactly the FLD frame grammar) applying the DBP rebase above
 and DMA-sends it via `sendTexturePackets`. The model region and texture chain
 are consumed by different paths — models copied, textures streamed from the
 0x100000 staging buffer.
