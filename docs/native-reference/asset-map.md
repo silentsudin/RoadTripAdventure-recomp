@@ -201,7 +201,7 @@ double bookkeeping, not contention. This is the *only* duplicated file set in th
 - **ACTION types 18..38** through the `0x50000` misc loader — inferred from physical
   adjacency/stride; confirm with one live town-demo load or by tracing task-spawn tag bytes.
 - ~~Unreachable tile-id spawn path~~ — **RESOLVED 2026-10-16**: scripted scene table
-  @`0x2be438` (see tile-id re-use verdict above); residual opens: id=64 anomaly, `+6` field.
+  @`0x2be438` (fully decoded below, including the former id=64 and `+6` residuals).
 - `functions.tsv` naming drift: `0x0020CC30 CheckInputMapping`, `0x0020CD10
   UpdateInputMapping`, `0x0020CDC0 DispatchInputMapping` are actually asset steps
   (car-model reload / reload-variant / shop-pack state machine driving table E and D bases)
@@ -209,3 +209,86 @@ double bookkeeping, not contention. This is the *only* duplicated file set in th
 
 Method artifacts: scan/match scripts run from `/tmp` (ELF phdr map + tag-run grouping + LBN
 join); no game bytes committed.
+
+## Scripted scene->tile table — residuals resolved
+
+**Table boundary and format (PROVEN):** the contiguous record run is exactly
+`0x2BE438..0x2BE537`, **32 entries × 8 bytes**.  It begins with the descending
+`0x328770, 0x328760, …` pointer column and ends immediately before unrelated
+float data at `0x2BE538`.  Each little-endian record is
+`{ u32 namePtr, u16 tileId, u8 residentStart, u8 residentCount }`; the old
+`extra` spelling below is the convenient packed display
+`extra = residentStart | residentCount<<8`.
+
+`FUN_00210158` reads those last two bytes separately (`+6` then `+7`), walks
+`residentCount` records starting at `residentStart` through the per-scene
+resident/progress lookup, and spawns `0x370400 | residentCount`.  Thus the
+apparent `0x0Axx`/`0x0Bxx` cluster is **not a tile property or asset-pack
+selector**: it is primarily a count of 10/11, paired with a resident-list
+start index.  This resolves the `+6` field's role; the identities/meaning of
+every individual resident/progress record remain outside this table.
+
+For ids 0..63, filename is the proven FLD mapping
+`id=(A<<4)|(B<<2)|swap2(C)`.  `bad` marks the ids that fail the car-walk
+parity condition `id[4] == id[0]`.  The disc extract contains every resulting
+`FLD/ABC.BIN`; the human scene strings are locations/POIs rather than alternate
+disc filenames.  `SJIS` means the pointed string is non-ASCII Shift-JIS bytes;
+it is deliberately not guessed as an English name here.
+
+| # | tile id | FLD filename | name string at `namePtr` | extra | bad |
+|---:|---:|---|---|---:|:---:|
+| 0 | 11 | `023.BIN` | `Peach Town` | `0x0001` | yes |
+| 1 | 43 | `223.BIN` | `Fuji City` | `0x0B1C` | yes |
+| 2 | 23 | `113.BIN` | `Sandpolis` | `0x0B1D` | no |
+| 3 | 7 | `013.BIN` | `Chestnut Canyon` | `0x0921` | yes |
+| 4 | 19 | `103.BIN` | `Mushroom Road` | `0x0B11` | no |
+| 5 | 36 | `210.BIN` | `White Mountain` | `0x000B` | no |
+| 6 | 35 | `203.BIN` | `Papaya Island` | `0x0A1B` | yes |
+| 7 | 47 | `233.BIN` | `LightHouse` | `0x0A1C` | yes |
+| 8 | 64 | — (see anomaly) | `Cloud Hill` | `0x0B0E` | n/a |
+| 9 | 11 | `023.BIN` | `???` | `0x0617` | yes |
+| 10 | 39 | `213.BIN` | `Bridge` | `0x0004` | yes |
+| 11 | 40 | `220.BIN` | `UFO` | `0x0004` | no |
+| 12 | 22 | `111.BIN` | `Ruins` | `0x0004` | yes |
+| 13 | 5 | `012.BIN` | `022` | `0x0105` | yes |
+| 14 | 6 | `011.BIN` | SJIS | `0x0004` | no |
+| 15 | 9 | `022.BIN` | `022` | `0x0006` | yes |
+| 16 | 20 | `110.BIN` | `110` | `0x0002` | yes |
+| 17 | 24 | `120.BIN` | `120` | `0x0001` | yes |
+| 18 | 33 | `202.BIN` | `202` | `0x0103` | yes |
+| 19 | 37 | `212.BIN` | `212` | `0x0004` | yes |
+| 20 | 42 | `221.BIN` | `221` | `0x0001` | no |
+| 21 | 45 | `232.BIN` | `232` | `0x0001` | yes |
+| 22 | 64 | — (see anomaly) | SJIS | `0x1400` | n/a |
+| 23 | 47 | `233.BIN` | SJIS | `0x0B00` | yes |
+| 24 | 35 | `203.BIN` | SJIS | `0x0B00` | yes |
+| 25 | 5 | `012.BIN` | SJIS | `0x0100` | yes |
+| 26 | 19 | `103.BIN` | SJIS | `0x0B00` | no |
+| 27 | 43 | `223.BIN` | SJIS | `0x0B00` | yes |
+| 28 | 40 | `220.BIN` | SJIS | `0x0000` | no |
+| 29 | 23 | `113.BIN` | SJIS | `0x0B00` | no |
+| 30 | 9 | `022.BIN` | SJIS | `0x0000` | yes |
+| 31 | 7 | `013.BIN` | SJIS | `0x0B00` | yes |
+
+**Grid picture:** the 30 in-range entries cover town/POI placements across
+`A=0..2` and include 21 parity-invalid uses (repeated ids counted):
+`{5, 7, 9, 11, 20, 22, 24, 33, 35, 37, 39, 43, 45, 47}`.
+Examples: `11 -> 023.BIN`, `43 -> 223.BIN`, `35 -> 203.BIN`, and
+`47 -> 233.BIN`.  This is the concrete scripted route to the formerly
+unreachable half of the FLD id space.
+
+**id=64 anomaly (PROVEN, not a FLD tile):** both table entries with `tileId`
+64 spawn tag `0x390040`.  Category 9 dispatch has no bounds check and computes
+the descriptor as `0x29BB50 + (tag&0xFF)*12`; index 64 is the first physical
+record after FLD 0..63, namely **`COURSE/C00.BIN`**.  It is then passed to
+`loadFieldTile` with logical id 64 and slot 0, so this is an intentional (or at
+least unguarded) cross-subtable load, not a nonexistent `FLD/` file.  More
+generally, tags `0x390041..0x390066` would mechanically select the adjacent
+COURSE/ACTION descriptor records because the same unchecked base/stride
+continues through index 102; this table only demonstrates index 64.  No other
+producer of a category-9 non-FLD index was established by this static pass.
+
+**Residual OPEN:** precise gameplay semantics of each `residentStart` list and
+why the two entries that select `COURSE/C00.BIN` do so still
+need runtime/script evidence.  The table extent, all ids/names, parity route,
+descriptor outcome, and byte-level `+6/+7` interpretation are resolved.
