@@ -153,9 +153,13 @@ and `BITBLTBUF.DPSM=0x13` (PSMT8), so the 4,096-byte payload is complete.
 PSMT4 pages 128x128, two 64x64, and 32x32; one 16x16 PSMCT32 CLUT; and two
 16x2 PSMCT32 palette transfers. The latter are palette records, not texture
 pages. Five `/tmp/rt-tex/*-p8-*.png` samples are deliberately grayscale
-linear-index diagnostics; they prove dimensions/payload extent, but are not
-final visual decodes because GS PSMT8/4 swizzling and CLUT addressing still
-need emulation.
+linear-index diagnostics; they prove dimensions/payload extent. ~~GS PSMT8/4
+swizzling and CLUT addressing still need emulation~~ — **resolved
+2026-10-16**: see `field-texture-rendering.md`; the uploads are
+payload-linear (VRAM swizzle round-trips away), CLUT words index via
+`swapBits34(csa*16 + entry)`, PSMT4 is low-nibble-first, and PSMCT24 uses
+AEM (rgb==0 transparent) — oracle-verified 45,056/45,056 RGB-exact on
+003.BIN indexed pages.
 
 Corpus total: **3,097** GIF IMAGE transfers: PSMT8 `467`, PSMT4 `1,541`,
 PSMCT32 `1,084`, PSMCT24 `5`. Size/format count is bounded by the transfers
@@ -265,10 +269,14 @@ into a GS-page map keyed by DBP/PSM, then resolve each cell TEX0's `TBP0` and
 `CBP`. Every WorldStrip group in that cell inherits the same sampler state;
 its GIF tag identifies only primitive packing, not a material switch.
 
-**OPEN:** the first implementation may use the exact page/palette relation
-above, but must not call grayscale linear-index output an authentic texture
-decode. Remaining work is GS memory-layout swizzling for PSMT4/PSMT8, CLUT
-CSM/CSA permutation, and PSMCT24 handling. A falsifier for the established
+**RESOLVED 2026-10-16** (`field-texture-rendering.md`,
+`decodeFieldTextures()`): the exact page/palette relation above is implemented
+and oracle-verified — payload-linear storage (GS VRAM swizzle never needs
+emulation because IMAGE writes and sampler reads use identical layout), CLUT
+CSM1 word permutation `swapBits34(csa*16 + entry)`, PSMT4 low-nibble-first,
+PSMCT24 AEM. The earlier grayscale diagnostics are superseded; corpus
+indexed-texel palette resolution is 93.3% with terrain triangles at 100%.
+A falsifier for the established
 cell->page mapping would be a valid header TEX0 whose `TBP0/PSM/TW/TH` cannot
 be resolved to a preceding staged IMAGE transfer after replaying the tile's
 GIF packets. None of the 3,028 parsed headers produced that evidence in this
