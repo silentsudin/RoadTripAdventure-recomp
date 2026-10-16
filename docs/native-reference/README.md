@@ -41,6 +41,7 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`audio-map.md`](audio-map.md) | SOUND inventory (30 files), music id grammar `0x0A II PP 01` + file table @`0x29ADF0` (29/29 LBN-verified), race-BGM table, radio = VAG streams verdict, SFX path | current |
 | [`car-data-status.md`](car-data-status.md) | CAR pack: 154/154 table-E join, 12-word header grammar, self-textured cars (constant 0x4510 chain, per-car liveries), DBP rebase, cat-0xB/0x7 consumer trace | current |
 | [`rules-tables.md`](rules-tables.md) | Economy + progression tables: money mutator @`0x23DC58` (single purse funnel, seed 1000, cap 999999), payout ladder @`0x29FCB8` 5×6, race records @`0x2BDDD0`, mileage-exchange income @`0x23A140` (no taxi/entry fees — bounded negative), gate-pair table @`0x2A2B70`, golf @`0x2AC0C0` (par 36) + slot @`0x2D9980`, part spec tables (tires/gearbox/chassis/engine/steering/brakes/horn), day/night step clocks+durations @`0x2DCD28/0x2DCD50` (u16 correction) | current |
+| [`minigame-logic.md`](minigame-logic.md) | Per-venue gameplay logic: result channel `0x23D8C8` tiers, golf `min(strokes+1,99)−par` @`0x252738`, gate `min(time+300·pen,360000)` @`0x25AA58`, frame-gated repeat tiers (4200/10800/7200/3000/480), goal-area polarity @`0x260754`, balloon/collection sensors; entry unlocks OPEN | current |
 | [`tsq-tvb-format.md`](tsq-tvb-format.md) / [`sndmod-irx.md`](sndmod-irx.md) | Music stack | done |
 
 Code: `src/native/assets/field_converter.{h,cpp}` (packets, textures, terrain),
