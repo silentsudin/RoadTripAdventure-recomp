@@ -32,6 +32,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace {
@@ -347,11 +348,66 @@ int envFrames() { const char* value = std::getenv("RT_APP_FRAMES"); return value
 // RT_APP_TERRAIN=1 replaces the flat grass quad with real terrain extracted
 // from shipped FLD tiles in the disc extract.  Default renders the full
 // 64-tile world grid; RT_APP_TERRAIN_FILE=PATH overrides with one explicit
-// tile.  Absent/malformed input falls back to the authored quad, never a
-// failure.
+// tile.  RT_APP_TEXTURES=1 additionally decodes each tile's GS uploads to
+// RGBA8 (decodeFieldTextures) and streams per-vertex page-fraction UVs so
+// the preview draws with the authentic textures; pages are deduplicated
+// across tiles by content.  Absent/malformed input falls back to the
+// authored quad (or the banded mesh), never a failure.
+namespace {
+std::uint64_t textureContentHash(const rt::native::assets::FieldTexturePage& page) {
+    std::uint64_t h = 1469598103934665603ull;
+    const auto mix = [&h](const std::uint8_t* b, std::size_t n) {
+        for (std::size_t i = 0; i < n; ++i) { h ^= b[i]; h *= 1099511628211ull; }
+    };
+    const std::uint32_t dims[2] = {page.width, page.height};
+    mix(reinterpret_cast<const std::uint8_t*>(dims), sizeof(dims));
+    mix(page.rgba.data(), page.rgba.size());
+    return h;
+}
+
+// Appends one tile's decoded pages to mesh.textures (deduplicated) and
+// rewrites the patch's triangle page ids to the global indices.
+void appendTexturedTile(rt::native::preview::TerrainMesh& mesh,
+                       const rt::native::assets::FieldTexturedTerrain& tile,
+                       float xOffset, float zOffset,
+                       std::unordered_map<std::uint64_t, std::uint32_t>& pagesByHash) {
+    const std::uint32_t vertexBase = static_cast<std::uint32_t>(mesh.positions.size());
+    for (std::size_t i = 0; i < tile.patch.positions.size(); ++i) {
+        auto p = tile.patch.positions[i];
+        p[0] += xOffset;
+        p[2] += zOffset;
+        mesh.positions.push_back(p);
+        mesh.uvs.push_back(tile.patch.uvs[i]);
+    }
+    for (std::uint32_t i : tile.patch.indices) mesh.indices.push_back(vertexBase + i);
+    mesh.triangleMaterials.reserve(mesh.triangleMaterials.size() + tile.patch.indices.size() / 3);
+    mesh.triangleTexture.reserve(mesh.triangleTexture.size() + tile.patch.triangleTexture.size());
+    for (std::size_t t = 0; t < tile.patch.triangleTexture.size(); ++t) {
+        const std::int32_t local = tile.patch.triangleTexture[t];
+        std::int32_t global = -1;
+        if (local >= 0 && static_cast<std::size_t>(local) < tile.patch.pages.size()) {
+            const auto& page = tile.patch.pages[static_cast<std::size_t>(local)];
+            const auto hash = textureContentHash(page);
+            auto it = pagesByHash.find(hash);
+            if (it == pagesByHash.end()) {
+                global = static_cast<std::int32_t>(mesh.textures.size());
+                pagesByHash.emplace(hash, static_cast<std::uint32_t>(global));
+                mesh.textures.push_back({page.width, page.height, page.rgba});
+            } else {
+                global = static_cast<std::int32_t>(it->second);
+            }
+        }
+        mesh.triangleTexture.push_back(global);
+        mesh.triangleMaterials.push_back(local < 0 ? 0u : static_cast<std::uint32_t>(local));
+    }
+}
+} // namespace
+
 rt::native::preview::TerrainMesh loadTerrainMesh() {
     rt::native::preview::TerrainMesh mesh;
     if (std::getenv("RT_APP_TERRAIN") == nullptr) return mesh;
+    const bool wantTextures = std::getenv("RT_APP_TEXTURES") != nullptr;
+    std::unordered_map<std::uint64_t, std::uint32_t> pagesByHash;
     const std::filesystem::path root = [] {
         if (const char* value = std::getenv("RT_DISC")) return std::filesystem::path(value);
         if (const char* home = std::getenv("HOME"))
@@ -365,6 +421,22 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         if (!input) { std::cout << "rt-app terrain: SKIP (no tile at " << path << ")\n"; return mesh; }
         const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
                                              std::istreambuf_iterator<char>());
+        if (wantTextures) {
+            auto textured = rt::native::assets::buildFieldTexturedTerrain(bytes, 0.1f);
+            if (!textured) {
+                std::cout << "rt-app terrain: textured build failed for " << path.filename().string()
+                        << " (err=" << static_cast<int>(textured.error()) << ")\n";
+                return mesh;
+            }
+            appendTexturedTile(mesh, *textured, 0.f, 0.f, pagesByHash);
+            std::cout << "rt-app terrain: loaded " << path.filename().string()
+                      << " triangles=" << mesh.indices.size() / 3
+                      << " pages=" << mesh.textures.size()
+                      << " clut hits/alias/miss=" << textured->clutHits << '/'
+                      << textured->clutAliasHits << '/' << textured->clutMisses
+                      << " unresolved=" << textured->unresolvedTriangles << "\n";
+            return mesh;
+        }
         const auto catalog = rt::native::assets::catalogFieldTile(bytes);
         if (!catalog) { std::cout << "rt-app terrain: catalog failed for " << path << "\n"; return mesh; }
         auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
@@ -387,6 +459,7 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         return mesh;
     }
     std::size_t tilesLoaded = 0;
+    unsigned long long clutHits = 0, clutAlias = 0, clutMiss = 0, unresolved = 0;
     for (std::size_t id = 0; id < rt::native::assets::kFieldTileCount; ++id) {
         const std::string& name = (*index)[id].fileName;
         if (name.empty()) continue;
@@ -394,14 +467,25 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         if (!input) continue;
         const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
                                              std::istreambuf_iterator<char>());
-        const auto catalog = rt::native::assets::catalogFieldTile(bytes);
-        if (!catalog) continue;
-        auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
-        const std::uint32_t vertexBase = static_cast<std::uint32_t>(mesh.positions.size());
         // Center the 16x4 slot grid on the origin so the spawn car starts on
         // solid ground (cols 0..15, rows 0..3; half-tile stagger steps of 80).
         const float xOffset = static_cast<float>(id & 0xFu) * 80.0f - 8.0f * 80.0f;
         const float zOffset = static_cast<float>(id >> 4) * 160.0f - 1.5f * 160.0f;
+        if (wantTextures) {
+            auto textured = rt::native::assets::buildFieldTexturedTerrain(bytes, 0.1f);
+            if (!textured) continue;
+            appendTexturedTile(mesh, *textured, xOffset, zOffset, pagesByHash);
+            clutHits += textured->clutHits;
+            clutAlias += textured->clutAliasHits;
+            clutMiss += textured->clutMisses;
+            unresolved += textured->unresolvedTriangles;
+            ++tilesLoaded;
+            continue;
+        }
+        const auto catalog = rt::native::assets::catalogFieldTile(bytes);
+        if (!catalog) continue;
+        auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
+        const std::uint32_t vertexBase = static_cast<std::uint32_t>(mesh.positions.size());
         mesh.positions.reserve(mesh.positions.size() + terrain.positions.size());
         for (auto& p : terrain.positions) {
             p[0] += xOffset;
@@ -416,7 +500,13 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         ++tilesLoaded;
     }
     std::cout << "rt-app terrain: tiles=" << tilesLoaded
-              << " triangles=" << mesh.indices.size() / 3 << "\n";
+              << " triangles=" << mesh.indices.size() / 3;
+    if (wantTextures) {
+        std::cout << " pages=" << mesh.textures.size()
+                  << " clut hits/alias/miss=" << clutHits << '/' << clutAlias << '/' << clutMiss
+                  << " unresolved=" << unresolved;
+    }
+    std::cout << "\n";
     return mesh;
 }
 

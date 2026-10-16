@@ -247,6 +247,103 @@ struct FieldCellStrips {
 expected<std::vector<FieldCellStrips>, FieldTileError>
 extractCellStrips(std::span<const std::uint8_t> tileFile);
 
+// ── texture-page decode ──────────────────────────────────────────────────
+//
+// GS VRAM stores PSMT8/PSMT4 pages block-swizzled (page 8 KiB: PSMT8
+// 128x64 px of 16x16-px blocks, PSMT4 128x128 px of 16x32-px blocks,
+// PCSX2 GSTables _blockTable8/_blockTable4 + column tables).  The host never
+// needs that layout: the tile file carries GIF IMAGE transfer payloads, and
+// an IMAGE transfer's payload is linear row-major within its box, while the
+// sampler that later reads the page walks the same swizzle the write used.
+// The two round-trip to identity at payload level, so decoding straight from
+// the payload is exact.  Pinned oracle-verified (rt_texture_extract against
+// FLD/003.BIN): 45,056/45,056 pixels RGB-exact for the four indexed pages
+// with payload-linear pixels (PSMT4 low nibble first) and CLUT words read at
+// swappedBits34(csa * 16 + entry); applying the VRAM swizzle to the payload
+// instead scores 1.07% on the same images.
+struct FieldTexturePage {
+    std::uint32_t tagOffset = 0;   // upload key; the oracle join key is
+                                   // tagOffset + 16 == sources.csv offset
+    std::uint32_t dbp = 0;
+    std::uint32_t psm = 0;        // 0x13 PSMT8, 0x14 PSMT4, 0x01 PSMCT24, 0x00 PSMCT32
+    std::uint32_t width = 0;
+    std::uint32_t height = 0;
+    std::uint32_t bank = 0;       // CLUT bank (TEX0.CSA) baked into rgba
+    bool paletteResolved = false; // CLUT-shaped upload attached
+    bool paletteAliased = false;  // CBP names a non-CLUT upload (232.BIN alias)
+    std::vector<std::uint32_t> clutWords;  // raw CLUT upload payload (swappedBits34 positions)
+    std::vector<std::uint8_t> rgba;        // width*height*4, R at byte 0, alpha 0..255
+};
+
+struct FieldTextureDecode {
+    std::vector<FieldTexturePage> pages;  // every non-CLUT upload, chain order
+    std::vector<std::int32_t> pageIndexByUpload;  // parallel to fieldTextureCatalog();
+                                                  // -1 at CLUT-shaped uploads
+    std::uint32_t clutHits = 0;      // indexed pages with a CLUT-shaped attach
+    std::uint32_t clutAliasHits = 0; // CBP page resolves to a non-CLUT upload
+    std::uint32_t clutMisses = 0;    // no CLUT at all: grayscale fallback
+    std::uint32_t totalIndexPixels = 0;  // PSMT8/PSMT4 page texels
+    std::uint32_t rgb8Pixels = 0;       // indexed texels whose CLUT resolved via
+                                        // a CLUT-shaped upload (tag or material)
+};
+
+// Replays fieldTextureCatalog() and decodes every texture upload to RGBA8.
+// CLUT attach order: the trailing CLUT recorded in the upload, else the CBP
+// bound by the first cell material that names this texture (banks come from
+// that material's TEX0.CSA), else any upload sitting on the CBP page (the
+// 232.BIN cbp=0x31B7 aliasing), else a grayscale fallback (counted as a
+// miss).  Alpha follows the reference export: byte0 = R, GS 0..128 alpha
+// scaled by min(255, a * 255 / 128), AEM-empty entries fully transparent.
+expected<FieldTextureDecode, FieldTileError>
+decodeFieldTextures(std::span<const std::uint8_t> tileFile);
+
+// ── textured terrain patch ───────────────────────────────────────────────
+
+// One triangle-list terrain with per-vertex page-fraction UVs and one
+// texture-page id per triangle (-1 = unresolved; renderers should fall back
+// to a white dummy).  Positions map (x, height, y) * scale exactly like
+// buildFieldRenderTerrain.  UVs are the raw STQ s/t floats — GS page
+// fractions (1.0 spans a texture; PCSX2 GetTexCoordsImpl proves
+// pixel = st / q * 2^TW|TH); the q slot carries the additive alpha
+// (alphaAdd) and is 1.0 for 99.97% of the corpus, so the stored s/t are
+// already the page fractions the sampler uses.  Measured over the 64-tile
+// corpus (1,749,827 vertices): u spans [-39.5, 39], t spans [-21.32,
+// 21.0], and 50.6% of vertices land inside the unit page — REPEAT
+// wrapping at integer bounds reproduces what the GS sees.
+struct FieldTexturedPatch {
+    std::vector<std::array<float, 3>> positions;
+    std::vector<std::array<float, 2>> uvs;              // parallel to positions
+    std::vector<std::uint32_t> indices;                 // triangle list
+    std::vector<std::int32_t> triangleTexture;          // index into pages
+    std::vector<FieldTexturePage> pages;
+};
+
+struct FieldTexturedTerrain {
+    FieldTexturedPatch patch;
+    std::uint32_t cells = 0;              // cells contributing at least one strip
+    std::uint32_t stripTriangles = 0;    // triangles after strip expansion
+    std::uint32_t distinctTextureIds = 0;  // distinct material texture ids
+    std::uint32_t uniqueTextureIds = 0;    // ids used by exactly one texture
+    std::uint64_t textureArea = 0;       // sum of page w*h over distinct ids
+    double projectedArea = 0.0;          // sum of |triangle area| in the XZ plane
+    double unsignedCoverage = 0.0;      // textureArea / projectedArea
+    float maxAbsU = 0.0f;
+    float maxAbsT = 0.0f;
+    std::uint32_t clutHits = 0;
+    std::uint32_t clutAliasHits = 0;
+    std::uint32_t clutMisses = 0;
+    std::uint32_t unresolvedTriangles = 0;
+};
+
+// Builds the textured patch from the cell strip chains: each WorldStrip is a
+// TRI_STRIP (GIF PRIM 0x27c) expanded into consecutive triples, its vertices
+// carrying position, s/t and alphaAdd; the triangle takes the texture page of
+// the strip's bound material (materials switch mid-chain; each @0x192 header
+// re-arms the next strips).  Strips whose material names no uploaded page
+// get page id -1.
+expected<FieldTexturedTerrain, FieldTileError>
+buildFieldTexturedTerrain(std::span<const std::uint8_t> tileFile, float scale);
+
 expected<FieldTileHeader, FieldTileError>
 parseFieldTileHeader(std::span<const std::uint8_t> tileFile);
 

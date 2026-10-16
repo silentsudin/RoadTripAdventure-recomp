@@ -1181,6 +1181,299 @@ void testCatalogCorpusWhenAvailable() {
 
 } // namespace
 
+// ── decodeFieldTextures / buildFieldTexturedTerrain ──────────────────────
+//
+// Decode rules pinned against the reference oracle (rt_texture_extract):
+// payload-linear row-major pixels (applying the GS VRAM swizzle to the
+// payload scores 1.07% — it round-trips away between IMAGE write and
+// sampler), PSMT4 low nibble first, CLUT entry colour at
+// swappedBits34(bank * 16 + entry), word byte0 = R, GS alpha 0..128 scaled
+// by min(255, a * 255 / 128), PSMCT24 alpha via AEM (rgb == 0 transparent,
+// else opaque 0x80).  See docs/native-reference/field-texture-rendering.md.
+
+namespace {
+
+// One upload whose payload is caller-supplied payload bytes (size must be a
+// multiple of 16); returns the tag offset within `bytes`.
+std::size_t appendPayloadUpload(Bytes& bytes, std::uint32_t dbp, std::uint32_t dbw,
+                               std::uint32_t psm, std::uint32_t width, std::uint32_t height,
+                               const Bytes& payload) {
+    const std::size_t dataQuads = payload.size() / 16;
+    const std::uint32_t qwc = 5 + static_cast<std::uint32_t>(1 + dataQuads);
+    const std::size_t tagOffset = bytes.size();
+    appendWord(bytes, (0x10u << 24) | qwc);
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    appendDword(bytes, 4ull | (1ull << 15) | (1ull << 60));
+    appendDword(bytes, 0xEull);
+    appendDword(bytes, (static_cast<std::uint64_t>(dbw) << 48) |
+                           (static_cast<std::uint64_t>(dbp) << 32) |
+                           (static_cast<std::uint64_t>(psm) << 56));
+    appendDword(bytes, 0x50);
+    appendDword(bytes, 0);
+    appendDword(bytes, 0x51);
+    appendDword(bytes, (static_cast<std::uint64_t>(height) << 32) | width);
+    appendDword(bytes, 0x52);
+    appendDword(bytes, 0);
+    appendDword(bytes, 0x53);
+    appendDword(bytes, dataQuads | (1ull << 15) | (2ull << 58));
+    appendDword(bytes, 0);
+    bytes.insert(bytes.end(), payload.begin(), payload.end());
+    return tagOffset;
+}
+
+constexpr std::uint32_t fixtureClutWord(std::uint32_t p) noexcept {
+    return (0x80u << 24) | ((p * 3u) << 16) | ((p * 2u) << 8) | p;
+}
+
+std::uint8_t gsAlpha(std::uint32_t a) {
+    return static_cast<std::uint8_t>(std::min(255u, a * 255u / 128u));
+}
+
+void expectRgba(const std::vector<std::uint8_t>& rgba, std::size_t pixel,
+                std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a,
+                const std::string& what) {
+    const bool ok = rgba[pixel * 4 + 0] == r && rgba[pixel * 4 + 1] == g &&
+                    rgba[pixel * 4 + 2] == b && rgba[pixel * 4 + 3] == a;
+    check(ok, what);
+    if (!ok) {
+        std::cout << "  expected (" << int(r) << "," << int(g) << "," << int(b) << ","
+                  << int(a) << ") got (" << int(rgba[pixel * 4 + 0]) << ","
+                  << int(rgba[pixel * 4 + 1]) << "," << int(rgba[pixel * 4 + 2]) << ","
+                  << int(rgba[pixel * 4 + 3]) << ")\n";
+    }
+}
+
+void testDecodeSyntheticExactRgba() {
+    Bytes uploads;
+    // T8 8x8 with linearly increasing indices and its trailing CLUT8 16x2.
+    Bytes t8(64);
+    for (std::size_t k = 0; k < 64; ++k) t8[k] = static_cast<std::uint8_t>(k);
+    appendPayloadUpload(uploads, 0x100, 1, 0x13, 8, 8, t8);
+    Bytes clut8(128);
+    for (std::uint32_t p = 0; p < 32; ++p) {
+        std::uint32_t w = fixtureClutWord(p);
+        if (p == 5) w = (w & 0x00FFFFFFu) | (0x40u << 24);  // sub-opaque alpha pin
+        clut8[p * 4 + 0] = static_cast<std::uint8_t>(w);
+        clut8[p * 4 + 1] = static_cast<std::uint8_t>(w >> 8);
+        clut8[p * 4 + 2] = static_cast<std::uint8_t>(w >> 16);
+        clut8[p * 4 + 3] = static_cast<std::uint8_t>(w >> 24);
+    }
+    appendPayloadUpload(uploads, 0x101, 1, 0x00, 16, 2, clut8);
+    // T4 8x8: byte[i] high nibble = i (odd pixel), low nibble = i ^ 3 (even).
+    Bytes t4(32);
+    for (std::size_t i = 0; i < 32; ++i) {
+        t4[i] = static_cast<std::uint8_t>(((i & 0xFu) << 4) | ((i ^ 0x3u) & 0xFu));
+    }
+    appendPayloadUpload(uploads, 0x200, 1, 0x14, 8, 8, t4);
+    Bytes clut4(128);
+    for (std::uint32_t p = 0; p < 32; ++p) {
+        const std::uint32_t w = (0x80u << 24) | (((0xF0u + p) & 0xFFu) << 16) |
+                                (((0x0Fu + p) & 0xFFu) << 8) | ((0x10u + 2u * p) & 0xFFu);
+        clut4[p * 4 + 0] = static_cast<std::uint8_t>(w);
+        clut4[p * 4 + 1] = static_cast<std::uint8_t>(w >> 8);
+        clut4[p * 4 + 2] = static_cast<std::uint8_t>(w >> 16);
+        clut4[p * 4 + 3] = static_cast<std::uint8_t>(w >> 24);
+    }
+    appendPayloadUpload(uploads, 0x201, 1, 0x00, 16, 2, clut4);
+    // PSMCT24 8x4 (96 B; 8x8 CT24 would be CLUT-shaped): RGB-zero first texel
+    // (AEM transparent).
+    Bytes ct24(96);
+    for (std::size_t k = 1; k < 32; ++k) {
+        ct24[k * 3 + 0] = static_cast<std::uint8_t>(k + 1);
+        ct24[k * 3 + 1] = static_cast<std::uint8_t>(k + 2);
+        ct24[k * 3 + 2] = static_cast<std::uint8_t>(k + 3);
+    }
+    appendPayloadUpload(uploads, 0x300, 1, 0x01, 8, 4, ct24);
+    // PSMCT32 4x4 with per-texel alpha.
+    Bytes ct32(64);
+    for (std::uint32_t k = 0; k < 16; ++k) {
+        const std::uint32_t w = (k << 24) | ((k + 1) << 16) | ((k + 2) << 8) | (k + 3);
+        ct32[k * 4 + 0] = static_cast<std::uint8_t>(w);
+        ct32[k * 4 + 1] = static_cast<std::uint8_t>(w >> 8);
+        ct32[k * 4 + 2] = static_cast<std::uint8_t>(w >> 16);
+        ct32[k * 4 + 3] = static_cast<std::uint8_t>(w >> 24);
+    }
+    appendPayloadUpload(uploads, 0x400, 1, 0x00, 4, 4, ct32);
+    // Indexed page without any palette: grayscale fallback.
+    appendPayloadUpload(uploads, 0x500, 1, 0x13, 8, 8, Bytes(64, 0x11));
+    std::size_t offA = 0;
+    const Bytes bytes = makeChainFile(uploads, 0x40, offA);
+
+    const auto decode = rt::native::assets::decodeFieldTextures(bytes);
+    check(decode.has_value(), "decode: synthetic tile decodes");
+    if (!decode) return;
+    check(decode->pages.size() == 5, "decode: five texture pages (CLUTs excluded)");
+    check(decode->clutHits == 2 && decode->clutAliasHits == 0 && decode->clutMisses == 1,
+          "decode: two tag-attached palettes, one miss");
+    check(decode->totalIndexPixels == 192 && decode->rgb8Pixels == 128,
+          "decode: 192 indexed px, 128 palette-resolved");
+    if (decode->pages.size() != 5) return;
+    const auto& p0 = decode->pages[0];  // T8
+    check(p0.paletteResolved && p0.psm == 0x13 && p0.width == 8,
+          "decode: T8 page flags");
+    expectRgba(p0.rgba, 0, 0, 0, 0, 255, "decode T8: index 0 identity position");
+    expectRgba(p0.rgba, 3, 3, 6, 9, 255, "decode T8: bits34 identity for entry 3");
+    expectRgba(p0.rgba, 8, 16, 32, 48, 255, "decode T8: entry 8 reads swapped word 16");
+    expectRgba(p0.rgba, 16, 8, 16, 24, 255, "decode T8: entry 16 reads swapped word 8");
+    expectRgba(p0.rgba, 18, 10, 20, 30, 255, "decode T8: entry 18 swaps to position 10");
+    expectRgba(p0.rgba, 5, 5, 10, 15, gsAlpha(0x40), "decode T8: GS alpha 0x40 scales to 127");
+    const auto& p1 = decode->pages[1];  // T4
+    expectRgba(p1.rgba, 0, 22, 18, 243, 255, "decode T4: low nibble first, index 3");
+    expectRgba(p1.rgba, 1, 16, 15, 240, 255, "decode T4: odd pixel takes high nibble");
+    expectRgba(p1.rgba, 2, 20, 17, 242, 255, "decode T4: index 2");
+    expectRgba(p1.rgba, 16, 54, 34, 3, 255, "decode T4: index 11 swaps to word 19");
+    const auto& p2 = decode->pages[2];  // CT24
+    expectRgba(p2.rgba, 0, 0, 0, 0, 0, "decode CT24: RGB-zero texel transparent (AEM)");
+    expectRgba(p2.rgba, 1, 2, 3, 4, 255, "decode CT24: opaque 0x80 scales to 255");
+    expectRgba(p2.rgba, 31, 32, 33, 34, 255, "decode CT24: last texel");
+    const auto& p3 = decode->pages[3];  // CT32
+    expectRgba(p3.rgba, 0, 3, 2, 1, 0, "decode CT32: byte0 is R, alpha passthrough scale");
+    expectRgba(p3.rgba, 8, 11, 10, 9, 15, "decode CT32: alpha 8 scales to 15");
+    const auto& p4 = decode->pages[4];  // miss
+    check(!p4.paletteResolved && !p4.paletteAliased, "decode: unresolved palette flags");
+    expectRgba(p4.rgba, 10, 0x11, 0x11, 0x11, 255, "decode miss: grayscale fallback");
+    check(decode->pageIndexByUpload.size() == 7 &&
+              decode->pageIndexByUpload[1] == -1 && decode->pageIndexByUpload[3] == -1 &&
+              decode->pageIndexByUpload[0] == 0,
+          "decode: pageIndexByUpload marks CLUT slots as -1");
+}
+
+void testTexturedTerrainSyntheticEmpty() {
+    Bytes uploads;
+    appendPayloadUpload(uploads, 0x100, 1, 0x13, 8, 8, Bytes(64, 0x02));
+    std::size_t offA = 0;
+    Bytes bytes = makeChainFile(uploads, 0x40, offA);
+    // A zeroed 64-slot cell directory sits at offA; offB/offC/fileSize close
+    // the strict ordering offA <= offB <= offC <= fileSize at the file end.
+    bytes.resize(offA + 65 * 4, 0);
+    setU32(bytes, 0x08, static_cast<std::uint32_t>(bytes.size()));  // offB
+    setU32(bytes, 0x0C, static_cast<std::uint32_t>(bytes.size()));  // offC
+    setU32(bytes, 0x10, static_cast<std::uint32_t>(bytes.size()));  // fileSize
+    const auto built = rt::native::assets::buildFieldTexturedTerrain(bytes, 0.1f);
+    check(built.has_value(), "textured builder: tile without cell chains still succeeds");
+    if (!built) return;
+    check(built->patch.positions.empty() && built->patch.indices.empty(),
+          "textured builder: no vertices without cells");
+    check(built->clutMisses == 1 && built->unresolvedTriangles == 0,
+          "textured builder: decode stats propagate");
+}
+
+std::vector<std::uint8_t> readFileBytes(const std::filesystem::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    return std::vector<std::uint8_t>((std::istreambuf_iterator<char>(input)),
+                                    std::istreambuf_iterator<char>());
+}
+
+const rt::native::assets::FieldTexturePage* pageAt(const rt::native::assets::FieldTextureDecode& d,
+                                                  std::uint32_t tagOffset) {
+    for (const auto& page : d.pages) {
+        if (page.tagOffset == tagOffset) return &page;
+    }
+    return nullptr;
+}
+
+void testFieldTextureDiscPins() {
+    const std::filesystem::path dir = discRoot() / "FLD";
+    if (dir.empty() || !std::filesystem::exists(dir)) {
+        std::cout << "test_field_converter: SKIP FLD textured disc pins (no disc)\n";
+        return;
+    }
+    {  // FLD/000.BIN: counts + byte-exact page pins (oracle-verified decode).
+        const auto bytes = readFileBytes(dir / "000.BIN");
+        const auto d = rt::native::assets::decodeFieldTextures(bytes);
+        const auto t = rt::native::assets::buildFieldTexturedTerrain(bytes, 0.1f);
+        check(d.has_value() && t.has_value(), "disc 000.BIN: decode and build succeed");
+        if (!d || !t) return;
+        check(d->pages.size() == 7 && d->clutHits == 3 && d->clutAliasHits == 0 &&
+                  d->clutMisses == 4,
+              "disc 000.BIN: 7 pages, 3 CLUT hits, 4 unresolved");
+        check(d->totalIndexPixels == 30976 && d->rgb8Pixels == 24576,
+              "disc 000.BIN: 30,976 indexed px, 24,576 palette-resolved");
+        check(t->patch.positions.size() == 25944 && t->patch.indices.size() / 3 == 12606 &&
+                  t->cells == 64 && t->unresolvedTriangles == 0,
+              "disc 000.BIN: 25,944 verts / 12,606 tris / 64 cells / 0 unresolved");
+        check(t->distinctTextureIds == 3, "disc 000.BIN: three distinct material textures");
+        const auto cells = rt::native::assets::extractCellStrips(bytes);
+        std::size_t strips = 0, verts = 0, withStrips = 0;
+        for (const auto& cell : *cells) {
+            if (!cell.strips.empty()) ++withStrips;
+            for (const auto& strip : cell.strips) {
+                ++strips;
+                verts += strip.vertices.size();
+            }
+        }
+        check(withStrips == 64 && strips == 6669 && verts == 25944,
+              "disc 000.BIN: strip walk 64 cells / 6,669 strips / 25,944 vertices");
+        const auto* sky = pageAt(*d, 0x20);
+        check(sky != nullptr, "disc 000.BIN: page tag 0x20 decoded");
+        if (sky != nullptr) {
+            check(sky->width == 64 && sky->height == 64 && sky->psm == 0x13,
+                  "disc 000.BIN: 0x20 page geometry");
+            expectRgba(sky->rgba, sky->width, 0, 128, 240, 255, "disc 000.BIN: page 0x20 pixel row 1 col 0");
+            expectRgba(sky->rgba, 64 * 64 - 1, 0, 160, 240, 255, "disc 000.BIN: page 0x20 last pixel");
+        }
+        const auto* dirt = pageAt(*d, 0x1ae0);
+        if (dirt != nullptr) {
+            expectRgba(dirt->rgba, dirt->width, 125, 108, 95, 255, "disc 000.BIN: page 0x1ae0 pixel row 1 col 0");
+        } else {
+            check(false, "disc 000.BIN: page 0x1ae0 decoded");
+        }
+    }
+    {  // FLD/003.BIN: the oracle-exact tile (45,056/45,056 px vs rt_texture_extract).
+        const auto bytes = readFileBytes(dir / "003.BIN");
+        const auto d = rt::native::assets::decodeFieldTextures(bytes);
+        const auto t = rt::native::assets::buildFieldTexturedTerrain(bytes, 0.1f);
+        check(d.has_value() && t.has_value(), "disc 003.BIN: decode and build succeed");
+        if (!d || !t) return;
+        check(d->pages.size() == 10 && d->clutHits == 6 && d->clutMisses == 4,
+              "disc 003.BIN: 10 pages, 6 hits, 4 unresolved");
+        check(d->totalIndexPixels == 59648 && d->rgb8Pixels == 53248,
+              "disc 003.BIN: 59,648 indexed px, 53,248 palette-resolved");
+        check(t->patch.positions.size() == 25750 && t->patch.indices.size() / 3 == 12844 &&
+                  t->cells == 64 && t->distinctTextureIds == 6 && t->unresolvedTriangles == 0,
+              "disc 003.BIN: 25,750 verts / 12,844 tris / 6 pages used");
+        const auto* p0 = pageAt(*d, 0x20);
+        check(p0 != nullptr, "disc 003.BIN: page tag 0x20 decoded");
+        if (p0 != nullptr) {
+            expectRgba(p0->rgba, p0->width, 152, 144, 112, 255, "disc 003.BIN: page 0x20 pixel row 1 col 0");
+            expectRgba(p0->rgba, 128 * 64 - 1, 8, 8, 8, 255, "disc 003.BIN: page 0x20 last pixel");
+        }
+        const auto* tex = pageAt(*d, 0x84a0);
+        if (tex != nullptr) {
+            expectRgba(tex->rgba, tex->width, 161, 108, 20, 255, "disc 003.BIN: page 0x84a0 pixel row 1 col 0");
+        } else {
+            check(false, "disc 003.BIN: page 0x84a0 decoded");
+        }
+        // Cell-0 vertex 0 UV triple (s, t, alphaAdd) pinned at stream offset
+        // 0x5a24; alphaAdd == 1 so the raw s/t are the page fractions.
+        check(std::abs(t->patch.uvs[0][0] - 0.13528818f) < 1e-6f &&
+                  std::abs(t->patch.uvs[0][1] - 0.95435876f) < 1e-6f,
+              "disc 003.BIN: cell-0 vertex UV = (0.13528818, 0.95435876)");
+    }
+    {  // FLD/232.BIN: the CBP-aliasing tile.  Its cells bind CBP 0x31B7, which
+        // names page 0x31B7 itself — a texture page, not a palette — but the
+        // texture bound with that CBP is PSMCT24 (direct colour, no palette),
+        // and every indexed page in the tile carries its own trailing CLUT, so
+        // no page ever needs the alias and the decode shows zero alias hits.
+        const auto bytes = readFileBytes(dir / "232.BIN");
+        const auto d = rt::native::assets::decodeFieldTextures(bytes);
+        const auto t = rt::native::assets::buildFieldTexturedTerrain(bytes, 0.1f);
+        check(d.has_value() && t.has_value(), "disc 232.BIN: decode and build succeed");
+        if (!d || !t) return;
+        check(d->pages.size() == 25 && d->clutHits == 18 && d->clutAliasHits == 0 &&
+                  d->clutMisses == 6,
+              "disc 232.BIN: 25 pages, 18 hits, 0 aliases, 6 unresolved");
+        check(t->patch.indices.size() / 3 == 6919 && t->cells == 64 &&
+                  t->distinctTextureIds == 14 && t->uniqueTextureIds == 1 &&
+                  t->unresolvedTriangles == 0,
+              "disc 232.BIN: 6,919 tris over 14 material textures, all resolve");
+    }
+}
+
+} // namespace
+
 int main() {
     testTruncatedHeader();
     testOffsetPastFileIsBadHeader();
@@ -1197,6 +1490,9 @@ int main() {
     testCellStripsErrorsAndDrift();
     testCellStripsRealTile();
     testCellStripsCorpus();
+    testDecodeSyntheticExactRgba();
+    testTexturedTerrainSyntheticEmpty();
+    testFieldTextureDiscPins();
     testRealFieldTileWhenAvailable();
     testCatalogCorpusWhenAvailable();
 

@@ -7,6 +7,8 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <unordered_map>
+#include <vector>
 
 namespace rt::native::preview {
 
@@ -152,6 +154,25 @@ struct Renderer {
     VkBuffer uiVb = VK_NULL_HANDLE;
     VkDeviceMemory uiVbm = VK_NULL_HANDLE;
     VkDeviceSize uiVbCap = 0;
+    // Textured terrain path: pos+colour+uv pipeline with one sampled page
+    // image per distinct decoded texture page (created lazily, cached by
+    // content hash for the lifetime of the renderer).
+    VkShaderModule texVs = VK_NULL_HANDLE, texFs = VK_NULL_HANDLE;
+    VkDescriptorSetLayout texSetLayout = VK_NULL_HANDLE;
+    VkPipelineLayout texPl = VK_NULL_HANDLE;
+    VkPipeline texPipe = VK_NULL_HANDLE;
+    VkSampler texSampler = VK_NULL_HANDLE;
+    VkDescriptorPool texPool = VK_NULL_HANDLE;
+    VkBuffer tvb = VK_NULL_HANDLE, tib = VK_NULL_HANDLE;
+    VkDeviceMemory tvbm = VK_NULL_HANDLE, tibm = VK_NULL_HANDLE;
+    VkDeviceSize tvbCap = 0, tibCap = 0;
+    struct TexEntry {
+        VkImage img = VK_NULL_HANDLE;
+        VkDeviceMemory mem = VK_NULL_HANDLE;
+        VkImageView view = VK_NULL_HANDLE;
+        VkDescriptorSet set = VK_NULL_HANDLE;
+    };
+    std::unordered_map<std::uint64_t, TexEntry> texCache;
 };
 
 static const VkMemoryPropertyFlags kHostMem = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -203,6 +224,23 @@ void previewDestroy(Renderer* R) {
         if (R->ibm) vkFreeMemory(R->dev, R->ibm, nullptr);
         if (R->uiVb) vkDestroyBuffer(R->dev, R->uiVb, nullptr);
         if (R->uiVbm) vkFreeMemory(R->dev, R->uiVbm, nullptr);
+        for (auto& entry : R->texCache) {
+            if (entry.second.view) vkDestroyImageView(R->dev, entry.second.view, nullptr);
+            if (entry.second.img) vkDestroyImage(R->dev, entry.second.img, nullptr);
+            if (entry.second.mem) vkFreeMemory(R->dev, entry.second.mem, nullptr);
+        }
+        R->texCache.clear();
+        if (R->tvb) vkDestroyBuffer(R->dev, R->tvb, nullptr);
+        if (R->tvbm) vkFreeMemory(R->dev, R->tvbm, nullptr);
+        if (R->tib) vkDestroyBuffer(R->dev, R->tib, nullptr);
+        if (R->tibm) vkFreeMemory(R->dev, R->tibm, nullptr);
+        if (R->texPool) vkDestroyDescriptorPool(R->dev, R->texPool, nullptr);
+        if (R->texSampler) vkDestroySampler(R->dev, R->texSampler, nullptr);
+        if (R->texPipe) vkDestroyPipeline(R->dev, R->texPipe, nullptr);
+        if (R->texPl) vkDestroyPipelineLayout(R->dev, R->texPl, nullptr);
+        if (R->texSetLayout) vkDestroyDescriptorSetLayout(R->dev, R->texSetLayout, nullptr);
+        if (R->texVs) vkDestroyShaderModule(R->dev, R->texVs, nullptr);
+        if (R->texFs) vkDestroyShaderModule(R->dev, R->texFs, nullptr);
         if (R->rb) vkDestroyBuffer(R->dev, R->rb, nullptr);
         if (R->rbm) vkFreeMemory(R->dev, R->rbm, nullptr);
         if (R->pipe) vkDestroyPipeline(R->dev, R->pipe, nullptr);
@@ -382,6 +420,49 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     uiGpi.pDepthStencilState = &uiDs; uiGpi.layout = R.uiPl;
     VK_TRY(vkCreateGraphicsPipelines(dev, VK_NULL_HANDLE, 1, &uiGpi, nullptr, &R.uiPipe), "vkCreateGraphicsPipelines(ui)");
 
+    // Textured terrain pipeline: pos3 + colour3 + uv2, one fragment-stage
+    // combined image sampler, identical 144-byte push-constant block.
+    if (!makeShader(kPreviewTexturedVertSpv, sizeof(kPreviewTexturedVertSpv), R.texVs)) return false;
+    if (!makeShader(kPreviewTexturedFragSpv, sizeof(kPreviewTexturedFragSpv), R.texFs)) return false;
+    VkPipelineShaderStageCreateInfo texStages[2]{};
+    texStages[0] = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_VERTEX_BIT, R.texVs, "main", nullptr};
+    texStages[1] = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_FRAGMENT_BIT, R.texFs, "main", nullptr};
+    VkDescriptorSetLayoutBinding texBinding{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+                                            VK_SHADER_STAGE_FRAGMENT_BIT, nullptr};
+    VkDescriptorSetLayoutCreateInfo texSli{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
+    texSli.bindingCount = 1; texSli.pBindings = &texBinding;
+    VK_TRY(vkCreateDescriptorSetLayout(dev, &texSli, nullptr, &R.texSetLayout), "vkCreateDescriptorSetLayout(tex)");
+    VkPipelineLayoutCreateInfo texPli{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
+    texPli.setLayoutCount = 1; texPli.pSetLayouts = &R.texSetLayout;
+    texPli.pushConstantRangeCount = 1; texPli.pPushConstantRanges = &pcr;
+    VK_TRY(vkCreatePipelineLayout(dev, &texPli, nullptr, &R.texPl), "vkCreatePipelineLayout(tex)");
+    VkVertexInputBindingDescription texBind{0, 32, VK_VERTEX_INPUT_RATE_VERTEX};
+    VkVertexInputAttributeDescription texAttrs[3] = {
+        {0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0},
+        {1, 0, VK_FORMAT_R32G32B32_SFLOAT, 12},
+        {2, 0, VK_FORMAT_R32G32_SFLOAT, 24},
+    };
+    VkPipelineVertexInputStateCreateInfo texVin{VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
+    texVin.vertexBindingDescriptionCount = 1; texVin.pVertexBindingDescriptions = &texBind;
+    texVin.vertexAttributeDescriptionCount = 3; texVin.pVertexAttributeDescriptions = texAttrs;
+    VkGraphicsPipelineCreateInfo texGpi = gpi;
+    texGpi.stageCount = 2; texGpi.pStages = texStages; texGpi.pVertexInputState = &texVin;
+    texGpi.layout = R.texPl;
+    VK_TRY(vkCreateGraphicsPipelines(dev, VK_NULL_HANDLE, 1, &texGpi, nullptr, &R.texPipe), "vkCreateGraphicsPipelines(tex)");
+    // GS-style sampling: nearest, wrapping REPEAT at integer page fractions.
+    VkSamplerCreateInfo texSi{VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
+    texSi.magFilter = VK_FILTER_NEAREST; texSi.minFilter = VK_FILTER_NEAREST;
+    texSi.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    texSi.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    texSi.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    texSi.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    texSi.maxAnisotropy = 1.0f; texSi.unnormalizedCoordinates = VK_FALSE;
+    VK_TRY(vkCreateSampler(dev, &texSi, nullptr, &R.texSampler), "vkCreateSampler");
+    VkDescriptorPoolSize texPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2048};
+    VkDescriptorPoolCreateInfo texPci{VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
+    texPci.maxSets = 2048; texPci.poolSizeCount = 1; texPci.pPoolSizes = &texPoolSize;
+    VK_TRY(vkCreateDescriptorPool(dev, &texPci, nullptr, &R.texPool), "vkCreateDescriptorPool(tex)");
+
     const VkDeviceSize rbSize = static_cast<VkDeviceSize>(W) * H * 4;
     if (!makeBuffer(R, error, rbSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT, R.rb, R.rbm)) return false;
     VkCommandPoolCreateInfo cpi{VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
@@ -516,6 +597,201 @@ bool previewRender(Renderer* r, const assets::NativeModel& model, const float* v
     return renderGeometry(r, vertices, model.indices, view, proj, clear, fog, rgbaOut, error);
 }
 
+// ------------------------------------------------------------- textured terrain
+namespace {
+struct TexturedVertex { float x, y, z, r, g, b, s, t; };
+struct DrawRange { Renderer::TexEntry* entry; std::uint32_t first = 0, count = 0; };
+
+std::uint64_t hashTexture(const PreviewTexture& tex) {
+    std::uint64_t h = 1469598103934665603ull;
+    const auto mix = [&h](const std::uint8_t* b, std::size_t n) {
+        for (std::size_t i = 0; i < n; ++i) { h ^= b[i]; h *= 1099511628211ull; }
+    };
+    const std::uint8_t dims[8] = {
+        static_cast<std::uint8_t>(tex.width), static_cast<std::uint8_t>(tex.width >> 8),
+        static_cast<std::uint8_t>(tex.width >> 16), static_cast<std::uint8_t>(tex.width >> 24),
+        static_cast<std::uint8_t>(tex.height), static_cast<std::uint8_t>(tex.height >> 8),
+        static_cast<std::uint8_t>(tex.height >> 16), static_cast<std::uint8_t>(tex.height >> 24),
+    };
+    mix(dims, sizeof(dims));
+    mix(tex.rgba.data(), tex.rgba.size());
+    return h;
+}
+
+// Upload one decoded page to a sampled RGBA8 image (cached by content hash;
+// pages repeat constantly across tiles).
+bool ensurePageTexture(Renderer& R, std::string& error, const PreviewTexture& tex,
+                      Renderer::TexEntry& out) {
+    const std::uint64_t key = hashTexture(tex);
+    auto cached = R.texCache.find(key);
+    if (cached != R.texCache.end()) { out = cached->second; return true; }
+    if (!tex.width || !tex.height || tex.rgba.size() < static_cast<std::size_t>(tex.width) * tex.height * 4) {
+        error = "malformed preview texture";
+        return false;
+    }
+    Renderer::TexEntry e;
+    VkImageCreateInfo ii{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
+    ii.imageType = VK_IMAGE_TYPE_2D; ii.format = VK_FORMAT_R8G8B8A8_UNORM;
+    ii.extent = {tex.width, tex.height, 1};
+    ii.mipLevels = 1; ii.arrayLayers = 1; ii.samples = VK_SAMPLE_COUNT_1_BIT;
+    ii.tiling = VK_IMAGE_TILING_OPTIMAL;
+    ii.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    ii.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    VK_TRY(vkCreateImage(R.dev, &ii, nullptr, &e.img), "vkCreateImage(page)");
+    VkMemoryRequirements mr; vkGetImageMemoryRequirements(R.dev, e.img, &mr);
+    VkMemoryAllocateInfo ai{VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
+    ai.allocationSize = mr.size;
+    ai.memoryTypeIndex = findMem(R.mp, mr.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if (ai.memoryTypeIndex == 0xFFFFFFFFu) { error = "no image memory type(page)"; return false; }
+    VK_TRY(vkAllocateMemory(R.dev, &ai, nullptr, &e.mem), "vkAllocateMemory(page)");
+    VK_TRY(vkBindImageMemory(R.dev, e.img, e.mem, 0), "vkBindImageMemory(page)");
+    VkImageViewCreateInfo vi{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
+    vi.image = e.img; vi.viewType = VK_IMAGE_VIEW_TYPE_2D; vi.format = VK_FORMAT_R8G8B8A8_UNORM;
+    vi.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+    VK_TRY(vkCreateImageView(R.dev, &vi, nullptr, &e.view), "vkCreateImageView(page)");
+
+    const VkDeviceSize bytes = static_cast<VkDeviceSize>(tex.width) * tex.height * 4;
+    VkBuffer stage = VK_NULL_HANDLE; VkDeviceMemory stageMem = VK_NULL_HANDLE;
+    if (!makeBuffer(R, error, bytes, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, stage, stageMem)) return false;
+    void* p = nullptr;
+    VK_TRY(vkMapMemory(R.dev, stageMem, 0, bytes, 0, &p), "vkMapMemory(stage)");
+    std::memcpy(p, tex.rgba.data(), bytes);
+    vkUnmapMemory(R.dev, stageMem);
+
+    VkCommandBufferAllocateInfo cai{VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
+    cai.commandPool = R.pool; cai.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; cai.commandBufferCount = 1;
+    VkCommandBuffer cmd = VK_NULL_HANDLE;
+    VK_TRY(vkAllocateCommandBuffers(R.dev, &cai, &cmd), "vkAllocateCommandBuffers(page)");
+    VkCommandBufferBeginInfo bbi{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+    bbi.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    VK_TRY(vkBeginCommandBuffer(cmd, &bbi), "vkBeginCommandBuffer(page)");
+    VkImageMemoryBarrier toDst{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+    toDst.srcAccessMask = 0; toDst.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    toDst.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED; toDst.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    toDst.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; toDst.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    toDst.image = e.img; toDst.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+    vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                        0, nullptr, 0, nullptr, 1, &toDst);
+    VkBufferImageCopy region{};
+    region.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    region.imageExtent = {tex.width, tex.height, 1};
+    vkCmdCopyBufferToImage(cmd, stage, e.img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    VkImageMemoryBarrier toRead{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+    toRead.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT; toRead.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    toRead.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL; toRead.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    toRead.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; toRead.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    toRead.image = e.img; toRead.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+    vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                        0, nullptr, 0, nullptr, 1, &toRead);
+    VK_TRY(vkEndCommandBuffer(cmd), "vkEndCommandBuffer(page)");
+    VkSubmitInfo si{VK_STRUCTURE_TYPE_SUBMIT_INFO};
+    si.commandBufferCount = 1; si.pCommandBuffers = &cmd;
+    VK_TRY(vkQueueSubmit(R.queue, 1, &si, VK_NULL_HANDLE), "vkQueueSubmit(page)");
+    VK_TRY(vkQueueWaitIdle(R.queue), "vkQueueWaitIdle(page)");
+    vkFreeCommandBuffers(R.dev, R.pool, 1, &cmd);
+    vkDestroyBuffer(R.dev, stage, nullptr);
+    vkFreeMemory(R.dev, stageMem, nullptr);
+
+    VkDescriptorSetAllocateInfo dsai{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
+    dsai.descriptorPool = R.texPool; dsai.descriptorSetCount = 1; dsai.pSetLayouts = &R.texSetLayout;
+    VK_TRY(vkAllocateDescriptorSets(R.dev, &dsai, &e.set), "vkAllocateDescriptorSets(page)");
+    VkDescriptorImageInfo dii{R.texSampler, e.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
+    VkWriteDescriptorSet write{VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
+    write.dstSet = e.set; write.dstBinding = 0; write.descriptorCount = 1;
+    write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; write.pImageInfo = &dii;
+    vkUpdateDescriptorSets(R.dev, 1, &write, 0, nullptr);
+
+    R.texCache.emplace(key, e);
+    out = e;
+    return true;
+}
+
+bool renderGeometryTextured(Renderer* Rp, const std::vector<SceneVertex>& flatV,
+                           const std::vector<std::uint32_t>& flatI, const std::vector<TexturedVertex>& texV,
+                           const std::vector<std::uint32_t>& texI, const std::vector<DrawRange>& ranges,
+                           const float* viewIn, const float* projIn, const float clear[4], const float fog[4],
+                           std::vector<std::uint8_t>& rgbaOut, std::string& error) {
+    if (!Rp) { error = "null renderer"; return false; }
+    Renderer& R = *Rp;
+    const std::uint32_t W = R.W, H = R.H;
+    VkDevice dev = R.dev;
+    if (!viewIn || !projIn) { error = "textured scene requires explicit camera"; return false; }
+    if (ranges.empty() && flatI.empty()) { error = "empty geometry"; return false; }
+    const VkDeviceSize vbSize = flatV.size() * sizeof(SceneVertex);
+    const VkDeviceSize ibSize = flatI.size() * sizeof(std::uint32_t);
+    const VkDeviceSize tvbSize = texV.size() * sizeof(TexturedVertex);
+    const VkDeviceSize tibSize = texI.size() * sizeof(std::uint32_t);
+    if (!vbSize || !ibSize) { error = "empty flat geometry"; return false; }
+    if (!growBuffer(R, error, vbSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, R.vb, R.vbm, R.vbCap)) return false;
+    if (!growBuffer(R, error, ibSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, R.ib, R.ibm, R.ibCap)) return false;
+    if (!growBuffer(R, error, tvbSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, R.tvb, R.tvbm, R.tvbCap)) return false;
+    if (!growBuffer(R, error, tibSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, R.tib, R.tibm, R.tibCap)) return false;
+    void* p;
+    VK_TRY(vkMapMemory(dev, R.vbm, 0, vbSize, 0, &p), "vkMapMemory"); std::memcpy(p, flatV.data(), vbSize); vkUnmapMemory(dev, R.vbm);
+    VK_TRY(vkMapMemory(dev, R.ibm, 0, ibSize, 0, &p), "vkMapMemory"); std::memcpy(p, flatI.data(), ibSize); vkUnmapMemory(dev, R.ibm);
+    VK_TRY(vkMapMemory(dev, R.tvbm, 0, tvbSize, 0, &p), "vkMapMemory(tvb)"); std::memcpy(p, texV.data(), tvbSize); vkUnmapMemory(dev, R.tvbm);
+    VK_TRY(vkMapMemory(dev, R.tibm, 0, tibSize, 0, &p), "vkMapMemory(tib)"); std::memcpy(p, texI.data(), tibSize); vkUnmapMemory(dev, R.tibm);
+
+    Mat view, proj;
+    std::memcpy(view.data(), viewIn, 64);
+    std::memcpy(proj.data(), projIn, 64);
+    Mat mvp = mul(proj, view);
+    float pc[36];
+    std::memcpy(pc, mvp.data(), 64); std::memcpy(pc + 16, view.data(), 64);
+    std::memcpy(pc + 32, fog, 16);
+
+    const VkDeviceSize rbSize = static_cast<VkDeviceSize>(W) * H * 4;
+    VkCommandBuffer cmd = R.cmd;
+    vkResetCommandBuffer(cmd, 0);
+    VkCommandBufferBeginInfo bbi{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+    vkBeginCommandBuffer(cmd, &bbi);
+    VkClearValue clears[2]{};
+    clears[0].color = {{clear[0], clear[1], clear[2], clear[3]}};
+    clears[1].depthStencil = {1.0f, 0};
+    VkRenderPassBeginInfo rbi{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
+    rbi.renderPass = R.rp; rbi.framebuffer = R.fb; rbi.renderArea = {{0, 0}, {W, H}};
+    rbi.clearValueCount = 2; rbi.pClearValues = clears;
+    vkCmdBeginRenderPass(cmd, &rbi, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdPushConstants(cmd, R.pl, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 144, pc);
+    if (!flatI.empty()) {
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.pipe);
+        VkDeviceSize off = 0;
+        vkCmdBindVertexBuffers(cmd, 0, 1, &R.vb, &off);
+        vkCmdBindIndexBuffer(cmd, R.ib, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdDrawIndexed(cmd, static_cast<std::uint32_t>(flatI.size()), 1, 0, 0, 0);
+    }
+    if (!ranges.empty()) {
+        vkCmdPushConstants(cmd, R.texPl, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 144, pc);
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.texPipe);
+        VkDeviceSize off = 0;
+        vkCmdBindVertexBuffers(cmd, 0, 1, &R.tvb, &off);
+        vkCmdBindIndexBuffer(cmd, R.tib, 0, VK_INDEX_TYPE_UINT32);
+        for (const DrawRange& range : ranges) {
+            if (!range.count || !range.entry || !range.entry->set) continue;
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.texPl, 0, 1,
+                                   &range.entry->set, 0, nullptr);
+            vkCmdDrawIndexed(cmd, range.count, 1, range.first, 0, 0);
+        }
+    }
+    vkCmdEndRenderPass(cmd);
+    VkBufferImageCopy copy{};
+    copy.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    copy.imageExtent = {W, H, 1};
+    vkCmdCopyImageToBuffer(cmd, R.colImg, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, R.rb, 1, &copy);
+    vkEndCommandBuffer(cmd);
+    VkSubmitInfo si{VK_STRUCTURE_TYPE_SUBMIT_INFO};
+    si.commandBufferCount = 1; si.pCommandBuffers = &cmd;
+    VK_TRY(vkQueueSubmit(R.queue, 1, &si, VK_NULL_HANDLE), "vkQueueSubmit(tex)");
+    VK_TRY(vkQueueWaitIdle(R.queue), "vkQueueWaitIdle(tex)");
+
+    rgbaOut.resize(rbSize);
+    VK_TRY(vkMapMemory(dev, R.rbm, 0, rbSize, 0, &p), "vkMapMemory(readback)");
+    std::memcpy(rgbaOut.data(), p, rbSize);
+    vkUnmapMemory(dev, R.rbm);
+    return true;
+}
+} // namespace
+
 static void addQuad(std::vector<SceneVertex>& vertices, std::vector<std::uint32_t>& indices,
                     const gameplay::Vec2& a, const gameplay::Vec2& b, float halfWidth, const float color[3]) {
     const gameplay::Vec2 d = b - a;
@@ -544,6 +820,7 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     const std::uint32_t groundBase = 0;
     const bool useTerrain = terrain != nullptr && !terrain->positions.empty() &&
                             terrain->indices.size() >= 3 && terrain->indices.size() % 3 == 0;
+    const bool textured = useTerrain && terrain->isTextured();
     if (!useTerrain) {
         for (const auto& p : {gameplay::Vec2{0, 0}, {160, 0}, {160, 160}, {0, 160}})
             vertices.push_back({p.x, 0.f, p.z, grass[0], grass[1], grass[2]});
@@ -554,28 +831,30 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
         for (const auto& p : {gameplay::Vec2{-4, -4}, {164, -4}, {164, 164}, {-4, 164}})
             vertices.push_back({p.x, -.4f, p.z, grass[0] * .5f, grass[1] * .5f, grass[2] * .5f});
         for (std::uint32_t i : {0u, 2u, 1u, 0u, 3u, 2u}) indices.push_back(groundBase + i);
-        const std::uint32_t terrainBase = static_cast<std::uint32_t>(vertices.size());
-        for (std::size_t i = 0; i < terrain->positions.size(); ++i) {
-            const auto& p = terrain->positions[i];
-            // Height banding: low ground grass, mid dirt, high rock; material
-            // id adds deterministic per-patch tint until textures bind.
-            const float h = p[1];
-            float col[3];
-            if (h < 1.0f) {
-                col[0] = grass[0]; col[1] = grass[1]; col[2] = grass[2];
-            } else if (h < 3.0f) {
-                col[0] = .38f; col[1] = .32f; col[2] = .20f;
-            } else {
-                col[0] = .45f; col[1] = .45f; col[2] = .47f;
+        if (!textured) {
+            const std::uint32_t terrainBase = static_cast<std::uint32_t>(vertices.size());
+            for (std::size_t i = 0; i < terrain->positions.size(); ++i) {
+                const auto& p = terrain->positions[i];
+                // Height banding: low ground grass, mid dirt, high rock; material
+                // id adds deterministic per-patch tint until textures bind.
+                const float h = p[1];
+                float col[3];
+                if (h < 1.0f) {
+                    col[0] = grass[0]; col[1] = grass[1]; col[2] = grass[2];
+                } else if (h < 3.0f) {
+                    col[0] = .38f; col[1] = .32f; col[2] = .20f;
+                } else {
+                    col[0] = .45f; col[1] = .45f; col[2] = .47f;
+                }
+                const std::uint32_t material = i / 3 < terrain->triangleMaterials.size()
+                                                 ? terrain->triangleMaterials[i / 3] : 0;
+                const float tint = 1.f + static_cast<float>(material % 16u) * 0.012f;
+                vertices.push_back({p[0], p[1], p[2], col[0] * tint, col[1] * tint, col[2] * tint});
             }
-            const std::uint32_t material = i / 3 < terrain->triangleMaterials.size()
-                                             ? terrain->triangleMaterials[i / 3] : 0;
-            const float tint = 1.f + static_cast<float>(material % 16u) * 0.012f;
-            vertices.push_back({p[0], p[1], p[2], col[0] * tint, col[1] * tint, col[2] * tint});
-        }
-        indices.reserve(indices.size() + terrain->indices.size());
-        for (const std::uint32_t index : terrain->indices) {
-            indices.push_back(terrainBase + index);
+            indices.reserve(indices.size() + terrain->indices.size());
+            for (const std::uint32_t index : terrain->indices) {
+                indices.push_back(terrainBase + index);
+            }
         }
     }
     const auto& path = world.roadWaypoints;
@@ -602,7 +881,47 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     // GameLoop's world is converted to render units (0.1) before the camera
     // matrices are made, so fog range must use the same scale as vView.
     const float fog[4] = {fogColor[0], fogColor[1], fogColor[2], s.lighting.fogFar * .1f};
-    return renderGeometry(r, vertices, indices, s.view, s.proj, clear, fog, rgbaOut, error);
+    if (!textured) {
+        return renderGeometry(r, vertices, indices, s.view, s.proj, clear, fog, rgbaOut, error);
+    }
+    // Authentic-texture path: terrain triangles draw through the textured
+    // pipeline, page-batched (one indexed draw per decoded page); everything
+    // else keeps the flat pipeline.  Page id -1 resolves to an internal
+    // 1x1 white dummy so unresolved strips still cover ground.
+    std::vector<TexturedVertex> texV;
+    texV.reserve(terrain->positions.size());
+    for (std::size_t i = 0; i < terrain->positions.size(); ++i) {
+        const auto& pos = terrain->positions[i];
+        const auto& uv = terrain->uvs[i];
+        texV.push_back({pos[0], pos[1], pos[2], 1.f, 1.f, 1.f, uv[0], uv[1]});
+    }
+    // Bucket triangles by page slot (triangleTexture + 1; -1 -> slot 0).
+    std::vector<std::vector<std::uint32_t>> buckets(terrain->textures.size() + 1);
+    for (std::size_t t = 0; t < terrain->indices.size() / 3; ++t) {
+        std::int32_t page = t < terrain->triangleTexture.size() ? terrain->triangleTexture[t] : -1;
+        if (page < -1 || static_cast<std::size_t>(page) >= terrain->textures.size()) page = -1;
+        buckets[static_cast<std::size_t>(page + 1)].push_back(static_cast<std::uint32_t>(t));
+    }
+    const PreviewTexture white{1, 1, {0xFF, 0xFF, 0xFF, 0xFF}};
+    std::vector<std::uint32_t> texI;
+    std::vector<DrawRange> ranges;
+    std::vector<Renderer::TexEntry> slotEntries(buckets.size());
+    texI.reserve(terrain->indices.size());
+    for (std::size_t slot = 0; slot < buckets.size(); ++slot) {
+        if (buckets[slot].empty()) continue;
+        const PreviewTexture& tex = slot == 0 ? white : terrain->textures[slot - 1];
+        if (!ensurePageTexture(*r, error, tex, slotEntries[slot])) return false;
+        const DrawRange range{&slotEntries[slot], static_cast<std::uint32_t>(texI.size()),
+                             static_cast<std::uint32_t>(buckets[slot].size())};
+        for (std::uint32_t t : buckets[slot]) {
+            texI.push_back(terrain->indices[static_cast<std::size_t>(t) * 3 + 0]);
+            texI.push_back(terrain->indices[static_cast<std::size_t>(t) * 3 + 1]);
+            texI.push_back(terrain->indices[static_cast<std::size_t>(t) * 3 + 2]);
+        }
+        ranges.push_back(range);
+    }
+    return renderGeometryTextured(r, vertices, indices, texV, texI, ranges, s.view, s.proj,
+                                 clear, fog, rgbaOut, error);
 }
 
 struct UiVertex { float x, y, r, g, b, a; };

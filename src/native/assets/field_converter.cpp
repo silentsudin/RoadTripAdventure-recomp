@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
 
 namespace rt::native::assets {
@@ -927,6 +928,298 @@ FieldTileResult convertFieldTile(std::span<const std::uint8_t> tileFile,
     result.value.version = kContainerVersion;
     result.value.meshes = std::move(meshes);
     return result;
+}
+
+namespace {
+
+struct MaterialBind {
+    std::int32_t palette = -1;   // CLUT-shaped catalog index at the bound CBP
+    std::uint32_t cbp = 0;
+    std::uint32_t csa = 0;
+};
+
+// Fetch the CLUT words backing one indexed texture page. Attach order:
+// trailing CLUT upload, then the CBP bound by the first cell material naming
+// this texture, then any (non-CLUT-shaped) upload sitting on the CBP page.
+const FieldTexture* attachClut(const std::vector<FieldTexture>& uploads,
+                               const std::unordered_map<std::uint32_t, std::size_t>& clutByTag,
+                               const std::unordered_map<std::uint32_t, std::size_t>& anyByDbp,
+                               const MaterialBind& bind, std::uint32_t clutOffset,
+                               bool& aliased) {
+    if (clutOffset != 0) {
+        auto it = clutByTag.find(clutOffset);
+        if (it != clutByTag.end()) {
+            aliased = false;
+            return &uploads[it->second];
+        }
+    }
+    if (bind.palette >= 0) {
+        aliased = false;
+        return &uploads[static_cast<std::size_t>(bind.palette)];
+    }
+    if (bind.cbp != 0) {
+        auto it = anyByDbp.find(bind.cbp);
+        if (it != anyByDbp.end()) {
+            aliased = true;
+            return &uploads[it->second];
+        }
+    }
+    aliased = false;
+    return nullptr;
+}
+
+// CLUT CSM1 position within the upload payload: bits 3 and 4 of the flat
+// entry index (bank * 16 + entry) are swapped (reference Extract.cpp:139;
+// oracle-exact via rt_texture_extract, 45,056/45,056 px on FLD/003.BIN).
+constexpr std::uint32_t swappedClutWordPos(std::uint32_t entry) noexcept {
+    return (entry & ~0x18u) | ((entry & 0x08u) << 1) | ((entry & 0x10u) >> 1);
+}
+
+// GS alpha is 0..128 (0x80 opaque); host RGBA8 wants min(255, a*255/128)
+// (Extract.cpp:346-347).
+constexpr std::uint8_t gsAlphaTo8(std::uint32_t a) noexcept {
+    return static_cast<std::uint8_t>(std::min(255u, a * 255u / 128u));
+}
+
+// One CLUT word (CT32 upload payload) to logical RGBA before alpha scaling.
+// PSMCT24 storage carries no alpha: AEM makes an all-zero RGB entry
+// transparent and everything else opaque 0x80 (Extract.h:20).
+constexpr std::uint32_t clutWordRgba(std::uint32_t w, bool cpsmCt24) noexcept {
+    if (!cpsmCt24) return w;
+    const std::uint32_t rgb = w & 0x00FFFFFFu;
+    return rgb | ((rgb == 0u ? 0u : 0x80u) << 24);
+}
+
+void storeRgba(std::uint8_t* out, std::uint32_t c) noexcept {
+    out[0] = static_cast<std::uint8_t>(c & 0xFFu);
+    out[1] = static_cast<std::uint8_t>((c >> 8) & 0xFFu);
+    out[2] = static_cast<std::uint8_t>((c >> 16) & 0xFFu);
+    out[3] = gsAlphaTo8((c >> 24) & 0xFFu);
+}
+
+} // namespace
+
+expected<FieldTextureDecode, FieldTileError>
+decodeFieldTextures(std::span<const std::uint8_t> tileFile) {
+    auto uploadsResult = fieldTextureCatalog(tileFile);
+    if (!uploadsResult) {
+        return uploadsResult.error();
+    }
+    const auto& uploads = *uploadsResult;
+
+    FieldTextureDecode out;
+    out.pageIndexByUpload.assign(uploads.size(), -1);
+
+    std::unordered_map<std::uint32_t, std::size_t> clutByTag;
+    std::unordered_map<std::uint32_t, std::size_t> anyByDbp;
+    for (std::size_t i = 0; i < uploads.size(); ++i) {
+        anyByDbp.emplace(uploads[i].dbp, i);  // first upload on a page wins
+        if (uploads[i].isClut) {
+            clutByTag.emplace(uploads[i].tagOffset, i);
+        }
+    }
+
+    // Material bindings from the cell chains; first binding wins. A failing
+    // strip walk only leaves pages without CBP context.
+    std::unordered_map<std::size_t, MaterialBind> bound;
+    if (auto cells = extractCellStrips(tileFile)) {
+        for (const FieldCellStrips& cell : *cells) {
+            for (const FieldCellMaterial& material : cell.materials) {
+                if (material.textureIndex >= 0 && material.tex0Cbp != 0) {
+                    MaterialBind bind;
+                    bind.palette = material.paletteIndex;
+                    bind.cbp = material.tex0Cbp;
+                    bind.csa = material.tex0Csa;
+                    bound.emplace(static_cast<std::size_t>(material.textureIndex), bind);
+                }
+            }
+        }
+    }
+
+    for (std::size_t i = 0; i < uploads.size(); ++i) {
+        const FieldTexture& upload = uploads[i];
+        if (upload.isClut) {
+            continue;
+        }
+        out.pageIndexByUpload[i] = static_cast<std::int32_t>(out.pages.size());
+        FieldTexturePage page;
+        page.tagOffset = upload.tagOffset;
+        page.dbp = upload.dbp;
+        page.psm = upload.psm;
+        page.width = upload.width;
+        page.height = upload.height;
+        const std::size_t texels = static_cast<std::size_t>(upload.width) * upload.height;
+        page.rgba.resize(texels * 4);
+
+        if (upload.psm == 0x00 || upload.psm == 0x01) {
+            const bool ct24 = upload.psm == 0x01;
+            for (std::size_t k = 0; k < texels; ++k) {
+                std::uint32_t c;
+                if (ct24) {
+                    const std::uint8_t* px = tileFile.data() + upload.dataOffset + k * 3;
+                    c = static_cast<std::uint32_t>(px[0]) | (static_cast<std::uint32_t>(px[1]) << 8) |
+                        (static_cast<std::uint32_t>(px[2]) << 16);
+                } else {
+                    c = readU32LE(tileFile, upload.dataOffset + k * 4);
+                }
+                storeRgba(&page.rgba[k * 4], clutWordRgba(c, ct24));
+            }
+            out.pages.push_back(std::move(page));
+            continue;
+        }
+
+        MaterialBind bind;
+        auto bindIt = bound.find(i);
+        if (bindIt != bound.end()) {
+            bind = bindIt->second;
+        }
+        bool aliased = false;
+        const FieldTexture* clut = attachClut(uploads, clutByTag, anyByDbp, bind,
+                                             upload.clutOffset, aliased);
+        if (clut != nullptr) {
+            const std::size_t words = clut->dataBytes / 4;
+            page.clutWords.reserve(words);
+            for (std::size_t k = 0; k < words; ++k) {
+                page.clutWords.push_back(readU32LE(tileFile, clut->dataOffset + k * 4));
+            }
+            page.paletteResolved = !aliased;
+            page.paletteAliased = aliased;
+            if (aliased) {
+                ++out.clutAliasHits;
+            } else {
+                ++out.clutHits;
+            }
+        } else {
+            ++out.clutMisses;
+        }
+        out.totalIndexPixels += texels;
+        if (page.paletteResolved) {
+            out.rgb8Pixels += texels;
+        }
+        const bool fourBit = upload.psm == 0x14;
+        const bool cpsmCt24 = false;  // every observed CLUT writes PSMCT32
+        for (std::size_t k = 0; k < texels; ++k) {
+            std::uint32_t index;
+            if (fourBit) {
+                const std::uint8_t byte = tileFile[upload.dataOffset + k / 2];
+                index = (k & 1u) == 0u ? (byte & 0x0Fu) : (byte >> 4);
+            } else {
+                index = tileFile[upload.dataOffset + k];
+            }
+            std::uint32_t pos;
+            if (fourBit) {
+                pos = bind.csa * 16u + index;
+            } else {
+                const std::uint32_t raw = (bind.csa * 16u + index) & 0x1FFu;
+                pos = std::min(raw >> 4, 15u) * 16u + (raw & 0x0Fu);  // clamp to last bank
+            }
+            std::uint32_t c;
+            if (clut != nullptr) {
+                const std::uint32_t at = swappedClutWordPos(pos);
+                c = at < page.clutWords.size() ? clutWordRgba(page.clutWords[at], cpsmCt24) : 0u;
+            } else {
+                const std::uint32_t gray = fourBit ? index * 17u : index;
+                c = gray | (gray << 8) | (gray << 16) | (0x80u << 24);
+            }
+            storeRgba(&page.rgba[k * 4], c);
+        }
+        page.bank = bind.csa;
+        out.pages.push_back(std::move(page));
+    }
+    return out;
+}
+
+expected<FieldTexturedTerrain, FieldTileError>
+buildFieldTexturedTerrain(std::span<const std::uint8_t> tileFile, float scale) {
+    auto cellsResult = extractCellStrips(tileFile);
+    if (!cellsResult) {
+        return cellsResult.error();
+    }
+    auto decodeResult = decodeFieldTextures(tileFile);
+    if (!decodeResult) {
+        return decodeResult.error();
+    }
+
+    FieldTexturedTerrain out;
+    out.clutHits = decodeResult->clutHits;
+    out.clutAliasHits = decodeResult->clutAliasHits;
+    out.clutMisses = decodeResult->clutMisses;
+    const std::vector<std::int32_t> pageIndexByUpload = decodeResult->pageIndexByUpload;
+    auto& patch = out.patch;
+    patch.pages = std::move(decodeResult->pages);
+
+    std::unordered_map<std::uint32_t, std::uint32_t> textureUses;
+    for (const FieldCellStrips& cell : *cellsResult) {
+        bool contributed = false;
+        for (const FieldStrip& strip : cell.strips) {
+            const FieldCellMaterial* material = nullptr;
+            if (strip.materialIndex >= 0 &&
+                static_cast<std::size_t>(strip.materialIndex) < cell.materials.size()) {
+                material = &cell.materials[static_cast<std::size_t>(strip.materialIndex)];
+            } else if (!cell.materials.empty()) {
+                material = &cell.materials.front();
+            }
+            std::int32_t pageId = -1;
+            if (material != nullptr && material->textureIndex >= 0 &&
+                static_cast<std::size_t>(material->textureIndex) < pageIndexByUpload.size()) {
+                pageId = pageIndexByUpload[static_cast<std::size_t>(material->textureIndex)];
+            }
+            if (material != nullptr && material->textureIndex >= 0) {
+                ++textureUses[static_cast<std::uint32_t>(material->textureIndex)];
+            }
+            if (strip.vertices.size() < 3) {
+                continue;
+            }
+            contributed = true;
+            const std::uint32_t base = static_cast<std::uint32_t>(patch.positions.size());
+            for (const FieldVertex& vertex : strip.vertices) {
+                patch.positions.push_back({vertex.x * scale, vertex.height * scale, vertex.y * scale});
+                patch.uvs.push_back({vertex.s, vertex.t});
+                out.maxAbsU = std::max(out.maxAbsU, std::abs(vertex.s));
+                out.maxAbsT = std::max(out.maxAbsT, std::abs(vertex.t));
+            }
+            // GIF PRIM 0x27c topic 4 = TriangleStrip (EmuTC PRIM bits 0..2);
+            // expand to consecutive triples.
+            for (std::size_t j = 2; j < strip.vertices.size(); ++j) {
+                patch.indices.push_back(base + static_cast<std::uint32_t>(j - 2));
+                patch.indices.push_back(base + static_cast<std::uint32_t>(j - 1));
+                patch.indices.push_back(base + static_cast<std::uint32_t>(j));
+                patch.triangleTexture.push_back(pageId);
+                if (pageId < 0) {
+                    ++out.unresolvedTriangles;
+                }
+                const auto& p0 = patch.positions[base + static_cast<std::uint32_t>(j - 2)];
+                const auto& p1 = patch.positions[base + static_cast<std::uint32_t>(j - 1)];
+                const auto& p2 = patch.positions[base + static_cast<std::uint32_t>(j)];
+                const double ux = p1[0] - p0[0];
+                const double uz = p1[2] - p0[2];
+                const double vx = p2[0] - p0[0];
+                const double vz = p2[2] - p0[2];
+                out.projectedArea += std::abs(ux * vz - uz * vx) * 0.5;
+                ++out.stripTriangles;
+            }
+        }
+        if (contributed) {
+            ++out.cells;
+        }
+    }
+    out.distinctTextureIds = static_cast<std::uint32_t>(textureUses.size());
+    for (const auto& entry : textureUses) {
+        if (entry.second == 1) {
+            ++out.uniqueTextureIds;
+        }
+        const std::size_t upload = entry.first;
+        const std::int32_t page =
+            upload < pageIndexByUpload.size() ? pageIndexByUpload[upload] : -1;
+        if (page >= 0 && static_cast<std::size_t>(page) < patch.pages.size()) {
+            out.textureArea += static_cast<std::uint64_t>(patch.pages[static_cast<std::size_t>(page)].width) *
+                              patch.pages[static_cast<std::size_t>(page)].height;
+        }
+    }
+    if (out.projectedArea > 0.0) {
+        out.unsignedCoverage = static_cast<double>(out.textureArea) / out.projectedArea;
+    }
+    return out;
 }
 
 } // namespace rt::native::assets

@@ -17,8 +17,9 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`field-topology-status.md`](field-topology-status.md) | FLD container grammar, 64/64 corpus, tile id/streaming (digit order **proven**), loader chain | current |
 | [`asset-map.md`](asset-map.md) | All ROM descriptor tables, 384/384 exact LBA↔file matches, disc layout, orphan/id puzzles | current |
 | [`cell-vif-chains.md`](cell-vif-chains.md) | Per-cell VIF chains: 60B vertex records incl. **streamed UVs**; attribute-table rejection | current |
-| [`gif-material-streams.md`](gif-material-streams.md) | GIF A+D material header per cell, TEX0→page binding, 3,097 IMAGE transfers | current (swizzle/CLUT emulation open) |
+| [`gif-material-streams.md`](gif-material-streams.md) | GIF A+D material header per cell, TEX0→page binding, 3,097 IMAGE transfers | current |
 | [`field-textures.md`](field-textures.md) | `fieldTextureCatalog()` upload grammar, GS page bank rule, pixel conventions | current |
+| [`field-texture-rendering.md`](field-texture-rendering.md) | decodeFieldTextures() payload-linear decode verdict (oracle-exact), CLUT/alpha pins, UV semantics, textured preview pipeline | current |
 | [`vu0-macro-streams.md`](vu0-macro-streams.md) | VIF word grammar; proof there are **no VU0 macro streams** | current |
 | [`vu1-programs.md`](vu1-programs.md) | Shared VU1 microprogram images + entry map (WorldStrip = entry 4) | current |
 | [`course-data-status.md`](course-data-status.md) | COURSE container regions | earlier pass |
