@@ -190,11 +190,68 @@ static void testSteerBoundedPerTick() {
     CHECK(std::fabs(s.ai.steerAccum) > 0.99f);
 }
 
+// CONFIRMED speed quantization/thresholds: 0x250978..0x250c9c.
+// Changing strict comparisons, masking, or using the cap divisor for both
+// paths must fail these boundary pins. Synthetic inputs, not disc data.
+static void testTrafficSpeedBands() {
+    CHECK(TrafficAiConstants::speedNumerator == 216);
+    CHECK(TrafficAiConstants::routeSpeedDivisor == 0x28000);
+    CHECK(TrafficAiConstants::capSpeedDivisor == 0x14000);
+    CHECK(TrafficAiConstants::residentSpeedCap == 20);
+    CHECK(TrafficAiConstants::flaggedResidentSpeedCap == 40);
+    CHECK(trafficSpeedInput(0, 0) == 1); // zero target means gas, not stop
+    CHECK(trafficSpeedInput(200000, 0x80) == 1); // low seven bits only
+    // 8192 * 216 / 163840 = 10 (integer truncation).
+    CHECK(trafficSpeedInput(8192, 11) == 1);
+    CHECK(trafficSpeedInput(8192, 10) == 1);
+    CHECK(trafficSpeedInput(8192, 9) == 0);
+    CHECK(trafficSpeedInput(8192, 8) == 2);
+    CHECK(trafficSpeedInput(8192, 0x8a) == 1);
+    CHECK(trafficSpeedInput(7585, 8) == 0); // index 9, just below 10 boundary
+    CHECK(trafficSpeedInput(7586, 8) == 2); // index 10
+    CHECK(trafficSpeedInput(-8192, 10) == 1);
+    // Cap index is 21: d<=0 preserves base, d=1/2 coasts, d>=3 brakes.
+    CHECK(trafficSpeedInput(8192, 8, 21) == 2);
+    CHECK(trafficSpeedInput(8192, 0, 20) == 0);
+    CHECK(trafficSpeedInput(8192, 0, 19) == 0);
+    CHECK(trafficSpeedInput(8192, 0, 18) == 2);
+    CHECK(trafficSpeedInput(8192, 0, 22) == 1);
+}
+
+static void testTrafficBranchSide() {
+    // CONFIRMED 0x250144..0x2501a4 and 0x250244..0x2502c0:
+    // the third point in two segment records defines the dividing line.
+    const Vec2 a{0.f, 0.f}, b{0.f, 10.f};
+    CHECK(chooseTrafficBranch(a, b, {-1.f, 5.f}, 3, 7) == 3);
+    CHECK(chooseTrafficBranch(a, b, {1.f, 5.f}, 3, 7) == 7);
+    CHECK(chooseTrafficBranch(a, b, {0.f, 5.f}, 3, 7) == 7);
+    CHECK(chooseTrafficBranch(a, b, {1.f, 5.f}, 3, 3) == 3);
+}
+
+static void testTrafficSpeedOptIn() {
+    AiState ai;
+    CarState car;
+    car.speed = 8192;
+    AiParams params;
+    params.routeTargetSpeed = 0;
+    params.trafficSpeedCap = 18;
+    const auto out = tickAi(ai, car, {{0.f, 15.f}}, params);
+    CHECK(out.brake);
+    CHECK(!out.throttle);
+    params.trafficSpeedCap = 0;
+    const auto gas = tickAi(ai, car, {{0.f, 15.f}}, params);
+    CHECK(gas.throttle); // no authored corner/lookahead override in this mode
+    CHECK(!gas.brake);
+}
+
 int main() {
     testStraightLine();
     testSharpTurnSlows();
     testArrivalRadiusAndBrake();
     testSteerBoundedPerTick();
+    testTrafficSpeedBands();
+    testTrafficBranchSide();
+    testTrafficSpeedOptIn();
 
     if (g_fail) {
         std::fprintf(stderr, "%d failure(s)\n", g_fail);
