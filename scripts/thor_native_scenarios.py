@@ -158,9 +158,12 @@ def main() -> int:
         # The setup activity emits "assets: ready" before SDL's native thread
         # has created the listener.  adb forwards an early connection and then
         # closes it, so retry the hello handshake rather than treating that
-        # expected launch window as a scenario failure.
-        deadline = time.monotonic() + 60
+        # expected launch window as a scenario failure.  Cold scene startup on
+        # device (terrain build + shader compile) measured >18 s on desktop CPU
+        # and longer on Thor, so allow a 3-minute window with progress echoes.
+        deadline = time.monotonic() + 180
         last_error = None
+        next_echo = 0.0
         while time.monotonic() < deadline:
             try:
                 sock = NativeSocket("127.0.0.1", args.port)
@@ -171,9 +174,13 @@ def main() -> int:
                 if sock:
                     sock.sock.close()
                     sock = None
+                if time.monotonic() >= next_echo:
+                    print(f"  hello retry: {last_error} "
+                          f"(t+{180 - (deadline - time.monotonic()):.0f}s)")
+                    next_echo = time.monotonic() + 15
                 time.sleep(1)
         if sock is None:
-            raise RuntimeError(f"socket hello timeout after 60s: {last_error}")
+            raise RuntimeError(f"socket hello timeout after 180s: {last_error}")
         sock.step(1)
         result["title"] = {"status": "PASS", "version": result["hello"].get("version")}
         town(sock, result, args.serial, args.screenshots)

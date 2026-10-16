@@ -65,7 +65,11 @@ bool TestSocket::startIfRequested(Command command) {
 #ifdef _WIN32
     (void)spec; return false;
 #else
-    int fd = ::socket(AF_INET, SOCK_STREAM, 0); int port = 0;
+    // Abstract namespace (@name) is AF_UNIX; only tcp: specs may use AF_INET.
+    // Binding a sockaddr_un to an AF_INET fd fails (EAFNOSUPPORT) and silently
+    // disabled the Android listener (regression: test_testsocket_abstract_address).
+    const bool abstract = !spec.empty() && spec[0] == '@';
+    int fd = ::socket(abstract ? AF_UNIX : AF_INET, SOCK_STREAM, 0); int port = 0;
     if (spec.rfind("tcp:", 0) == 0) {
         port = std::atoi(spec.c_str() + 4);
         sockaddr_in a{}; a.sin_family = AF_INET; a.sin_addr.s_addr = htonl(INADDR_LOOPBACK); a.sin_port = htons(port);
