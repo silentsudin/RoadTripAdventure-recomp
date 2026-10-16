@@ -55,9 +55,10 @@ Tile names are a 3-digit `ABC.BIN` structure: all 64 combinations of
 `{0-3}{0-3}{0-3}` exist (16 per leading digit, four leading digits). Packet
 vertices sit on a 40-unit grid spanning roughly 1000 units per tile. The
 naming is consistent with a 4-region × 4×4 grid world; the id formula derived
-from `FUN_0021c8d0` (see "Tile identity & streaming") closes most of the gap,
-but the digit↔filename ordering and the fixed-point scale still need one
-runtime cross-check before wiring tiles to absolute map coordinates.
+from `FUN_0021c8d0` plus the ROM LBA table (see "Tile identity & streaming")
+resolves digit↔filename ordering outright — 64/64 descriptor size matches,
+zero LBA overlaps. Only the metric fixed-unit scale remains softly open
+(cosmetic; topology pinned).
 
 An earlier split "50 canonical / 13 layout variants / 1 header variant" was
 **an artifact of overly strict validation**, not format families. The full
@@ -127,7 +128,50 @@ is still chosen by the streaming-request code (`FUN_0020aef0`/`FUN_0020b348`)
 and remains to be pinned; the per-tile geometry→world transform is simply
 `origin + local(x, z, y)`.
 
-## Tile identity & streaming (PROVEN from `FUN_0021c8d0` / `FUN_002201c0`)
+## Tile identity & streaming (digit order RESOLVED 2026-10-16 — static proof)
+
+**id ↔ filename:** for tile `ABC.BIN` (digits A,B,C ∈ 0..3):
+
+```
+id = (A << 4) | (B << 2) | swap2(C)      // swap2 swaps C's two bits
+                                        // C=0→0, 1→2, 2→1, 3→3
+```
+
+**Proof chain (no runtime needed):**
+1. `FUN_002201c0` spawns neighbor requests `gs_tasks_spawn(ctx, doneCb, id | 0x390000)`
+   where `id = FUN_0021c8d0(x, y)`; world step constants ±0x1000000 (columns)
+   and ±0x2000000 (rows) — fixed-point grid, 1<<24 per column slot,
+   1<<25 per row (row parity shear `b` shifts alternate rows by half a slot:
+   diagonal/brick lattice, columns indexed 0..15, each row uses parity `b`).
+2. Task dispatcher `FUN_0020d120`, category nibble 9 (`tag & 0xf0000 == 0x90000`):
+   `loadFieldTile(req, tcb, 0x29bb50 + (tag & 0xff) * 0xc, tag & 0xff, tag & 3)`
+   — **ROM table of 64 × 12-byte descriptors indexed by the 6-bit id**:
+   `{u32 pack constant 0x00333388; u32 sectorOffset; u32 sectorCount}`,
+   slot = id & 3 (the four 0x3A8000 streaming buffers).
+3. Cross-check vs disc: for every `ABC.BIN`, `ceil(physicalSize / 2048)`
+   equals `table[formula(A,B,C)].sectorCount` — **64/64 matches**, and the
+   64 LBA ranges are pairwise **non-overlapping** (0 collisions). Size-twin
+   names (18 files share 0x4A5 sectors; 4 share 0x4C8) are separated by the
+   formula into distinct ids; the twins that are byte-identical content are
+   interchangeable anyway.
+4. Code semantics of `FUN_0021c8d0`: `id = ((y>>25)&6)*8 + (((x>>24)-b)&0xE) + b`,
+   `b = (y>>25)&1`. Bit-for-bit: id[5:4] = y[26:25] (= A, so b = A&1 ✓),
+   id[3:1] = ((x>>24) − b) & 0xE, id[0] = b. Inverting (tentative metric
+   placement — see open note below) for tile `ABC`:
+   `rowBits = (A<<1)|b` (y base = rowBits << 25) and
+   `xIndex = ((B<<1)|(C&1)) + b` (x base = xIndex << 24, mod 16).
+
+Residual (cosmetic, optional): one live trace of `gs_tasks_spawn` at an id
+change would confirm the metric scale mapping fixed-units → the 1600-unit
+tile extents; topology is fully pinned statically.
+
+Loader chain (unchanged summary): `loadFieldTile` = `FUN_0020c188` — case 0/1
+DMA the 0x800-byte header window, case 2 walks/validates REF chain + size caps
+(0x3A8000; slot 3 0x528000) + bulk read into `fieldTileData + slot*0x3A8000`,
+case 3 relativizes the 65-entry directory (`fieldCellTables[slot]`).
+`printf` traces: `misc %d` / ` Total Size=0x%x`.
+
+## Historical note: previous streaming hypothesis (PROVEN from `FUN_0021c8d0` / `FUN_002201c0`)
 
 `FUN_0021c8d0(x, y)` maps fixed-point world coordinates (offsets relative to
 the section origin pair at `+0x58/+0x5C`, negatives wrapped modulo
@@ -150,24 +194,25 @@ and, on id change, spawns a loader task
 `gs_tasks_spawn(…, FUN_0020dc50, id | 0x390000)` — request type tag
 `0x390000` with the 6-bit tile id in the low bits. The debug format
 `[%d%d%d]` (@0x2EEAD8, xrefs in the same file) prints the id as the three
-filename digits — consistent with `A = id>>4`, `B = (id>>2)&3`, `C = id&3`,
-though the digit↔file ordering itself is inferred, not observed.
+filename digits: `A = id>>4`, `B = (id>>2)&3`, `C = swap2(id&3)` — matching
+the LBA-table proof above (`swap2` swaps the low two bits).
 
 Practical consequence for the native app: with the car at world `(x, z)`, the
 visible world is this tile + the quadrant neighbours chosen by the same id
 walk; 4 tile slots stream, matching the 4 × `0x3A8000` slots in
 `fieldTileData`.
 
-Two things stay open and need one live trace (`gs_tasks_spawn` arg captures at
-id-change), because the decompiler shows inputs already in a fixed-point space
-whose scale can't be pinned from this function alone:
-- the fixed-unit ↔ game-unit scale (quadrant steps are ±`0x1000000`/±`0x2000000`,
-  wrap `0x2000000`; not a clean multiple of the 1600-unit tile, so it is
-  authored-space, not world units), and
-- the row-parity term `b`: it makes id bit0 track row parity, implying either
-  a staggered grid or a pack-order unrelated to spatial columns. The
-  id formula is recorded verbatim above; the digit↔filename mapping is
-  inferred and unconfirmed.
+One item stays softly open (cosmetic): the fixed-unit ↔ game-unit scale
+(quadrant steps ±`0x1000000`/±`0x2000000`, wrap `0x2000000`) is authored
+space; a single live `gs_tasks_spawn` trace at an id change would pin it,
+and also resolve a puzzle the formula leaves: `id[0] = b = y25 = id[4]`
+makes only 32 of 64 ids reachable through `FUN_0021c8d0` (parity
+constraint), and a 4-row × 8-slot lattice of 2^25-unit square tiles fits
+the terrain extents (1600 units) — yet the disc/table carry 64 valid tile
+descriptors with distinct content (41 unique contents > 32 cells). Some
+second spawn path (other type bytes or a variant formula) must cover the
+other half of the id space; the name↔id assignment itself is unaffected
+(it is pinned by size equality per id, independent of reachability).
 
 ## Runtime chain construction (PROVEN from loader case 3 @ 0x20C430 region)
 
