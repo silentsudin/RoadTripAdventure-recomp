@@ -214,6 +214,11 @@ ids reachable through `FUN_0021c8d0`" was a misread: `A=(z>>26)&3` (id bits
 car-reachable, consistent with the 64 valid descriptors (41 unique contents fit
 comfortably). The name↔id assignment remains pinned by size equality per id.
 
+- Deferred perf item: textured cold boot (~134 s single-core) is dominated by
+  `textureContentHash` in `loadTerrainMesh` (stack-sampled); correct but slow —
+  candidates: hash caching keyed on (page, version) or cheaper strong-digest.
+  Not a regression from the nav/world work (flag-gated / unwired).
+
 ## Runtime chain construction (PROVEN from loader case 3 @ 0x20C430 region)
 
 `FUN_0020c188` after DMA-completing the tile into `fieldTileData[slot*0x3A8000]`:
