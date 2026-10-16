@@ -16,9 +16,19 @@
   `0x1012xxxx` tags (see `field-topology-status.md`).
 - No raw u32 copies of the race ladder values 58500/144000/162000 exist in
   any course file (they are computed in ELF code, not stored per-course).
-- Conclusion: route/checkpoint semantics inside COURSE binaries are encoded in
-  VU0-macro streams and are NOT extractable without the VU micro-disassembly
-  work that blocks FLD topology. The native app's authored monotonic-zone
-  routes (`gameplay/route.*`) remain the shipped stand-in; per-course scalar
-  anchors (prop count `N`, region sizes) are available via
-  `assets/course_data.*` when macro RE lands.
+- **ROM LBA linkage (2026-10-16, PROVEN):** the misc-type descriptor table at
+  ELF vaddr `0x29be50` — 12 records `{tag 0x00333388, sectorOffset,
+  sectorCount}` — matches `COURSE/C00..C11.BIN` **12/12 by ceil(size/2048)
+  sectors, in table order** (race index → filename index). These sectors
+  (`0x8AE6`–`0xC43D`) sit entirely before the FLD tile ranges (min `0xE5C8`),
+  so courses and tiles never overlap. `C12..C20` are claimed by other
+  descriptor tables in the wider `0x29aexx`–`0x29bfxx` region (see
+  `asset-map.md` for the full sweep).
+- Conclusion (updated 2026-10-16): the earlier "blocked on VU0 macro RE"
+  verdict is **void** — the game contains no VU0 macro streams at all
+  (`vu0-macro-streams.md`). COURSE region content is VIF1/VU1 packed data in
+  the same family as FLD cell chains (`vu1-programs.md`), so route/checkpoint
+  records are extractable with cell-chain-style parsing once terrain texturing
+  lands. The native app's authored monotonic-zone routes (`gameplay/route.*`)
+  remain the shipped stand-in; per-course scalar anchors (prop count `N`,
+  region sizes) are available via `assets/course_data.*`.
