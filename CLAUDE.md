@@ -1,5 +1,6 @@
 # Notes for agents
 
+- **Subagents: ALWAYS `model: "openai/gpt-5.6-terra"` + `background: true` on every dispatch (user mandate, repeated; local oMLX workers are forbidden — they exhaust the Metal memory ceiling and abort mid-run). Omitting `model` defaults to the local model: never do that.** If OpenAI quota errors occur, retry the dispatch later instead of falling back to local.
 - This is a static recomp of the PS2 game Road Trip (USA, SLUS-20398) using PS2Recomp (submodule `third_party/PS2Recomp`, pinned).
 - **The built app must never contain game code.** The game is recompiled and compiled on the user's machine at first launch (`src/game/GameBuilder.cpp`), and `scripts/bundle_sdk.py` ships only the recompiler, runtime headers and config. Verify with `nm RoadTrip.app/Contents/MacOS/RoadTrip | grep -c sub_00`, which must print 0.
 - **Never commit game data or derived code.** That covers anything under `generated/` and `build/`, disc images, ELFs, and extracted files. `.gitignore` covers them; check `git status` before committing.
