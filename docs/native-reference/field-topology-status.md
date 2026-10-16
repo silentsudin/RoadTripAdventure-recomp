@@ -205,17 +205,14 @@ visible world is this tile + the quadrant neighbours chosen by the same id
 walk; 4 tile slots stream, matching the 4 × `0x3A8000` slots in
 `fieldTileData`.
 
-One item stays softly open (cosmetic): the fixed-unit ↔ game-unit scale
-(quadrant steps ±`0x1000000`/±`0x2000000`, wrap `0x2000000`) is authored
-space; a single live `gs_tasks_spawn` trace at an id change would pin it,
-and also resolve a puzzle the formula leaves: `id[0] = b = y25 = id[4]`
-makes only 32 of 64 ids reachable through `FUN_0021c8d0` (parity
-constraint), and a 4-row × 8-slot lattice of 2^25-unit square tiles fits
-the terrain extents (1600 units) — yet the disc/table carry 64 valid tile
-descriptors with distinct content (41 unique contents > 32 cells). Some
-second spawn path (other type bytes or a variant formula) must cover the
-other half of the id space; the name↔id assignment itself is unaffected
-(it is pinned by size equality per id, independent of reachability).
+CLOSED 2026-10-16 (`world-geography.md`): the fixed-unit scale is pinned —
+the f32 divisor at `0x332c0c` is `20971.51953125 = f32(2^25/1600)`, so one
+tile spans exactly `0x02000000` fixed units on an `0x10000000`-wrapped grid
+(8 rows × 16 half-columns, odd-row shear `b`). The old note's "only 32 of 64
+ids reachable through `FUN_0021c8d0`" was a misread: `A=(z>>26)&3` (id bits
+5:4) and `b=(z>>25)&1` (id bit 0) are independent — all 64 ids are
+car-reachable, consistent with the 64 valid descriptors (41 unique contents fit
+comfortably). The name↔id assignment remains pinned by size equality per id.
 
 ## Runtime chain construction (PROVEN from loader case 3 @ 0x20C430 region)
 

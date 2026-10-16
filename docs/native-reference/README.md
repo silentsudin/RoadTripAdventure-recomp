@@ -15,6 +15,7 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | Doc | Subject | State |
 |---|---|---|
 | [`field-topology-status.md`](field-topology-status.md) | FLD container grammar, 64/64 corpus, tile id/streaming (digit order **proven**), loader chain | current |
+| [`world-geography.md`](world-geography.md) | fixed-unit scale **proven** (1 tile = `0x02000000`, divisor f32 @`0x332c0c`), 8×16 half-column torus + row shear, parity-claim correction, Peach Town worked example | current |
 | [`asset-map.md`](asset-map.md) | All ROM descriptor tables, 384/384 exact LBA↔file matches, disc layout, orphan/id puzzles | current |
 | [`cell-vif-chains.md`](cell-vif-chains.md) | Per-cell VIF chains: 60B vertex records incl. **streamed UVs**; attribute-table rejection | current |
 | [`gif-material-streams.md`](gif-material-streams.md) | GIF A+D material header per cell, TEX0→page binding, 3,097 IMAGE transfers | current |
@@ -30,6 +31,10 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`nav-walkable.md`](nav-walkable.md) | Waypoint arc-length traversal — full-coverage proof (Peach Town 34/34 nodes, lap 1652.558 units) + corpus closure table | current |
 | [`nav-index-binding.md`](nav-index-binding.md) | static nav index = pack-type byte (+0x22); outer-T semantics; graph-pair overlap matrix | current |
 | [`action-data-status.md`](action-data-status.md) | ACTION container grammar, 21/21 descriptor join, header variants | current |
+| [`action-mscalf6.md`](action-mscalf6.md) | MSCALF imm semantics (6 = ObjectStrip origin+5q records, 8 = WorldStrip), `NUM=1+5n` payload grammar, per-file usage table | current |
+| [`sys-gsl-packs.md`](sys-gsl-packs.md) | GSL DMA-chain container grammar (1142 upload units / 49 files verified), A+D `{0x50..0x53}` unit layout, loader path, FONTE glyph-atlas decode | current |
+| [`save-layout.md`](save-layout.md) | PS2 Adventure save record `0x3448` field map (money `0x654`, stamps, licence, radio, remaps), card paths, checksum verdict, migration rules | current |
+| [`task-system.md`](task-system.md) | async task spine: 48-slot scheduler, tag/category taxonomy, 92 spawn sites / 34 producers, completion + pointer relativization | current |
 | [`tsq-tvb-format.md`](tsq-tvb-format.md) / [`sndmod-irx.md`](sndmod-irx.md) | Music stack | done |
 
 Code: `src/native/assets/field_converter.{h,cpp}` (packets, textures, terrain),

@@ -137,9 +137,13 @@ with zero cross-table overlap except the SCORE duplicates below.
 
 ## Tile-id re-use verdict (the "other 32 ids" puzzle)
 
-`FUN_0021c8d0` can only emit ids with `id[0] == id[4]` (row-parity constraint), leaving 32
-ids unreachable — exactly those whose bits 4 and 0 differ: odd `1..15`, even `16..30`,
-odd `33..47`, even `48..62`. Those descriptors are **not** aliases:
+**Correction 2026-10-16 (see `world-geography.md`):** an earlier shorthand here
+claimed `FUN_0021c8d0` emits only ids with `id[0] == id[4]`, leaving 32 ids
+unreachable. Instruction-level re-reading disproves that: `A=(z>>26)&3` lands in
+id bits 5:4 and row-parity `b=(z>>25)&1` in bit 0 *independently*, so all 64
+ids are reachable by car position, matching the 64 valid descriptors. The
+descriptor evidence below still stands on its own — those 32 records are **not**
+aliases:
 
 - All 32 unreachable-id records point at full-size, valid tile files
   (688..2,718 sectors each, all content-matched).
@@ -148,8 +152,8 @@ odd `33..47`, even `48..62`. Those descriptors are **not** aliases:
 - The only cross-table range overlap anywhere is the benign SCORE dual-registration (below).
 
 **Verdict:** the 2P-mirror / town / night hypotheses in their "re-use the same sectors" form
-are **rejected** — the unreachable half of the id space addresses 32 *distinct* tile files
-that nothing else references.
+are **rejected** — the odd-parity half of the id space addresses 32 *distinct* tile files
+that no other table references.
 
 **RESOLVED 2026-10-16 (spawn path found):** `FUN_00210158` (town/scene loader,
 callers `FUN_002105b8` ×3 and `FUN_0026ca48`) spawns
@@ -157,13 +161,14 @@ callers `FUN_002105b8` ×3 and `FUN_0026ca48`) spawns
 scene→tile-id table** at vaddr `0x2be438`, stride 8, records
 `{u32 sceneNamePtr, u16 tileId, u16 extra}` (tileId at +4; the loader reads
 `short @ 0x2be43c + i*8`). Decoded ids: 11, 43, 23, 7, 19, 36, 35, 47, 64, 11,
-39, … — ids 11/43/7/35/47 are **parity-invalid** (unreachable by
-`FUN_0021c8d0`), loading only via scripted scene entry (towns/POIs; id 11 =
+39, … — ids 11/43/7/35/47 are odd-parity (`id[4] != id[0]`; reachable by car
+position per the corrected `FUN_0021c8d0` reading — the scene table is a second,
+scripted request path for towns/POIs, not the only route; id 11 =
 `023.BIN`, the 0x160-header tile). The id=64 entry is anomalous (indexes the
 COURSE sub-slot of the physical descriptor run) [OPEN]. The `+6` u16 cluster
-(0x0Bxx/0x0Axx) semantics remain [OPEN]. Net: the opposite-parity ids have a
-real spawn path; parity-valid ids never hit by the car walk are simply
-unreachable world space.
+(0x0Bxx/0x0Axx) semantics remain [OPEN]. Net: the scene table is a
+scripted preload/teleport path over the same 64-tile grid the car walk covers;
+no part of the id space is reserved for it.
 
 ## Coverage
 
@@ -229,8 +234,10 @@ start index.  This resolves the `+6` field's role; the identities/meaning of
 every individual resident/progress record remain outside this table.
 
 For ids 0..63, filename is the proven FLD mapping
-`id=(A<<4)|(B<<2)|swap2(C)`.  `bad` marks the ids that fail the car-walk
-parity condition `id[4] == id[0]`.  The disc extract contains every resulting
+`id=(A<<4)|(B<<2)|swap2(C)`.  `bad` marks ids with bit 4 != bit 0 (the former
+"parity-invalid" flag — not a reachability gate after the correction above; it
+now simply segregates the odd-parity ids the scripted table favours).
+The disc extract contains every resulting
 `FLD/ABC.BIN`; the human scene strings are locations/POIs rather than alternate
 disc filenames.  `SJIS` means the pointed string is non-ASCII Shift-JIS bytes;
 it is deliberately not guessed as an English name here.
@@ -271,11 +278,12 @@ it is deliberately not guessed as an English name here.
 | 31 | 7 | `013.BIN` | SJIS | `0x0B00` | yes |
 
 **Grid picture:** the 30 in-range entries cover town/POI placements across
-`A=0..2` and include 21 parity-invalid uses (repeated ids counted):
+`A=0..2` and include 21 odd-parity uses (repeated ids counted):
 `{5, 7, 9, 11, 20, 22, 24, 33, 35, 37, 39, 43, 45, 47}`.
 Examples: `11 -> 023.BIN`, `43 -> 223.BIN`, `35 -> 203.BIN`, and
-`47 -> 233.BIN`.  This is the concrete scripted route to the formerly
-unreachable half of the FLD id space.
+`47 -> 233.BIN`.  These ids are car-reachable too (corrected formula) — the
+scripted path's role is scene-driven preload/teleport, not sole access to a
+otherwise-dark half of the grid.
 
 **id=64 anomaly (PROVEN, not a FLD tile):** both table entries with `tileId`
 64 spawn tag `0x390040`.  Category 9 dispatch has no bounds check and computes
@@ -290,5 +298,6 @@ producer of a category-9 non-FLD index was established by this static pass.
 
 **Residual OPEN:** precise gameplay semantics of each `residentStart` list and
 why the two entries that select `COURSE/C00.BIN` do so still
-need runtime/script evidence.  The table extent, all ids/names, parity route,
-descriptor outcome, and byte-level `+6/+7` interpretation are resolved.
+need runtime/script evidence. The table extent, all ids/names, grid
+reachability (corrected), descriptor outcome, and byte-level `+6/+7`
+interpretation are resolved.
