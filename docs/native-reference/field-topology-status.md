@@ -145,7 +145,10 @@ id = (A << 4) | (B << 2) | swap2(C)      // swap2 swaps C's two bits
    diagonal/brick lattice, columns indexed 0..15, each row uses parity `b`).
 2. Task dispatcher `FUN_0020d120`, category nibble 9 (`tag & 0xf0000 == 0x90000`):
    `loadFieldTile(req, tcb, 0x29bb50 + (tag & 0xff) * 0xc, tag & 0xff, tag & 3)`
-   — **ROM table of 64 × 12-byte descriptors indexed by the 6-bit id**:
+   — **ROM table of 12-byte descriptors indexed by the 6-bit id**
+   (the table physically continues past index 63 with COURSE and ACTION
+   sub-blocks — 103 records total, see `asset-map.md`; category 9 indexes
+   only the FLD 64):
    `{u32 pack constant 0x00333388; u32 sectorOffset; u32 sectorCount}`,
    slot = id & 3 (the four 0x3A8000 streaming buffers).
 3. Cross-check vs disc: for every `ABC.BIN`, `ceil(physicalSize / 2048)`

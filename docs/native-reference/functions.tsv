@@ -51,11 +51,11 @@ address	name	note	callers	callees
 0x0020A660	UpdateMenuInputState	Updates menu input state and associated option records.	0x00205088	
 0x0020A8A8	ReadPadState	Reads controller state and updates the corresponding input data.	0x0020ab10	0x00273bc8,0x00273d68,0x00273fa8,0x00273b48,0x00274250,0x00274198,0x002740e0
 0x0020AB10	UpdateControllerInput	Processes controller input and updates shared input state.	0x00205088	0x0020a8a8
-0x0020CC30	CheckInputMapping	Checks a controller input mapping for the selected input mode.	0x0020d120	0x0020c7b8
-0x0020CD10	UpdateInputMapping	Updates input mapping state according to the active controller mode.	0x0020d120	0x0020c7b8
-0x0020CDC0	DispatchInputMapping	Dispatches input processing according to the active controller mapping mode.	0x0020d120	
+0x0020CC30	CarModelLoadStep	Asset category 0xB step: loads one car model via table E (0x29b438+idx*12, idx = request low byte Q-number), RAM slot (tag>>8&7)+15 into carModelData stride 0x34000, texture rebase TBP 0x243e+slot*0x44. [was misnamed CheckInputMapping; PROVEN 2026-10-16 asset-map.md]	0x0020d120	0x0020c7b8
+0x0020CD10	CarModelReloadStep	Asset category 0x7 step: re-loads a remembered car-model slot with a variant (same table E machinery). [was misnamed UpdateInputMapping; PROVEN 2026-10-16 asset-map.md]	0x0020d120	0x0020c7b8
+0x0020CDC0	ItemShopPackStep	Asset category 0x3 step: drives the ITEM/SHOP pack loads from table D (base 0x29b054/METER cluster). [was misnamed DispatchInputMapping; PROVEN 2026-10-16 asset-map.md]	0x0020d120	
 0x0020D008	HandleInputEvent	Processes an input event and updates associated state.		0x002006f0,0x00270180,0x00270a20,0x00207b50
-0x0020D120	AssetTaskStep	Asset-load step dispatcher: tag category bits (tag&0xf0000) pick the pack — 0x90000=FLD tile (id=tag&0xff, slot=id&3, ROM descriptor table 0x29bb50 64x12B {0x333388, sectorOff, sectorCount}), 0x50000=misc, 0xc0000=car models, 0x0=subcategories via 0x20aef0/0x20b348; post-load chain rebases add pack bases 0x1bc2/0x1c44/0x1d8e/0x237a/0x285e/0x2c7e to tag address qwords. [PROVEN 2026-10-16; field-topology-status.md]	0x0020df98	0x0020bac8,0x0020c188,0x0020c9d0,0x0020e1f0,0x0020e250
+0x0020D120	AssetTaskStep	Asset-load step dispatcher: tag category bits (tag&0xf0000) pick the pack — 0x90000=FLD tile (id=tag&0xff, slot=id&3, ROM descriptor table 0x29bb50, physically 103 records (FLD id<64 + COURSE + ACTION sub-blocks; category 9 indexes only the FLD 64)), 0x50000=misc, 0xc0000=car models, 0x0=subcategories via 0x20aef0/0x20b348; post-load chain rebases add pack bases 0x1bc2/0x1c44/0x1d8e/0x237a/0x285e/0x2c7e to tag address qwords. [PROVEN 2026-10-16; field-topology-status.md]	0x0020df98	0x0020bac8,0x0020c188,0x0020c9d0,0x0020e1f0,0x0020e250
 0x0020DC50	FieldTileLoadDone	loadFieldTile task-completion callback: latches DAT_00333370 busy flag, sets task +0x28 bit 0x400000 when task +0x1c lacks flag 0x100000.		
 0x0020DF98	UpdateInputDeviceState	Updates input device state using shared controller/device data.	0x002052d0,0x0020d120	0x0020d120
 0x0020E018	ClearInputTransientState	Clears transient input state when the shared input mode is inactive.	0x00205088	

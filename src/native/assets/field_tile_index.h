@@ -32,6 +32,12 @@ struct FieldTileIndexEntry {
 // id|0x390000 passed to loadFieldTile).
 using FieldTileIndex = std::array<FieldTileIndexEntry, kFieldTileCount>;
 
+// Note: the disc extract also ships `.lbn_map.tsv` (filename -> real disc
+// LBA), which matches the descriptor table 384/384 exactly (see
+// docs/native-reference/asset-map.md). A future revision can prefer parsing
+// that sidecar over size+formula matching when present; the current path is
+// proven 64/64 on the shipped extract either way.
+
 // Digit formula: filename ABC.BIN -> streaming id.  swap2 swaps the two bits
 // of C.  Returns -1 unless every digit is in range.
 int fieldTileIdFromName(std::string_view fileName) noexcept;
