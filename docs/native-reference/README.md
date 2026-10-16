@@ -25,6 +25,8 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`course-data-status.md`](course-data-status.md) | COURSE container regions | current |
 | [`course-routes.md`](course-routes.md) | COURSE tail grammar — prop-draw chains (bounded negative result), AI-nav table pointers | current |
 | [`nav-tables.md`](nav-tables.md) | ROM-resident AI route graphs: static directory `0x2bd578`, 24B f32 segment + 8B transition grammar, runtime extraction spec | current |
+| [`nav-route-traversal.md`](nav-route-traversal.md) | FUN_00250068 follower predicate + host deterministic centerline rule (nav_path) | current |
+| [`nav-index-binding.md`](nav-index-binding.md) | static nav index = pack-type byte (+0x22); outer-T semantics; graph-pair overlap matrix | current |
 | [`action-data-status.md`](action-data-status.md) | ACTION container grammar, 21/21 descriptor join, header variants | current |
 | [`tsq-tvb-format.md`](tsq-tvb-format.md) / [`sndmod-irx.md`](sndmod-irx.md) | Music stack | done |
 
