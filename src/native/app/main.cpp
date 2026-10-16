@@ -398,8 +398,10 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         if (!catalog) continue;
         auto terrain = rt::native::assets::buildFieldRenderTerrain(bytes, *catalog, 0.1f);
         const std::uint32_t vertexBase = static_cast<std::uint32_t>(mesh.positions.size());
-        const float xOffset = static_cast<float>(id & 0xFu) * 80.0f;
-        const float zOffset = static_cast<float>(id >> 4) * 160.0f;
+        // Center the 16x4 slot grid on the origin so the spawn car starts on
+        // solid ground (cols 0..15, rows 0..3; half-tile stagger steps of 80).
+        const float xOffset = static_cast<float>(id & 0xFu) * 80.0f - 8.0f * 80.0f;
+        const float zOffset = static_cast<float>(id >> 4) * 160.0f - 1.5f * 160.0f;
         mesh.positions.reserve(mesh.positions.size() + terrain.positions.size());
         for (auto& p : terrain.positions) {
             p[0] += xOffset;
@@ -720,6 +722,18 @@ int main() {
                 }
                 if (!rendered || !present(presenter, pixels, retry, error)) {
                     std::cerr << "render: " << error << "\n"; running = false; break;
+                }
+                if (const char* snap = std::getenv("RT_APP_SNAPSHOT")) {
+                    std::ofstream snapStream(snap, std::ios::binary);
+                    snapStream << "P6\n" << presenter.extent.width << ' ' << presenter.extent.height
+                             << "\n255\n";
+                    for (std::size_t i = 0; i + 3 < pixels.size(); i += 4) {
+                        snapStream.put(static_cast<char>(pixels[i]));
+                        snapStream.put(static_cast<char>(pixels[i + 1]));
+                        snapStream.put(static_cast<char>(pixels[i + 2]));
+                    }
+                    std::cout << "rt-app snapshot: " << snap << " (" << presenter.extent.width
+                              << 'x' << presenter.extent.height << ")\n";
                 }
                 if (retry && !recreateSwapchain()) { running = false; break; }
             } while (retry && presenter.extent.width && presenter.extent.height);
