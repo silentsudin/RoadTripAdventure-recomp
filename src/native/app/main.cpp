@@ -16,6 +16,7 @@
 #include "gameplay/session.h"
 #include "gameplay/shop.h"
 #include "gameplay/tile_streamer.h"
+#include "gameplay/world_layout.h"
 #include "preview/preview.h"
 #include "preview/race_hud.h"
 
@@ -357,6 +358,25 @@ int envFrames() { const char* value = std::getenv("RT_APP_FRAMES"); return value
 // the preview draws with the authentic textures; pages are deduplicated
 // across tiles by content.  Absent/malformed input falls back to the
 // authored quad (or the banded mesh), never a failure.
+
+// Authentic tile placement (gameplay/world_layout; PROVEN formulas in
+// docs/native-reference/world-geography.md): id -> (halfColumn 0..15,
+// row 0..7) on the staggered lattice.  Render space is 0.1 game units,
+// anchored so Peach Town (streaming id 11: halfColumn 11, row 1) has its
+// origin at (0,0) — the spawn car and the graph-0 overlay then sit on
+// Peach terrain.
+namespace {
+constexpr std::int32_t kPeachHalfColumn = 11;
+constexpr std::int32_t kPeachRow = 1;
+
+struct TileRenderOrigin { float x; float z; };
+TileRenderOrigin tileRenderOrigin(int id) {
+    const auto p = rt::native::gameplay::tilePlacement(id);
+    return {static_cast<float>(p.halfColumn - kPeachHalfColumn) * 80.0f,
+            static_cast<float>(p.row - kPeachRow) * 160.0f};
+}
+} // namespace
+
 namespace {
 std::uint64_t textureContentHash(const rt::native::assets::FieldTexturePage& page) {
     std::uint64_t h = 1469598103934665603ull;
@@ -470,8 +490,9 @@ struct StreamedTerrain {
         for (int slot = 0; slot < rt::native::gameplay::kFieldTileSlots; ++slot) {
             const int id = slotId[static_cast<std::size_t>(slot)];
             if (id < 0) continue;
-            const float xOffset = static_cast<float>(id & 0xFu) * 80.0f - 8.0f * 80.0f;
-            const float zOffset = static_cast<float>(id >> 4) * 160.0f - 1.5f * 160.0f;
+            const auto origin = tileRenderOrigin(id);
+            const float xOffset = origin.x;
+            const float zOffset = origin.z;
             const std::size_t slotIndex = static_cast<std::size_t>(slot);
             if (wantTextures) {
                 if (slotTexturedValid[slotIndex])
@@ -548,9 +569,9 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
     }
 
     // Multi-tile path: resolve streaming ids via the ROM LBA descriptor table
-    // + size matching (field_tile_index), place tile (col = id&0xF,
-    // row = id>>4) at slot offsets — x step 80 render units (half-tile: the
-    // lattice is a staggered brick grid), z step 160.
+    // + size matching (field_tile_index), place each tile at its authentic
+    // lattice origin (halfColumn/row from world_layout, x step 80 render units
+    // = half-tile stagger, z step 160), anchored on Peach Town.
     const auto index = rt::native::assets::buildFieldTileIndex(root);
     if (!index) {
         std::cout << "rt-app terrain: SKIP (no tile index; err="
@@ -566,10 +587,11 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         if (!input) continue;
         const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
                                              std::istreambuf_iterator<char>());
-        // Center the 16x4 slot grid on the origin so the spawn car starts on
-        // solid ground (cols 0..15, rows 0..3; half-tile stagger steps of 80).
-        const float xOffset = static_cast<float>(id & 0xFu) * 80.0f - 8.0f * 80.0f;
-        const float zOffset = static_cast<float>(id >> 4) * 160.0f - 1.5f * 160.0f;
+        // Authentic lattice origin, anchored so Peach Town (id 11) starts at
+        // (0,0) and the spawn car sits on Peach terrain.
+        const auto origin = tileRenderOrigin(static_cast<int>(id));
+        const float xOffset = origin.x;
+        const float zOffset = origin.z;
         if (wantTextures) {
             auto textured = rt::native::assets::buildFieldTexturedTerrain(bytes, 0.1f);
             if (!textured) continue;
@@ -722,10 +744,10 @@ int main() {
         terrainMesh = loadTerrainMesh();
     }
     // RT_APP_NAV=1 overlays a ROM nav-graph's centerline segments (the
-    // candidate Peach Town static graph) as bright yellow strips.  The
-    // tile-local [0,1600] graph is mapped across the authored world's
-    // [0,160] render-unit span so it is always inside the follow-camera
-    // view; authentic geography anchoring lands with the fixed-point mapping.
+    // candidate Peach Town static graph) as bright yellow strips.  Graph
+    // coordinates are tile-local [0,1600] game units; scaled 0.1 they land
+    // inside Peach Town's cell, whose lattice origin is anchored at (0,0)
+    // (authentic placement — world_layout/world-geography.md).
     std::vector<rt::native::preview::RouteLine> navLines;
     if (std::getenv("RT_APP_NAV") != nullptr) {
         auto tables = rt::native::assets::NavRouteTables::open(discRoot() / "SLUS_203.98");
@@ -983,6 +1005,7 @@ int main() {
             rt::native::gameplay::FrameSnapshot renderSnapshot = snapshot;
             if (navDrive) {
                 const rt::native::gameplay::NavPose pose = navDrive->pose();
+                // carPosition is consumed in game units (preview scales .1).
                 renderSnapshot.carPosition = {pose.position.x, pose.position.z};
                 renderSnapshot.heading = pose.heading;
             }

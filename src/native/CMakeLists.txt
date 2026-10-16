@@ -78,6 +78,18 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/input.cpp          # authored player input (pad/analog -> CarInput)
     gameplay/game_loop.cpp      # authored simulation frame (task walker -> AI/car/camera -> cull -> snapshot)
 )
+# ---- staged module sources (coordinator-managed parallel dispatch). These
+# candidate files land from independent work streams; they are compiled into
+# the library the moment the file exists, so the owning agent never needs to
+# edit this file. The coordinator converts to unconditional entries after the
+# staged files are integrated.
+foreach(_rt_staged_source
+        assets/course_props.cpp assets/car_models.cpp assets/glyph_atlas.cpp
+        gameplay/rules_tables.cpp gameplay/hud_layout.cpp)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_rt_staged_source}")
+        list(APPEND RT_NATIVE_ASSET_SOURCES "${_rt_staged_source}")
+    endif()
+endforeach()
 add_library(rt_native_assets STATIC ${RT_NATIVE_ASSET_SOURCES})
 # PUBLIC so consumers #include "assets/container.h" against this include root;
 # cxx_std_20 PUBLIC because the headers themselves require C++20 (std::span).
@@ -115,6 +127,15 @@ add_executable(rt-asset-inspect tools/asset_inspect_main.cpp)  # convertImage + 
 target_link_libraries(rt-asset-inspect PRIVATE rt_native_assets)
 target_compile_features(rt-asset-inspect PRIVATE cxx_std_20)
 target_compile_options(rt-asset-inspect PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+# ---- staged tool target (coordinator-managed parallel dispatch; see the
+# staged-source comment above). Registers itself once the source lands.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tools/pack_extract_main.cpp")
+    add_executable(rt-pack-extract tools/pack_extract_main.cpp)
+    target_link_libraries(rt-pack-extract PRIVATE rt_native_assets)
+    target_compile_features(rt-pack-extract PRIVATE cxx_std_20)
+    target_compile_options(rt-pack-extract PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+endif()
 
 # Optional offscreen Vulkan/MoltenVK preview (only when Vulkan is found).
 if(Vulkan_FOUND)
@@ -418,6 +439,25 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(native_assets_game_loop_test PRIVATE rt_native_assets)
     target_compile_features(native_assets_game_loop_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_game_loop_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    # ---- staged test targets (coordinator-managed parallel dispatch; see the
+    # staged-source comment above). Each registers once its source lands.
+    foreach(_rt_staged course_props car_models glyph_atlas rules_tables hud_layout)
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_${_rt_staged}.cpp")
+            add_executable(native_assets_${_rt_staged}_test
+                "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_${_rt_staged}.cpp")
+            target_link_libraries(native_assets_${_rt_staged}_test PRIVATE rt_native_assets)
+            target_compile_features(native_assets_${_rt_staged}_test PRIVATE cxx_std_20)
+            target_compile_options(native_assets_${_rt_staged}_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+        endif()
+    endforeach()
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/integration/test_packs_integration.cpp")
+        add_executable(native_assets_packs_integration_test
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/integration/test_packs_integration.cpp")
+        target_link_libraries(native_assets_packs_integration_test PRIVATE rt_native_assets)
+        target_compile_features(native_assets_packs_integration_test PRIVATE cxx_std_20)
+        target_compile_options(native_assets_packs_integration_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+    endif()
 
     # tests/native_assets/integration/test_*.cpp: end-to-end pipeline tests
     # over the user's own extracted disc files, located at run time through the

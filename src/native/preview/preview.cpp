@@ -144,6 +144,13 @@ struct Renderer {
     VkShaderModule uiVs = VK_NULL_HANDLE, uiFs = VK_NULL_HANDLE;
     VkPipelineLayout uiPl = VK_NULL_HANDLE;
     VkPipeline uiPipe = VK_NULL_HANDLE;
+    // Depth-off overlay pipeline (nav/route debug strips) + its own buffers;
+    // drawn after every terrain pass so overlays stay readable even when
+    // hills sit between the camera and the overlaid area.
+    VkPipeline ovPipe = VK_NULL_HANDLE;
+    VkBuffer ovVb = VK_NULL_HANDLE, ovIb = VK_NULL_HANDLE;
+    VkDeviceMemory ovVbm = VK_NULL_HANDLE, ovIbm = VK_NULL_HANDLE;
+    VkDeviceSize ovVbCap = 0, ovIbCap = 0;
     VkBuffer rb = VK_NULL_HANDLE; VkDeviceMemory rbm = VK_NULL_HANDLE;
     VkCommandPool pool = VK_NULL_HANDLE;
     VkCommandBuffer cmd = VK_NULL_HANDLE;
@@ -399,6 +406,15 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     VkPipeline& pipe = R.pipe;
     VK_TRY(vkCreateGraphicsPipelines(dev, VK_NULL_HANDLE, 1, &gpi, nullptr, &pipe), "vkCreateGraphicsPipelines");
 
+    // Overlay pipeline: identical to the flat pipeline but depth test/write
+    // disabled, so nav-route strips draw last and stay visible over terrain
+    // regardless of hill occlusion between camera and the overlaid area.
+    VkPipelineDepthStencilStateCreateInfo ovDs{VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO};
+    ovDs.depthTestEnable = VK_FALSE; ovDs.depthWriteEnable = VK_FALSE; ovDs.depthCompareOp = VK_COMPARE_OP_ALWAYS;
+    VkGraphicsPipelineCreateInfo ovGpi = gpi;
+    ovGpi.pDepthStencilState = &ovDs;
+    VK_TRY(vkCreateGraphicsPipelines(dev, VK_NULL_HANDLE, 1, &ovGpi, nullptr, &R.ovPipe), "vkCreateGraphicsPipelines(overlay)");
+
     if (!makeShader(kPreviewUiVertSpv, sizeof(kPreviewUiVertSpv), R.uiVs)) return false;
     if (!makeShader(kPreviewUiFragSpv, sizeof(kPreviewUiFragSpv), R.uiFs)) return false;
     VkPipelineShaderStageCreateInfo uiStages[2]{};
@@ -501,7 +517,9 @@ struct SceneVertex { float x, y, z, r, g, b; };
 static bool renderGeometry(Renderer* Rp, const std::vector<SceneVertex>& vertices,
                            const std::vector<std::uint32_t>& indices, const float* viewIn, const float* projIn,
                            const float clear[4], const float fog[4], std::vector<std::uint8_t>& rgbaOut,
-                           std::string& error) {
+                           std::string& error,
+                           const std::vector<SceneVertex>* overlayV = nullptr,
+                           const std::vector<std::uint32_t>* overlayI = nullptr) {
     if (!Rp) { error = "null renderer"; return false; }
     Renderer& R = *Rp;
     const std::uint32_t W = R.W, H = R.H;
@@ -566,6 +584,23 @@ static bool renderGeometry(Renderer* Rp, const std::vector<SceneVertex>& vertice
     vkCmdBindIndexBuffer(cmd, R.ib, 0, VK_INDEX_TYPE_UINT32);
     vkCmdPushConstants(cmd, R.pl, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 144, pc);
     vkCmdDrawIndexed(cmd, static_cast<std::uint32_t>(indices.size()), 1, 0, 0, 0);
+    if (overlayV && overlayI && !overlayV->empty() && !overlayI->empty()) {
+        // Debug overlay (nav routes): depth-independent, always last.
+        const VkDeviceSize ovVbSize = overlayV->size() * sizeof(SceneVertex);
+        const VkDeviceSize ovIbSize = overlayI->size() * sizeof(std::uint32_t);
+        if (!growBuffer(R, error, ovVbSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, R.ovVb, R.ovVbm, R.ovVbCap)) return false;
+        if (!growBuffer(R, error, ovIbSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, R.ovIb, R.ovIbm, R.ovIbCap)) return false;
+        VK_TRY(vkMapMemory(dev, R.ovVbm, 0, ovVbSize, 0, &p), "vkMapMemory(ovVb)");
+        std::memcpy(p, overlayV->data(), ovVbSize); vkUnmapMemory(dev, R.ovVbm);
+        VK_TRY(vkMapMemory(dev, R.ovIbm, 0, ovIbSize, 0, &p), "vkMapMemory(ovIb)");
+        std::memcpy(p, overlayI->data(), ovIbSize); vkUnmapMemory(dev, R.ovIbm);
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.ovPipe);
+        const VkDeviceSize ovOff = 0;
+        vkCmdBindVertexBuffers(cmd, 0, 1, &R.ovVb, &ovOff);
+        vkCmdBindIndexBuffer(cmd, R.ovIb, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdPushConstants(cmd, R.pl, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 144, pc);
+        vkCmdDrawIndexed(cmd, static_cast<std::uint32_t>(overlayI->size()), 1, 0, 0, 0);
+    }
     vkCmdEndRenderPass(cmd);
     VkBufferImageCopy copy{};
     copy.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
@@ -710,7 +745,9 @@ bool renderGeometryTextured(Renderer* Rp, const std::vector<SceneVertex>& flatV,
                            const std::vector<std::uint32_t>& flatI, const std::vector<TexturedVertex>& texV,
                            const std::vector<std::uint32_t>& texI, const std::vector<DrawRange>& ranges,
                            const float* viewIn, const float* projIn, const float clear[4], const float fog[4],
-                           std::vector<std::uint8_t>& rgbaOut, std::string& error) {
+                           std::vector<std::uint8_t>& rgbaOut, std::string& error,
+                           const std::vector<SceneVertex>* overlayV = nullptr,
+                           const std::vector<std::uint32_t>* overlayI = nullptr) {
     if (!Rp) { error = "null renderer"; return false; }
     Renderer& R = *Rp;
     const std::uint32_t W = R.W, H = R.H;
@@ -772,6 +809,23 @@ bool renderGeometryTextured(Renderer* Rp, const std::vector<SceneVertex>& flatV,
                                    &range.entry->set, 0, nullptr);
             vkCmdDrawIndexed(cmd, range.count, 1, range.first, 0, 0);
         }
+    }
+    if (overlayV && overlayI && !overlayV->empty() && !overlayI->empty()) {
+        // Debug overlay (nav routes): depth-independent, always last.
+        const VkDeviceSize ovVbSize = overlayV->size() * sizeof(SceneVertex);
+        const VkDeviceSize ovIbSize = overlayI->size() * sizeof(std::uint32_t);
+        if (!growBuffer(R, error, ovVbSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, R.ovVb, R.ovVbm, R.ovVbCap)) return false;
+        if (!growBuffer(R, error, ovIbSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, R.ovIb, R.ovIbm, R.ovIbCap)) return false;
+        VK_TRY(vkMapMemory(dev, R.ovVbm, 0, ovVbSize, 0, &p), "vkMapMemory(ovVb)");
+        std::memcpy(p, overlayV->data(), ovVbSize); vkUnmapMemory(dev, R.ovVbm);
+        VK_TRY(vkMapMemory(dev, R.ovIbm, 0, ovIbSize, 0, &p), "vkMapMemory(ovIb)");
+        std::memcpy(p, overlayI->data(), ovIbSize); vkUnmapMemory(dev, R.ovIbm);
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.ovPipe);
+        const VkDeviceSize ovOff = 0;
+        vkCmdBindVertexBuffers(cmd, 0, 1, &R.ovVb, &ovOff);
+        vkCmdBindIndexBuffer(cmd, R.ovIb, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdPushConstants(cmd, R.pl, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 144, pc);
+        vkCmdDrawIndexed(cmd, static_cast<std::uint32_t>(overlayI->size()), 1, 0, 0, 0);
     }
     vkCmdEndRenderPass(cmd);
     VkBufferImageCopy copy{};
@@ -864,33 +918,50 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
         const auto& a = path[i]; const auto& b = path[(i + 1) % count];
         addQuad(vertices, indices, {a.x * .1f, a.z * .1f}, {b.x * .1f, b.z * .1f}, world.roadHalfWidth * .1f, asphalt);
     }
+    // Nav-graph centerline strips (RT_APP_NAV=1): drawn through the depth-off
+    // overlay pipeline AFTER the terrain passes, so they stay readable even
+    // where Peach hills sit between the camera and the town (authentic
+    // anchored terrain made depth-tested ribbons invisible; see git history).
+    // NOTE: strips live near the Peach graph area — at large RT_APP_FRAMES
+    // the demo car drives away and the overlay leaves the frustum.
+    std::vector<SceneVertex> overlayV;
+    std::vector<std::uint32_t> overlayI;
     if (routes != nullptr) {
-        // Nav-graph centerline strips (RT_APP_NAV=1): flat ribbons above the
-        // ground and road, drawn through the untextured pipeline so they read
-        // over both the banded and textured terrain passes.
         constexpr float kHalf = 1.2f;
         for (const RouteLine& line : *routes) {
             const float dx = line.bx - line.ax, dz = line.bz - line.az;
             const float len = std::sqrt(dx * dx + dz * dz);
             if (len < 1e-3f) continue;
             const float nx = -dz / len * kHalf, nz = dx / len * kHalf;
-            const std::uint32_t base = static_cast<std::uint32_t>(vertices.size());
+            const std::uint32_t base = static_cast<std::uint32_t>(overlayV.size());
             for (const auto& p : {std::array<float, 2>{line.ax + nx, line.az + nz},
                                  {line.bx + nx, line.bz + nz},
                                  {line.bx - nx, line.bz - nz},
                                  {line.ax - nx, line.az - nz}})
-                vertices.push_back({p[0], .05f, p[1], line.r, line.g, line.b});
-            for (std::uint32_t i : {0u, 2u, 1u, 0u, 3u, 2u}) indices.push_back(base + i);
+                overlayV.push_back({p[0], .05f, p[1], line.r, line.g, line.b});
+            for (std::uint32_t i : {0u, 2u, 1u, 0u, 3u, 2u}) overlayI.push_back(base + i);
         }
     }
     const ModelStats st = computeStats(car);
     const float cx = .5f * (st.bmin[0] + st.bmax[0]), cz = .5f * (st.bmin[2] + st.bmax[2]);
     const float scale = 4.4f / std::max(st.bmax[2] - st.bmin[2], 1e-3f);
     const float sh = std::sin(s.heading), ch = std::cos(s.heading);
+    // Sit the car on the terrain surface (nearest-vertex height sample).
+    float carLift = 0.f;
+    if (useTerrain) {
+        float best = 900.f;
+        for (const auto& p : terrain->positions) {
+            const float dx = p[0] - s.carPosition.x * .1f, dz = p[2] - s.carPosition.z * .1f;
+            const float d = dx * dx + dz * dz;
+            if (d < best) { best = d; carLift = p[1]; }
+        }
+        if (best > 900.f) carLift = 0.f;
+    }
     const std::uint32_t carBase = static_cast<std::uint32_t>(vertices.size());
     for (const auto& v : car.vertices) {
         const float x = (v.px - cx) * scale, z = (v.pz - cz) * scale;
-        vertices.push_back({s.carPosition.x * .1f + x * ch + z * sh, (v.py - st.bmin[1]) * scale,
+        vertices.push_back({s.carPosition.x * .1f + x * ch + z * sh,
+                            (v.py - st.bmin[1]) * scale + carLift,
                             s.carPosition.z * .1f - x * sh + z * ch, .9f, .8f, .6f});
     }
     for (std::uint32_t i : car.indices) indices.push_back(carBase + i);
@@ -901,7 +972,8 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     // matrices are made, so fog range must use the same scale as vView.
     const float fog[4] = {fogColor[0], fogColor[1], fogColor[2], s.lighting.fogFar * .1f};
     if (!textured) {
-        return renderGeometry(r, vertices, indices, s.view, s.proj, clear, fog, rgbaOut, error);
+        return renderGeometry(r, vertices, indices, s.view, s.proj, clear, fog, rgbaOut, error,
+                             &overlayV, &overlayI);
     }
     // Authentic-texture path: terrain triangles draw through the textured
     // pipeline, page-batched (one indexed draw per decoded page); everything
@@ -941,7 +1013,7 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
         ranges.push_back(range);
     }
     return renderGeometryTextured(r, vertices, indices, texV, texI, ranges, s.view, s.proj,
-                                 clear, fog, rgbaOut, error);
+                                 clear, fog, rgbaOut, error, &overlayV, &overlayI);
 }
 
 struct UiVertex { float x, y, r, g, b, a; };
