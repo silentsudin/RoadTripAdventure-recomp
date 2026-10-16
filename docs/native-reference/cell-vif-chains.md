@@ -224,3 +224,92 @@ would immediately disprove this rejection.
 3. Correct the loader-note/table-base claim before a native texture mapper
    relies on it.  The authentic per-vertex UV extraction can proceed now,
    independently of material selection.
+
+## Extractor implementation (`extractCellStrips`, 2026-10-16)
+
+`src/native/assets/field_converter.{h,cpp}` now exposes
+`extractCellStrips(std::span<const std::uint8_t> tileFile)` returning
+`expected<std::vector<FieldCellStrips>, FieldTileError>`.  It parses the
+64 per-cell chains directly and is the intended replacement for PMP-packet
+extraction when rendering (authentic UVs, colours and material binding).
+
+API summary:
+
+* `FieldVertex { x, height, y; colA[3], colB[3], colC[3]; s, t, alphaAdd; }`
+  — one decoded 60-byte record.
+* `FieldStrip { gifTag, gifRegs, cell, materialIndex, vertices }` — the
+  `@TOP+0` GIF tag quad (low qword + regs descriptor), and the vertices from
+  the paired `@TOP+1` upload.  Free helpers decode the tag with the jak
+  `gif-tag64` layout: nloop 0..14, eop 15, pre **46**, prim **47..57**,
+  flg 58..59, nreg 60..63 (earlier guesses "PRE bit 16 / PRIM bits 17..20"
+  are wrong).  Corpus output tags: EOP+PRE set, PRIM `0x27c` (410,635) and
+  `0x26c` (7,757), PACKED, NREG 3, regs `0x412` (ST/RGBAQ/XYZF2).
+* `FieldCellMaterial { regs[5], regAddrs[5], qwordCount, tex0/tex1/clamp/
+  miptbp1 + decoded TEX0 fields, textureIndex, paletteIndex }` — captured
+  from `UNPACK V3-32 @TOPS+0x192` as `[data_lo, data_hi, regAddr]` vectors
+  (vector 0's third lane is the `0xE` A+D regs descriptor).  NUM=5 headers
+  carry TEX1_2(0x15)/TEX0_2(0x07)/CLAMP_2(0x09)/MIPTBP1_2(0x35); NUM=4
+  headers carry only the first three (header GIF tag NLOOP 3).  TEX0 fields
+  follow jak `gs-tex0`: tbp0@0:14, tbw@14:6, psm@20:6, tw@26, th@30,
+  tcc@34, tfx@35, cbp@37:14, cpsm@51, csm@55, csa@56:5, cld@61:3
+  (prompt-style guesses "TW 20..23 / CBP 32..45" are wrong).
+* `FieldCellStrips { cell, material, materials[], strips[],
+  unknownCommands, malformedUploads, nloopMismatches, terminated, truncated }`.
+
+Walk semantics: chains are byte3==`0x10` DMA CNT tags (qwc inline payload,
+TTE upper 64 bits = first two VIF codes) terminated by RET `0x60` (qwc 0;
+byte3 `0x70` END also accepted).  Verified cmd codes against
+`jak-project/common/dma/dma.h`: NOP `0x00`, STCYCL `0x01`, MSCALF `0x15`,
+UNPACK V3-32 `0x68`, UNPACK V4-32 `0x6C` — the task-prompt value
+"V3-32 = 0x64" is actually V2-32.  These five are the *only* commands in
+the whole corpus (plus 6,518 trailing NOPs).  Unknown VIF commands are
+skipped word-wise with counted diagnostics; payloads past the chain end stop
+the cell gracefully (`truncated`); a zero directory slot or a chain not
+rooted at a CNT tag skips the cell without failing the tile.  Cell `i`'s
+region ends at the next non-zero directory entry clamped to `offB` — cell
+`63`'s successor is directory entry 64, which on `000.BIN` (rel `0x1acc70`)
+points *past* `offB`, so the clamp, not the directory, defines that limit.
+Material binding resolves TEX0 `TBP0`/`CBP` against `fieldTextureCatalog()`
+pages; a failing upload chain leaves links unresolved but extraction
+proceeds.
+
+### Pinned disc numbers (probe 2026-10-16, embedded in tests)
+
+* `FLD/000.BIN`: 64 cells, **6,669 strips**, **25,944 vertices**; cell 0 =
+  146 strips / 564 vertices (matches the trace above).  Every chain is
+  RET-terminated; zero unknown commands, zero malformed uploads, and GIF
+  `NLOOP == NUM/5` on all 6,669 strips.
+* Corpus (64 tiles): 4,096 cells, **4,090 cells with strips**; the six
+  empty cells (`023.BIN` cells 29, 30, 37, 38, 45, 46 — valid CNT chains
+  containing only `STCYCL + NOP + RET`) are the only documented misses.
+  **418,392 strips**, **1,749,827 vertices**; `MSCALF 8` count equals the
+  strip count exactly.
+* Binding: first-header TEX0 `TBP0` resolves to a staged tile upload in
+  **4,090/4,090 (100%)** material-bearing cells; `CBP` resolves to a
+  CLUT-shaped upload in **4,078/4,090 (99.6%)**.  All 12 misses are
+  `232.BIN` cells 0/1, 8/9, 16/17, 24/25, 32/33, 56/57 whose `CBP` is
+  `0x31b7` — a page the tile uploads as a PSMT8 128x64 *image*, i.e. the
+  palette aliases into a texture page rather than a dedicated 16-column
+  CLUT transfer.  `000.BIN`: 64/64 and 64/64.
+
+### Corrections to this document's earlier claims
+
+1. **Materials switch mid-cell.**  The grammar's "`@0x192` header once per
+   cell" understates reality: each chain carries 1–182 header uploads
+   (corpus total **16,463**; `000.BIN` 162, 2–6 per cell), and **3,431**
+   corpus cells (all 64 of `000.BIN`) upload a second header at least once.
+   Each upload re-arms the WorldStrip material kick, so strips inherit the
+   *most recent* header; `FieldStrip::materialIndex` records this.
+2. **Cell 0 has three headers**, at tag `0x599c` (TTE), `0xc614` and
+   `0xed38`.  The *first* selects TEX0 `0x20051405dd40a880` — PSMT4
+   page `0x2880` (128x128), CLUT `0x28a0` — exactly as
+   `gif-material-streams.md`'s trace table states.  That doc's "all 64
+   header sources … same bits exact for every cell" compact dump
+   (`dd40a880`→`9930a85e`, page `0x285e`) actually matches cell 0's *last*
+   header (PSMT8 `0x285e` + CLUT `0x286e`), not every cell's only header.
+3. **Header coverage is near-total**: 4,090/4,096 cells carry at least one
+   `@0x192` header, not the "3,028 of 4,096 (four tiles none)" previously
+   reported; no tile lacks headers.  The distinct first-material qword
+   records across the corpus number 299.
+4. The "zero REF/REFE/NEXT/CALL tags" finding holds: corpus-wide only ids
+   `0x10` (4,138 — 42 chains span two CNT frames) and `0x60` (4,096) occur.

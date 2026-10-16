@@ -511,6 +511,327 @@ fieldTextureCatalog(std::span<const std::uint8_t> tileFile) {
     return textures;
 }
 
+namespace {
+
+// VIF command codes verified against jak-project common/dma/dma.h VifCode:
+// cmd = (word >> 24) & 0x7f, num = (word >> 16) & 0xff (0 == 256),
+// imm = word & 0xffff; UNPACK dest = imm & 0x3ff, TOPS = imm bit 15.
+// The FLD cell corpus uses exactly NOP 0x00, STCYCL 0x01, MSCALF 0x15,
+// UNPACK V3-32 0x68 and UNPACK V4-32 0x6C (the task-level guess "V3-32 =
+// 0x64" is wrong; 0x64 is V2-32).
+constexpr std::uint32_t kVifNop = 0x00;
+constexpr std::uint32_t kVifStcycl = 0x01;
+constexpr std::uint32_t kVifMscalf = 0x15;
+constexpr std::uint32_t kVifMscnt = 0x17;
+constexpr std::uint32_t kVifStmask = 0x20;
+constexpr std::uint32_t kVifStrow = 0x30;
+constexpr std::uint32_t kVifStcol = 0x31;
+constexpr std::uint32_t kVifMpg = 0x4A;
+constexpr std::uint32_t kVifDirect = 0x50;
+constexpr std::uint32_t kVifDirectHl = 0x51;
+constexpr std::uint32_t kVifUnpackV3V4_32 = 0x69;
+constexpr std::uint32_t kVifUnpackV3_32 = 0x68;
+constexpr std::uint32_t kVifUnpackV4_32 = 0x6C;
+constexpr std::uint32_t kVifTopsBit = 0x8000;
+constexpr std::uint32_t kVifUnpackMask = 0x60;
+constexpr std::uint8_t kCellTagCnt = 0x10;  // CNT/REF with inline qwc payload (TTE)
+constexpr std::uint8_t kCellTagRet = 0x60;  // RET terminator (qwc == 0 on disc)
+constexpr std::uint32_t kMaterialVuDest = 0x192;
+constexpr std::uint32_t kVertexVuDest = 1;
+constexpr std::uint32_t kVertexVectorsPerVertex = 5;
+constexpr std::uint32_t kWorldStripCall = 8;  // MSCALF imm for the WorldStrip entry
+constexpr std::uint32_t kGifRegTex0 = 0x07;
+constexpr std::uint32_t kGifRegTex1 = 0x15;
+constexpr std::uint32_t kGifRegClamp = 0x09;
+constexpr std::uint32_t kGifRegMiptbp1 = 0x35;
+
+// Payload bytes for one UNPACK/mpg/direct command, `num` already resolved
+// from the 0-means-256 encoding (jak model_dump byte accounting).
+std::size_t vifPayloadBytes(std::uint32_t cmd, std::uint32_t num) noexcept {
+    const std::size_t n = num == 0 ? 256 : num;
+    if (cmd == kVifDirect) {
+        return n * 16;
+    }
+    if (cmd == kVifDirectHl || cmd == kVifMpg) {
+        return n * 8;
+    }
+    if (cmd == kVifUnpackV3V4_32) {
+        return n * 28;
+    }
+    if ((cmd & kVifUnpackMask) != kVifUnpackMask) {
+        return 0;
+    }
+    const std::size_t vectors = ((cmd >> 2) & 0x3u) + 1u;
+    switch (cmd & 0x3u) {
+    case 0x0: return n * vectors * 4;  // V?-32
+    case 0x1: return n * vectors * 2;  // V?-16
+    case 0x2: return n * vectors;      // V?-8
+    default: return 0;
+    }
+}
+
+// Decodes TEX0 fields (jak gs-tex0 layout) and resolves the page/palette
+// against the tile's staged GIF IMAGE uploads.
+void bindMaterial(FieldCellMaterial& material,
+                 const std::vector<FieldTexture>& textures) {
+    const std::uint64_t tex0 = material.tex0;
+    material.tex0Tbp0 = static_cast<std::uint32_t>(tex0 & 0x3FFFu);
+    material.tex0Tbw = static_cast<std::uint32_t>((tex0 >> 14) & 0x3Fu);
+    material.tex0Psm = static_cast<std::uint32_t>((tex0 >> 20) & 0x3Fu);
+    material.tex0Tw = static_cast<std::uint32_t>((tex0 >> 26) & 0xFu);
+    material.tex0Th = static_cast<std::uint32_t>((tex0 >> 30) & 0xFu);
+    material.tex0Tcc = static_cast<std::uint32_t>((tex0 >> 34) & 1u);
+    material.tex0Tfx = static_cast<std::uint32_t>((tex0 >> 35) & 3u);
+    material.tex0Cbp = static_cast<std::uint32_t>((tex0 >> 37) & 0x3FFFu);
+    material.tex0Cpsm = static_cast<std::uint32_t>((tex0 >> 51) & 0xFu);
+    material.tex0Csm = static_cast<std::uint32_t>((tex0 >> 55) & 1u);
+    material.tex0Csa = static_cast<std::uint32_t>((tex0 >> 56) & 0x1Fu);
+    material.tex0Cld = static_cast<std::uint32_t>((tex0 >> 61) & 7u);
+    for (std::size_t index = 0; index < textures.size(); ++index) {
+        const FieldTexture& texture = textures[index];
+        if (texture.dbp == material.tex0Tbp0 && !texture.isClut && material.textureIndex < 0) {
+            material.textureIndex = static_cast<int>(index);
+        }
+        if (texture.dbp == material.tex0Cbp && texture.isClut && material.paletteIndex < 0) {
+            material.paletteIndex = static_cast<int>(index);
+        }
+    }
+    material.valid = true;
+}
+
+// Captures one @0x192 material packet: `vectors` V3 vectors of source lanes,
+// each [data_lo, data_hi, regAddr] (the GIF tag vector's third lane is the
+// 0xE A+D regs descriptor).  The preserved W lanes never carry the fields we
+// read, so every decoded value is complete.
+FieldCellMaterial decodeMaterialPacket(const std::uint32_t* lanes, std::uint32_t vectors) {
+    FieldCellMaterial material;
+    material.qwordCount = static_cast<std::uint32_t>(vectors - 1);
+    material.gifTag = static_cast<std::uint64_t>(lanes[0]) |
+                      (static_cast<std::uint64_t>(lanes[1]) << 32);
+    material.regs[0] = material.gifTag;
+    material.regAddrs[0] = lanes[2];
+    for (std::uint32_t vector = 1; vector < vectors; ++vector) {
+        const std::uint64_t value = static_cast<std::uint64_t>(lanes[vector * 3]) |
+                                   (static_cast<std::uint64_t>(lanes[vector * 3 + 1]) << 32);
+        material.regs[vector] = value;
+        material.regAddrs[vector] = lanes[vector * 3 + 2] & 0xFFu;
+        switch (material.regAddrs[vector]) {
+        case kGifRegTex1: material.tex1 = value; break;
+        case kGifRegTex0: material.tex0 = value; break;
+        case kGifRegClamp: material.clamp = value; break;
+        case kGifRegMiptbp1: material.miptbp1 = value; break;
+        default: break;
+        }
+    }
+    return material;
+}
+
+FieldVertex decodeFieldVertex(const std::uint32_t* lanes) {
+    const auto at = [lanes](std::size_t index) {
+        return std::bit_cast<float>(lanes[index]);
+    };
+    FieldVertex vertex;
+    vertex.x = at(0);
+    vertex.height = at(1);
+    vertex.y = at(2);
+    vertex.colA[0] = at(3);
+    vertex.colA[1] = at(4);
+    vertex.colA[2] = at(5);
+    vertex.colB[0] = at(6);
+    vertex.colB[1] = at(7);
+    vertex.colB[2] = at(8);
+    vertex.colC[0] = at(9);
+    vertex.colC[1] = at(10);
+    vertex.colC[2] = at(11);
+    vertex.s = at(12);
+    vertex.t = at(13);
+    vertex.alphaAdd = at(14);
+    return vertex;
+}
+
+// Concatenates the chain's VIF word stream (every CNT tag's two TTE codes
+// plus its qwc*16 inline bytes) and decodes it.  The chain occupies
+// [start, limit); payload reaching past the limit marks the cell truncated
+// and stops it.  Unknown commands are skipped word-wise and counted.
+FieldCellStrips parseCellChain(std::span<const std::uint8_t> tileFile,
+                               std::size_t start,
+                               std::size_t limit,
+                               const std::vector<FieldTexture>& textures,
+                               std::uint32_t cellIndex) {
+    FieldCellStrips cell;
+    cell.cell = cellIndex;
+
+    std::vector<std::uint32_t> words;
+    std::size_t cursor = start;
+    while (cursor + 16 <= limit) {
+        const std::uint32_t tagWord = readU32LE(tileFile, cursor);
+        const std::uint8_t id = static_cast<std::uint8_t>(tagWord >> 24);
+        const std::size_t qwc = tagWord & 0xFFFFu;
+        if (id == kCellTagCnt) {
+            words.push_back(readU32LE(tileFile, cursor + 8));   // TTE VIF code 0
+            words.push_back(readU32LE(tileFile, cursor + 12));  // TTE VIF code 1
+            const std::size_t payloadEnd = cursor + 16 + qwc * 16;
+            if (payloadEnd > limit) {
+                cell.truncated = true;
+                break;
+            }
+            for (std::size_t pos = cursor + 16; pos + 4 <= payloadEnd; pos += 4) {
+                words.push_back(readU32LE(tileFile, pos));
+            }
+            cursor = payloadEnd;
+            continue;
+        }
+        if ((id == kCellTagRet && qwc == 0) || id == kChainTagEnd) {
+            cell.terminated = true;  // RET(qwc=0) / END terminator
+        }
+        break;
+    }
+
+    bool pendingTag = false;
+    std::uint64_t pendingGifTag = 0;
+    std::uint64_t pendingGifRegs = 0;
+    std::size_t index = 0;
+    while (index < words.size()) {
+        const std::uint32_t word = words[index];
+        const std::uint32_t cmd = (word >> 24) & 0x7Fu;
+        const std::uint32_t num = (word >> 16) & 0xFFu;
+        const std::uint32_t imm = word & 0xFFFFu;
+        const bool isUnpack = (cmd & kVifUnpackMask) == kVifUnpackMask;
+        const std::size_t payloadBytes = isUnpack || cmd == kVifMpg || cmd == kVifDirect ||
+                                        cmd == kVifDirectHl
+                                            ? vifPayloadBytes(cmd, num)
+                                            : (cmd == kVifStrow || cmd == kVifStcol ? 16 : 0);
+        if (index + 1 + payloadBytes / 4 > words.size()) {
+            cell.truncated = true;  // upload runs past the chain end
+            break;
+        }
+        if (cmd == kVifUnpackV3_32) {
+            const std::uint32_t vectors = num == 0 ? 256 : num;
+            const std::uint32_t dest = imm & 0x3FFu;
+            const std::uint32_t* lanes = words.data() + index + 1;
+            if (dest == kMaterialVuDest && (imm & kVifTopsBit) != 0 &&
+                (vectors == 4 || vectors == 5)) {
+                FieldCellMaterial material = decodeMaterialPacket(lanes, vectors);
+                bindMaterial(material, textures);
+                cell.materials.push_back(material);
+            } else if (dest == kVertexVuDest && (imm & kVifTopsBit) != 0 &&
+                       vectors % kVertexVectorsPerVertex == 0 && pendingTag) {
+                FieldStrip strip;
+                strip.gifTag = pendingGifTag;
+                strip.gifRegs = pendingGifRegs;
+                strip.cell = cellIndex;
+                strip.materialIndex =
+                    cell.materials.empty() ? -1 : static_cast<int>(cell.materials.size() - 1);
+                const std::uint32_t vertexCount = vectors / kVertexVectorsPerVertex;
+                strip.vertices.reserve(vertexCount);
+                for (std::uint32_t vertex = 0; vertex < vertexCount; ++vertex) {
+                    strip.vertices.push_back(decodeFieldVertex(lanes + vertex * 15));
+                }
+                if (gifTagNloop(strip.gifTag) != vertexCount) {
+                    ++cell.nloopMismatches;
+                }
+                cell.strips.push_back(std::move(strip));
+                pendingTag = false;
+            } else {
+                ++cell.malformedUploads;
+            }
+        } else if (cmd == kVifUnpackV4_32) {
+            const std::uint32_t vectors = num == 0 ? 256 : num;
+            const std::uint32_t dest = imm & 0x3FFu;
+            if (dest == 0 && (imm & kVifTopsBit) != 0 && vectors >= 1) {
+                pendingGifTag = static_cast<std::uint64_t>(words[index + 1]) |
+                               (static_cast<std::uint64_t>(words[index + 2]) << 32);
+                pendingGifRegs = static_cast<std::uint64_t>(words[index + 3]) |
+                                (static_cast<std::uint64_t>(words[index + 4]) << 32);
+                pendingTag = true;
+                if (vectors != 1) {
+                    ++cell.malformedUploads;  // only the first GIF tag qword applies
+                }
+            } else {
+                ++cell.malformedUploads;
+            }
+        } else if (cmd == kVifMscalf) {
+            // imm 8 == WorldStrip; other model entries never occur in cell
+            // chains.  A call closes the stream position anyway.
+            if (imm != kWorldStripCall) {
+                ++cell.malformedUploads;
+            }
+        } else if (cmd == kVifNop || cmd == kVifStcycl || cmd == kVifStmask ||
+                   cmd == kVifStrow || cmd == kVifStcol ||
+                   (cmd >= 0x02 && cmd <= 0x05) || (cmd >= 0x08 && cmd <= 0x14) ||
+                   cmd == kVifMscnt) {
+            // Stateless commands (ITOP/OFFSET/BASE/STMOD/MSK3PATH/MARK/FUSH*/
+            // MSCAL/MSCNT); STROW/STCOL payload rows are skipped via
+            // payloadBytes.  Nothing to decode.
+        } else if (payloadBytes > 0) {
+            ++cell.unknownCommands;  // known shape, foreign command (MPG/DIRECT/…)
+        } else {
+            ++cell.unknownCommands;  // unrecognized command word
+        }
+        index += 1 + payloadBytes / 4;
+    }
+
+    if (!cell.materials.empty()) {
+        cell.material = cell.materials.front();
+    }
+    return cell;
+}
+
+} // namespace
+
+expected<std::vector<FieldCellStrips>, FieldTileError>
+extractCellStrips(std::span<const std::uint8_t> tileFile) {
+    const auto header = parseFieldTileHeader(tileFile);
+    if (!header) {
+        return header.error();
+    }
+    const std::size_t directory = header->offA;
+    if (directory + kSubBlockDirectoryEntries * sizeof(std::uint32_t) > tileFile.size()) {
+        return FieldTileError::Truncated;
+    }
+
+    // Cell chains live between the directory and the PMP block at offB.
+    const std::size_t chainCeiling =
+        header->offB != 0 && header->offB <= tileFile.size() ? header->offB : tileFile.size();
+
+    // Texture binding is best-effort: a failing upload chain only leaves the
+    // material links unresolved, it must not fail the strip extraction.
+    const std::vector<FieldTexture> textures = [&tileFile] {
+        const auto catalog = fieldTextureCatalog(tileFile);
+        return catalog ? *catalog : std::vector<FieldTexture>{};
+    }();
+
+    std::vector<FieldCellStrips> cells;
+    for (std::uint32_t cell = 0; cell < kSubBlockDirectoryEntries - 1; ++cell) {
+        const std::uint32_t relative =
+            readU32LE(tileFile, directory + cell * sizeof(std::uint32_t));
+        if (relative == 0) {
+            continue;  // unused directory slot
+        }
+        const std::size_t chainStart = directory + relative;
+        if (chainStart + 16 > chainCeiling) {
+            continue;  // directory entry points outside the chain region
+        }
+        // The chain physically ends where the next directory entry begins.
+        std::size_t chainLimit = chainCeiling;
+        for (std::uint32_t next = cell + 1; next < kSubBlockDirectoryEntries; ++next) {
+            const std::uint32_t nextRelative =
+                readU32LE(tileFile, directory + next * sizeof(std::uint32_t));
+            if (nextRelative != 0 && directory + nextRelative > chainStart) {
+                chainLimit = std::min(chainCeiling, directory + static_cast<std::size_t>(nextRelative));
+                break;
+            }
+        }
+        const std::uint8_t firstId =
+            static_cast<std::uint8_t>(readU32LE(tileFile, chainStart) >> 24);
+        if (firstId != kCellTagCnt) {
+            continue;  // not a CNT-rooted chain: skip without failing the tile
+        }
+        cells.push_back(parseCellChain(tileFile, chainStart, chainLimit, textures, cell));
+    }
+    return cells;
+}
+
 FieldTileResult convertFieldTile(std::span<const std::uint8_t> tileFile,
                                  const std::string& sourceFile,
                                  const std::array<std::uint8_t, 32>& sha256) {

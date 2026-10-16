@@ -131,6 +131,120 @@ struct FieldTexture {
 expected<std::vector<FieldTexture>, FieldTileError>
 fieldTextureCatalog(std::span<const std::uint8_t> tileFile);
 
+// ── per-cell VIF strip chains ────────────────────────────────────────────
+//
+// Directory entries 0..63 at offA are tile-relative offsets of prebuilt
+// inline DMA CNT chains, one per terrain cell (see docs/native-reference/
+// cell-vif-chains.md and gif-material-streams.md).  Each chain is a run of
+// byte3==0x10 CNT tags (TTE: the tag's upper 64 bits carry the first two
+// VIF codes) terminated by a zero-QWC RET tag (byte3 == 0x60).  Inside,
+// UNPACK V3-32 @TOPS+0x192 uploads a 4- or 5-vector GIF A+D material packet
+// (TEX1_2/TEX0_2/CLAMP_2/MIPTBP1_2), and every strip group is UNPACK V4-32
+// @TOPS+0 (the output GIF tag), UNPACK V3-32 @TOPS+1 with NUM = 5 *
+// vertexCount of interleaved 60-byte records, then MSCALF imm 8 (WorldStrip).
+// Cells may switch texture mid-chain: every @0x192 upload re-arms the
+// material kick the next WorldStrip emits, so strips inherit the most recent
+// preceding header.
+
+// One submitted WorldStrip vertex: position, three authored colour sets and
+// the UV/alphaAdd triple, exactly as the VIF V3-32 @TOP+1 stream carries it.
+struct FieldVertex {
+    float x = 0.0f;
+    float height = 0.0f;
+    float y = 0.0f;
+    float colA[3] = {0.0f, 0.0f, 0.0f};
+    float colB[3] = {0.0f, 0.0f, 0.0f};
+    float colC[3] = {0.0f, 0.0f, 0.0f};
+    float s = 0.0f;
+    float t = 0.0f;
+    float alphaAdd = 0.0f;
+};
+
+// GIFtag64 field decode, verified against jak-project gs.gc gif-tag64:
+// nloop bits 0..14, eop 15, id 32..45, pre 46, prim 47..57, flg 58..59,
+// nreg 60..63.  (The task-level guesses "PRE bit 16 / PRIM bits 17..20" do
+// not hold on disc.)  FLG: 0 PACKED, 1 REGLIST, 2 IMAGE.
+inline std::uint32_t gifTagNloop(std::uint64_t tag) noexcept { return static_cast<std::uint32_t>(tag & 0x7FFFu); }
+inline bool gifTagEop(std::uint64_t tag) noexcept { return ((tag >> 15) & 1u) != 0; }
+inline bool gifTagPre(std::uint64_t tag) noexcept { return ((tag >> 46) & 1u) != 0; }
+inline std::uint32_t gifTagPrim(std::uint64_t tag) noexcept { return static_cast<std::uint32_t>((tag >> 47) & 0x7FFu); }
+inline std::uint32_t gifTagFlg(std::uint64_t tag) noexcept { return static_cast<std::uint32_t>((tag >> 58) & 0x3u); }
+inline std::uint32_t gifTagNreg(std::uint64_t tag) noexcept { return static_cast<std::uint32_t>((tag >> 60) & 0xFu); }
+inline std::uint32_t gifRegsNibble(std::uint64_t regs, std::uint32_t index) noexcept {
+    return static_cast<std::uint32_t>((regs >> (4 * (index & 0xFu))) & 0xFu);
+}
+
+// The @0x192 GIF A+D packet captured for one material upload.  regs[0] is
+// the assembled header GIF tag qword; regs[1..qwordCount] are the A+D data
+// qwords, paired with the GIF register addresses (0x15 TEX1_2, 0x07 TEX0_2,
+// 0x09 CLAMP_2, 0x35 MIPTBP1_2; regs[0]'s address slot holds the 0xE A+D
+// descriptor nibble).  A NUM=4 header carries three data qwords (NLOOP 3);
+// unused tail slots stay zero.  TEX0 fields follow the jak gs-tex0 layout
+// (tbp0@0:14 tbw@14:6 psm@20:6 tw@26 th@30 tcc@34 tfx@35 cbp@37:14
+// cpsm@51 csm@55 csa@56 cld@61).
+struct FieldCellMaterial {
+    std::array<std::uint64_t, 5> regs{};
+    std::array<std::uint32_t, 5> regAddrs{};
+    std::uint32_t qwordCount = 0;  // A+D data qwords in the packet (header NLOOP: 3 or 4)
+    bool valid = false;
+    std::uint64_t gifTag = 0;      // regs[0]
+    std::uint64_t tex0 = 0;        // raw register values (0 when absent)
+    std::uint64_t tex1 = 0;
+    std::uint64_t clamp = 0;
+    std::uint64_t miptbp1 = 0;
+    std::uint32_t tex0Tbp0 = 0;
+    std::uint32_t tex0Tbw = 0;
+    std::uint32_t tex0Psm = 0;
+    std::uint32_t tex0Tw = 0;
+    std::uint32_t tex0Th = 0;
+    std::uint32_t tex0Tcc = 0;
+    std::uint32_t tex0Tfx = 0;
+    std::uint32_t tex0Cbp = 0;
+    std::uint32_t tex0Cpsm = 0;
+    std::uint32_t tex0Csm = 0;
+    std::uint32_t tex0Csa = 0;
+    std::uint32_t tex0Cld = 0;
+    int textureIndex = -1;  // index into fieldTextureCatalog() with dbp == tex0Tbp0
+    int paletteIndex = -1;  // CLUT-shaped upload with dbp == tex0Cbp
+};
+
+// One WorldStrip submission: the GIF tag uploaded to @TOP+0 plus the
+// vertices from the paired @TOP+1 upload.  The output stream is ST/RGBAQ/
+// XYZF2 (regs nibbles 0x412) with PRIM 0x27c throughout the FLD corpus.
+struct FieldStrip {
+    std::uint64_t gifTag = 0;   // low qword of the @TOP+0 upload
+    std::uint64_t gifRegs = 0;  // upper regs-descriptor qword (e.g. 0x412 nibbles)
+    std::uint32_t cell = 0;
+    int materialIndex = -1;     // index into the owning cell's materials
+    std::vector<FieldVertex> vertices;
+};
+
+// One terrain cell: every material packet seen in its chain, in stream
+// order, plus the strips (each tagged with the material index in effect).
+struct FieldCellStrips {
+    std::uint32_t cell = 0;
+    FieldCellMaterial material;              // == materials.front() when present
+    std::vector<FieldCellMaterial> materials;
+    std::vector<FieldStrip> strips;
+    std::uint32_t unknownCommands = 0;     // VIF words with unrecognized cmds
+    std::uint32_t malformedUploads = 0;    // well-formed cmds with unexpected dest/num/pairing
+    std::uint32_t nloopMismatches = 0;    // strips whose GIF NLOOP != NUM/5
+    bool terminated = false;               // chain ended at RET(qwc=0)/END
+    bool truncated = false;               // payload ran past the chain or file end
+};
+
+// Walks cells 0..63 through the directory.  An unused (zero) directory entry
+// or a chain whose first DMA tag is not a CNT is skipped without failing the
+// tile; a malformed strip stops the cell gracefully (truncated = true).
+// Texture binding uses fieldTextureCatalog(); a failing catalogue only marks
+// the links unresolved.  Pinned on disc: 000.BIN yields 64 cells,
+// 6,669 strips and 25,944 vertices; the 64-tile corpus yields 4,090 cells
+// with strips (4,096 cells total; six empty cells in 023.BIN), 418,392
+// strips and 1,749,827 vertices, with every cell's first-header TEX0 page
+// resolving to a tile upload.
+expected<std::vector<FieldCellStrips>, FieldTileError>
+extractCellStrips(std::span<const std::uint8_t> tileFile);
+
 expected<FieldTileHeader, FieldTileError>
 parseFieldTileHeader(std::span<const std::uint8_t> tileFile);
 

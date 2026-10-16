@@ -99,7 +99,7 @@ void put_u32(std::vector<std::uint8_t>& out, std::uint32_t v) {
     out.push_back(static_cast<std::uint8_t>((v >> 24) & 0xFFu));
 }
 
-void put_f32(std::vector<std::uint8_t>& out, float v) {
+[[maybe_unused]] void put_f32(std::vector<std::uint8_t>& out, float v) {
     put_u32(out, std::bit_cast<std::uint32_t>(v));
 }
 

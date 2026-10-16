@@ -535,6 +535,465 @@ void testTextureCatalogRealTiles() {
               << '\n';
 }
 
+// ── extractCellStrips ────────────────────────────────────────────────────
+//
+// Grammar proven on disc (docs/native-reference/cell-vif-chains.md and
+// gif-material-streams.md): directory entries at offA are tile-relative chain
+// starts; chains are byte3==0x10 CNT tags (TTE upper VIF codes) terminated
+// by RET(qwc=0) (byte3==0x60); material packets are UNPACK V3-32 NUM 4/5
+// @TOPS+0x192; strips are UNPACK V4-32 NUM=1 @TOPS+0 (GIF tag quad) +
+// UNPACK V3-32 NUM=5*V @TOPS+1 + MSCALF imm 8.
+
+using rt::native::assets::FieldCellMaterial;
+using rt::native::assets::FieldCellStrips;
+using rt::native::assets::FieldStrip;
+using rt::native::assets::FieldVertex;
+using rt::native::assets::extractCellStrips;
+using rt::native::assets::gifTagEop;
+using rt::native::assets::gifTagFlg;
+using rt::native::assets::gifTagNloop;
+using rt::native::assets::gifTagNreg;
+using rt::native::assets::gifTagPre;
+using rt::native::assets::gifTagPrim;
+using rt::native::assets::gifRegsNibble;
+
+// TEX0 selecting the synthetic T8 8x8 upload at page 0x100 with the 16x2
+// palette at 0x101 (gs-tex0: tbp0@0:14 tbw@14:6 psm@20:6 tw@26 th@30
+// tcc@34 tfx@35 cbp@37:14 cpsm@51 csm@55 csa@56 cld@61).
+constexpr std::uint64_t kTestTex0 =
+    0x100ull | (1ull << 14) | (0x13ull << 20) | (3ull << 26) | (3ull << 30) |
+    (1ull << 34) | (0x101ull << 37) | (1ull << 61);
+
+struct SyntheticCellTile {
+    Bytes bytes;
+    std::size_t offA = 0;
+    std::size_t chainTag = 0;   // absolute offset of the cell-0 CNT tag
+};
+
+SyntheticCellTile buildCellTileBase() {
+    Bytes uploads;
+    std::size_t image0 = 0;
+    std::size_t image1 = 0;
+    appendUpload(uploads, 0x100, 1, 0x13, 8, 8, 64, image0);
+    appendUpload(uploads, 0x101, 1, 0x00, 16, 2, 128, image1);
+
+    SyntheticCellTile tile;
+    tile.offA = 0x20 + uploads.size() + 16;  // after header, uploads and END
+    Bytes bytes(0x20, 0);
+    bytes.insert(bytes.end(), uploads.begin(), uploads.end());
+    appendWord(bytes, 0x70u << 24);  // END tag closes the upload chain
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    // 65-entry directory relative to offA; entry 0 places the cell-0 chain
+    // right after the directory itself.
+    const std::uint32_t chainRel = 65 * 4;
+    for (std::uint32_t entry = 0; entry < 65; ++entry) {
+        appendWord(bytes, entry == 0 ? chainRel : 0);
+    }
+    tile.chainTag = tile.offA + chainRel;
+    // CNT tag: TTE carries STCYCL 0x0101 + UNPACK V3-32 NUM=5 @TOPS+0x192.
+    appendWord(bytes, (0x10u << 24) | 17u);
+    appendWord(bytes, 0);
+    appendWord(bytes, 0x01000101u);
+    appendWord(bytes, 0x68058192u);
+    // Material header: GIF tag, TEX1_2, TEX0_2, CLAMP_2, MIPTBP1_2.
+    appendWord(bytes, 0x00008004u);
+    appendWord(bytes, 0x10000000u);
+    appendWord(bytes, 0x0000000Eu);
+    appendWord(bytes, 0x00080128u);
+    appendWord(bytes, 0x00000F80u);
+    appendWord(bytes, 0x00000015u);
+    appendWord(bytes, static_cast<std::uint32_t>(kTestTex0 & 0xFFFFFFFFu));
+    appendWord(bytes, static_cast<std::uint32_t>(kTestTex0 >> 32));
+    appendWord(bytes, 0x00000007u);
+    appendWord(bytes, 0x00000000u);
+    appendWord(bytes, 0x00000000u);
+    appendWord(bytes, 0x00000009u);
+    appendWord(bytes, 0x8A90A8A1u);
+    appendWord(bytes, 0x2000000Au);
+    appendWord(bytes, 0x00000035u);
+    // Strip group: GIF tag (NLOOP 3, EOP, PRIM 0x27c, PACKED, NREG 3,
+    // regs ST/RGBAQ/XYZF2), 15-vector vertex upload, MSCALF 8, NOP pad.
+    appendWord(bytes, 0x6C018000u);
+    appendWord(bytes, 0x00008003u);
+    appendWord(bytes, 0x313E0000u);
+    appendWord(bytes, 0x00000412u);
+    appendWord(bytes, 0x313EC000u);
+    appendWord(bytes, 0x680F8001u);
+    // Three 15-float records: (x, height, y), colA, colB, colC, (s, t, alphaAdd).
+    const std::array<float, 45> vertices{
+        1.5f,    2.5f,    3.5f,    0.25f,  0.5f,    0.75f,   0.0625f, 0.125f,  0.1875f,
+        0.2f,    0.4f,    0.6f,    0.3125f, 0.625f,  0.0f,
+        -4.5f,   -3.5f,   -2.5f,   1.0f,   1.0f,    1.0f,    0.0f,    0.0f,    0.0f,
+        0.8f,    0.6f,    0.4f,    1.0f,   -0.5f,   0.5f,
+        40.0f,   50.0f,   60.0f,   0.125f, 0.375f,  0.625f,  0.0625f, 0.0625f, 0.0625f,
+        0.2f,    0.4f,    0.6f,    0.75f,  -0.25f,  0.125f,
+    };
+    for (const float value : vertices) {
+        appendWord(bytes, std::bit_cast<std::uint32_t>(value));
+    }
+    appendWord(bytes, 0x15000008u);  // MSCALF imm 8 (WorldStrip)
+    appendWord(bytes, 0x00000000u);  // NOP FIFO padding (qword alignment)
+    appendWord(bytes, 0x60000000u);  // RET(qwc = 0) terminator
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    appendWord(bytes, 0);
+    const std::uint32_t fileSize = static_cast<std::uint32_t>(bytes.size());
+    setU32(bytes, 0x00, 0x20);
+    setU32(bytes, 0x04, static_cast<std::uint32_t>(tile.offA));
+    setU32(bytes, 0x08, fileSize);  // offB: chains end with the file
+    setU32(bytes, 0x0C, fileSize);  // offC
+    setU32(bytes, 0x10, fileSize);
+    tile.bytes = std::move(bytes);
+    return tile;
+}
+
+void testCellStripsSynthetic() {
+    const SyntheticCellTile tile = buildCellTileBase();
+    const auto cells = extractCellStrips(tile.bytes);
+    check(cells.has_value(), "cellstrips: synthetic tile parses");
+    if (!cells) {
+        return;
+    }
+    check(cells->size() == 1, "cellstrips: one populated cell entry");
+    if (cells->size() != 1) {
+        return;
+    }
+    const FieldCellStrips& cell = (*cells)[0];
+    check(cell.cell == 0 && cell.terminated && !cell.truncated,
+          "cellstrips: cell 0 terminated cleanly");
+    check(cell.unknownCommands == 0 && cell.malformedUploads == 0 &&
+              cell.nloopMismatches == 0,
+          "cellstrips: diagnostics stay zero on the clean chain");
+    check(cell.materials.size() == 1, "cellstrips: one material header");
+    const FieldCellMaterial& material = cell.material;
+    check(material.valid && material.qwordCount == 4,
+          "cellstrips: material packet carries four A+D qwords");
+    check(material.regs[0] == 0x1000000000008004ull &&
+              material.regAddrs[0] == 0x0E && material.regAddrs[1] == 0x15 &&
+              material.regAddrs[2] == 0x07 && material.regAddrs[3] == 0x09 &&
+              material.regAddrs[4] == 0x35,
+          "cellstrips: GIF tag plus TEX1/TEX0/CLAMP/MIPTBP1 addresses");
+    check(material.tex1 == 0x00000F8000080128ull &&
+              material.tex0 == kTestTex0 && material.clamp == 0 &&
+              material.miptbp1 == 0x2000000A8A90A8A1ull,
+          "cellstrips: raw register qwords");
+    check(material.tex0Tbp0 == 0x100 && material.tex0Tbw == 1 &&
+              material.tex0Psm == 0x13 && material.tex0Tw == 3 &&
+              material.tex0Th == 3 && material.tex0Tcc == 1 &&
+              material.tex0Tfx == 0 && material.tex0Cbp == 0x101 &&
+              material.tex0Cpsm == 0 && material.tex0Csm == 0 &&
+              material.tex0Csa == 0 && material.tex0Cld == 1,
+          "cellstrips: TEX0 field decode");
+    const auto textures = fieldTextureCatalog(tile.bytes);
+    check(textures.has_value() && material.textureIndex >= 0 &&
+              material.paletteIndex >= 0 &&
+              (*textures)[material.textureIndex].dbp == 0x100 &&
+              !(*textures)[material.textureIndex].isClut &&
+              (*textures)[material.paletteIndex].dbp == 0x101 &&
+              (*textures)[material.paletteIndex].isClut,
+          "cellstrips: TEX0 page/palette bound to catalog uploads");
+
+    check(cell.strips.size() == 1, "cellstrips: one strip");
+    if (cell.strips.size() != 1) {
+        return;
+    }
+    const FieldStrip& strip = cell.strips[0];
+    check(strip.cell == 0 && strip.materialIndex == 0,
+          "cellstrips: strip carries cell and material indices");
+    check(gifTagNloop(strip.gifTag) == 3 && gifTagEop(strip.gifTag) &&
+              !gifTagPre(strip.gifTag) && gifTagPrim(strip.gifTag) == 0x27C &&
+              gifTagFlg(strip.gifTag) == 0 && gifTagNreg(strip.gifTag) == 3,
+          "cellstrips: GIF tag field decode");
+    check(gifRegsNibble(strip.gifRegs, 0) == 2 &&
+              gifRegsNibble(strip.gifRegs, 1) == 1 &&
+              gifRegsNibble(strip.gifRegs, 2) == 4,
+          "cellstrips: regs descriptor is ST/RGBAQ/XYZF2 (0x412)");
+    check(strip.vertices.size() == 3, "cellstrips: NUM 15 yields three vertices");
+    if (strip.vertices.size() != 3) {
+        return;
+    }
+    const FieldVertex& v0 = strip.vertices[0];
+    check(v0.x == 1.5f && v0.height == 2.5f && v0.y == 3.5f,
+          "cellstrips: position (x, height, y) decode");
+    check(v0.colA[0] == 0.25f && v0.colA[1] == 0.5f && v0.colA[2] == 0.75f &&
+              v0.colB[0] == 0.0625f && v0.colB[1] == 0.125f && v0.colB[2] == 0.1875f &&
+              std::abs(v0.colC[0] - 0.2f) < 1e-6f && std::abs(v0.colC[1] - 0.4f) < 1e-6f &&
+              std::abs(v0.colC[2] - 0.6f) < 1e-6f,
+          "cellstrips: three colour-set decode");
+    check(v0.s == 0.3125f && v0.t == 0.625f && v0.alphaAdd == 0.0f,
+          "cellstrips: authentic UV/alphaAdd decode");
+    const FieldVertex& v1 = strip.vertices[1];
+    check(v1.x == -4.5f && v1.s == 1.0f && v1.t == -0.5f &&
+              v1.colA[0] == 1.0f && v1.colB[0] == 0.0f,
+          "cellstrips: second vertex record decode (60-byte stride)");
+    const FieldVertex& v2 = strip.vertices[2];
+    check(v2.x == 40.0f && v2.y == 60.0f && std::abs(v2.s - 0.75f) < 1e-6f &&
+              v2.t == -0.25f,
+          "cellstrips: third vertex record decode");
+}
+
+void testCellStripsErrorsAndDrift() {
+    const Bytes tooShort(0x1F, 0);
+    check(extractCellStrips(tooShort).error() == FieldTileError::Truncated,
+          "cellstrips: file shorter than header is Truncated");
+
+    SyntheticCellTile tile = buildCellTileBase();
+    Bytes badHeader = tile.bytes;
+    setU32(badHeader, 0x00, 0x10);  // implausible header size
+    check(extractCellStrips(badHeader).error() == FieldTileError::BadHeader,
+          "cellstrips: implausible header size is BadHeader");
+
+    Bytes dirPastFile = tile.bytes;
+    setU32(dirPastFile, 0x04, static_cast<std::uint32_t>(tile.bytes.size() - 8));
+    check(extractCellStrips(dirPastFile).error() == FieldTileError::Truncated,
+          "cellstrips: directory past end of file is Truncated");
+
+    // A CNT tag whose payload overshoots the chain region truncates the cell
+    // without failing the tile.
+    Bytes paddedQwc = tile.bytes;
+    setU32(paddedQwc, tile.chainTag, (0x10u << 24) | 0x4000u);
+    const auto truncated = extractCellStrips(paddedQwc);
+    check(truncated.has_value() && truncated->size() == 1,
+          "cellstrips: over-large qwc keeps the tile parseable");
+    if (truncated && truncated->size() == 1) {
+        check((*truncated)[0].truncated && !(*truncated)[0].terminated &&
+                  (*truncated)[0].strips.empty(),
+              "cellstrips: over-large qwc truncates the cell gracefully");
+    }
+
+    // An honest qwc whose final UNPACK overruns the remaining stream keeps
+    // the material header but stops the strip.
+    Bytes overrunUpload = tile.bytes;
+    const std::size_t v3Cmd = tile.chainTag + 16 + 60 + 4 + 16;
+    setU32(overrunUpload, v3Cmd, 0x68288001u);  // NUM 40 needs 480 bytes
+    setU32(overrunUpload, tile.chainTag, (0x10u << 24) | 17u);
+    const auto stopped = extractCellStrips(overrunUpload);
+    check(stopped.has_value() && stopped->size() == 1,
+          "cellstrips: payload past chain end keeps the tile parseable");
+    if (stopped && stopped->size() == 1) {
+        const FieldCellStrips& cell = (*stopped)[0];
+        check(cell.truncated && cell.strips.empty() && cell.materials.size() == 1,
+              "cellstrips: malformed strip stops the cell, header survives");
+    }
+
+    // A second directory entry pointing at garbage is skipped, not fatal.
+    Bytes bogusEntry = tile.bytes;
+    setU32(bogusEntry, 0x08, static_cast<std::uint32_t>(tile.bytes.size()));  // offB slack
+    setU32(bogusEntry, 0x0C, static_cast<std::uint32_t>(tile.bytes.size()));
+    setU32(bogusEntry, 0x10, static_cast<std::uint32_t>(tile.bytes.size()));
+    setU32(bogusEntry, tile.offA + 4 * sizeof(std::uint32_t),
+           static_cast<std::uint32_t>(tile.bytes.size()) + 0x40 - static_cast<std::uint32_t>(tile.offA));
+    const auto skipped = extractCellStrips(bogusEntry);
+    check(skipped.has_value() && skipped->size() == 1 && (*skipped)[0].cell == 0,
+          "cellstrips: unparseable directory entry is skipped without failing the tile");
+
+    // Without staged uploads the material stays unbound but extraction works:
+    // rebuild the tile with the upload frames (and their offA shift) removed.
+    const SyntheticCellTile bare = buildCellTileBase();
+    Bytes unbound;
+    unbound.insert(unbound.end(), bare.bytes.begin(), bare.bytes.begin() + 0x20);
+    unbound.insert(unbound.end(), bare.bytes.begin() + bare.offA - 16, bare.bytes.end());
+    const std::uint32_t newOffA = 0x20 + 16;  // just the END tag
+    setU32(unbound, 0x04, newOffA);
+    setU32(unbound, 0x08, static_cast<std::uint32_t>(unbound.size()));
+    setU32(unbound, 0x0C, static_cast<std::uint32_t>(unbound.size()));
+    setU32(unbound, 0x10, static_cast<std::uint32_t>(unbound.size()));
+    const auto loose = extractCellStrips(unbound);
+    check(loose.has_value() && loose->size() == 1 &&
+              (*loose)[0].strips.size() == 1 &&
+              (*loose)[0].material.textureIndex == -1 &&
+              (*loose)[0].material.paletteIndex == -1,
+          "cellstrips: missing upload chain leaves material unbound but extracts strips");
+}
+
+void testCellStripsRealTile() {
+    const std::filesystem::path path = discRoot() / "FLD/000.BIN";
+    if (path.empty() || !std::filesystem::exists(path)) {
+        std::cout << "test_field_converter: SKIP real FLD/000.BIN cell strips (not found)\n";
+        return;
+    }
+    std::ifstream input(path, std::ios::binary);
+    const Bytes bytes((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+    const auto cells = extractCellStrips(bytes);
+    check(cells.has_value(), "cellstrips 000: tile parses");
+    if (!cells) {
+        return;
+    }
+    const auto textures = fieldTextureCatalog(bytes);
+
+    std::size_t strips = 0, vertices = 0, headers = 0, switching = 0, withMat = 0;
+    std::size_t texBinds = 0, palBinds = 0, unknown = 0, malformed = 0, nloopMiss = 0;
+    bool allTerminated = cells->size() == 64;
+    for (const FieldCellStrips& cell : *cells) {
+        strips += cell.strips.size();
+        for (const FieldStrip& strip : cell.strips) {
+            vertices += strip.vertices.size();
+        }
+        headers += cell.materials.size();
+        if (!cell.materials.empty()) {
+            ++withMat;
+            if (cell.materials.size() > 1) {
+                ++switching;
+            }
+            if (cell.material.textureIndex >= 0) {
+                ++texBinds;
+            }
+            if (cell.material.paletteIndex >= 0) {
+                ++palBinds;
+            }
+        }
+        unknown += cell.unknownCommands;
+        malformed += cell.malformedUploads;
+        nloopMiss += cell.nloopMismatches;
+        allTerminated = allTerminated && cell.terminated && !cell.truncated;
+    }
+    // Pinned by the /tmp probe over the disc copy (2026-10-16).
+    check(cells->size() == 64, "cellstrips 000: 64 cells");
+    check(strips == 6669, "cellstrips 000: 6669 strips");
+    check(vertices == 25944, "cellstrips 000: 25944 vertices");
+    check(headers == 162, "cellstrips 000: 162 material headers");
+    check(withMat == 64, "cellstrips 000: every cell has a material header");
+    check(switching == 64, "cellstrips 000: every cell switches material at least once");
+    check(texBinds == 64 && palBinds == 64,
+          "cellstrips 000: first-header TEX0 page+palette bind 64/64");
+    check(unknown == 0 && malformed == 0 && nloopMiss == 0 && allTerminated,
+          "cellstrips 000: clean diagnostics, every chain RET-terminated");
+
+    // Cell 0 end-to-end: 146 strips / 564 vertices / 3 headers, the first
+    // selecting the PSMT4 128x128 page 0x2880 with palette 0x28a0.
+    const FieldCellStrips& cell0 = cells->at(0);
+    check(cell0.strips.size() == 146, "cellstrips 000 cell0: 146 strips");
+    std::size_t cell0Verts = 0;
+    for (const FieldStrip& strip : cell0.strips) {
+        cell0Verts += strip.vertices.size();
+    }
+    check(cell0Verts == 564, "cellstrips 000 cell0: 564 vertices");
+    check(cell0.materials.size() == 3, "cellstrips 000 cell0: 3 headers");
+    const FieldCellMaterial& mat0 = cell0.material;
+    check(mat0.tex0Tbp0 == 0x2880 && mat0.tex0Psm == 0x14 && mat0.tex0Tw == 7 &&
+              mat0.tex0Th == 7 && mat0.tex0Cbp == 0x28A0 &&
+              textures && (*textures)[mat0.textureIndex].dbp == 0x2880 &&
+              (*textures)[mat0.paletteIndex].dbp == 0x28A0 &&
+              (*textures)[mat0.textureIndex].psm == 0x14 &&
+              (*textures)[mat0.textureIndex].width == 128,
+          "cellstrips 000 cell0: first header binds PSMT4 page 0x2880 + CLUT 0x28a0");
+    check(cell0.strips.front().vertices.size() == gifTagNloop(cell0.strips.front().gifTag) &&
+              gifTagPrim(cell0.strips.front().gifTag) == 0x27C &&
+              cell0.strips.front().materialIndex == 0,
+          "cellstrips 000 cell0: first strip NLOOP 6, PRIM 0x27c, material 0");
+    // The last header re-selects PSMT8 page 0x285e; the tail strips follow.
+    check(cell0.materials.back().tex0Tbp0 == 0x285E && cell0.materials.back().tex0Psm == 0x13,
+          "cellstrips 000 cell0: tail header is the PSMT8 page 0x285e");
+    check(cell0.strips.back().materialIndex == 2,
+          "cellstrips 000 cell0: tail strips inherit material index 2");
+
+    std::cout << "test_field_converter: cellstrips FLD/000.BIN cells=" << cells->size()
+              << " strips=" << strips << " vertices=" << vertices << " headers=" << headers
+              << " switching=" << switching << " binds=" << texBinds << "/" << palBinds << '\n';
+}
+
+void testCellStripsCorpus() {
+    const std::filesystem::path dir = discRoot() / "FLD";
+    if (dir.empty() || !std::filesystem::exists(dir)) {
+        std::cout << "test_field_converter: SKIP FLD cellstrips corpus (not found)\n";
+        return;
+    }
+    std::size_t tiles = 0, cellsTotal = 0, cellsWithStrips = 0, strips = 0, vertices = 0;
+    std::size_t matCells = 0, headers = 0, switching = 0, texBinds = 0, palBinds = 0;
+    std::size_t unknown = 0, malformed = 0, nloopMiss = 0, unterminated = 0;
+    std::vector<std::string> distinctRecords;
+    std::vector<std::string> emptyCells;
+    for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+        if (entry.path().extension() != ".BIN") {
+            continue;
+        }
+        std::ifstream input(entry.path(), std::ios::binary);
+        const Bytes bytes((std::istreambuf_iterator<char>(input)),
+                         std::istreambuf_iterator<char>());
+        const auto cells = extractCellStrips(bytes);
+        check(cells.has_value(), "cellstrips corpus: " + entry.path().filename().string());
+        if (!cells) {
+            continue;
+        }
+        ++tiles;
+        for (const FieldCellStrips& cell : *cells) {
+            ++cellsTotal;
+            if (!cell.strips.empty()) {
+                ++cellsWithStrips;
+            } else {
+                emptyCells.push_back(entry.path().filename().string() + ":" +
+                                   std::to_string(cell.cell));
+            }
+            strips += cell.strips.size();
+            for (const FieldStrip& strip : cell.strips) {
+                vertices += strip.vertices.size();
+            }
+            headers += cell.materials.size();
+            if (!cell.materials.empty()) {
+                ++matCells;
+                if (cell.materials.size() > 1) {
+                    ++switching;
+                }
+                if (cell.material.textureIndex >= 0) {
+                    ++texBinds;
+                }
+                if (cell.material.paletteIndex >= 0) {
+                    ++palBinds;
+                }
+                auto hex = [](std::uint64_t v) {
+                    std::string out;
+                    for (int nibble = 15; nibble >= 0; --nibble) {
+                        out += "0123456789abcdef"[(v >> (4 * nibble)) & 0xF];
+                    }
+                    return out;
+                };
+                std::string record;
+                for (const std::uint64_t reg : cell.material.regs) {
+                    record += hex(reg);
+                }
+                if (std::find(distinctRecords.begin(), distinctRecords.end(), record) ==
+                    distinctRecords.end()) {
+                    distinctRecords.push_back(record);
+                }
+            }
+            unknown += cell.unknownCommands;
+            malformed += cell.malformedUploads;
+            nloopMiss += cell.nloopMismatches;
+            if (!cell.terminated || cell.truncated) {
+                ++unterminated;
+            }
+        }
+    }
+    // Pinned by the /tmp probe over the disc copy (2026-10-16): all 4,096
+    // directory cells parse; the six empty cells (STCYCL + NOP + RET, no
+    // strips) are all in 023.BIN.
+    check(tiles == 64, "cellstrips corpus: 64 tiles");
+    check(cellsTotal == 4096, "cellstrips corpus: 4096 cells");
+    check(cellsWithStrips == 4090, "cellstrips corpus: 4090 cells with strips (4096 - 6 documented misses)");
+    check(strips == 418392, "cellstrips corpus: 418392 strips");
+    check(vertices == 1749827, "cellstrips corpus: 1749827 vertices");
+    check(matCells == 4090 && headers == 16463 && switching == 3431,
+          "cellstrips corpus: 4090 material cells, 16463 headers, 3431 mid-cell switches");
+    check(texBinds == 4090, "cellstrips corpus: TBP0 binds 4090/4090 (100%)");
+    check(palBinds == 4078, "cellstrips corpus: CBP binds 4078/4090 (99.6%)");
+    check(distinctRecords.size() == 299, "cellstrips corpus: 299 distinct first-material qword records");
+    check(unknown == 0 && malformed == 0 && nloopMiss == 0 && unterminated == 0,
+          "cellstrips corpus: clean diagnostics across all chains");
+    std::sort(emptyCells.begin(), emptyCells.end());
+    const std::vector<std::string> expectedEmpty{"023.BIN:29", "023.BIN:30", "023.BIN:37",
+                                                 "023.BIN:38", "023.BIN:45", "023.BIN:46"};
+    check(emptyCells == expectedEmpty,
+          "cellstrips corpus: empty cells are exactly the six 023.BIN cells");
+    std::cout << "test_field_converter: cellstrips corpus tiles=" << tiles
+              << " cells=" << cellsTotal << " with-strips=" << cellsWithStrips
+              << " strips=" << strips << " vertices=" << vertices
+              << " headers=" << headers << " switching=" << switching
+              << " tbp-binds=" << texBinds << " cbp-binds=" << palBinds
+              << " distinct-materials=" << distinctRecords.size() << '\n';
+}
+
 std::filesystem::path discRoot() {
     if (const char* root = std::getenv("RT_DISC")) {
         return root;
@@ -734,6 +1193,10 @@ int main() {
     testTextureCatalogSyntheticChain();
     testTextureCatalogErrors();
     testTextureCatalogRealTiles();
+    testCellStripsSynthetic();
+    testCellStripsErrorsAndDrift();
+    testCellStripsRealTile();
+    testCellStripsCorpus();
     testRealFieldTileWhenAvailable();
     testCatalogCorpusWhenAvailable();
 
