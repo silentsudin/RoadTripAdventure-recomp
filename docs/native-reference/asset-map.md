@@ -149,10 +149,21 @@ odd `33..47`, even `48..62`. Those descriptors are **not** aliases:
 
 **Verdict:** the 2P-mirror / town / night hypotheses in their "re-use the same sectors" form
 are **rejected** — the unreachable half of the id space addresses 32 *distinct* tile files
-that nothing else references. The explanation must be a second spawn/index path that reaches
-the opposite parity (a variant of the parity bit `b` — inverted, or fixed by scripted zone —
-feeding the same category-9 descriptor table), not disc-level aliasing. Still OPEN for a live
-`gs_tasks_spawn` trace [OPEN].
+that nothing else references.
+
+**RESOLVED 2026-10-16 (spawn path found):** `FUN_00210158` (town/scene loader,
+callers `FUN_002105b8` ×3 and `FUN_0026ca48`) spawns
+`gs_tasks_spawn(ctx, 0x20dc50, id | 0x390000)` with id taken from a **scripted
+scene→tile-id table** at vaddr `0x2be438`, stride 8, records
+`{u32 sceneNamePtr, u16 tileId, u16 extra}` (tileId at +4; the loader reads
+`short @ 0x2be43c + i*8`). Decoded ids: 11, 43, 23, 7, 19, 36, 35, 47, 64, 11,
+39, … — ids 11/43/7/35/47 are **parity-invalid** (unreachable by
+`FUN_0021c8d0`), loading only via scripted scene entry (towns/POIs; id 11 =
+`023.BIN`, the 0x160-header tile). The id=64 entry is anomalous (indexes the
+COURSE sub-slot of the physical descriptor run) [OPEN]. The `+6` u16 cluster
+(0x0Bxx/0x0Axx) semantics remain [OPEN]. Net: the opposite-parity ids have a
+real spawn path; parity-valid ids never hit by the car walk are simply
+unreachable world space.
 
 ## Coverage
 
@@ -189,7 +200,8 @@ double bookkeeping, not contention. This is the *only* duplicated file set in th
   base [OPEN].
 - **ACTION types 18..38** through the `0x50000` misc loader — inferred from physical
   adjacency/stride; confirm with one live town-demo load or by tracing task-spawn tag bytes.
-- **Unreachable tile-id spawn path** — parity-inverted `b` or scripted ids; see verdict.
+- ~~Unreachable tile-id spawn path~~ — **RESOLVED 2026-10-16**: scripted scene table
+  @`0x2be438` (see tile-id re-use verdict above); residual opens: id=64 anomaly, `+6` field.
 - `functions.tsv` naming drift: `0x0020CC30 CheckInputMapping`, `0x0020CD10
   UpdateInputMapping`, `0x0020CDC0 DispatchInputMapping` are actually asset steps
   (car-model reload / reload-variant / shop-pack state machine driving table E and D bases)
