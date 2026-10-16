@@ -368,12 +368,29 @@ int envFrames() { const char* value = std::getenv("RT_APP_FRAMES"); return value
 namespace {
 constexpr std::int32_t kPeachHalfColumn = 11;
 constexpr std::int32_t kPeachRow = 1;
+constexpr int kPeachId = 11;
 
 struct TileRenderOrigin { float x; float z; };
 TileRenderOrigin tileRenderOrigin(int id) {
     const auto p = rt::native::gameplay::tilePlacement(id);
     return {static_cast<float>(p.halfColumn - kPeachHalfColumn) * 80.0f,
             static_cast<float>(p.row - kPeachRow) * 160.0f};
+}
+
+// Session car position (game units inside the anchored Peach tile, matching
+// tileRenderOrigin) -> authentic fixed units on the world torus for the
+// position-driven streamer demand.  Odd-row half-tile X shear applied once
+// local Z passes half a tile (FUN_0021ba70 stored-position semantics, so
+// gridCellId's FUN_0021c8d0 (-b) correction maps back to the same id).
+rt::native::gameplay::FixedPos carFixedUnits(const rt::native::gameplay::Vec2& carGame) {
+    const auto peach = rt::native::gameplay::tilePlacement(kPeachId);
+    const double step = rt::native::gameplay::kFixedUnitsPerGameUnit;
+    std::int32_t x = peach.x0 + static_cast<std::int32_t>(carGame.x * step);
+    std::int32_t z = peach.z0 + static_cast<std::int32_t>(carGame.z * step);
+    if ((peach.row & 1) != 0 &&
+        carGame.z * step >= static_cast<double>(rt::native::gameplay::kHalfTileFixedUnits))
+        x += rt::native::gameplay::kHalfTileFixedUnits;
+    return {x, z};
 }
 } // namespace
 
@@ -455,32 +472,70 @@ struct StreamedTerrain {
         for (int slot = 0; slot < rt::native::gameplay::kFieldTileSlots; ++slot) {
             const int id = streamer.idInSlot(slot);
             if (slotId[static_cast<std::size_t>(slot)] == id) continue;
-            const std::string& name = index[static_cast<std::size_t>(id)].fileName;
-            if (name.empty()) continue;
-            std::ifstream input(root / "FLD" / name, std::ios::binary);
-            if (!input) continue;
-            slotBytes[static_cast<std::size_t>(slot)] =
-                std::vector<std::uint8_t>((std::istreambuf_iterator<char>(input)),
-                                         std::istreambuf_iterator<char>());
-            slotId[static_cast<std::size_t>(slot)] = id;
-            slotTexturedValid[static_cast<std::size_t>(slot)] = false;
-            if (wantTextures) {
-                auto textured = rt::native::assets::buildFieldTexturedTerrain(
-                    slotBytes[static_cast<std::size_t>(slot)], 0.1f);
-                if (textured) {
-                    slotTextured[static_cast<std::size_t>(slot)] = std::move(*textured);
-                    slotTexturedValid[static_cast<std::size_t>(slot)] = true;
-                } else {
-                    std::cout << "rt-app stream: textured build failed for " << name << "\n";
-                }
-            }
-            ++loads;
-            reloaded = true;
-            std::cout << "rt-app stream: slot " << slot << " <- id " << id << ' ' << name
+            if (loadSlot(slot, id)) reloaded = true;
+            std::cout << "rt-app stream: slot " << slot << " <- id " << id << ' '
+                      << index[static_cast<std::size_t>(id)].fileName
                       << " (window row " << streamer.row() << " col " << streamer.colStart() << ")\n";
         }
         return reloaded;
     }
+
+    // Position-driven demand (RT_APP_STREAM_POS=1): follows the car with the
+    // authentic 4-slot window via TileStreamer::advanceTo (Evict*->Keep*->
+    // Load*, slot = id&3, LRU evictions, nearest-first loads). Returns true
+    // when any slot changed and the mesh needs a rebuild.
+    bool refreshAt(std::int32_t globalX, std::int32_t globalZ) {
+        dirty = false;
+        bool changed = false;
+        for (const auto& cmd : streamer.advanceTo(globalX, globalZ)) {
+            switch (cmd.action) {
+                case rt::native::gameplay::TileStreamCommand::Action::Evict:
+                    slotId[static_cast<std::size_t>(cmd.slot)] = -1;
+                    slotBytes[static_cast<std::size_t>(cmd.slot)] = {};
+                    slotTexturedValid[static_cast<std::size_t>(cmd.slot)] = false;
+                    changed = true;
+                    break;
+                case rt::native::gameplay::TileStreamCommand::Action::Load:
+                    if (loadSlot(cmd.slot, cmd.id)) {
+                        changed = true;
+                        std::cout << "rt-app stream: demand slot " << cmd.slot << " <- id "
+                                  << cmd.id << ' ' << index[static_cast<std::size_t>(cmd.id)].fileName
+                                  << " (demanded id " << streamer.lastDemandedId() << ")\n";
+                    }
+                    break;
+                case rt::native::gameplay::TileStreamCommand::Action::Keep:
+                    break;
+            }
+        }
+        return changed;
+    }
+
+  private:
+    bool loadSlot(int slot, int id) {
+        const std::string& name = index[static_cast<std::size_t>(id)].fileName;
+        const std::size_t slotIndex = static_cast<std::size_t>(slot);
+        if (name.empty()) return false;
+        std::ifstream input(root / "FLD" / name, std::ios::binary);
+        if (!input) return false;
+        slotBytes[slotIndex] =
+            std::vector<std::uint8_t>((std::istreambuf_iterator<char>(input)),
+                                     std::istreambuf_iterator<char>());
+        slotId[slotIndex] = id;
+        slotTexturedValid[slotIndex] = false;
+        if (wantTextures) {
+            auto textured = rt::native::assets::buildFieldTexturedTerrain(slotBytes[slotIndex], 0.1f);
+            if (textured) {
+                slotTextured[slotIndex] = std::move(*textured);
+                slotTexturedValid[slotIndex] = true;
+            } else {
+                std::cout << "rt-app stream: textured build failed for " << name << "\n";
+            }
+        }
+        ++loads;
+        return true;
+    }
+
+  public:
 
     // Rebuilds the render mesh from the four resident slots with the same
     // staggered-grid placement as the eager loader (x step 80, z step 160).
@@ -996,7 +1051,16 @@ int main() {
             session.startRace();
             directStartRace = false;
         }
-        if (streamed && streamed->refresh()) streamed->buildMesh(terrainMesh);
+        if (streamed) {
+            // RT_APP_STREAM_POS=1: authentic position-driven demand (the car's
+            // fixed-unit world position drives the 4-slot window); default
+            // keeps the scripted serpentine sweep for the deterministic matrix.
+            const bool changed = std::getenv("RT_APP_STREAM_POS") != nullptr
+                ? streamed->refreshAt(carFixedUnits(snapshot.carPosition).x,
+                                     carFixedUnits(snapshot.carPosition).z)
+                : streamed->refresh();
+            if (changed) streamed->buildMesh(terrainMesh);
+        }
         if (!noRender && presenter.extent.width && presenter.extent.height) {
             bool retry = false;
             // Render-local copy so the route follower can move the visible car
