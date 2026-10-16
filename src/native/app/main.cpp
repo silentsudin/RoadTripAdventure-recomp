@@ -362,13 +362,17 @@ int envFrames() { const char* value = std::getenv("RT_APP_FRAMES"); return value
 // Authentic tile placement (gameplay/world_layout; PROVEN formulas in
 // docs/native-reference/world-geography.md): id -> (halfColumn 0..15,
 // row 0..7) on the staggered lattice.  Render space is 0.1 game units,
-// anchored so Peach Town (streaming id 11: halfColumn 11, row 1) has its
-// origin at (0,0) — the spawn car and the graph-0 overlay then sit on
-// Peach terrain.
+// anchored so Peach Town has its origin at (0,0).  Peach Town is streaming
+// id 43 (halfColumn 11, row 5, FLD/223.BIN) per the scripted scene table
+// @0x2be438 (docs/native-reference/scene-tile-map.md) — the earlier id-11
+// binding was My Garage / My City (same half-column, row 1: the arithmetic
+// coincidence that seeded the mis-binding).  The graph-0 overlay is the
+// COURSE/C00 race route, not Peach streets; the town street graph (scene
+// T=1, outer dir @0x2d98a8) lands with the nav_routes townGraph API.
 namespace {
 constexpr std::int32_t kPeachHalfColumn = 11;
-constexpr std::int32_t kPeachRow = 1;
-constexpr int kPeachId = 11;
+constexpr std::int32_t kPeachRow = 5;
+constexpr int kPeachId = 43;
 
 struct TileRenderOrigin { float x; float z; };
 TileRenderOrigin tileRenderOrigin(int id) {
@@ -642,7 +646,7 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         if (!input) continue;
         const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
                                              std::istreambuf_iterator<char>());
-        // Authentic lattice origin, anchored so Peach Town (id 11) starts at
+        // Authentic lattice origin, anchored so Peach Town (id 43) starts at
         // (0,0) and the spawn car sits on Peach terrain.
         const auto origin = tileRenderOrigin(static_cast<int>(id));
         const float xOffset = origin.x;
@@ -798,11 +802,13 @@ int main() {
     } else {
         terrainMesh = loadTerrainMesh();
     }
-    // RT_APP_NAV=1 overlays a ROM nav-graph's centerline segments (the
-    // candidate Peach Town static graph) as bright yellow strips.  Graph
-    // coordinates are tile-local [0,1600] game units; scaled 0.1 they land
-    // inside Peach Town's cell, whose lattice origin is anchored at (0,0)
-    // (authentic placement — world_layout/world-geography.md).
+    // RT_APP_NAV=1 overlays a ROM nav-graph's centerline segments (static
+    // graph 0 = the COURSE/C00 race-route pack graph, per
+    // docs/native-reference/scene-tile-map.md — not Peach streets) as bright
+    // yellow strips.  Graph coordinates are tile-local [0,1600] game units;
+    // scaled 0.1 they draw inside the anchored tile cell at (0,0), i.e. the
+    // ribbon sits on Peach Town terrain while being the C00 course shape
+    // (semantic mismatch until the town-graph T=1 wire-up lands).
     std::vector<rt::native::preview::RouteLine> navLines;
     if (std::getenv("RT_APP_NAV") != nullptr) {
         auto tables = rt::native::assets::NavRouteTables::open(discRoot() / "SLUS_203.98");
@@ -821,10 +827,11 @@ int main() {
             }
         }
     }
-    // RT_APP_ROUTE=1 drives the render-visible demo car along the authentic
-    // Peach Town centerline (static graph 0) with a deterministic arc-length
-    // follower (gameplay/nav_drive).  Session authoring keeps its own car
-    // state; only the snapshot handed to the scene renderer is overridden.
+    // RT_APP_ROUTE=1 drives the render-visible demo car along the static
+    // graph 0 centerline (COURSE/C00 race route per scene-tile-map.md) with
+    // a deterministic arc-length follower (gameplay/nav_drive).  Session
+    // authoring keeps its own car state; only the snapshot handed to the
+    // scene renderer is overridden.
     std::optional<rt::native::gameplay::NavDrive> navDrive;
     constexpr float kNavRouteSpeedUnitsPerFrame = 30.f;
     int navRouteLap = 0;

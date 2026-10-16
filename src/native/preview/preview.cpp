@@ -922,7 +922,8 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     // overlay pipeline AFTER the terrain passes, so they stay readable even
     // where Peach hills sit between the camera and the town (authentic
     // anchored terrain made depth-tested ribbons invisible; see git history).
-    // NOTE: strips live near the Peach graph area — at large RT_APP_FRAMES
+    // NOTE: strips are the static-graph-0 (COURSE/C00) centreline in
+    // tile-local units of the anchored tile — at large RT_APP_FRAMES
     // the demo car drives away and the overlay leaves the frustum.
     std::vector<SceneVertex> overlayV;
     std::vector<std::uint32_t> overlayI;
