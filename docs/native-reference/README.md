@@ -10,6 +10,25 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 
 ---
 
+## 0. Asset/data-format status docs (FLD, COURSE, VU, audio)
+
+| Doc | Subject | State |
+|---|---|---|
+| [`field-topology-status.md`](field-topology-status.md) | FLD container grammar, 64/64 corpus, tile id/streaming (digit order **proven**), loader chain | current |
+| [`cell-vif-chains.md`](cell-vif-chains.md) | Per-cell VIF chains: 60B vertex records incl. **streamed UVs**; attribute-table rejection | current |
+| [`gif-material-streams.md`](gif-material-streams.md) | GIF A+D material header per cell, TEX0→page binding, 3,097 IMAGE transfers | current (swizzle/CLUT emulation open) |
+| [`field-textures.md`](field-textures.md) | `fieldTextureCatalog()` upload grammar, GS page bank rule, pixel conventions | current |
+| [`vu0-macro-streams.md`](vu0-macro-streams.md) | VIF word grammar; proof there are **no VU0 macro streams** | current |
+| [`vu1-programs.md`](vu1-programs.md) | Shared VU1 microprogram images + entry map (WorldStrip = entry 4) | current |
+| [`course-data-status.md`](course-data-status.md) | COURSE container regions | earlier pass |
+| [`tsq-tvb-format.md`](tsq-tvb-format.md) / [`sndmod-irx.md`](sndmod-irx.md) | Music stack | done |
+
+Code: `src/native/assets/field_converter.{h,cpp}` (packets, textures, terrain),
+`field_tile_index.{h,cpp}` (runtime streaming-id → filename resolver), tests under
+`tests/native_assets/`.
+
+---
+
 ## 1. Lookup protocol (the token-saving path)
 
 Always do these in order. Stop as soon as you have enough.
