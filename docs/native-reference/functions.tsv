@@ -42,6 +42,9 @@ address	name	note	callers	callees
 0x00209848	RunMenuSelectionTask	Processes menu selection and updates task/input state.	0x00205088	0x00203240,0x002058a8,0x00205ad0,0x00205c08,0x00205c20,0x002063c8,0x00206b00,0x00207d80,0x002080f8,0x0021d718,0x0021d788,0x0021dae8,0x00227b28,0x00229fd8,0x00258e50,0x00204de8,0x00204c48,0x00207b50
 0x00209CB0	RunMenuNavigationTask	Processes menu navigation state and updates menu presentation.	0x0020a2b0	0x00203240,0x00204d60,0x002058a8,0x00205ad0,0x00205c08,0x00205c20,0x002063c8,0x00206b00,0x00207d80,0x0021d718,0x0021d788,0x0021dae8,0x00258e50,0x00204de8,0x00204c48,0x00207b50
 0x0020A150	UpdateMenuOptionTask	Updates a menu option task and dispatches its transition state.	0x0020a2b0	0x00204310,0x002080f8,0x00258f30,0x00258fb0,0x00258ec8,0x00204de8,0x00204c48
+0x0020BAC8	loadFieldTile	Streams one FLD/COURSE/ACTION file into fieldTileData + slot*0x3A8000: 4-state machine (0x800 header window -> body window -> REF-chain walk + sendTexturePackets + size-capped bulk read (0x3A8000; 0x528000 slot 3) -> relativize 65-entry dir into fieldCellTables[slot]). Descriptor = ROM table entry {pack 0x333388, sectorOffset, sectorCount} chosen by streaming id. [PROVEN 2026-10-16; field-topology-status.md]	0x0020d120	0x0020e250
+0x0020C188	FieldTileMiscLoader	Mirror loader state machine for misc packs: request byte +0x22 selects descriptor 0x29be50+type*0xc; same header/chain/bulk states, sendTexturePackets at load.	0x0020d120	0x0020e250
+0x0020C9D0	loadCarModelAt	Category-0xc asset step: car model pack load via ROM descriptor chain [inferred].	0x0020d120	
 0x0020A2B0	DispatchMenuTask	Selects and spawns the next menu task based on task and mode state.	0x00205088,0x002052d0	0x00204d60,0x00204ed0,0x00258e50,0x00258f50,0x00204de8,0x00204c48
 0x0020A520	UpdateMenuConfirmTask	Spawns a confirmation task and processes its completion state.	0x0020a2b0	0x00204de8,0x00204c48
 0x0020A580	UpdateMenuScreenTask	Starts a screen task and advances its timer/transition state.	0x00209cb0	0x002080f8,0x00204de8,0x00204c48
@@ -52,11 +55,14 @@ address	name	note	callers	callees
 0x0020CD10	UpdateInputMapping	Updates input mapping state according to the active controller mode.	0x0020d120	0x0020c7b8
 0x0020CDC0	DispatchInputMapping	Dispatches input processing according to the active controller mapping mode.	0x0020d120	
 0x0020D008	HandleInputEvent	Processes an input event and updates associated state.		0x002006f0,0x00270180,0x00270a20,0x00207b50
+0x0020D120	AssetTaskStep	Asset-load step dispatcher: tag category bits (tag&0xf0000) pick the pack — 0x90000=FLD tile (id=tag&0xff, slot=id&3, ROM descriptor table 0x29bb50 64x12B {0x333388, sectorOff, sectorCount}), 0x50000=misc, 0xc0000=car models, 0x0=subcategories via 0x20aef0/0x20b348; post-load chain rebases add pack bases 0x1bc2/0x1c44/0x1d8e/0x237a/0x285e/0x2c7e to tag address qwords. [PROVEN 2026-10-16; field-topology-status.md]	0x0020df98	0x0020bac8,0x0020c188,0x0020c9d0,0x0020e1f0,0x0020e250
+0x0020DC50	FieldTileLoadDone	loadFieldTile task-completion callback: latches DAT_00333370 busy flag, sets task +0x28 bit 0x400000 when task +0x1c lacks flag 0x100000.		
 0x0020DF98	UpdateInputDeviceState	Updates input device state using shared controller/device data.	0x002052d0,0x0020d120	0x0020d120
 0x0020E018	ClearInputTransientState	Clears transient input state when the shared input mode is inactive.	0x00205088	
 0020e030	SendTexturePacketsDMA	Walks packet list until 'p' marker, adjusts texture field, waits DMA channel 1, then calls sendTexturePackets.		002006f0,00270180,00270a20,00207b50
 0020e140	InitFlagsIfNotLocked	If flag 0x100000 clear: sets 0x400000 when count<0x40, calls FUN_002080f8 and FUN_00204310, sets 0x80000000 [inferred].		00204310,002080f8
 0x0020E1B8	AbortCdOperation	Clears flag at DAT_00333370 and calls sceCdBreak if busy flag bit 0x8000 is set in DAT_003356c0.	0x0020DF98	0x002791D8
+0x0020E250	ReadDiscSectorsAligned	sceCdRead wrapper: startLBA = request-qword hi half + sector-aligned offset; sector count = round-up(offset&0x7ff + size); mode 0x333380; publishes DAT_01727b80/88.	0x0020bac8,0x0020c188,0x0020d120	
 0020e4e8	ToggleInputFlagWrapper	Thin wrapper calling FUN_0020dcd8 with param XOR 1.		0020dcd8
 0020e5b8	SaveAIDataFile	Formats 'AI Save %s' path, opens file, writes non-zero-trimmed buffer in byte-sized sceWrite calls, closes.	0026d020	0027eee0,0027ea30,00289148,00288ec0,00289770
 0x0020E708	UpdateTownBlockTasks	Updates town/world block tasks based on active block index, spawning block entities or destroying inactive blocks.	0x00210430	0x00204D60,0x00204ED0,0x0021CE28,0x00221258,0x0023CD58,0x0023DB80,0x00204C48,0x0027EA30
@@ -121,7 +127,7 @@ address	name	note	callers	callees
 0x0021C728	ToRelativeVec4	Builds float vec4(x,y,z,1) from fixed-point position minus reference origin, wraps at 27 bits, scales by world-unit constant DAT_00332c1c	0x00222B70,0x002228A8	
 0x0021C7F0	FixedPosToFloatVec4	Converts packed fixed-point position struct (x, y, z+carry bit) to float vec4 with w=1.0 using scale DAT_00332c20	0x0021E690,0x0021EC58	
 0x0021C880	GetGridCellIndex	Returns 2-bit grid cell selector (0-3) from sign bits of fixed-point x and z fields of a position struct	0x0021E690,0x00220938	
-0x0021C8D0	ComputeGridCellIndex	Same grid cell index as 0x21c6a0 computed directly from raw fixed-point x and z values [inferred]	0x002201C0,0x0026D700	
+0x0021C8D0	ComputeGridCellIndex	Field tile streaming id from fixed-point world coords: id=((z>>25)&6)*8+(((x>>24)-b)&0xE)+b, b=(z>>25)&1; parity makes id&1==id>>4&1 (this path reaches half the 64-id space; digit form id=(A<<4)|(B<<2)|swap2(C) proven against the ROM LBA table). [PROVEN 2026-10-16]	0x002201C0,0x0026D700	
 0x0021C928	StoreIndexedPosition	Writes scaled int3, float3 and a 16-bit tag into slot (stride 392B) of global race-object position table indexed by param_4 [inferred]	0x00250F00,0x00254430,0x00254D20,0x002595F0,0x0025A120,0x0025EB70,0x0025FF00,0x00260638,0x00260B48,0x00260DC0,0x00262678,0x002631A0,0x00263710,0x002638C0,0x00263C38,0x00263E68,0x002642B8	
 0x0021C998	ResetVehicleState	Zeroes car runtime state (velocity +0xf0, suspension/steering accumulators, odometer) and resets damping scalars to 0x1000	0x00217830,0x00240CD8,0x0024FB80,0x002631A0	0x00258E50
 0021ca90	UpdateObjectPhysicsState	Integrates position/velocity from float scale, calls FUN_002180c0, resets many state fields, optionally FUN_00258e50 [inferred].		002180c0,002182b0,00258e50
@@ -160,7 +166,7 @@ address	name	note	callers	callees
 0x0021F910	SetViewDistanceGlobals	Writes two float view-distance globals (DAT_003356e0/e4) set from camera modes and the options draw-distance page [inferred]	0x00208848,0x0021E690,0x0022AEB0,0x0022BFD0,0x0022C280,0x0022CD38,0x00244988,0x00246250,0x00216738	
 0x0021FAE8	LoadCameraPreset	Copies the 32-byte camera preset record at index param_2 (stride 32) from table 0x29ce00 into the camera state slot [inferred]	0x0021E690	
 0x0021FB20	GetCarSlotEntry	Returns pointer into a 0x20-byte stride base (DAT_0029ce00) indexed by arg; used as a per-car slot accessor. [inferred]	0x0021e690	
-0x002201C0	DrawFieldTerrainTiles	For drawSceneField: streams 5 neighbour tile GS tasks by FUN_0021c8d0, updates DAT_003335b8 tile-visible flags, then debug-overlays regs/coordinates. [inferred]	0x00220938	0x00203a50,0x0021c8d0,0x0027eee0,0x00204c48
+0x002201C0	DrawFieldTerrainTiles	drawFieldTiles: spawns the 5 neighbour tile loads around the car (steps +/-0x1000000 x, +/-0x2000000 z) as gs_tasks_spawn(ctx, 0x20dc50, id|0x390000), dedup via per-slot last-id words + DAT_003335b8 quadrant codes. [PROVEN 2026-10-16]	0x00220938	0x00203a50,0x0021c8d0,0x0027eee0,0x00204c48
 0x002207D0	DrawSceneArcRibbonFaded	For drawSceneCloudHill/drawSceneField: maybe-draws an arc ribbon via drawArcRibbon then fades ribbon-color toward ~0 by distance bands (60<<band RGB). [inferred]	0x00220938,0x00220b20	0x002224f8,0x00226610,0x00226f70
 002212c8	SetVifFillDirect	Stores replicated 8-bit pattern to _PTR_DAT_0029d130 and issues vifDirect with 6 quadwords.		00226f70
 0x002213E0	renderInitNoOp	Empty stub called from renderInit; kept as a seam/no-op initializer. [inferred]	0x00221300	
