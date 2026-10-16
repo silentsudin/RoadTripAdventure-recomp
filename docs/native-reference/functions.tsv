@@ -51,7 +51,7 @@ address	name	note	callers	callees
 0x0020A660	UpdateMenuInputState	Updates menu input state and associated option records.	0x00205088	
 0x0020A8A8	ReadPadState	Reads controller state and updates the corresponding input data.	0x0020ab10	0x00273bc8,0x00273d68,0x00273fa8,0x00273b48,0x00274250,0x00274198,0x002740e0
 0x0020AB10	UpdateControllerInput	Processes controller input and updates shared input state.	0x00205088	0x0020a8a8
-0x0020CC30	CarModelLoadStep	Asset category 0xB step: loads one car model via table E (0x29b438+idx*12, idx = request low byte Q-number), RAM slot (tag>>8&7)+15 into carModelData stride 0x34000, texture rebase TBP 0x243e+slot*0x44. [was misnamed CheckInputMapping; PROVEN 2026-10-16 asset-map.md]	0x0020d120	0x0020c7b8
+0x0020CC30	CarModelLoadStep	Asset category 0xB step: loads one car model via table E (0x29b438+idx*12, idx = request low byte Q-number), RAM slot (tag>>8&7)+15 into carModelData stride 0x34000, texture DBP rebase +0x243e + slot*0x44 (BITBLTBUF bits 32..45, not TBP). [was misnamed CheckInputMapping; PROVEN 2026-10-16 asset-map.md]	0x0020d120	0x0020c7b8
 0x0020CD10	CarModelReloadStep	Asset category 0x7 step: re-loads a remembered car-model slot with a variant (same table E machinery). [was misnamed UpdateInputMapping; PROVEN 2026-10-16 asset-map.md]	0x0020d120	0x0020c7b8
 0x0020CDC0	ItemShopPackStep	Asset category 0x3 step: drives the ITEM/SHOP pack loads from table D (base 0x29b054/METER cluster). [was misnamed DispatchInputMapping; PROVEN 2026-10-16 asset-map.md]	0x0020d120	
 0x0020D008	HandleInputEvent	Processes an input event and updates associated state.		0x002006f0,0x00270180,0x00270a20,0x00207b50

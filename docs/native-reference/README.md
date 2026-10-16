@@ -25,6 +25,7 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`vu1-programs.md`](vu1-programs.md) | Shared VU1 microprogram images + entry map (WorldStrip = entry 4) | current |
 | [`course-data-status.md`](course-data-status.md) | COURSE container regions | current |
 | [`course-routes.md`](course-routes.md) | COURSE tail grammar — prop-draw chains (bounded negative result), AI-nav table pointers | current |
+| [`course-prop-chains.md`](course-prop-chains.md) | Full prop-draw record decode (N=MSCALF-0xA 18/18, GIFtag 0x264/{ST,RGBAQ,XYZF2}, tile-local floats, header boundary list, C16 zero tail) + parser contract | current |
 | [`nav-tables.md`](nav-tables.md) | ROM-resident AI route graphs: static directory `0x2bd578`, 24B f32 segment + 8B transition grammar, runtime extraction spec | current |
 | [`nav-route-traversal.md`](nav-route-traversal.md) | FUN_00250068 follower predicate + host deterministic centerline rule (nav_path) | current |
 | [`nav-route-consumer.md`](nav-route-consumer.md) | NavPath → authored RaceRoute zone bridge, adaptive width clamps, pinned Peach Town prefix | current |
@@ -35,6 +36,8 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`sys-gsl-packs.md`](sys-gsl-packs.md) | GSL DMA-chain container grammar (1142 upload units / 49 files verified), A+D `{0x50..0x53}` unit layout, loader path, FONTE glyph-atlas decode | current |
 | [`save-layout.md`](save-layout.md) | PS2 Adventure save record `0x3448` field map (money `0x654`, stamps, licence, radio, remaps), card paths, checksum verdict, migration rules | current |
 | [`task-system.md`](task-system.md) | async task spine: 48-slot scheduler, tag/category taxonomy, 92 spawn sites / 34 producers, completion + pointer relativization | current |
+| [`audio-map.md`](audio-map.md) | SOUND inventory (30 files), music id grammar `0x0A II PP 01` + file table @`0x29ADF0` (29/29 LBN-verified), race-BGM table, radio = VAG streams verdict, SFX path | current |
+| [`car-data-status.md`](car-data-status.md) | CAR pack: 154/154 table-E join, 12-word header grammar, self-textured cars (constant 0x4510 chain, per-car liveries), DBP rebase, cat-0xB/0x7 consumer trace | current |
 | [`tsq-tvb-format.md`](tsq-tvb-format.md) / [`sndmod-irx.md`](sndmod-irx.md) | Music stack | done |
 
 Code: `src/native/assets/field_converter.{h,cpp}` (packets, textures, terrain),
