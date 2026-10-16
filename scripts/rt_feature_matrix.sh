@@ -84,6 +84,18 @@ row snapshot   RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 -- "rt-app snapshot:"
 row interp     RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_NOAUDIO=1 RT_APP_INTERP=1 \
                -- "rt-app interp: fixed-step sim"
 
+# --- host wiring -------------------------------------------------------------
+row triggers   RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 RT_APP_TRIGGERS=1 \
+               -- "rt-app triggers: enabled"
+row perflog    RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 RT_APP_PERFLOG=1 RT_APP_INTERP=1 RT_APP_INTERP_RATE=120 \
+               -- "[perf]"
+# Headless CI has no gamepad. The forced-family decision is deliberately logged
+# at startup so this contract does not depend on device attachment.
+row glyphs     RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 RT_APP_GLYPH_FAMILY=ps \
+               -- "family ps"
+row settings   RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 RT_DATA_DIR="$TMP/settings-data" \
+               -- "rt-app settings: defaults"
+
 # --- disc-dependent -----------------------------------------------------------
 row_required_disc single_tile RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 \
                   RT_APP_TERRAIN_FILE="$DISC/FLD/000.BIN" RT_APP_NOAUDIO=1 \

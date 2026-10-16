@@ -14,9 +14,12 @@
 #include "gameplay/dialogue.h"
 #include "gameplay/input.h"
 #include "gameplay/interp.h"
+#include "gameplay/glyphs.h"
 #include "gameplay/menu.h"
 #include "gameplay/nav_drive.h"
+#include "gameplay/perfstats.h"
 #include "gameplay/session.h"
+#include "gameplay/settings.h"
 #include "gameplay/shop.h"
 #include "gameplay/tile_streamer.h"
 #include "gameplay/world_layout.h"
@@ -31,21 +34,120 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cctype>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <optional>
+#include <sstream>
 #include <string>
+#include <sys/resource.h>
 #include <thread>
 #include <unordered_map>
 #include <vector>
 
 namespace {
 constexpr VkMemoryPropertyFlags kHostMemory = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+// The resolved family is app-global so future prompt renderers in this host
+// can read appGlyphFamily() at draw time rather than cache a stale pad family.
+rt::native::gameplay::GlyphFamily g_appGlyphFamily = rt::native::gameplay::GlyphFamily::Unknown;
+rt::native::gameplay::GlyphFamily appGlyphFamily() { return g_appGlyphFamily; }
+
+const char* glyphFamilyName(rt::native::gameplay::GlyphFamily family) {
+    using rt::native::gameplay::GlyphFamily;
+    switch (family) {
+    case GlyphFamily::Playstation: return "ps";
+    case GlyphFamily::XboxStyle: return "xbox";
+    case GlyphFamily::Nintendo: return "nintendo";
+    case GlyphFamily::Unknown: return "unknown";
+    case GlyphFamily::Count: break;
+    }
+    return "unknown";
+}
+
+std::optional<rt::native::gameplay::GlyphFamily> forcedGlyphFamily() {
+    const char* value = std::getenv("RT_APP_GLYPH_FAMILY");
+    if (!value) return std::nullopt;
+    const std::string family(value);
+    if (family == "ps") return rt::native::gameplay::GlyphFamily::Playstation;
+    if (family == "xbox") return rt::native::gameplay::GlyphFamily::XboxStyle;
+    if (family == "nintendo") return rt::native::gameplay::GlyphFamily::Nintendo;
+    return std::nullopt;
+}
+
+std::filesystem::path appDataDirectory() {
+    if (const char* value = std::getenv("RT_DATA_DIR")) return value;
+    if (const char* home = std::getenv("HOME"))
+        return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp";
+    return {};
+}
+
+void setDefaultEnv(const char* name, const std::string& value) {
+    // Environment has precedence over settings.toml; only fill an absent key.
+    if (!std::getenv(name)) (void)setenv(name, value.c_str(), 0);
+}
+
+void bootstrapSettings() {
+    using namespace rt::native::gameplay;
+    SettingsStore store(defaultSettingsPath(appDataDirectory()));
+    if (!store.load()) {
+        std::cout << "rt-app settings: defaults\n";
+        return;
+    }
+    OptionsModel model;
+    std::size_t found = 0;
+    for (const OptionSpec& option : model.options()) found += store.contains(option.id) ? 1u : 0u;
+    // Instantiate the navigator so all availability derives through its
+    // effectiveContext() bridge, rather than duplicating terrain/stream/etc.
+    MenuNavigator navigator(model, store, {});
+    const MenuContext effective = navigator.effectiveContext();
+    (void)effective;
+
+    const auto boolFlag = [&store](const char* key, const char* env) {
+        if (store.contains(key) && store.getBool(key, false)) setDefaultEnv(env, "1");
+    };
+    boolFlag("graphics.terrain", "RT_APP_TERRAIN");
+    boolFlag("graphics.textures", "RT_APP_TEXTURES");
+    boolFlag("graphics.stream", "RT_APP_STREAM");
+    boolFlag("graphics.stream_pos", "RT_APP_STREAM_POS");
+    boolFlag("graphics.nav", "RT_APP_NAV");
+    boolFlag("graphics.nav_town", "RT_APP_NAV_TOWN");
+    boolFlag("graphics.route", "RT_APP_ROUTE");
+    boolFlag("graphics.route_town", "RT_APP_ROUTE_TOWN");
+    boolFlag("graphics.hudtext", "RT_APP_HUDTEXT");
+    boolFlag("controllers.triggers", "RT_APP_TRIGGERS");
+    if (store.contains("display.interp")) setDefaultEnv("RT_APP_INTERP", store.getBool("display.interp", false) ? "1" : "0");
+    if (store.contains("display.interp_cap")) setDefaultEnv("RT_APP_INTERP_CAP", std::to_string(store.getInt("display.interp_cap", 2, 1, 99)));
+    if (store.contains("display.interp_rate")) setDefaultEnv("RT_APP_INTERP_RATE", std::to_string(store.getInt("display.interp_rate", 0, 0, 999)));
+    if (store.contains("graphics.stream_step_frames")) setDefaultEnv("RT_APP_STREAM_STEP_FRAMES", std::to_string(store.getInt("graphics.stream_step_frames", 10, 0, 999)));
+    if (store.contains("graphics.stream_row")) setDefaultEnv("RT_APP_STREAM_ROW", std::to_string(store.getInt("graphics.stream_row", 1, 0, 7)));
+    if (store.contains("sound.audio") && !store.getBool("sound.audio", true)) setDefaultEnv("RT_APP_NOAUDIO", "1");
+    if (store.contains("sound.bgm")) setDefaultEnv("RT_APP_BGM", store.getString("sound.bgm", ""));
+    if (store.contains("sound.bgm_tsq") && !store.getBool("sound.bgm_tsq", true)) setDefaultEnv("RT_APP_BGM_TSQ", "0");
+    if (store.contains("display.start_state")) {
+        const std::string state = store.getEnum("display.start_state", "title", {"title", "menu", "playing"});
+        std::string upper = state;
+        std::transform(upper.begin(), upper.end(), upper.begin(), [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+        setDefaultEnv("RT_APP_STATE", upper);
+    }
+    std::cout << "rt-app settings: loaded " << found << " of " << model.options().size() << "\n";
+}
+
+double processCpuSeconds() {
+    rusage usage{};
+    if (getrusage(RUSAGE_SELF, &usage) != 0) return 0.0;
+    const auto seconds = [](const timeval& value) {
+        return static_cast<double>(value.tv_sec) + static_cast<double>(value.tv_usec) / 1'000'000.0;
+    };
+    return seconds(usage.ru_utime) + seconds(usage.ru_stime);
+}
 
 struct Presenter {
     VkInstance instance = VK_NULL_HANDLE;
@@ -812,7 +914,8 @@ void compositeOver(std::vector<std::uint8_t>& scene, const std::vector<std::uint
 
 int main() {
     constexpr int kInitialWidth = 800, kInitialHeight = 600;
-    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) { std::cerr << "SDL_Init: " << SDL_GetError() << "\n"; return 1; }
+    bootstrapSettings();
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) { std::cerr << "SDL_Init: " << SDL_GetError() << "\n"; return 1; }
     SDL_Window* window = SDL_CreateWindow("Road Trip authored scene", kInitialWidth, kInitialHeight, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
     if (!window) { std::cerr << "SDL_CreateWindow: " << SDL_GetError() << "\n"; SDL_Quit(); return 1; }
     Presenter presenter; std::string error;
@@ -821,6 +924,19 @@ int main() {
     rt::native::preview::Renderer* renderer = rt::native::preview::previewInit(width, height, error, nullptr);
     if (!renderer) { std::cerr << "scene renderer init: " << error << "\n"; destroy(presenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
     const bool noRender = std::getenv("RT_APP_NORENDER") != nullptr; const int maxFrames = envFrames();
+    const bool triggersEnabled = [] {
+        const char* value = std::getenv("RT_APP_TRIGGERS");
+        return value && std::strcmp(value, "1") == 0;
+    }();
+    if (triggersEnabled) std::cout << "rt-app triggers: enabled\n";
+    const bool perfOverlayEnabled = [] {
+        const char* value = std::getenv("RT_APP_PERFOVERLAY");
+        return value && std::strcmp(value, "1") == 0;
+    }();
+    const bool perfLogEnabled = [] {
+        const char* value = std::getenv("RT_APP_PERFLOG");
+        return value && std::strcmp(value, "1") == 0;
+    }();
     // RT_APP_STREAM=1 (with RT_APP_TERRAIN=1) replaces the eager 64-tile
     // load with hardware-style 4-slot streaming (slot = id & 3).
     rt::native::preview::TerrainMesh terrainMesh;
@@ -1070,6 +1186,27 @@ int main() {
     // default pacing each iteration overwrites it exactly where it used to be
     // declared. HUD, streaming demand and collects always read this boundary.
     rt::native::gameplay::FrameSnapshot snapshot;
+    SDL_Gamepad* gamepad = nullptr;
+    rt::native::gameplay::TriggerDriveState triggerState;
+    const auto setPadFamily = [&](SDL_Gamepad* pad, SDL_JoystickID id) {
+        g_appGlyphFamily = forcedGlyphFamily().value_or(
+            rt::native::gameplay::mapSdlPadType(static_cast<int>(SDL_GetGamepadType(pad))));
+        std::cout << "[input] pad " << id << " family " << glyphFamilyName(appGlyphFamily()) << "\n";
+    };
+    const auto openGamepad = [&](SDL_JoystickID id) {
+        if (gamepad) return;
+        gamepad = SDL_OpenGamepad(id);
+        if (gamepad) setPadFamily(gamepad, id);
+    };
+    if (const auto forced = forcedGlyphFamily()) {
+        g_appGlyphFamily = *forced;
+        // Keep the forced-family matrix row deterministic on hosts with no pad.
+        std::cout << "[input] pad 0 family " << glyphFamilyName(appGlyphFamily()) << " (forced)\n";
+    }
+    int connectedPadCount = 0;
+    SDL_JoystickID* connectedPads = SDL_GetGamepads(&connectedPadCount);
+    if (connectedPads && connectedPadCount > 0) openGamepad(connectedPads[0]);
+    SDL_free(connectedPads);
     // RT_APP_INTERP=1 split pacing state (gameplay/interp; design and
     // determinism contract in docs/native-reference/frame-interpolation.md).
     const bool interpEnabled = envInterpEnabled();
@@ -1081,6 +1218,13 @@ int main() {
     rt::native::gameplay::RenderPose interpCurPose = interpPrevPose;
     bool haveInterpPose = false;
     std::uint64_t interpRenders = 0;
+    const auto monotonicSeconds = [] {
+        return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    };
+    rt::native::gameplay::PerfStats perf(monotonicSeconds, processCpuSeconds);
+    rt::native::gameplay::OverlayModel perfOverlay(true);
+    std::string perfOverlayText;
+    double nextPerfWindow = monotonicSeconds() + perf.windowSeconds();
     auto lastPresent = std::chrono::steady_clock::now();
     int effectiveInterpRenderRate = interpRenderRate;
     if (interpEnabled) {
@@ -1110,6 +1254,14 @@ int main() {
         bool startRace = false, openShop = false, openDialogue = false, advanceDialogue = false;
         int shopSelection = -1;
         while (SDL_PollEvent(&event)) { if (event.type == SDL_EVENT_QUIT || event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) running = false;
+            if (event.type == SDL_EVENT_GAMEPAD_ADDED) openGamepad(event.gdevice.which);
+            if (event.type == SDL_EVENT_GAMEPAD_REMOVED && gamepad &&
+                SDL_GetGamepadID(gamepad) == event.gdevice.which) {
+                SDL_CloseGamepad(gamepad);
+                gamepad = nullptr;
+                triggerState = {};
+                g_appGlyphFamily = forcedGlyphFamily().value_or(rt::native::gameplay::GlyphFamily::Unknown);
+            }
             if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat) {
                 if (state == AppState::TITLE) titleAdvance = true;
                 if (state == AppState::MENU) {
@@ -1173,8 +1325,6 @@ int main() {
             rt::native::gameplay::setPressed(pad, controllerConfig.getButtonConfig(rt::native::gameplay::ControllerAction::BRAKE));
         if (held(SDL_SCANCODE_SPACE))
             rt::native::gameplay::setPressed(pad, controllerConfig.getButtonConfig(rt::native::gameplay::ControllerAction::REVERSE));
-        const auto input = rt::native::gameplay::playerCarInput(pad, axes, controllerConfig);
-        (void)input;
         // One logic step of the fixed 60-Hz quantum: everything that must keep
         // the original VBlank-paced cadence (session tick, route follower,
         // shop/dialogue/collectibles, state/session logs, stream demand) per
@@ -1183,6 +1333,24 @@ int main() {
         // identical to the pre-interp one; split pacing (RT_APP_INTERP=1)
         // drains it from the accumulator below.
         const auto stepLogic = [&] {
+            // Trigger polling intentionally lives in this fixed-step lambda:
+            // split-pacing render iterations must not advance its pulse/reverse
+            // state or make controller drive depend on presentation cadence.
+            auto input = rt::native::gameplay::playerCarInput(pad, axes, controllerConfig);
+            if (triggersEnabled && gamepad) {
+                const auto trigger = [gamepad](SDL_GamepadAxis axis) {
+                    return std::clamp(static_cast<float>(SDL_GetGamepadAxis(gamepad, axis)) / 32767.f, 0.f, 1.f);
+                };
+                const auto drive = rt::native::gameplay::mapTriggersToDrive(
+                    {.leftTrigger = trigger(SDL_GAMEPAD_AXIS_LEFT_TRIGGER),
+                     .rightTrigger = trigger(SDL_GAMEPAD_AXIS_RIGHT_TRIGGER),
+                     .speed = static_cast<int>(snapshot.speed), .standstill = snapshot.speed == 0.f}, triggerState);
+                // Analog drive augments, never replaces, keyboard controller bits.
+                input.gas = input.gas || drive.input.gas;
+                input.brake = input.brake || drive.input.brake;
+                input.reverse = input.reverse || drive.input.reverse;
+            }
+            (void)input;
             if (state == AppState::PLAYING) {
                 // GameSession owns the race loop.  Its current public update path
                 // is AI-driven; Tab remains the race-mode selection control for
@@ -1280,6 +1448,7 @@ int main() {
             // unaffected: the poll remakes the flags each iteration).
             openShop = openDialogue = advanceDialogue = startRace = false;
             shopSelection = -1;
+            perf.noteLogicStep();
         };
         if (interpEnabled) {
             // Split pacing: bank real time, then drain at most catchUpCap
@@ -1352,7 +1521,7 @@ int main() {
                             if (rt::native::preview::previewUploadFontAtlas(renderer, atlasTex, texError)) {
                                 const int w = static_cast<int>(presenter.extent.width);
                                 const int h = static_cast<int>(presenter.extent.height);
-                                std::vector<rt::native::preview::HudQuad> textQuads =
+                                 std::vector<rt::native::preview::HudQuad> textQuads =
                                     scoreHudEnabled
                                         ? rt::native::preview::scoreMeterPageTextQuads(
                                               scoreHudMeter
@@ -1362,9 +1531,16 @@ int main() {
                                               static_cast<int>(rt::native::gameplay::collectedCount(collectibles)) * 500,
                                               static_cast<int>(session.progress().money), w, h)
                                         : session.state() == rt::native::gameplay::SessionState::RACE
-                                              ? rt::native::preview::raceHudTextQuads(snapshot,
-                                                                                     session.totalLaps(), w, h)
-                                              : rt::native::preview::townClockTextQuads(snapshot.clock, w, h);
+                                               ? rt::native::preview::raceHudTextQuads(snapshot,
+                                                                                      session.totalLaps(), w, h)
+                                               : rt::native::preview::townClockTextQuads(snapshot.clock, w, h);
+                                if (perfOverlayEnabled && !perfOverlayText.empty()) {
+                                    // The HUD's ground-level overlay precedent uses UI y=6;
+                                    // keep this opt-in row in that slot and create no quads
+                                    // unless both FONTE HUD text and the perf overlay are live.
+                                    rt::native::preview::appendFonteText(textQuads, perfOverlayText.c_str(), 6.f, 6.f,
+                                                                         {1.f, 1.f, 1.f, .95f}, w, h);
+                                }
                                 if (scoreHudEnabled && !hudTextWarned) {
                                     hudTextWarned = true;
                                     std::cout << "rt-app scorehud: page=" << (scoreHudMeter ? "METER" : "SCORE")
@@ -1389,6 +1565,7 @@ int main() {
                 if (!rendered || !present(presenter, pixels, retry, error)) {
                     std::cerr << "render: " << error << "\n"; running = false; break;
                 }
+                perf.notePresent();
                 if (interpEnabled) ++interpRenders;
                 if (const char* snap = std::getenv("RT_APP_SNAPSHOT")) {
                     std::ofstream snapStream(snap, std::ios::binary);
@@ -1405,6 +1582,27 @@ int main() {
                 if (retry && !recreateSwapchain()) { running = false; break; }
             } while (retry && presenter.extent.width && presenter.extent.height);
         }
+        const double perfNow = perf.now();
+        if (perfNow >= nextPerfWindow) {
+            while (perfNow >= nextPerfWindow) nextPerfWindow += perf.windowSeconds();
+            if (const auto window = perf.lastWindow(); window && !window->warmup) {
+                perfOverlayText = perfOverlay.text(*window);
+                if (perfLogEnabled) {
+                    const auto integer = [](double value) { return std::to_string(static_cast<long>(std::floor(std::max(0.0, value) + .5))); };
+                    const auto decimal = [](double value) {
+                        std::ostringstream out;
+                        out << std::fixed << std::setprecision(1)
+                            << std::floor(std::max(0.0, value) * 10.0 + .5) / 10.0;
+                        return out.str();
+                    };
+                    std::cout << "[perf] fps=" << integer(window->renderFps)
+                              << " game=" << integer(window->logicRate)
+                              << " gen=" << decimal(window->genFactor)
+                              << " worst=" << decimal(window->worstFrameMs)
+                              << " cpu=" << integer(window->cpuPercent) << "\n";
+                }
+            }
+        }
         if (!interpEnabled) ++frames;
     }
     std::cout << "rt-app frames=" << frames << " simulation_frame=" << simulationFrame << "\n";
@@ -1416,6 +1614,7 @@ int main() {
                   << " final window row=" << streamed->streamer.row()
                   << " col=" << streamed->streamer.colStart() << "\n";
     }
+    if (gamepad) SDL_CloseGamepad(gamepad);
     destroyAudio(audio);
     rt::native::preview::previewDestroy(renderer); destroy(presenter); SDL_DestroyWindow(window); SDL_Quit();
     return 0;
