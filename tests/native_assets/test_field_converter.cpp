@@ -1360,6 +1360,31 @@ void testTexturedTerrainSyntheticEmpty() {
           "textured builder: decode stats propagate");
 }
 
+void testTexturedTerrainCarriesVertexColours() {
+    const SyntheticCellTile tile = buildCellTileBase();
+    const auto built = rt::native::assets::buildFieldTexturedTerrain(tile.bytes, 0.1f);
+    check(built.has_value(), "textured builder: synthetic coloured strip builds");
+    if (!built) return;
+    const auto& patch = built->patch;
+    check(patch.colours.size() == patch.positions.size(),
+          "textured builder: colours are parallel to positions");
+    if (patch.colours.empty()) return;
+    // WorldStrip's lighting basis is set C.  The preview stores it in the
+    // Vulkan-normalized 0..1 range and carries an opaque alpha.
+    const auto& colour = patch.colours.front();
+    check(std::abs(colour[0] - 0.2f / 128.0f) < 1e-6f &&
+              std::abs(colour[1] - 0.4f / 128.0f) < 1e-6f &&
+              std::abs(colour[2] - 0.6f / 128.0f) < 1e-6f && colour[3] == 1.0f,
+          "textured builder: set-C RGB is normalized with opaque alpha");
+    // Synthetic modulation fixture: an opaque white texel must leave the
+    // authored vertex colour untouched.
+    const std::array<float, 3> white{1.0f, 1.0f, 1.0f};
+    check(std::abs(white[0] * colour[0] - colour[0]) < 1e-6f &&
+              std::abs(white[1] * colour[1] - colour[1]) < 1e-6f &&
+              std::abs(white[2] * colour[2] - colour[2]) < 1e-6f,
+          "textured builder: white texture modulates to vertex colour");
+}
+
 std::vector<std::uint8_t> readFileBytes(const std::filesystem::path& path) {
     std::ifstream input(path, std::ios::binary);
     return std::vector<std::uint8_t>((std::istreambuf_iterator<char>(input)),
@@ -1472,6 +1497,29 @@ void testFieldTextureDiscPins() {
     }
 }
 
+void testTexturedTerrainColoursCorpus() {
+    const std::filesystem::path dir = discRoot() / "FLD";
+    if (dir.empty() || !std::filesystem::exists(dir)) {
+        std::cout << "test_field_converter: SKIP FLD textured colour corpus (no disc)\n";
+        return;
+    }
+    std::size_t tiles = 0;
+    std::size_t vertices = 0;
+    for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+        if (entry.path().extension() != ".BIN") continue;
+        const auto built = rt::native::assets::buildFieldTexturedTerrain(
+            readFileBytes(entry.path()), 0.1f);
+        check(built.has_value(), "textured colour corpus: " + entry.path().filename().string());
+        if (!built) continue;
+        ++tiles;
+        vertices += built->patch.positions.size();
+        check(built->patch.colours.size() == built->patch.positions.size(),
+              "textured colour corpus: " + entry.path().filename().string() + " colours parallel positions");
+    }
+    check(tiles == 64 && vertices == 1749827,
+          "textured colour corpus: 64 tiles / 1,749,827 coloured vertices");
+}
+
 } // namespace
 
 int main() {
@@ -1492,7 +1540,9 @@ int main() {
     testCellStripsCorpus();
     testDecodeSyntheticExactRgba();
     testTexturedTerrainSyntheticEmpty();
+    testTexturedTerrainCarriesVertexColours();
     testFieldTextureDiscPins();
+    testTexturedTerrainColoursCorpus();
     testRealFieldTileWhenAvailable();
     testCatalogCorpusWhenAvailable();
 

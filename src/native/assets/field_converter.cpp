@@ -1174,6 +1174,13 @@ buildFieldTexturedTerrain(std::span<const std::uint8_t> tileFile, float scale) {
             const std::uint32_t base = static_cast<std::uint32_t>(patch.positions.size());
             for (const FieldVertex& vertex : strip.vertices) {
                 patch.positions.push_back({vertex.x * scale, vertex.height * scale, vertex.y * scale});
+                // WorldStrip's RGB output is the set-C lighting basis in the
+                // current field streams.  The VU writes 0..128-ish values to
+                // GS RGBAQ; Vulkan vertex colours are normalized instead.
+                patch.colours.push_back({vertex.colC[0] / 128.0f,
+                                         vertex.colC[1] / 128.0f,
+                                         vertex.colC[2] / 128.0f,
+                                         1.0f});
                 patch.uvs.push_back({vertex.s, vertex.t});
                 out.maxAbsU = std::max(out.maxAbsU, std::abs(vertex.s));
                 out.maxAbsT = std::max(out.maxAbsT, std::abs(vertex.t));

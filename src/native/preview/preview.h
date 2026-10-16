@@ -43,7 +43,7 @@ bool previewRender(Renderer* r, const assets::NativeModel& model, const float* v
 // Optional real-terrain overlay for the scene path: y-up render-unit
 // positions with a triangle list and one material id per triangle (used for
 // colour banding until authentic textures bind).
-// Textured path (optional): when `uvs` and `textures` are populated the
+// Textured path (optional): when `colours`, `uvs` and `textures` are populated the
 // terrain draws through the textured pipeline instead of the banded-colour
 // one.  `uvs` are GS page fractions (parallel to positions): s=1 spans one
 // page, so REPEAT wrapping at integer bounds reproduces the hardware.
@@ -59,11 +59,13 @@ struct TerrainMesh {
     std::vector<std::array<float, 3>> positions;
     std::vector<std::uint32_t> indices;
     std::vector<std::uint32_t> triangleMaterials;
+    std::vector<std::array<float, 4>> colours;             // optional, per position RGBA
     std::vector<std::array<float, 2>> uvs;          // optional, per position
     std::vector<PreviewTexture> textures;           // optional, page atlas
     std::vector<std::int32_t> triangleTexture;      // optional, per triangle
     bool isTextured() const {
-        return !uvs.empty() && !textures.empty() && uvs.size() == positions.size() &&
+        return !colours.empty() && !uvs.empty() && !textures.empty() &&
+               colours.size() == positions.size() && uvs.size() == positions.size() &&
                triangleTexture.size() == indices.size() / 3;
     }
 };

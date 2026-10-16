@@ -377,6 +377,7 @@ void appendTexturedTile(rt::native::preview::TerrainMesh& mesh,
         p[0] += xOffset;
         p[2] += zOffset;
         mesh.positions.push_back(p);
+        mesh.colours.push_back(tile.patch.colours[i]);
         mesh.uvs.push_back(tile.patch.uvs[i]);
     }
     for (std::uint32_t i : tile.patch.indices) mesh.indices.push_back(vertexBase + i);

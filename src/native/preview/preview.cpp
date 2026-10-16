@@ -892,8 +892,9 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     texV.reserve(terrain->positions.size());
     for (std::size_t i = 0; i < terrain->positions.size(); ++i) {
         const auto& pos = terrain->positions[i];
+        const auto& colour = terrain->colours[i];
         const auto& uv = terrain->uvs[i];
-        texV.push_back({pos[0], pos[1], pos[2], 1.f, 1.f, 1.f, uv[0], uv[1]});
+        texV.push_back({pos[0], pos[1], pos[2], colour[0], colour[1], colour[2], uv[0], uv[1]});
     }
     // Bucket triangles by page slot (triangleTexture + 1; -1 -> slot 0).
     std::vector<std::vector<std::uint32_t>> buckets(terrain->textures.size() + 1);

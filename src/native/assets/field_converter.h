@@ -312,6 +312,7 @@ decodeFieldTextures(std::span<const std::uint8_t> tileFile);
 // wrapping at integer bounds reproduces what the GS sees.
 struct FieldTexturedPatch {
     std::vector<std::array<float, 3>> positions;
+    std::vector<std::array<float, 4>> colours;            // parallel to positions, normalized RGBA
     std::vector<std::array<float, 2>> uvs;              // parallel to positions
     std::vector<std::uint32_t> indices;                 // triangle list
     std::vector<std::int32_t> triangleTexture;          // index into pages

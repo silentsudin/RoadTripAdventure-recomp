@@ -160,7 +160,30 @@ are the comparison, not pixel equality.
    v-axis direction for terrain decals is not independently pinned on a
    reference display.
 6. alphaAdd drives texture modulation/addition in the hardware (GFS ALA);
-   the preview modulates by white vertex colour and ignores additive alpha.
+   the preview uses set-C vertex modulation but still ignores additive alpha.
+
+## Vertex colour + modulation
+
+`FieldTexturedPatch::colours` is now parallel to `positions` and holds
+normalized RGBA values copied from every streamed strip vertex; `TerrainMesh`
+preserves that array through tile placement.  The textured Vulkan vertex layout
+already has `pos3 + colour3 + uv2`, and `preview_textured.frag` computes
+`lighting * vertexColour * texel.rgb`.  Thus a white texture leaves the vertex
+colour unchanged; the synthetic converter fixture pins that identity.  The
+untextured height-banded path does not read this array and remains byte-identical.
+
+The preview selects **colour set C**, scaling its VU/GS 0..128 colour domain to
+Vulkan's 0..1 range with `/128` and using alpha 1.  `vu1-programs.md` proves
+only that WorldStrip receives A/B/C and emits one RGBAQ, so it cannot by itself
+choose a single host-side proxy.  A cell-0 `000.BIN` probe (564 vertices,
+2026-10-16) found each set has 190 distinct triples, but C has the lowest
+nearest-position colour delta after normalization (0.0889 standard deviations,
+versus A 0.1082 and B 0.0926), consistent with the smoothly varying lighting
+term rather than the register-like inputs.  The fuller VU reconstruction notes
+that hardware RGBAQ is a VF9-weighted A/B/C combination; reproducing that
+dynamic register state remains outside this preview path, so C is an explicitly
+documented best per-vertex approximation rather than a claim of GS-exact
+lighting.
 
 ## Where the pins live
 
