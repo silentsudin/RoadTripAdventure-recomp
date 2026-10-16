@@ -33,7 +33,7 @@ which pack) is [OPEN] (likely town/event-scoped, see `SpawnTownEntities`
 | hdr `0x20`, words 5+ unused | A02 A04 A10 A11 A15 A20 | `w4 == physical`, `offC < w4` |
 | hdr `0x20`, `w5 == physical` | A07 A08 A19 | `w4 < w5 == phys` (trailing padding beyond declared size) |
 | hdr `0x30`, extra boundaries w5/w6(/w7) | A00 A01 A05 A06 A13 A16 A18 | one of `w6`/`w7` equals physical size (A06 needs `w7`; w6 = an interior boundary `0xe2930` beyond `w4`); same family as the COURSE `0x30` variant |
-| hdr `0x20`, **`w4 == 0`** | A03 A09 A12 A14 A17 | `phys == offC − 8` exactly in all five — `offC` is a past-the-end pointer including an 8-byte DMA terminator qword not present in the file [OPEN: intended size source for these five] |
+| hdr `0x20`, **`w4 == 0`** | A03 A09 A12 A14 A17 | `phys == offC − 8` exactly in all five; size comes from the ROM descriptor's `sectorCount` (see Open items) — `offC` is a past-the-end pointer including an 8-byte DMA terminator qword not present in the file |
 
 `offA` is always 0x800-sector-aligned (0x13800..0x9b800) — unlike FLD's small
 `offA`; ACTION carries a large pre-chain blob.
@@ -56,7 +56,15 @@ which pack) is [OPEN] (likely town/event-scoped, see `SpawnTownEntities`
 
 ## Open items
 
-- `w4 == 0` variant: intended total size + why `offC` overshoots by 8.
+- ~~`w4 == 0` variant: intended total size + why `offC` overshoots by 8.~~
+  **RESOLVED 2026-10-16 (size source):** all five `w4 == 0` files are covered
+  by their ROM descriptor records — `sectorCount × 2048 ≥ physical` with
+  `(physical + 2047) / 2048 == sectorCount` exact (the same join that matched
+  21/21). Load size therefore comes from the `0x29bb50` descriptor, making the
+  in-file size word redundant for ACTION. Remaining nuance [OPEN-lean]:
+  `offC == phys + 8` likely counts an 8-byte DMA terminator qword the loader
+  materializes in memory (see the FLD loader's buffer-relativize step) rather
+  than a byte physically stored in the file.
 - ACTION's pre-chain blob is not in the FLD GIF-upload grammar.  Identify its
   producer/consumer (or a separate texture-upload path); no GS page-placement
   rule can be inferred from it.
