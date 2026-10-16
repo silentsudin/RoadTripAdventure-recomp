@@ -39,6 +39,7 @@ set(RT_NATIVE_ASSET_SOURCES
     assets/course_data.cpp      # COURSE container header/region parser (route semantics deferred)
     assets/nav_routes.cpp       # ROM-resident AI route-graph runtime reader (no embedded tables)
     gameplay/nav_path.cpp       # deterministic route-graph centerline traversal
+    gameplay/nav_route_bridge.cpp # NavPath centerline -> authored RaceRoute zones
     assets/image_converter.cpp  # texture upload chain -> RGBA8 ImageRecord
     assets/image_loader.cpp     # ImageRecord -> NativeImage
     assets/model_loader.cpp     # MeshRecord + images -> NativeModel
@@ -205,6 +206,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(native_assets_nav_path_test PRIVATE rt_native_assets)
     target_compile_features(native_assets_nav_path_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_nav_path_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(native_assets_nav_route_bridge_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_nav_route_bridge.cpp")
+    target_link_libraries(native_assets_nav_route_bridge_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_nav_route_bridge_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_nav_route_bridge_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
     add_executable(native_assets_course_data_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_course_data.cpp")
@@ -474,6 +481,7 @@ if(RT_NATIVE_ASSETS_COVERAGE)
         list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_tile_streamer_test)
         list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_nav_routes_test)
         list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_nav_path_test)
+        list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_nav_route_bridge_test)
     endif()
     foreach(rt_native_cov_target IN LISTS RT_NATIVE_COVERAGE_TARGETS)
         target_compile_options(${rt_native_cov_target} PRIVATE ${RT_NATIVE_COVERAGE_FLAGS})
