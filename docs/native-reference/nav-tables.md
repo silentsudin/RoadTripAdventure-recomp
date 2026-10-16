@@ -136,9 +136,11 @@ embed table bytes.
 
 1. Parse the ELF program headers.  Locate the `PT_LOAD` containing each virtual
    address and translate with `fileOffset = p_offset + (vaddr - p_vaddr)`.
-   In the analyzed ELF the relevant data load has `p_vaddr=0x0029a880` and
-   `p_offset=0x0009b880`, so the concrete mapping is `fileOffset = vaddr -
-   0x00200000`.  Validate the headers rather than assuming that relation.
+   Validate the headers per segment — do **not** assume a fixed delta: in the
+   analyzed ELF the relevant data load (`p_vaddr=0x0029a880`,
+   `p_offset=0x0009b880`) gives `fileOffset = vaddr - 0x001ff000`, not the
+   round `0x200000` (a corrected earlier draft of this doc; the 4 KiB error
+   silently misaligns every decode).
 2. Read the 8-byte static pair at `0x002bd578 + 8*sceneIndex`, reject a null
    pair, and apply the two aliases above if reproducing `FUN_0024fcd8` exactly.
    Decode `n = (transitionVaddr - segmentVaddr) / 24` only when the difference
