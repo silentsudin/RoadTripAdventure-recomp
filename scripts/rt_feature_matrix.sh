@@ -70,6 +70,10 @@ row scorehud   RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 RT_APP_HUDTEXT=1 RT_APP_SCO
                -- "rt-app scorehud: page=SCORE"
 row carmodel   RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_NOAUDIO=1 RT_APP_CARMODEL=0 \
                -- "rt-app carmodel: Q0"
+row route      RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_NOAUDIO=1 RT_APP_ROUTE=1 \
+               -- "rt-app route: nav lap drive segments=34"
+row route_town RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_NOAUDIO=1 RT_APP_ROUTE=1 RT_APP_ROUTE_TOWN=1 \
+               -- "rt-app route: town lap drive segments=80"
 
 # --- render modes -------------------------------------------------------------
 row norender   RT_APP_STATE=PLAYING RT_APP_NORENDER=1 RT_APP_NOAUDIO=1 \

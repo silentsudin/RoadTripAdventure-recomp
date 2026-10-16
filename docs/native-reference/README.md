@@ -43,6 +43,8 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`rules-tables.md`](rules-tables.md) | Economy + progression tables: money mutator @`0x23DC58` (single purse funnel, seed 1000, cap 999999), payout ladder @`0x29FCB8` 5×6, race records @`0x2BDDD0`, mileage-exchange income @`0x23A140` (no taxi/entry fees — bounded negative), gate-pair table @`0x2A2B70`, golf @`0x2AC0C0` (par 36) + slot @`0x2D9980`, part spec tables (tires/gearbox/chassis/engine/steering/brakes/horn), day/night step clocks+durations @`0x2DCD28/0x2DCD50` (u16 correction) | current |
 | [`minigame-logic.md`](minigame-logic.md) | Per-venue gameplay logic: result channel `0x23D8C8` tiers, golf `min(strokes+1,99)−par` @`0x252738`, gate `min(time+300·pen,360000)` @`0x25AA58`, frame-gated repeat tiers (4200/10800/7200/3000/480), goal-area polarity @`0x260754`, balloon/collection sensors; entry unlocks OPEN | current |
 | [`tsq-tvb-format.md`](tsq-tvb-format.md) / [`sndmod-irx.md`](sndmod-irx.md) | Music stack | done |
+| [`frame-timing.md`](frame-timing.md) | Logic pacing verdict: VBlank-locked fixed step (root loop `0x200528`, `sceGsSyncV` INTC_STAT `0x1000F000` bit 2 wait, task tick +1, clock/gravity fixed-step) → native 60Hz sim + interpolation for >60 visuals | current |
+| [`feature-retention.md`](feature-retention.md) | Evidence ledger of mandated features (widescreen/HD packs/second screen/frame gen/rumble/radio/triggers/save states/HUD/AI/camera/economy/streaming/minigames) with per-feature status + matrix coverage; refresh after each feature lands | current |
 
 Code: `src/native/assets/field_converter.{h,cpp}` (packets, textures, terrain),
 `field_tile_index.{h,cpp}` (runtime streaming-id → filename resolver), tests under

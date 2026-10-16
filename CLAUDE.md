@@ -1,6 +1,58 @@
 # Notes for agents
 
-- **Subagents: ALWAYS a cloud model + `background: true` on every dispatch. NEVER the local `omlx` provider (it exhausts the Metal memory ceiling and aborts mid-run — user mandate; omitting `model` defaults to local: never do that).** **FREE MODELS ARE THE LAST RESORT (user directive 2026-10-16): before dispatching any `*-free` model, CHECK quota usage and CONFIRM the better models are actually exhausted** (ask the user if unsure; a single transient 429 on one provider is not confirmation). **Current primary pool: `synthetic/*` (abundant quota as of 2026-10-16; same **5-hour rolling windows + weekly caps** as Z.ai and OpenAI). Tiering: strong RE/analysis and hard parser work → `synthetic/hf:moonshotai/Kimi-K3`, `synthetic/hf:zai-org/GLM-5.3` (dispatch with `#high`); mid/cheap mechanical work → `synthetic/hf:zai-org/GLM-5.3-Flash`, `synthetic/hf:deepseek-ai/DeepSeek-V4.1-Flash`, `synthetic/hf:nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4`, `synthetic/hf:MiniMaxAI/MiniMax-M3`, `synthetic/hf:Qwen/Qwen3.6-27B`, `synthetic/hf:openai/gpt-oss-120b`. Runtime rejects `synthetic/hf:moonshotai/Kimi-K2.7-Code` for subagents (2026-10-16) — use Kimi-K3 instead.** Premium tiers when their windows are open: `openai/gpt-5.6-terra` (default workhorse), `zai-coding-plan/glm-5.3-flash` (Lite plan; highspeed NOT included). Quota topology: Synthetic + Z.ai + OpenAI each have **5-hour rolling windows** (plus weekly caps) — on confirmed exhaustion, note the time and resume premium after the window resets. Weekly caps seen exhausted 2026-10-16: `opencode/*` paid pool (only `opencode/*-free` usable), `github-copilot/*` monthly, `huggingface/*` credits, `opencode-go/*`. Quota-error log: 10:30 Copilot monthly / HF credits / opencode-go; ~11:15 Z.ai-lite + OpenAI windows active; ~15:20 Synthetic pool opened (primary). NEVER fall back to local.
+## HARD RULE — subagent dispatch gate (violated 3x on 2026-10-16; apply it at every dispatch)
+
+Every `subagent` call must contain BOTH parameters, no exceptions:
+
+- `background: true`
+- `model: "<prefix>/<model>"` — prefix must be one of `openai/`, `synthetic/`,
+  `zai-coding-plan/`, `zai/`, `opencode-go/`, `opencode/`.
+
+Omitting `model:` silently inherits the session model, which here is `omlx/*`
+local inference: **FORBIDDEN** (it exhausts the Metal memory ceiling and aborts
+mid-run — user mandate). All three violations on 2026-10-16 came from composing
+a good prompt and forgetting the params, so the check is on the PARAMS:
+
+**PRE-CHECK:** immediately before sending, re-read the composed param object and
+verify it literally contains a `model:` line with a cloud prefix above AND
+`background: true`. If either is missing, DO NOT SEND — rewrite the call.
+
+Copy-paste skeleton (never delete the model line):
+
+```
+subagent({
+  agent: "general",
+  model: "openai/gpt-5.6-terra",   // REQUIRED — cloud prefix
+  background: true,                // REQUIRED
+  description: "...", prompt: "..."
+})
+```
+
+Model choice — live quota ONLY via `execute -> tools.quota_status()`; never
+reuse numbers from this file or memory, and a single transient 429 on one
+provider is not exhaustion:
+
+- Workhorse RE/analysis: `openai/gpt-5.6-terra`. Strong alternates when its
+  window is closed: `synthetic/hf:moonshotai/Kimi-K3`,
+  `synthetic/hf:zai-org/GLM-5.3` (dispatch with `#high`).
+- Mechanical grunt work: `synthetic/hf:zai-org/GLM-5.3-Flash`,
+  `synthetic/hf:deepseek-ai/DeepSeek-V4.1-Flash`,
+  `synthetic/hf:nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-NVFP4`,
+  `synthetic/hf:MiniMaxAI/MiniMax-M3`, `synthetic/hf:Qwen/Qwen3.6-27B`,
+  `synthetic/hf:openai/gpt-oss-120b`. Runtime rejects
+  `synthetic/hf:moonshotai/Kimi-K2.7-Code` for subagents — use Kimi-K3.
+- `zai-coding-plan/glm-5.3-flash` (Lite plan; highspeed NOT included): probe
+  before relying on it — as of late 2026-10-16 every call returns z.ai error
+  1113 ("Insufficient balance or no resource package"); retry at cadence, not
+  hammering.
+- **FREE MODELS ARE THE LAST RESORT** (user directive 2026-10-16): before any
+  `*-free` model, confirm via quota_status that the better pools are genuinely
+  exhausted; ask the user if unsure.
+- Quota topology: Synthetic, Z.ai and OpenAI each have **5-hour rolling
+  windows** plus weekly caps — on confirmed exhaustion note the time and the
+  reset time and resume premium after the reset.
+
+NEVER fall back to local.
 - This is a static recomp of the PS2 game Road Trip (USA, SLUS-20398) using PS2Recomp (submodule `third_party/PS2Recomp`, pinned).
 - **The built app must never contain game code.** The game is recompiled and compiled on the user's machine at first launch (`src/game/GameBuilder.cpp`), and `scripts/bundle_sdk.py` ships only the recompiler, runtime headers and config. Verify with `nm RoadTrip.app/Contents/MacOS/RoadTrip | grep -c sub_00`, which must print 0.
 - **Never commit game data or derived code.** That covers anything under `generated/` and `build/`, disc images, ELFs, and extracted files. `.gitignore` covers them; check `git status` before committing.
