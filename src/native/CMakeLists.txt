@@ -38,6 +38,7 @@ set(RT_NATIVE_ASSET_SOURCES
     assets/field_tile_index.cpp # ROM LBA descriptor table -> streaming id/FLD filename index
     assets/course_data.cpp      # COURSE container header/region parser (route semantics deferred)
     assets/nav_routes.cpp       # ROM-resident AI route-graph runtime reader (no embedded tables)
+    assets/iso_extract.cpp      # first-run ISO9660 reader + gate + native asset-set extractor (user's image only)
     gameplay/nav_path.cpp       # deterministic route-graph centerline traversal
     gameplay/nav_walkable.cpp   # fixed-step centerline waypoint traversal diagnostics
     gameplay/nav_drive.cpp      # deterministic kinematic centerline follower (render-visible drive)
@@ -47,6 +48,7 @@ set(RT_NATIVE_ASSET_SOURCES
     assets/image_loader.cpp     # ImageRecord -> NativeImage
     assets/model_loader.cpp     # MeshRecord + images -> NativeModel
     assets/music_seq.cpp        # Road Trip TVB voice-bank and TSQ sequence container parsers
+    assets/setup_wizard.cpp     # first-run validated native asset cache
     assets/tsq_sequencer.cpp    # bounded TSQ event decoder and offline TVB PCM renderer
     gameplay/car_physics.cpp    # authored car-physics tick (no guest code)
     gameplay/camera.cpp         # authored chase camera (spring/slew + look-at view matrix)
@@ -62,6 +64,7 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/geometry.cpp       # authored ground-plane zone predicates and arrival checks
     gameplay/minigames.cpp      # authored mini-game scoring predicates and score model
     gameplay/route.cpp          # authored race-route zones, progress, and arrival model
+    gameplay/motion.cpp         # authored render motion-vector math (pure C++, no GPU)
     gameplay/tile_streamer.cpp  # hardware-style 4-slot field-tile streaming algebra (slot = id & 3)
     audio/vag.cpp               # authored PS ADPCM (VAG) decoder (no PS2/guest code)
     audio/vag_loader.cpp        # authored VAG file/raw-stream loader -> PCM source storage
@@ -70,6 +73,8 @@ set(RT_NATIVE_ASSET_SOURCES
     audio/music_library.cpp     # injected BGM file-table index -> VAG resolver + SoundEngine bridge
     audio/bgm_player.cpp        # bounded TSQ+TVB BGM pre-render and stereo PCM loop player
     gameplay/save.cpp           # authored memory-card save parse/serialize/migrate (13,384-byte progress block)
+    gameplay/radio.cpp          # authored radio-station model (save byte -> stereo VAG pair, town-frame apply)
+    gameplay/rumble.cpp         # authored rumble/haptics grading (collision/landing/scrape -> motor levels)
     gameplay/progression.cpp    # authored progression mutations over the documented save fields
     gameplay/collectibles.cpp   # authored stamp and coin pickup model
     gameplay/shop.cpp           # authored item-shop buy/sell and selection model
@@ -77,6 +82,10 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/menu.cpp           # authored menu, pause, and controller-config state models
     gameplay/input.cpp          # authored player input (pad/analog -> CarInput)
     gameplay/game_loop.cpp      # authored simulation frame (task walker -> AI/car/camera -> cull -> snapshot)
+    gameplay/interp.cpp         # render-frame interpolation (fixed-step accumulator + render-pose blend)
+    gameplay/perfstats.cpp      # host performance windows and ASCII overlay model
+    runtime/testsocket.cpp      # JSON-lines native regression control socket
+    runtime/guest_facade.cpp    # explicitly mapped guest-address compatibility facade
 )
 # ---- staged module sources (coordinator-managed parallel dispatch). These
 # candidate files land from independent work streams; they are compiled into
@@ -84,8 +93,10 @@ set(RT_NATIVE_ASSET_SOURCES
 # edit this file. The coordinator converts to unconditional entries after the
 # staged files are integrated.
 foreach(_rt_staged_source
-        assets/course_props.cpp assets/car_models.cpp assets/glyph_atlas.cpp
-        gameplay/rules_tables.cpp gameplay/hud_layout.cpp)
+        assets/course_props.cpp assets/car_models.cpp assets/glyph_atlas.cpp assets/hd_pack.cpp
+        gameplay/rules_tables.cpp gameplay/hud_layout.cpp gameplay/glyphs.cpp
+        gameplay/settings.cpp gameplay/map_view.cpp
+        app/output_modes.cpp)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_rt_staged_source}")
         list(APPEND RT_NATIVE_ASSET_SOURCES "${_rt_staged_source}")
     endif()
@@ -96,6 +107,34 @@ add_library(rt_native_assets STATIC ${RT_NATIVE_ASSET_SOURCES})
 target_include_directories(rt_native_assets PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_features(rt_native_assets PUBLIC cxx_std_20)
 target_compile_options(rt_native_assets PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+# ---------------------------------------------------------------- Android app
+# SDL's Android activity loads a single libmain.so. Keep this branch before the
+# host-only tools: Android packages only the authored app, never host tools.
+if(ANDROID)
+    include(FetchContent)
+    set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+    set(SDL_STATIC ON CACHE BOOL "" FORCE)
+    set(SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
+    FetchContent_Declare(SDL3
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+        GIT_TAG release-3.4.18
+        GIT_SHALLOW TRUE)
+    FetchContent_MakeAvailable(SDL3)
+
+    find_library(RT_ANDROID_VULKAN_LIB vulkan REQUIRED)
+    find_library(RT_ANDROID_LOG_LIB log REQUIRED)
+    add_library(main SHARED app/main.cpp preview/preview.cpp)
+    target_link_libraries(main PRIVATE rt_native_assets SDL3::SDL3
+        ${RT_ANDROID_VULKAN_LIB} ${RT_ANDROID_LOG_LIB})
+    target_compile_features(main PRIVATE cxx_std_20)
+    target_compile_options(main PRIVATE ${RT_NATIVE_WARN_OPTIONS}
+        -Wno-missing-field-initializers)
+    # Android 15-capable devices may use 16 KiB pages. NDK r27+ honors this
+    # linker contract; older linkers safely ignore this ordinary ELF setting.
+    target_link_options(main PRIVATE "-Wl,-z,max-page-size=16384")
+    return()
+endif()
 
 # ---------------------------------------------------------------- optional host packages
 # Vulkan and SDL3 are prospective hosts: the asset code (rt_native_assets) is
@@ -178,6 +217,11 @@ endif()
 option(RT_NATIVE_ASSETS_BUILD_TESTS
        "Build the synthetic native-asset contract tests as executables (not run)" OFF)
 if(RT_NATIVE_ASSETS_BUILD_TESTS)
+    add_executable(native_facade_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_native_facade.cpp")
+    target_link_libraries(native_facade_test PRIVATE rt_native_assets)
+    target_compile_features(native_facade_test PRIVATE cxx_std_20)
+    target_compile_options(native_facade_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
     # tests/native_assets/test_*.cpp: synthetic contract tests, no game data.
     # They include the headers by repo-relative path ("../../src/native/assets/...")
     # and link rt_native_assets for the implementations under test. Executables
@@ -212,6 +256,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(native_assets_field_converter_test PRIVATE rt_native_assets)
     target_compile_features(native_assets_field_converter_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_field_converter_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(native_assets_iso_extract_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_iso_extract.cpp")
+    target_link_libraries(native_assets_iso_extract_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_iso_extract_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_iso_extract_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
     add_executable(native_assets_field_tile_index_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_field_tile_index.cpp")
@@ -333,6 +383,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_compile_features(native_assets_save_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_save_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
+    add_executable(native_assets_rumble_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_rumble.cpp")
+    target_link_libraries(native_assets_rumble_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_rumble_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_rumble_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
     add_executable(native_assets_progression_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_progression.cpp")
     target_link_libraries(native_assets_progression_test PRIVATE rt_native_assets)
@@ -357,6 +413,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_compile_features(native_assets_memcard_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_memcard_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
+    add_executable(native_assets_radio_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_radio.cpp")
+    target_link_libraries(native_assets_radio_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_radio_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_radio_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
     add_executable(native_assets_input_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_input.cpp")
     target_link_libraries(native_assets_input_test PRIVATE rt_native_assets)
@@ -367,6 +429,11 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(native_assets_trigger_map_test PRIVATE rt_native_assets)
     target_compile_features(native_assets_trigger_map_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_trigger_map_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+    add_executable(native_assets_trigger_integration_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_trigger_integration.cpp")
+    target_link_libraries(native_assets_trigger_integration_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_trigger_integration_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_trigger_integration_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
     add_executable(native_assets_menu_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_menu.cpp")
     target_link_libraries(native_assets_menu_test PRIVATE rt_native_assets)
@@ -433,6 +500,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_compile_features(native_assets_route_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_route_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
+    add_executable(native_assets_motion_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_motion.cpp")
+    target_link_libraries(native_assets_motion_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_motion_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_motion_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
     add_executable(native_assets_tile_streamer_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_tile_streamer.cpp")
     target_link_libraries(native_assets_tile_streamer_test PRIVATE rt_native_assets)
@@ -445,9 +518,43 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_compile_features(native_assets_game_loop_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_game_loop_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
+    add_executable(native_assets_interp_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_interp.cpp")
+    target_link_libraries(native_assets_interp_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_interp_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_interp_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(native_assets_perfstats_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_perfstats.cpp")
+    target_link_libraries(native_assets_perfstats_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_perfstats_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_perfstats_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    # ---- map/second-screen logic wave (gameplay/map_view.cpp): own guarded
+    # block so concurrent edits to the staged lists cannot collide.
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_map_view.cpp")
+        add_executable(native_assets_map_view_test
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_map_view.cpp")
+        target_link_libraries(native_assets_map_view_test PRIVATE rt_native_assets)
+        target_compile_features(native_assets_map_view_test PRIVATE cxx_std_20)
+        target_compile_options(native_assets_map_view_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+    endif()
+
+    add_executable(native_assets_perf_glyphs_integration_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_perf_glyphs_integration.cpp")
+    target_link_libraries(native_assets_perf_glyphs_integration_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_perf_glyphs_integration_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_perf_glyphs_integration_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(native_assets_setup_wizard_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_setup_wizard.cpp")
+    target_link_libraries(native_assets_setup_wizard_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_setup_wizard_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_setup_wizard_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
     # ---- staged test targets (coordinator-managed parallel dispatch; see the
     # staged-source comment above). Each registers once its source lands.
-    foreach(_rt_staged course_props car_models glyph_atlas rules_tables hud_layout)
+    foreach(_rt_staged course_props car_models glyph_atlas rules_tables hud_layout glyphs settings output_modes)
         if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_${_rt_staged}.cpp")
             add_executable(native_assets_${_rt_staged}_test
                 "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_${_rt_staged}.cpp")
@@ -456,6 +563,15 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
             target_compile_options(native_assets_${_rt_staged}_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
         endif()
     endforeach()
+    # staged test target (hd_pack): same registration shape as the list above,
+    # on its own block so concurrent work streams don't share an anchor line.
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_hd_pack.cpp")
+        add_executable(native_assets_hd_pack_test
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_hd_pack.cpp")
+        target_link_libraries(native_assets_hd_pack_test PRIVATE rt_native_assets)
+        target_compile_features(native_assets_hd_pack_test PRIVATE cxx_std_20)
+        target_compile_options(native_assets_hd_pack_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+    endif()
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/integration/test_packs_integration.cpp")
         add_executable(native_assets_packs_integration_test
             "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/integration/test_packs_integration.cpp")
@@ -550,6 +666,7 @@ if(RT_NATIVE_ASSETS_COVERAGE)
         list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_nav_route_bridge_test)
         list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_nav_walkable_test)
         list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_nav_drive_test)
+        list(APPEND RT_NATIVE_COVERAGE_TARGETS native_assets_interp_test)
     endif()
     foreach(rt_native_cov_target IN LISTS RT_NATIVE_COVERAGE_TARGETS)
         target_compile_options(${rt_native_cov_target} PRIVATE ${RT_NATIVE_COVERAGE_FLAGS})

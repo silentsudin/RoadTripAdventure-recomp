@@ -1,0 +1,90 @@
+{
+  "spec": "docs/native-reference/ui-parity.md",
+  "generated_by": "tests/native_parity",
+  "summary": {
+    "SPEC_DRIFT": 0,
+    "SPEC_GAP": 0,
+    "KNOWN_GAP": 0,
+    "DEFECT": 0,
+    "INFO": 0
+  },
+  "spec_gap_breakdown": {
+    "by_kind": {},
+    "uncited": 0
+  },
+  "string_manifest": {
+    "declared_source_ranges": {
+      "src/ui/PauseMenu.cpp": [
+        [
+          293,
+          303
+        ],
+        [
+          324,
+          365
+        ],
+        [
+          397,
+          768
+        ],
+        [
+          813,
+          1048
+        ],
+        [
+          1796,
+          2089
+        ]
+      ],
+      "src/ui/SetupScreen.cpp": [
+        [
+          264,
+          405
+        ]
+      ],
+      "src/ui/SecondScreen.cpp": [
+        [
+          174,
+          245
+        ],
+        [
+          323,
+          623
+        ],
+        [
+          626,
+          824
+        ]
+      ],
+      "src/ui/MapView.cpp": [
+        [
+          40,
+          191
+        ]
+      ],
+      "src/ui/PerfOverlay.cpp": [
+        [
+          19,
+          96
+        ]
+      ],
+      "src/game/GameOptions.cpp": [
+        [
+          59,
+          67
+        ]
+      ],
+      "src/platform/Controllers.h": [
+        [
+          3,
+          78
+        ]
+      ]
+    },
+    "occurrences_extracted": 361,
+    "distinct_templates": 302,
+    "visible_templates": 293,
+    "spec_declared_count": 184
+  },
+  "findings": []
+}

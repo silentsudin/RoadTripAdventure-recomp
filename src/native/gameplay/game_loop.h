@@ -94,6 +94,7 @@ public:
 
     const World& world() const { return world_; }
     const GameLoopParams& params() const { return params_; }
+    void setProjectionAspect(float aspect) { params_.aspect = aspect; }
     const TaskPool& tasks() const { return tasks_; }
     // Distance from a world point to the closed road centreline.
     float roadDistance(Vec2 p) const;

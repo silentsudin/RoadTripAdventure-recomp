@@ -96,12 +96,18 @@ inline std::vector<HudQuad> fonteTextQuads(const char* text, float uiX, float ui
                                            int width, int height) {
     std::vector<HudQuad> quads;
     if (!text || width <= 0 || height <= 0) return quads;
-    const float sx = static_cast<float>(width) / rt::native::gameplay::kFrameWidth;
-    const float sy = static_cast<float>(height) / rt::native::gameplay::kFrameHeight;
-    float x = uiX * sx;
-    const float y = (uiY + rt::native::gameplay::kFrameYOffset) * sy;
-    const float cw = static_cast<float>(rt::native::assets::kGlyphCellWidth) * sx;
-    const float ch = static_cast<float>(rt::native::assets::kGlyphCellHeight) * sy;
+    // Never-stretch HUD policy (output-modes.md Q2): one uniform factor over
+    // the 640x480 display frame, centred.  At 4:3 sizes this equals the former
+    // per-axis math exactly (1.25 at 800x600), so default pixels are
+    // unchanged; non-4:3 windows gain centring instead of shear.
+    const float s = std::min(static_cast<float>(width) / rt::native::gameplay::kFrameWidth,
+                             static_cast<float>(height) / rt::native::gameplay::kFrameHeight);
+    const float offX = (static_cast<float>(width) - rt::native::gameplay::kFrameWidth * s) * 0.5f;
+    const float offY = (static_cast<float>(height) - rt::native::gameplay::kFrameHeight * s) * 0.5f;
+    float x = offX + uiX * s;
+    const float y = offY + (uiY + rt::native::gameplay::kFrameYOffset) * s;
+    const float cw = static_cast<float>(rt::native::assets::kGlyphCellWidth) * s;
+    const float ch = static_cast<float>(rt::native::assets::kGlyphCellHeight) * s;
     for (const char* p = text; *p; ++p) {
         const int slot = rt::native::assets::fonteSlotForChar(*p);
         if (slot < 0) { x += cw; continue; }

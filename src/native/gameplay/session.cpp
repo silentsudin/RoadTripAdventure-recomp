@@ -25,14 +25,15 @@ std::uint32_t rewardForRank(int rank) {
 GameSession::GameSession(int totalLaps)
     : progress_(makeDefaultSave()), gameLoop_(makeRaceParams(totalLaps)) {}
 
-void GameSession::update(const MenuInput& input) {
+void GameSession::update(const MenuInput& input, const CarInput* driveInput) {
     switch (state_) {
     case SessionState::EXPLORE:
         if (input.confirm) startRace();
         break;
     case SessionState::RACE:
         raceTracker_.tick();
-        lastSnapshot_ = gameLoop_.tick(1.f / 60.f, input);
+        lastSnapshot_ = driveInput ? gameLoop_.tickPlayer(1.f / 60.f, input, *driveInput)
+                                   : gameLoop_.tick(1.f / 60.f, input);
         while (recordedLaps_ < lastSnapshot_.lap) {
             raceTracker_.completeLap();
             ++recordedLaps_;

@@ -18,7 +18,7 @@ public:
     explicit GameSession(int totalLaps = 1);
 
     [[nodiscard]] SessionState state() const { return state_; }
-    void update(const MenuInput& input);
+    void update(const MenuInput& input, const CarInput* driveInput = nullptr);
 
     void startRace();
     void continueFromResults();
@@ -34,6 +34,14 @@ public:
 private:
     SaveData progress_;
     GameLoop gameLoop_;
+
+  public:
+    // Host projection policy (widescreen, output-modes.md): widened 3D with
+    // fovY pinned.  Re-applied every frame after update() because startRace()
+    // rebuilds loop params from makeRaceParams().
+    void setProjectionAspect(float aspect) { gameLoop_.setProjectionAspect(aspect); }
+
+  private:
     RaceTracker raceTracker_{0};
     FrameSnapshot lastSnapshot_;
     SessionState state_ = SessionState::EXPLORE;

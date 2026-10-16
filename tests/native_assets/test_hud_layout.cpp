@@ -196,9 +196,13 @@ void testScoreMeterTextPins() {
 
     const auto scoreWide = scorePageTextQuads(snapshot, 42, 9001, 1280, 720);
     check(scoreWide.size() == score43.size());
-    check(scoreWide[0].x == 384.f && scoreWide[0].y == 348.f);
-    check(scoreWide[11].x == 128.f && scoreWide[11].y == 108.f);
-    check(scoreWide[15].x == 704.f && scoreWide[15].y == 348.f);
+    // Never-stretch policy (output-modes.md Q2): uniform s = min(1280/640,
+    // 720/480) = 1.5 with the authored column centred (offX = (1280-960)/2
+    // = 160).  The former pins here encoded the per-axis shear (x*2.0),
+    // which the policy removes; y values are unchanged by the fix.
+    check(scoreWide[0].x == 448.f && scoreWide[0].y == 348.f);
+    check(scoreWide[11].x == 256.f && scoreWide[11].y == 108.f);
+    check(scoreWide[15].x == 688.f && scoreWide[15].y == 348.f);
 
     const auto meter = meterPageTextQuads(snapshot, 640, 480);
     check(meter.size() == 3u);

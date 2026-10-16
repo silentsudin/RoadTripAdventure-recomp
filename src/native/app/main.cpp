@@ -6,6 +6,7 @@
 #include "assets/field_tile_index.h"
 #include "assets/glyph_atlas.h"
 #include "assets/native_model.h"
+#include "assets/setup_wizard.h"
 #include "assets/nav_routes.h"
 #include "audio/bgm_player.h"
 #include "audio/engine.h"
@@ -18,6 +19,9 @@
 #include "gameplay/menu.h"
 #include "gameplay/nav_drive.h"
 #include "gameplay/perfstats.h"
+#include "gameplay/radio.h"
+#include "gameplay/rumble.h"
+#include "app/output_modes.h"
 #include "gameplay/session.h"
 #include "gameplay/settings.h"
 #include "gameplay/shop.h"
@@ -25,9 +29,17 @@
 #include "gameplay/world_layout.h"
 #include "preview/preview.h"
 #include "preview/race_hud.h"
+#include "runtime/guest_facade.h"
+#include "runtime/testsocket.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
+#ifdef __ANDROID__
+#include <SDL3/SDL_main.h> // SDLActivity resolves this translation unit's SDL_main.
+#include <SDL3/SDL_system.h>
+#include <android/log.h>
+#include <jni.h>
+#endif
 #include <vulkan/vulkan.h>
 
 #include <algorithm>
@@ -46,6 +58,7 @@
 #include <iostream>
 #include <optional>
 #include <sstream>
+#include <string_view>
 #include <string>
 #include <sys/resource.h>
 #include <thread>
@@ -89,6 +102,82 @@ std::filesystem::path appDataDirectory() {
     return {};
 }
 
+void setDefaultEnv(const char* name, const std::string& value);
+
+#ifdef __ANDROID__
+void androidLog(int priority, const std::string& message) {
+    __android_log_write(priority, "RoadTrip", message.c_str());
+}
+
+std::optional<std::filesystem::path> androidExternalFilesDirectory() {
+    auto* activity = static_cast<jobject>(SDL_GetAndroidActivity());
+    if (!activity) return std::nullopt;
+    auto* env = static_cast<JNIEnv*>(SDL_GetAndroidJNIEnv());
+    if (!env) return std::nullopt;
+    const auto clearException = [env] { if (env->ExceptionCheck()) { env->ExceptionClear(); return true; } return false; };
+    jclass activityClass = env->GetObjectClass(activity);
+    jmethodID getExternalFilesDir = activityClass ? env->GetMethodID(activityClass, "getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;") : nullptr;
+    jobject file = getExternalFilesDir ? env->CallObjectMethod(activity, getExternalFilesDir, nullptr) : nullptr;
+    jclass fileClass = file ? env->GetObjectClass(file) : nullptr;
+    jmethodID getAbsolutePath = fileClass ? env->GetMethodID(fileClass, "getAbsolutePath", "()Ljava/lang/String;") : nullptr;
+    jstring path = getAbsolutePath ? static_cast<jstring>(env->CallObjectMethod(file, getAbsolutePath)) : nullptr;
+    std::optional<std::filesystem::path> result;
+    if (!clearException() && path) {
+        const char* chars = env->GetStringUTFChars(path, nullptr);
+        if (chars) { result = std::filesystem::path(chars); env->ReleaseStringUTFChars(path, chars); }
+    }
+    if (path) env->DeleteLocalRef(path);
+    if (fileClass) env->DeleteLocalRef(fileClass);
+    if (file) env->DeleteLocalRef(file);
+    if (activityClass) env->DeleteLocalRef(activityClass);
+    return result;
+}
+
+void androidBootstrapEnvironment() {
+    const auto dataDirectory = androidExternalFilesDirectory();
+    if (!dataDirectory) {
+        androidLog(ANDROID_LOG_WARN, "native env: external files directory unavailable");
+        return;
+    }
+    setDefaultEnv("RT_DATA_DIR", dataDirectory->string());
+    const char* internalStorage = SDL_GetAndroidInternalStoragePath();
+    const std::optional<std::filesystem::path> internalDirectory =
+        internalStorage ? std::optional<std::filesystem::path>(internalStorage) : std::nullopt;
+    if (internalDirectory) setDefaultEnv("RT_ASSET_DIR", (*internalDirectory / "assets").string());
+    if (!std::getenv("RT_DISC")) {
+        const auto disc = *dataDirectory / "disc";
+        if (std::filesystem::is_directory(disc)) {
+            setDefaultEnv("RT_DISC", disc.string());
+            androidLog(ANDROID_LOG_INFO, "disc: " + disc.string());
+        } else if (internalDirectory && std::filesystem::is_directory(*internalDirectory / "disc")) {
+            // Existing dev installs kept their extracted disc in Context.files.
+            // Keep RT_DATA_DIR on external files, but reuse this same-package
+            // data rather than asking the user to extract again.
+            setDefaultEnv("RT_DISC", (*internalDirectory / "disc").string());
+            androidLog(ANDROID_LOG_INFO, "disc: internal files/disc");
+        } else {
+            androidLog(ANDROID_LOG_INFO, "disc: absent");
+        }
+    }
+
+    std::ifstream envFile(*dataDirectory / "env.txt");
+    if (!envFile && internalDirectory) envFile.open(*internalDirectory / "env.txt");
+    std::size_t loaded = 0;
+    std::string line;
+    while (std::getline(envFile, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        if (line.empty() || line.front() == '#') continue;
+        const auto split = line.find('=');
+        if (split == std::string::npos || split == 0) continue;
+        const std::string key = line.substr(0, split);
+        if (key.find_first_of(" \t") != std::string::npos) continue;
+        (void)setenv(key.c_str(), line.substr(split + 1).c_str(), 1);
+        ++loaded;
+    }
+    androidLog(ANDROID_LOG_INFO, "native env: " + std::to_string(loaded) + " entries from files/env.txt");
+}
+#endif
+
 void setDefaultEnv(const char* name, const std::string& value) {
     // Environment has precedence over settings.toml; only fill an absent key.
     if (!std::getenv(name)) (void)setenv(name, value.c_str(), 0);
@@ -131,6 +220,14 @@ void bootstrapSettings() {
     if (store.contains("sound.audio") && !store.getBool("sound.audio", true)) setDefaultEnv("RT_APP_NOAUDIO", "1");
     if (store.contains("sound.bgm")) setDefaultEnv("RT_APP_BGM", store.getString("sound.bgm", ""));
     if (store.contains("sound.bgm_tsq") && !store.getBool("sound.bgm_tsq", true)) setDefaultEnv("RT_APP_BGM_TSQ", "0");
+    if (store.contains("sound.radio_station")) {
+        // sound.radio_station {off,peach_fm,e_radio} -> the RT_APP_RADIO byte
+        // (radio-stations.md §5: settings wiring belongs to the options/settings
+        // work). RT_APP_* precedence: an explicit environment value still wins.
+        const std::string station = store.getEnum("sound.radio_station", "off", {"off", "peach_fm", "e_radio"});
+        const int stationByte = station == "peach_fm" ? 1 : station == "e_radio" ? 2 : 0;
+        setDefaultEnv("RT_APP_RADIO", std::to_string(stationByte));
+    }
     if (store.contains("display.start_state")) {
         const std::string state = store.getEnum("display.start_state", "title", {"title", "menu", "playing"});
         std::string upper = state;
@@ -177,6 +274,7 @@ constexpr int kAudioChannels = 2;
 struct AudioHost {
     rt::native::audio::SoundEngine engine;
     std::vector<std::int16_t> bgm;
+    rt::native::audio::PcmBuffer radioPcm;   // radio L half (mono-left fallback), host-owned
     rt::native::audio::BgmPlayer tsqBgm;
     bool usingTsqBgm = false;
     SDL_AudioStream* stream = nullptr;
@@ -227,6 +325,16 @@ void SDLCALL fillAudio(void* userdata, SDL_AudioStream* stream, int additionalBy
 }
 
 bool initAudio(AudioHost& audio) {
+    // Radio owns the BGM path when RT_APP_RADIO selects a station (radio-stations.md
+    // §5 env contract): skip the fixed BGM_01 TSQ / RT_APP_BGM VAG so the engine's
+    // BGM slots are free for the radio pair and the engine (not the TSQ pump) drives
+    // fillAudio. Off/unset keeps the existing BGM behavior untouched.
+    const bool radioOwnsBgm = [] {
+        const char* env = std::getenv("RT_APP_RADIO");
+        if (!env || !*env) return false;
+        return rt::native::gameplay::stationFromSaveByte(
+                   static_cast<std::uint8_t>(std::atoi(env))) != rt::native::gameplay::RadioStation::Off;
+    }();
     const char* bgmPath = std::getenv("RT_APP_BGM");
     const char* tsqSetting = std::getenv("RT_APP_BGM_TSQ");
     const bool tsqDisabled = tsqSetting && std::strcmp(tsqSetting, "0") == 0;
@@ -237,7 +345,9 @@ bool initAudio(AudioHost& audio) {
         return std::filesystem::path{};
     }();
     const std::string selectedTrack = bgmPath && *bgmPath ? bgmPath : "BGM_01";
-    if (!tsqDisabled && audio.tsqBgm.load(discRoot, selectedTrack)) {
+    if (radioOwnsBgm) {
+        std::cout << "rt-app radio: station-follow owns the BGM path (BGM load skipped)\n";
+    } else if (!tsqDisabled && audio.tsqBgm.load(discRoot, selectedTrack)) {
         audio.usingTsqBgm = true;
         std::cout << "rt-app BGM TSQ loaded: " << selectedTrack
                   << " from " << (discRoot / "SOUND") << "\n";
@@ -912,11 +1022,61 @@ void compositeOver(std::vector<std::uint8_t>& scene, const std::vector<std::uint
 }
 } // namespace
 
+#ifdef __ANDROID__
+extern "C" int main(int argc, char** argv) {
+    (void)argc;
+    (void)argv;
+#else
 int main() {
+#endif
     constexpr int kInitialWidth = 800, kInitialHeight = 600;
+#ifdef __ANDROID__
+    // SDL has installed its Android activity before entering SDL_main/main.
+    // This precedes every RT_* getenv use, including settings and disc lookup.
+    androidBootstrapEnvironment();
+    const char* envState = std::getenv("RT_APP_STATE");
+    const char* envTerrain = std::getenv("RT_APP_TERRAIN");
+    const char* envFrameLimit = std::getenv("RT_APP_FRAMES");
+    androidLog(ANDROID_LOG_INFO, std::string("startup: state=") + (envState ? envState : "TITLE") +
+        " terrain=" + (envTerrain ? envTerrain : "0") + " frames=" + (envFrameLimit ? envFrameLimit : "unlimited"));
+#endif
     bootstrapSettings();
+    (void)rt::native::assets::RunFirstRunSetupIfRequired();
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) { std::cerr << "SDL_Init: " << SDL_GetError() << "\n"; return 1; }
-    SDL_Window* window = SDL_CreateWindow("Road Trip authored scene", kInitialWidth, kInitialHeight, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    // Output-mode selection (RT_APP_RESOLUTION / RT_APP_FULLSCREEN,
+    // output-modes.md).  Unset env stays exactly the legacy 800x600 windowed
+    // path: matrix quiet, default snapshots byte-identical.  The title matches
+    // the sibling app's chrome ("Road Trip Adventure", src/main.cpp:418) per
+    // the UI-parity mandate (no native labels).
+    int windowWidth = kInitialWidth, windowHeight = kInitialHeight;
+    if (const char* resText = std::getenv("RT_APP_RESOLUTION"); resText && *resText) {
+        const rt::native::app::Resolution parsed = rt::native::app::parseResolution(resText);
+        if (rt::native::app::valid(parsed)) {
+            windowWidth = parsed.width;
+            windowHeight = parsed.height;
+        } else if (rt::native::app::isNativeDesktop(parsed) && rt::native::app::isPresetName(resText)) {
+            const SDL_DisplayMode* desktop = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+            if (desktop && desktop->w > 0 && desktop->h > 0) {
+                windowWidth = static_cast<int>(desktop->w);
+                windowHeight = static_cast<int>(desktop->h);
+            }
+        } else {
+            std::cout << "rt-app resolution: invalid RT_APP_RESOLUTION='" << resText
+                      << "' (expected <preset|WxH>), using desktop window defaults\n";
+        }
+    }
+    const bool startFullscreen = [] {
+        const char* fs = std::getenv("RT_APP_FULLSCREEN");
+        return fs && std::string_view(fs) == "1";
+    }();
+    std::cout << "rt-app output: " << windowWidth << "x" << windowHeight
+              << (startFullscreen ? " fullscreen" : " windowed") << " progressive\n";
+    SDL_Window* window = SDL_CreateWindow(
+        "Road Trip Adventure", windowWidth, windowHeight,
+        SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | (startFullscreen ? SDL_WINDOW_FULLSCREEN : 0));
+    if (!rt::native::app::progressiveContractSatisfied({})) {
+        std::cout << "rt-app output: PROGRESSIVE CONTRACT VIOLATION\n";
+    }
     if (!window) { std::cerr << "SDL_CreateWindow: " << SDL_GetError() << "\n"; SDL_Quit(); return 1; }
     Presenter presenter; std::string error;
     if (!init(presenter, window, error)) { std::cerr << "Vulkan init: " << error << "\n"; destroy(presenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
@@ -1149,6 +1309,47 @@ int main() {
     // One lap lets the headless host exercise the complete authored session
     // loop promptly; GameSession enables race mode for its owned GameLoop.
     rt::native::gameplay::GameSession session(1);
+    // --- Radio glue (docs/native-reference/radio-stations.md §5) ------------
+    // Opt-in: only an explicit RT_APP_RADIO enables station-follow.
+    // bootstrapSettings() fills it from the sound.radio_station settings key;
+    // unset keeps today's fixed-BGM path and makes zero radio audio calls. The
+    // setting is seeded from the save byte (SaveData::radioStation, 0..2).
+    rt::native::gameplay::RadioState radio(session.progress().radioStation);
+    bool radioFollow = false;
+    if (const char* radioEnv = std::getenv("RT_APP_RADIO"); radioEnv && *radioEnv) {
+        radio.requestSaveByte(static_cast<std::uint8_t>(std::atoi(radioEnv)));  // clamps 0..2 (radio.cpp:57)
+        radioFollow = true;
+    }
+    // startRadio decodes the station's authentic stereo pair and hands it to the
+    // SoundEngine. MONO-LEFT FALLBACK (radio-stations.md §5 "Stereo (AUTHORED
+    // mapping)"): playBgm (engine.h:110-111) exposes no pan and calls bindVoice
+    // with pan=0 (engine.cpp:122), so playing both halves as two voices would
+    // sum them to the same centre level (mixer pan law, mixer.h:56-60). We
+    // therefore route the LEFT half only. GAP: the RIGHT half
+    // (SOUND/*CH_R.VAG) is not separately routed because engine.h exposes no
+    // per-voice pan; a true split needs pan+1/-1 wired through playBgm.
+    const auto startRadio = [&](const rt::native::gameplay::RadioVagPair& pair) {
+        rt::native::audio::PcmBuffer left;
+        if (!rt::native::audio::loadVagFile(discRoot() / pair.left, left)) {
+            std::cerr << "rt-app radio: VAG load failed: " << (discRoot() / pair.left) << "\n";
+            return;
+        }
+        SDL_LockAudioStream(audio.stream);   // fillAudio ticks the engine concurrently
+        audio.engine.stopBgm();              // mirrors cmd 0x35 (options Off, 0x213A30)
+        audio.radioPcm = std::move(left);    // host owns the PCM lifetime
+        audio.engine.playBgm(0, 0u,
+                             {audio.radioPcm.samples.data(), audio.radioPcm.frames, /*loop=*/true}, .7f);
+        SDL_UnlockAudioStream(audio.stream);
+        std::cout << "rt-app radio: started " << pair.left << " (" << audio.radioPcm.frames
+                  << " frames, mono-left)\n";
+    };
+    const auto stopRadio = [&] {
+        SDL_LockAudioStream(audio.stream);
+        audio.engine.stopBgm();
+        audio.radioPcm = {};
+        SDL_UnlockAudioStream(audio.stream);
+        std::cout << "rt-app radio: stopped\n";
+    };
     // These host-owned examples deliberately use synthetic names, IDs, and
     // positions; they do not load any guest game data.
     std::vector<rt::native::gameplay::Collectible> collectibles{
@@ -1207,6 +1408,34 @@ int main() {
     SDL_JoystickID* connectedPads = SDL_GetGamepads(&connectedPadCount);
     if (connectedPads && connectedPadCount > 0) openGamepad(connectedPads[0]);
     SDL_free(connectedPads);
+    // --- Rumble glue (docs/native-reference/rumble-haptics.md §3) -----------
+    // Opt-in: RT_APP_RUMBLE must be EXACTLY "1". Any other value (or unset)
+    // leaves the channel force-disabled and this host makes no SDL rumble call
+    // and no Channel::tick -- a byte-for-byte default-launch no-op.
+    const bool rumbleEnabled = [] {
+        const char* value = std::getenv("RT_APP_RUMBLE");
+        return value && std::strcmp(value, "1") == 0;
+    }();
+    // One Channel per player pad; the host opens a single pad (P1), so one channel.
+    rt::native::gameplay::rumble::Channel rumbleChannel;
+    std::uint8_t rumbleMaster = rt::native::gameplay::rumble::kMasterOff;
+    if (rumbleEnabled) {
+        // Best-effort gate bytes from the settings store. The option encodings are
+        // {0x00 off, 0x02 mask A, 0x04 mask B} (rumble-haptics.md §1, options
+        // writer 0x00208E84..0x00208E94); the CONFIRMED gate is
+        // (playerByte & masterByte) != 0 (0x0020ACC8). The save-image per-player
+        // byte at 0x0177AC50+0xC/+0xD is still OPEN (rumble-haptics.md §5,
+        // save-layout.md:74-80), so the native player byte mirrors the master
+        // mask. controllers.rumble_strength (settings.cpp:484) is not consumed:
+        // Channel exposes no global gain (rumble.h:161-198).
+        rt::native::gameplay::SettingsStore rumbleStore(
+            rt::native::gameplay::defaultSettingsPath(appDataDirectory()));
+        const bool rumbleOn = rumbleStore.load()
+            ? rumbleStore.getBool("controllers.rumble", true) : true;
+        rumbleMaster = rumbleOn ? rt::native::gameplay::rumble::kMasterMaskA
+                                : rt::native::gameplay::rumble::kMasterOff;
+        std::cout << "rt-app rumble: enabled master=" << static_cast<int>(rumbleMaster) << "\n";
+    }
     // RT_APP_INTERP=1 split pacing state (gameplay/interp; design and
     // determinism contract in docs/native-reference/frame-interpolation.md).
     const bool interpEnabled = envInterpEnabled();
@@ -1222,6 +1451,20 @@ int main() {
         return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
     };
     rt::native::gameplay::PerfStats perf(monotonicSeconds, processCpuSeconds);
+    // Kept here (rather than in the Android/bootstrap blocks) so concurrent
+    // extraction work has no overlap: it owns only the simulation boundary.
+    rt::native::runtime::GuestFacade guestFacade(session, snapshot, [&](int tile) {
+        std::cout << "rt-app facade: tile warp " << tile << "\n";
+    });
+    rt::native::runtime::TestSocket testSocket;
+    testSocket.startIfRequested([&](const std::string& command, const std::string& line) {
+        if (command == "stats") {
+            const auto totals = perf.totals();
+            return std::string("{\"ok\":true,\"vblank\":") + std::to_string(testSocket.vblank())
+                + ",\"presents\":" + std::to_string(totals.presents) + "}\n";
+        }
+        return guestFacade.command(command, line);
+    });
     rt::native::gameplay::OverlayModel perfOverlay(true);
     std::string perfOverlayText;
     double nextPerfWindow = monotonicSeconds() + perf.windowSeconds();
@@ -1241,7 +1484,13 @@ int main() {
     }
     auto previous = std::chrono::steady_clock::now();
     while (running && (!maxFrames || frames < maxFrames)) {
-        if (interpEnabled && effectiveInterpRenderRate > 0) {
+        if (testSocket.lockstep() && !testSocket.takeStep()) {
+            // A socket-attached run is a fixed 60-Hz logic clock.  Never let
+            // render interpolation advance it while waiting for `run`/`step`.
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            continue;
+        }
+        if (interpEnabled && !testSocket.lockstep() && effectiveInterpRenderRate > 0) {
             const auto minimumFrame = std::chrono::duration<double>(1.0 / effectiveInterpRenderRate);
             const auto elapsed = std::chrono::steady_clock::now() - lastPresent;
             if (elapsed < minimumFrame)
@@ -1336,6 +1585,11 @@ int main() {
             // Trigger polling intentionally lives in this fixed-step lambda:
             // split-pacing render iterations must not advance its pulse/reverse
             // state or make controller drive depend on presentation cadence.
+            if (testSocket.lockstep()) {
+                const auto injected = testSocket.pad();
+                pad.pressedButtons = static_cast<std::uint16_t>(~injected.buttons);
+                axes.stickX = std::clamp((injected.lx - 128) / 127.f, -1.f, 1.f);
+            }
             auto input = rt::native::gameplay::playerCarInput(pad, axes, controllerConfig);
             if (triggersEnabled && gamepad) {
                 const auto trigger = [gamepad](SDL_GamepadAxis axis) {
@@ -1355,7 +1609,13 @@ int main() {
                 // GameSession owns the race loop.  Its current public update path
                 // is AI-driven; Tab remains the race-mode selection control for
                 // the host UI and is logged below.
-                session.update(menuInput);
+                session.update(menuInput, testSocket.lockstep() ? &input : nullptr);
+                // Widescreen policy (output-modes.md): 3D fills the window; fovY
+                // pinned, aspect follows the presented extent.  Applied every
+                // frame because startRace() rebuilds loop params.
+                session.setProjectionAspect(
+                    static_cast<float>(presenter.extent.width) /
+                    static_cast<float>(presenter.extent.height));
                 snapshot = session.lastSnapshot();
                 simulationFrame = snapshot.frame;
                 if (navDrive) {
@@ -1369,6 +1629,19 @@ int main() {
                 }
 
                 if (session.state() == rt::native::gameplay::SessionState::EXPLORE) {
+                    // Radio town-frame apply (radio-stations.md §4/§5): ONE
+                    // onTownFrame() per town frame, mirroring
+                    // UpdateTownExplorationTask -> ApplySoundVolumes
+                    // (0x2106C0/0x2107C8). Deferred: a station request becomes
+                    // audible only at this boundary; Off stops the stream. Gated
+                    // on an open audio device so unset/OFF stays silent.
+                    if (radioFollow && audio.stream) {
+                        const rt::native::gameplay::RadioApply radioApply = radio.onTownFrame();
+                        if (radioApply.action == rt::native::gameplay::RadioStreamAction::Start && radioApply.pair)
+                            startRadio(*radioApply.pair);
+                        else if (radioApply.action == rt::native::gameplay::RadioStreamAction::Stop)
+                            stopRadio();
+                    }
                     if (openShop && !shopOpen) {
                         shopOpen = true;
                         std::cout << "rt-app shop opened: 1=road map, 2=fuel can, 3=lucky charm\n";
@@ -1415,6 +1688,55 @@ int main() {
                                   << rt::native::gameplay::collectedCount(collectibles) << "\n";
                     }
                 }
+
+                // --- Rumble (rumble-haptics.md §3 step 3) -------------------
+                // One Channel tick per 60Hz logic step, after the session has
+                // advanced the car. Output is emitted only on the frame a burst
+                // starts; SDL_RumbleGamepad is the two-motor level+duration command
+                // the original primitive emits. SDL_RumbleGamepad on a null pad is
+                // guarded: an absent gamepad is legal (headless).
+                //
+                // Event-wiring GAPS: the authored loop exposes NO collision /
+                // landing / scrape / crash resolution to the host yet --
+                //   * landing: CarState::fallSpeed[3] (car_state.h:39) is private to
+                //     GameLoop; integrateCar (game_loop.cpp:52-59) runs tickCar but
+                //     surfaces no landing event through FrameSnapshot.
+                //   * collision / scrape: the loop has no collision resolution
+                //     (game_loop.cpp tick() only runs tickAi + integrateCar).
+                //   * crash: no ApplyCollisionImpulse analogue; impulse codes 0..10
+                //     (0x00219C50/60/80) are not produced natively.
+                // TODO(rumble events): hook submitLanding (0x0021B360),
+                //   submitCollision (0x0021793C/A0), submitCrash (codes 0..10) and
+                //   submitScrape (AUTHORED, rumble-haptics.md §2) here once those
+                //   sources exist; no fake events are synthesized meanwhile.
+                // TODO(rumble test buzz): submitTestBuzz() belongs on the options
+                //   rumble toggle flipping ON (0x00208EA0/B4) -- GAP: the native
+                //   loop has no settings-change hook (main.cpp only reads the store
+                //   at boot).
+                if (rumbleEnabled) {
+                    rumbleChannel.setSuppressed(false);
+                    // Gate bytes re-applied each 60Hz logic step (rumble-haptics.md
+                    // §3 step 3): no runtime settings-change hook exists to push a
+                    // new option byte, so the boot value is re-asserted here.
+                    rumbleChannel.setOptions(rumbleMaster, rumbleMaster);
+                    const rt::native::gameplay::rumble::Output rumbleOut = rumbleChannel.tick();
+                    if (rumbleOut.active() && gamepad) {
+                        SDL_RumbleGamepad(gamepad,
+                                          static_cast<Uint16>(rumbleOut.leftIntensity * 65535.0f),
+                                          static_cast<Uint16>(rumbleOut.rightIntensity * 65535.0f),
+                                          static_cast<Uint32>(rumbleOut.durationSeconds() * 1000.0f));
+                    }
+                }
+            }
+            // Leaving gameplay cancels any active burst and clears the device
+            // (rumble-haptics.md §3 step 4). One-shot: isActive() is false after
+            // stop(), so later non-playing frames are no-ops.
+            if (state != AppState::PLAYING && rumbleEnabled && rumbleChannel.isActive()) {
+                rumbleChannel.stop();
+                // SDL_RumbleGamepad with 0 intensity stops any rumble
+                // (SDL_gamepad.h:1517-1518); this SDL 3.2.0 has no
+                // SDL_StopGamepadRumble, so zero-intensity is the documented stop.
+                if (gamepad) (void)SDL_RumbleGamepad(gamepad, 0, 0, 0);
             }
             if (!loggedAppState || state != lastLoggedAppState) {
                 std::cout << "rt-app state=" << appStateName(state) << "\n";
@@ -1449,8 +1771,9 @@ int main() {
             openShop = openDialogue = advanceDialogue = startRace = false;
             shopSelection = -1;
             perf.noteLogicStep();
+            if (testSocket.lockstep()) testSocket.completeStep();
         };
-        if (interpEnabled) {
+        if (interpEnabled && !testSocket.lockstep()) {
             // Split pacing: bank real time, then drain at most catchUpCap
             // logic steps per host frame. RT_APP_FRAMES still counts logic
             // steps (`frames` increments only inside the drain), so the exit
@@ -1481,7 +1804,7 @@ int main() {
             // without disturbing session authoring state (lap/collectible logic
             // above still reads the authored snapshot).
             rt::native::gameplay::FrameSnapshot renderSnapshot = snapshot;
-            if (interpEnabled && haveInterpPose) {
+            if (interpEnabled && !testSocket.lockstep() && haveInterpPose) {
                 // RT_APP_SNAPSHOT is a logic-step-boundary (t=0) capture
                 // contract. It deliberately uses the completed snapshot,
                 // rather than a host-time blend, preserving P6 determinism.
@@ -1603,7 +1926,7 @@ int main() {
                 }
             }
         }
-        if (!interpEnabled) ++frames;
+        if (!interpEnabled || testSocket.lockstep()) ++frames;
     }
     std::cout << "rt-app frames=" << frames << " simulation_frame=" << simulationFrame << "\n";
     if (interpEnabled)
@@ -1613,6 +1936,11 @@ int main() {
         std::cout << "rt-app stream: loads=" << streamed->loads
                   << " final window row=" << streamed->streamer.row()
                   << " col=" << streamed->streamer.colStart() << "\n";
+    }
+    if (rumbleEnabled && rumbleChannel.isActive()) {
+        rumbleChannel.stop();
+        // Zero-intensity SDL_RumbleGamepad is the stop (SDL_gamepad.h:1517-1518).
+        if (gamepad) (void)SDL_RumbleGamepad(gamepad, 0, 0, 0);
     }
     if (gamepad) SDL_CloseGamepad(gamepad);
     destroyAudio(audio);

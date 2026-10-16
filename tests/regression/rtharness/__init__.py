@@ -129,6 +129,9 @@ class Game:
         self.speed = speed
         self.fake_clock = fake_clock
         self.app = Path(app)
+        # Opt-in authored-native target.  Recomp paths above stay byte-for-byte
+        # unchanged unless explicitly selected.
+        self.native = os.environ.get("RTH_NATIVE") == "1" or self.app.name == "rt-app"
         self.state_hash = state_hash
         self.extra_env = env or {}
         # offset -> bytes patched into the Adventure save on memory card 1 before boot
@@ -177,7 +180,10 @@ class Game:
             save.write_bytes(bytes(data))
 
     def start(self) -> "Game":
-        self._prepare()
+        if self.native:
+            self.work_dir.mkdir(parents=True, exist_ok=True)
+        else:
+            self._prepare()
         env = dict(os.environ)
         env.update({
             "RT_DATA_DIR": str(self.data_dir),
@@ -186,7 +192,7 @@ class Game:
             "RT_FAKE_CLOCK": str(self.fake_clock),
             "RT_HEADLESS": "1",
             # relative: AF_UNIX paths are limited to 104 bytes; Windows: TCP on the loopback
-            "RT_TEST_SOCKET": f"tcp:{self._free_port()}" if WINDOWS else "rt.sock",
+            "RT_TEST_SOCKET": f"tcp:{self._free_port()}" if (WINDOWS or self.native) else "rt.sock",
             "RT_RENDER": "1" if self.rendering else "0",
             # The original interlaced fields at 4x: goldens and state hashes record the game as is.
             "RT_PROGRESSIVE_FIELDS": "0",
@@ -223,7 +229,7 @@ class Game:
 
     def _connect(self):
         deadline = time.time() + 120  # the game library may be (re)built on first launch
-        if WINDOWS:
+        if WINDOWS or self.native:
             port = int(self._env["RT_TEST_SOCKET"].split(":")[1])
             while True:
                 if self.proc.poll() is not None:
