@@ -84,7 +84,8 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car,
                         const gameplay::FrameSnapshot& snapshot, const gameplay::World& world,
                         std::vector<std::uint8_t>& rgbaOut, std::string& error,
                         const TerrainMesh* terrain = nullptr,
-                        const std::vector<RouteLine>* routes = nullptr);
+                        const std::vector<RouteLine>* routes = nullptr,
+                        const PreviewTexture* carLivery = nullptr);
 // Draws solid screen-space rectangles over clearColor. Rectangle coordinates
 // are target pixels with a top-left origin; this path has no lighting, depth,
 // or texture sampling.

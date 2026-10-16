@@ -1,6 +1,7 @@
 // Minimal SDL3 + Vulkan host for the authored GameLoop.  The scene itself is
 // rendered by previewRenderScene(), so this presentation layer deliberately
 // contains no duplicate road/car/shader code.
+#include "assets/car_models.h"
 #include "assets/field_converter.h"
 #include "assets/field_tile_index.h"
 #include "assets/glyph_atlas.h"
@@ -908,6 +909,74 @@ int main() {
         return true;
     };
     auto car = demoCar();
+    // RT_APP_CARMODEL[=N]: replace the authored demo box with a real shipped
+    // car model (Q{N}.BIN under CAR0..CAR5, else CARS) through the proven
+    // CAR pipeline (docs/native-reference/car-data-status.md): flat mode
+    // gains the authentic silhouette, textured mode samples the car's own
+    // 128x128 PSMT8 livery.  Load failures degrade to the demo box.
+    std::optional<rt::native::preview::PreviewTexture> carLivery;
+    if (const char* cm = std::getenv("RT_APP_CARMODEL")) {
+        const int q = *cm ? std::atoi(cm) : 0;
+        char leaf[24];
+        std::snprintf(leaf, sizeof leaf, "Q%02d.BIN", q);
+        std::filesystem::path found;
+        for (const char* dir : {"CAR0", "CAR1", "CAR2", "CAR3", "CAR4", "CAR5", "CARS"}) {
+            const auto candidate = discRoot() / dir / leaf;
+            if (std::filesystem::exists(candidate)) { found = candidate; break; }
+        }
+        if (found.empty()) {
+            std::cout << "rt-app carmodel: SKIP (" << leaf << " not in extract)\n";
+        } else {
+            std::ifstream in(found, std::ios::binary);
+            std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(in)),
+                                           std::istreambuf_iterator<char>());
+            // Provenance digest: same FNV-1a/xorshift placeholder as the
+            // converter tools (hasValidProvenance only rejects all-zero).
+            std::array<std::uint8_t, 32> digest{};
+            std::uint64_t hv = 0xcbf29ce484222325ull;
+            for (std::uint8_t b : bytes) { hv ^= b; hv *= 0x100000001b3ull; }
+            std::uint64_t st = hv | 1ull;
+            for (auto& d : digest) { st ^= st << 13; st ^= st >> 7; st ^= st << 17; d = static_cast<std::uint8_t>(st); }
+            auto loaded = rt::native::assets::loadCarAssets(bytes, found.string(), digest);
+            if (loaded.err != rt::native::assets::CarAssetError::Ok) {
+                std::cout << "rt-app carmodel: SKIP (" << leaf << " err="
+                          << static_cast<int>(loaded.err) << " offset=" << loaded.errorOffset << ")\n";
+            } else {
+                rt::native::assets::NativeModel merged;
+                for (const auto& m : loaded.models) {
+                    const auto base = static_cast<std::uint32_t>(merged.vertices.size());
+                    merged.vertices.insert(merged.vertices.end(), m.vertices.begin(), m.vertices.end());
+                    for (std::uint32_t i : m.indices) merged.indices.push_back(base + i);
+                }
+                if (merged.vertices.size() < 3 || merged.indices.size() < 3) {
+                    std::cout << "rt-app carmodel: SKIP (" << leaf << " empty mesh)\n";
+                } else {
+                    car = std::move(merged);
+                    const auto& img = loaded.container.images[0];
+                    carLivery = rt::native::preview::PreviewTexture{img.width, img.height, img.pixels};
+                    float u0 = 1e9f, u1 = -1e9f, v0 = 1e9f, v1 = -1e9f;
+                    for (const auto& v : car.vertices) {
+                        u0 = std::min(u0, v.u); u1 = std::max(u1, v.u);
+                        v0 = std::min(v0, v.v); v1 = std::max(v1, v.v);
+                    }
+                    std::cout << "rt-app carmodel: Q" << q << " meshes=" << loaded.models.size()
+                              << " verts=" << car.vertices.size() << " tris=" << car.indices.size() / 3
+                              << " livery=" << img.width << "x" << img.height
+                              << " uv=[" << u0 << ',' << u1 << "]x[" << v0 << ',' << v1 << "]\n";
+                    // Optional livery dump for eyeball verification:
+                    // RT_APP_CARMODEL_DUMP=PATH writes the RGBA8 record as PPM.
+                    if (const char* dump = std::getenv("RT_APP_CARMODEL_DUMP")) {
+                        std::ofstream out(dump, std::ios::binary);
+                        out << "P6\n" << img.width << ' ' << img.height << "\n255\n";
+                        for (std::size_t i = 0; i + 3 < img.pixels.size(); i += 4)
+                            out.put(static_cast<char>(img.pixels[i]))
+                                .put(static_cast<char>(img.pixels[i + 1]))
+                                .put(static_cast<char>(img.pixels[i + 2]));
+                    }
+                }
+            }
+        }
+    }
     // One lap lets the headless host exercise the complete authored session
     // loop promptly; GameSession enables race mode for its owned GameLoop.
     rt::native::gameplay::GameSession session(1);
@@ -1127,7 +1196,8 @@ int main() {
                     rendered = rt::native::preview::previewRenderScene(
                         renderer, car, renderSnapshot, session.world(), pixels, error,
                         terrainMesh.indices.empty() ? nullptr : &terrainMesh,
-                        navLines.empty() ? nullptr : &navLines);
+                        navLines.empty() ? nullptr : &navLines,
+                        carLivery ? &*carLivery : nullptr);
                     if (rendered) {
                         std::vector<std::uint8_t> hudPixels;
                         rendered = rt::native::preview::previewRender2D(

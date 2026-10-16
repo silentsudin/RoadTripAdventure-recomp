@@ -66,6 +66,8 @@ row nav_town   RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_TEXTURES=1 RT_APP_NA
                -- "rt-app nav: town graph 1 segments=84"
 row hudtext    RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 RT_APP_HUDTEXT=1 \
                -- "rt-app hudtext: FONTE decoded"
+row carmodel   RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_NOAUDIO=1 RT_APP_CARMODEL=0 \
+               -- "rt-app carmodel: Q0"
 
 # --- render modes -------------------------------------------------------------
 row norender   RT_APP_STATE=PLAYING RT_APP_NORENDER=1 RT_APP_NOAUDIO=1 \

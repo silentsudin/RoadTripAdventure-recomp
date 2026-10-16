@@ -906,7 +906,8 @@ static void argbToRgb(std::uint32_t argb, float out[3]) {
 
 bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gameplay::FrameSnapshot& s,
                         const gameplay::World& world, std::vector<std::uint8_t>& rgbaOut, std::string& error,
-                        const TerrainMesh* terrain, const std::vector<RouteLine>* routes) {
+                        const TerrainMesh* terrain, const std::vector<RouteLine>* routes,
+                        const PreviewTexture* carLivery) {
     std::vector<SceneVertex> vertices;
     std::vector<std::uint32_t> indices;
     const float grass[3] = {.16f, .42f, .18f}, asphalt[3] = {.10f, .11f, .12f};
@@ -1002,11 +1003,18 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
         if (best > 900.f) carLift = 0.f;
     }
     const std::uint32_t carBase = static_cast<std::uint32_t>(vertices.size());
+    // Parallel UV-carrying copy of the transformed car so the textured path
+    // can draw it with its real livery (RT_APP_CARMODEL=1); the flat path
+    // keeps the constant tint and only gains the authentic silhouette.
+    std::vector<TexturedVertex> carTexV;
+    carTexV.reserve(car.vertices.size());
     for (const auto& v : car.vertices) {
         const float x = (v.px - cx) * scale, z = (v.pz - cz) * scale;
-        vertices.push_back({s.carPosition.x * .1f + x * ch + z * sh,
-                            (v.py - st.bmin[1]) * scale + carLift,
-                            s.carPosition.z * .1f - x * sh + z * ch, .9f, .8f, .6f});
+        const float wx = s.carPosition.x * .1f + x * ch + z * sh;
+        const float wy = (v.py - st.bmin[1]) * scale + carLift;
+        const float wz = s.carPosition.z * .1f - x * sh + z * ch;
+        vertices.push_back({wx, wy, wz, .9f, .8f, .6f});
+        carTexV.push_back({wx, wy, wz, 1.f, 1.f, 1.f, v.u, v.v});
     }
     for (std::uint32_t i : car.indices) indices.push_back(carBase + i);
     float sky[3], fogColor[3];
@@ -1069,6 +1077,9 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     std::vector<std::uint32_t> texI;
     std::vector<DrawRange> ranges;
     std::vector<Renderer::TexEntry> slotEntries(buckets.size());
+    // One extra slot for the optional car livery entry; reserve so the
+    // DrawRange pointers into slotEntries stay stable across pushes.
+    slotEntries.reserve(buckets.size() + 1);
     texI.reserve(terrain->indices.size());
     for (std::size_t slot = 0; slot < buckets.size(); ++slot) {
         if (buckets[slot].empty()) continue;
@@ -1083,7 +1094,29 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
         }
         ranges.push_back(range);
     }
-    return renderGeometryTextured(r, vertices, indices, texV, texI, ranges, s.view, s.proj,
+    // Real-car livery pass: draw the transformed car through the textured
+    // pipeline bound to its own 128x128 livery (docs/native-reference/
+    // car-data-status.md: every disc car is self-textured, PSMT8 128x128).
+    // The car is dropped from the flat index list so it draws exactly once
+    // (equal-depth flat+textured copies would z-fight); a livery upload
+    // failure falls back to the flat-tinted car instead of failing the frame.
+    std::vector<std::uint32_t> flatI = indices;
+    if (carLivery && carLivery->width && !carTexV.empty()) {
+        slotEntries.emplace_back();
+        Renderer::TexEntry& livery = slotEntries.back();
+        if (ensurePageTexture(*r, error, *carLivery, livery)) {
+            const std::uint32_t vbase = static_cast<std::uint32_t>(texV.size());
+            const std::uint32_t first = static_cast<std::uint32_t>(texI.size());
+            texV.insert(texV.end(), carTexV.begin(), carTexV.end());
+            for (std::uint32_t i : car.indices) texI.push_back(vbase + i);
+            ranges.push_back(DrawRange{&livery, first, static_cast<std::uint32_t>(car.indices.size())});
+            flatI.resize(flatI.size() - car.indices.size());  // car was appended last
+        } else {
+            slotEntries.pop_back();
+            error.clear();
+        }
+    }
+    return renderGeometryTextured(r, vertices, flatI, texV, texI, ranges, s.view, s.proj,
                                  clear, fog, rgbaOut, error, &overlayV, &overlayI);
 }
 
