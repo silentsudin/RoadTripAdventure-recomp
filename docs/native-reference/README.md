@@ -45,6 +45,7 @@ directory). Treat `functions.md` as the source of truth for behavior; this READM
 | [`tsq-tvb-format.md`](tsq-tvb-format.md) / [`sndmod-irx.md`](sndmod-irx.md) | Music stack | done |
 | [`frame-timing.md`](frame-timing.md) | Logic pacing verdict: VBlank-locked fixed step (root loop `0x200528`, `sceGsSyncV` INTC_STAT `0x1000F000` bit 2 wait, task tick +1, clock/gravity fixed-step) → native 60Hz sim + interpolation for >60 visuals | current |
 | [`feature-retention.md`](feature-retention.md) | Evidence ledger of mandated features (widescreen/HD packs/second screen/frame gen/rumble/radio/triggers/save states/HUD/AI/camera/economy/streaming/minigames) with per-feature status + matrix coverage; refresh after each feature lands | current |
+| [`ui-parity.md`](ui-parity.md) | UI PARITY MANDATE contract vs recomp app (ground truth src/ui/): 9 screens, 184 string templates with file:line, geometry/color scale S=max(.5,H/1080*boost), FONTE punctuation subs, acceptable-deviations ledger (unlisted = defect), native model gap list + 5 automation checks | current |
 
 Code: `src/native/assets/field_converter.{h,cpp}` (packets, textures, terrain),
 `field_tile_index.{h,cpp}` (runtime streaming-id → filename resolver), tests under

@@ -67,7 +67,7 @@ widescreen, no-compile-wording) is a defect. Pending GPU features stay HIDDEN
 until ready — never show a row the recomp didn't have.
 - This is a static recomp of the PS2 game Road Trip (USA, SLUS-20398) using PS2Recomp (submodule `third_party/PS2Recomp`, pinned).
 - **The built app must never contain game code.** The game is recompiled and compiled on the user's machine at first launch (`src/game/GameBuilder.cpp`), and `scripts/bundle_sdk.py` ships only the recompiler, runtime headers and config. Verify with `nm RoadTrip.app/Contents/MacOS/RoadTrip | grep -c sub_00`, which must print 0.
-- **Never commit game data or derived code.** That covers anything under `generated/` and `build/`, disc images, ELFs, and extracted files. `.gitignore` covers them; check `git status` before committing.
+- **Never commit game data or derived code.** That covers anything under `generated/` and `build/`, disc images, ELFs, and extracted files. `.gitignore` covers them; check `git status` before committing. Distinct from that (and permitted, decomp-project practice): our OWN authored reconstructions in `src/native` — rules, constants, state machines re-expressed in fresh code with cited grounding. The line: constants and behavior descriptions are facts with many valid expressions and may be committed; verbatim or mechanically-translated guest functions and decoded asset files are copies and may never be, however re-formatted.
 - Pipeline: `python3 scripts/pipeline.py <steps> --rom <image>`. The steps are bootstrap, tools, extract-elf, analyze, recomp, build and run. `RT_ROM` can stand in for `--rom`.
 - Recompiler config:
   - Edit `config/roadtrip.base.toml`.
