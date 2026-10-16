@@ -121,6 +121,18 @@ expected<NavGraph, NavRouteError> NavRouteTables::courseGraph(std::size_t t, std
     return decodePair(segment, transition);
 }
 
+expected<NavGraph, NavRouteError> NavRouteTables::townGraph(int sceneId) const {
+    // FUN_0020e708 @0x20e750..0x20e764: the scene task executes scripted
+    // scene id 0 as id 9 (My Garage loads as My City).  T=0 and T=9 share
+    // the same outer row on the disc, so the remap is semantic belt and
+    // braces; apply it to match the game regardless.
+    if (sceneId == 0) sceneId = 9;
+    if (sceneId < 0 || static_cast<unsigned>(sceneId) >= kNavOuterEntryCount) {
+        return NavRouteError::NullPair;
+    }
+    return courseGraph(static_cast<std::size_t>(sceneId), 0);
+}
+
 expected<NavGraph, NavRouteError> NavRouteTables::decodePair(std::uint32_t segmentVaddr,
                                                              std::uint32_t transitionVaddr) const {
     if (transitionVaddr <= segmentVaddr ||

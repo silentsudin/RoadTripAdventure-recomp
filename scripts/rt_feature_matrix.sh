@@ -58,8 +58,14 @@ row stream     RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_STREAM=1 RT_APP_STRE
                -- "4-slot streaming" "slot 0 <- id" "loads="
 row stream_row RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_STREAM=1 RT_APP_STREAM_ROW=0 RT_APP_NOAUDIO=1 \
                -- "window row 0"
+row stream_pos RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_STREAM=1 RT_APP_STREAM_POS=1 RT_APP_NOAUDIO=1 \
+               -- "demand slot" "demanded id 43"
 row nav        RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_TEXTURES=1 RT_APP_NAV=1 RT_APP_NOAUDIO=1 \
                -- "rt-app nav: static graph 0 segments=35"
+row nav_town   RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_TEXTURES=1 RT_APP_NAV=1 RT_APP_NAV_TOWN=1 RT_APP_NOAUDIO=1 \
+               -- "rt-app nav: town graph 1 segments=84"
+row hudtext    RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 RT_APP_HUDTEXT=1 \
+               -- "rt-app hudtext: FONTE decoded"
 
 # --- render modes -------------------------------------------------------------
 row norender   RT_APP_STATE=PLAYING RT_APP_NORENDER=1 RT_APP_NOAUDIO=1 \

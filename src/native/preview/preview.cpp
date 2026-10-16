@@ -979,7 +979,10 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
                                  {line.bx + nx, line.bz + nz},
                                  {line.bx - nx, line.bz - nz},
                                  {line.ax - nx, line.az - nz}})
-                overlayV.push_back({p[0], .05f, p[1], line.r, line.g, line.b});
+                // Float the strip above terrain elevation: at ground level
+                // (y≈0.05) the ribbon is sub-pixel against the grazing
+                // spawn camera (pitch ~0.5 deg) and rasterizes to nothing.
+                overlayV.push_back({p[0], 6.f, p[1], line.r, line.g, line.b});
             for (std::uint32_t i : {0u, 2u, 1u, 0u, 3u, 2u}) overlayI.push_back(base + i);
         }
     }
@@ -1012,7 +1015,34 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     // GameLoop's world is converted to render units (0.1) before the camera
     // matrices are made, so fog range must use the same scale as vView.
     const float fog[4] = {fogColor[0], fogColor[1], fogColor[2], s.lighting.fogFar * .1f};
-    if (!textured) {
+        if (!textured) {
+        if (std::getenv("RT_APP_DEBUG_OVERLAY") && !overlayV.empty()) {
+            Mat pm, vm;
+            std::copy(std::begin(s.proj), std::end(s.proj), pm.begin());
+            std::copy(std::begin(s.view), std::end(s.view), vm.begin());
+            const Mat m = mul(pm, vm);
+            int wpos = 0, vis = 0;
+            float vxmin=1e9f,vxmax=-1e9f,vymin=1e9f,vymax=-1e9f;
+            for (const auto& v : overlayV) {
+                const float clip[4] = {
+                    m[0]*v.x + m[4]*v.y + m[8]*v.z + m[12],
+                    m[1]*v.x + m[5]*v.y + m[9]*v.z + m[13],
+                    m[2]*v.x + m[6]*v.y + m[10]*v.z + m[14],
+                    m[3]*v.x + m[7]*v.y + m[11]*v.z + m[15]};
+                if (clip[3] > 0) ++wpos;
+                if (clip[3] == 0) continue;
+                const float nx = clip[0] / clip[3], ny = clip[1] / clip[3], nz = clip[2] / clip[3];
+                if (clip[3] > 0 && nz >= 0.f && nz <= 1.f && nx >= -1.f && nx <= 1.f &&
+                    ny >= -1.f && ny <= 1.f) {
+                    ++vis;
+                    vxmin = std::min(vxmin, nx); vxmax = std::max(vxmax, nx);
+                    vymin = std::min(vymin, ny); vymax = std::max(vymax, ny);
+                }
+            }
+            std::fprintf(stderr, "[ovdbg] verts=%zu w>0=%d inFrustum=%d visNDC x=[%.2f,%.2f] y=[%.2f,%.2f]\n",
+                         overlayV.size(), wpos, vis, vis ? vxmin : 0.f, vis ? vxmax : 0.f,
+                         vis ? vymin : 0.f, vis ? vymax : 0.f);
+        }
         return renderGeometry(r, vertices, indices, s.view, s.proj, clear, fog, rgbaOut, error,
                              &overlayV, &overlayI);
     }

@@ -806,25 +806,31 @@ int main() {
     // RT_APP_NAV=1 overlays a ROM nav-graph's centerline segments (static
     // graph 0 = the COURSE/C00 race-route pack graph, per
     // docs/native-reference/scene-tile-map.md — not Peach streets) as bright
-    // yellow strips.  Graph coordinates are tile-local [0,1600] game units;
-    // scaled 0.1 they draw inside the anchored tile cell at (0,0), i.e. the
-    // ribbon sits on Peach Town terrain while being the C00 course shape
-    // (semantic mismatch until the town-graph T=1 wire-up lands).
+    // yellow strips.  RT_APP_NAV_TOWN=1 instead draws the AUTHENTIC Peach Town
+    // street graph (scene T=1, outer dir @0x2d98a8 -> car0 pair
+    // 0x2c5ff0/0x2c67d0, 84 segments) — tile-local [0,1600] game units, so
+    // scaled 0.1 both overlays land inside the anchored Peach tile at (0,0).
     std::vector<rt::native::preview::RouteLine> navLines;
     if (std::getenv("RT_APP_NAV") != nullptr) {
         auto tables = rt::native::assets::NavRouteTables::open(discRoot() / "SLUS_203.98");
         if (!tables) {
             std::cout << "rt-app nav: SKIP (ELF unavailable, err=" << static_cast<int>(tables.error()) << ")\n";
         } else {
-            auto graph = tables->staticGraph(0);
+            const bool navTown = std::getenv("RT_APP_NAV_TOWN") != nullptr;
+            auto graph = navTown ? tables->townGraph(1) : tables->staticGraph(0);
             if (!graph) {
-                std::cout << "rt-app nav: SKIP (static graph 0 absent)\n";
+                std::cout << "rt-app nav: SKIP (" << (navTown ? "town graph 1 absent" : "static graph 0 absent")
+                          << ")\n";
             } else {
                 for (const auto& seg : graph->segments)
                     navLines.push_back({seg.ax * .1f, seg.az * .1f, seg.bx * .1f, seg.bz * .1f,
                                        1.f, .85f, .15f});
-                std::cout << "rt-app nav: static graph 0 segments=" << navLines.size()
-                          << " vaddr=0x" << std::hex << graph->segmentVaddr << std::dec << "\n";
+                if (navTown)
+                    std::cout << "rt-app nav: town graph 1 segments=" << navLines.size()
+                              << " vaddr=0x" << std::hex << graph->segmentVaddr << std::dec << "\n";
+                else
+                    std::cout << "rt-app nav: static graph 0 segments=" << navLines.size()
+                              << " vaddr=0x" << std::hex << graph->segmentVaddr << std::dec << "\n";
             }
         }
     }
@@ -841,16 +847,19 @@ int main() {
         if (!tables) {
             std::cout << "rt-app route: SKIP (ELF unavailable, err=" << static_cast<int>(tables.error()) << ")\n";
         } else {
-            auto graph = tables->staticGraph(0);
+            const bool routeTown = std::getenv("RT_APP_ROUTE_TOWN") != nullptr;
+            auto graph = routeTown ? tables->townGraph(1) : tables->staticGraph(0);
             if (!graph) {
-                std::cout << "rt-app route: SKIP (static graph 0 absent)\n";
+                std::cout << "rt-app route: SKIP (" << (routeTown ? "town graph 1 absent" : "static graph 0 absent")
+                          << ")\n";
             } else {
                 const rt::native::gameplay::NavPath path = rt::native::gameplay::buildNavPath(*graph);
                 if (path.centerline.size() < 2) {
                     std::cout << "rt-app route: SKIP (centerline has no segments)\n";
                 } else {
                     navDrive.emplace(path);
-                    std::cout << "rt-app route: nav lap drive segments="
+                    std::cout << "rt-app route: " << (routeTown ? "town" : "nav")
+                              << " lap drive segments="
                               << navDrive->segmentCount()
                               << " length=" << navDrive->totalLength() << "\n";
                 }

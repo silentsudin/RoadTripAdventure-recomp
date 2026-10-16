@@ -4,17 +4,20 @@
 // a few endpoint values already published in the doc.
 #include "../../src/native/assets/nav_routes.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <limits>
 
 using namespace rt::native::assets;
 
 static int g_fail = 0;
-#define CHECK(c) do { if (!(c)) { std::fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #c); ++g_fail; } } while (0)
+static int g_pass = 0;
+#define CHECK(c) do { if (!(c)) { std::fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #c); ++g_fail; } else { ++g_pass; } } while (0)
 
 namespace {
 
@@ -74,6 +77,10 @@ std::filesystem::path writeFakeElf() {
     putU32(elf, at(0x2bd900), 0x2bd800);
     putU32(elf, at(0x2bd900) + 4, 0x2bd800 + 3 * 24);
     // pair 1 stays zero -> null terminator.
+    // T=1 -> empty pair array (immediate terminator; zero-filled), T=9 ->
+    // T0's array (the scene 0 -> 9 alias target); T=2 stays a null row.
+    putU32(elf, at(kNavOuterDirectoryVaddr) + 4, 0x2bd940);
+    putU32(elf, at(kNavOuterDirectoryVaddr) + 36, 0x2bd900);
 
     const std::filesystem::path path =
         std::filesystem::temp_directory_path() / "rt_native_nav_fake.elf";
@@ -110,6 +117,23 @@ void testSynthetic() {
     CHECK(static_cast<bool>(course) && course->segments.size() == 3);
     CHECK(!(*tables).courseGraph(0, 1) && (*tables).courseGraph(0, 1).error() == NavRouteError::NullPair);
     CHECK(!(*tables).courseGraph(1, 0) && (*tables).courseGraph(1, 0).error() == NavRouteError::NullPair);
+
+    // Town street mode: the loader's scene 0 -> 9 remap makes both ids serve
+    // the same car0 pair; every failure mode is a clean NullPair.
+    auto town0 = (*tables).townGraph(0);
+    auto town9 = (*tables).townGraph(9);
+    CHECK(static_cast<bool>(town0) && static_cast<bool>(town9));
+    if (town0 && town9) {
+        CHECK(town9->segmentVaddr == 0x2bd800u && town0->segmentVaddr == town9->segmentVaddr);
+        CHECK(town0->segments.size() == 3 && town0->segments[0].ax == 500.f);
+        CHECK(town9->segments[2].bz == 555.f);
+        CHECK((*town0).transitionVaddr == (*town9).transitionVaddr);
+    }
+    CHECK((*tables).townGraph(1).error() == NavRouteError::NullPair);  // empty pair array
+    CHECK((*tables).townGraph(2).error() == NavRouteError::NullPair);  // null outer row
+    CHECK((*tables).townGraph(-1).error() == NavRouteError::NullPair);
+    CHECK((*tables).townGraph(-2147483647 - 1).error() == NavRouteError::NullPair);
+    CHECK((*tables).townGraph(static_cast<int>(kNavOuterEntryCount)).error() == NavRouteError::NullPair);
 
     // Out-of-range segment index trips OutOfRange: break transition 0 -> 200.
     std::ifstream in(path, std::ios::binary);
@@ -210,8 +234,107 @@ void testDiscPins() {
     // Non-null outer with empty array (T2).
     CHECK((*tables).courseGraph(2, 0).error() == NavRouteError::NullPair);
 
+    // -- Town street mode pins (scene-tile-map.md).
+    // Outer directory rows, indexed by 0x2be438 scene-table record.
+    CHECK((*tables).outerEntry(1) == 0x002d9310u);  // Peach Town
+    CHECK((*tables).outerEntry(2) == 0x002d9368u);  // Fuji City
+    CHECK((*tables).outerEntry(3) == 0x002d93c0u);  // Sandpolis
+    CHECK((*tables).outerEntry(4) == 0x002d9408u);  // Chestnut Canyon
+    CHECK((*tables).outerEntry(9) == 0x002d9558u   // My City row == T0 row
+          && (*tables).outerEntry(9) == (*tables).outerEntry(0));
+
+    // T=1 Peach Town car0 pair {0x2c5ff0, 0x2c67d0}, 84 segments.
+    auto peachTown = (*tables).townGraph(1);
+    CHECK(static_cast<bool>(peachTown));
+    if (peachTown) {
+        CHECK(peachTown->segmentVaddr == 0x002c5ff0u &&
+              peachTown->transitionVaddr == 0x002c67d0u);
+        CHECK(peachTown->segments.size() == 84);
+        // Documented bbox x=[418,552] z=[443,1084]: every decoded endpoint
+        // must lie inside it, and the graph touches all four edges exactly.
+        float minX = std::numeric_limits<float>::max(), maxX = std::numeric_limits<float>::lowest();
+        float minZ = std::numeric_limits<float>::max(), maxZ = std::numeric_limits<float>::lowest();
+        for (const NavSegment& s : peachTown->segments) {
+            minX = std::min(minX, std::min(s.ax, s.bx));
+            maxX = std::max(maxX, std::max(s.ax, s.bx));
+            minZ = std::min(minZ, std::min(s.az, s.bz));
+            maxZ = std::max(maxZ, std::max(s.az, s.bz));
+        }
+        CHECK(minX >= 418.f && maxX <= 552.f && minZ >= 443.f && maxZ <= 1084.f);
+        CHECK(minX == 418.f && maxX == 552.f && minZ == 443.f && maxZ == 1084.f);
+        // First/last segment endpoints (disc-decoded; all coordinates in
+        // this graph are integer-valued f32 and both aux floats are zero).
+        CHECK(peachTown->segments.front().ax == 484.f && peachTown->segments.front().az == 486.f);
+        CHECK(peachTown->segments.front().bx == 480.f && peachTown->segments.front().bz == 482.f);
+        CHECK(peachTown->segments.back().ax == 483.f && peachTown->segments.back().az == 470.f);
+        CHECK(peachTown->segments.back().bx == 479.f && peachTown->segments.back().bz == 470.f);
+        bool auxAllZero = true;
+        for (const NavSegment& s : peachTown->segments) {
+            if (s.auxA != 0.f || s.auxB != 0.f) auxAllZero = false;
+        }
+        CHECK(auxAllZero);
+        // traffic-ai.md scene-1 spawn record 0 = (459, 30, 786) sits inside
+        // the street box on the (x,z) plane.
+        CHECK(459.f >= minX && 459.f <= maxX && 786.f >= minZ && 786.f <= maxZ);
+        // qwc sanity: 84*24 = 2016 B = 126 qwc of segments, 84*8 = 672 B =
+        // 42 qwc of transitions — both 16-byte multiples.
+        CHECK(peachTown->segments.size() * 24 % 16 == 0);
+        CHECK(peachTown->segments.size() * 8 % 16 == 0);
+    }
+
+    // Scene 0 executes as 9 (FUN_0020e708): one shared 30-segment graph.
+    auto town0 = (*tables).townGraph(0);
+    auto town9 = (*tables).townGraph(9);
+    CHECK(static_cast<bool>(town0) && static_cast<bool>(town9));
+    if (town0 && town9) {
+        CHECK(town0->segmentVaddr == town9->segmentVaddr &&
+              town9->segmentVaddr == 0x002d5750u);
+        CHECK(town0->segments.size() == 30);
+    }
+
+    // Null rows and empty car0 arrays are clean errors; the sets are the
+    // observed SLUS truth (11 null rows, 2 non-null rows with empty arrays).
+    const int kNullRowScenes[] = {5, 10, 11, 12, 14, 15, 16, 17, 19, 20, 21};
+    for (int t : kNullRowScenes) {
+        CHECK((*tables).outerEntry(static_cast<std::size_t>(t)) == 0);
+        CHECK((*tables).townGraph(t).error() == NavRouteError::NullPair);
+    }
+    const int kEmptyCar0Scenes[] = {2, 8};  // Fuji City, Cloud Hill
+    for (int t : kEmptyCar0Scenes) {
+        CHECK((*tables).outerEntry(static_cast<std::size_t>(t)) != 0);
+        CHECK((*tables).townGraph(t).error() == NavRouteError::NullPair);
+    }
+    CHECK((*tables).townGraph(-1).error() == NavRouteError::NullPair);
+    CHECK((*tables).townGraph(static_cast<int>(kNavOuterEntryCount)).error() == NavRouteError::NullPair);
+
+    // Census: 19 of the 32 scene ids decode a car0 street graph (11 null
+    // rows + 2 empty arrays absent), all inside tile bounds.
+    std::size_t townGraphs = 0;
+    bool townBoundsHold = true;
+    for (int t = 0; t < static_cast<int>(kNavOuterEntryCount); ++t) {
+        auto graph = (*tables).townGraph(t);
+        if (!graph) continue;
+        ++townGraphs;
+        if (!NavRouteTables::graphWithinTile(*graph)) townBoundsHold = false;
+    }
+    CHECK(townGraphs == 19);
+    CHECK(townBoundsHold);
+
     std::printf("nav_routes disc: staticGraphs=%zu segments=%zu outerNonNull=%zu pairs=%zu\n",
                 graphs, segments, outerNonNull, pairs);
+    std::printf("nav_routes disc: town car0 graphs=%zu (alias 0->9 shared); peach segments=%zu\n",
+                townGraphs, peachTown ? peachTown->segments.size() : 0);
+    if (peachTown) {
+        const NavSegment& first = peachTown->segments.front();
+        const NavSegment& last = peachTown->segments.back();
+        std::printf("nav_routes disc: Peach bbox x=[418,552] z=[443,1084]; "
+                    "first=(%.0f,%.0f)->(%.0f,%.0f) "
+                    "last=(%.0f,%.0f)->(%.0f,%.0f)\n",
+                    first.ax, first.az, first.bx, first.bz,
+                    last.ax, last.az, last.bx, last.bz);
+    }
+    std::printf("nav_routes disc: null town rows=5,10,11,12,14,15,16,17,19,20,21; "
+                "empty car0 rows=2,8\n");
 }
 
 } // namespace
@@ -223,6 +346,6 @@ int main() {
         std::fprintf(stderr, "nav_routes: %d checks failed\n", g_fail);
         return 1;
     }
-    std::printf("nav_routes: all checks passed\n");
+    std::printf("nav_routes: %d checks passed\n", g_pass);
     return 0;
 }

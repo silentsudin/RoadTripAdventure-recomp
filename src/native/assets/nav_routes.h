@@ -10,6 +10,12 @@
 // (taskTag >> 10) & 0x1f) selects a null-terminated pair array; pair `car`
 // serves that course/entity (FUN_0025fbc0 semantics; the game's car-1 flag
 // adjustment stays with the caller).
+// Town street mode: the same outer directory indexed by scripted scene id T
+// — the 0x2be438 scene-table record index (docs/native-reference/
+// scene-tile-map.md).  The scene loader executes record 0 as record 9
+// (FUN_0020e708 @0x20e750..0x20e764), so My Garage serves My City's row
+// (the two rows share one pair array anyway); the street graph is pair 0
+// (the car0 slot) of the scene's pair array.
 //
 // Segment records are 24 bytes of tile-local f32: endpoint A (x,z), endpoint
 // B (x,z), plus two auxiliary floats with open semantics.  Transition records
@@ -81,6 +87,21 @@ public:
 
     // Pair `car` of outer entry T (raw index; no car-1 adjustment).
     expected<NavGraph, NavRouteError> courseGraph(std::size_t t, std::size_t car) const;
+
+    // Town street graph for scripted scene id (the 0x2be438 scene-table
+    // record index; docs/native-reference/scene-tile-map.md): 0 My Garage
+    // (the loader executes it as 9), 1 Peach Town, 2 Fuji City, 3
+    // Sandpolis, 4 Chestnut Canyon, 5 Mushroom Road, 6 White Mountain,
+    // 7 Papaya Island, 8 Cloud Hill, 9 My City, 10 '???', 11 Bridge,
+    // 12 UFO, 13 Ruins, 14 LightHouse, 15 '022', 16 '110', 17 '120',
+    // 18 '202', 19 '212', 20 '221', 21 '232', 22..31 the Shift-JIS display
+    // rows (Cloud, Papaya, White, ruins, Marron, Peach, bridge, Fuji,
+    // highway, Sand).  Applies the loader's scene 0 -> 9 remap
+    // (FUN_0020e708 @0x20e750..0x20e764), then reads the outer-directory
+    // row and its car0 pair.  Absent rows (observed: 5, 10, 11, 12, 14, 15,
+    // 16, 17, 19, 20, 21), empty pair arrays (observed: 2, 8), and
+    // out-of-range ids all yield NavRouteError::NullPair.
+    expected<NavGraph, NavRouteError> townGraph(int sceneId) const;
 
     // True when every endpoint lies in [-1.0, 1600.0] tile units (the
     // corpus-wide observed bounds, -1.0 sentinel included).
