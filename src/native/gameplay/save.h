@@ -27,8 +27,11 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <span>
 #include <string>
+#include <utility>
+#include <variant>
 #include <vector>
 
 namespace rt::native::gameplay {
@@ -78,6 +81,41 @@ inline constexpr std::uint32_t kBestTimeNone      = 0x7FFFFFFF;
 inline constexpr std::uint8_t kResultNotRaced     = 0xFF;
 inline constexpr std::uint32_t kMoneyNewGame      = 1000;
 inline constexpr std::uint16_t kTownsAllUnvisited = 0x3FF;
+
+// Migration errors are deliberately separate from SaveResult: parseSave is a
+// size-only, lossless record parser, while the import boundary must identify a
+// PS2 container and the ELF-confirmed BASLUS-20398 pathname.
+enum class SaveErrorCode : std::uint8_t {
+    InvalidSlot,
+    InvalidSize,
+    NotP2Image,
+    WrongTitle,
+    MalformedP2,
+    IoError,
+};
+
+struct SaveError {
+    SaveErrorCode code;
+    std::string message;
+};
+
+// Local C++20 expected-like value.  This header cannot use std::expected
+// (C++23), and the assets::expected template intentionally stays in assets.
+template <class Value, class Error>
+class expected {
+public:
+    expected(Value value) : storage_(std::move(value)) {}
+    expected(Error error) : storage_(std::move(error)) {}
+    bool has_value() const noexcept { return std::holds_alternative<Value>(storage_); }
+    explicit operator bool() const noexcept { return has_value(); }
+    Value& operator*() { return std::get<Value>(storage_); }
+    const Value& operator*() const { return std::get<Value>(storage_); }
+    Value* operator->() { return &std::get<Value>(storage_); }
+    const Value* operator->() const { return &std::get<Value>(storage_); }
+    const Error& error() const { return std::get<Error>(storage_); }
+private:
+    std::variant<Value, Error> storage_;
+};
 
 // One documented field region: [offset, offset+size) with a config/doc label.
 struct SaveFieldRegion {
@@ -156,5 +194,32 @@ std::vector<std::uint8_t> serializeSave(const SaveData& save);
 // last photo, masks towns_unvisited to 0x3FF, truncates over-long names).
 // Returns one string per normalization applied (empty = already clean).
 std::vector<std::string> migrateToNative(SaveData& save);
+
+// AUTHORED public-P2 container model. The game-specific directory and data
+// filenames below are CONFIRMED ELF strings: /BASLUS-20398/BASLUS-20398.
+// This does not validate NAND spare-area ECC: the game's own record I/O has no
+// checksum/CRC (see save-layout.md), and ECC needs a real-card fixture before
+// it can be validated without inventing acceptance rules.
+struct P2SaveFile {
+    std::string directoryName;
+    std::string fileName;
+    std::vector<std::uint8_t> bytes;
+};
+
+expected<std::vector<P2SaveFile>, SaveError>
+scanP2RoadTripSaves(std::span<const std::uint8_t> p2Image);
+
+// slot is the native host slot (0 or 1). It validates the target mapping; the
+// returned SaveData is ready for the caller's existing native store.
+expected<SaveData, SaveError>
+migrateFromP2Image(std::span<const std::uint8_t> p2Image, int slot);
+
+// Extracted BASLUS-20398 payload only. The span overload has no enclosing
+// filename to verify, so callers must use a file selected by scanP2RoadTripSaves
+// or use the path overload, which rejects a non-BASLUS-20398 basename.
+expected<SaveData, SaveError>
+migrateFromSaveFile(std::span<const std::uint8_t> extractedFile);
+expected<SaveData, SaveError>
+migrateFromSaveFile(const std::filesystem::path& extractedFile);
 
 }  // namespace rt::native::gameplay

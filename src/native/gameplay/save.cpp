@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <fstream>
+#include <limits>
 
 namespace rt::native::gameplay {
 namespace {
@@ -53,6 +55,155 @@ std::string hexRange(std::size_t lo, std::size_t hi) {
     char buf[32];
     std::snprintf(buf, sizeof(buf), "0x%04X-0x%04X", static_cast<unsigned>(lo), static_cast<unsigned>(hi));
     return buf;
+}
+
+constexpr char kP2MagicPrefix[] = "Sony PS2 Memory Card Format";
+constexpr char kRoadTripDirectory[] = "BASLUS-20398";
+constexpr char kRoadTripFile[] = "BASLUS-20398";
+constexpr std::uint16_t kP2DirExists = 0x8000;
+constexpr std::uint16_t kP2DirFile = 0x0010;
+constexpr std::uint16_t kP2DirDirectory = 0x0020;
+
+SaveError saveError(SaveErrorCode code, const char* message) {
+    return {code, message};
+}
+SaveError saveError(SaveErrorCode code, std::string message) {
+    return {code, std::move(message)};
+}
+
+struct P2Image {
+    std::vector<std::uint8_t> data;  // NAND spare/ECC bytes intentionally removed.
+    std::size_t pageSize = 0;
+    std::size_t clusterSize = 0;
+    std::size_t clusters = 0;
+    std::size_t allocOffset = 0;
+    std::array<std::uint32_t, 32> ifc{};
+};
+
+expected<P2Image, SaveError> openP2(std::span<const std::uint8_t> bytes) {
+    if (bytes.size() < 0x154 || std::memcmp(bytes.data(), kP2MagicPrefix,
+                                             sizeof(kP2MagicPrefix) - 1) != 0)
+        return saveError(SaveErrorCode::NotP2Image, "not a PS2 P2 memory-card image");
+    const std::size_t pageSize = rdU16(bytes.data() + 0x28);
+    const std::size_t pagesPerCluster = rdU16(bytes.data() + 0x2A);
+    const std::size_t clusters = rdU32(bytes.data() + 0x30);
+    const std::size_t allocOffset = rdU32(bytes.data() + 0x34);
+    if ((pageSize != 512 && pageSize != 1024) || pagesPerCluster == 0 || pagesPerCluster > 16 ||
+        clusters == 0 || allocOffset >= clusters ||
+        pageSize > std::numeric_limits<std::size_t>::max() / pagesPerCluster ||
+        clusters > std::numeric_limits<std::size_t>::max() / (pageSize * pagesPerCluster))
+        return saveError(SaveErrorCode::MalformedP2, "P2 image has unsupported geometry");
+    const std::size_t clusterSize = pageSize * pagesPerCluster;
+    const std::size_t dataSize = clusters * clusterSize;
+    const std::size_t pages = clusters * pagesPerCluster;
+    const std::size_t rawSize = pages * (pageSize + 16);
+    std::size_t stride = 0;
+    if (bytes.size() == dataSize) stride = pageSize;
+    else if (bytes.size() == rawSize) stride = pageSize + 16;
+    else return saveError(SaveErrorCode::MalformedP2, "P2 image size does not match its geometry");
+
+    P2Image result;
+    result.data.resize(dataSize);
+    result.pageSize = pageSize;
+    result.clusterSize = clusterSize;
+    result.clusters = clusters;
+    result.allocOffset = allocOffset;
+    for (std::size_t page = 0; page < pages; ++page)
+        std::memcpy(result.data.data() + page * pageSize, bytes.data() + page * stride, pageSize);
+    for (std::size_t i = 0; i < result.ifc.size(); ++i)
+        result.ifc[i] = rdU32(result.data.data() + 0x50 + 4 * i);
+    return result;
+}
+
+expected<std::span<const std::uint8_t>, SaveError>
+p2Cluster(const P2Image& image, std::uint32_t physicalCluster) {
+    if (physicalCluster >= image.clusters)
+        return saveError(SaveErrorCode::MalformedP2, "P2 cluster index is outside card geometry");
+    return std::span<const std::uint8_t>(image.data.data() +
+                                         static_cast<std::size_t>(physicalCluster) * image.clusterSize,
+                                         image.clusterSize);
+}
+
+expected<std::uint32_t, SaveError> p2FatNext(const P2Image& image, std::uint32_t relativeCluster) {
+    const std::size_t entries = image.clusterSize / 4;
+    if (entries == 0) return saveError(SaveErrorCode::MalformedP2, "P2 FAT has no entries per cluster");
+    const std::size_t indirectIndex = relativeCluster / entries;
+    const std::size_t ifcIndex = indirectIndex / entries;
+    if (ifcIndex >= image.ifc.size() || image.ifc[ifcIndex] == 0xFFFFFFFFu)
+        return saveError(SaveErrorCode::MalformedP2, "P2 FAT indirect table is missing");
+    const auto indirect = p2Cluster(image, image.ifc[ifcIndex]);
+    if (!indirect) return indirect.error();
+    const std::uint32_t fatPhysical = rdU32(indirect->data() + 4 * (indirectIndex % entries));
+    const auto fat = p2Cluster(image, fatPhysical);
+    if (!fat) return fat.error();
+    return rdU32(fat->data() + 4 * (relativeCluster % entries));
+}
+
+expected<std::vector<std::uint8_t>, SaveError>
+p2ReadChain(const P2Image& image, std::uint32_t firstRelative, std::size_t wanted) {
+    if (wanted == 0) return std::vector<std::uint8_t>{};
+    const std::size_t possible = image.clusters - image.allocOffset;
+    if (firstRelative >= possible)
+        return saveError(SaveErrorCode::MalformedP2, "P2 file starts outside allocation area");
+    std::vector<std::uint8_t> result;
+    result.reserve(wanted);
+    std::uint32_t relative = firstRelative;
+    for (std::size_t count = 0; result.size() < wanted && count < possible; ++count) {
+        const auto cluster = p2Cluster(image, static_cast<std::uint32_t>(image.allocOffset + relative));
+        if (!cluster) return cluster.error();
+        const std::size_t take = std::min(cluster->size(), wanted - result.size());
+        result.insert(result.end(), cluster->begin(), cluster->begin() + take);
+        if (result.size() == wanted) break;
+        const auto next = p2FatNext(image, relative);
+        if (!next) return next.error();
+        if (*next == 0xFFFFFFFFu)
+            return saveError(SaveErrorCode::MalformedP2, "P2 allocation chain ends before file length");
+        if ((*next & 0x80000000u) == 0 || (*next & 0x7fffffffu) >= possible)
+            return saveError(SaveErrorCode::MalformedP2, "P2 allocation chain has an invalid next cluster");
+        relative = *next & 0x7fffffffu;
+    }
+    if (result.size() != wanted)
+        return saveError(SaveErrorCode::MalformedP2, "P2 allocation chain loops before file length");
+    return result;
+}
+
+struct P2DirEntry {
+    std::uint16_t mode = 0;
+    std::uint32_t length = 0;
+    std::uint32_t cluster = 0;
+    std::string name;
+};
+
+P2DirEntry p2Entry(std::span<const std::uint8_t> bytes, std::size_t index) {
+    const std::uint8_t* p = bytes.data() + index * 512;
+    P2DirEntry entry;
+    entry.mode = rdU16(p);
+    entry.length = rdU32(p + 4);
+    entry.cluster = rdU32(p + 0x10);
+    entry.name = rdFixedStr(p + 0x40, 32);
+    return entry;
+}
+
+expected<std::vector<P2DirEntry>, SaveError>
+p2Directory(const P2Image& image, std::uint32_t firstRelative) {
+    const auto first = p2ReadChain(image, firstRelative, image.clusterSize);
+    if (!first) return first.error();
+    const P2DirEntry dot = p2Entry(*first, 0);
+    if (dot.length < 2 || dot.length > image.clusters * (image.clusterSize / 512))
+        return saveError(SaveErrorCode::MalformedP2, "P2 directory entry count is invalid");
+    const auto all = p2ReadChain(image, firstRelative, static_cast<std::size_t>(dot.length) * 512);
+    if (!all) return all.error();
+    std::vector<P2DirEntry> entries;
+    entries.reserve(dot.length);
+    for (std::size_t i = 0; i < dot.length; ++i) entries.push_back(p2Entry(*all, i));
+    return entries;
+}
+
+bool p2IsDirectory(const P2DirEntry& entry) {
+    return (entry.mode & (kP2DirExists | kP2DirDirectory)) == (kP2DirExists | kP2DirDirectory);
+}
+bool p2IsFile(const P2DirEntry& entry) {
+    return (entry.mode & (kP2DirExists | kP2DirFile)) == (kP2DirExists | kP2DirFile);
 }
 
 }  // namespace
@@ -300,6 +451,63 @@ std::vector<std::string> migrateToNative(SaveData& s) {
     fixName(s.currencyName, kCurrencyNameSize, "currency_name");
 
     return changes;
+}
+
+expected<std::vector<P2SaveFile>, SaveError>
+scanP2RoadTripSaves(std::span<const std::uint8_t> p2Image) {
+    const auto image = openP2(p2Image);
+    if (!image) return image.error();
+    const std::uint32_t rootRelative = rdU32(image->data.data() + 0x3C);
+    const auto root = p2Directory(*image, rootRelative);
+    if (!root) return root.error();
+    const auto gameDir = std::find_if(root->begin(), root->end(), [](const P2DirEntry& entry) {
+        return p2IsDirectory(entry) && entry.name == kRoadTripDirectory;
+    });
+    if (gameDir == root->end())
+        return saveError(SaveErrorCode::WrongTitle, "P2 image has no BASLUS-20398 save directory");
+    const auto children = p2Directory(*image, gameDir->cluster);
+    if (!children) return children.error();
+    const auto record = std::find_if(children->begin(), children->end(), [](const P2DirEntry& entry) {
+        return p2IsFile(entry) && entry.name == kRoadTripFile;
+    });
+    if (record == children->end())
+        return saveError(SaveErrorCode::WrongTitle, "BASLUS-20398 directory has no BASLUS-20398 progress file");
+    const auto data = p2ReadChain(*image, record->cluster, record->length);
+    if (!data) return data.error();
+    return std::vector<P2SaveFile>{{kRoadTripDirectory, kRoadTripFile, *data}};
+}
+
+expected<SaveData, SaveError>
+migrateFromSaveFile(std::span<const std::uint8_t> extractedFile) {
+    if (extractedFile.size() != kSaveSize)
+        return saveError(SaveErrorCode::InvalidSize, "BASLUS-20398 progress file is not exactly 0x3448 bytes");
+    SaveResult parsed = parseSave(extractedFile);
+    if (!parsed.ok)
+        return saveError(SaveErrorCode::InvalidSize, parsed.errors.empty() ? "invalid save image" : parsed.errors.front());
+    // Existing native validity policy is applied to typed fields. raw retains
+    // all original bytes, including unknown regions and pre-normalized values.
+    migrateToNative(parsed.data);
+    return std::move(parsed.data);
+}
+
+expected<SaveData, SaveError>
+migrateFromP2Image(std::span<const std::uint8_t> p2Image, int slot) {
+    if (slot < 0 || slot > 1)
+        return saveError(SaveErrorCode::InvalidSlot, "native save slot must be 0 or 1");
+    const auto files = scanP2RoadTripSaves(p2Image);
+    if (!files) return files.error();
+    return migrateFromSaveFile(std::span<const std::uint8_t>(files->front().bytes));
+}
+
+expected<SaveData, SaveError>
+migrateFromSaveFile(const std::filesystem::path& extractedFile) {
+    if (extractedFile.filename() != kRoadTripFile)
+        return saveError(SaveErrorCode::WrongTitle, "extracted file basename must be BASLUS-20398");
+    std::ifstream input(extractedFile, std::ios::binary);
+    if (!input) return saveError(SaveErrorCode::IoError, "could not open extracted save file");
+    const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
+                                          std::istreambuf_iterator<char>());
+    return migrateFromSaveFile(std::span<const std::uint8_t>(bytes));
 }
 
 }  // namespace rt::native::gameplay

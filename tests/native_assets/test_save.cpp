@@ -12,7 +12,8 @@
 using namespace rt::native::gameplay;
 
 static int g_fail = 0;
-#define CHECK(c) do { if (!(c)) { std::fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #c); ++g_fail; } } while (0)
+static int g_checks = 0;
+#define CHECK(c) do { ++g_checks; if (!(c)) { std::fprintf(stderr, "FAIL %s:%d: %s\n", __FILE__, __LINE__, #c); ++g_fail; } } while (0)
 
 namespace {
 
@@ -90,6 +91,48 @@ std::vector<std::uint8_t> makeCleanBuffer() {
     putU32(b, save_offset::kStampQueueCount, 2u);
     putU32(b, save_offset::kWgpStagesRun, 3u);
     return b;
+}
+
+// AUTHORED test fixture using the public PS2 memory-card format: 512-byte
+// pages, two pages per cluster, a two-level FAT, and 512-byte directory
+// entries.  It contains only synthetic progress bytes.
+void putDirEntry(std::vector<std::uint8_t>& card, std::size_t off, std::uint16_t mode,
+                 std::uint32_t length, std::uint32_t cluster, const char* name) {
+    putU16(card, off, mode);
+    putU32(card, off + 4, length);
+    putU32(card, off + 0x10, cluster);
+    std::memcpy(card.data() + off + 0x40, name, std::strlen(name));
+}
+
+std::vector<std::uint8_t> makeSyntheticP2(const std::vector<std::uint8_t>& save) {
+    constexpr std::size_t kPage = 512;
+    constexpr std::size_t kCluster = 1024;
+    constexpr std::size_t kClusters = 128;
+    constexpr std::size_t kAlloc = 10;
+    std::vector<std::uint8_t> card(kClusters * kCluster, 0);
+    std::memcpy(card.data(), "Sony PS2 Memory Card Format", 27);
+    putU16(card, 0x28, kPage);
+    putU16(card, 0x2A, 2);
+    putU16(card, 0x2C, 16);
+    putU32(card, 0x30, kClusters);
+    putU32(card, 0x34, kAlloc);
+    putU32(card, 0x3C, 0);  // root directory relative to alloc_offset
+    putU32(card, 0x50, 1);  // indirect FAT cluster (absolute cluster number)
+
+    // indirect FAT #1 -> FAT cluster #2; FAT values are relative allocations.
+    putU32(card, kCluster, 2);
+    for (std::uint32_t rel = 0; rel < 18; ++rel)
+        putU32(card, 2 * kCluster + 4 * rel, rel == 17 ? 0xFFFFFFFFu : 0x80000000u | (rel + 1));
+
+    const std::size_t root = kAlloc * kCluster;
+    putDirEntry(card, root, 0x8020, 3, 0, ".");
+    putDirEntry(card, root + kCluster, 0x8020, 3, 2, "BASLUS-20398");
+    const std::size_t dir = (kAlloc + 2) * kCluster;
+    putDirEntry(card, dir, 0x8020, 3, 0, ".");
+    putDirEntry(card, dir + 2 * kPage, 0x8010, static_cast<std::uint32_t>(save.size()), 4,
+                "BASLUS-20398");
+    std::memcpy(card.data() + (kAlloc + 4) * kCluster, save.data(), save.size());
+    return card;
 }
 
 bool contains(const std::vector<std::string>& v, const std::string& s) {
@@ -282,6 +325,46 @@ void testMigrate() {
     CHECK(migrateToNative(r2.data).empty());
 }
 
+void testOriginalP2Migration() {
+    const std::vector<std::uint8_t> original = makeCleanBuffer();
+    const std::vector<std::uint8_t> p2 = makeSyntheticP2(original);
+    const auto scanned = scanP2RoadTripSaves(p2);
+    CHECK(scanned);
+    CHECK(scanned->size() == 1);
+    CHECK((*scanned)[0].directoryName == "BASLUS-20398");
+    CHECK((*scanned)[0].fileName == "BASLUS-20398");
+    CHECK((*scanned)[0].bytes == original);
+
+    const auto imported = migrateFromP2Image(p2, 1);
+    CHECK(imported);
+    CHECK(imported->money == 123456u);
+    CHECK(imported->playerName == "PLAYER 1");
+    CHECK(std::memcmp(imported->raw.data(), original.data(), kSaveSize) == 0);
+
+    const auto extracted = migrateFromSaveFile(std::span<const std::uint8_t>(original));
+    CHECK(extracted);
+    CHECK(extracted->raw == imported->raw);
+}
+
+void testOriginalP2MigrationErrors() {
+    const auto save = makeCleanBuffer();
+    auto p2 = makeSyntheticP2(save);
+    CHECK(!migrateFromP2Image(p2, -1));
+    CHECK(!migrateFromP2Image(p2, 2));
+    p2[0] = 0;
+    const auto badMagic = migrateFromP2Image(p2, 0);
+    CHECK(!badMagic && badMagic.error().code == SaveErrorCode::NotP2Image);
+
+    auto wrongTitle = makeSyntheticP2(save);
+    std::memcpy(wrongTitle.data() + 10 * 1024 + 1024 + 0x40, "BADATA-00000", 12);
+    const auto missing = migrateFromP2Image(wrongTitle, 0);
+    CHECK(!missing && missing.error().code == SaveErrorCode::WrongTitle);
+
+    std::vector<std::uint8_t> shortFile(kSaveSize - 1);
+    const auto shortImport = migrateFromSaveFile(std::span<const std::uint8_t>(shortFile));
+    CHECK(!shortImport && shortImport.error().code == SaveErrorCode::InvalidSize);
+}
+
 }  // namespace
 
 int main() {
@@ -292,7 +375,9 @@ int main() {
     testUnknownFieldsReported();
     testRegionTable();
     testMigrate();
+    testOriginalP2Migration();
+    testOriginalP2MigrationErrors();
     if (g_fail) { std::fprintf(stderr, "%d failure(s)\n", g_fail); return 1; }
-    std::puts("save: all checks passed");
+    std::printf("save: %d checks passed\n", g_checks);
     return 0;
 }

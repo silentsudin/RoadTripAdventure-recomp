@@ -147,3 +147,66 @@ semantics. Treat bytes `0x0000..0x3447` as payload and retain unknown ranges.
 The record boundary, path, byte order, major progress/unlock/collectible fields,
 and safe lossless policy are established. Remaining risk is unpinned settings
 and variable record bodies, which must be carried through verbatim.
+
+## Native original-card migration importer (AUTHORED, 2026-10-16)
+
+`src/native/gameplay/save.{h,cpp}` exposes these host-only APIs:
+
+* `scanP2RoadTripSaves(span)` finds the **CONFIRMED** game directory/file pair
+  below in a P2 card image and returns the raw progress file.
+* `migrateFromP2Image(span, slot)` validates native host slot `0` or `1`, finds
+  that pair, and parses its exact `0x3448` payload into `SaveData`.
+* `migrateFromSaveFile(span)` imports an extracted payload; the `path` overload
+  additionally requires basename `BASLUS-20398`.
+
+The importer preserves `SaveData::raw` byte-for-byte, including every unpinned
+range. Existing `migrateToNative` normalization is applied only to its typed
+view (money, enum/range caps); callers that serialize the normalized `SaveData`
+intentionally receive that existing native-valid policy. No PS2 or game bytes
+are copied into this repository.
+
+### Game-specific identity: CONFIRMED from SLUS-203.98
+
+The ELF uses one fixed save pathname, not per-slot filenames:
+
+| literal | ELF vaddr | use / status |
+|---|---:|---|
+| `/BASLUS-20398/BASLUS-20398` | `0x002EB5B1` | loader pathname — **CONFIRMED** |
+| `/BASLUS-20398` | `0x002EB691` | created directory — **CONFIRMED** |
+| `/BASLUS-20398/icon.sys` | `0x002EB6D1` | icon sidecar — **CONFIRMED**, ignored by importer |
+| `/BASLUS-20398/choroQ.ico` | `0x002EB751` | icon sidecar — **CONFIRMED**, ignored by importer |
+| `SLOT %d PLAYER %d` | `0x002EB67C` | card-unit and RAM-image axes — **CONFIRMED** |
+
+These addresses use the verified conversion `vaddr = fileOffset + 0x1FF000`.
+The `slot` parameter maps only to native's two host slots; it does not invent
+different original per-slot filenames.
+
+### P2 container: AUTHORED public-spec reader
+
+The P2 scanner is an **AUTHORED** read-only implementation of the public Ross
+Ridge/myMC PS2 memory-card format description: `Sony PS2 Memory Card Format`
+superblock, little-endian geometry, two-level indirect FAT, 512-byte directory
+entries, and data-only (`512`) or raw NAND (`528`, with a 16-byte spare area)
+pages. It follows the root directory and accepts only an existing
+`BASLUS-20398` directory containing an existing regular `BASLUS-20398` file.
+It rejects unsupported geometry, truncated/cyclic chains, wrong title, wrong
+record size, and invalid native slot with typed `SaveErrorCode` values.
+
+P2 NAND spare-area ECC is **not validated**: it is public container-level ECC,
+not an Adventure record checksum, and no physical card sample exists here to
+validate the accepted/rejected spare-byte policy. The importer strips raw spare
+bytes before filesystem decoding. There is likewise no `ChecksumMismatch`
+record error because the bounded game-code result above found no game checksum
+or CRC in the save read/write task (`FUN_00228510`, `FUN_00228708`,
+`FUN_002283E0`).
+
+### Synthetic validation only: INFERRED/AUTHORED fixture coverage
+
+`tests/native_assets/test_save.cpp` constructs a synthetic P2 image using the
+public layout, the ELF-confirmed names, an indirect FAT, directory chains, and
+a synthetic `0x3448` record. It verifies scan → import → complete raw-record
+comparison and direct extracted-file import, plus invalid slot, magic, title,
+and size errors. **No original card/save bytes were available**, so these facts
+remain unvalidated until a real save sample exists: actual card geometry/FAT
+variants; real directory timestamps/mode variations; raw NAND ECC behavior;
+and whether any out-of-cluster semantic validator runs elsewhere in the game.
