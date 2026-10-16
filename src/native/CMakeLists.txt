@@ -362,6 +362,11 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(native_assets_input_test PRIVATE rt_native_assets)
     target_compile_features(native_assets_input_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_input_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+    add_executable(native_assets_trigger_map_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_trigger_map.cpp")
+    target_link_libraries(native_assets_trigger_map_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_trigger_map_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_trigger_map_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
     add_executable(native_assets_menu_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_menu.cpp")
     target_link_libraries(native_assets_menu_test PRIVATE rt_native_assets)
