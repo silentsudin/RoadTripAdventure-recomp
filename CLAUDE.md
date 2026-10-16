@@ -54,6 +54,19 @@ provider is not exhaustion:
 
 NEVER fall back to local.
 
+## ANDROID DEVICE-TEST IDENTITY (user mandate 2026-10-16 — native rebuild too)
+
+The native app's Android build (and any device test) MUST use applicationId
+`io.github.silentsudin.roadtrip.dev` and label **"Road Trip DEV"**, with its own
+data and saves dirs — identical identity to the dev app currently installed on
+the AYN Thor (`97a75c3e`, connected via USB debugging). NEVER install, launch,
+or touch the release id `io.github.silentsudin.roadtrip` for device testing;
+harnesses refuse the release id and so must the native tooling. Same debug
+signing key (this machine's `~/.android/debug.keystore`) so the native build can
+update over the installed dev app. RT_* switches on device come from
+`files/env.txt` (Android has no env vars) — the native app must read env.txt
+the same way and map lines to its RT_APP_* getters; logcat tag `RoadTrip`.
+
 ## UI PARITY MANDATE (user directive 2026-10-16)
 
 The native app's UI must be IDENTICAL to the PS2Recomp app's UI — an invisible
