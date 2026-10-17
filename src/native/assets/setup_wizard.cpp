@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <vector>
 #include <iostream>
 #include <sstream>
 #include <thread>
@@ -45,9 +46,12 @@ const Crc32Table kCrc32;
 std::uint32_t crcFile(const std::filesystem::path& path) {
     if (FILE* f = std::fopen(path.c_str(), "rb")) {
         std::uint32_t crc = 0xFFFFFFFFu;
-        unsigned char buffer[1u << 20];
+        // Heap, never stack: SDL's Android thread stacks are small and a 1 MiB
+        // stack buffer overflowed crcFile at boot (Thor crash: "stack pointer
+        // is in a non-existent map"). Desktop survived only on its 8 MB stack.
+        thread_local std::vector<unsigned char> buffer(1u << 20);
         std::size_t n;
-        while ((n = std::fread(buffer, 1, sizeof buffer, f)) != 0)
+        while ((n = std::fread(buffer.data(), 1, buffer.size(), f)) != 0)
             for (std::size_t i = 0; i < n; ++i)
                 crc = (crc >> 8) ^ kCrc32.v[(crc ^ buffer[i]) & 0xFFu];
         std::fclose(f);
