@@ -7,6 +7,7 @@
 #include "assets/glyph_atlas.h"
 #include "assets/native_model.h"
 #include "assets/setup_wizard.h"
+#include "assets/title_screen.h"
 #include "assets/nav_routes.h"
 #include "audio/bgm_player.h"
 #include "audio/engine.h"
@@ -2120,6 +2121,39 @@ int main() {
                     const int menuH = static_cast<int>(presenter.extent.height);
                     const std::array<float, 4> menuClear{.025f, .035f, .075f, 1.f};
                     if (fontAtlas.width > 0) {
+                        // SYS/TITLE.GSL unit 0 is the shipped 640x448 plate,
+                        // cars, road and sky.  Its runtime-only decoder is
+                        // deliberately optional: a missing disc takes the
+                        // old menuQuads path below unchanged.
+                        static const std::optional<rt::native::preview::PreviewTexture> titleBackdrop =
+                            rt::native::assets::loadTitleBackdrop(discRoot());
+                        if (state == AppState::TITLE && titleBackdrop) {
+                            std::string titleError;
+                            const rt::native::preview::HudQuad fullscreen{
+                                0.f, 0.f, static_cast<float>(menuW), static_cast<float>(menuH),
+                                0.f, 0.f, 1.f, 1.f, {1.f, 1.f, 1.f, 1.f}};
+                            if (rt::native::preview::previewUploadFontAtlas(renderer, *titleBackdrop, titleError) &&
+                                rt::native::preview::previewRender2DTextured(
+                                    renderer, {fullscreen}, {0.f, 0.f, 0.f, 1.f}, pixels, error)) {
+                                // Rebind FONTE after the backdrop: the same
+                                // 2D textured pass then keeps the blink and
+                                // publisher/copyright text over the art.
+                                const auto ui = buildLiveMenuScreen(state, menuFlow, frames, menuW, menuH);
+                                const rt::native::preview::PreviewTexture atlasTex{
+                                    fontAtlas.width, fontAtlas.height, fontAtlas.pixels};
+                                if (!ui.text.empty() &&
+                                    rt::native::preview::previewUploadFontAtlas(renderer, atlasTex, titleError)) {
+                                    std::vector<std::uint8_t> textPixels;
+                                    if (rt::native::preview::previewRender2DTextured(
+                                            renderer, ui.text, {0.f, 0.f, 0.f, 0.f}, textPixels, error))
+                                        compositeOver(pixels, textPixels);
+                                }
+                                rendered = true;
+                            } else {
+                                rendered = false;
+                                if (!titleError.empty()) error = titleError;
+                            }
+                        } else {
                         // Keep menuQuads' color backdrop; drop the placeholder
                         // bars (TITLE's two colored rects, and the MENU rows)
                         // and composite the real UiScreen over that panel.
@@ -2142,6 +2176,7 @@ int main() {
                                 hudTextWarned = true;
                                 std::cout << "rt-app hudtext: upload failed: " << texError << "\n";
                             }
+                        }
                         }
                     } else {
                         rendered = rt::native::preview::previewRender2D(
