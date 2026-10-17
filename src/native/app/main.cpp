@@ -1092,6 +1092,68 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
                   << " unresolved=" << unresolved;
     }
     std::cout << "\n";
+    // Full-tile ground-cover fill (AUTHORED, 2026-10-17): FLDT meshes are
+    // sparse road/feature patches — the coverage probe proved holes read as
+    // the dark underlay, while oracle town frames show continuous ground
+    // everywhere. Lay a coarse 16-RU grid per loaded tile; height and colour
+    // sample that tile's own nearest vertex; drop 0.08 RU so real detail
+    // geometry renders on top. Textured fills ride triangleTexture=-1 ->
+    // the white-page bucket (vertex colour x2 via the GS modulation).
+    if (tilesLoaded > 0) {
+        constexpr float kFillStep = 16.f;
+        constexpr float kFillDrop = 0.08f;
+        constexpr std::size_t kGridN = 10;  // 160 RU tile / 16
+        std::size_t fillQuads = 0;
+        for (const auto& lt : loadedTiles) {
+            if (lt.vcount == 0) continue;
+            const std::uint32_t base = static_cast<std::uint32_t>(mesh.positions.size());
+            for (std::size_t iz = 0; iz <= kGridN; ++iz) {
+                for (std::size_t ix = 0; ix <= kGridN; ++ix) {
+                    const float gx = lt.ox + static_cast<float>(ix) * kFillStep;
+                    const float gz = lt.oz + static_cast<float>(iz) * kFillStep;
+                    float best = 1e30f;
+                    float y = 0.f;
+                    std::array<float, 4> c{.30f, .34f, .24f, 1.f};  // neutral ground fallback
+                    for (std::uint32_t v = lt.vstart; v < lt.vstart + lt.vcount; ++v) {
+                        const auto& p = mesh.positions[v];
+                        const float dx = p[0] - gx, dz = p[2] - gz;
+                        const float d = dx * dx + dz * dz;
+                        if (d < best) {
+                            best = d;
+                            y = p[1];
+                            if (v < mesh.colours.size()) c = mesh.colours[v];
+                        }
+                    }
+                    mesh.positions.push_back({gx, y - kFillDrop, gz});
+                    if (wantTextures) {
+                        mesh.colours.push_back(c);
+                        mesh.uvs.push_back({0.f, 0.f});
+                    }
+                }
+            }
+            for (std::size_t iz = 0; iz < kGridN; ++iz) {
+                for (std::size_t ix = 0; ix < kGridN; ++ix) {
+                    const std::uint32_t a =
+                        base + static_cast<std::uint32_t>(iz * (kGridN + 1) + ix);
+                    const std::uint32_t b = a + 1;
+                    const std::uint32_t cc = a + static_cast<std::uint32_t>(kGridN + 1);
+                    const std::uint32_t d = cc + 1;
+                    // Winding matches the tile convention (see preview underlay).
+                    mesh.indices.push_back(a); mesh.indices.push_back(cc); mesh.indices.push_back(b);
+                    mesh.indices.push_back(b); mesh.indices.push_back(cc); mesh.indices.push_back(d);
+                    mesh.triangleMaterials.push_back(0);
+                    mesh.triangleMaterials.push_back(0);
+                    if (wantTextures) {
+                        mesh.triangleTexture.push_back(-1);
+                        mesh.triangleTexture.push_back(-1);
+                    }
+                    ++fillQuads;
+                }
+            }
+        }
+        std::cout << "rt-app terrain: ground-fill quads=" << fillQuads
+                  << " drop=" << kFillDrop << " step=" << kFillStep << "\n";
+    }
     {
         // Height diagnostic (diagnosed the under-town camera, 2026-10-17):
         // overall y range plus the plaza area around the town anchor
