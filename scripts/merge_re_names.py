@@ -22,15 +22,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TOML = ROOT / "config" / "game_symbols.toml"
 BATCHES = sorted(ROOT.glob("build/scratch/re-loop/named_batch*.jsonl"))
-NAME_RE = re.compile(r"^[a-z][A-Za-z0-9_]*$")
+# Valid C identifier (SDK/libgcc names like DIntr, _InitSys, __udivdi3 are correct
+# as-is; Ghidra accepts them verbatim).
+NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 def existing_addrs_and_names(text: str) -> tuple[set[str], set[str]]:
     addrs, names = set(), set()
-    for m in re.finditer(r"^(0x[0-9A-Fa-f]{6,8})\s*=\s*\{\s*name\s*=\s*\"([^\"]+)\"",
-                        text, re.M):
-        addrs.add(m.group(1).lower())
-        names.add(m.group(2))
+    section = ""
+    for line in text.splitlines():
+        s = line.strip()
+        if s.startswith("["):
+            section = s
+            continue
+        if section != "[functions]":
+            continue  # [data] entries must not block naming the same address as a function
+        m = re.match(r"(0x[0-9A-Fa-f]{6,8})\s*=\s*\{\s*name\s*=\s*\"([^\"]+)\"", s)
+        if m:
+            addrs.add(m.group(1).lower())
+            names.add(m.group(2))
     return addrs, names
 
 
