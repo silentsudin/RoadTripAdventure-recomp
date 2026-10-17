@@ -14,27 +14,26 @@ using gameplay::kFrameHeight;
 using gameplay::kFrameWidth;
 using gameplay::kFrameYOffset;
 
-// Bright-rim boxes from the header table. Width/height are inclusive scanout
-// spans converted by /2 (x) and 1:1 (y): 1189-866+1 = 324 scanout = 162 UI;
-// 400-268+1 = 133; 843-456+1 = 388 scanout = 194 UI; 276-168+1 = 109.
+// Main-menu values are UI640 placement values from menu-calibration.md §4.
 constexpr float kMainX = 433.f;
-constexpr float kMainY = 268.f;
+constexpr float kMainY = 272.f;
 constexpr float kMainW = 162.f;
-constexpr float kMainH = 133.f;
+constexpr float kMainH = 143.f;
 constexpr float kOptX = 228.f;
 constexpr float kOptY = 168.f;
 constexpr float kOptW = 194.f;
 constexpr float kOptH = 109.f;
-constexpr float kRowPitch = 24.f;
+constexpr float kRowPitch = 25.8f;
 constexpr float kRowInsetY = 6.f;
-constexpr float kRowH = 24.f;       // measured cap span is 25; T1
+constexpr float kRowH = 26.5f;
 constexpr float kTextInsetX = 29.f; // 58 scanout px / 2
+constexpr float kSelectedTextInsetX = 23.f;
 constexpr float kRim = 2.f;         // 4 scanout px of bright rim / 2
-// Menu bitmap advance measured ~12.2 UI px/char vs FONTE's 16. 0.75 keeps
-// "Sound Volume" inside the options panel. GAP: not the race-HUD full cell.
-constexpr float kMenuGlyphScale = 0.75f;
-// Copyright ink is ~6.2 UI px/char (scanout span 323 over the painted line).
-constexpr float kSmallGlyphScale = 0.40f;
+constexpr float kMenuGlyphScaleX = 0.77f;
+constexpr float kMenuGlyphScaleY = 1.0f;
+constexpr float kSmallGlyphScaleX = 0.40f;
+constexpr float kSmallGlyphScaleY = 0.44f;
+constexpr float kHornHeight = 24.f;
 
 constexpr std::array<float, 4> kWhite{1.f, 1.f, 1.f, 1.f};
 // main_menu.png audit (1280x447): selected row x=870..1185, y=274..297.
@@ -42,8 +41,10 @@ constexpr std::array<float, 4> kWhite{1.f, 1.f, 1.f, 1.f};
 // edge (920,275)=(211,93,32), and gold highlight (920,274)=(232,146,11).
 constexpr std::array<float, 4> kMenuSelectionFrame{211.f / 255.f, 93.f / 255.f, 32.f / 255.f, 1.f};
 constexpr std::array<float, 4> kMenuSelectionTop{0.f, 110.f / 255.f, 224.f / 255.f, 1.f};
-constexpr std::array<float, 4> kMenuSelectionBottom{0.f, 102.f / 255.f, 224.f / 255.f, 1.f};
+constexpr std::array<float, 4> kMenuSelectionMiddle{2.f / 255.f, 88.f / 255.f, 190.f / 255.f, 1.f};
+constexpr std::array<float, 4> kMenuSelectionBottom{10.f / 255.f, 60.f / 255.f, 150.f / 255.f, 1.f};
 constexpr std::array<float, 4> kMenuCapGold{232.f / 255.f, 146.f / 255.f, 11.f / 255.f, 1.f};
+constexpr std::array<float, 4> kMenuCapShine{246.f / 255.f, 242.f / 255.f, 224.f / 255.f, 1.f};
 // Main-menu label cores: selected Adventure at (972,280) is (244,244,244);
 // unselected Quick Race at (1068,309) is (246,246,246). The panel's exact
 // body sample is (48,64,144) at (900,305); kUiPrompt retains its documented
@@ -52,10 +53,19 @@ constexpr std::array<float, 4> kMenuInk{246.f / 255.f, 246.f / 255.f, 246.f / 25
 constexpr std::array<float, 4> kMenuSelectedInk{244.f / 255.f, 244.f / 255.f, 244.f / 255.f, 1.f};
 // title.png (100, 10). GAP: flat stand-in for the 3D sky.
 constexpr std::array<float, 4> kSky{43.f / 255.f, 154.f / 255.f, 216.f / 255.f, 1.f};
+constexpr std::array<float, 4> kBandNavy{7.f / 255.f, 13.f / 255.f, 93.f / 255.f, 1.f};
+constexpr std::array<float, 4> kBandStripe{244.f / 255.f, 193.f / 255.f, 10.f / 255.f, 1.f};
+constexpr std::array<float, 4> kBandStripeEdge{211.f / 255.f, 166.f / 255.f, 10.f / 255.f, 1.f};
+constexpr std::array<float, 4> kBandShoulder{95.f / 255.f, 88.f / 255.f, 55.f / 255.f, 1.f};
+constexpr std::array<float, 4> kBandGrass{2.f / 255.f, 125.f / 255.f, 42.f / 255.f, 1.f};
+constexpr std::array<float, 4> kEnterRimOuter{158.f / 255.f, 213.f / 255.f, 230.f / 255.f, 1.f};
+constexpr std::array<float, 4> kEnterRimInner{17.f / 255.f, 159.f / 255.f, 232.f / 255.f, 1.f};
+constexpr std::array<float, 4> kEnterInk{220.f / 255.f, 114.f / 255.f, 88.f / 255.f, 1.f};
+constexpr std::array<float, 4> kEnterIcon{30.f / 255.f, 30.f / 255.f, 40.f / 255.f, 1.f};
 // title.png plate sample (500, 120).
 constexpr std::array<float, 4> kPlate{212.f / 255.f, 201.f / 255.f, 177.f / 255.f, 1.f};
 // Lower-edge gray of title.png (column scans y=431..446).
-constexpr std::array<float, 4> kRoad{129.f / 255.f, 128.f / 255.f, 128.f / 255.f, 1.f};
+constexpr std::array<float, 4> kRoad{125.f / 255.f, 125.f / 255.f, 125.f / 255.f, 1.f};
 
 // config/game_symbols.toml:168, docs/native-2d.md:48, oracle-golden-frames.md:31.
 constexpr const char* kPressStart = "PRESS START BUTTON";
@@ -123,11 +133,11 @@ void addWindowTexture(std::vector<ScreenQuad>& out, int w, int h, const PreviewT
 // fonteTextQuads uses. Cell size is scaled; the race HUD uses a full cell
 // because those placements were measured for 16x24. Menu bitmap metrics are
 // narrower (header table). Space advances and emits nothing.
-void appendText(std::vector<HudQuad>& out, const char* text, float uiX, float uiY, float glyphScale,
+void appendText(std::vector<HudQuad>& out, const char* text, float uiX, float uiY, float scaleX, float scaleY,
                 const std::array<float, 4>& color, const Map& m) {
     if (!text) return;
-    const float cw = static_cast<float>(rt::native::assets::kGlyphCellWidth) * glyphScale;
-    const float ch = static_cast<float>(rt::native::assets::kGlyphCellHeight) * glyphScale;
+    const float cw = static_cast<float>(rt::native::assets::kGlyphCellWidth) * scaleX;
+    const float ch = static_cast<float>(rt::native::assets::kGlyphCellHeight) * scaleY;
     float x = uiX;
     for (const char* p = text; *p; ++p) {
         const int slot = rt::native::assets::fonteSlotForChar(*p);
@@ -140,9 +150,9 @@ void appendText(std::vector<HudQuad>& out, const char* text, float uiX, float ui
     }
 }
 
-float textWidth(const char* text, float glyphScale) {
+float textWidth(const char* text, float scaleX) {
     if (!text) return 0.f;
-    const float cw = static_cast<float>(rt::native::assets::kGlyphCellWidth) * glyphScale;
+    const float cw = static_cast<float>(rt::native::assets::kGlyphCellWidth) * scaleX;
     float n = 0.f;
     for (const char* p = text; *p; ++p) n += 1.f;
     return n * cw;
@@ -156,14 +166,20 @@ int clampFocus(int index, int count) {
 void addBackdrop(std::vector<ScreenQuad>& out, const Map& m, int w, int h) {
     // Full window so the 16:9 letterbox is the same sky, not the clear color.
     addWindowRect(out, 0.f, 0.f, static_cast<float>(w), static_cast<float>(h), kSky);
-    // Road band under the plate. UI y 250..448, gray measured at the frame bottom.
-    addRect(out, m, 0.f, 250.f, kFrameWidth, 198.f, kRoad);
+    addRect(out, m, 0.f, 165.f, kFrameWidth, 41.f, kBandNavy);
+    addRect(out, m, 0.f, 209.f, kFrameWidth, 19.f, kBandStripe);
+    addRect(out, m, 0.f, 209.f, kFrameWidth, 1.f, kBandStripeEdge);
+    addRect(out, m, 0.f, 227.f, kFrameWidth, 1.f, kBandStripeEdge);
+    addRect(out, m, 0.f, 228.f, kFrameWidth, 11.f, kBandShoulder);
+    // Road precedes the grass so the field is composited above it.
+    addRect(out, m, 0.f, 247.f, kFrameWidth, 201.f, kRoad);
+    addRect(out, m, 0.f, 239.f, 139.f, 97.f, kBandGrass);
     // Plate card. AABB of the tilted license plate (header table). Gold rim is
     // Theme.h Gold, standing in for the yellow halo. GAP: not the plate texture.
     constexpr float plateX = 57.f;
-    constexpr float plateY = 38.f;
+    constexpr float plateY = 25.f;
     constexpr float plateW = 493.f;
-    constexpr float plateH = 181.f;
+    constexpr float plateH = 194.f;
     addRect(out, m, plateX - 8.f, plateY - 8.f, plateW + 16.f, plateH + 16.f, kUiCapGold);
     addRect(out, m, plateX, plateY, plateW, plateH, kPlate);
 }
@@ -176,18 +192,38 @@ void addPanel(std::vector<ScreenQuad>& out, const Map& m, float x, float y, floa
     addRect(out, m, x + kRim, y + kRim, w - 2.f * kRim, h - 2.f * kRim, kUiPrompt);
 }
 
+void addEnterButton(std::vector<ScreenQuad>& out, std::vector<HudQuad>& text, const Map& m) {
+    constexpr float x = 423.f;
+    constexpr float y = 37.7f;
+    constexpr float w = 193.5f;
+    constexpr float h = 39.7f;
+    addRect(out, m, x, y, w, h, kEnterRimOuter);
+    addRect(out, m, x + 1.f, y + 1.f, w - 2.f, h - 2.f, kEnterRimInner);
+    addRect(out, m, x + 2.f, y + 2.f, w - 4.f, h - 4.f, kUiPrompt);
+    addRect(out, m, 432.f, 47.f, 21.f, 24.f, kEnterIcon);
+    appendText(text, "button Enter", 460.f, 54.f, 0.45f, 0.5f, kEnterInk, m);
+}
+
 void addSelection(std::vector<ScreenQuad>& out, const Map& m, float x, float y, float w, float h) {
-    // selectionBar (Theme.cpp:212-227): orange edge, two-tone blue, gold cap.
-    // The main_menu oracle measurements above supersede the Theme stand-ins.
     // GAP: rounded capsule is an axis-aligned rect (ScreenQuad has no radii).
-    addRect(out, m, x, y, w, h, kMenuSelectionFrame);
-    const float in = 1.f;
-    const float mid = h * 0.5f;
-    addRect(out, m, x + in, y + in, w - 2.f * in, mid - in, kMenuSelectionTop);
-    addRect(out, m, x + in, y + mid, w - 2.f * in, h - mid - in, kMenuSelectionBottom);
-    const float cap = h * 0.55f; // Theme.cpp:225
-    addRect(out, m, x + w - cap, y, cap, h, kMenuCapGold);
-    addRect(out, m, x + w - cap * 0.8f, y + 2.f, cap * 0.45f, h * 0.3f, kUiCapShine);
+    const float bodyY = y + 2.f;
+    const float bodyH = h - 4.f;
+    const float bodyX = x + 1.f;
+    const float bodyW = w - 2.f;
+    const float topH = bodyH * 0.30f;
+    const float middleH = bodyH * 0.35f;
+    addRect(out, m, bodyX, bodyY, bodyW, topH, kMenuSelectionTop);
+    addRect(out, m, bodyX, bodyY + topH, bodyW, middleH, kMenuSelectionMiddle);
+    addRect(out, m, bodyX, bodyY + topH + middleH, bodyW, bodyH - topH - middleH, kMenuSelectionBottom);
+    constexpr float capW = 8.f;
+    addRect(out, m, x + w - capW, bodyY, capW, bodyH, kMenuCapGold);
+    addRect(out, m, x + w - 6.4f, y + (h - 6.f) * 0.5f, 3.6f, 6.f, kMenuCapShine);
+    addRect(out, m, x, y, w, 1.f, kMenuCapGold);
+    addRect(out, m, x, y + 1.f, w, 1.f, kMenuSelectionFrame);
+    addRect(out, m, x, y + h - 2.f, w, 1.f, kMenuSelectionFrame);
+    addRect(out, m, x, y + h - 1.f, w, 1.f, kMenuCapGold);
+    addRect(out, m, x, y + 2.f, 1.f, h - 4.f, kMenuSelectionFrame);
+    addRect(out, m, x + w - 1.f, y + 2.f, 1.f, h - 4.f, kMenuSelectionFrame);
 }
 
 void addHorn(std::vector<ScreenQuad>& out, const Map& m, float tipX, float centerY, float height) {
@@ -204,26 +240,24 @@ void addHorn(std::vector<ScreenQuad>& out, const Map& m, float tipX, float cente
 }
 
 void addRowText(std::vector<HudQuad>& text, const Map& m, const char* const* labels, int count,
-                float panelX, float panelY, int focus) {
-    const float glyphH = static_cast<float>(rt::native::assets::kGlyphCellHeight) * kMenuGlyphScale;
-    const float textYOffset = (kRowH - glyphH) * 0.5f;
+                 float panelX, float panelY, int focus) {
     for (int i = 0; i < count; ++i) {
         const float rowY = panelY + kRowInsetY + static_cast<float>(i) * kRowPitch;
-        appendText(text, labels[i], panelX + kTextInsetX, rowY + textYOffset, kMenuGlyphScale,
-                   i == focus ? kMenuSelectedInk : kMenuInk, m);
+        const float textX = panelX + (i == focus ? kSelectedTextInsetX : kTextInsetX);
+        appendText(text, labels[i], textX, rowY + 4.3f, kMenuGlyphScaleX, kMenuGlyphScaleY,
+                    i == focus ? kMenuSelectedInk : kMenuInk, m);
     }
 }
 
 void addTitleCardText(std::vector<HudQuad>& text, const Map& m, bool pressVisible) {
-    const float pubW = textWidth(kPublisher, kSmallGlyphScale);
-    appendText(text, kPublisher, (kFrameWidth - pubW) * 0.5f, 156.f, kSmallGlyphScale, kWhite, m);
+    appendText(text, kPublisher, 321.f, 212.f, 0.45f, 0.55f, kWhite, m);
     if (pressVisible) {
         // Centered over the road, inside the measured ink band y 236..257.
-        const float w = textWidth(kPressStart, kMenuGlyphScale);
-        appendText(text, kPressStart, (kFrameWidth - w) * 0.5f, 240.f, kMenuGlyphScale, kUiFrame, m);
+        const float w = textWidth(kPressStart, kMenuGlyphScaleX);
+        appendText(text, kPressStart, (kFrameWidth - w) * 0.5f, 240.f,
+                   kMenuGlyphScaleX, kMenuGlyphScaleY, kUiFrame, m);
     }
-    // Measured ink starts at scanout x=904 → UI 452, y=422.
-    appendText(text, kCopyright, 452.f, 422.f, kSmallGlyphScale, kWhite, m);
+    appendText(text, kCopyright, 452.f, 436.f, kSmallGlyphScaleX, kSmallGlyphScaleY, kWhite, m);
 }
 
 bool valid(int w, int h) { return w > 0 && h > 0; }
@@ -260,12 +294,13 @@ UiScreen buildMainMenu(int w, int h, int focusIndex, const PreviewTexture* backd
     const int focus = clampFocus(focusIndex, kMainMenuRowCount);
     addWindowTexture(screen.quads, w, h, backdrop);
     addBackdrop(screen.quads, m, w, h);
+    addEnterButton(screen.quads, screen.text, m);
     addPanel(screen.quads, m, kMainX, kMainY, kMainW, kMainH);
     const float rowY = kMainY + kRowInsetY + static_cast<float>(focus) * kRowPitch;
-    const float barX = kMainX + kRim;
-    const float barW = kMainW - 2.f * kRim;
+    const float barX = kMainX + 24.f;
+    constexpr float barW = 138.5f;
     addSelection(screen.quads, m, barX, rowY, barW, kRowH);
-    addHorn(screen.quads, m, barX, rowY + kRowH * 0.5f, kRowH);
+    addHorn(screen.quads, m, 461.f, rowY + kRowH * 0.5f, kHornHeight);
     addTitleCardText(screen.text, m, false);
     addRowText(screen.text, m, kMainLabels, kMainMenuRowCount, kMainX, kMainY, focus);
     return screen;
@@ -282,14 +317,15 @@ UiScreen buildOptionsScreen(int w, int h, int focusIndex, const PreviewTexture* 
     const int focus = clampFocus(focusIndex, kOptionsRowCount);
     addWindowTexture(screen.quads, w, h, backdrop);
     addBackdrop(screen.quads, m, w, h);
+    addEnterButton(screen.quads, screen.text, m);
     // The golden keeps the title menu up, cursor on Options (index 3).
     addPanel(screen.quads, m, kMainX, kMainY, kMainW, kMainH);
     constexpr int kOptionsOnMainMenu = 3;
     const float mainRowY = kMainY + kRowInsetY + static_cast<float>(kOptionsOnMainMenu) * kRowPitch;
-    const float mainBarX = kMainX + kRim;
-    const float mainBarW = kMainW - 2.f * kRim;
+    const float mainBarX = kMainX + 24.f;
+    constexpr float mainBarW = 138.5f;
     addSelection(screen.quads, m, mainBarX, mainRowY, mainBarW, kRowH);
-    addHorn(screen.quads, m, mainBarX, mainRowY + kRowH * 0.5f, kRowH);
+    addHorn(screen.quads, m, 461.f, mainRowY + kRowH * 0.5f, kHornHeight);
 
     addPanel(screen.quads, m, kOptX, kOptY, kOptW, kOptH);
     const float rowY = kOptY + kRowInsetY + static_cast<float>(focus) * kRowPitch;

@@ -124,6 +124,32 @@ std::uint32_t findMem(const VkPhysicalDeviceMemoryProperties& p, std::uint32_t b
         if ((bits & (1u << i)) && (p.memoryTypes[i].propertyFlags & f) == f) return i;
     return 0xFFFFFFFFu;
 }
+
+// Screen row (px, y down) of the eye-level horizon: where a level ground
+// plane at the camera's datum meets infinity, i.e. the row the rendered
+// ground starts at. Extracts the eye and the flattened view forward from
+// the column-major view matrix actually consumed by the renderer
+// (view[c*4+r] = m[r][c], the app's terrain-following lift included) and
+// projects a distant point at eye height through proj*view. Returns < 0
+// when the matrix is degenerate.
+float eyeLevelRow(const float view[16], const float proj[16], std::uint32_t H) {
+    float eye[3];
+    for (int c = 0; c < 3; ++c)
+        eye[c] = -(view[c * 4 + 0] * view[12] + view[c * 4 + 1] * view[13] + view[c * 4 + 2] * view[14]);
+    float fx = -view[2], fz = -view[10];  // camera forward (-Z row), flattened to horizontal
+    const float len = std::sqrt(fx * fx + fz * fz);
+    if (len < 1e-6f) return -1.f;
+    fx /= len; fz /= len;
+    constexpr float kFar = 4000.f;  // render units; beyond farZ, projection arithmetic only
+    const float p[3] = {eye[0] + fx * kFar, eye[1], eye[2] + fz * kFar};
+    float v4[4], clip[4];
+    for (int r = 0; r < 4; ++r)
+        v4[r] = view[r] * p[0] + view[4 + r] * p[1] + view[8 + r] * p[2] + view[12 + r];
+    for (int r = 0; r < 4; ++r)
+        clip[r] = proj[r] * v4[0] + proj[4 + r] * v4[1] + proj[8 + r] * v4[2] + proj[12 + r];
+    if (clip[3] <= 0.f) return -1.f;
+    return (clip[1] / clip[3] * 0.5f + 0.5f) * static_cast<float>(H);
+}
 } // namespace
 
 struct Renderer {
@@ -560,6 +586,47 @@ static bool growBuffer(Renderer& R, std::string& error, VkDeviceSize need, VkBuf
     return true;
 }
 
+namespace {
+// One horizontal slice of the calibrated sky ramp: a Vulkan NDC y range
+// (y down, viewport top = -1) with the colours at each edge. The UI
+// pipeline's linear colour interpolation supplies the in-band fill, so one
+// band per calibrated stop segment reproduces the piecewise-linear ramp.
+struct SkyBand {
+    float y0, y1;
+    std::array<float, 4> c0, c1;
+};
+
+// Draws the sky bands first in the scene pass through the flat UI pipeline
+// (NDC quads, no depth test/write, no fog), so every scene draw rasterizes
+// over them. Reuses the UI vertex buffer: the 2D pass runs in its own
+// queue-idle-separated submission, never inside the scene command buffer.
+bool drawSkyBands(Renderer& R, VkCommandBuffer cmd, std::string& error, const std::vector<SkyBand>& bands) {
+    struct BandVertex { float x, y, r, g, b, a; };  // UI pipeline layout (24 B)
+    std::vector<BandVertex> v;
+    v.reserve(bands.size() * 6);
+    for (const SkyBand& b : bands) {
+        if (b.y1 <= b.y0) continue;
+        const BandVertex a{-1.f, b.y0, b.c0[0], b.c0[1], b.c0[2], b.c0[3]};
+        const BandVertex c{ 1.f, b.y0, b.c0[0], b.c0[1], b.c0[2], b.c0[3]};
+        const BandVertex d{-1.f, b.y1, b.c1[0], b.c1[1], b.c1[2], b.c1[3]};
+        const BandVertex e{ 1.f, b.y1, b.c1[0], b.c1[1], b.c1[2], b.c1[3]};
+        v.insert(v.end(), {a, e, c, a, d, e});  // same triangulation as previewRender2D
+    }
+    if (v.empty()) return true;
+    const VkDeviceSize vbSize = v.size() * sizeof(BandVertex);
+    if (!growBuffer(R, error, vbSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, R.uiVb, R.uiVbm, R.uiVbCap)) return false;
+    void* p;
+    VK_TRY(vkMapMemory(R.dev, R.uiVbm, 0, vbSize, 0, &p), "vkMapMemory(sky)");
+    std::memcpy(p, v.data(), vbSize);
+    vkUnmapMemory(R.dev, R.uiVbm);
+    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.uiPipe);
+    VkDeviceSize off = 0;
+    vkCmdBindVertexBuffers(cmd, 0, 1, &R.uiVb, &off);
+    vkCmdDraw(cmd, static_cast<std::uint32_t>(v.size()), 1, 0, 0);
+    return true;
+}
+} // namespace
+
 struct SceneVertex { float x, y, z, r, g, b; };
 
 static bool renderGeometry(Renderer* Rp, const std::vector<SceneVertex>& vertices,
@@ -567,7 +634,8 @@ static bool renderGeometry(Renderer* Rp, const std::vector<SceneVertex>& vertice
                            const float clear[4], const float fog[4], std::vector<std::uint8_t>& rgbaOut,
                            std::string& error,
                            const std::vector<SceneVertex>* overlayV = nullptr,
-                           const std::vector<std::uint32_t>* overlayI = nullptr) {
+                           const std::vector<std::uint32_t>* overlayI = nullptr,
+                           const std::vector<SkyBand>* skyBands = nullptr) {
     if (!Rp) { error = "null renderer"; return false; }
     Renderer& R = *Rp;
     const std::uint32_t W = R.W, H = R.H;
@@ -626,6 +694,7 @@ static bool renderGeometry(Renderer* Rp, const std::vector<SceneVertex>& vertice
     rbi.renderPass = R.rp; rbi.framebuffer = R.fb; rbi.renderArea = {{0, 0}, {W, H}};
     rbi.clearValueCount = 2; rbi.pClearValues = clears;
     vkCmdBeginRenderPass(cmd, &rbi, VK_SUBPASS_CONTENTS_INLINE);
+    if (skyBands && !skyBands->empty() && !drawSkyBands(R, cmd, error, *skyBands)) return false;
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.pipe);
     VkDeviceSize off = 0;
     vkCmdBindVertexBuffers(cmd, 0, 1, &R.vb, &off);
@@ -795,7 +864,8 @@ bool renderGeometryTextured(Renderer* Rp, const std::vector<SceneVertex>& flatV,
                            const float* viewIn, const float* projIn, const float clear[4], const float fog[4],
                            std::vector<std::uint8_t>& rgbaOut, std::string& error,
                            const std::vector<SceneVertex>* overlayV = nullptr,
-                           const std::vector<std::uint32_t>* overlayI = nullptr) {
+                           const std::vector<std::uint32_t>* overlayI = nullptr,
+                           const std::vector<SkyBand>* skyBands = nullptr) {
     if (!Rp) { error = "null renderer"; return false; }
     Renderer& R = *Rp;
     const std::uint32_t W = R.W, H = R.H;
@@ -837,6 +907,7 @@ bool renderGeometryTextured(Renderer* Rp, const std::vector<SceneVertex>& flatV,
     rbi.renderPass = R.rp; rbi.framebuffer = R.fb; rbi.renderArea = {{0, 0}, {W, H}};
     rbi.clearValueCount = 2; rbi.pClearValues = clears;
     vkCmdBeginRenderPass(cmd, &rbi, VK_SUBPASS_CONTENTS_INLINE);
+    if (skyBands && !skyBands->empty() && !drawSkyBands(R, cmd, error, *skyBands)) return false;
     vkCmdPushConstants(cmd, R.pl, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, 144, pc);
     if (!flatI.empty()) {
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, R.pipe);
@@ -1038,6 +1109,54 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     // * 0.1). The pure selector also preserves the legacy dark clear for an
     // uninitialized FrameSnapshot, which keeps no-asset/default launches safe.
     const SceneLighting lighting = selectSceneLighting(s.lighting);
+    // Vertical sky gradient for the 3D driving scenes (town/race), replacing
+    // the flat clear blend where scene-appropriate. Title/menu/attract never
+    // reach this path (they render ui_menu quads through previewRender2D).
+    // The ramp is anchored bottom at the currently rendered ground line
+    // (eyeLevelRow over the consumed view/proj, so camera pitch and the app's
+    // terrain-following lift are tracked), not at the oracle's uiY mapping.
+    std::vector<SkyBand> skyBands;
+    std::array<float, 4> clear = lighting.clear;
+    if (lighting.enabled && r) {
+        // Race vs town: GameSession owns one raceMode=true loop for both
+        // explore and race (session.cpp), so timing fields like
+        // elapsedFrames cannot discriminate. Explore drives through
+        // tickPlayer, which never wraps waypoints: completed laps / a
+        // finished flag are the only explore-impossible race signals in the
+        // snapshot (game_loop.cpp:107-113). Early race frames therefore
+        // render the town ramp; see S1-report.md.
+        const bool raceScene = s.lap > 0 || s.finished;
+        const SkyStop* const stops = raceScene ? kRaceSkyStops : kTownSkyStops;
+        const std::size_t stopCount = raceScene ? sizeof(kRaceSkyStops) / sizeof(kRaceSkyStops[0])
+                                                : sizeof(kTownSkyStops) / sizeof(kTownSkyStops[0]);
+        const float groundY = eyeLevelRow(s.view, s.proj, r->H);
+        if (groundY > 1.f && groundY < 2.f * static_cast<float>(r->H)) {
+            // Day-weight gate mirrors blendClearToOracleSky: the calibrated
+            // ramp is a day look; dusk/night keep the computed flat clear.
+            const float t = std::clamp(s.lighting.dayWeight, 0.f, 1.f);
+            const auto blend = [&](const std::array<float, 4>& c) {
+                std::array<float, 4> o{};
+                for (int i = 0; i < 4; ++i) o[i] = lighting.clear[i] * (1.f - t) + c[i] * t;
+                return o;
+            };
+            // uiY -> NDC: stop heights are fractions of the calibrated sky
+            // span (uiY / kSkyHorizonUiY) mapped onto [viewport top,
+            // groundY] px, then to Vulkan NDC (y down, top = -1).
+            const float ndcPerUiY = groundY / kSkyHorizonUiY / static_cast<float>(r->H) * 2.f;
+            const auto ndcOf = [ndcPerUiY](float uiY) { return uiY * ndcPerUiY - 1.f; };
+            for (std::size_t i = 0; i + 1 < stopCount; ++i)
+                skyBands.push_back({ndcOf(stops[i].uiY0), ndcOf(stops[i].uiY1),
+                                    blend(stops[i].rgba), blend(stops[i + 1].rgba)});
+            // The final stop holds its colour to the horizon row.
+            const std::array<float, 4> horizon = blend(stops[stopCount - 1].rgba);
+            skyBands.push_back({ndcOf(stops[stopCount - 1].uiY0), ndcOf(stops[stopCount - 1].uiY1),
+                                horizon, horizon});
+            // Below the horizon the terrain owns the frame; where it does
+            // not reach (beyond the tile slab) keep the horizon colour so
+            // no seam shows against the gradient.
+            clear = horizon;
+        }
+    }
         if (!textured) {
         if (std::getenv("RT_APP_DEBUG_OVERLAY") && !overlayV.empty()) {
             Mat pm, vm;
@@ -1066,8 +1185,8 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
                          overlayV.size(), wpos, vis, vis ? vxmin : 0.f, vis ? vxmax : 0.f,
                          vis ? vymin : 0.f, vis ? vymax : 0.f);
         }
-        return renderGeometry(r, vertices, indices, s.view, s.proj, lighting.clear.data(), lighting.fog.data(), rgbaOut, error,
-                             &overlayV, &overlayI);
+        return renderGeometry(r, vertices, indices, s.view, s.proj, clear.data(), lighting.fog.data(), rgbaOut, error,
+                              &overlayV, &overlayI, &skyBands);
     }
     // Authentic-texture path: terrain triangles draw through the textured
     // pipeline, page-batched (one indexed draw per decoded page); everything
@@ -1132,7 +1251,8 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
         }
     }
     return renderGeometryTextured(r, vertices, flatI, texV, texI, ranges, s.view, s.proj,
-                                  lighting.clear.data(), lighting.fog.data(), rgbaOut, error, &overlayV, &overlayI);
+                                  clear.data(), lighting.fog.data(), rgbaOut, error, &overlayV, &overlayI,
+                                  &skyBands);
 }
 
 struct UiVertex { float x, y, r, g, b, a; };

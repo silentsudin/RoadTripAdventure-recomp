@@ -76,4 +76,34 @@ inline SceneLighting selectSceneLighting(const gameplay::DayNightOutput& lightin
     return selected;
 }
 
+// ---- Sky gradient calibration (sky-ground-calibration.md §3) ------------
+// Vertical sky stops measured on the oracle goldens' open-sky columns
+// (§1.3 town x=320, §1.4 race x=1240): {uiY0, uiY1, RGBA} in 480-line UI
+// space, y down from the viewport top. The fill interpolates linearly
+// between consecutive stops and the final stop holds its colour to uiY1
+// (the measured horizon row). These are DAY measurements; the day-weight
+// gate of blendClearToOracleSky applies (see previewRenderScene).
+struct SkyStop {
+    float uiY0, uiY1;
+    std::array<float, 4> rgba;
+};
+
+// Horizon uiY: town transition 80->81 px / 0.93125 (§1.3), race 80->81 (§1.4).
+inline constexpr float kSkyHorizonUiY = 87.0f;
+
+// residual 5.53/255 (§3 town)
+inline constexpr SkyStop kTownSkyStops[] = {
+    {  0.0f, 73.0f, {  12.f / 255.f, 121.f / 255.f, 253.f / 255.f, 1.f } },
+    { 73.0f, 85.9f, {  16.f / 255.f, 124.f / 255.f, 253.f / 255.f, 1.f } },
+    { 85.9f, 87.0f, {   1.f / 255.f, 113.f / 255.f, 248.f / 255.f, 1.f } },
+};
+
+// residual 3.60/255 (§3 race)
+inline constexpr SkyStop kRaceSkyStops[] = {
+    {  0.0f, 56.9f, {  34.f / 255.f, 133.f / 255.f, 253.f / 255.f, 1.f } },
+    { 56.9f, 74.1f, {  42.f / 255.f, 137.f / 255.f, 253.f / 255.f, 1.f } },
+    { 74.1f, 85.9f, {  71.f / 255.f, 153.f / 255.f, 253.f / 255.f, 1.f } },
+    { 85.9f, 87.0f, { 115.f / 255.f, 176.f / 255.f, 249.f / 255.f, 1.f } },
+};
+
 }  // namespace rt::native::preview

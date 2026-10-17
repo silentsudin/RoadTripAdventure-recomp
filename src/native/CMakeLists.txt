@@ -100,7 +100,15 @@ foreach(_rt_staged_source
         assets/course_props.cpp assets/car_models.cpp assets/glyph_atlas.cpp assets/hd_pack.cpp
         gameplay/rules_tables.cpp gameplay/hud_layout.cpp gameplay/glyphs.cpp
         gameplay/settings.cpp gameplay/map_view.cpp
-        app/output_modes.cpp)
+        app/output_modes.cpp
+        # Wave-2 staged sources (coordinator Step 0; see .qoder/wave2-plan-sonnet.md §0).
+        # EXISTS-guarded: absent files are harmless until their batch lands.
+        assets/script_image.cpp assets/price_tables.cpp gameplay/script_vm.cpp
+        gameplay/app_flow.cpp gameplay/vehicle_model.cpp gameplay/terrain_query.cpp
+        gameplay/race_rules.cpp gameplay/economy.cpp gameplay/text_script.cpp
+        gameplay/save_v2.cpp audio/audio_runtime.cpp audio/sfx_table.cpp
+        audio/vag_stream.cpp gameplay/hud_live.cpp gameplay/minimap.cpp
+        gameplay/input_map.cpp gameplay/enhancements.cpp)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_rt_staged_source}")
         list(APPEND RT_NATIVE_ASSET_SOURCES "${_rt_staged_source}")
     endif()
@@ -180,6 +188,22 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tools/pack_extract_main.cpp")
     target_compile_options(rt-pack-extract PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 endif()
 
+# Wave-2 offline tools (coordinator Step 0 glob; see .qoder/wave2-plan-sonnet.md).
+# tools/w2_<name>_main.cpp -> rt-w2-<name>; links rt_native_assets only.
+file(GLOB RT_W2_TOOL_SOURCES CONFIGURE_DEPENDS
+     "${CMAKE_CURRENT_SOURCE_DIR}/tools/w2_*_main.cpp")
+foreach(_rt_w2_tool_source IN LISTS RT_W2_TOOL_SOURCES)
+    get_filename_component(_rt_w2_tool_we "${_rt_w2_tool_source}" NAME_WE)
+    string(REGEX REPLACE "^w2_" "" _rt_w2_tool_short "${_rt_w2_tool_we}")
+    if(_rt_w2_tool_short MATCHES "_main$")
+        string(REGEX REPLACE "_main$" "" _rt_w2_tool_short "${_rt_w2_tool_short}")
+    endif()
+    add_executable(rt-w2-${_rt_w2_tool_short} "${_rt_w2_tool_source}")
+    target_link_libraries(rt-w2-${_rt_w2_tool_short} PRIVATE rt_native_assets)
+    target_compile_features(rt-w2-${_rt_w2_tool_short} PRIVATE cxx_std_20)
+    target_compile_options(rt-w2-${_rt_w2_tool_short} PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+endforeach()
+
 # Optional offscreen Vulkan/MoltenVK preview (only when Vulkan is found).
 if(Vulkan_FOUND)
     add_executable(rt-asset-preview tools/preview_main.cpp preview/preview.cpp)
@@ -221,6 +245,19 @@ endif()
 option(RT_NATIVE_ASSETS_BUILD_TESTS
        "Build the synthetic native-asset contract tests as executables (not run)" OFF)
 if(RT_NATIVE_ASSETS_BUILD_TESTS)
+    # Wave-2 batch tests (coordinator Step 0 glob; see .qoder/wave2-plan-sonnet.md).
+    # tests/native_w2/<stem>_test.cpp -> executable w2_<stem> (stem keeps _test,
+    # so targets read w2_script_vm_test etc.). Synthesize nothing when empty.
+    file(GLOB RT_W2_TEST_SOURCES CONFIGURE_DEPENDS
+         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/*_test.cpp")
+    foreach(_rt_w2_test_source IN LISTS RT_W2_TEST_SOURCES)
+        get_filename_component(_rt_w2_test_we "${_rt_w2_test_source}" NAME_WE)
+        add_executable(w2_${_rt_w2_test_we} "${_rt_w2_test_source}")
+        target_link_libraries(w2_${_rt_w2_test_we} PRIVATE rt_native_assets)
+        target_compile_features(w2_${_rt_w2_test_we} PRIVATE cxx_std_20)
+        target_compile_options(w2_${_rt_w2_test_we} PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+    endforeach()
+
     add_executable(native_facade_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_native_facade.cpp")
     target_link_libraries(native_facade_test PRIVATE rt_native_assets)

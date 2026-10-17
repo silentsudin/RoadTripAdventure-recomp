@@ -34,31 +34,31 @@
 0x220D40 = { name = "drawSceneRace", note = "race courses (COURSE files, tile slot 2)" }
 0x220FE8 = { name = "drawSceneAction", note = "mini-game maps: locations 0x12 maze, 0x1C tunnel race, 0x20 curling" }
 0x21FB38 = { name = "drawFieldTiles", note = "8x8 cells of 200 units per tile quadrant, culled by drawCellVisible" }
-0x21FA38 = { name = "cellVisible", note = "frustum test of a 200-unit cell centre (likely)" }
-0x220030 = { name = "drawFieldTilesExtra", note = "each tile's 65th chain (water/far layer, likely)" }
+0x21FA38 = { name = "cellVisible", note = "four short-circuit calls to 0x21D0C0 on block offsets +0x100/+0x110/+0x140 with the same two float inputs; boolean result" }
+0x220030 = { name = "drawFieldTilesExtra", note = "four slot-gated vifSetBatchOffset/vifCallModel pairs; slot==0xB additionally walks 0x1A entries via 0x23DE30" }
 0x2228A8 = { name = "drawCarsField", note = "24 cars: shadow quads (ELF chain 0x290570), then drawCar with LOD" }
 0x222B70 = { name = "drawCarsAction", note = "drawCarsField for the mini-game maps" }
 0x221788 = { name = "drawCar", note = "one car: paint colours, body near/far LOD, parts, wheels" }
 0x222360 = { name = "drawCarExtraParts", note = "a car model's part A / part B chains (model header masks)" }
-0x2213E8 = { name = "drawCarWheelsMid", note = "guess: middle-distance wheels" }
-0x221570 = { name = "drawCarWheelsNear", note = "guess: near wheels with tyre detail" }
-0x221F70 = { name = "drawCarShowroom", note = "guess: a single car outside races (garage/shop)" }
+0x2213E8 = { name = "drawCarWheelsMid", note = "fixed-reg upload then 3 matrix/object-matrix/vifCallModel iterations; per-entry source advances 4 bytes" }
+0x221570 = { name = "drawCarWheelsNear", note = "colour upload, wheel-table lookup, and 4 iterations; each emits matrix plus two vifCallModel chains" }
+0x221F70 = { name = "drawCarShowroom", note = "model draw with flags 0x1000/0x2000/0x400, a 10-bit part loop, and repeated VU/VIF model emissions" }
 0x2232E8 = { name = "drawFieldProps", note = "32 placed objects from the tile's misc models (0x177F580)" }
-0x222F08 = { name = "drawRaceProps", note = "guess: race-course placed objects" }
+0x222F08 = { name = "drawRaceProps", note = "initial light/transform setup then 0x20 iterations over records at stride 0x40; each active record emits chain entry +0x270" }
 0x2234C8 = { name = "drawModelParts", note = "draws part A and/or B of a model (mask bit 0 / 1)" }
 0x2224F8 = { name = "drawArcRibbon", note = "rewrites vertices of the ELF chain 0x299430 every frame, then calls it" }
-0x225120 = { name = "drawCarEffects", note = "per-car effects by car flags (jets, wings, ...); guess" }
+0x225120 = { name = "drawCarEffects", note = "iterates 0x18 car records at stride 0x270; dispatches flag-selected effect callees 0x224068/0x2243E0/0x2246C0/0x224EC0 and repeated 0x2249B8" }
 0x225608 = { name = "drawSkyDome", note = "sky: ELF chain 0x290A40 (entry6), matrix through entry7" }
 0x2256A8 = { name = "drawSkyLayers", note = "sky layers: ELF chains 0x2962E0 / 0x298A50 (entry6)" }
 0x241D38 = { name = "drawCoins", note = "Choro Q coins (coin table 0x2A3970)" }
-0x223588 = { name = "drawCarShadow", note = "a car's shadow quad: colours (VU 0x18), object matrix, ELF chain 0x290570 (entry5); guess from its chain" }
-0x2238A0 = { name = "drawCarEffectA", note = "a car effect through ELF chain 0x290670 (called twice); sub-renderer of drawCarEffects, guess" }
-0x223B30 = { name = "drawCarEffectB", note = "a car effect through ELF chain 0x290770 (called twice); sub-renderer of drawCarEffects, guess" }
-0x244D60 = { name = "drawCarouselCells", note = "vifCallModel of one cell chain (0x177AB24 table); the carousel's course tiles, guess" }
-0x244F60 = { name = "drawCarouselCar", note = "car models of the carousel / select screens (0x177F478 table, carModels); guess" }
+0x223588 = { name = "drawCarShadow", note = "colour upload, object matrix, GS REGLIST (a3=9), then vifCallModel at 0x290570 (+0x570); shadow-quad path" }
+0x2238A0 = { name = "drawCarEffectA", note = "colour/matrix setup, GS REGLIST, and vifCallModel from 0x290670 (+0x670), emitted twice in the body" }
+0x223B30 = { name = "drawCarEffectB", note = "reflect/transform setup with mode branches 1/2/3/7, colour upload and GS REGLIST; model chain base 0x290770 (+0x770)" }
+0x244D60 = { name = "drawCarouselCells", note = "indexed cell packet: four vifDirect uploads plus scene-params/light/camera setup, batch-offset, and vifCallModel" }
+0x244F60 = { name = "drawCarouselCar", note = "indexed car packet: model/texture VIF uploads, car-table dispatch through 0x243468, and uiDrawText for the selection label" }
 0x22CC38 = { name = "drawModelAt177F358", note = "calls the model at 0x177F358 (+0x10); unknown scene" }
 0x25D028 = { name = "drawAnimatedProps", note = "dispatch over 0x2C43B0 to the prop renderers 0x25BE98..0x25D5F8" }
-0x2455C0 = { name = "drawCarouselScene", note = "likely: Quick Race course carousel (tile 1 cells)" }
+0x2455C0 = { name = "drawCarouselScene", note = "allocates packet area, builds 0x10 repeated carousel records, then calls 0x244078/0x243B38 and starts sound commands 0xA190201/0x258F30" }
 0x21F698 = { name = "buildCamera", note = "fills a 0x190-byte camera block (matrices at +0, +0x40, +0x80, +0xC0, +0x100)" }
 0x2261A0 = { name = "updateLightDirection", note = "light direction relative to the camera position (block + 0x180)" }
 0x225988 = { name = "updateTimeOfDayLight", note = "weights at 0x177F720 and fog from the clock (vblanks since midnight)" }
@@ -73,7 +73,7 @@
 0x20DC50 = { name = "loadRequestTask", note = "task: starts a load (busy 0x333370, request word 0x333374); sets drive flag 0x400000 (the loading blur) unless bit 0x100000" }
 0x20DDE0 = { name = "loadFontTextures", note = "reads SYS table entry 0 (FONT/FONTE.GSL) and sends its chain with TBP + 0x1A40" }
 0x20AEF0 = { name = "loadCarPartsSet", note = "SYS entries 1..4: EFFECT.GSL (absolute 16169..), CARS/PARTS (TBP + 0x1BC2), TIRE (+ 0x1C44), WHEEL (models only)" }
-0x20B348 = { name = "loadPoseSet", note = "SYS entry 9 (POSE.GSL) at TBP + 0x1D8E; model blob to 0x3FA780 (likely)" }
+0x20B348 = { name = "loadPoseSet", note = "mode-table loader rebases each chain address by TBP + 0x1D8E, reads through 0x20E1F0/0x207B50, and checks the 0x10-byte record marker" }
 0x20B5E8 = { name = "loadShopSet", note = "SHOP/Tnn (table 0x29B29C) and SYS entry 11; rebases 0x1F2E, 0x1CC6, 0x285E, 0x34BE (shop interiors: T8 640x384)" }
 0x20C188 = { name = "loadCourseTile", note = "COURSE/ACTION file (table 0x29BE50), like loadFieldTile; each misc model's chain rebased to TBP 0x2B26 + i * 0x44" }
 0x20AD18 = { name = "copyCarModel", note = "car slot a -> b: memmove of the model blob and a GS local-to-local copy (T8 128x128 + 16x16 CLUT) through the template 0x29AD90" }
@@ -110,7 +110,7 @@
 0x2000C8 = { name = "gsInitDisplay", note = "sceGsResetGraph(0,1,2,1) + two sceGsSetDefDBuffDc 640x224 CT32, Z24 (DAT_00333288 = 0)" }
 0x2008C0 = { name = "uiDrawSmallText", note = "10x20 small font (atlas v = 0xB4 + 20 * row)" }
 0x200A60 = { name = "uiDrawPadGlyph", note = "PS2 pad icons by pad mask: 1/2/4/8 = L2 R2 L1 R1 (24x12), 0x10/0x20/0x40/0x80 = triangle circle cross square (20x20)" }
-0x200DC0 = { name = "uiDrawIcon3", note = "three small icons (palette banks 2, 2, 5); guess" }
+0x200DC0 = { name = "uiDrawIcon3", note = "selector branches 0/1/2 into sprite-record construction; emits through uiSpriteWrite and advances the shared batch counter, capped at 0x9FC" }
 0x200FE8 = { name = "uiKanaGlyphUV", note = "Shift-JIS below 0x889F to atlas (u, v) of a 20x20 glyph" }
 0x2012F8 = { name = "uiKanjiGlyphUV", note = "Shift-JIS from 0x889F to atlas (u, v) of a 20x20 glyph" }
 0x201420 = { name = "uiDrawGlyphScaled", note = "one character scaled (sprite built in three parts)" }
@@ -130,8 +130,8 @@
 0x2039E8 = { name = "uiSetPaletteBank", note = "TEX2_1 entry: PSMT4, CBP 0x1BC0, CT16, CSA = bank, CLD 0 (cached in uiBatchPalette)" }
 0x203A50 = { name = "uiDebugText8", note = "8x8 debug font (21 callers, debug overlays)" }
 0x203B78 = { name = "uiDrawTime", note = "h:mm:ss.cc from frames (0x7FFFFFFF = dashes)" }
-0x203CD0 = { name = "uiDrawArrow", note = "small arrow icon (bank 0xD); guess" }
-0x203D90 = { name = "uiDrawBarWithArrow", note = "uiDrawBar3 plus uiDrawArrow; guess" }
+0x203CD0 = { name = "uiDrawArrow", note = "sets palette bank 0xD, subtracts 2 from y, and emits one 0xE0 by 0x26 sprite through uiSpriteWrite" }
+0x203D90 = { name = "uiDrawBarWithArrow", note = "calls uiDrawBar3 then emits the arrow sprite with bank 0xD and dimensions 0xE0 by 0x26" }
 0x203E70 = { name = "uiDrawIcon20", note = "20x20 icon n of the atlas row v = 0xB4" }
 0x203F40 = { name = "uiTextWidth", note = "width of a string from uiGlyphWidths (Japanese 20)" }
 0x203FC8 = { name = "uiDrawText", note = "string at (x, y2) with palette bank" }
@@ -143,9 +143,9 @@
 0x2045D0 = { name = "uiDrawTextScaled", note = "string with uiDrawGlyphScaled" }
 0x2046C0 = { name = "uiDrawNumberFixed", note = "16x20 digits, fixed digit count" }
 0x205350 = { name = "uiMenuWindow", note = "generic list window widget (panel, rows, scroll bar, cursor, open/close fade); 10 callers" }
-0x2058A8 = { name = "uiMenuAddItem", note = "guess: appends a row to a uiMenuWindow" }
-0x205C20 = { name = "uiMenuCreate", note = "guess: allocates a uiMenuWindow" }
-0x205C08 = { name = "uiMenuRun", note = "guess: calls uiMenuWindow" }
+0x2058A8 = { name = "uiMenuAddItem", note = "validates row count 0xF, updates item/scroll flags, stores the supplied row pointer at +0x10, and recomputes text widths" }
+0x205C20 = { name = "uiMenuCreate", note = "scans 7 pools of 0x30-byte slots, fatal on exhaustion, then initializes a 0x140 by 0x70 window and stores it at object +0x28" }
+0x205C08 = { name = "uiMenuRun", note = "tail-jumps to uiMenuWindow (0x205350) with a2=0" }
 0x2063C8 = { name = "uiSpriteWrite", note = "5 A+D entries of one sprite: CLAMP_1 region = atlas cell, UV, XYZ2, UV, XYZ2 (Z 0xFFFFFE)" }
 0x206040 = { name = "uiSpriteWriteWrap", note = "uiSpriteWrite with REPEAT / REGION_REPEAT wrap modes" }
 0x206650 = { name = "uiSpriteWriteZ", note = "uiSpriteWrite with an explicit Z" }
@@ -168,7 +168,7 @@
 0x208A88 = { name = "titlePressStart", note = "title picture scene (PRESS START BUTTON)" }
 0x209520 = { name = "titleNewGameContinue", note = "title menu scene (New Game / Continue)" }
 0x20DF50 = { name = "getExtraPacketArea", note = "returns 0x15A7B80 (fatal above 0x180000 bytes)" }
-0x21D470 = { name = "vu0TransformVerts", note = "VU0 macro code: project and clip vertices into GS packed form; guess" }
+0x21D470 = { name = "vu0TransformVerts", note = "VU0 macro stream: loads four input qwords from a1 offsets 0/0x10/0x20/0x30 and branches on input bits 8/0x18/0x1A/0x1B" }
 0x21D718 = { name = "gifBeginSpriteBatch", note = "6 qw header: TEST_1 0x5001B, ALPHA_1 0x44, TEX1_1 0x60, TEX0_1 = arg, CLAMP_1 5" }
 0x21D788 = { name = "gifSetTexRegs", note = "2 qw REGLIST TEX0_1 + CLAMP_1 (arena patches the second to TEX0_1)" }
 0x21D7B0 = { name = "gifSetTex0Tex2", note = "A+D pair TEX0_1 + TEX2_1" }
@@ -179,7 +179,7 @@
 0x21DB48 = { name = "gifAdPair", note = "one A+D write (tag 0x29CBC0): data, register" }
 0x21DBE0 = { name = "gifFlatRectTag", note = "linestrip A+D tag 0x29CC60 (unused path)" }
 0x22C3A8 = { name = "getShopPacketArea", note = "returns 0x1785FF0 (fatal above 0x1000 qw)" }
-0x22C648 = { name = "stampBookBuild", note = "guess: builds the stamp book packet (13 stamp sprites, hidden unless collected)" }
+0x22C648 = { name = "stampBookBuild", note = "allocates 0xC50 bytes, builds the stamp frame, and loops 0xD stamp records; collected-state checks hide sprites via uiHideSprite" }
 0x22AEB0 = { name = "shopScene", note = "shop room scene: GetShopPacketArea 0x37 qw backdrop + cars" }
 0x22DDD0 = { name = "raceHudTask", note = "race HUD task: allocates 0x8CB0 B from the extra buffer, spawns minimap and music; inferred" }
 0x2321B8 = { name = "raceHudInit", note = "initialises the HUD element states (one or two players)" }
@@ -208,7 +208,7 @@
 0x24F728 = { name = "uiArenaDataTag", note = "reserves 0x10: sprite data tag for n sprites" }
 0x24F7C8 = { name = "uiArenaSprites", note = "n sprites from 32-byte records, Z = 0xFFFFFF - (z + base)" }
 0x24F928 = { name = "uiArenaSpritesWrap", note = "uiArenaSprites with wrap modes, 40-byte records" }
-0x26C588 = { name = "creditsScene", note = "guess: ending credits packet (vifDirect 0x1772670, 0x9D qw)" }
+0x26C588 = { name = "creditsScene", note = "fixed packet arena at 0x1772670: sprite tag count 0x1E plus repeated uiSpriteWrite/uiSpriteWriteWrap calls for the credits layout" }
 
 # --- Batch merge: newly documented functions (decomp-audit out-batch-*.tsv) ---
 0x205D00 = { name = "AdjustWidgetCentering", note = "Increments frame byte at +0x11, recenters/resizes widget rect around a width from FUN_00203f40 [inferred]." }
@@ -262,7 +262,7 @@
 0x258138 = { name = "SndRpcReadBlock1F", note = "RPC cmd 0x1F reads 0x40 bytes into 0x175f880 then copies all 64 bytes to caller's out struct. [inferred]" }
 0x258218 = { name = "SndRpcCmdCArgs", note = "Builds 0x40 request (dword0=0x3F1 plus 9 args from tail) and sends sound-engine RPC cmd 0xC; no reply. [inferred]" }
 0x258308 = { name = "SndRpcPlayOrStop", note = "Arg 0 (& 0x8000FFFF mask) -> RPC cmd 1 (stop all); nonzero arg staged as 0x40 request for RPC cmd 0xD (play). [inferred]" }
-0x2584B0 = { name = "GsSetupFrameContext", note = "Emit 3 packet items via FUN_002793D0 (codes 0x8050/0x8130/0x8070, ctx=arg&1); likely GS framebuffer/scissor setup. [inferred]" }
+0x2584B0 = { name = "GsSetupFrameContext", note = "emits three FUN_002793D0 items with codes 0x8050/0x8130/0x8070; context is arg&1 and second item ORs 0x100" }
 0x2586A0 = { name = "SndRpcCmd22", note = "RPC cmd 0x22 with 0x40 request; count arg forced to 1 when zero; called from scene code. [inferred]" }
 0x258768 = { name = "SndRpcCmd24", note = "Stages 0x40 request whose first dword is the arg; sends sound-engine RPC cmd 0x24. [inferred]" }
 0x258960 = { name = "SndRpcCmd30", note = "Fire-and-forget sound-engine RPC cmd 0x30, no payload. [inferred]" }
@@ -801,7 +801,7 @@
 0x256958 = { name = "OpenPaintEditorScene", note = "Opens paint editor scene: copies paint value from gs_progress_ram entry, detects mirrored RGB nibbles to set grayscale flag, builds menu sprites, then starts slide-in anim or hands off. [inferred]" }
 0x256A78 = { name = "SlideInPaintEditorWindow", note = "Slide-in animation opposite of close: increments timer at task+2 by 4 until it reaches 0 while moving the panel sprite, then transitions to FUN_00256640. [inferred]" }
 0x256AF8 = { name = "InitSoundRpcDriver", note = "Boot-time sound init: binds RPC to IOP server 0x1234567, sends port/config calls (cmds 0,5,4), sets DGA/DMA2 registers, and registers bgm/SE file names via RPC cmds 6/7/0x32. [inferred]" }
-0x2574A0 = { name = "SoundRpcPlaySequence", note = "Sends RPC cmd 0x23 with a parameter then cmd 0x22 with a single entry to the sound driver, likely loading/starting a sequence. [inferred]" }
+0x2574A0 = { name = "SoundRpcPlaySequence", note = "writes two 0x40-byte RPC records and calls 0x287EA8 with commands 0x23 then 0x22; first record carries the supplied parameter" }
 0x2575E0 = { name = "SoundRpcRegisterFiles", note = "Registers two file names per call via RPC cmd 0x32 at slot index*2 and *2+1, copying strings with sizes into the driver request buffer. [inferred]" }
 0x257BA8 = { name = "SoundRpcGetStatus", note = "Sends RPC cmd 8 with arg 1 to the sound driver and returns the 32-bit value returned in DAT_0175f880 (status/result query). [inferred]" }
 0x257F30 = { name = "MusicRpcPlayBgm", note = "Sends RPC cmd 0xe with two params to the sound driver; shared backend for all BGM-slot wrappers. [inferred]" }
@@ -811,13 +811,13 @@
 0x2585B0 = { name = "SoundRpcStopAll", note = "Sends a single RPC cmd 0x20 to the sound server (stop-all/flush voices). [inferred]" }
 0x2585F0 = { name = "SoundRpcSetVolume", note = "Sends RPC cmd 0x21 with three params (id, value, value) to the sound server, setting a channel/voice volume pair. [inferred]" }
 0x258810 = { name = "SoundRpcCmd25", note = "Sends RPC cmd 0x25 with one param to the sound server; start/open voice command used when clearing sound state. [inferred]" }
-0x2588B8 = { name = "SoundRpcCmd26", note = "Sends RPC cmd 0x26 with one param to the sound server; used in pairs for channels 0 and 1 (likely fadeout/stop per channel). [inferred]" }
+0x2588B8 = { name = "SoundRpcCmd26", note = "packs the supplied fields into the 0x176E880 RPC record and calls 0x287EA8 with command 0x26" }
 0x2589A0 = { name = "SoundRpcCmd31", note = "Sends RPC cmd 0x31 with two equal params to the sound server; used to push a master volume value derived from global amp. [inferred]" }
 0x258A48 = { name = "SoundRpcCmd33PlaySe", note = "Sends RPC cmd 0x33 with two params to the sound server; plays a sound by index (first param) given a volume/voice param. [inferred]" }
 0x258AF0 = { name = "SoundRpcCmd34", note = "Sends a parameterless RPC cmd 0x34 to the sound server (commit/trigger after Cmd33). [inferred]" }
 0x258B30 = { name = "SoundRpcCmd35", note = "Sends a parameterless RPC cmd 0x35 to the sound server (sound-system reset/stop). [inferred]" }
 0x258E50 = { name = "PlayUiSound", note = "Plays a UI sound effect: calls FUN_00258308 with the given id OR 0x40400000 (float-encoded flag); ubiquitous beep/click wrapper with 125+ callers." }
-0x258EB0 = { name = "BgmStop1", note = "Trivial wrapper calling FUN_00257fd8(1) (RPC cmd 0xf), likely stopping/asserting BGM channel 1. [inferred]" }
+0x258EB0 = { name = "BgmStop1", note = "tail wrapper passes literal 1 to FUN_00257FD8; adjacent 0x258EC8 splits the argument into two bytes for FUN_00257F30" }
 0x258F30 = { name = "PlayBgmSlot1", note = "Wrapper calling FUN_00257f30(1,0) — plays BGM slot 1 via RPC cmd 0xe (used at scene starts). [inferred]" }
 0x258F50 = { name = "PlayBgmSlot2", note = "Wrapper calling FUN_00257f30(2,0) — plays BGM slot 2. [inferred]" }
 0x258F70 = { name = "PlayBgmSlot3", note = "Wrapper calling FUN_00257f30(3,0) — plays BGM slot 3. [inferred]" }
@@ -1024,7 +1024,7 @@
 0x00272820 = { name = "mat4Transpose", note = "transposes a 4x4 matrix (rows param_2[0..3] -> param_1[0..0xf]) using _pextlw/_pextuw/_pcpyld/_pcpyud; called by 0x272e08 (light/scene matrix build)" }
 0x00272868 = { name = "mat4InvertAffine", note = "row-major 4x4 affine inverse: transposes 3x3 and sets row3=-(t.M) via _pext*/_vmulabc/_vmaddabc/_vmaddbc/_vsub/_sqc2; callers ResolveGroundContact 0x21b3d0, BuildCameraViewMatrices 0x21f450, 0x272d58" }
 0x002728D8 = { name = "vecDivByScalarVu0", note = "VU0 vector-scalar divide: _lqc2 vector param_3, _qmtc2 scalar param_1, _vdiv reciprocal, _vmulq, _sqc2 -> *param_2; caller ReflectVectorVU0 0x2085b0" }
-0x002728F8 = { name = "vecScaleByRecipScalarVu0B", note = "[unclear] byte-identical body to 0x2728d8 (VU0 vector-scalar divide: _lqc2/_qmtc2/_vdiv/_vmulq/_sqc2); no callers recorded, likely an unused/duplicate variant" }
+0x002728F8 = { name = "vecScaleByRecipScalarVu0B", note = "VU0 macro begins with qword load from a1, scalar transfer from f12, qmtc2, vdiv/vmulq, and qword store; no callers recorded" }
 0x00272918 = { name = "vu0InterVector", note = "VU0 leaf: lqc2 p3/lqc2 p4, qmtc2 scalar t, vaddbc/vsub to form (1-t), then vmulabc/vmaddbc -> out = a*t + b*(1-t) written via sqc2. Matches libvu0 sceVu0InterVector(); no callers." }
 0x00272940 = { name = "vu0AddVector", note = "lqc2 p2, lqc2 p3, _vadd, sqc2 to p1 -> per-component vector add. = sceVu0AddVector; callers ResolveGroundContact/tileSlotOrigin/UpdateBallPhysics." }
 0x00272958 = { name = "vu0SubVector", note = "lqc2 p2, lqc2 p3, _vsub, sqc2 to p1 -> per-component vector subtract. = sceVu0SubVector; ~29 callers (TestCarCollisionBox, UpdateBallPhysics...)." }

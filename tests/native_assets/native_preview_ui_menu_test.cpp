@@ -131,8 +131,14 @@ std::vector<const char*> titleStrings(bool pressVisible) {
     return s;
 }
 
+// menu-calibration.md §4.10, oracle-golden-frames.md:107 — harness keyboard
+// prompt painted above the main panel; the builder emits it first in the text
+// stream. Lowercase chars have no FONTE slot and are skipped by both sides.
+const char* kEnterLabel = "button Enter";
+
 std::vector<const char*> mainStrings() {
     auto s = titleStrings(false);
+    s.insert(s.begin(), kEnterLabel);
     for (const char* row : kMainRows) s.push_back(row);
     return s;
 }
@@ -230,8 +236,9 @@ void testFocusUniqueness() {
         check(uniform, "focus moves a single row");
         return delta;
     };
-    // Row pitch 24 UI px * 2.25 frame scale at 1080p (ui-parity.md:9).
-    const float pitch = 24.f * 2.25f;
+    // Row pitch 25.8 UI px * 2.25 frame scale at 1080p
+    // (menu-calibration.md §2.2: 25.77 measured).
+    const float pitch = 25.8f * 2.25f;
     check(near(movedDelta(1), pitch), "focus 1 is one row down");
     check(near(movedDelta(2), pitch * 2.f), "focus 2 is two rows down");
     check(near(movedDelta(4), pitch * 4.f), "focus 4 is the last main row");
@@ -264,16 +271,17 @@ void testMeasuredPanel() {
     using rt::native::preview::buildMainMenu;
     using rt::native::preview::buildOptionsScreen;
     using rt::native::preview::kUiPromptRimOuter;
-    // Bright rim of main_menu.png: scanout x=866 → UI 433, y=268.
+    // Bright rim of main_menu.png: scanout x=866 → UI 433; panel top placement
+    // y=272 (menu-calibration.md §4.2, replaces the earlier y=268 estimate).
     // 1920x1080 centered frame: offX=240, scale=2.25, y'=(y+16)*2.25.
     const auto menu = buildMainMenu(1920, 1080, 0);
     const auto* rim = findColor(menu, kUiPromptRimOuter);
     check(rim != nullptr, "main menu has a prompt rim");
     if (rim) {
         check(near(rim->x, 240.f + 433.f * 2.25f), "main panel x");
-        check(near(rim->y, (268.f + 16.f) * 2.25f), "main panel y");
+        check(near(rim->y, (272.f + 16.f) * 2.25f), "main panel y");
         check(near(rim->width, 162.f * 2.25f), "main panel w");
-        check(near(rim->height, 133.f * 2.25f), "main panel h");
+        check(near(rim->height, 143.f * 2.25f), "main panel h");
     }
     const auto options = buildOptionsScreen(1920, 1080, 0);
     // Two rims: options panel (UI x=228) is left of the main panel (UI x=433).

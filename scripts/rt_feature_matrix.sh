@@ -14,6 +14,23 @@ DISC="${RT_DISC:-$HOME/Library/Application Support/RoadTripRecomp/disc}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
+# Per-row wall-clock bound so a hung run fails its row (rc 124 coreutils
+# timeout / 142 perl SIGALRM) instead of hanging the whole matrix. 300s
+# covers the heaviest legit row observed (first TERRAIN=1 TILES_RADIUS=all
+# run pays scene/pipeline warm-up; it exceeded 120s on the B7 host).
+ROW_TIMEOUT="${RT_MATRIX_ROW_TIMEOUT:-300}"
+
+run_timed() { # SECS CMD...
+  local secs="$1"; shift
+  if command -v timeout >/dev/null 2>&1; then
+    timeout "$secs" "$@"
+  elif command -v gtimeout >/dev/null 2>&1; then
+    gtimeout "$secs" "$@"
+  else
+    perl -e 'alarm shift @ARGV; exec @ARGV or exit 127' "$secs" "$@"
+  fi
+}
+
 pass=0; fail=0; skip=0
 
 # row <name> <ENV=V...> -- <expected-substring...>
@@ -23,9 +40,14 @@ row() {
   while [ $# -gt 0 ] && [ "$1" != "--" ]; do envs+=("$1"); shift; done
   [ $# -gt 0 ] && shift
   wants=("$@")
-  local out="$TMP/$name.log"
-  if ! ( env "${envs[@]}" RT_APP_FRAMES=60 RT_APP_SNAPSHOT="$TMP/$name.ppm" "$RT" ) >"$out" 2>&1; then
-    echo "FAIL $name (exit!=0)"; fail=$((fail+1)); return
+  local out="$TMP/$name.log" rc=0
+  run_timed "$ROW_TIMEOUT" env "${envs[@]}" RT_APP_FRAMES=60 RT_APP_SNAPSHOT="$TMP/$name.ppm" "$RT" >"$out" 2>&1 || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    case "$rc" in
+      124|142) echo "FAIL $name (timeout after ${ROW_TIMEOUT}s)";;
+      *)       echo "FAIL $name (exit=$rc)";;
+    esac
+    fail=$((fail+1)); return
   fi
   for want in "${wants[@]}"; do
     if ! grep -qF "$want" "$out"; then
@@ -42,12 +64,55 @@ row_required_disc() { # like row but SKIPs when $DISC missing
   row "$@"
 }
 
+# row_without <name> <ENV=V...> -- <forbidden-substring>: same run pattern as
+# row(), but the row passes only when the substring is ABSENT from the log.
+row_without() {
+  local name="$1"; shift
+  local envs=() rejects=()
+  while [ $# -gt 0 ] && [ "$1" != "--" ]; do envs+=("$1"); shift; done
+  [ $# -gt 0 ] && shift
+  rejects=("$@")
+  local out="$TMP/$name.log" rc=0 want
+  run_timed "$ROW_TIMEOUT" env "${envs[@]}" RT_APP_FRAMES=60 RT_APP_SNAPSHOT="$TMP/$name.ppm" "$RT" >"$out" 2>&1 || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    case "$rc" in
+      124|142) echo "FAIL $name (timeout after ${ROW_TIMEOUT}s)";;
+      *)       echo "FAIL $name (exit=$rc)";;
+    esac
+    fail=$((fail+1)); return
+  fi
+  for want in "${rejects[@]}"; do
+    if grep -qF "$want" "$out"; then
+      echo "FAIL $name — forbidden line present: $want"
+      fail=$((fail+1)); return
+    fi
+  done
+  echo "PASS $name"; pass=$((pass+1))
+}
+
+# row_without_required_disc: like row_without but SKIPs when $DISC missing.
+row_without_required_disc() {
+  local name="$1"
+  if [ ! -d "$DISC" ]; then echo "SKIP $name (no disc extract)"; skip=$((skip+1)); return; fi
+  row_without "$@"
+}
+
 [ -x "$RT" ] || { echo "rt-app not found at $RT (build first)"; exit 1; }
 
 # --- core states -------------------------------------------------------------
 row title      RT_APP_STATE=TITLE RT_APP_NOAUDIO=1 -- "rt-app state=TITLE"
 row menu       RT_APP_STATE=MENU RT_APP_NOAUDIO=1   -- "rt-app state=MENU"
 row playing    RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 -- "rt-app state=PLAYING" "session state="
+
+# --- RT_APP_MODE gates -------------------------------------------------------
+# RT_APP_MODE=explore holds SessionState::EXPLORE indefinitely (main.cpp); the
+# bare PLAYING direct-launch above auto-starts the first AI race after one
+# EXPLORE frame, so town/drive-view captures MUST set explore. This row is the
+# regression gate for that contract.
+row explore    RT_APP_STATE=PLAYING RT_APP_MODE=explore RT_APP_NOAUDIO=1 \
+               -- "rt-app session state=EXPLORE"
+row mode_race  RT_APP_STATE=PLAYING RT_APP_MODE=race RT_APP_NOAUDIO=1 \
+               -- "rt-app mode: RACE (forced by RT_APP_MODE=race)"
 
 # --- terrain / textures / streaming / nav --------------------------------------
 row terrain    RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_TILES_RADIUS=all RT_APP_NOAUDIO=1 \
@@ -97,6 +162,12 @@ row settings   RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 RT_DATA_DIR="$TMP/settings-
                -- "rt-app settings: defaults"
 
 # --- disc-dependent -----------------------------------------------------------
+# Minimap: the town street graph loads from the disc ELF whenever the pill is
+# drawn; RT_APP_MINIMAP=0 kills both pill and roads (main.cpp).
+row_required_disc minimap     RT_APP_STATE=PLAYING RT_APP_MODE=explore RT_APP_NOAUDIO=1 RT_DISC="$DISC" \
+                  -- "rt-app minimap: town street segments="
+row_without_required_disc minimap_off RT_APP_STATE=PLAYING RT_APP_MODE=explore RT_APP_NOAUDIO=1 RT_APP_MINIMAP=0 RT_DISC="$DISC" \
+                  -- "rt-app minimap: town street segments="
 row_required_disc single_tile RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 \
                   RT_APP_TERRAIN_FILE="$DISC/FLD/000.BIN" RT_APP_NOAUDIO=1 \
                   -- "rt-app terrain: loaded 000.BIN"
