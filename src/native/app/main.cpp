@@ -1129,7 +1129,7 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
                         const auto& p = mesh.positions[v];
                         const float dx = p[0] - gx, dz = p[2] - gz;
                         if (dx * dx + dz * dz > 576.f) continue;      // 24 RU
-                        if (p[1] < -2.f || p[1] > 4.5f) continue;      // base band
+                        if (p[1] < -2.f || p[1] > 3.5f) continue;      // base band, tightened
                         sumY += p[1];
                         if (v < mesh.colours.size()) {
                             sumC[0] += mesh.colours[v][0]; sumC[1] += mesh.colours[v][1];
@@ -2433,6 +2433,17 @@ int main() {
                                                         u0, v0, u0 + 14.f / 256.f, v0 + 21.f / 128.f,
                                                         {1.f, 1.f, 1.f, 1.f}});
                                 }
+                                // Day/night badge left of the clock — oracle sun
+                                // badge yellow bbox px (1028..1053, 413..424) ->
+                                // UI (514,443.6,12.5,11.8), widened ~1 UI px per
+                                // side for the blue diamond rim -> (512,441,17,16);
+                                // atlas cell v 48..73 u 164..188 (METER0 unit 0,
+                                // sun/moon cluster; key-yellow excluded by the
+                                // decoder's alpha, diamond blue (64,186,239) +
+                                // sun orange (237,155,2) measured in-page).
+                                clockQuads.push_back({512.f * sx, 441.f * sy, 17.f * sx, 16.f * sy,
+                                                    164.f / 256.f, 48.f / 128.f, 188.f / 256.f, 73.f / 128.f,
+                                                    {1.f, 1.f, 1.f, 1.f}});
                                 if (rt::native::preview::previewUploadFontAtlas(renderer, *hudArt.speedDial, dialError) &&
                                     !clockQuads.empty() &&
                                     rt::native::preview::previewRender2DTextured(
