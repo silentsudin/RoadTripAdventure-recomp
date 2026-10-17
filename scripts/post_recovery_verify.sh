@@ -23,6 +23,7 @@ run() { # name env...
   echo "CAP $name rc=$?"
 }
 run title-v9  RT_APP_STATE=TITLE RT_APP_FRAMES=150
+run menu-v9   RT_APP_STATE=MENU RT_APP_FRAMES=60
 run town-v9   RT_APP_STATE=PLAYING RT_APP_FRAMES=120
 run race-v9   RT_APP_STATE=PLAYING RT_APP_MODE=race RT_APP_FRAMES=240
 
@@ -31,7 +32,8 @@ score() { # label oracle
     --label $1 --json build/scratch/frame-compare/$1.json >/dev/null 2>&1 && \
   python3 -c "import json; d=json.load(open('build/scratch/frame-compare/$1.json')); print('$1 hist=', round(d['histogram_intersection'],3), d['verdict'])"
 }
-score title-v9 title.png 2>/dev/null || score title-v9 main_menu.png 2>/dev/null
+score title-v9 title.png
+score menu-v9 main_menu.png
 score town-v9 town_driving.png
 score race-v9 race_hud_driving.png
 
