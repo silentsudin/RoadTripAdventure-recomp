@@ -112,6 +112,12 @@ void updateCamera(CameraState& cam, const CarPose& car, float speed,
 
     cam.eye = car.position + offset;
     cam.target = car.position + Vec3{0.f, params.lookAtHeight, 0.f};
+    if (const char* dbg = std::getenv("RT_APP_CARDIAG"); dbg && *dbg == '1') {
+        static int cdiag = 0;
+        if ((cdiag++ % 30) == 0)
+            std::printf("cam eye=(%.2f,%.2f,%.2f) target.y=%.2f carY=%.2f mode=%d spd=%.0f\n",
+                        cam.eye.x, cam.eye.y, cam.eye.z, cam.target.y, car.position.y, cam.mode, speed);
+    }
     cam.forward = normalized(cam.target - cam.eye);
     cam.view = lookAtMatrix(cam.eye, cam.target);
 }

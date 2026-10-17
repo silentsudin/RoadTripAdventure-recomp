@@ -1100,9 +1100,14 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
     // sample that tile's own nearest vertex; drop 0.08 RU so real detail
     // geometry renders on top. Textured fills ride triangleTexture=-1 ->
     // the white-page bucket (vertex colour x2 via the GS modulation).
-    if (tilesLoaded > 0) {
+    // TEMP diagnostic switch: RT_APP_GROUNDFILL=0 skips the authored fill.
+    const bool noGroundFill = [] {
+        const char* v = std::getenv("RT_APP_GROUNDFILL");
+        return v && std::string_view(v) == "0";
+    }();
+    if (tilesLoaded > 0 && !noGroundFill) {
         constexpr float kFillStep = 16.f;
-        constexpr float kFillDrop = 0.08f;
+        constexpr float kFillDrop = 0.25f;
         constexpr std::size_t kGridN = 10;  // 160 RU tile / 16
         std::size_t fillQuads = 0;
         for (const auto& lt : loadedTiles) {
@@ -1112,18 +1117,45 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
                 for (std::size_t ix = 0; ix <= kGridN; ++ix) {
                     const float gx = lt.ox + static_cast<float>(ix) * kFillStep;
                     const float gz = lt.oz + static_cast<float>(iz) * kFillStep;
-                    float best = 1e30f;
-                    float y = 0.f;
-                    std::array<float, 4> c{.30f, .34f, .24f, 1.f};  // neutral ground fallback
+                    // Smooth BASE-terrain height: mean of same-tile vertices
+                    // within 24 RU horizontally whose y lies in the road/field
+                    // band [−2, 4.5] RU (excludes building tops, tree crowns and
+                    // pits whose nearest-vertex sampling produced sky-piercing
+                    // jagged walls — red-fill experiment 2026-10-17).
+                    float sumY = 0.f;
+                    std::array<float, 4> sumC{0.f, 0.f, 0.f, 0.f};
+                    int cnt = 0;
                     for (std::uint32_t v = lt.vstart; v < lt.vstart + lt.vcount; ++v) {
                         const auto& p = mesh.positions[v];
                         const float dx = p[0] - gx, dz = p[2] - gz;
-                        const float d = dx * dx + dz * dz;
-                        if (d < best) {
-                            best = d;
-                            y = p[1];
-                            if (v < mesh.colours.size()) c = mesh.colours[v];
+                        if (dx * dx + dz * dz > 576.f) continue;      // 24 RU
+                        if (p[1] < -2.f || p[1] > 4.5f) continue;      // base band
+                        sumY += p[1];
+                        if (v < mesh.colours.size()) {
+                            sumC[0] += mesh.colours[v][0]; sumC[1] += mesh.colours[v][1];
+                            sumC[2] += mesh.colours[v][2];
                         }
+                        ++cnt;
+                    }
+                    // Fallback when no band vertices nearby: oracle town-ground
+                    // mean (102,111,122)/255 measured from town_driving.png.
+                    const float y = cnt > 0 ? sumY / static_cast<float>(cnt) : 3.f;
+                    // Pre-darkened for the GS modulate-x2 pass: fallback is the
+                    // oracle town-ground mean (102,111,122)/255 from
+                    // town_driving.png halved so clamp(c*t*2) reproduces it
+                    // (blown-out-white ident check 2026-10-17: un-halved band
+                    // averages ~0.4 exited the shader at ~0.8).
+                    std::array<float, 4> c{.20f, .216f, .24f, 1.f};
+                    if (cnt > 0) {
+                        // Anchor 65% at the oracle ground gray (halved for the
+                        // x2 pass); keep 35% of local vertex-colour variation
+                        // for grass/road patches (race ground measured
+                        // (144,144,166) vs oracle (95,95,95) with pure
+                        // sampling 2026-10-17).
+                        const float inv = 1.f / static_cast<float>(cnt);
+                        c[0] = (.35f * sumC[0] * inv + .65f * .40f) * .5f;
+                        c[1] = (.35f * sumC[1] * inv + .65f * .435f) * .5f;
+                        c[2] = (.35f * sumC[2] * inv + .65f * .48f) * .5f;
                     }
                     mesh.positions.push_back({gx, y - kFillDrop, gz});
                     if (wantTextures) {
@@ -1153,7 +1185,11 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
             }
         }
         std::cout << "rt-app terrain: ground-fill quads=" << fillQuads
-                  << " drop=" << kFillDrop << " step=" << kFillStep << "\n";
+                  << " drop=" << kFillDrop << " step=" << kFillStep
+                  << " positions=" << mesh.positions.size()
+                  << " colours=" << mesh.colours.size()
+                  << " triTex=" << mesh.triangleTexture.size()
+                  << " indices=" << mesh.indices.size() << "\n";
     }
     {
         // Height diagnostic (diagnosed the under-town camera, 2026-10-17):
@@ -1183,6 +1219,15 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
             }
             std::cout << "rt-app terrain: tile " << lt.name << " placed x=" << xmin << ".." << xmax
                       << " z=" << zmin << ".." << zmax << " (origin " << lt.ox << "," << lt.oz << ")\n";
+            if (lt.vstart + lt.vcount <= mesh.colours.size()) {
+                double cr = 0, cg = 0, cb = 0;
+                for (std::uint32_t vi = 0; vi < lt.vcount; ++vi) {
+                    const auto& c = mesh.colours[static_cast<std::size_t>(lt.vstart) + vi];
+                    cr += c[0]; cg += c[1]; cb += c[2];
+                }
+                std::cout << "  tile " << lt.name << " vtx colour mean="
+                          << cr / lt.vcount << ',' << cg / lt.vcount << ',' << cb / lt.vcount << "\n";
+            }
         }
         // Colour diagnostics: vertex RGBA means + first textured page's pixel
         // mean (dark-crush hunt 2026-10-17: mid-frame terrain measured
@@ -2214,6 +2259,43 @@ int main() {
                 // carPosition is consumed in game units (preview scales .1).
                 renderSnapshot.carPosition = {pose.position.x, pose.position.z};
                 renderSnapshot.heading = pose.heading;
+            }
+            // ---- Terrain-following view lift (race datum fix) -----------
+            // Physics rides the course datum y=0 (GameLoop::groundY_) while
+            // the FLDT tiles carry absolute elevation (Peach Town plaza sits at
+            // ~+3.0 RU, oracle y=30 GU). Un-lifted, the chase camera buries
+            // under the town slab once a race starts (ident-underlay
+            // experiment 2026-10-17: the ground-fill sheet wrapped over the
+            // sky). Band-average the terrain under the car (same base band
+            // [−2,4.5] RU, radius 24, that preview's carLift uses) and rigidly
+            // translate the view so the eye keeps its design clearance
+            // kChaseBack*sin(kChasePitch)+chaseBaseHeight = 7*0.0859+2.0 ~= 2.6
+            // RU above the actual ground. s.view stores lookAt transposed
+            // column-major (view[c*4+r]=m[r*4+c]): eye.y =
+            // -(v[4]*v[12]+v[5]*v[13]+v[6]*v[14]) and a world lift dy is
+            // applied via v[12+r] -= dy*v[4+r]. Lift only upward (dy>0) so
+            // valleys never drag the camera down.
+            if (!terrainMesh.positions.empty()) {
+                const float cx = renderSnapshot.carPosition.x * .1f;
+                const float cz = renderSnapshot.carPosition.z * .1f;
+                float sumY = 0.f;
+                int cnt = 0;
+                for (const auto& p : terrainMesh.positions) {
+                    const float dx = p[0] - cx, dz = p[2] - cz;
+                    if (dx * dx + dz * dz > 576.f) continue;   // 24 RU
+                    if (p[1] < -2.f || p[1] > 4.5f) continue;  // base band
+                    sumY += p[1];
+                    ++cnt;
+                }
+                if (cnt > 0) {
+                    const float ground = sumY / static_cast<float>(cnt);
+                    float* v = renderSnapshot.view;
+                    const float eyeY = -(v[4] * v[12] + v[5] * v[13] + v[6] * v[14]);
+                    const float dy = ground + 2.6f - eyeY;
+                    if (dy > 0.f)
+                        for (int r = 0; r < 3; ++r)
+                            renderSnapshot.view[12 + r] -= dy * renderSnapshot.view[4 + r];
+                }
             }
             if (state == AppState::PLAYING && !sceneAssetsReady) {
                 initSceneAssets();

@@ -125,21 +125,20 @@ inline void appendFonteText(std::vector<HudQuad>& out, const char* text, float u
     out.insert(out.end(), quads.begin(), quads.end());
 }
 
-// Race HUD text stand-in: "LAP n/m" left of the ElementC panel and MM:SS
-// elapsed on the digit strip (placements CONFIRMED in kHudElements from
-// 0x233F10 builders). The shipped HUD samples these from SCORE.GSL page
-// glyphs; the native presentation renders the same strings with the proven
-// FONTE glyph shapes at the proven placements until SCORE-page binding lands.
+// Race HUD text: MM:SS elapsed on the digit strip (placement CONFIRMED in
+// kHudElements from 0x233F10 builders). The shipped HUD samples these from
+// SCORE.GSL page glyphs; the native presentation renders the same string with
+// the proven FONTE glyph shapes at the proven placement until SCORE-page
+// binding lands. The former "LAP n/m" label was removed 2026-10-17: the
+// oracle race HUD (race_hud_driving.png) shows a TOTAL TIME banner + rank
+// badge in that corner, not lap text, and the label collided with the timer
+// digits at the same row. Lap state stays on the lap-squares panel.
 inline std::vector<HudQuad> raceHudTextQuads(const gameplay::FrameSnapshot& snapshot,
                                              int totalLaps, int width, int height) {
     std::vector<HudQuad> quads;
     namespace hud = rt::native::gameplay;
     constexpr std::array<float, 4> kWhite{1.f, 1.f, 1.f, .95f};
-    const int laps = std::max(totalLaps, 1);
     char buf[32];
-    std::snprintf(buf, sizeof(buf), "LAP %d/%d", std::min(snapshot.lap + 1, laps), laps);
-    if (const auto* panel = hud::findHudElement(hud::HudElement::RaceLapTimePanel))
-        appendFonteText(quads, buf, panel->ui.x - 26.f, panel->ui.y, kWhite, width, height);
     const unsigned sec = snapshot.elapsedFrames / 60u;
     std::snprintf(buf, sizeof(buf), "%u:%02u", sec / 60u, sec % 60u);
     if (const auto* digits = hud::findHudElement(hud::HudElement::RaceTimeDigits))

@@ -991,20 +991,34 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     }
     const ModelStats st = computeStats(car);
     const float cx = .5f * (st.bmin[0] + st.bmax[0]), cz = .5f * (st.bmin[2] + st.bmax[2]);
-    const float scale = 4.4f / std::max(st.bmax[2] - st.bmin[2], 1e-3f);
+    // Oracle width grounding (town_driving.png chase view): the player car
+    // spans ~16% of frame width; 4.4-RU spans measured ~47% in-engine.
+    // 4.4 * 0.34 ~= 1.5 RU span reproduces the oracle framing.
+    const float scale = 1.5f / std::max(st.bmax[2] - st.bmin[2], 1e-3f);
     const float sh = std::sin(s.heading), ch = std::cos(s.heading);
-    // Sit the car on the terrain surface (nearest-vertex height sample).
+    // Sit the car on the terrain surface. Prefer BASE-band vertices (y in
+    // [−2,4.5] RU: roads/fields, not building tops or tree crowns — the
+    // sky-piercing-car cause); fall back to unrestricted nearest.
     float carLift = 0.f;
     if (useTerrain) {
-        float best = 900.f;
+        float bestB = 900.f, sumB = 0.f; int cntB = 0;
+        float bestN = 900.f, yN = 0.f;
         for (const auto& p : terrain->positions) {
             const float dx = p[0] - s.carPosition.x * .1f, dz = p[2] - s.carPosition.z * .1f;
             const float d = dx * dx + dz * dz;
-            if (d < best) { best = d; carLift = p[1]; }
+            if (d > 900.f) continue;
+            if (p[1] >= -2.f && p[1] <= 4.5f) { sumB += p[1]; ++cntB; if (d < bestB) bestB = d; }
+            if (d < bestN) { bestN = d; yN = p[1]; }
         }
-        if (best > 900.f) carLift = 0.f;
+        if (cntB > 0) carLift = sumB / static_cast<float>(cntB);
+        else if (bestN <= 900.f) carLift = yN;
     }
     const std::uint32_t carBase = static_cast<std::uint32_t>(vertices.size());
+    if (const char* dbg = std::getenv("RT_APP_CARDIAG"); dbg && *dbg == '1') {
+        std::printf("preview car: pos=(%.2f,%.2f)RU span=%.3f scale=%.3f lift=%.2f bminY=%.3f heading=%.3f\n",
+                    s.carPosition.x * .1f, s.carPosition.z * .1f,
+                    st.bmax[2] - st.bmin[2], scale, carLift, st.bmin[1], s.heading);
+    }
     // Parallel UV-carrying copy of the transformed car so the textured path
     // can draw it with its real livery (RT_APP_CARMODEL=1); the flat path
     // keeps the constant tint and only gains the authentic silhouette.
