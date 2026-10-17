@@ -46,6 +46,7 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/world_layout.cpp    # authentic fixed-point <-> tile-id <-> local-unit mapping (proven formulas)
     preview/ui_menu.cpp           # title/menu/options screen builders per ui-parity.md
     assets/title_screen.cpp       # runtime SYS/TITLE.GSL backdrop decoder
+    assets/hud_art.cpp            # runtime race HUD art (METER dial + SCORE atlas)
     assets/image_converter.cpp  # texture upload chain -> RGBA8 ImageRecord
     assets/image_loader.cpp     # ImageRecord -> NativeImage
     assets/model_loader.cpp     # MeshRecord + images -> NativeModel
@@ -277,6 +278,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(native_title_screen_test PRIVATE rt_native_assets)
     target_compile_features(native_title_screen_test PRIVATE cxx_std_20)
     target_compile_options(native_title_screen_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(native_hud_art_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/native_hud_art_test.cpp")
+    target_link_libraries(native_hud_art_test PRIVATE rt_native_assets)
+    target_compile_features(native_hud_art_test PRIVATE cxx_std_20)
+    target_compile_options(native_hud_art_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
     add_executable(native_assets_field_converter_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_field_converter.cpp")
