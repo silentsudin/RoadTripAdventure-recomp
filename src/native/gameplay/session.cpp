@@ -20,13 +20,8 @@ std::uint32_t rewardForRank(int rank) {
     return 250;
 }
 
-// Peach Town square spawn, proven from the oracle golden frame
-// (docs/native-reference/oracle-golden-frames.md:54: car at
-// (506.283, 30.000, 442.230), clock 82974, just outside the factory).
-// Heading 0 (+Z) is AUTHORED — the ledger records position, not yaw.
-constexpr float kTownSpawnX = 506.283f;
-constexpr float kTownSpawnYGame = 30.0f;  // square elevation, oracle y=30.000
-constexpr float kTownSpawnZ = 442.230f;
+// Peach Town square spawn constants (kTownSpawn*) now live in session.h —
+// oracle-proven, cited there (oracle-golden-frames.md:54).
 
 }  // namespace
 
@@ -88,10 +83,11 @@ void GameSession::continueFromResults() {
     setExplorePose(kTownSpawnX, kTownSpawnZ, 0.f);
 }
 
-void GameSession::setExplorePose(float x, float z, float headingRadians) {
-    // The Peach Town square sits at game-unit y=30 (oracle ledger), lifted
-    // through GameLoop::setCarPose so the chase camera rides above the plaza.
-    gameLoop_.setCarPose(x, z, headingRadians, kTownSpawnYGame);
+void GameSession::setExplorePose(float x, float z, float headingRadians, float yGameUnits) {
+    // Peach Town rides the y=30 square (oracle ledger); other anchors pass
+    // their own elevation through GameLoop::setCarPose so the chase camera
+    // never clips under elevated terrain or floats over datum flats.
+    gameLoop_.setCarPose(x, z, headingRadians, yGameUnits);
     // One idle tick rebuilds the facade-visible snapshot at the new pose
     // (setCarPose marks the camera uninitialised so this tick snaps to it).
     const CarInput idle{};

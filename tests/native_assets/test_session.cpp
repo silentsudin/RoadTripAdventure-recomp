@@ -149,6 +149,20 @@ void testTownDriveMovesCarWithGas() {
     CHECK(replay() == replay());
 }
 
+void testExplorePoseReanchorsOffTown() {
+    // Facade warp contract (main.cpp warp lambda): datum anchors for
+    // non-town tiles, default-elevation town anchor for tile 43.
+    GameSession s(1);
+    s.setExplorePose(0.f, 0.f, 0.f, 0.f);
+    CHECK(s.lastSnapshot().carPosition.x == 0.f);
+    CHECK(s.lastSnapshot().carPosition.z == 0.f);
+    s.setExplorePose(kTownSpawnX, kTownSpawnZ, 0.f);
+    CHECK(s.lastSnapshot().carPosition.x == kTownSpawnX);
+    CHECK(s.lastSnapshot().carPosition.z == kTownSpawnZ);
+    // The town default lifts the eye above the plaza (y=30 game units).
+    CHECK(s.lastSnapshot().cameraEye.y > 5.f);
+}
+
 }  // namespace
 
 int main() {
@@ -156,6 +170,7 @@ int main() {
     testConfirmDrivesExploreAndResultsTransitions();
     testProgressSaveLoadRoundTrip();
     testTownDriveMovesCarWithGas();
+    testExplorePoseReanchorsOffTown();
     if (g_fail != 0) return EXIT_FAILURE;
     std::puts("session: all checks passed");
     return EXIT_SUCCESS;

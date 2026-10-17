@@ -11,6 +11,14 @@ namespace rt::native::gameplay {
 
 enum class SessionState { EXPLORE, RACE, RESULTS };
 
+// Peach Town square spawn, proven from the oracle golden frame
+// (docs/native-reference/oracle-golden-frames.md:54: car at
+// (506.283, 30.000, 442.230), clock 82974, just outside the factory).
+// Heading 0 (+Z) is AUTHORED — the ledger records position, not yaw.
+inline constexpr float kTownSpawnX = 506.283f;
+inline constexpr float kTownSpawnYGame = 30.0f;  // square elevation, oracle y=30.000
+inline constexpr float kTownSpawnZ = 442.230f;
+
 class GameSession {
 public:
     // A single lap keeps the authored host loop concise while GameLoop remains
@@ -24,10 +32,12 @@ public:
     void continueFromResults();
 
     // Anchors the authoritative car pose and refreshes the facade-visible
-    // snapshot with one idle tick. Used to place the explore car on the
-    // Peach Town square (kTownSpawn* in session.cpp, oracle-proven).
-    // Simulation thread only (mirrors GameLoop::setCarPose).
-    void setExplorePose(float x, float z, float headingRadians);
+    // snapshot with one idle tick. Defaults to the Peach Town square
+    // elevation (kTownSpawnYGame, oracle-proven); pass an explicit
+    // yGameUnits for other tiles (0 = datum; GAP: per-town elevations
+    // unmerged). Simulation thread only (mirrors GameLoop::setCarPose).
+    void setExplorePose(float x, float z, float headingRadians,
+                       float yGameUnits = kTownSpawnYGame);
 
     [[nodiscard]] const SaveData& progress() const { return progress_; }
     [[nodiscard]] const FrameSnapshot& lastSnapshot() const { return lastSnapshot_; }
