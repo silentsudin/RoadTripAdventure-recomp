@@ -195,13 +195,17 @@ then identify what each function does and give it a name.
 | | |
 |---|---|
 | Functions found in the game ELF (`SLUS_203.98`) | **1542** |
-| Decompiled and named | **1342** |
-| **Coverage** | **87.0%** |
+| Decompiled and named | **1542** |
+| **Coverage** | **100%** |
+
+All functions are now named. Of those, 52 carry `[unclear]`/`likely` tags where
+the identification is structural rather than proven — those get deepened against
+the MIPS disassembly and runtime behaviour as the next phase (reimplementing each
+subsystem as native source, verified against the recompiler oracle) reaches them.
 
 *Decompiled and named* means the function is identified and listed in
 [config/game_symbols.toml](config/game_symbols.toml) with its address, our name and a
-one-line note — not just a Ghidra pseudocode dump. The remaining 502 functions are anonymous
-(`FUN_002…`) and we are working through them in batches. Naming everything is how every
+one-line note — not just a Ghidra pseudocode dump. Naming everything is how every
 subsystem can be replaced with native code instead of translated guest code.
 
 Reproduce any time (needs Ghidra 12 and your own disc): `python3 scripts/ghidra/decompile.py`,
