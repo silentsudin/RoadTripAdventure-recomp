@@ -27,8 +27,10 @@
 #include "gameplay/shop.h"
 #include "gameplay/tile_streamer.h"
 #include "gameplay/world_layout.h"
+#include "preview/car_mesh.h"
 #include "preview/preview.h"
 #include "preview/race_hud.h"
+#include "preview/ui_menu.h"
 #include "runtime/guest_facade.h"
 #include "runtime/testsocket.h"
 
@@ -328,26 +330,73 @@ void SDLCALL fillAudio(void* userdata, SDL_AudioStream* stream, int additionalBy
                                  static_cast<int>(output.samples.size() * sizeof(std::int16_t)));
 }
 
+std::filesystem::path discRootPath() {
+    if (const char* value = std::getenv("RT_DISC")) return value;
+    if (const char* home = std::getenv("HOME"))
+        return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp/disc";
+    return {};
+}
+
+// setup_wizard.cpp layout under the assets root: cars/CAR0/Q00.BIN,
+// fonts/FONTE.GSL, audio/SOUND/*.VAG. RT_ASSET_DIR wins, then
+// RT_DATA_DIR/assets, then the implicit Application Support cache — but only
+// when RT_DISC is unset. An explicit RT_DISC that lacks the file must not
+// bind that side cache, or the no-assets determinism gate
+// (RT_DISC=/nonexistent, default env) stops being byte-identical.
+std::filesystem::path packagedAssetsRoot() {
+    if (const char* asset = std::getenv("RT_ASSET_DIR"); asset && *asset)
+        return std::filesystem::path(asset);
+    if (const char* data = std::getenv("RT_DATA_DIR"); data && *data)
+        return std::filesystem::path(data) / "assets";
+    if (!std::getenv("RT_DISC")) return appDataDirectory() / "assets";
+    return {};
+}
+
+std::filesystem::path resolveDiscOrPackaged(const std::filesystem::path& discRelative,
+                                            const std::filesystem::path& packagedRelative) {
+    std::error_code ec;
+    const auto primary = discRootPath() / discRelative;
+    if (std::filesystem::is_regular_file(primary, ec)) return primary;
+    const auto root = packagedAssetsRoot();
+    if (!root.empty()) {
+        const auto packed = root / packagedRelative;
+        if (std::filesystem::is_regular_file(packed, ec)) return packed;
+    }
+    return {};
+}
+
+bool radioStationFileAvailable(rt::native::gameplay::RadioStation station) {
+    const auto pair = rt::native::gameplay::stationToVagPair(station);
+    if (!pair) return false;
+    return !resolveDiscOrPackaged(pair->left, std::filesystem::path("audio") / pair->left).empty();
+}
+
+// Explicit RT_APP_RADIO=0 disables. Any other explicit byte keeps the
+// station-follow contract. Unset defaults to Peach FM when that VAG is
+// reachable; the caller still requires a successful audio init.
+std::optional<std::uint8_t> radioStationRequest() {
+    if (const char* env = std::getenv("RT_APP_RADIO"); env && *env) {
+        const auto byte = static_cast<std::uint8_t>(std::atoi(env));
+        if (rt::native::gameplay::stationFromSaveByte(byte) == rt::native::gameplay::RadioStation::Off)
+            return std::nullopt;
+        return byte;
+    }
+    if (radioStationFileAvailable(rt::native::gameplay::RadioStation::PeachFm))
+        return static_cast<std::uint8_t>(rt::native::gameplay::RadioStation::PeachFm);
+    return std::nullopt;
+}
+
 bool initAudio(AudioHost& audio) {
-    // Radio owns the BGM path when RT_APP_RADIO selects a station (radio-stations.md
-    // §5 env contract): skip the fixed BGM_01 TSQ / RT_APP_BGM VAG so the engine's
-    // BGM slots are free for the radio pair and the engine (not the TSQ pump) drives
-    // fillAudio. Off/unset keeps the existing BGM behavior untouched.
-    const bool radioOwnsBgm = [] {
-        const char* env = std::getenv("RT_APP_RADIO");
-        if (!env || !*env) return false;
-        return rt::native::gameplay::stationFromSaveByte(
-                   static_cast<std::uint8_t>(std::atoi(env))) != rt::native::gameplay::RadioStation::Off;
-    }();
+    // Radio owns the BGM path when a station is selected (radio-stations.md §5):
+    // skip the fixed BGM_01 TSQ / RT_APP_BGM VAG so the engine's BGM slots are
+    // free for the radio pair and the engine (not the TSQ pump) drives
+    // fillAudio. Explicit "0", or unset with no station VAG, keeps the existing
+    // BGM behavior. Unset with assets defaults to Peach FM.
+    const bool radioOwnsBgm = radioStationRequest().has_value();
     const char* bgmPath = std::getenv("RT_APP_BGM");
     const char* tsqSetting = std::getenv("RT_APP_BGM_TSQ");
     const bool tsqDisabled = tsqSetting && std::strcmp(tsqSetting, "0") == 0;
-    const std::filesystem::path discRoot = [] {
-        if (const char* root = std::getenv("RT_DISC")) return std::filesystem::path(root);
-        if (const char* home = std::getenv("HOME"))
-            return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp/disc";
-        return std::filesystem::path{};
-    }();
+    const std::filesystem::path discRoot = discRootPath();
     const std::string selectedTrack = bgmPath && *bgmPath ? bgmPath : "BGM_01";
     if (radioOwnsBgm) {
         std::cout << "rt-app radio: station-follow owns the BGM path (BGM load skipped)\n";
@@ -693,12 +742,7 @@ void appendTexturedTile(rt::native::preview::TerrainMesh& mesh,
     }
 }
 
-std::filesystem::path discRoot() {
-    if (const char* value = std::getenv("RT_DISC")) return std::filesystem::path(value);
-    if (const char* home = std::getenv("HOME"))
-        return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp/disc";
-    return {};
-}
+std::filesystem::path discRoot() { return discRootPath(); }
 
 // GAME-LOOK v1 (2026-10-17): terrain, textures and FONTE HUD text default to
 // ON whenever disc assets exist, so a default launch consumes real game data
@@ -713,6 +757,39 @@ bool discAssetsPresent() {
 bool featureDefaultOn(const char* env) {
     if (const char* v = std::getenv(env)) return std::strcmp(v, "0") != 0;
     return discAssetsPresent();
+}
+
+// FONTE decode shared by the eager title/menu path and the PLAYING HUD.
+// Idempotent: a successful decode is not repeated, and a miss is not re-logged.
+bool fonteDecodeAttempted = false;
+bool loadFonteAtlas(rt::native::assets::GlyphAtlas& atlas) {
+    if (atlas.width > 0) return true;
+    if (fonteDecodeAttempted) return false;
+    fonteDecodeAttempted = true;
+    const auto path = resolveDiscOrPackaged("SYS/FONTE.GSL", "fonts/FONTE.GSL");
+    if (path.empty()) {
+        std::cout << "rt-app hudtext: SKIP (FONTE.GSL missing)\n";
+        return false;
+    }
+    std::ifstream input(path, std::ios::binary);
+    if (!input) {
+        std::cout << "rt-app hudtext: SKIP (FONTE.GSL missing)\n";
+        return false;
+    }
+    std::vector<std::uint8_t> gsl((std::istreambuf_iterator<char>(input)),
+                                 std::istreambuf_iterator<char>());
+    auto decoded = rt::native::assets::decodeGlyphAtlas(gsl);
+    if (decoded.value.width == 0) {
+        std::cout << "rt-app hudtext: SKIP (decode err=" << static_cast<int>(decoded.err)
+                  << " offset=" << decoded.errorOffset << ")\n";
+        return false;
+    }
+    atlas = std::move(decoded.value);
+    unsigned glyphCount = 0;
+    for (bool occupied : atlas.slotNonEmpty) glyphCount += occupied ? 1u : 0u;
+    std::cout << "rt-app hudtext: FONTE decoded " << atlas.width << "x"
+              << atlas.height << " non-empty slots=" << glyphCount << "\n";
+    return true;
 }
 
 // RT_APP_STREAM=1 (with RT_APP_TERRAIN=1) streams tiles through four
@@ -1063,6 +1140,24 @@ std::vector<rt::native::preview::ScreenQuad> menuQuads(
     return quads;
 }
 
+// Real title / main-menu / options screens (preview/ui_menu.h). MenuFlow has
+// no options cursor, so that screen stays at focus 0. topLevelCursor is the
+// mode-select index (0..3); anything outside the main-menu row count falls
+// back to 0. PRESS START blinks on a 32-tick phase of the host frame counter.
+rt::native::preview::UiScreen buildLiveMenuScreen(
+    AppState state, const rt::native::gameplay::MenuFlow& flow, int frames, int width, int height) {
+    if (state == AppState::TITLE) {
+        const bool pressVisible = (frames / 32) % 2 == 0;
+        return rt::native::preview::buildTitleScreen(width, height, pressVisible);
+    }
+    if (flow.screen == rt::native::gameplay::MenuScreen::OPTIONS)
+        return rt::native::preview::buildOptionsScreen(width, height, 0);
+    int focus = 0;
+    if (flow.topLevelCursor < static_cast<std::size_t>(rt::native::preview::kMainMenuRowCount))
+        focus = static_cast<int>(flow.topLevelCursor);
+    return rt::native::preview::buildMainMenu(width, height, focus);
+}
+
 void compositeOver(std::vector<std::uint8_t>& scene, const std::vector<std::uint8_t>& overlay) {
     if (scene.size() != overlay.size()) return;
     for (std::size_t pixel = 0; pixel < scene.size(); pixel += 4) {
@@ -1270,28 +1365,7 @@ int main() {
     const char* scoreHudEnv = std::getenv("RT_APP_SCOREHUD");
     scoreHudEnabled = scoreHudEnv != nullptr;
     scoreHudMeter = scoreHudEnv && std::string(scoreHudEnv) == "meter";
-    if (hudTextEnabled) {
-        std::ifstream input(discRoot() / "SYS" / "FONTE.GSL", std::ios::binary);
-        if (!input) {
-            std::cout << "rt-app hudtext: SKIP (FONTE.GSL missing)\n";
-            hudTextEnabled = false;
-        } else {
-            std::vector<std::uint8_t> gsl((std::istreambuf_iterator<char>(input)),
-                                         std::istreambuf_iterator<char>());
-            auto decoded = rt::native::assets::decodeGlyphAtlas(gsl);
-            if (decoded.value.width == 0) {
-                std::cout << "rt-app hudtext: SKIP (decode err=" << static_cast<int>(decoded.err)
-                          << " offset=" << decoded.errorOffset << ")\n";
-                hudTextEnabled = false;
-            } else {
-                fontAtlas = std::move(decoded.value);
-                unsigned glyphCount = 0;
-                for (bool occupied : fontAtlas.slotNonEmpty) glyphCount += occupied ? 1u : 0u;
-                std::cout << "rt-app hudtext: FONTE decoded " << fontAtlas.width << "x"
-                          << fontAtlas.height << " non-empty slots=" << glyphCount << "\n";
-            }
-        }
-    }
+    if (hudTextEnabled && !loadFonteAtlas(fontAtlas)) hudTextEnabled = false;
 #ifdef __ANDROID__
         androidLog(ANDROID_LOG_INFO, "scene: assets init done");
 #endif
@@ -1309,6 +1383,38 @@ int main() {
         return true;
     };
     auto car = demoCar();
+    bool carIsBox = true;
+    // Default player car: CAR0/Q00.BIN via loadCarMeshFromFile, once. Primary
+    // is the disc extract; fallback is the setup-wizard assets cache
+    // (cars/CAR0/Q00.BIN). RT_APP_CARMODEL keeps its own livery path below.
+    if (!std::getenv("RT_APP_CARMODEL")) {
+        const auto carPath = resolveDiscOrPackaged("CAR0/Q00.BIN", "cars/CAR0/Q00.BIN");
+        rt::native::preview::CarMeshResult carMesh;
+        if (!carPath.empty() &&
+            rt::native::preview::loadCarMeshFromFile(carPath.string(), carMesh) &&
+            carMesh.model.vertices.size() >= 3 && carMesh.model.indices.size() >= 3) {
+            // previewRenderScene heads and scales along Z (4.4 / z-extent).
+            // Q00's longest horizontal is often X; yaw onto Z once so the
+            // silhouette matches the demo box's length axis.
+            if (carMesh.chosenAxis == "x") {
+                for (auto& v : carMesh.model.vertices) {
+                    const float x = v.px;
+                    v.px = -v.pz;
+                    v.pz = x;
+                    const float nx = v.nx;
+                    v.nx = -v.nz;
+                    v.nz = nx;
+                }
+            }
+            car = std::move(carMesh.model);
+            carIsBox = false;
+            std::cout << "app: car model " << carPath.string()
+                      << " verts=" << car.vertices.size()
+                      << " tris=" << car.indices.size() / 3
+                      << " scale=" << carMesh.appliedScale
+                      << " axis=" << carMesh.chosenAxis << "\n";
+        }
+    }
     // RT_APP_CARMODEL[=N]: replace the authored demo box with a real shipped
     // car model (Q{N}.BIN under CAR0..CAR5, else CARS) through the proven
     // CAR pipeline (docs/native-reference/car-data-status.md): flat mode
@@ -1352,6 +1458,7 @@ int main() {
                     std::cout << "rt-app carmodel: SKIP (" << leaf << " empty mesh)\n";
                 } else {
                     car = std::move(merged);
+                    carIsBox = false;
                     const auto& img = loaded.container.images[0];
                     carLivery = rt::native::preview::PreviewTexture{img.width, img.height, img.pixels};
                     float u0 = 1e9f, u1 = -1e9f, v0 = 1e9f, v1 = -1e9f;
@@ -1377,20 +1484,24 @@ int main() {
             }
         }
     }
+    if (carIsBox) std::cout << "app: car model fallback (box)\n";
     // One lap lets the headless host exercise the complete authored session
     // loop promptly; GameSession enables race mode for its owned GameLoop.
     rt::native::gameplay::GameSession session(1);
     // --- Radio glue (docs/native-reference/radio-stations.md §5) ------------
-    // Opt-in: only an explicit RT_APP_RADIO enables station-follow.
-    // bootstrapSettings() fills it from the sound.radio_station settings key;
-    // unset keeps today's fixed-BGM path and makes zero radio audio calls. The
-    // setting is seeded from the save byte (SaveData::radioStation, 0..2).
+    // Explicit RT_APP_RADIO selects the station byte; "0" disables. Unset
+    // defaults ON (Peach FM) when audio init succeeded and the station VAG
+    // exists. bootstrapSettings() can still seed the env from
+    // sound.radio_station; an explicit environment value wins.
     rt::native::gameplay::RadioState radio(session.progress().radioStation);
     bool radioFollow = false;
-    if (const char* radioEnv = std::getenv("RT_APP_RADIO"); radioEnv && *radioEnv) {
-        radio.requestSaveByte(static_cast<std::uint8_t>(std::atoi(radioEnv)));  // clamps 0..2 (radio.cpp:57)
-        radioFollow = true;
+    if (audio.stream) {
+        if (const auto station = radioStationRequest()) {
+            radio.requestSaveByte(*station);  // clamps 0..2 (radio.cpp:57)
+            radioFollow = true;
+        }
     }
+    std::cout << "app: radio=" << (radioFollow ? "on" : "off") << "\n";
     // startRadio decodes the station's authentic stereo pair and hands it to the
     // SoundEngine. MONO-LEFT FALLBACK (radio-stations.md §5 "Stereo (AUTHORED
     // mapping)"): playBgm (engine.h:110-111) exposes no pan and calls bindVoice
@@ -1401,8 +1512,10 @@ int main() {
     // per-voice pan; a true split needs pan+1/-1 wired through playBgm.
     const auto startRadio = [&](const rt::native::gameplay::RadioVagPair& pair) {
         rt::native::audio::PcmBuffer left;
-        if (!rt::native::audio::loadVagFile(discRoot() / pair.left, left)) {
-            std::cerr << "rt-app radio: VAG load failed: " << (discRoot() / pair.left) << "\n";
+        const auto leftPath = resolveDiscOrPackaged(pair.left, std::filesystem::path("audio") / pair.left);
+        if (leftPath.empty() || !rt::native::audio::loadVagFile(leftPath, left)) {
+            std::cerr << "rt-app radio: VAG load failed: "
+                      << (leftPath.empty() ? (discRoot() / pair.left).string() : leftPath.string()) << "\n";
             return;
         }
         SDL_LockAudioStream(audio.stream);   // fillAudio ticks the engine concurrently
@@ -1554,6 +1667,10 @@ int main() {
                   << " catch-up cap=" << interpClock.catchUpCap() << "\n";
     }
     auto previous = std::chrono::steady_clock::now();
+    // FONTE is required for TITLE/MENU, not only the PLAYING HUD. Decode once
+    // before the first frame so the title blink does not wait for the lazy
+    // scene-asset path. A miss keeps menuQuads() byte-identical.
+    (void)loadFonteAtlas(fontAtlas);
     while (running && (!maxFrames || frames < maxFrames)) {
         if (testSocket.lockstep() && !testSocket.takeStep()) {
             // A socket-attached run is a fixed 60-Hz logic clock.  Never let
@@ -1956,9 +2073,37 @@ int main() {
                         }
                     }
                 } else {
-                    rendered = rt::native::preview::previewRender2D(renderer, menuQuads(state, menuFlow,
-                                                                        static_cast<int>(presenter.extent.width), static_cast<int>(presenter.extent.height)),
-                                                                        {.025f, .035f, .075f, 1.f}, pixels, error);
+                    const int menuW = static_cast<int>(presenter.extent.width);
+                    const int menuH = static_cast<int>(presenter.extent.height);
+                    const std::array<float, 4> menuClear{.025f, .035f, .075f, 1.f};
+                    if (fontAtlas.width > 0) {
+                        // Keep menuQuads' color backdrop; drop the placeholder
+                        // bars (TITLE's two colored rects, and the MENU rows)
+                        // and composite the real UiScreen over that panel.
+                        auto backdrop = menuQuads(state, menuFlow, menuW, menuH);
+                        std::vector<rt::native::preview::ScreenQuad> quads;
+                        if (!backdrop.empty()) quads.push_back(backdrop.front());
+                        const auto ui = buildLiveMenuScreen(state, menuFlow, frames, menuW, menuH);
+                        quads.insert(quads.end(), ui.quads.begin(), ui.quads.end());
+                        rendered = rt::native::preview::previewRender2D(renderer, quads, menuClear, pixels, error);
+                        if (rendered && !ui.text.empty()) {
+                            const rt::native::preview::PreviewTexture atlasTex{
+                                fontAtlas.width, fontAtlas.height, fontAtlas.pixels};
+                            std::string texError;
+                            if (rt::native::preview::previewUploadFontAtlas(renderer, atlasTex, texError)) {
+                                std::vector<std::uint8_t> textPixels;
+                                if (rt::native::preview::previewRender2DTextured(
+                                        renderer, ui.text, {0.f, 0.f, 0.f, 0.f}, textPixels, error))
+                                    compositeOver(pixels, textPixels);
+                            } else if (!hudTextWarned) {
+                                hudTextWarned = true;
+                                std::cout << "rt-app hudtext: upload failed: " << texError << "\n";
+                            }
+                        }
+                    } else {
+                        rendered = rt::native::preview::previewRender2D(
+                            renderer, menuQuads(state, menuFlow, menuW, menuH), menuClear, pixels, error);
+                    }
                 }
                 if (!rendered || !present(presenter, pixels, retry, error)) {
                     std::cerr << "render: " << error << "\n"; running = false; break;
