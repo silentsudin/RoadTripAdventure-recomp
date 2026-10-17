@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <limits>
 
 namespace rt::native::assets {
@@ -98,7 +99,8 @@ bool decodePsmt8Ct16(std::span<const std::uint8_t> gsl, const Unit& tex, const U
     return true;
 }
 
-bool decodePsmt4Ct16(std::span<const std::uint8_t> gsl, const Unit& tex, const Unit& pal, preview::PreviewTexture& out) {
+bool decodePsmt4Ct16(std::span<const std::uint8_t> gsl, const Unit& tex, const Unit& pal,
+                     preview::PreviewTexture& out, int clutBaseEntry = 0) {
     const std::size_t expected = (static_cast<std::size_t>(tex.width) * tex.height + 1u) / 2u;
     if (tex.bytes != expected || pal.bytes != 512) return false;
     std::vector<std::uint8_t> decoded(static_cast<std::size_t>(tex.width) * tex.height * 4u);
@@ -106,7 +108,17 @@ bool decodePsmt4Ct16(std::span<const std::uint8_t> gsl, const Unit& tex, const U
         const std::uint8_t byte = gsl[tex.pixels + (i / 2)];
         const std::uint32_t idx = (byte >> ((i & 1u) * 4u)) & 0xFu;
         const std::uint32_t phys = (idx & 7u) | ((idx & 8u) << 1);
-        const std::size_t c = phys * 2u;
+        // CSM1 swizzle (note: (idx&8)<<1 pushes phys up to 23, so the CLUT
+        // base must leave headroom >= 24 entries), plus a per-CSA base entry
+        // into the 512B CT16 unit.  The base is NOT bank*16: fitting the
+        // corpus CLUTSA variants pixel-exact (score-banks/sources.csv rows
+        // clut_offset 32896 csa 0 -> 846cef13…, csa 1 -> 711681979ef6457b…;
+        // 24576/24576 px match over v48..144) gives CSA0 -> entry 48,
+        // CSA1 -> entry 56 (entry 240 is a colour-duplicate set that
+        // overflows for phys>15).  The shipped GS picks the base per quad via
+        // CLUTSA (race-HUD banner/timer ride CSA 1 per race-hud-atlas.md).
+        const std::size_t c = (static_cast<std::size_t>(clutBaseEntry & 255) + phys) * 2u;
+        if (c + 1 >= pal.bytes) return false;
         const std::uint16_t p16 = static_cast<std::uint16_t>(gsl[pal.pixels + c] | (static_cast<std::uint16_t>(gsl[pal.pixels + c + 1]) << 8));
         decoded[i * 4 + 0] = static_cast<std::uint8_t>((p16 & 0x1Fu) << 3);
         decoded[i * 4 + 1] = static_cast<std::uint8_t>(((p16 >> 5) & 0x1Fu) << 3);
@@ -218,7 +230,7 @@ bool decodeMeterDial(std::span<const std::uint8_t> gsl, preview::PreviewTexture&
     return false;
 }
 
-bool decodeRaceAtlas(std::span<const std::uint8_t> gsl, preview::PreviewTexture& out) {
+bool decodeRaceAtlas(std::span<const std::uint8_t> gsl, preview::PreviewTexture& out, int clutBaseEntry) {
     out = {};
     std::size_t at = 0;
     while (at + 16 <= gsl.size() && gsl[at + 3] != kEnd) {
@@ -231,7 +243,7 @@ bool decodeRaceAtlas(std::span<const std::uint8_t> gsl, preview::PreviewTexture&
                 palette.psm != kPsmCt16 || palette.width != 16 || palette.height != 16 ||
                 texture.bytes != ((static_cast<std::size_t>(texture.width) * texture.height + 1u) / 2u) ||
                 palette.bytes != 512) return false;
-            if (decodePsmt4Ct16(gsl, texture, palette, out) &&
+            if (decodePsmt4Ct16(gsl, texture, palette, out, clutBaseEntry) &&
                 out.width == 256 && out.height == 256) return true;
             out = {};
         }
@@ -260,8 +272,13 @@ HudArt loadHudArt(const std::filesystem::path& discRoot) {
         if (!input) continue;
         const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
         preview::PreviewTexture tex;
-        if (decodeRaceAtlas(bytes, tex)) {
+        if (decodeRaceAtlas(bytes, tex, 0)) {
             art.raceAtlas = std::move(tex);
+            preview::PreviewTexture banner;
+            // CSA 1 base entry 56 (empirical fit, see decodePsmt4Ct16).
+            if (decodeRaceAtlas(bytes, banner, 56)) art.raceBanner = std::move(banner);
+            else if (const char* dbg = std::getenv("RT_APP_CARDIAG"); dbg && *dbg == '1')
+                std::cerr << "hudart: raceBanner CSA1 decode failed\n";
             break;
         }
     }

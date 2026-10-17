@@ -2339,15 +2339,62 @@ int main() {
                     // The bar/lap-square placeholders are a RACE-mode stand-in
                     // only; the oracle town view has nothing top-left (its HUD
                     // is gauge + minimap pills along the bottom) —
-                    // town_driving.png check 2026-10-17.
-                    if (rendered && session.state() == rt::native::gameplay::SessionState::RACE) {
+                    // town_driving.png check 2026-10-17.  With the shipped
+                    // SCORE.GSL banner art available (raceBanner) the authentic
+                    // TOTAL TIME block below replaces the placeholder bars even
+                    // in RACE.
+                    if (rendered && session.state() == rt::native::gameplay::SessionState::RACE &&
+                        !hudArt.raceBanner) {
                         std::vector<std::uint8_t> hudPixels;
                         rendered = rt::native::preview::previewRender2D(
                             renderer, rt::native::preview::raceHudQuads(snapshot, session.totalLaps(),
                                                                          static_cast<int>(presenter.extent.width), static_cast<int>(presenter.extent.height)),
                             {0.f, 0.f, 0.f, 0.f}, hudPixels, error);
                         if (rendered) compositeOver(pixels, hudPixels);
-                        if (rendered) compositeOver(pixels, hudPixels);
+                    }
+                    // Authentic race top-left block: TOTAL TIME banner +
+                    // MM'SS"TT timer from SCORE.GSL unit 0 texels, CLUT
+                    // bank CSA 1 (race-hud-atlas.md, validated by
+                    // race_hud_side_by_side.png; cells source-atlas px ->
+                    // dest UI x/2,y/0.931 of race_hud_driving.png).
+                    if (rendered && session.state() == rt::native::gameplay::SessionState::RACE &&
+                        hudArt.raceBanner) {
+                        const float sx = static_cast<float>(presenter.extent.width) / 640.f;
+                        const float sy = static_cast<float>(presenter.extent.height) / 448.f;
+                        std::vector<rt::native::preview::HudQuad> bannerQuads;
+                        auto cell = [&bannerQuads](float su, float sv, float sw, float sh,
+                                                 float dx, float dy, float dw, float dh) {
+                            bannerQuads.push_back({dx, dy, dw, dh,
+                                                su / 256.f, sv / 256.f,
+                                                    (su + sw) / 256.f, (sv + sh) / 256.f,
+                                                    {1.f, 1.f, 1.f, 1.f}});
+                            };
+                            // Banner: yellow T medallion + lavender OTALTIME.
+                            cell(0.f, 110.f, 36.f, 34.f, 20.f * sx, 18.3f * sy, 36.f * sx, 36.5f * sy);
+                            cell(30.f, 80.f, 130.f, 18.f, 47.5f * sx, 33.3f * sy, 131.f * sx, 17.2f * sy);
+                            // Timer capsule digits d*16 at v64, marks at v48.
+                            const unsigned fr = snapshot.elapsedFrames;
+                            const unsigned m = std::min(fr / 3600u, 99u);
+                            const unsigned s = (fr / 60u) % 60u;
+                            const unsigned cs = static_cast<unsigned>(fr % 60u) * 100u / 60u;
+                            const unsigned digs[6] = {m / 10u, m % 10u, s / 10u, s % 10u, cs / 10u, cs % 10u};
+                            const float dxs[6] = {65.f, 79.f, 106.f, 121.f, 148.5f, 162.f};
+                            for (int i = 0; i < 6; ++i)
+                                cell(static_cast<float>(digs[i]) * 16.f, 64.f, 16.f, 16.f,
+                                   dxs[i] * sx, 59.1f * sy, 14.5f * sx, 17.2f * sy);
+                            cell(160.f, 48.f, 16.f, 16.f, 94.f * sx, 54.8f * sy, 14.5f * sx, 17.2f * sy);   // '
+                            cell(176.f, 48.f, 16.f, 16.f, 135.f * sx, 54.8f * sy, 14.5f * sx, 17.2f * sy);  // "
+                            std::string bannerError;
+                            std::vector<std::uint8_t> bannerPixels;
+                            if (rt::native::preview::previewUploadFontAtlas(renderer, *hudArt.raceBanner, bannerError) &&
+                                rt::native::preview::previewRender2DTextured(
+                                    renderer, bannerQuads, {0.f, 0.f, 0.f, 0.f}, bannerPixels, error))
+                                compositeOver(pixels, bannerPixels);
+                            else if (const char* dbg = std::getenv("RT_APP_CARDIAG"); dbg && *dbg == '1') {
+                                static bool once = false;
+                                if (!once) { once = true; std::cout << "rt-app banner FAIL: " << bannerError << " / " << error << "\n"; }
+                            }
+                        }
                         // Shipped speedometer dial (oracle gauge face rect
                         // (492,336,132,96) of 640x480 — hud-layout.md:81
                         // CONFIRMED, atlas entry 0; texture ITEM/METER0.GSL
@@ -2504,8 +2551,12 @@ int main() {
                                               static_cast<int>(rt::native::gameplay::collectedCount(collectibles)) * 500,
                                               static_cast<int>(session.progress().money), w, h)
                                         : session.state() == rt::native::gameplay::SessionState::RACE
-                                               ? rt::native::preview::raceHudTextQuads(snapshot,
-                                                                                      session.totalLaps(), w, h)
+                                               // Authentic SCORE.GSL timer digits replace the
+                                               // FONTE stand-in when the banner page is bound.
+                                               ? (hudArt.raceBanner
+                                                      ? std::vector<rt::native::preview::HudQuad>{}
+                                                      : rt::native::preview::raceHudTextQuads(
+                                                            snapshot, session.totalLaps(), w, h))
                                                // Oracle town view keeps the clock inside the
                                                // gauge band (pass 3), not top-right; only fall
                                                // back to the FONTE corner clock without art.
@@ -2534,7 +2585,6 @@ int main() {
                                 std::cout << "rt-app hudtext: upload failed: " << texError << "\n";
                             }
                         }
-                    }
                 } else {
                     const int menuW = static_cast<int>(presenter.extent.width);
                     const int menuH = static_cast<int>(presenter.extent.height);

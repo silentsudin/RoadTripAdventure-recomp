@@ -34,13 +34,17 @@ bool decodeMeterDial(std::span<const std::uint8_t> gsl, preview::PreviewTexture&
 
 // Decodes the first PSMT4 256x256 + following CT16 CLUT from a SCORE.GSL
 // (the race-HUD element atlas per hud-layout.md). Malformed yields false.
-bool decodeRaceAtlas(std::span<const std::uint8_t> gsl, preview::PreviewTexture& out);
+// clutBaseEntry selects the CLUT base within the 512B CT16 unit: 0 default,
+// 56 = CSA 1 (TOTAL TIME banner + yellow timer colours per race-hud-atlas.md
+// and the corpus pixel-exact base-entry fit).
+bool decodeRaceAtlas(std::span<const std::uint8_t> gsl, preview::PreviewTexture& out, int clutBaseEntry = 0);
 
 // Loads the shipped HUD art pieces at runtime. Missing/invalid = nullopt.
 struct HudArt {
     std::optional<preview::PreviewTexture> speedDial;   // 256x128 baked dial ring + glyphs (ITEM/METER0.GSL unit 0)
     std::optional<preview::PreviewTexture> speedDigits; // 256x128 dynamic gauge parts, digit row at v=102 (ITEM/METER10.GSL unit 0)
     std::optional<preview::PreviewTexture> raceAtlas;   // 256x256 elements (SYS/SCORE.GSL unit 0)
+    std::optional<preview::PreviewTexture> raceBanner;   // same texels, CLUT bank CSA 1: TOTAL TIME banner + yellow timer (race-hud-atlas.md)
     // needle: rotated procedurally (ElementA type-2 quad); no static texture.
     // minimapMap: live-rendered viewport of world data (no static GSL graphic located).
 };
