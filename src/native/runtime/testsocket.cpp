@@ -77,8 +77,17 @@ bool TestSocket::startIfRequested(Command command) {
         if (bind(fd, reinterpret_cast<sockaddr*>(&a), sizeof(a)) != 0) { close(fd); return false; }
     } else if (!spec.empty() && spec[0] == '@') {
         sockaddr_un a{}; a.sun_family = AF_UNIX; a.sun_path[0] = '\0';
-        std::strncpy(a.sun_path + 1, spec.c_str() + 1, sizeof(a.sun_path) - 2);
-        if (bind(fd, reinterpret_cast<sockaddr*>(&a), sizeof(sa_family_t) + spec.size() - 1) != 0) { close(fd); return false; }
+        const std::size_t nameLen = spec.size() - 1;  // chars after '@'
+        if (nameLen > sizeof(a.sun_path) - 1) { close(fd); return false; }
+        std::memcpy(a.sun_path + 1, spec.c_str() + 1, nameLen);
+        // Abstract name length = the NUL + the name bytes INSIDE sun_path,
+        // and sun_path starts after the family field:  sizeof(sa_family_t)
+        // + 1 + nameLen  (the previous `- 1` dropped the final character and
+        // the listener bound as "@roadtrip-tes" -> every adb forward connect
+        // was refused while /proc/net/unix still showed a roadtrip entry).
+        const socklen_t bindLen =
+            static_cast<socklen_t>(sizeof(sa_family_t) + 1 + nameLen);
+        if (bind(fd, reinterpret_cast<sockaddr*>(&a), bindLen) != 0) { close(fd); return false; }
     } else { close(fd); return false; }
     if (listen(fd, 1) != 0) { close(fd); return false; }
     impl_->listener = fd; impl_->enabled = true;

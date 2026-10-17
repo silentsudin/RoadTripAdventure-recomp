@@ -37,7 +37,7 @@ else
 fi
 
 note "fresh asset extraction"
-adb -s "$serial" shell "run-as '$package' sh -c 'rm -rf files/assets files/states; mkdir -p files; printf \"RT_APP_FRAMES=1200\\nRT_APP_TERRAIN=1\\nRT_APP_STATE=PLAYING\\nRT_DISC=/storage/emulated/0/Download/RoadTripDisc\\n\" > files/env.txt'" || true
+adb -s "$serial" shell "run-as '$package' sh -c 'rm -rf files/assets files/states; mkdir -p files; printf \"RT_APP_FRAMES=6000\\nRT_APP_TERRAIN=1\\nRT_APP_STATE=PLAYING\\nRT_DISC=/storage/emulated/0/Download/RoadTripDisc\\n\" > files/env.txt'" || true
 adb -s "$serial" logcat -c || true
 extract_start=$(date +%s)
 adb -s "$serial" shell am force-stop "$package" || true
