@@ -29,6 +29,14 @@ void GameSession::update(const MenuInput& input, const CarInput* driveInput) {
     switch (state_) {
     case SessionState::EXPLORE:
         if (input.confirm) startRace();
+        // Town drive v1 (physics-wave slice, 2026-10-17): when the host is
+        // driving via the test socket, free-drive the SAME validated car
+        // physics + chase camera + world streaming as the race (GameLoop::
+        // tickPlayer). The original town script (doors, traffic, pedestrians)
+        // remains unmerged, and the pose starts on the configured spawn —
+        // Peach-Town-local anchoring is the next slice. Null driveInput
+        // (every non-lockstep run) keeps EXPLORE behaviour byte-identical.
+        if (driveInput) lastSnapshot_ = gameLoop_.tickPlayer(1.f / 60.f, input, *driveInput);
         break;
     case SessionState::RACE:
         raceTracker_.tick();

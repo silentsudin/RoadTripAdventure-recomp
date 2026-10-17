@@ -114,6 +114,7 @@ def town(sock: NativeSocket, result: dict, serial: str, screenshots: Path) -> No
     if moved <= 0.0:
         raise RuntimeError(f"town gas did not move car: {before} -> {after}")
     native_gap(result, f"No speed facade; town movement asserted from position delta {moved:.3f} over 180 ticks.")
+    native_gap(result, "Town drive v1 physics runs (tickPlayer free-drive); Peach-Town-local spawn anchor pending.")
     native_gap(result, "Doors/interiors/traffic are not implemented by the native model.")
     item.update(status="PASS", tile=current, position_before=before, position_after=after,
                 speed_estimate=moved * 60.0 / 180.0)
