@@ -381,6 +381,13 @@ std::optional<std::uint8_t> radioStationRequest() {
             return std::nullopt;
         return byte;
     }
+    // Precedence (regression: bgm/bgm_tsq matrix rows failed after the
+    // radio-default wave, 2026-10-17): an EXPLICIT fixed-BGM request
+    // (RT_APP_BGM path or RT_APP_BGM_TSQ) always wins over the IMPLICIT
+    // default station — scripts pin those to exercise the VAG/TSQ path.
+    // An explicit RT_APP_RADIO above still wins over everything.
+    if (std::getenv("RT_APP_BGM") || std::getenv("RT_APP_BGM_TSQ"))
+        return std::nullopt;
     if (radioStationFileAvailable(rt::native::gameplay::RadioStation::PeachFm))
         return static_cast<std::uint8_t>(rt::native::gameplay::RadioStation::PeachFm);
     return std::nullopt;
@@ -1060,6 +1067,42 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
                   << " unresolved=" << unresolved;
     }
     std::cout << "\n";
+    {
+        // Height diagnostic (diagnosed the under-town camera, 2026-10-17):
+        // overall y range plus the plaza area around the town anchor
+        // (506.283, 442.230 game units -> 50.6, 44.2 render units).
+        float yMin = 1e30f, yMax = -1e30f;
+        float pMin = 1e30f, pMax = -1e30f;
+        for (const auto& p : mesh.positions) {
+            yMin = std::min(yMin, p[1]);
+            yMax = std::max(yMax, p[1]);
+            if (std::fabs(p[0] - 50.6f) < 8.f && std::fabs(p[2] - 44.2f) < 8.f) {
+                pMin = std::min(pMin, p[1]);
+                pMax = std::max(pMax, p[1]);
+            }
+        }
+        std::cout << "rt-app terrain: y-range=" << yMin << ".." << yMax
+                  << " plaza(50,44)y=" << (pMax > pMin ? pMin : -999.f) << ".."
+                  << (pMax > pMin ? pMax : -999.f) << "\n";
+        // Colour diagnostics: vertex RGBA means + first textured page's pixel
+        // mean (dark-crush hunt 2026-10-17: mid-frame terrain measured
+        // ~(7,19,8) with blue crushed; decide decode vs shader).
+        if (!mesh.colours.empty()) {
+            double r = 0, g = 0, b = 0, a = 0;
+            for (const auto& c : mesh.colours) { r += c[0]; g += c[1]; b += c[2]; a += c[3]; }
+            const double n = mesh.colours.size();
+            std::cout << "rt-app terrain: vtx RGBA mean=" << r / n << ',' << g / n << ','
+                      << b / n << ',' << a / n << "\n";
+        }
+        if (!mesh.textures.empty()) {
+            const auto& t = mesh.textures[0];
+            double r = 0, g = 0, bl = 0;
+            std::size_t px = t.rgba.size() / 4;
+            for (std::size_t i = 0; i < t.rgba.size(); i += 4) { r += t.rgba[i]; g += t.rgba[i + 1]; bl += t.rgba[i + 2]; }
+            std::cout << "rt-app terrain: page0 " << t.width << 'x' << t.height << " mean="
+                      << r / px << ',' << g / px << ',' << bl / px << "\n";
+        }
+    }
     return mesh;
 }
 

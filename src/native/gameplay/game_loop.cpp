@@ -11,6 +11,7 @@ GameLoop::GameLoop(const GameLoopParams& params) : params_(params) { reset(); }
 
 void GameLoop::reset() {
     tasks_ = TaskPool();
+    groundY_ = 0.f;  // race course starts at datum; anchors re-set it
     car_ = CarState();
     camera_ = CameraState();
     raceTracker_ = RaceTracker(0);
@@ -68,7 +69,8 @@ FrameSnapshot GameLoop::makeSnapshot() {
     // to CameraParams) so callers/tests tune without per-scene rebuilds.
     // See docs/native-reference/camera-framing.md for targets + citations.
     CarPose pose;
-    pose.position = {ai_.position.x * params_.renderScale, 0.f, ai_.position.z * params_.renderScale};
+    pose.position = {ai_.position.x * params_.renderScale, groundY_,
+                     ai_.position.z * params_.renderScale};
     pose.heading = ai_.heading;
     CameraParams cp{};
     cp.distanceNear = params_.chaseBackDistance;
@@ -158,18 +160,27 @@ FrameSnapshot GameLoop::tickPlayer(float /*dt*/, const MenuInput& /*menuInput*/,
     return makeSnapshot();
 }
 
-void GameLoop::setCarPose(float x, float z, float headingRadians) {
+void GameLoop::setCarPose(float x, float z, float headingRadians, float yGameUnits) {
     // Authoritative pose for AI/explore (world units; matches ai_ fields read
-    // by makeSnapshot and CarPose passed to updateCamera). Does not alter
-    // physics car_ speed or AI waypoint state.
+    // by makeSnapshot and CarPose passed to updateCamera). FREEZES motion:
+    // speed and steering-angle clear with the pose, so an anchored car (e.g.
+    // the Peach Town square) does not drift on the next idle tick. Gear/rpm/
+    // odometer are left alone (presentation state, no integration effect).
+    // yGameUnits is the authoritative ground elevation (game units): the
+    // oracle Peach Town square sits at y=30 (oracle-golden-frames.md:54),
+    // so a y=0 chase camera would render UNDERNEATH the town plaza.
     ai_.position = {x, z};
     ai_.heading = headingRadians;
+    groundY_ = yGameUnits * params_.renderScale;
+    car_.speed = 0;
+    car_.steeringAngle = 0;
+    car_.brakeRamp = 0;
     // Refresh camera to the new pose so the next snapshot does not snap from
     // a stale prior camera state (sets initialized=false then update snaps).
     // Thread affinity: simulation thread only (no locking).
     camera_.initialized = false;
     CarPose pose;
-    pose.position = {x * params_.renderScale, 0.f, z * params_.renderScale};
+    pose.position = {x * params_.renderScale, groundY_, z * params_.renderScale};
     pose.heading = headingRadians;
     CameraParams cp{};
     cp.distanceNear = params_.chaseBackDistance;

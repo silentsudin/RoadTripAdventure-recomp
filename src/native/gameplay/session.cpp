@@ -20,10 +20,22 @@ std::uint32_t rewardForRank(int rank) {
     return 250;
 }
 
+// Peach Town square spawn, proven from the oracle golden frame
+// (docs/native-reference/oracle-golden-frames.md:54: car at
+// (506.283, 30.000, 442.230), clock 82974, just outside the factory).
+// Heading 0 (+Z) is AUTHORED — the ledger records position, not yaw.
+constexpr float kTownSpawnX = 506.283f;
+constexpr float kTownSpawnYGame = 30.0f;  // square elevation, oracle y=30.000
+constexpr float kTownSpawnZ = 442.230f;
+
 }  // namespace
 
 GameSession::GameSession(int totalLaps)
-    : progress_(makeDefaultSave()), gameLoop_(makeRaceParams(totalLaps)) {}
+    : progress_(makeDefaultSave()), gameLoop_(makeRaceParams(totalLaps)) {
+    // Begin every Adventure at the Peach Town square so facade reads,
+    // explore camera and terrain streaming all show the town on boot.
+    setExplorePose(kTownSpawnX, kTownSpawnZ, 0.f);
+}
 
 void GameSession::update(const MenuInput& input, const CarInput* driveInput) {
     switch (state_) {
@@ -33,9 +45,9 @@ void GameSession::update(const MenuInput& input, const CarInput* driveInput) {
         // driving via the test socket, free-drive the SAME validated car
         // physics + chase camera + world streaming as the race (GameLoop::
         // tickPlayer). The original town script (doors, traffic, pedestrians)
-        // remains unmerged, and the pose starts on the configured spawn —
-        // Peach-Town-local anchoring is the next slice. Null driveInput
-        // (every non-lockstep run) keeps EXPLORE behaviour byte-identical.
+        // remains unmerged; the pose starts on the Peach Town square anchor
+        // (kTownSpawn* above, oracle-proven). Null driveInput (every
+        // non-lockstep run) keeps EXPLORE behaviour unchanged.
         if (driveInput) lastSnapshot_ = gameLoop_.tickPlayer(1.f / 60.f, input, *driveInput);
         break;
     case SessionState::RACE:
@@ -71,6 +83,19 @@ void GameSession::startRace() {
 void GameSession::continueFromResults() {
     if (state_ != SessionState::RESULTS) return;
     state_ = SessionState::EXPLORE;
+    // Back to the Peach Town square after a race (AUTHORED placement: the
+    // oracle returns the car to town; the exact return yaw is unrecorded).
+    setExplorePose(kTownSpawnX, kTownSpawnZ, 0.f);
+}
+
+void GameSession::setExplorePose(float x, float z, float headingRadians) {
+    // The Peach Town square sits at game-unit y=30 (oracle ledger), lifted
+    // through GameLoop::setCarPose so the chase camera rides above the plaza.
+    gameLoop_.setCarPose(x, z, headingRadians, kTownSpawnYGame);
+    // One idle tick rebuilds the facade-visible snapshot at the new pose
+    // (setCarPose marks the camera uninitialised so this tick snaps to it).
+    const CarInput idle{};
+    lastSnapshot_ = gameLoop_.tickPlayer(1.f / 60.f, MenuInput{}, idle);
 }
 
 bool GameSession::save(MemoryCard& card, int slot) const {

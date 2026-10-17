@@ -61,7 +61,13 @@ struct GameLoopParams {
     float chaseLookAtHeight = kChaseLookAtRu;
 
     // Time of day: starting clock (vblanks since midnight, wraps at kDayTicks).
-    std::uint32_t initialClock = 0;
+    // Default 09:13 morning matches the shipped Peach Town look: the oracle
+    // golden town_driving.png shows the HUD clock at 09:13 with counter 82974
+    // seconds after spawn (docs/native-reference/oracle-golden-frames.md:54);
+    // 9 h * 9000 + 13 min * 150 = 82950 ticks (hud_layout.h:363-364).
+    // AUTHORED-GAP: the Quick Race start clock is undocumented; the morning
+    // default follows the town evidence so first-boot lighting matches goldens.
+    std::uint32_t initialClock = 82950u;
 
     // Race timing is opt-in so the default remains a free drive.
     bool raceMode = false;
@@ -116,13 +122,18 @@ public:
     float roadDistance(Vec2 p) const;
 
     // Sets the AI/authoritative car pose (world units; same fields read by
-    // makeSnapshot and passed to updateCamera). Refreshes internal camera
+    // makeSnapshot and passed to updateCamera), and freezes speed/steering so
+    // an anchored car stays put on idle ticks. yGameUnits is the ground
+    // elevation in game units (0 = flat race course; 30 = Peach Town square,
+    // oracle-golden-frames.md:54) so the chase camera rides above elevated
+    // town terrain instead of clipping under it. Refreshes internal camera
     // state from the pose so the next snapshot continues smoothly (no snap
     // from stale prior camera). Thread affinity: simulation thread only.
-    void setCarPose(float x, float z, float headingRadians);
+    void setCarPose(float x, float z, float headingRadians, float yGameUnits = 0.f);
 
 private:
     GameLoopParams params_;
+    float groundY_ = 0.f;  // authoritative ground elevation, render units
     TaskPool tasks_;
     World world_;
     CarState car_;

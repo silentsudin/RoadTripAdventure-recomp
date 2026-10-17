@@ -2,6 +2,7 @@
 #include "../../src/native/gameplay/daynight.h"
 #include "../../src/native/preview/lighting.h"
 
+#include <array>
 #include <cmath>
 #include <cstdio>
 
@@ -35,9 +36,29 @@ int main() {
     const auto selected = preview::selectSceneLighting(day);
     CHECK(selected.enabled);
     CHECK(near(selected.fogFarRender, 80.f));
-    CHECK(near(selected.clear[0], 1.f));  // authored day endpoint is 0x80ffffff
-    CHECK(near(selected.clear[1], 1.f));
-    CHECK(near(selected.clear[2], 1.f));
+    // Daytime clear blends to the oracle-measured dome blue (43,154,216 in
+    // oracle-golden/title.png near (100,10)); the ROM skyColour (white day
+    // endpoint 0x80ffffff) is sun/FOG data, not the visible dome.
+    CHECK(near(selected.clear[0], 43.f / 255.f));
+    CHECK(near(selected.clear[1], 154.f / 255.f));
+    CHECK(near(selected.clear[2], 216.f / 255.f));
+
+    // Blend helper: zero weight passes through, weights >= 1 clamp to full
+    // blue, and a manual half-weight output sits at the midpoint.
+    const std::array<float, 4> white{1.f, 1.f, 1.f, 1.f};
+    const auto none = preview::blendClearToOracleSky(white, 0.f);
+    CHECK(near(none[0], 1.f) && near(none[2], 1.f));
+    const auto full = preview::blendClearToOracleSky(white, 1.1f);
+    CHECK(near(full[0], 43.f / 255.f) && near(full[1], 154.f / 255.f));
+    gameplay::DayNightOutput dusk;
+    dusk.dayWeight = .5f;
+    dusk.fogFar = 800.f;
+    dusk.skyColour = 0x80ffffffu;
+    dusk.lightMatrix[15] = 128.f;
+    const auto half = preview::selectSceneLighting(dusk);
+    CHECK(half.enabled);
+    CHECK(near(half.clear[0], (.5f * 1.f + .5f * 43.f / 255.f)));
+    CHECK(near(half.clear[2], (.5f * 1.f + .5f * 216.f / 255.f)));
 
     // A default-constructed snapshot has no authored matrices, so preserve
     // the legacy dark clear rather than treating its default night values as

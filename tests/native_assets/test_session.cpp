@@ -51,6 +51,9 @@ void testAdventureLoopAwardsFinishAndReturnsToExplore() {
 
     session.continueFromResults();
     CHECK(session.state() == SessionState::EXPLORE);
+    // Post-race return lands back on the Peach Town square anchor.
+    CHECK(session.lastSnapshot().carPosition.x == 506.283f);
+    CHECK(session.lastSnapshot().carPosition.z == 442.230f);
 }
 
 void testConfirmDrivesExploreAndResultsTransitions() {
@@ -86,6 +89,10 @@ void testTownDriveMovesCarWithGas() {
     // reaches the same validated car physics + chase camera as the race.
     GameSession session(1);
     const auto p0 = session.lastSnapshot().carPosition;
+
+    // Peach Town square anchor (oracle-golden-frames.md:54): every Adventure
+    // starts at the factory-side square, and facade reads see it immediately.
+    CHECK(p0.x == 506.283f && p0.z == 442.230f);
 
     // Null driveInput (every non-lockstep run) keeps EXPLORE frozen — the
     // no-assets default-launch determinism contract.

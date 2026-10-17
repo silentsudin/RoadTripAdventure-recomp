@@ -23,6 +23,12 @@ public:
     void startRace();
     void continueFromResults();
 
+    // Anchors the authoritative car pose and refreshes the facade-visible
+    // snapshot with one idle tick. Used to place the explore car on the
+    // Peach Town square (kTownSpawn* in session.cpp, oracle-proven).
+    // Simulation thread only (mirrors GameLoop::setCarPose).
+    void setExplorePose(float x, float z, float headingRadians);
+
     [[nodiscard]] const SaveData& progress() const { return progress_; }
     [[nodiscard]] const FrameSnapshot& lastSnapshot() const { return lastSnapshot_; }
     [[nodiscard]] const World& world() const { return gameLoop_.world(); }

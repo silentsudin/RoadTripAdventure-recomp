@@ -85,12 +85,15 @@ static void testCull() {
 
 static void testLighting() {
     const MenuInput mi;
-    {  // clock advances 1/tick from 0; night band
+    {  // clock advances 1/tick from the MORNING default (82950 = 09:13,
+       // the oracle Peach Town clock — oracle-golden-frames.md:54; default set
+       // in game_loop.h) and sits in the full-day band (same weights as the
+       // 06:40 day band below)
         GameLoop g;
         for (std::uint32_t i = 1; i <= 100; ++i) {
             const FrameSnapshot s = g.tick(0.f, mi);
-            CHECK(s.clock == i);
-            CHECK(s.lighting.nightWeight == 1.1f && s.lighting.dayWeight == 0.f && s.lighting.duskWeight == 0.f);
+            CHECK(s.clock == 82950u + i);
+            CHECK(s.lighting.dayWeight == 1.1f && s.lighting.nightWeight == 0.f && s.lighting.duskWeight == 0.f);
         }
     }
     {  // wrap at kDayTicks

@@ -49,11 +49,27 @@ inline float fogFactor(float distance, float fogFar) {
     return t * t * (3.f - 2.f * t);
 }
 
+// The visible daytime dome in the shipped game is a medium blue — the ROM
+// skyColour field in updateTimeOfDayLight is the SUN light colour (0xf05800
+// orange for day, daynight.cpp:189), not the sky background. The golden
+// frames' dome samples at (43,154,216) in build/scratch/oracle-golden/
+// title.png near (100,10). AUTHORED blend: pull the computed clear colour
+// toward the measured blue by the (clamped) day weight, leaving dusk/night
+// computed colours untouched at zero weight.
+inline constexpr std::array<float, 4> kOracleDaySkyBlue{43.f / 255.f, 154.f / 255.f, 216.f / 255.f, 1.f};
+
+inline std::array<float, 4> blendClearToOracleSky(std::array<float, 4> clear, float dayWeight) {
+    const float t = std::clamp(dayWeight, 0.f, 1.f);
+    for (int i = 0; i < 3; ++i)
+        clear[i] = clear[i] * (1.f - t) + kOracleDaySkyBlue[i] * t;
+    return clear;
+}
+
 inline SceneLighting selectSceneLighting(const gameplay::DayNightOutput& lighting) {
     SceneLighting selected;
     if (!hasSceneLighting(lighting)) return selected;
     selected.enabled = true;
-    selected.clear = argbToRgba(lighting.skyColour);
+    selected.clear = blendClearToOracleSky(argbToRgba(lighting.skyColour), lighting.dayWeight);
     selected.fog = argbToRgba(lighting.fogColourRGBA);
     selected.fogFarRender = lighting.fogFar * .1f;
     selected.fog[3] = selected.fogFarRender;

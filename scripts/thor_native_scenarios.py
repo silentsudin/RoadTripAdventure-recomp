@@ -104,6 +104,11 @@ def town(sock: NativeSocket, result: dict, serial: str, screenshots: Path) -> No
         raise RuntimeError(f"town tile expected 43, got {current}")
     capture(serial, screenshots, "town-ready.png")
     before = sock.position()
+    # Peach Town square anchor, oracle-proven (oracle-golden-frames.md:54:
+    # car (506.283, 30.000, 442.230)): every session spawns here, so the
+    # first town read must land on the square before any throttle.
+    if not (abs(before[0] - 506.283) < 2.0 and abs(before[1] - 442.230) < 2.0):
+        raise RuntimeError(f"town spawn not on Peach Town square: {before}")
     sock.pad(buttons=0xFFFF & ~CROSS)
     sock.step(180)
     after = sock.position()

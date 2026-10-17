@@ -276,6 +276,35 @@ static void testAspectDoesNotMoveEye() {
     // Proj does change with aspect (but we don't assert specific matrix here).
 }
 
+static void testSetCarPoseFreezesMotion() {
+    // Anchoring a ROLLING car must freeze speed/steering with the pose so no
+    // idle tick can drift it off the anchor (Peach Town square hold;
+    // GameSession::continueFromResults relies on this exact semantics).
+    GameLoop g;
+    const MenuInput mi = makeMi();
+    CarInput gas{};
+    gas.gas = true;
+    for (int i = 0; i < 60; ++i) g.tickPlayer(0.f, mi, gas);
+    g.setCarPose(506.283f, 442.230f, 0.f);
+    const FrameSnapshot s1 = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(nearEq(s1.carPosition.x, 506.283f, 1e-5f));
+    CHECK(nearEq(s1.carPosition.z, 442.230f, 1e-5f));
+    CHECK(s1.speed == 0.f);
+    const FrameSnapshot s2 = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(s2.carPosition.x == s1.carPosition.x);
+    CHECK(s2.carPosition.z == s1.carPosition.z);
+
+    // Elevation: anchoring at the Peach Town square ground (game y=30 ->
+    // 3.0 RU) must lift the eye above the plaza (oracle y=30.000,
+    // oracle-golden-frames.md:54), and reset() returns the datum to 0.
+    g.setCarPose(0.f, 0.f, 0.f, 30.f);
+    const FrameSnapshot s3 = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(nearEq(s3.cameraEye.y, 3.f + 2.f + 7.f * std::sin(kChasePitchRad), 0.01f));
+    g.reset();
+    const FrameSnapshot s4 = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(nearEq(s4.cameraEye.y, 2.f + 7.f * std::sin(kChasePitchRad), 0.01f));
+}
+
 int main() {
     testExtractedCameraConstants();
     testBehindAndAbove();
@@ -285,6 +314,7 @@ int main() {
     testYawFollow();
     testChaseCameraFramingTargets();
     testSetCarPoseReanchorsDeterministically();
+    testSetCarPoseFreezesMotion();
     testAspectDoesNotMoveEye();
     if (g_fail) { std::fprintf(stderr, "%d failure(s)\n", g_fail); return 1; }
     std::puts("camera: all checks passed");
