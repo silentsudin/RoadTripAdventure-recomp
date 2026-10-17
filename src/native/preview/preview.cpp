@@ -193,6 +193,13 @@ struct Renderer {
     VkDeviceSize hudVbCap = 0;
     TexEntry hudAtlas{};
     bool hudAtlasReady = false;
+    // Identity of the buffer behind the single HUD texture slot: font
+    // atlas, title backdrop and the race dial share it, so re-upload when
+    // the buffer identity changes.  The bare bool previously let a stale
+    // binding persist (backdrop art sampled through glyph UVs).
+    const std::uint8_t* hudAtlasPtr = nullptr;
+    std::uint32_t hudAtlasW = 0;
+    std::uint32_t hudAtlasH = 0;
 };
 
 static const VkMemoryPropertyFlags kHostMem = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -1177,8 +1184,13 @@ struct HudVertex { float x, y, u, v, r, g, b, a; };
 bool previewUploadFontAtlas(Renderer* Rp, const PreviewTexture& atlas, std::string& error) {
     if (!Rp) { error = "null renderer"; return false; }
     Renderer& R = *Rp;
-    if (R.hudAtlasReady) return true;
+    if (R.hudAtlasReady && R.hudAtlasPtr == atlas.rgba.data() &&
+        R.hudAtlasW == atlas.width && R.hudAtlasH == atlas.height)
+        return true;
     if (!ensurePageTexture(R, error, atlas, R.hudAtlas)) return false;
+    R.hudAtlasPtr = atlas.rgba.data();
+    R.hudAtlasW = atlas.width;
+    R.hudAtlasH = atlas.height;
     R.hudAtlasReady = true;
     return true;
 }

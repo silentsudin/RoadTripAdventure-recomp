@@ -8,6 +8,7 @@
 #include "assets/native_model.h"
 #include "assets/setup_wizard.h"
 #include "assets/title_screen.h"
+#include "assets/hud_art.h"
 #include "assets/nav_routes.h"
 #include "audio/bgm_player.h"
 #include "audio/engine.h"
@@ -1589,6 +1590,9 @@ int main() {
     // gains the authentic silhouette, textured mode samples the car's own
     // 128x128 PSMT8 livery.  Load failures degrade to the demo box.
     std::optional<rt::native::preview::PreviewTexture> carLivery;
+    // Shipped race-HUD art (dial face METER0.GSL + SCORE.GSL atlas) loaded
+    // once at runtime; missing disc leaves the authored placeholders.
+    static const rt::native::assets::HudArt hudArt = rt::native::assets::loadHudArt(discRoot());
     if (const char* cm = std::getenv("RT_APP_CARMODEL")) {
         const int q = *cm ? std::atoi(cm) : 0;
         char leaf[24];
@@ -2207,6 +2211,30 @@ int main() {
                                                                          static_cast<int>(presenter.extent.width), static_cast<int>(presenter.extent.height)),
                             {0.f, 0.f, 0.f, 0.f}, hudPixels, error);
                         if (rendered) compositeOver(pixels, hudPixels);
+                        // Shipped speedometer dial (oracle gauge face rect
+                        // (492,336,132,96) of 640x480 — hud-layout.md:81
+                        // CONFIRMED, atlas entry 0; texture ITEM/METER0.GSL
+                        // unit 0, 256x128 PSMT8 — hud_art.cpp).  Rides the
+                        // shared HUD slot; the font upload below now detects
+                        // the buffer switch and rebinds FONTE (preview.cpp
+                        // hudAtlasPtr), so digits stay crisp over the dial.
+                        if (rendered &&
+                            session.state() == rt::native::gameplay::SessionState::RACE &&
+                            hudArt.speedDial) {
+                            std::string dialError;
+                            if (rt::native::preview::previewUploadFontAtlas(
+                                    renderer, *hudArt.speedDial, dialError)) {
+                                const float sx = static_cast<float>(presenter.extent.width) / 640.f;
+                                const float sy = static_cast<float>(presenter.extent.height) / 480.f;
+                                const rt::native::preview::HudQuad dialQuad{
+                                    492.f * sx, 336.f * sy, 132.f * sx, 96.f * sy,
+                                    0.f, 0.f, 1.f, 1.f, {1.f, 1.f, 1.f, 1.f}};
+                                std::vector<std::uint8_t> dialPixels;
+                                if (rt::native::preview::previewRender2DTextured(
+                                        renderer, {dialQuad}, {0.f, 0.f, 0.f, 0.f}, dialPixels, error))
+                                    compositeOver(pixels, dialPixels);
+                            }
+                        }
                         if (hudTextEnabled && rendered) {
                             // Idempotent per renderer: re-uploads only after a
                             // renderer recreate (resize path), no-op otherwise.
