@@ -64,10 +64,20 @@ FrameSnapshot GameLoop::makeSnapshot() {
     updateTimeOfDayLight(0.0f, clock_, lighting_);
 
     // Camera and projection are in render space.
+    // Chase-camera construction parameterized here (via GameLoopParams wired
+    // to CameraParams) so callers/tests tune without per-scene rebuilds.
+    // See docs/native-reference/camera-framing.md for targets + citations.
     CarPose pose;
     pose.position = {ai_.position.x * params_.renderScale, 0.f, ai_.position.z * params_.renderScale};
     pose.heading = ai_.heading;
-    updateCamera(camera_, pose, static_cast<float>(car_.speed) * params_.cameraSpeedScale);
+    CameraParams cp{};
+    cp.distanceNear = params_.chaseBackDistance;
+    cp.distanceFar  = params_.chaseBackDistance;
+    cp.baseHeight   = params_.chaseBaseHeight;
+    cp.pitchLow     = params_.chasePitchRad;
+    cp.pitchHigh    = params_.chasePitchRad;
+    cp.lookAtHeight = params_.chaseLookAtHeight;
+    updateCamera(camera_, pose, static_cast<float>(car_.speed) * params_.cameraSpeedScale, cp);
     const Mat4 v = lookAtMatrix(camera_.eye, camera_.target);
 
     FrameSnapshot s;
@@ -146,6 +156,29 @@ FrameSnapshot GameLoop::tickPlayer(float /*dt*/, const MenuInput& /*menuInput*/,
     if (params_.raceMode) raceTracker_.tick();
     for (int k = 0; k < params_.physicsTicksPerFrame; ++k) integrateCar(input);
     return makeSnapshot();
+}
+
+void GameLoop::setCarPose(float x, float z, float headingRadians) {
+    // Authoritative pose for AI/explore (world units; matches ai_ fields read
+    // by makeSnapshot and CarPose passed to updateCamera). Does not alter
+    // physics car_ speed or AI waypoint state.
+    ai_.position = {x, z};
+    ai_.heading = headingRadians;
+    // Refresh camera to the new pose so the next snapshot does not snap from
+    // a stale prior camera state (sets initialized=false then update snaps).
+    // Thread affinity: simulation thread only (no locking).
+    camera_.initialized = false;
+    CarPose pose;
+    pose.position = {x * params_.renderScale, 0.f, z * params_.renderScale};
+    pose.heading = headingRadians;
+    CameraParams cp{};
+    cp.distanceNear = params_.chaseBackDistance;
+    cp.distanceFar  = params_.chaseBackDistance;
+    cp.baseHeight   = params_.chaseBaseHeight;
+    cp.pitchLow     = params_.chasePitchRad;
+    cp.pitchHigh    = params_.chasePitchRad;
+    cp.lookAtHeight = params_.chaseLookAtHeight;
+    updateCamera(camera_, pose, static_cast<float>(car_.speed) * params_.cameraSpeedScale, cp);
 }
 
 }  // namespace rt::native::gameplay

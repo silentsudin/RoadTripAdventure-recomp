@@ -1,9 +1,12 @@
 // Authored chase-camera contract tests (src/native/gameplay/camera.*).
 // Concrete numeric assertions; no game data, no framework.
+// Additional GameLoop camera framing + setCarPose tests per camera-framing.md.
 #include "../../src/native/gameplay/camera.h"
+#include "../../src/native/gameplay/game_loop.h"
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 
@@ -151,6 +154,128 @@ static void testYawFollow() {
     CHECK(dot(cam.forward, carForward(car)) > 0.95f);
 }
 
+// --- GameLoop chase-camera framing + setCarPose tests (camera-framing.md) ---
+
+static MenuInput makeMi() { return MenuInput{}; }
+
+// Compute flat-road ground strike distance ahead of car origin (y=0 ray cast).
+// eye->target extended; diagnostic per camera-framing.md:30 .
+static float groundStrikeRu(const Vec3& eye, const Vec3& target, float carX, float carZ) {
+    const float dy = eye.y - target.y;
+    if (std::fabs(dy) < 1e-9f) return 0.f;
+    // parametric t where y=0: t = eye.y / (eye.y - target.y)
+    const float t = eye.y / dy;
+    const float strikeX = eye.x + t * (target.x - eye.x);
+    const float strikeZ = eye.z + t * (target.z - eye.z);
+    const float dx = strikeX - carX;
+    const float dz = strikeZ - carZ;
+    return std::sqrt(dx*dx + dz*dz);
+}
+
+static void testChaseCameraFramingTargets() {
+    // Use GameLoopParams set to documented targets (wired to CameraParams inside).
+    GameLoopParams p;
+    p.chaseBackDistance = kChaseBackRu;
+    p.chaseBaseHeight   = kChaseHeightRu;
+    p.chasePitchRad     = kChasePitchRad;
+    p.chaseLookAtHeight = kChaseLookAtRu;
+    p.fovY = kChaseFovYRad;
+    GameLoop g(p);
+
+    // Place car at origin heading +Z for easy math.
+    const float cx = 0.f, cz = 0.f, h = 0.f;
+    g.setCarPose(cx, cz, h);
+    // Tick with zero input keeps pose (speed 0, steer 0); camera already refreshed by set.
+    const MenuInput mi = makeMi();
+    const FrameSnapshot s = g.tickPlayer(0.f, mi, CarInput{});
+
+    // Documented targets (camera-framing.md table).
+    const float eyeH = 2.f + 7.f * std::sin(kChasePitchRad);  // ~2.601
+    const float backH = 7.f * std::cos(kChasePitchRad);       // horizontal back component
+    const float groundStrike = 16.47f;  // derived flat-road
+
+    const float carRx = cx * p.renderScale;
+    const float carRz = cz * p.renderScale;
+    const float dx = s.cameraEye.x - carRx;
+    const float dz = s.cameraEye.z - carRz;
+    const float backDist = std::sqrt(dx*dx + dz*dz);
+    const float eyeHeight = s.cameraEye.y;
+    // Use the derived diagnostic formula from camera-framing.md:30 (not the
+    // car-to-strike euclid, which is ~9.5; the cited 16.47 is the extension
+    // factor applied to horiz back).
+    const float strike = backH * eyeHeight / (eyeHeight - kChaseLookAtRu);
+
+    std::printf("framing: eyeH=%g (want~%g) back=%g (want~%g) strike=%g (want~%g) eye=(%g,%g,%g) tgt=(%g,%g,%g)\n",
+                eyeHeight, eyeH, backDist, backH, strike, groundStrike,
+                s.cameraEye.x, s.cameraEye.y, s.cameraEye.z,
+                s.cameraTarget.x, s.cameraTarget.y, s.cameraTarget.z);
+    CHECK(nearEq(eyeHeight, eyeH, 0.01f));           // documented actual eye height
+    CHECK(nearEq(backDist, backH, 0.01f));           // back distance along -forward
+    CHECK(nearEq(strike, groundStrike, 0.1f));       // ground strike within deriv tol
+    // Target at lookAt height, no lateral.
+    CHECK(nearEq(s.cameraTarget.y, kChaseLookAtRu, 1e-6f));
+    CHECK(nearEq(s.cameraTarget.x, carRx, 1e-6f));
+    CHECK(nearEq(s.cameraTarget.z, carRz, 1e-6f));
+}
+
+static std::uint64_t hashCamera(const FrameSnapshot& s) {
+    // Simple deterministic hash for re-anchor determinism (pose+camera).
+    // Ignore frame (each tick increments) and lighting etc; pose+eye+target only.
+    std::uint64_t h = 0xdeadbeefULL;
+    auto mix = [&](float v) {
+        h = h * 6364136223846793005ULL + static_cast<std::uint32_t>(std::fabs(v) * 1e6f + 0.5f);
+    };
+    mix(s.carPosition.x); mix(s.carPosition.z); mix(s.heading);
+    mix(s.cameraEye.x); mix(s.cameraEye.y); mix(s.cameraEye.z);
+    mix(s.cameraTarget.x); mix(s.cameraTarget.y); mix(s.cameraTarget.z);
+    return h;
+}
+
+static void testSetCarPoseReanchorsDeterministically() {
+    GameLoop g;
+    const float x=123.4f, z=-56.7f, h=1.23f;
+    g.setCarPose(x, z, h);
+    const MenuInput mi = makeMi();
+    const FrameSnapshot s1 = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(nearEq(s1.carPosition.x, x, 1e-6f));
+    CHECK(nearEq(s1.carPosition.z, z, 1e-6f));
+    CHECK(nearEq(s1.heading, h, 1e-6f));
+
+    // Second call with identical pose must produce identical camera state.
+    g.setCarPose(x, z, h);
+    const FrameSnapshot s2 = g.tickPlayer(0.f, mi, CarInput{});
+    std::printf("setpose hashes: s1=%llu s2=%llu\n", (unsigned long long)hashCamera(s1), (unsigned long long)hashCamera(s2));
+    std::printf("setpose s1 car=(%g,%g) h=%g eye=(%g,%g,%g)\n", s1.carPosition.x, s1.carPosition.z, s1.heading, s1.cameraEye.x,s1.cameraEye.y,s1.cameraEye.z);
+    std::printf("setpose s2 car=(%g,%g) h=%g eye=(%g,%g,%g)\n", s2.carPosition.x, s2.carPosition.z, s2.heading, s2.cameraEye.x,s2.cameraEye.y,s2.cameraEye.z);
+    CHECK(hashCamera(s1) == hashCamera(s2));
+    // Eyes match (no drift).
+    CHECK(nearEq(s1.cameraEye.x, s2.cameraEye.x, 1e-6f));
+    CHECK(nearEq(s1.cameraEye.y, s2.cameraEye.y, 1e-6f));
+    CHECK(nearEq(s1.cameraEye.z, s2.cameraEye.z, 1e-6f));
+}
+
+static void testAspectDoesNotMoveEye() {
+    GameLoop g;
+    g.setCarPose(10.f, 20.f, 0.1f);
+    const MenuInput mi = makeMi();
+    const FrameSnapshot s0 = g.tickPlayer(0.f, mi, CarInput{});
+    const Vec3 eye0 = s0.cameraEye;
+
+    // 4:3 vs 16:9 changes proj only (policy: pinned fovY, aspect reapplied).
+    g.setProjectionAspect(4.f/3.f);
+    const FrameSnapshot s43 = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(nearEq(s43.cameraEye.x, eye0.x, 1e-9f));
+    CHECK(nearEq(s43.cameraEye.y, eye0.y, 1e-9f));
+    CHECK(nearEq(s43.cameraEye.z, eye0.z, 1e-9f));
+
+    g.setProjectionAspect(16.f/9.f);
+    const FrameSnapshot s169 = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(nearEq(s169.cameraEye.x, eye0.x, 1e-9f));
+    CHECK(nearEq(s169.cameraEye.y, eye0.y, 1e-9f));
+    CHECK(nearEq(s169.cameraEye.z, eye0.z, 1e-9f));
+    // Proj does change with aspect (but we don't assert specific matrix here).
+}
+
 int main() {
     testExtractedCameraConstants();
     testBehindAndAbove();
@@ -158,6 +283,9 @@ int main() {
     testDefaultPresetPitchIsSpeedIndependent();
     testViewMatrixOrthonormal();
     testYawFollow();
+    testChaseCameraFramingTargets();
+    testSetCarPoseReanchorsDeterministically();
+    testAspectDoesNotMoveEye();
     if (g_fail) { std::fprintf(stderr, "%d failure(s)\n", g_fail); return 1; }
     std::puts("camera: all checks passed");
     return 0;

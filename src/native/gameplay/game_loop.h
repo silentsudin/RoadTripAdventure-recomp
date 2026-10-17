@@ -21,6 +21,15 @@
 
 namespace rt::native::gameplay {
 
+// Chase-camera framing targets (docs/native-reference/camera-framing.md:22-31,
+// derived from oracle-golden-frames + ROM preset-0 at 0x0029ce00).
+// Render units (RU); preserve current native eye/target math.
+inline constexpr float kChaseBackRu     = 7.000f;      // ROM CONFIRMED: preset-0 (0,2,-7)
+inline constexpr float kChaseHeightRu   = 2.000f;      // ROM CONFIRMED: base Y component
+inline constexpr float kChasePitchRad   = 0.08590293f; // ROM CONFIRMED: 0x0380 turns (+4.921875 deg)
+inline constexpr float kChaseLookAtRu   = 1.500f;      // UNDOCUMENTED host convention (car centre + up*1.5)
+inline constexpr float kChaseFovYRad    = 1.030f;      // UNDOCUMENTED-assumed (see camera-framing.md:31)
+
 // Drive-tuned defaults (rt-asset-drive, CAR0/Q00: 2 laps/240 frames, max
 // centreline deviation 43.8 vs road half width 60).
 struct GameLoopParams {
@@ -39,10 +48,17 @@ struct GameLoopParams {
     // Camera / projection
     float renderScale = 0.1f;   // world units -> render units
     float cameraSpeedScale = 8.f;
-    float fovY = 1.0472f;
+    float fovY = kChaseFovYRad;  // 1.03 per camera-framing.md (UNDOCUMENTED-assumed host)
     float aspect = 800.f / 600.f;
     float nearZ = 0.1f;
     float farZ = 500.f;
+
+    // Chase camera (wired to updateCamera; overridable for app/tests without
+    // recompiling per-scene; defaults = camera-framing.md targets).
+    float chaseBackDistance = kChaseBackRu;
+    float chaseBaseHeight   = kChaseHeightRu;
+    float chasePitchRad     = kChasePitchRad;
+    float chaseLookAtHeight = kChaseLookAtRu;
 
     // Time of day: starting clock (vblanks since midnight, wraps at kDayTicks).
     std::uint32_t initialClock = 0;
@@ -98,6 +114,12 @@ public:
     const TaskPool& tasks() const { return tasks_; }
     // Distance from a world point to the closed road centreline.
     float roadDistance(Vec2 p) const;
+
+    // Sets the AI/authoritative car pose (world units; same fields read by
+    // makeSnapshot and passed to updateCamera). Refreshes internal camera
+    // state from the pose so the next snapshot continues smoothly (no snap
+    // from stale prior camera). Thread affinity: simulation thread only.
+    void setCarPose(float x, float z, float headingRadians);
 
 private:
     GameLoopParams params_;
