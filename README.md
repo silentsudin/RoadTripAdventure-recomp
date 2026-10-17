@@ -195,8 +195,8 @@ then identify what each function does and give it a name.
 | | |
 |---|---|
 | Functions found in the game ELF (`SLUS_203.98`) | **1542** |
-| Decompiled and named | **1040** |
-| **Coverage** | **67.4%** |
+| Decompiled and named | **1240** |
+| **Coverage** | **80.4%** |
 
 *Decompiled and named* means the function is identified and listed in
 [config/game_symbols.toml](config/game_symbols.toml) with its address, our name and a
