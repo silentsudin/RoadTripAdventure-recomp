@@ -131,12 +131,21 @@ std::filesystem::path packagedRoot() {
 
 std::vector<std::filesystem::path> meterDialPaths(const std::filesystem::path& discRoot) {
     std::vector<std::filesystem::path> out;
-    if (!discRoot.empty()) out.push_back(discRoot / "ITEM" / "METER0.GSL");
+    // Two distinct gauge pages ship in the METER family (pixel-scanned
+    // 2026-10-17, build/scratch/hud-art + sim_dial_v2_vs_golden.png):
+    // METER0 unit 0 = baked dial ring (digits 0-10 around the rim + mph),
+    // METER10 unit 0 = dynamic parts incl. the §1.2 speed-digit row v=102.
+    if (!discRoot.empty()) {
+        out.push_back(discRoot / "ITEM" / "METER0.GSL");
+        out.push_back(discRoot / "ITEM" / "METER10.GSL");
+    }
     const auto root = packagedRoot();
     if (!root.empty()) {
-        out.push_back(root / "item" / "METER0.GSL");
-        out.push_back(root / "sys" / "METER0.GSL");
-        out.push_back(root / "ITEM" / "METER0.GSL");
+        for (const char* leaf : {"METER0.GSL", "METER10.GSL"}) {
+            out.push_back(root / "item" / leaf);
+            out.push_back(root / "sys" / leaf);
+            out.push_back(root / "ITEM" / leaf);
+        }
     }
     return out;
 }
@@ -150,6 +159,36 @@ std::vector<std::filesystem::path> scoreAtlasPaths(const std::filesystem::path& 
         out.push_back(root / "SYS" / "SCORE.GSL");
     }
     return out;
+}
+
+// The runtime gauge page must carry the speed-digit row: ten 20x26 glyph
+// cells at (d*20,102) (hud-layout.md §1.2 CONFIRMED).  Pixel-scanning the
+// decoded corpus (2026-10-17, build/scratch/hud-art/{meter10_verify,
+// contact_v9_check}.png): METER10.GSL unit 0 matches the documented layout
+// exactly — dial arc at origin, mph label, gear badge, digits at v=102 —
+// while METER0.GSL unit 0 bakes digits along the page top with a
+// full-height dial (its v=102 row is empty ground), so it is NOT the page
+// the §1.2 records sample.  Require the digit row to validate a candidate.
+bool hasSpeedDigitRow(const preview::PreviewTexture& t) {
+    if (t.width != 256 || t.height != 128 || t.rgba.size() < static_cast<std::size_t>(t.width) * t.height * 4)
+        return false;
+    int good = 0;
+    constexpr int kW = 20, kH = 26;
+    for (int d = 0; d < 10; ++d) {
+        double sum = 0, sum2 = 0;
+        for (int y = 0; y < kH; ++y) {
+            for (int x = 0; x < kW; ++x) {
+                const std::uint8_t* p = &t.rgba[(static_cast<std::size_t>(102 + y) * 256 + d * 20 + x) * 4];
+                const double lum = .3 * p[0] + .6 * p[1] + .1 * p[2];
+                sum += lum;
+                sum2 += lum * lum;
+            }
+        }
+        const double mean = sum / (kW * kH);
+        const double var = sum2 / (kW * kH) - mean * mean;
+        if (var > 30.0 * 30.0) ++good;  // PIL scan threshold (stddev ~35) w/ margin
+    }
+    return good >= 8;
 }
 
 bool decodeMeterDial(std::span<const std::uint8_t> gsl, preview::PreviewTexture& out) {
@@ -203,15 +242,18 @@ bool decodeRaceAtlas(std::span<const std::uint8_t> gsl, preview::PreviewTexture&
 
 HudArt loadHudArt(const std::filesystem::path& discRoot) {
     HudArt art;
+    // Base dial ring + dynamic digit page ride different METER containers;
+    // scan candidates once, filling whichever slot each page validates for.
     for (const auto& path : meterDialPaths(discRoot)) {
         std::ifstream input(path, std::ios::binary);
         if (!input) continue;
         const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
         preview::PreviewTexture tex;
-        if (decodeMeterDial(bytes, tex)) {
-            art.speedDial = std::move(tex);
-            break;
-        }
+        if (!art.speedDial && decodeMeterDial(bytes, tex)) art.speedDial = std::move(tex);
+        preview::PreviewTexture digitsTex;
+        if (!art.speedDigits && decodeMeterDial(bytes, digitsTex) && hasSpeedDigitRow(digitsTex))
+            art.speedDigits = std::move(digitsTex);
+        if (art.speedDial && art.speedDigits) break;
     }
     for (const auto& path : scoreAtlasPaths(discRoot)) {
         std::ifstream input(path, std::ios::binary);

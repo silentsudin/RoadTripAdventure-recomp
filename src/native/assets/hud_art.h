@@ -38,7 +38,8 @@ bool decodeRaceAtlas(std::span<const std::uint8_t> gsl, preview::PreviewTexture&
 
 // Loads the shipped HUD art pieces at runtime. Missing/invalid = nullopt.
 struct HudArt {
-    std::optional<preview::PreviewTexture> speedDial;   // 256x128 dial face (ITEM/METER0.GSL unit 0)
+    std::optional<preview::PreviewTexture> speedDial;   // 256x128 baked dial ring + glyphs (ITEM/METER0.GSL unit 0)
+    std::optional<preview::PreviewTexture> speedDigits; // 256x128 dynamic gauge parts, digit row at v=102 (ITEM/METER10.GSL unit 0)
     std::optional<preview::PreviewTexture> raceAtlas;   // 256x256 elements (SYS/SCORE.GSL unit 0)
     // needle: rotated procedurally (ElementA type-2 quad); no static texture.
     // minimapMap: live-rendered viewport of world data (no static GSL graphic located).

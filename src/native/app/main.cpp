@@ -1359,6 +1359,13 @@ int main() {
     androidLog(ANDROID_LOG_INFO, std::string("startup: state=") + (envState ? envState : "TITLE") +
         " terrain=" + (envTerrain ? envTerrain : "0") + " frames=" + (envFrameLimit ? envFrameLimit : "unlimited"));
 #endif
+    // RT_APP_HEADLESS=1: SDL dummy video driver + null presenter.  The game
+    // then runs logic + offscreen Vulkan scene/HUD + RT_APP_SNAPSHOT capture
+    // with NO WindowServer session (present() no-ops without a swapchain,
+    // pacing is time-based) — unblocks pixel verification in sandboxes/CI
+    // that lost GUI access.
+    const bool headlessApp = std::getenv("RT_APP_HEADLESS") != nullptr;
+    if (headlessApp) SDL_SetHint("SDL_VIDEO_DRIVER", "dummy");  // SDL3: no macro
     bootstrapSettings();
     (void)rt::native::assets::RunFirstRunSetupIfRequired();
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) { std::cerr << "SDL_Init: " << SDL_GetError() << "\n"; return 1; }
@@ -1392,13 +1399,20 @@ int main() {
               << (startFullscreen ? " fullscreen" : " windowed") << " progressive\n";
     SDL_Window* window = SDL_CreateWindow(
         "Road Trip Adventure", windowWidth, windowHeight,
-        SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | (startFullscreen ? SDL_WINDOW_FULLSCREEN : 0));
+        (headlessApp ? SDL_WINDOW_RESIZABLE
+                     : SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE)
+            | (startFullscreen && !headlessApp ? SDL_WINDOW_FULLSCREEN : 0));
     if (!rt::native::app::progressiveContractSatisfied({})) {
         std::cout << "rt-app output: PROGRESSIVE CONTRACT VIOLATION\n";
     }
     if (!window) { std::cerr << "SDL_CreateWindow: " << SDL_GetError() << "\n"; SDL_Quit(); return 1; }
     Presenter presenter; std::string error;
-    if (!init(presenter, window, error)) { std::cerr << "Vulkan init: " << error << "\n"; destroy(presenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
+    if (headlessApp) {
+        presenter.extent.width = static_cast<std::uint32_t>(windowWidth);
+        presenter.extent.height = static_cast<std::uint32_t>(windowHeight);
+        std::cout << "rt-app headless: dummy video, null presenter "
+                  << windowWidth << "x" << windowHeight << "\n";
+    } else if (!init(presenter, window, error)) { std::cerr << "Vulkan init: " << error << "\n"; destroy(presenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
     int width = static_cast<int>(presenter.extent.width), height = static_cast<int>(presenter.extent.height);
     rt::native::preview::Renderer* renderer = rt::native::preview::previewInit(width, height, error, nullptr);
     if (!renderer) { std::cerr << "scene renderer init: " << error << "\n"; destroy(presenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
@@ -1543,6 +1557,7 @@ int main() {
     AudioHost audio;
     if (std::getenv("RT_APP_NOAUDIO") == nullptr) (void)initAudio(audio);
     const auto recreateSwapchain = [&]() {
+        if (headlessApp) return true;  // no surface exists to rebuild
         int newW = 0, newH = 0; SDL_GetWindowSizeInPixels(window, &newW, &newH);
         if (newW <= 0 || newH <= 0) return true;
         if (!makeSwapchain(presenter, window, error)) { std::cerr << "swapchain recreate: " << error << "\n"; return false; }
@@ -2230,44 +2245,53 @@ int main() {
                         if (rendered &&
                             session.state() == rt::native::gameplay::SessionState::RACE &&
                             hudArt.speedDial) {
+                            const float sx = static_cast<float>(presenter.extent.width) / 640.f;
+                            const float sy = static_cast<float>(presenter.extent.height) / 448.f;
+                            std::vector<std::uint8_t> dialPixels;
                             std::string dialError;
+                            // Pass 1: baked dial ring (ITEM/METER0.GSL unit 0),
+                            // source (0,0)-(132,128) -> dest 132x128 at anchor
+                            // (492,336).  §1.2's {0,0,132,96} record crops the
+                            // ring's bottom; pixel evidence vs the oracle
+                            // (build/scratch/hud-art/sim_dial_v2_vs_golden.png,
+                            // 2026-10-17) confirms the full column matches.
                             if (rt::native::preview::previewUploadFontAtlas(
-                                    renderer, *hudArt.speedDial, dialError)) {
-                                // Doc space is 640x448 (hud-layout.md throughout);
-                                // the first dial wire scaled /480 — corrected here.
-                                const float sx = static_cast<float>(presenter.extent.width) / 640.f;
-                                const float sy = static_cast<float>(presenter.extent.height) / 448.f;
-                                std::vector<rt::native::preview::HudQuad> dialQuads;
-                                // Dial face: rect {0,0,132,96} of the 256x128
-                                // page at anchor (492,336) — hud-layout.md §1.2
-                                // CONFIRMED (0x24E1A0, tex entry 0).
-                                dialQuads.push_back({492.f * sx, 336.f * sy, 132.f * sx, 96.f * sy,
-                                                   0.f, 0.f, 132.f / 256.f, 96.f / 128.f,
-                                                   {1.f, 1.f, 1.f, 1.f}});
-                                // Speed digits: 20x26 cells u=d*20, v=102 right-
-                                // aligned x = anchor+{78,59,40}, y=anchor+49
-                                // (hud-layout.md §1.2 CONFIRMED).  GAP: the
-                                // physics-unit -> displayed-digit divisor is not
-                                // pinned by the ROM notes; provisional /100
-                                // (top speed 20000 -> "200"), to be calibrated
-                                // against oracle race frames.
-                                const int kph = std::max(0, std::min(999,
-                                    static_cast<int>(std::lround(renderSnapshot.speed / 100.f))));
-                                const int placeX[3] = {40, 59, 78};   // 100s,10s,1s
-                                const int placeDiv[3] = {100, 10, 1};
-                                for (int p = 0; p < 3; ++p) {
-                                    if (p < 2 && kph < placeDiv[p]) continue;  // suppress leading zeros
-                                    const int d = (kph / placeDiv[p]) % 10;
-                                    dialQuads.push_back({(492 + placeX[p]) * sx, (336 + 49) * sy,
-                                                       20.f * sx, 26.f * sy,
-                                                       static_cast<float>(d * 20) / 256.f, 102.f / 128.f,
-                                                       static_cast<float>(d * 20 + 20) / 256.f, 128.f / 128.f,
-                                                       {1.f, 1.f, 1.f, 1.f}});
+                                    renderer, *hudArt.speedDial, dialError) &&
+                                rt::native::preview::previewRender2DTextured(
+                                    renderer,
+                                    {{492.f * sx, 336.f * sy, 132.f * sx, 128.f * sy,
+                                      0.f, 0.f, 132.f / 256.f, 1.f, {1.f, 1.f, 1.f, 1.f}}},
+                                    {0.f, 0.f, 0.f, 0.f}, dialPixels, error))
+                                compositeOver(pixels, dialPixels);
+                            // Pass 2: speed digits from the dynamic parts page
+                            // (METER10 unit 0): 20x26 cells u=d*20, v=102 right-
+                            // aligned x = anchor+{78,59,40}, y=anchor+49
+                            // (hud-layout.md §1.2 CONFIRMED; placement validated
+                            // against the oracle's "63").  GAP: physics-unit ->
+                            // displayed-digit divisor not ROM-pinned; provisional
+                            // /100 pending oracle speed calibration.
+                            if (hudArt.speedDigits) {
+                                if (rt::native::preview::previewUploadFontAtlas(renderer, *hudArt.speedDigits, dialError)) {
+                                    const int kph = std::max(0, std::min(999,
+                                        static_cast<int>(std::lround(renderSnapshot.speed / 100.f))));
+                                    const int placeX[3] = {40, 59, 78};   // 100s,10s,1s
+                                    const int placeDiv[3] = {100, 10, 1};
+                                    std::vector<rt::native::preview::HudQuad> digitQuads;
+                                    for (int p = 0; p < 3; ++p) {
+                                        if (p < 2 && kph < placeDiv[p]) continue;  // suppress leading zeros
+                                        const int d = (kph / placeDiv[p]) % 10;
+                                        digitQuads.push_back({(492 + placeX[p]) * sx, (336 + 49) * sy,
+                                                            20.f * sx, 26.f * sy,
+                                                            static_cast<float>(d * 20) / 256.f, 102.f / 128.f,
+                                                            static_cast<float>(d * 20 + 20) / 256.f, 1.f,
+                                                            {1.f, 1.f, 1.f, 1.f}});
+                                    }
+                                    std::vector<std::uint8_t> digitPixels;
+                                    if (!digitQuads.empty() &&
+                                        rt::native::preview::previewRender2DTextured(
+                                            renderer, digitQuads, {0.f, 0.f, 0.f, 0.f}, digitPixels, error))
+                                        compositeOver(pixels, digitPixels);
                                 }
-                                std::vector<std::uint8_t> dialPixels;
-                                if (rt::native::preview::previewRender2DTextured(
-                                        renderer, dialQuads, {0.f, 0.f, 0.f, 0.f}, dialPixels, error))
-                                    compositeOver(pixels, dialPixels);
                             }
                         }
                         if (hudTextEnabled && rendered) {
