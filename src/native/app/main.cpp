@@ -937,10 +937,9 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
     if (!featureDefaultOn("RT_APP_TERRAIN")) return mesh;
     const bool wantTextures = featureDefaultOn("RT_APP_TEXTURES");
     // Default coverage is the neighbourhood around the anchored spawn (Peach
-    // Town id 43 at origin 0,0): +/- R lattice steps (x step 80, z step 160
-    // render units).  Full-disc eager loading measured ~18 s startup, so the
-    // default ships R=1 (3x3); RT_APP_TILES_RADIUS=2..7 widens it, "all"
-    // restores the full-disc behaviour used by the evidence scripts.
+    // Town id 43 at origin 0,0): +/- R lattice steps (x step 80 render units
+    // = half-tile stagger, z step 160), with shear adjustment for odd-row b
+    // per FUN_0021ba70 (docs).  R=1 yields the 5-tile set.
     const int radius = [] {
         const char* v = std::getenv("RT_APP_TILES_RADIUS");
         if (!v) return 1;
@@ -1003,6 +1002,18 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
     }
     std::size_t tilesLoaded = 0;
     unsigned long long clutHits = 0, clutAlias = 0, clutMiss = 0, unresolved = 0;
+    // Per-tile diagnostics (extended 2026-10-17 per task): name + placed
+    // origin + vertex count for each loaded tile in the radius; plus later
+    // coverage probe over 5x5 grid to show which lattice cells actually
+    // contribute vertices near the sample points.
+    struct LoadedTileInfo {
+        std::string name;
+        float ox;
+        float oz;
+        std::uint32_t vstart;
+        std::uint32_t vcount;
+    };
+    std::vector<LoadedTileInfo> loadedTiles;
 #ifdef __ANDROID__
     androidLog(ANDROID_LOG_INFO, "scene: tile index built, loading neighbourhood");
 #endif
@@ -1011,9 +1022,12 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         if (name.empty()) continue;
         // Neighbourhood curation before I/O (RT_APP_TILES_RADIUS above).
         {
-            const auto o = tileRenderOrigin(static_cast<int>(id));
-            if (std::fabs(o.x) > radius * 80.f + 1.f ||
-                std::fabs(o.z) > radius * 160.f + 1.f) {
+            const auto p = rt::native::gameplay::tilePlacement(static_cast<int>(id));
+            const int b = p.row & 1;  // odd-row shear bit
+            const float ox = static_cast<float>(p.halfColumn - kPeachHalfColumn + (b - 1)) * 80.0f;
+            const float oz = static_cast<float>(p.row - kPeachRow) * 160.0f;
+            if (std::fabs(ox) > radius * 160.f + 1.f ||
+                std::fabs(oz) > radius * 160.f + 1.f) {
                 ++tilesSkippedFar;
                 continue;
             }
@@ -1027,17 +1041,24 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
                                              std::istreambuf_iterator<char>());
         // Authentic lattice origin, anchored so Peach Town (id 43) starts at
         // (0,0) and the spawn car sits on Peach terrain.
-        const auto origin = tileRenderOrigin(static_cast<int>(id));
-        const float xOffset = origin.x;
-        const float zOffset = origin.z;
+        // Adjusted for shear: x includes +(b-1) so even rows align contiguously
+        // without staircase offsets (halfCol parity folded).
+        const auto p = rt::native::gameplay::tilePlacement(static_cast<int>(id));
+        const int b = p.row & 1;
+        const float xOffset = static_cast<float>(p.halfColumn - kPeachHalfColumn + (b - 1)) * 80.0f;
+        const float zOffset = static_cast<float>(p.row - kPeachRow) * 160.0f;
         if (wantTextures) {
             auto textured = rt::native::assets::buildFieldTexturedTerrain(bytes, 0.1f);
             if (!textured) continue;
+            const std::uint32_t vstartTex = static_cast<std::uint32_t>(mesh.positions.size());
             appendTexturedTile(mesh, *textured, xOffset, zOffset, pagesByHash);
+            const std::uint32_t vcountTex = static_cast<std::uint32_t>(mesh.positions.size()) - vstartTex;
             clutHits += textured->clutHits;
             clutAlias += textured->clutAliasHits;
             clutMiss += textured->clutMisses;
             unresolved += textured->unresolvedTriangles;
+            loadedTiles.push_back({name, xOffset, zOffset, vstartTex, vcountTex});
+            std::cout << "rt-app terrain: tile " << name << " origin=(" << xOffset << "," << zOffset << ") verts=" << vcountTex << "\n";
             ++tilesLoaded;
             continue;
         }
@@ -1056,6 +1077,9 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         mesh.triangleMaterials.insert(mesh.triangleMaterials.end(),
                                      terrain.triangleMaterials.begin(),
                                      terrain.triangleMaterials.end());
+        const std::uint32_t vcountNon = static_cast<std::uint32_t>(terrain.positions.size());
+        loadedTiles.push_back({name, xOffset, zOffset, vertexBase, vcountNon});
+        std::cout << "rt-app terrain: tile " << name << " origin=(" << xOffset << "," << zOffset << ") verts=" << vcountNon << "\n";
         ++tilesLoaded;
     }
     std::cout << "rt-app terrain: tiles=" << tilesLoaded
@@ -1085,6 +1109,18 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         std::cout << "rt-app terrain: y-range=" << yMin << ".." << yMax
                   << " plaza(50,44)y=" << (pMax > pMin ? pMin : -999.f) << ".."
                   << (pMax > pMin ? pMax : -999.f) << "\n";
+        // Per-loaded tile actual placed ranges (to see if local verts + offset
+        // produce contiguous coverage or leave lattice gaps).
+        for (const auto& lt : loadedTiles) {
+            float xmin=1e30f, xmax=-1e30f, zmin=1e30f, zmax=-1e30f;
+            for (std::uint32_t vi=0; vi<lt.vcount; ++vi) {
+                const auto& p = mesh.positions[static_cast<std::size_t>(lt.vstart)+vi];
+                xmin = std::min(xmin, p[0]); xmax=std::max(xmax,p[0]);
+                zmin = std::min(zmin, p[2]); zmax=std::max(zmax,p[2]);
+            }
+            std::cout << "rt-app terrain: tile " << lt.name << " placed x=" << xmin << ".." << xmax
+                      << " z=" << zmin << ".." << zmax << " (origin " << lt.ox << "," << lt.oz << ")\n";
+        }
         // Colour diagnostics: vertex RGBA means + first textured page's pixel
         // mean (dark-crush hunt 2026-10-17: mid-frame terrain measured
         // ~(7,19,8) with blue crushed; decide decode vs shader).
@@ -1102,6 +1138,32 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
             for (std::size_t i = 0; i < t.rgba.size(); i += 4) { r += t.rgba[i]; g += t.rgba[i + 1]; bl += t.rgba[i + 2]; }
             std::cout << "rt-app terrain: page0 " << t.width << 'x' << t.height << " mean="
                       << r / px << ',' << g / px << ',' << bl / px << "\n";
+        }
+        // Coverage probe (extended per task): 5x5 grid samples around camera
+        // path (x 30..70 step 10, z 20..120 step 20). For each, report the
+        // tile-origin cell that has at least one terrain vertex within 8 RU
+        // (pinpoints missing lattice cells causing the charcoal staircase).
+        std::cout << "rt-app terrain: coverage probe (x,z -> tile@origin with vert<8RU):\n";
+        for (float px = 30.f; px <= 70.5f; px += 10.f) {
+            for (float pz = 20.f; pz <= 120.5f; pz += 20.f) {
+                std::string cell = "none";
+                float bestD2 = 64.1f;  // just over 8^2
+                for (const auto& lt : loadedTiles) {
+                    for (std::uint32_t vi = 0; vi < lt.vcount; ++vi) {
+                        const auto& p = mesh.positions[static_cast<std::size_t>(lt.vstart) + vi];
+                        const float dx = p[0] - px;
+                        const float dz = p[2] - pz;
+                        const float d2 = dx * dx + dz * dz;
+                        if (d2 < bestD2) {
+                            bestD2 = d2;
+                            if (d2 < 64.f) {
+                                cell = lt.name + "@(" + std::to_string(lt.ox) + "," + std::to_string(lt.oz) + ")";
+                            }
+                        }
+                    }
+                }
+                std::cout << "  coverage(" << px << "," << pz << ")=" << cell << (bestD2 < 64.f ? "" : " (far)") << "\n";
+            }
         }
     }
     return mesh;
@@ -1683,6 +1745,18 @@ int main() {
     // extraction work has no overlap: it owns only the simulation boundary.
     rt::native::runtime::GuestFacade guestFacade(session, snapshot, [&](int tile) {
         std::cout << "rt-app facade: tile warp " << tile << "\n";
+        // Re-anchor the explore car on warp so the harness sees the town
+        // square (43 = Peach Town, oracle-golden-frames.md:54 constants).
+        // Other facade-valid tiles have no proven centre -> lattice origin
+        // (0,0) at datum; GAP: per-town spawn data unmerged.
+        // Thread note: an attached socket forces lockstep pacing, so warp
+        // commands are serialised between simulation steps — this sim-thread
+        // mutation cannot race the loop.
+        if (tile == 43)
+            session.setExplorePose(rt::native::gameplay::kTownSpawnX,
+                                  rt::native::gameplay::kTownSpawnZ, 0.f);
+        else
+            session.setExplorePose(0.f, 0.f, 0.f, 0.f);
     });
     rt::native::runtime::TestSocket testSocket;
     testSocket.startIfRequested([&](const std::string& command, const std::string& line) {
