@@ -44,11 +44,11 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/nav_drive.cpp      # deterministic kinematic centerline follower (render-visible drive)
     gameplay/nav_route_bridge.cpp # NavPath centerline -> authored RaceRoute zones
     gameplay/world_layout.cpp    # authentic fixed-point <-> tile-id <-> local-unit mapping (proven formulas)
+    preview/ui_menu.cpp           # title/menu/options screen builders per ui-parity.md
     assets/image_converter.cpp  # texture upload chain -> RGBA8 ImageRecord
     assets/image_loader.cpp     # ImageRecord -> NativeImage
     assets/model_loader.cpp     # MeshRecord + images -> NativeModel
     preview/car_mesh.cpp          # CAR container -> render-ready NativeModel (scale/centred/normals)
-    preview/ui_menu.cpp         # TITLE/MAIN MENU/OPTIONS per ui-parity (insert after anchor line)
     assets/music_seq.cpp        # Road Trip TVB voice-bank and TSQ sequence container parsers
     assets/setup_wizard.cpp     # first-run validated native asset cache
     assets/tsq_sequencer.cpp    # bounded TSQ event decoder and offline TVB PCM renderer
