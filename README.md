@@ -187,6 +187,27 @@ issues are tracked in
 [Issues](https://github.com/silentsudin/RoadTripAdventure-recomp/issues). Bug reports are welcome:
 please say which device, and attach the log if you can (Android: `adb logcat -s RoadTrip`).
 
+## Decompilation progress
+
+The game's program is analysed with Ghidra (r5900) and its pseudocode exported per function; we
+then identify what each function does and give it a name.
+
+| | |
+|---|---|
+| Functions found in the game ELF (`SLUS_203.98`) | **1542** |
+| Decompiled and named | **1040** |
+| **Coverage** | **67.4%** |
+
+*Decompiled and named* means the function is identified and listed in
+[config/game_symbols.toml](config/game_symbols.toml) with its address, our name and a
+one-line note — not just a Ghidra pseudocode dump. The remaining 502 functions are anonymous
+(`FUN_002…`) and we are working through them in batches. Naming everything is how every
+subsystem can be replaced with native code instead of translated guest code.
+
+Reproduce any time (needs Ghidra 12 and your own disc): `python3 scripts/ghidra/decompile.py`,
+then `awk '$2=="fn"' build/decomp/symbols.tsv | wc -l` over `build/decomp/callgraph.json`'s
+function count. Figures above as of 2026-10-17.
+
 ## Building it yourself
 
 See [docs/DEVELOPING.md](docs/DEVELOPING.md) for building the Mac and Android apps, the regression
