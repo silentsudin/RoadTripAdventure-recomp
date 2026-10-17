@@ -904,14 +904,23 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
     // + size matching (field_tile_index), place each tile at its authentic
     // lattice origin (halfColumn/row from world_layout, x step 80 render units
     // = half-tile stagger, z step 160), anchored on Peach Town.
+#ifdef __ANDROID__
+    androidLog(ANDROID_LOG_INFO, "scene: terrain build start (index)");
+#endif
     const auto index = rt::native::assets::buildFieldTileIndex(root);
     if (!index) {
         std::cout << "rt-app terrain: SKIP (no tile index; err="
                   << static_cast<int>(index.error()) << ")\n";
+#ifdef __ANDROID__
+        androidLog(ANDROID_LOG_WARN, "scene: terrain index FAILED");
+#endif
         return mesh;
     }
     std::size_t tilesLoaded = 0;
     unsigned long long clutHits = 0, clutAlias = 0, clutMiss = 0, unresolved = 0;
+#ifdef __ANDROID__
+    androidLog(ANDROID_LOG_INFO, "scene: tile index built, loading neighbourhood");
+#endif
     for (std::size_t id = 0; id < rt::native::assets::kFieldTileCount; ++id) {
         const std::string& name = (*index)[id].fileName;
         if (name.empty()) continue;
@@ -924,6 +933,9 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
                 continue;
             }
         }
+#ifdef __ANDROID__
+        androidLog(ANDROID_LOG_INFO, "scene: tile " + name + (wantTextures ? " (textured)" : ""));
+#endif
         std::ifstream input(root / "FLD" / name, std::ios::binary);
         if (!input) continue;
         const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
@@ -1158,6 +1170,9 @@ int main() {
     bool hudTextWarned = false;
     rt::native::assets::GlyphAtlas fontAtlas;
     auto initSceneAssets = [&]() {
+#ifdef __ANDROID__
+        androidLog(ANDROID_LOG_INFO, "scene: assets init begin");
+#endif
     if (std::getenv("RT_APP_STREAM") != nullptr && featureDefaultOn("RT_APP_TERRAIN")) {
         if (std::getenv("RT_APP_TERRAIN_FILE") != nullptr)
             std::cout << "rt-app stream: RT_APP_TERRAIN_FILE ignored under stream mode\n";
@@ -1277,6 +1292,9 @@ int main() {
             }
         }
     }
+#ifdef __ANDROID__
+        androidLog(ANDROID_LOG_INFO, "scene: assets init done");
+#endif
     };
     bool sceneAssetsReady = false;
     AudioHost audio;

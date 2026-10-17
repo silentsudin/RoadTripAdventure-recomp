@@ -29,10 +29,18 @@ class NativeSocket:
         self.sock = socket.create_connection((host, port), timeout=10)
         self.file = self.sock.makefile("rwb", buffering=0)
 
-    def command(self, cmd: str, **values):
+    def command(self, cmd: str, timeout: float | None = None, **values):
+        # The first step/step-like command after attach triggers lazy scene
+        # construction on device (measured ~16 s on the Thor: index + five
+        # textured tiles); the default 10 s socket timeout killed the town and
+        # race scenarios while the build was legitimately in flight.
         payload = {"cmd": cmd, **values}
+        if timeout is not None:
+            self.sock.settimeout(timeout)
         self.file.write((json.dumps(payload, separators=(",", ":")) + "\n").encode())
         line = self.file.readline()
+        if timeout is not None:
+            self.sock.settimeout(10)
         if not line:
             raise RuntimeError(f"socket closed awaiting {cmd}")
         answer = json.loads(line)
@@ -52,7 +60,7 @@ class NativeSocket:
         return bool(json.loads(line).get("ok"))
 
     def step(self, ticks: int) -> None:
-        self.command("step", vblanks=ticks)
+        self.command("step", timeout=180, vblanks=ticks)
 
     def pad(self, *, buttons: int = 0xFFFF, lx: int = 128) -> None:
         self.command("pad", buttons=buttons, lx=lx, ly=128, rx=128, ry=128, connected=1)
