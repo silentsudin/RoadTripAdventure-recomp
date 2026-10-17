@@ -48,6 +48,7 @@ set(RT_NATIVE_ASSET_SOURCES
     assets/image_loader.cpp     # ImageRecord -> NativeImage
     assets/model_loader.cpp     # MeshRecord + images -> NativeModel
     preview/car_mesh.cpp          # CAR container -> render-ready NativeModel (scale/centred/normals)
+    preview/ui_menu.cpp         # TITLE/MAIN MENU/OPTIONS per ui-parity (insert after anchor line)
     assets/music_seq.cpp        # Road Trip TVB voice-bank and TSQ sequence container parsers
     assets/setup_wizard.cpp     # first-run validated native asset cache
     assets/tsq_sequencer.cpp    # bounded TSQ event decoder and offline TVB PCM renderer
@@ -257,6 +258,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(native_preview_car_mesh_test PRIVATE rt_native_assets)
     target_compile_features(native_preview_car_mesh_test PRIVATE cxx_std_20)
     target_compile_options(native_preview_car_mesh_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(native_preview_ui_menu_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/native_preview_ui_menu_test.cpp")
+    target_link_libraries(native_preview_ui_menu_test PRIVATE rt_native_assets)
+    target_compile_features(native_preview_ui_menu_test PRIVATE cxx_std_20)
+    target_compile_options(native_preview_ui_menu_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
     add_executable(native_assets_field_converter_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_field_converter.cpp")
