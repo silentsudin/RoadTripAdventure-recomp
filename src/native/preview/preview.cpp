@@ -991,10 +991,11 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     }
     const ModelStats st = computeStats(car);
     const float cx = .5f * (st.bmin[0] + st.bmax[0]), cz = .5f * (st.bmin[2] + st.bmax[2]);
-    // Oracle width grounding (town_driving.png chase view): the player car
-    // spans ~16% of frame width; 4.4-RU spans measured ~47% in-engine.
-    // 4.4 * 0.34 ~= 1.5 RU span reproduces the oracle framing.
-    const float scale = 1.5f / std::max(st.bmax[2] - st.bmin[2], 1e-3f);
+    // Oracle width grounding (town_driving.png, 1280px): the player car
+    // spans ~24% of frame width sitting low-centre; 1.5-RU spans measured
+    // ~11% in-engine and 4.4 measured ~47%. 2.2 RU reproduces the oracle
+    // framing (scale chain 4.4 -> 1.5 -> 2.2, pixel-measured).
+    const float scale = 2.2f / std::max(st.bmax[2] - st.bmin[2], 1e-3f);
     const float sh = std::sin(s.heading), ch = std::cos(s.heading);
     // Sit the car on the terrain surface. Prefer BASE-band vertices (y in
     // [−2,4.5] RU: roads/fields, not building tops or tree crowns — the

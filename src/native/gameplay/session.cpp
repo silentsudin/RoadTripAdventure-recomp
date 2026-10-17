@@ -29,7 +29,12 @@ GameSession::GameSession(int totalLaps)
     : progress_(makeDefaultSave()), gameLoop_(makeRaceParams(totalLaps)) {
     // Begin every Adventure at the Peach Town square so facade reads,
     // explore camera and terrain streaming all show the town on boot.
-    setExplorePose(kTownSpawnX, kTownSpawnZ, 0.f);
+    // Face the town core: mesh building-band (y 4.5..9 RU) centroid sits at
+    // (−139,+23) RU from the square, heading atan2(dx,dz) = −1.406 rad
+    // (west-north-west). Heading 0 faced open field (town-v10 check
+    // 2026-10-17); oracle town_driving.png shows the houses/roundabout
+    // ahead at spawn.
+    setExplorePose(kTownSpawnX, kTownSpawnZ, -1.40645f);
 }
 
 void GameSession::update(const MenuInput& input, const CarInput* driveInput) {
@@ -80,7 +85,12 @@ void GameSession::continueFromResults() {
     state_ = SessionState::EXPLORE;
     // Back to the Peach Town square after a race (AUTHORED placement: the
     // oracle returns the car to town; the exact return yaw is unrecorded).
-    setExplorePose(kTownSpawnX, kTownSpawnZ, 0.f);
+    // Face the town core: mesh building-band (y 4.5..9 RU) centroid sits at
+    // (−139,+23) RU from the square, heading atan2(dx,dz) = −1.406 rad
+    // (west-north-west). Heading 0 faced open field (town-v10 check
+    // 2026-10-17); oracle town_driving.png shows the houses/roundabout
+    // ahead at spawn.
+    setExplorePose(kTownSpawnX, kTownSpawnZ, -1.40645f);
 }
 
 void GameSession::setExplorePose(float x, float z, float headingRadians, float yGameUnits) {

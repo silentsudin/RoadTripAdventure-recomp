@@ -1140,11 +1140,12 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
                     // Fallback when no band vertices nearby: oracle town-ground
                     // mean (102,111,122)/255 measured from town_driving.png.
                     const float y = cnt > 0 ? sumY / static_cast<float>(cnt) : 3.f;
-                    // Pre-darkened for the GS modulate-x2 pass: fallback is the
-                    // oracle town-ground mean (102,111,122)/255 from
-                    // town_driving.png halved so clamp(c*t*2) reproduces it
-                    // (blown-out-white ident check 2026-10-17: un-halved band
-                    // averages ~0.4 exited the shader at ~0.8).
+                    // Pre-darkened for the GS modulate-x2 pass: fallback is
+                    // the oracle town-ground mean (102,111,122)/255 halved so
+                    // clamp(c*t*2) reproduces it.  The blue cast is real: the
+                    // oracle plaza sits in blue ambient (row 350 samples
+                    // (71,85,143) in town_driving.png) — neutral asphalt gray
+                    // scored worse (town-v13 0.464 < town-v12 0.491).
                     std::array<float, 4> c{.20f, .216f, .24f, 1.f};
                     if (cnt > 0) {
                         // Anchor 65% at the oracle ground gray (halved for the
@@ -1190,6 +1191,26 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
                   << " colours=" << mesh.colours.size()
                   << " triTex=" << mesh.triangleTexture.size()
                   << " indices=" << mesh.indices.size() << "\n";
+    }
+    // Town-orientation scan: centroid of building-height vertices (y 4.5..9
+    // RU = house roofs; oracle town_driving.png shows houses framing the
+    // plaza). Points the spawn heading at the town core — heading 0 faced an
+    // empty field 2026-10-17.
+    {
+        double bx = 0, bz = 0;
+        std::size_t bn = 0;
+        for (const auto& p : mesh.positions) {
+            if (p[1] > 4.5f && p[1] < 9.f) { bx += p[0]; bz += p[2]; ++bn; }
+        }
+        if (bn > 0) {
+            bx /= static_cast<double>(bn);
+            bz /= static_cast<double>(bn);
+            const double dx = bx - rt::native::gameplay::kTownSpawnX * .1;
+            const double dz = bz - rt::native::gameplay::kTownSpawnZ * .1;
+            std::cout << "rt-app terrain: buildings n=" << bn << " centroid=("
+                      << bx << ',' << bz << ") dFromSpawn=(" << dx << ',' << dz
+                      << ") heading=" << std::atan2(dx, dz) << "rad\n";
+        }
     }
     {
         // Height diagnostic (diagnosed the under-town camera, 2026-10-17):
@@ -1802,6 +1823,11 @@ int main() {
     // expose its initial EXPLORE state for one frame, then start the same
     // first AI race that older direct launches used.
     bool directStartRace = state == AppState::PLAYING;
+    // RT_APP_MODE=explore holds SessionState::EXPLORE indefinitely for the
+    // drive-mode HUD capture against oracle town_driving.png — the legacy
+    // direct-launch auto-race leaves only one explore frame.
+    if (const char* mode = std::getenv("RT_APP_MODE"); mode && std::strcmp(mode, "explore") == 0)
+        directStartRace = false;
     rt::native::gameplay::MenuFlow menuFlow;
     if (state == AppState::MENU) menuFlow.screen = rt::native::gameplay::MenuScreen::MODE_SELECT;
     bool loggedAppState = false, loggedSessionState = false;
@@ -2310,12 +2336,17 @@ int main() {
                         terrainMesh.indices.empty() ? nullptr : &terrainMesh,
                         navLines.empty() ? nullptr : &navLines,
                         carLivery ? &*carLivery : nullptr);
-                    if (rendered) {
+                    // The bar/lap-square placeholders are a RACE-mode stand-in
+                    // only; the oracle town view has nothing top-left (its HUD
+                    // is gauge + minimap pills along the bottom) —
+                    // town_driving.png check 2026-10-17.
+                    if (rendered && session.state() == rt::native::gameplay::SessionState::RACE) {
                         std::vector<std::uint8_t> hudPixels;
                         rendered = rt::native::preview::previewRender2D(
                             renderer, rt::native::preview::raceHudQuads(snapshot, session.totalLaps(),
                                                                          static_cast<int>(presenter.extent.width), static_cast<int>(presenter.extent.height)),
                             {0.f, 0.f, 0.f, 0.f}, hudPixels, error);
+                        if (rendered) compositeOver(pixels, hudPixels);
                         if (rendered) compositeOver(pixels, hudPixels);
                         // Shipped speedometer dial (oracle gauge face rect
                         // (492,336,132,96) of 640x480 — hud-layout.md:81
@@ -2325,7 +2356,8 @@ int main() {
                         // the buffer switch and rebinds FONTE (preview.cpp
                         // hudAtlasPtr), so digits stay crisp over the dial.
                         if (rendered &&
-                            session.state() == rt::native::gameplay::SessionState::RACE &&
+                            (session.state() == rt::native::gameplay::SessionState::RACE ||
+                             session.state() == rt::native::gameplay::SessionState::EXPLORE) &&
                             hudArt.speedDial) {
                             const float sx = static_cast<float>(presenter.extent.width) / 640.f;
                             const float sy = static_cast<float>(presenter.extent.height) / 448.f;
@@ -2375,6 +2407,72 @@ int main() {
                                         compositeOver(pixels, digitPixels);
                                 }
                             }
+                            // Pass 3: time-of-day clock in the gauge's dark
+                            // bottom band — oracle town_driving.png shows teal
+                            // LCD "09:13" at UI x~545..595 y~442.  Digits are
+                            // the green/teal LCD cells baked on the METER0 page
+                            // (cell geometry PIL-measured 2026-10-17: 7 cells at
+                            // v 0..20 + 3 at v 23..43, u = 140 + d*16, 14x21
+                            // glyphs).  No colon cell exists on the page, so the
+                            // separator is authored as two teal squares matching
+                            // the digit colour (1,212,161)/255 in a flat pass.
+                            {
+                                const unsigned ticks = snapshot.clock;
+                                const unsigned perH = static_cast<unsigned>(rt::native::gameplay::kClockTicksPerHour);
+                                const unsigned perM = static_cast<unsigned>(rt::native::gameplay::kClockTicksPerMinute);
+                                const int hd = static_cast<int>((ticks / perH) % 24u);
+                                const int mn = static_cast<int>((ticks % perH) / perM);
+                                const int dg[4] = {hd / 10, hd % 10, mn / 10, mn % 10};
+                                std::vector<rt::native::preview::HudQuad> clockQuads;
+                                const float kx[4] = {545.f, 557.f, 573.f, 585.f};
+                                for (int i = 0; i < 4; ++i) {
+                                    const int d = dg[i];
+                                    const float u0 = static_cast<float>(140 + (d < 7 ? d * 16 : (d - 7) * 16)) / 256.f;
+                                    const float v0 = d < 7 ? 0.f : 23.f / 128.f;
+                                    clockQuads.push_back({kx[i] * sx, 442.f * sy, 10.f * sx, 14.f * sy,
+                                                        u0, v0, u0 + 14.f / 256.f, v0 + 21.f / 128.f,
+                                                        {1.f, 1.f, 1.f, 1.f}});
+                                }
+                                if (rt::native::preview::previewUploadFontAtlas(renderer, *hudArt.speedDial, dialError) &&
+                                    !clockQuads.empty() &&
+                                    rt::native::preview::previewRender2DTextured(
+                                        renderer, clockQuads, {0.f, 0.f, 0.f, 0.f}, dialPixels, error))
+                                    compositeOver(pixels, dialPixels);
+                                const std::array<float, 4> kTeal{0.f, .83f, .63f, 1.f};
+                                std::vector<rt::native::preview::ScreenQuad> colon{
+                                    {569.f * sx, 445.f * sy, 3.f * sx, 3.f * sy, kTeal},
+                                    {569.f * sx, 451.f * sy, 3.f * sx, 3.f * sy, kTeal}};
+                                std::vector<std::uint8_t> colonPixels;
+                                if (rt::native::preview::previewRender2D(
+                                        renderer, colon, {0.f, 0.f, 0.f, 0.f}, colonPixels, error))
+                                    compositeOver(pixels, colonPixels);
+                            }
+                            // Oracle minimap pill, bottom-left, both drive and
+                            // race (town_driving.png; subagent-measured
+                            // town-road-grounding.md: outer bbox px
+                            // (59..344,302..423) -> UI (29.5,324.4,142.5,130);
+                            // inner map px (88..319,313..414) -> UI
+                            // (44,336.2,115.5,108.5) mean (102,94,117); red car
+                            // marker (255,35,40) at pill centre ~UI (101,388)).
+                            // No silver frame cell on decoded SCORE unit 0
+                            // (bottom-left cell pink, colour-ruled-out); authored
+                            // flat. Live road geometry = remaining GAP.
+                            {
+                                const char* mmEnv = std::getenv("RT_APP_MINIMAP");
+                                const bool drawMinimap = !(mmEnv && std::string_view(mmEnv) == "0");
+                                const std::array<float, 4> kSilver{.47f, .47f, .47f, 1.f};
+                                const std::array<float, 4> kMapField{.40f, .37f, .46f, 1.f};
+                                const std::array<float, 4> kMarker{1.f, .14f, .16f, 1.f};
+                                std::vector<rt::native::preview::ScreenQuad> mapQuads{
+                                    {29.5f * sx, 324.4f * sy, 142.5f * sx, 130.f * sy, kSilver},
+                                    {44.f * sx, 336.2f * sy, 115.5f * sx, 108.5f * sy, kMapField},
+                                    {98.f * sx, 385.f * sy, 6.f * sx, 6.f * sy, kMarker}};
+                                std::vector<std::uint8_t> mapPixels;
+                                if (drawMinimap &&
+                                    rt::native::preview::previewRender2D(
+                                        renderer, mapQuads, {0.f, 0.f, 0.f, 0.f}, mapPixels, error))
+                                    compositeOver(pixels, mapPixels);
+                            }
                         }
                         if (hudTextEnabled && rendered) {
                             // Idempotent per renderer: re-uploads only after a
@@ -2397,7 +2495,12 @@ int main() {
                                         : session.state() == rt::native::gameplay::SessionState::RACE
                                                ? rt::native::preview::raceHudTextQuads(snapshot,
                                                                                       session.totalLaps(), w, h)
-                                               : rt::native::preview::townClockTextQuads(snapshot.clock, w, h);
+                                               // Oracle town view keeps the clock inside the
+                                               // gauge band (pass 3), not top-right; only fall
+                                               // back to the FONTE corner clock without art.
+                                               : (hudArt.speedDial
+                                                      ? std::vector<rt::native::preview::HudQuad>{}
+                                                      : rt::native::preview::townClockTextQuads(snapshot.clock, w, h));
                                 if (perfOverlayEnabled && !perfOverlayText.empty()) {
                                     // The HUD's ground-level overlay precedent uses UI y=6;
                                     // keep this opt-in row in that slot and create no quads
