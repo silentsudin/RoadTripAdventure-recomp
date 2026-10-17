@@ -30,6 +30,9 @@ using rt::native::assets::Vertex;
 using rt::native::preview::buildCarMeshFromCarFile;
 using rt::native::preview::CarMeshResult;
 using rt::native::preview::CarMeshTransformInfo;
+using rt::native::preview::CarMeshDiagnostics;
+using rt::native::preview::inspectCarMeshDiagnostics;
+using rt::native::preview::dumpCarMeshDiagnostics;
 using rt::native::preview::loadCarMeshFromFile;
 using rt::native::preview::mergeAndNormalizeCarMeshes;
 
@@ -183,6 +186,30 @@ int main() {
         check(std::abs(r1.bboxMin[0] + r1.bboxMax[0]) < 1e-2f, "align: x center near 0");
         check(std::abs(r1.bboxMin[2] + r1.bboxMax[2]) < 1e-2f, "align: z center near 0");
 
+        // Q00 source diagnostics make part filtering auditable. The selected
+        // body must not retain a count-gated part whose source-Y (CAR up)
+        // extent exceeds the main body's vertical extent by 1.5x.
+        const CarMeshDiagnostics diag = inspectCarMeshDiagnostics(bytes, kDiscPath);
+        check(diag.err == rt::native::assets::CarModelError::Ok,
+              "diagnostics: decode all six models");
+        dumpCarMeshDiagnostics(diag, std::cout);
+        const float mainHeight = diag.models[0].main.max[1] - diag.models[0].main.min[1];
+        const float acceptedHeight = diag.models[0].acceptedParts.max[1] -
+                                     diag.models[0].acceptedParts.min[1];
+        check(diag.models[0].acceptedParts.vertexCount == 0 ||
+              acceptedHeight <= 1.5f * mainHeight + 1e-4f,
+              "parts: accepted model-0 parts are no taller than 1.5x the body in source Y");
+
+        const float length = std::max(r1.bboxMax[0] - r1.bboxMin[0],
+                                      r1.bboxMax[2] - r1.bboxMin[2]);
+        const float height = r1.bboxMax[1] - r1.bboxMin[1];
+        const float width = std::min(r1.bboxMax[0] - r1.bboxMin[0],
+                                     r1.bboxMax[2] - r1.bboxMin[2]);
+        check(height / length >= 0.30f && height / length <= 0.35f,
+              "proportions: post-align height is 0.30..0.35 of length");
+        check(width / length >= 0.50f && width / length <= 0.70f,
+              "proportions: post-align width is 0.50..0.70 of length");
+
         // Determinism: same bytes twice -> identical vertex payload hash
         CarMeshResult r2 = buildCarMeshFromCarFile(bytes, kDiscPath, 4.0f);
         check(r2.err == r1.err, "det: err same");
@@ -193,7 +220,7 @@ int main() {
 
         // Via loadCarMeshFromFile
         CarMeshResult r3{};
-        bool ok = loadCarMeshFromFile(kDiscPath, r3, 4.0f);
+        bool ok = loadCarMeshFromFile(kDiscPath, r3, 4.0f, true);
         check(ok && r3.err == rt::native::assets::CarModelError::Ok, "load: succeeds and Ok");
         check(r3.model.vertices.size() == r1.model.vertices.size(), "load: same merged count as build");
 

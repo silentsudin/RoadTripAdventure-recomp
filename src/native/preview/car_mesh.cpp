@@ -9,8 +9,11 @@
 #include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <limits>
+#include <ostream>
 #include <span>
 #include <string>
 #include <vector>
@@ -180,6 +183,105 @@ std::pair<std::array<float, 3>, std::array<float, 3>> computeBbox(const assets::
     return {bmin, bmax};
 }
 
+CarMeshBounds computeRecordBounds(std::span<const assets::MeshRecord* const> records) {
+    constexpr float inf = std::numeric_limits<float>::infinity();
+    CarMeshBounds bounds;
+    bounds.min = {inf, inf, inf};
+    bounds.max = {-inf, -inf, -inf};
+    for (const assets::MeshRecord* record : records) {
+        if (record == nullptr) continue;
+        for (const auto& vertex : record->vertices) {
+            const float p[3] = {vertex.px, vertex.py, vertex.pz};
+            for (int axis = 0; axis < 3; ++axis) {
+                bounds.min[axis] = std::min(bounds.min[axis], p[axis]);
+                bounds.max[axis] = std::max(bounds.max[axis], p[axis]);
+            }
+            ++bounds.vertexCount;
+        }
+    }
+    if (bounds.vertexCount == 0) {
+        bounds.min = {0.0f, 0.0f, 0.0f};
+        bounds.max = bounds.min;
+    }
+    return bounds;
+}
+
+float extent(const CarMeshBounds& bounds, int axis) {
+    return bounds.max[axis] - bounds.min[axis];
+}
+
+struct ModelChains {
+    const assets::MeshRecord* main = nullptr;
+    std::array<const assets::MeshRecord*, 2> parts{};
+};
+
+struct CarChains {
+    std::array<ModelChains, 6> models{};
+};
+
+bool readCarChains(std::span<const std::uint8_t> bytes,
+                   const std::vector<assets::MeshRecord>& records,
+                   CarChains& out) {
+    if (bytes.size() < 0x30) return false;
+
+    std::uint32_t word[7] = {};
+    for (int i = 0; i < 7; ++i) {
+        word[i] = readU32LE(bytes.data() + static_cast<std::size_t>(i) * 4);
+    }
+    for (std::size_t model = 0; model < out.models.size(); ++model) {
+        const std::uint64_t modelStart = word[model];
+        const std::uint64_t modelEnd = word[model + 1];
+        if (modelStart + 0x10 > modelEnd || modelEnd > bytes.size()) return false;
+
+        const std::uint64_t mainStart = modelStart + 0x10;
+        const std::uint32_t partOffset[2] = {
+            readU32LE(bytes.data() + static_cast<std::size_t>(modelStart)),
+            readU32LE(bytes.data() + static_cast<std::size_t>(modelStart) + 4),
+        };
+        const std::uint32_t partCount[2] = {
+            readU32LE(bytes.data() + static_cast<std::size_t>(modelStart) + 8),
+            readU32LE(bytes.data() + static_cast<std::size_t>(modelStart) + 12),
+        };
+        for (const auto& record : records) {
+            if (record.provenance.offset == mainStart) {
+                out.models[model].main = &record;
+            }
+            for (std::size_t part = 0; part < 2; ++part) {
+                const std::uint64_t partStart = modelStart + (partOffset[part] & ~0x0fu);
+                if (partCount[part] != 0 && record.provenance.offset == partStart) {
+                    out.models[model].parts[part] = &record;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool keepPart(const assets::MeshRecord* part, const CarMeshBounds& mainBounds) {
+    if (part == nullptr || part->vertices.empty() || mainBounds.vertexCount == 0) return false;
+    const std::array<const assets::MeshRecord*, 1> onePart = {part};
+    const CarMeshBounds partBounds = computeRecordBounds(onePart);
+    // Source Y is the CAR vertical lane. A count word is a draw gate, not a
+    // proof that a chain belongs to the near body (model_converter.h:26-37).
+    return extent(partBounds, 1) <= 1.5f * extent(mainBounds, 1);
+}
+
+std::vector<assets::MeshRecord> selectedBodyRecords(const ModelChains& chains) {
+    std::vector<assets::MeshRecord> selected;
+    if (chains.main == nullptr || chains.main->vertices.empty() || chains.main->indices.empty()) {
+        return selected;
+    }
+    selected.push_back(*chains.main);
+    const std::array<const assets::MeshRecord*, 1> main = {chains.main};
+    const CarMeshBounds mainBounds = computeRecordBounds(main);
+    for (const assets::MeshRecord* part : chains.parts) {
+        if (part != nullptr && !part->indices.empty() && keepPart(part, mainBounds)) {
+            selected.push_back(*part);
+        }
+    }
+    return selected;
+}
+
 void applyScaleAndCenter(assets::NativeModel& m, float targetLength,
                          float& outScale, std::string& outAxis,
                          std::array<float, 3>& outBmin, std::array<float, 3>& outBmax) {
@@ -199,17 +301,23 @@ void applyScaleAndCenter(assets::NativeModel& m, float targetLength,
     float cx = 0.5f * (bmin[0] + bmax[0]);
     float cz = 0.5f * (bmin[2] + bmax[2]);
     float by = bmin[1];
+    // Q00's decoded near body is 1.470 source-Y tall for a 2.767 source-Z
+    // length. The native chase calibration calls for a 1.1..1.4 RU body at a
+    // 4 RU horizontal length, so preserve the 4 RU horizontal convention and
+    // apply the explicit 0.61 host vertical calibration (2.124 * .61 = 1.296
+    // RU). This is a host-display calibration, not a recovered VIF transform.
+    constexpr float kVerticalCalibration = 0.61f;
 
     for (auto& v : m.vertices) {
         v.px = (v.px - cx) * scale;
         v.pz = (v.pz - cz) * scale;
-        v.py = (v.py - by) * scale;
+        v.py = (v.py - by) * scale * kVerticalCalibration;
     }
 
     // Final (post-align) bbox: x/z symmetric around 0, y bottom at 0
     float halfx = dx * 0.5f * scale;
     float halfz = dz * 0.5f * scale;
-    float h = (bmax[1] - bmin[1]) * scale;
+    float h = (bmax[1] - bmin[1]) * scale * kVerticalCalibration;
     outBmin = {-halfx, 0.0f, -halfz};
     outBmax = { halfx, h,  halfz};
 }
@@ -263,14 +371,13 @@ assets::NativeModel mergeAndNormalizeCarMeshes(
         v.a = kNeutralA;
     }
 
-    // Normals fallback: if the source had zeros (common), replace with
-    // flat per-face normals computed from the final merged triangles.
-    // Deterministic because we walk the index buffer in order.
-    computeFlatNormals(model);
-
     // Scale/center using longest horizontal axis. Also fills info.
     applyScaleAndCenter(model, targetLength, info.scale, info.axis,
                         info.bboxMin, info.bboxMax);
+
+    // The calibrated vertical scale is non-uniform, so derive normals after
+    // the transform rather than retaining normals from source-space faces.
+    computeFlatNormals(model);
     return model;
 }
 
@@ -298,37 +405,15 @@ CarMeshResult buildCarMeshFromCarFile(std::span<const std::uint8_t> bytes,
         return res;
     }
 
-    // Select non-empty MeshRecords belonging to model 0 (main + its
-    // count-gated part chains). We locate model 0's byte range from the
-    // CAR header words (word[0] .. word[1]) and keep only meshes whose
-    // provenance offset falls inside it. This is the "near body".
-    //
-    // Choice documented per spec: we use provenance offset vs header words
-    // (precise); the simpler "merge ALL non-empty" is only a fallback if
-    // model 0 yields zero records (never observed on real Qnn.BIN).
-    std::uint32_t word[8] = {};
-    for (int i = 0; i < 8; ++i) {
-        word[i] = readU32LE(bytes.data() + static_cast<std::size_t>(i) * 4);
+    CarChains chains;
+    if (!readCarChains(bytes, cres.value.meshes, chains)) {
+        res.err = assets::CarModelError::BadHeader;
+        return res;
     }
-    const std::uint64_t m0 = word[0];
-    const std::uint64_t m1 = word[1];
-
-    std::vector<assets::MeshRecord> model0;
-    for (const auto& mr : cres.value.meshes) {
-        if (mr.provenance.offset >= m0 &&
-            mr.provenance.offset < m1 &&
-            !mr.vertices.empty() &&
-            !mr.indices.empty()) {
-            model0.push_back(mr);
-        }
-    }
+    std::vector<assets::MeshRecord> model0 = selectedBodyRecords(chains.models[0]);
     if (model0.empty()) {
-        // Fallback (documented): all non-empty from the file.
-        for (const auto& mr : cres.value.meshes) {
-            if (!mr.vertices.empty() && !mr.indices.empty()) {
-                model0.push_back(mr);
-            }
-        }
+        res.err = assets::CarModelError::BadBatch;
+        return res;
     }
 
     CarMeshTransformInfo info;
@@ -341,8 +426,78 @@ CarMeshResult buildCarMeshFromCarFile(std::span<const std::uint8_t> bytes,
     return res;
 }
 
+CarMeshDiagnostics inspectCarMeshDiagnostics(std::span<const std::uint8_t> bytes,
+                                             const std::string& sourceFile) {
+    CarMeshDiagnostics diagnostics;
+    if (bytes.size() < 0x30) {
+        diagnostics.err = assets::CarModelError::Truncated;
+        return diagnostics;
+    }
+    const auto sha = computeSha256(bytes);
+    if (isAllZero(sha)) {
+        diagnostics.err = assets::CarModelError::MissingProvenance;
+        return diagnostics;
+    }
+    const auto converted = assets::convertCarModels(bytes, sourceFile, sha);
+    if (converted.err != assets::CarModelError::Ok) {
+        diagnostics.err = converted.err;
+        return diagnostics;
+    }
+    CarChains chains;
+    if (!readCarChains(bytes, converted.value.meshes, chains)) {
+        diagnostics.err = assets::CarModelError::BadHeader;
+        return diagnostics;
+    }
+    for (std::size_t model = 0; model < chains.models.size(); ++model) {
+        const ModelChains& modelChains = chains.models[model];
+        std::vector<const assets::MeshRecord*> raw;
+        std::vector<const assets::MeshRecord*> accepted;
+        std::vector<const assets::MeshRecord*> rejected;
+        if (modelChains.main != nullptr) raw.push_back(modelChains.main);
+        if (modelChains.main != nullptr) accepted.push_back(modelChains.main);
+        const CarMeshBounds mainBounds = computeRecordBounds(accepted);
+        for (const assets::MeshRecord* part : modelChains.parts) {
+            if (part == nullptr) continue;
+            raw.push_back(part);
+            (keepPart(part, mainBounds) ? accepted : rejected).push_back(part);
+        }
+        diagnostics.models[model].raw = computeRecordBounds(raw);
+        diagnostics.models[model].main = mainBounds;
+        diagnostics.models[model].acceptedParts = computeRecordBounds(accepted.size() > 1
+            ? std::span<const assets::MeshRecord* const>(accepted.data() + 1, accepted.size() - 1)
+            : std::span<const assets::MeshRecord* const>());
+        diagnostics.models[model].rejectedParts = computeRecordBounds(rejected);
+    }
+    return diagnostics;
+}
+
+void dumpCarMeshDiagnostics(const CarMeshDiagnostics& diagnostics, std::ostream& out) {
+    if (diagnostics.err != assets::CarModelError::Ok) {
+        out << "car mesh diagnostics: conversion error=" << static_cast<int>(diagnostics.err) << '\n';
+        return;
+    }
+    const auto printBounds = [&out](const CarMeshBounds& bounds) {
+        out << bounds.vertexCount << " ["
+            << bounds.min[0] << ',' << bounds.min[1] << ',' << bounds.min[2] << " .. "
+            << bounds.max[0] << ',' << bounds.max[1] << ',' << bounds.max[2] << ']';
+    };
+    out << std::fixed << std::setprecision(3);
+    for (std::size_t model = 0; model < diagnostics.models.size(); ++model) {
+        const auto& row = diagnostics.models[model];
+        out << "car model " << model << " raw verts/bbox=";
+        printBounds(row.raw);
+        out << " main=";
+        printBounds(row.main);
+        out << " accepted-parts=";
+        printBounds(row.acceptedParts);
+        out << " rejected-parts=";
+        printBounds(row.rejectedParts);
+        out << '\n';
+    }
+}
+
 bool loadCarMeshFromFile(const std::string& path, CarMeshResult& out,
-                         float targetLength) {
+                          float targetLength, bool verbose) {
     std::ifstream f(path, std::ios::binary | std::ios::ate);
     if (!f) {
         out.err = assets::CarModelError::Truncated;
@@ -357,6 +512,9 @@ bool loadCarMeshFromFile(const std::string& path, CarMeshResult& out,
             out.err = assets::CarModelError::Truncated;
             return false;
         }
+    }
+    if (verbose) {
+        dumpCarMeshDiagnostics(inspectCarMeshDiagnostics(bytes, path), std::cout);
     }
     out = buildCarMeshFromCarFile(bytes, path, targetLength);
     return out.err == assets::CarModelError::Ok;
