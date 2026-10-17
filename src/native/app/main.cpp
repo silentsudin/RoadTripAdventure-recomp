@@ -1505,6 +1505,10 @@ int main() {
     rt::native::preview::TerrainMesh terrainMesh;
     std::optional<StreamedTerrain> streamed;
     std::vector<rt::native::preview::RouteLine> navLines;
+    // Minimap road ink: Peach Town street graph (NavRouteTables townGraph(1),
+    // tile-local game units — same space as snapshot.carPosition) stamped
+    // navy into the bottom-left pill on drive frames.
+    std::vector<std::array<float, 4>> mmRoads;
     std::optional<rt::native::gameplay::NavDrive> navDrive;
     constexpr float kNavRouteSpeedUnitsPerFrame = 30.f;
     int navRouteLap = 0;
@@ -1568,6 +1572,21 @@ int main() {
                 else
                     std::cout << "rt-app nav: static graph 0 segments=" << navLines.size()
                               << " vaddr=0x" << std::hex << graph->segmentVaddr << std::dec << "\n";
+            }
+        }
+    }
+    // Minimap roads: authentic Peach Town street graph (outer dir @0x2d98a8
+    // -> car0 pair 0x2c5ff0/0x2c67d0, 84 segments; scene-tile-map.md), kept
+    // in tile-local game units because the pill projection works in that
+    // space (delta from snapshot.carPosition).  Loaded whenever the pill is
+    // drawn (RT_APP_MINIMAP=0 kills both).
+    if (!(std::getenv("RT_APP_MINIMAP") != nullptr && std::string_view(std::getenv("RT_APP_MINIMAP")) == "0")) {
+        auto mmTables = rt::native::assets::NavRouteTables::open(discRoot() / "SLUS_203.98");
+        if (mmTables) {
+            if (auto graph = mmTables->townGraph(1)) {
+                for (const auto& seg : graph->segments)
+                    mmRoads.push_back({seg.ax, seg.az, seg.bx, seg.bz});
+                std::cout << "rt-app minimap: town street segments=" << mmRoads.size() << "\n";
             }
         }
     }
@@ -2384,6 +2403,29 @@ int main() {
                                    dxs[i] * sx, 59.1f * sy, 14.5f * sx, 17.2f * sy);
                             cell(160.f, 48.f, 16.f, 16.f, 94.f * sx, 54.8f * sy, 14.5f * sx, 17.2f * sy);   // '
                             cell(176.f, 48.f, 16.f, 16.f, 135.f * sx, 54.8f * sy, 14.5f * sx, 17.2f * sy);  // "
+                            // Timer capsule behind the digits: oracle
+                            // race_hud_driving.png capsule fill (87,109,159)
+                            // bbox px(96,48,274x27) -> UI (48,51.6,137,29),
+                            // rounded ends r=h/2 (measured 2026-10-17; the
+                            // brighter blue around it is sky, not the pill).
+                            {
+                                const std::array<float, 4> kCapsule{87.f / 255.f, 109.f / 255.f, 159.f / 255.f, 1.f};
+                                std::vector<rt::native::preview::ScreenQuad> capsule;
+                                constexpr float kCx = 48.f, kCy = 51.6f, kCw = 137.f, kCh = 29.f, kCr = 14.5f;
+                                for (float yy = 0.f; yy < kCh; yy += 1.f) {
+                                    float inset = 0.f;
+                                    if (yy < kCr)
+                                        inset = kCr - std::sqrt(std::max(0.f, kCr * kCr - (kCr - yy) * (kCr - yy)));
+                                    else if (yy > kCh - kCr)
+                                        inset = kCr - std::sqrt(std::max(0.f, kCr * kCr - (yy - (kCh - kCr)) * (yy - (kCh - kCr))));
+                                    capsule.push_back({(kCx + inset) * sx, (kCy + yy) * sy,
+                                                    (kCw - 2.f * inset) * sx, std::min(1.f, kCh - yy) * sy, kCapsule});
+                                }
+                                std::vector<std::uint8_t> capsulePixels;
+                                if (rt::native::preview::previewRender2D(
+                                        renderer, capsule, {0.f, 0.f, 0.f, 0.f}, capsulePixels, error))
+                                    compositeOver(pixels, capsulePixels);
+                            }
                             std::string bannerError;
                             std::vector<std::uint8_t> bannerPixels;
                             if (rt::native::preview::previewUploadFontAtlas(renderer, *hudArt.raceBanner, bannerError) &&
@@ -2506,25 +2548,80 @@ int main() {
                                     compositeOver(pixels, colonPixels);
                             }
                             // Oracle minimap pill, bottom-left, both drive and
-                            // race (town_driving.png; subagent-measured
-                            // town-road-grounding.md: outer bbox px
-                            // (59..344,302..423) -> UI (29.5,324.4,142.5,130);
-                            // inner map px (88..319,313..414) -> UI
-                            // (44,336.2,115.5,108.5) mean (102,94,117); red car
-                            // marker (255,35,40) at pill centre ~UI (101,388)).
-                            // No silver frame cell on decoded SCORE unit 0
-                            // (bottom-left cell pink, colour-ruled-out); authored
-                            // flat. Live road geometry = remaining GAP.
+                            // race (town_driving.png px-measured directly
+                            // 2026-10-17): chrome frame base (128,128,128)
+                            // bbox px(59..344,302..423) -> UI
+                            // (29.5,324.4,142.5,130) with a (212)-bright top
+                            // highlight row over a (164) row and a (115) bottom
+                            // shade; dark-green side grips (0,104,8) at px
+                            // (68..79 / 324..335, 342..382) -> UI
+                            // (34|162,367.3,5.5,43); lavender field
+                            // (116,108,128) px(88..319,313..414) -> UI
+                            // (44,336.2,115.5,108.5); roads navy (45,45,116)
+                            // from the Peach Town street graph; red car dot
+                            // (255,1,1) at field centre (north-up map, car
+                            // always centred).  Projection = the game's own
+                            // near zoom (map_view.h legacy: 0.25 field px per
+                            // tile unit, 0.47 vertical squash) rescaled to the
+                            // measured inner rect (115.5/113, 108.5/102).
+                            // Green road marks + brown house blobs are live
+                            // state / un-grounded placement -> deferred GAP.
                             {
                                 const char* mmEnv = std::getenv("RT_APP_MINIMAP");
                                 const bool drawMinimap = !(mmEnv && std::string_view(mmEnv) == "0");
-                                const std::array<float, 4> kSilver{.47f, .47f, .47f, 1.f};
-                                const std::array<float, 4> kMapField{.40f, .37f, .46f, 1.f};
-                                const std::array<float, 4> kMarker{1.f, .14f, .16f, 1.f};
-                                std::vector<rt::native::preview::ScreenQuad> mapQuads{
-                                    {29.5f * sx, 324.4f * sy, 142.5f * sx, 130.f * sy, kSilver},
-                                    {44.f * sx, 336.2f * sy, 115.5f * sx, 108.5f * sy, kMapField},
-                                    {98.f * sx, 385.f * sy, 6.f * sx, 6.f * sy, kMarker}};
+                                const std::array<float, 4> kChrome{128.f / 255.f, 128.f / 255.f, 128.f / 255.f, 1.f};
+                                const std::array<float, 4> kChromeHi{212.f / 255.f, 212.f / 255.f, 212.f / 255.f, 1.f};
+                                const std::array<float, 4> kChromeMid{164.f / 255.f, 164.f / 255.f, 164.f / 255.f, 1.f};
+                                const std::array<float, 4> kChromeLo{115.f / 255.f, 115.f / 255.f, 115.f / 255.f, 1.f};
+                                const std::array<float, 4> kGrip{0.f, 104.f / 255.f, 8.f / 255.f, 1.f};
+                                const std::array<float, 4> kField{116.f / 255.f, 108.f / 255.f, 128.f / 255.f, 1.f};
+                                const std::array<float, 4> kRoad{45.f / 255.f, 45.f / 255.f, 116.f / 255.f, 1.f};
+                                const std::array<float, 4> kCarDot{1.f, 1.f / 255.f, 1.f / 255.f, 1.f};
+                                std::vector<rt::native::preview::ScreenQuad> mapQuads;
+                                if (drawMinimap) {
+                                    // Rounded pill body rasterised in 1-UI-px rows
+                                    // (corner radius ~4 UI px against the oracle).
+                                    constexpr float kPx = 29.5f, kPy = 324.4f, kPw = 142.5f, kPh = 130.f, kRad = 4.f;
+                                    for (float yy = 0.f; yy < kPh; yy += 1.f) {
+                                        float inset = 0.f;
+                                        if (yy < kRad)
+                                            inset = kRad - std::sqrt(std::max(0.f, kRad * kRad - (kRad - yy) * (kRad - yy)));
+                                        else if (yy > kPh - kRad)
+                                            inset = kRad - std::sqrt(std::max(0.f, kRad * kRad - (yy - (kPh - kRad)) * (yy - (kPh - kRad))));
+                                        const float h = std::min(1.f, kPh - yy);
+                                        mapQuads.push_back({(kPx + inset) * sx, (kPy + yy) * sy,
+                                                          (kPw - 2.f * inset) * sx, h * sy, kChrome});
+                                    }
+                                    // Frame sheen: bright top edge, mid row, dark
+                                    // bottom edge (all inset from the corners).
+                                    mapQuads.push_back({(kPx + kRad) * sx, kPy * sy, (kPw - 2.f * kRad) * sx, 1.1f * sy, kChromeHi});
+                                    mapQuads.push_back({(kPx + kRad) * sx, (kPy + 1.1f) * sy, (kPw - 2.f * kRad) * sx, 1.1f * sy, kChromeMid});
+                                    mapQuads.push_back({(kPx + kRad) * sx, (kPy + kPh - 2.2f) * sy, (kPw - 2.f * kRad) * sx, 2.2f * sy, kChromeLo});
+                                    // Dark-green grip blocks, both ends.
+                                    mapQuads.push_back({34.f * sx, 367.3f * sy, 5.5f * sx, 43.f * sy, kGrip});
+                                    mapQuads.push_back({162.f * sx, 367.3f * sy, 5.5f * sx, 43.f * sy, kGrip});
+                                    // Field + roads + car.
+                                    constexpr float kFx = 44.f, kFy = 336.2f, kFw = 115.5f, kFh = 108.5f;
+                                    mapQuads.push_back({kFx * sx, kFy * sy, kFw * sx, kFh * sy, kField});
+                                    const float carUiX = kFx + kFw * .5f, carUiY = kFy + kFh * .5f;
+                                    constexpr float kKx = .25f * (115.5f / 113.f);
+                                    constexpr float kKy = .47f * .25f * (108.5f / 102.f);
+                                    for (const auto& sgm : mmRoads) {
+                                        const float ax = carUiX + (sgm[0] - snapshot.carPosition.x) * kKx;
+                                        const float ay = carUiY - (sgm[1] - snapshot.carPosition.z) * kKy;
+                                        const float bx = carUiX + (sgm[2] - snapshot.carPosition.x) * kKx;
+                                        const float by = carUiY - (sgm[3] - snapshot.carPosition.z) * kKy;
+                                        const float dx = bx - ax, dy = by - ay;
+                                        const int steps = std::max(1, static_cast<int>(std::hypot(dx, dy)));
+                                        for (int i = 0; i <= steps; ++i) {
+                                            const float t = static_cast<float>(i) / static_cast<float>(steps);
+                                            const float px = ax + dx * t, py = ay + dy * t;
+                                            if (px < kFx || px > kFx + kFw || py < kFy || py > kFy + kFh) continue;
+                                            mapQuads.push_back({(px - .8f) * sx, (py - .8f) * sy, 1.6f * sx, 1.6f * sy, kRoad});
+                                        }
+                                    }
+                                    mapQuads.push_back({(carUiX - 1.3f) * sx, (carUiY - 1.3f) * sy, 2.6f * sx, 2.6f * sy, kCarDot});
+                                }
                                 std::vector<std::uint8_t> mapPixels;
                                 if (drawMinimap &&
                                     rt::native::preview::previewRender2D(

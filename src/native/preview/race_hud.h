@@ -134,7 +134,7 @@ inline void appendFonteText(std::vector<HudQuad>& out, const char* text, float u
 // badge in that corner, not lap text, and the label collided with the timer
 // digits at the same row. Lap state stays on the lap-squares panel.
 inline std::vector<HudQuad> raceHudTextQuads(const gameplay::FrameSnapshot& snapshot,
-                                             int totalLaps, int width, int height) {
+                                             int /*totalLaps*/, int width, int height) {
     std::vector<HudQuad> quads;
     namespace hud = rt::native::gameplay;
     constexpr std::array<float, 4> kWhite{1.f, 1.f, 1.f, .95f};
