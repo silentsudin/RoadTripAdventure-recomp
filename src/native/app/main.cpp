@@ -200,7 +200,11 @@ void bootstrapSettings() {
     (void)effective;
 
     const auto boolFlag = [&store](const char* key, const char* env) {
-        if (store.contains(key) && store.getBool(key, false)) setDefaultEnv(env, "1");
+        // Explicitly stored values write both ways; unset keys leave the env
+        // alone so the compiled-in defaults (GAME-LOOK v1: terrain/textures/
+        // hudtext on when assets exist) keep governing.
+        if (!store.contains(key)) return;
+        setDefaultEnv(env, store.getBool(key, false) ? "1" : "0");
     };
     boolFlag("graphics.terrain", "RT_APP_TERRAIN");
     boolFlag("graphics.textures", "RT_APP_TEXTURES");
@@ -696,6 +700,21 @@ std::filesystem::path discRoot() {
     return {};
 }
 
+// GAME-LOOK v1 (2026-10-17): terrain, textures and FONTE HUD text default to
+// ON whenever disc assets exist, so a default launch consumes real game data
+// instead of the placeholder scene (the visible-parity mandate: shipping the
+// converters but keeping them behind env flags left the out-of-box app
+// looking nothing like Road Trip).  "=0" opts out explicitly; other
+// RT_APP_* graphics switches keep their opt-in presence semantics.
+bool discAssetsPresent() {
+    std::error_code ec;
+    return std::filesystem::is_directory(discRoot() / "FLD", ec);
+}
+bool featureDefaultOn(const char* env) {
+    if (const char* v = std::getenv(env)) return std::strcmp(v, "0") != 0;
+    return discAssetsPresent();
+}
+
 // RT_APP_STREAM=1 (with RT_APP_TERRAIN=1) streams tiles through four
 // hardware-style resident slots instead of the eager 64-tile load: slot
 // index = id & 3 (the four 0x3A8000-byte fieldTileData buffers), resident
@@ -830,8 +849,21 @@ struct StreamedTerrain {
 
 rt::native::preview::TerrainMesh loadTerrainMesh() {
     rt::native::preview::TerrainMesh mesh;
-    if (std::getenv("RT_APP_TERRAIN") == nullptr) return mesh;
-    const bool wantTextures = std::getenv("RT_APP_TEXTURES") != nullptr;
+    if (!featureDefaultOn("RT_APP_TERRAIN")) return mesh;
+    const bool wantTextures = featureDefaultOn("RT_APP_TEXTURES");
+    // Default coverage is the neighbourhood around the anchored spawn (Peach
+    // Town id 43 at origin 0,0): +/- R lattice steps (x step 80, z step 160
+    // render units).  Full-disc eager loading measured ~18 s startup, so the
+    // default ships R=1 (3x3); RT_APP_TILES_RADIUS=2..7 widens it, "all"
+    // restores the full-disc behaviour used by the evidence scripts.
+    const int radius = [] {
+        const char* v = std::getenv("RT_APP_TILES_RADIUS");
+        if (!v) return 1;
+        if (std::strcmp(v, "all") == 0) return 1 << 20;
+        const int r = std::atoi(v);
+        return r > 0 ? r : 1;
+    }();
+    std::size_t tilesSkippedFar = 0;
     std::unordered_map<std::uint64_t, std::uint32_t> pagesByHash;
     const std::filesystem::path root = discRoot();
     const char* named = std::getenv("RT_APP_TERRAIN_FILE");
@@ -883,6 +915,15 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
     for (std::size_t id = 0; id < rt::native::assets::kFieldTileCount; ++id) {
         const std::string& name = (*index)[id].fileName;
         if (name.empty()) continue;
+        // Neighbourhood curation before I/O (RT_APP_TILES_RADIUS above).
+        {
+            const auto o = tileRenderOrigin(static_cast<int>(id));
+            if (std::fabs(o.x) > radius * 80.f + 1.f ||
+                std::fabs(o.z) > radius * 160.f + 1.f) {
+                ++tilesSkippedFar;
+                continue;
+            }
+        }
         std::ifstream input(root / "FLD" / name, std::ios::binary);
         if (!input) continue;
         const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
@@ -921,7 +962,9 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
         ++tilesLoaded;
     }
     std::cout << "rt-app terrain: tiles=" << tilesLoaded
-              << " triangles=" << mesh.indices.size() / 3;
+              << " triangles=" << mesh.indices.size() / 3
+              << " radius=" << (radius > 99 ? -1 : radius)
+              << " far-skipped=" << tilesSkippedFar;
     if (wantTextures) {
         std::cout << " pages=" << mesh.textures.size()
                   << " clut hits/alias/miss=" << clutHits << '/' << clutAlias << '/' << clutMiss
@@ -1099,9 +1142,23 @@ int main() {
     }();
     // RT_APP_STREAM=1 (with RT_APP_TERRAIN=1) replaces the eager 64-tile
     // load with hardware-style 4-slot streaming (slot = id & 3).
+    // GAME-LOOK v1: all scene asset decoding (terrain, streaming, nav,
+    // route driver, FONTE atlas) is built lazily on the first PLAYING frame
+    // so TITLE/attract boot never pays the ~11 s terrain+texture+glyph cost
+    // it used to pay at startup on every launch state.
     rt::native::preview::TerrainMesh terrainMesh;
     std::optional<StreamedTerrain> streamed;
-    if (std::getenv("RT_APP_STREAM") != nullptr && std::getenv("RT_APP_TERRAIN") != nullptr) {
+    std::vector<rt::native::preview::RouteLine> navLines;
+    std::optional<rt::native::gameplay::NavDrive> navDrive;
+    constexpr float kNavRouteSpeedUnitsPerFrame = 30.f;
+    int navRouteLap = 0;
+    bool hudTextEnabled = false;
+    bool scoreHudEnabled = false;
+    bool scoreHudMeter = false;
+    bool hudTextWarned = false;
+    rt::native::assets::GlyphAtlas fontAtlas;
+    auto initSceneAssets = [&]() {
+    if (std::getenv("RT_APP_STREAM") != nullptr && featureDefaultOn("RT_APP_TERRAIN")) {
         if (std::getenv("RT_APP_TERRAIN_FILE") != nullptr)
             std::cout << "rt-app stream: RT_APP_TERRAIN_FILE ignored under stream mode\n";
         auto index = rt::native::assets::buildFieldTileIndex(discRoot());
@@ -1112,7 +1169,7 @@ int main() {
             StreamedTerrain st;
             st.root = discRoot();
             st.index = *index;
-            st.wantTextures = std::getenv("RT_APP_TEXTURES") != nullptr;
+            st.wantTextures = featureDefaultOn("RT_APP_TEXTURES");
             const char* stepValue = std::getenv("RT_APP_STREAM_STEP_FRAMES");
             const char* rowValue = std::getenv("RT_APP_STREAM_ROW");
             const int step = stepValue ? std::atoi(stepValue) : 10;
@@ -1132,7 +1189,6 @@ int main() {
     // street graph (scene T=1, outer dir @0x2d98a8 -> car0 pair
     // 0x2c5ff0/0x2c67d0, 84 segments) — tile-local [0,1600] game units, so
     // scaled 0.1 both overlays land inside the anchored Peach tile at (0,0).
-    std::vector<rt::native::preview::RouteLine> navLines;
     if (std::getenv("RT_APP_NAV") != nullptr) {
         auto tables = rt::native::assets::NavRouteTables::open(discRoot() / "SLUS_203.98");
         if (!tables) {
@@ -1161,9 +1217,6 @@ int main() {
     // a deterministic arc-length follower (gameplay/nav_drive).  Session
     // authoring keeps its own car state; only the snapshot handed to the
     // scene renderer is overridden.
-    std::optional<rt::native::gameplay::NavDrive> navDrive;
-    constexpr float kNavRouteSpeedUnitsPerFrame = 30.f;
-    int navRouteLap = 0;
     if (std::getenv("RT_APP_ROUTE") != nullptr) {
         auto tables = rt::native::assets::NavRouteTables::open(discRoot() / "SLUS_203.98");
         if (!tables) {
@@ -1193,17 +1246,15 @@ int main() {
     // lap/time + clock strings at the ROM-proven elements
     // (docs/native-reference/hud-layout.md; glyph grid per
     // docs/native-reference/sys-gsl-packs.md §4 corrected 2026-10-16).
-    bool hudTextEnabled = std::getenv("RT_APP_HUDTEXT") != nullptr;
+    hudTextEnabled = featureDefaultOn("RT_APP_HUDTEXT");
     // RT_APP_SCOREHUD[=meter]: overlay the SCORE/METER page text builders
     // (livery-test style presentation).  Timer + speed-digit placements are
     // hud-layout.md CONFIRMED race-HUD anchors; the score/money label block
     // is AUTHORED (no ROM evidence for the livery-test page layout), and
     // score value here is a demo aggregate of collected collectibles.
     const char* scoreHudEnv = std::getenv("RT_APP_SCOREHUD");
-    bool scoreHudEnabled = scoreHudEnv != nullptr;
-    const bool scoreHudMeter = scoreHudEnv && std::string(scoreHudEnv) == "meter";
-    bool hudTextWarned = false;
-    rt::native::assets::GlyphAtlas fontAtlas;
+    scoreHudEnabled = scoreHudEnv != nullptr;
+    scoreHudMeter = scoreHudEnv && std::string(scoreHudEnv) == "meter";
     if (hudTextEnabled) {
         std::ifstream input(discRoot() / "SYS" / "FONTE.GSL", std::ios::binary);
         if (!input) {
@@ -1226,6 +1277,8 @@ int main() {
             }
         }
     }
+    };
+    bool sceneAssetsReady = false;
     AudioHost audio;
     if (std::getenv("RT_APP_NOAUDIO") == nullptr) (void)initAudio(audio);
     const auto recreateSwapchain = [&]() {
@@ -1818,6 +1871,10 @@ int main() {
                 // carPosition is consumed in game units (preview scales .1).
                 renderSnapshot.carPosition = {pose.position.x, pose.position.z};
                 renderSnapshot.heading = pose.heading;
+            }
+            if (state == AppState::PLAYING && !sceneAssetsReady) {
+                initSceneAssets();
+                sceneAssetsReady = true;
             }
             do {
                 std::vector<std::uint8_t> pixels;

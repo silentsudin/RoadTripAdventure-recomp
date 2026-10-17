@@ -1,6 +1,7 @@
 #include "setup_wizard.h"
 
 #include <chrono>
+#include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -22,18 +23,37 @@ void log(const std::string& message) {
 #endif
 }
 
-std::uint32_t crcFile(const std::filesystem::path& path) {
-    std::ifstream in(path, std::ios::binary);
-    std::uint32_t crc = 0xFFFFFFFFu;
-    char buffer[64 * 1024];
-    while (in) {
-        in.read(buffer, sizeof buffer);
-        for (std::streamsize i = 0; i < in.gcount(); ++i) {
-            crc ^= static_cast<unsigned char>(buffer[i]);
-            for (int bit = 0; bit != 8; ++bit) crc = (crc >> 1) ^ (0xEDB88320u & -(crc & 1u));
+namespace {
+// CRC32 (reflected, 0xEDB88320) slicing-by-1 table; the previous per-bit
+// loop ran ~40 MB/s and the boot-time manifest validation re-CRCed every
+// extracted file, costing ~6 s on desktop and ~60 s+ on Thor (measured via
+// sample: isSetupManifestValid/crcFile dominated startup, delaying the
+// first present and the test-socket bind).
+struct Crc32Table {
+    std::uint32_t v[256];
+    Crc32Table() {
+        for (std::uint32_t i = 0; i < 256; ++i) {
+            std::uint32_t c = i;
+            for (int bit = 0; bit != 8; ++bit) c = (c >> 1) ^ (0xEDB88320u & -(c & 1u));
+            v[i] = c;
         }
     }
-    return crc ^ 0xFFFFFFFFu;
+};
+const Crc32Table kCrc32;
+} // namespace
+
+std::uint32_t crcFile(const std::filesystem::path& path) {
+    if (FILE* f = std::fopen(path.c_str(), "rb")) {
+        std::uint32_t crc = 0xFFFFFFFFu;
+        unsigned char buffer[1u << 20];
+        std::size_t n;
+        while ((n = std::fread(buffer, 1, sizeof buffer, f)) != 0)
+            for (std::size_t i = 0; i < n; ++i)
+                crc = (crc >> 8) ^ kCrc32.v[(crc ^ buffer[i]) & 0xFFu];
+        std::fclose(f);
+        return crc ^ 0xFFFFFFFFu;
+    }
+    return 0xFFFFFFFFu;
 }
 
 std::filesystem::path dataRoot() {
@@ -94,20 +114,39 @@ bool writeSetupManifest(const std::filesystem::path& path, const SetupManifest& 
     return static_cast<bool>(out);
 }
 
-bool isSetupManifestValid(const std::filesystem::path& assetsRoot) {
+namespace {
+// Manifest file-set check.  Fast mode (startup default) validates existence
+// and size for every entry; full mode additionally re-CRCs.  Full validation
+// always runs once immediately after extraction and on demand via
+// RT_APP_SETUP_VERIFY=full.  The previous launch-time full re-CRC cost
+// ~6 s desktop / ~60 s+ on Thor and pushed the test-socket bind past the
+// rehearsal handshake window.
+bool checkManifestFiles(const std::filesystem::path& assetsRoot, bool fullCrc) {
     SetupManifest manifest;
     if (!parseManifest(assetsRoot / "manifest.json", manifest)) return false;
     for (const auto& file : manifest.files) {
         const auto path = assetsRoot / file.path;
         std::error_code ec;
-        if (!std::filesystem::is_regular_file(path, ec) || std::filesystem::file_size(path, ec) != file.size || crcFile(path) != file.crc32) return false;
+        if (!std::filesystem::is_regular_file(path, ec) ||
+            std::filesystem::file_size(path, ec) != file.size) return false;
+        if (fullCrc && crcFile(path) != file.crc32) return false;
     }
     return true;
+}
+} // namespace
+
+bool isSetupManifestValid(const std::filesystem::path& assetsRoot) {
+    // Public contract: full CRC validation of every manifest entry.
+    return checkManifestFiles(assetsRoot, true);
 }
 
 bool RunFirstRunSetupIfRequired() {
     const auto assets = std::getenv("RT_ASSET_DIR") ? std::filesystem::path(std::getenv("RT_ASSET_DIR")) : dataRoot() / "assets";
-    if (isSetupManifestValid(assets)) { log("assets: ready"); return true; }
+    // Startup fast path: existence+size (see checkManifestFiles note above).
+    // Full validation still runs once right after extraction and on demand
+    // via RT_APP_SETUP_VERIFY=full.
+    const char* verify = std::getenv("RT_APP_SETUP_VERIFY");
+    if (checkManifestFiles(assets, verify && std::string(verify) == "full")) { log("assets: ready"); return true; }
     const auto disc = findDisc();
     if (disc.empty() || !hasExpectedBootElfCrc(disc / "SLUS_203.98")) { log("rom: invalid"); return false; }
 
@@ -133,7 +172,7 @@ bool RunFirstRunSetupIfRequired() {
         log(std::string("extract: ") + kind + " " + std::to_string(percent) + "%");
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    if (!writeSetupManifest(assets / "manifest.json", manifest) || !isSetupManifestValid(assets)) { log("extract: manifest failed"); return false; }
+    if (!writeSetupManifest(assets / "manifest.json", manifest) || !checkManifestFiles(assets, true)) { log("extract: manifest failed"); return false; }
     log("assets: ready");
     return true;
 }

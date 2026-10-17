@@ -267,3 +267,12 @@ until ready — never show a row the recomp didn't have.
 - Late frames: `RT_LATE_LOG=1` logs each frame that starts over 25 ms after the last (`[late]`: EE run / idle / blocked on VU1+GS, VU1 and GS busy, the core the EE ran on); `[perf]` lines end with the little/mid/prime clocks on Android. On Android the game, VU1 and GS threads are kept on the cores faster than the slowest cluster (`ThreadNaming::SetCurrentThreadInteractive`; `RT_THREAD_AFFINITY=0` off): the GS thread had spent ~9% of its time on the Thor's 2.0 GHz cores.
 - Frame generation on the hardware GS records the shadow frames after the real frame's submit, in ~1 ms slices, each under the device lock and submitted before it is released (`recordShadowsSliced`; `RT_HWGS_SHADOW_SLICE=0`: one pass under the lock). Recorded in one go, busy town scenes held the lock for several ms, the GS thread waited for it, the EE for the GS, and late frames made frame skip pause frame generation (Thor, Peach Town at 120 Hz). Same GPU load (70.4% vs 70.3%).
 - Display mode (Options → Display mode, desktop only: hidden on Android; `[display] window_mode = "windowed"|"borderless"|"fullscreen"`, unknown = windowed): `applyWindow` (`src/settings/Apply.cpp`) drives the presenter's SDL3 window. Borderless = SDL desktop fullscreen (no mode); Fullscreen = SDL fullscreen with the desktop's own resolution and refresh rate as an explicit display mode (never a resolution change; on Windows with Vulkan both look the same, there is no exclusive mode). Back to Window restores the earlier size and position (the Window size row only sets it when changed). Alt+Enter and F11 toggle Window and the last fullscreen kind (`serviceWindow`, per frame from `updatePauseMenu`; the game reads no keys while Alt is held); the pointer is hidden in the fullscreen modes unless the menu is open. macOS sets `SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES=0` (instant, no Space). `RT_WINDOW_DEBUG=1` logs the window after each apply.
+
+## Dispatch quota gate (hard)
+Before EVERY subagent dispatch, run quota_status and verify the target pool
+has meaningful headroom in BOTH windows. A pool with Weekly=0% is DEAD even
+if its 5h window shows 100% (opencode-go incident: dispatched twice into
+weekly=0, both cancelled — wasted cycles, user had to intervene). zai's
+quota probe can report healthy while subagents fail with ZAI_API_KEY unset —
+probe lies, prefer pools the user has confirmed. Confirmed-good pools as of
+2026-10-17: xai/grok (user-unlocked), openai weekly ~32%.

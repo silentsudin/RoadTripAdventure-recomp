@@ -50,7 +50,7 @@ row menu       RT_APP_STATE=MENU RT_APP_NOAUDIO=1   -- "rt-app state=MENU"
 row playing    RT_APP_STATE=PLAYING RT_APP_NOAUDIO=1 -- "rt-app state=PLAYING" "session state="
 
 # --- terrain / textures / streaming / nav --------------------------------------
-row terrain    RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_NOAUDIO=1 \
+row terrain    RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_TILES_RADIUS=all RT_APP_NOAUDIO=1 \
                -- "rt-app terrain: tiles=64"
 row textured   RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_TEXTURES=1 RT_APP_NOAUDIO=1 \
                -- "pages=" "unresolved=0"
@@ -104,7 +104,7 @@ row_required_disc bgm         RT_APP_STATE=PLAYING RT_DISC="$DISC" RT_APP_BGM="$
                   -- "rt-app BGM loaded"
 row_required_disc bgm_tsq     RT_APP_STATE=PLAYING RT_DISC="$DISC" RT_APP_BGM_TSQ=1 \
                   -- "rt-app BGM TSQ loaded"
-row_required_disc disc_terrain RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_DISC="$DISC" RT_APP_NOAUDIO=1 \
+row_required_disc disc_terrain RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_TILES_RADIUS=all RT_DISC="$DISC" RT_APP_NOAUDIO=1 \
                   -- "rt-app terrain: tiles=64"
 row_required_disc disc_nav     RT_APP_STATE=PLAYING RT_APP_TERRAIN=1 RT_APP_NAV=1 RT_DISC="$DISC" RT_APP_NOAUDIO=1 \
                   -- "rt-app nav: static graph 0 segments=35"
