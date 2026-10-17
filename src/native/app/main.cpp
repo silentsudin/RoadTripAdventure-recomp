@@ -1729,6 +1729,15 @@ int main() {
     bool playerDriven = false, running = true; int frames = 0;
     std::uint64_t simulationFrame = 0;
     AppState state = initialAppState();
+    // RT_APP_MODE=race: straight to SessionState::RACE at startup (desktop
+    // race-HUD capture for the shipped dial; the menu path needs interaction
+    // the headless harness lacks).  Autopilot (!playerDriven) drives.
+    if (state == AppState::PLAYING) {
+        if (const char* mode = std::getenv("RT_APP_MODE"); mode && std::strcmp(mode, "race") == 0) {
+            session.startRace();
+            std::cout << "rt-app mode: RACE (forced by RT_APP_MODE=race)\n";
+        }
+    }
     // RT_APP_STATE=PLAYING is the host's direct-launch shortcut.  Log and
     // expose its initial EXPLORE state for one frame, then start the same
     // first AI race that older direct launches used.
@@ -2318,15 +2327,45 @@ int main() {
                                 if (!titleError.empty()) error = titleError;
                             }
                         } else {
+                        // Oracle main_menu.png shows the shipped title scene
+                        // behind the menu panel.  Reuse the TITLE.GSL backdrop
+                        // (same runtime-only texture as the title screen): draw
+                        // it opaque, then drop the flat dark panel base and
+                        // composite the menu rows over it with a transparent
+                        // clear.  No art (no disc / decode miss) keeps the
+                        // legacy opaque menuClear path byte-identical.
+                        const bool artBackdrop = titleBackdrop && state == AppState::MENU &&
+                            (menuFlow.screen == rt::native::gameplay::MenuScreen::MODE_SELECT ||
+                             menuFlow.screen == rt::native::gameplay::MenuScreen::OPTIONS);
+                        bool backdropDrawn = false;
+                        if (artBackdrop) {
+                            std::string bdError;
+                            const rt::native::preview::HudQuad fullscreen{
+                                0.f, 0.f, static_cast<float>(menuW), static_cast<float>(menuH),
+                                0.f, 0.f, 1.f, 1.f, {1.f, 1.f, 1.f, 1.f}};
+                            backdropDrawn =
+                                rt::native::preview::previewUploadFontAtlas(renderer, *titleBackdrop, bdError) &&
+                                rt::native::preview::previewRender2DTextured(
+                                    renderer, {fullscreen}, {0.f, 0.f, 0.f, 1.f}, pixels, error);
+                            if (!backdropDrawn && !bdError.empty()) std::cout << "rt-app menu-backdrop: " << bdError << "\n";
+                        }
                         // Keep menuQuads' color backdrop; drop the placeholder
                         // bars (TITLE's two colored rects, and the MENU rows)
                         // and composite the real UiScreen over that panel.
                         auto backdrop = menuQuads(state, menuFlow, menuW, menuH);
                         std::vector<rt::native::preview::ScreenQuad> quads;
-                        if (!backdrop.empty()) quads.push_back(backdrop.front());
+                        if (!backdrop.empty() && !backdropDrawn) quads.push_back(backdrop.front());
                         const auto ui = buildLiveMenuScreen(state, menuFlow, frames, menuW, menuH);
                         quads.insert(quads.end(), ui.quads.begin(), ui.quads.end());
-                        rendered = rt::native::preview::previewRender2D(renderer, quads, menuClear, pixels, error);
+                        if (backdropDrawn) {
+                            std::vector<std::uint8_t> panelPixels;
+                            rendered = rt::native::preview::previewRender2D(
+                                renderer, quads, {0.f, 0.f, 0.f, 0.f}, panelPixels, error);
+                            if (rendered) compositeOver(pixels, panelPixels);
+                        } else {
+                            rendered = rt::native::preview::previewRender2D(
+                                renderer, quads, menuClear, pixels, error);
+                        }
                         if (rendered && !ui.text.empty()) {
                             const rt::native::preview::PreviewTexture atlasTex{
                                 fontAtlas.width, fontAtlas.height, fontAtlas.pixels};
