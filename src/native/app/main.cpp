@@ -2233,14 +2233,40 @@ int main() {
                             std::string dialError;
                             if (rt::native::preview::previewUploadFontAtlas(
                                     renderer, *hudArt.speedDial, dialError)) {
+                                // Doc space is 640x448 (hud-layout.md throughout);
+                                // the first dial wire scaled /480 — corrected here.
                                 const float sx = static_cast<float>(presenter.extent.width) / 640.f;
-                                const float sy = static_cast<float>(presenter.extent.height) / 480.f;
-                                const rt::native::preview::HudQuad dialQuad{
-                                    492.f * sx, 336.f * sy, 132.f * sx, 96.f * sy,
-                                    0.f, 0.f, 1.f, 1.f, {1.f, 1.f, 1.f, 1.f}};
+                                const float sy = static_cast<float>(presenter.extent.height) / 448.f;
+                                std::vector<rt::native::preview::HudQuad> dialQuads;
+                                // Dial face: rect {0,0,132,96} of the 256x128
+                                // page at anchor (492,336) — hud-layout.md §1.2
+                                // CONFIRMED (0x24E1A0, tex entry 0).
+                                dialQuads.push_back({492.f * sx, 336.f * sy, 132.f * sx, 96.f * sy,
+                                                   0.f, 0.f, 132.f / 256.f, 96.f / 128.f,
+                                                   {1.f, 1.f, 1.f, 1.f}});
+                                // Speed digits: 20x26 cells u=d*20, v=102 right-
+                                // aligned x = anchor+{78,59,40}, y=anchor+49
+                                // (hud-layout.md §1.2 CONFIRMED).  GAP: the
+                                // physics-unit -> displayed-digit divisor is not
+                                // pinned by the ROM notes; provisional /100
+                                // (top speed 20000 -> "200"), to be calibrated
+                                // against oracle race frames.
+                                const int kph = std::max(0, std::min(999,
+                                    static_cast<int>(std::lround(renderSnapshot.speed / 100.f))));
+                                const int placeX[3] = {40, 59, 78};   // 100s,10s,1s
+                                const int placeDiv[3] = {100, 10, 1};
+                                for (int p = 0; p < 3; ++p) {
+                                    if (p < 2 && kph < placeDiv[p]) continue;  // suppress leading zeros
+                                    const int d = (kph / placeDiv[p]) % 10;
+                                    dialQuads.push_back({(492 + placeX[p]) * sx, (336 + 49) * sy,
+                                                       20.f * sx, 26.f * sy,
+                                                       static_cast<float>(d * 20) / 256.f, 102.f / 128.f,
+                                                       static_cast<float>(d * 20 + 20) / 256.f, 128.f / 128.f,
+                                                       {1.f, 1.f, 1.f, 1.f}});
+                                }
                                 std::vector<std::uint8_t> dialPixels;
                                 if (rt::native::preview::previewRender2DTextured(
-                                        renderer, {dialQuad}, {0.f, 0.f, 0.f, 0.f}, dialPixels, error))
+                                        renderer, dialQuads, {0.f, 0.f, 0.f, 0.f}, dialPixels, error))
                                     compositeOver(pixels, dialPixels);
                             }
                         }
