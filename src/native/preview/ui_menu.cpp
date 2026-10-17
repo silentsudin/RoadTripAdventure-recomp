@@ -37,6 +37,19 @@ constexpr float kMenuGlyphScale = 0.75f;
 constexpr float kSmallGlyphScale = 0.40f;
 
 constexpr std::array<float, 4> kWhite{1.f, 1.f, 1.f, 1.f};
+// main_menu.png audit (1280x447): selected row x=870..1185, y=274..297.
+// Exact flat samples: top (920,278)=(0,110,224), lower (920,279)=(0,102,224),
+// edge (920,275)=(211,93,32), and gold highlight (920,274)=(232,146,11).
+constexpr std::array<float, 4> kMenuSelectionFrame{211.f / 255.f, 93.f / 255.f, 32.f / 255.f, 1.f};
+constexpr std::array<float, 4> kMenuSelectionTop{0.f, 110.f / 255.f, 224.f / 255.f, 1.f};
+constexpr std::array<float, 4> kMenuSelectionBottom{0.f, 102.f / 255.f, 224.f / 255.f, 1.f};
+constexpr std::array<float, 4> kMenuCapGold{232.f / 255.f, 146.f / 255.f, 11.f / 255.f, 1.f};
+// Main-menu label cores: selected Adventure at (972,280) is (244,244,244);
+// unselected Quick Race at (1068,309) is (246,246,246). The panel's exact
+// body sample is (48,64,144) at (900,305); kUiPrompt retains its documented
+// alpha F2 (the oracle PNG is composited RGB, so alpha cannot be read back).
+constexpr std::array<float, 4> kMenuInk{246.f / 255.f, 246.f / 255.f, 246.f / 255.f, 1.f};
+constexpr std::array<float, 4> kMenuSelectedInk{244.f / 255.f, 244.f / 255.f, 244.f / 255.f, 1.f};
 // title.png (100, 10). GAP: flat stand-in for the 3D sky.
 constexpr std::array<float, 4> kSky{43.f / 255.f, 154.f / 255.f, 216.f / 255.f, 1.f};
 // title.png plate sample (500, 120).
@@ -100,6 +113,12 @@ void addWindowRect(std::vector<ScreenQuad>& out, float x, float y, float w, floa
     out.push_back(ScreenQuad{x, y, w, h, color});
 }
 
+void addWindowTexture(std::vector<ScreenQuad>& out, int w, int h, const PreviewTexture* texture) {
+    if (!texture) return;
+    out.push_back(ScreenQuad{0.f, 0.f, static_cast<float>(w), static_cast<float>(h),
+                             kWhite, texture, 0.f, 0.f, 1.f, 1.f});
+}
+
 // UV convention is fonteSlotForChar / fonteSlotUv, the same one race_hud.h
 // fonteTextQuads uses. Cell size is scaled; the race HUD uses a full cell
 // because those placements were measured for 16x24. Menu bitmap metrics are
@@ -159,16 +178,15 @@ void addPanel(std::vector<ScreenQuad>& out, const Map& m, float x, float y, floa
 
 void addSelection(std::vector<ScreenQuad>& out, const Map& m, float x, float y, float w, float h) {
     // selectionBar (Theme.cpp:212-227): orange edge, two-tone blue, gold cap.
-    // GAP: measured interior (0,110,224) and cap (232,146,11) differ from
-    // BarTop 2C6CE8 / BarCapGold F8C838. Contract colors win (ui-parity.md:110).
+    // The main_menu oracle measurements above supersede the Theme stand-ins.
     // GAP: rounded capsule is an axis-aligned rect (ScreenQuad has no radii).
-    addRect(out, m, x, y, w, h, kUiFrame);
+    addRect(out, m, x, y, w, h, kMenuSelectionFrame);
     const float in = 1.f;
     const float mid = h * 0.5f;
-    addRect(out, m, x + in, y + in, w - 2.f * in, mid - in, kUiSelectionTop);
-    addRect(out, m, x + in, y + mid, w - 2.f * in, h - mid - in, kUiSelectionBottom);
+    addRect(out, m, x + in, y + in, w - 2.f * in, mid - in, kMenuSelectionTop);
+    addRect(out, m, x + in, y + mid, w - 2.f * in, h - mid - in, kMenuSelectionBottom);
     const float cap = h * 0.55f; // Theme.cpp:225
-    addRect(out, m, x + w - cap, y, cap, h, kUiCapGold);
+    addRect(out, m, x + w - cap, y, cap, h, kMenuCapGold);
     addRect(out, m, x + w - cap * 0.8f, y + 2.f, cap * 0.45f, h * 0.3f, kUiCapShine);
 }
 
@@ -186,12 +204,13 @@ void addHorn(std::vector<ScreenQuad>& out, const Map& m, float tipX, float cente
 }
 
 void addRowText(std::vector<HudQuad>& text, const Map& m, const char* const* labels, int count,
-                float panelX, float panelY) {
+                float panelX, float panelY, int focus) {
     const float glyphH = static_cast<float>(rt::native::assets::kGlyphCellHeight) * kMenuGlyphScale;
     const float textYOffset = (kRowH - glyphH) * 0.5f;
     for (int i = 0; i < count; ++i) {
         const float rowY = panelY + kRowInsetY + static_cast<float>(i) * kRowPitch;
-        appendText(text, labels[i], panelX + kTextInsetX, rowY + textYOffset, kMenuGlyphScale, kWhite, m);
+        appendText(text, labels[i], panelX + kTextInsetX, rowY + textYOffset, kMenuGlyphScale,
+                   i == focus ? kMenuSelectedInk : kMenuInk, m);
     }
 }
 
@@ -231,10 +250,15 @@ UiScreen buildTitleScreen(int w, int h, bool pressVisible) {
 }
 
 UiScreen buildMainMenu(int w, int h, int focusIndex) {
+    return buildMainMenu(w, h, focusIndex, nullptr);
+}
+
+UiScreen buildMainMenu(int w, int h, int focusIndex, const PreviewTexture* backdrop) {
     UiScreen screen;
     if (!valid(w, h)) return screen;
     const Map m = frameMap(w, h);
     const int focus = clampFocus(focusIndex, kMainMenuRowCount);
+    addWindowTexture(screen.quads, w, h, backdrop);
     addBackdrop(screen.quads, m, w, h);
     addPanel(screen.quads, m, kMainX, kMainY, kMainW, kMainH);
     const float rowY = kMainY + kRowInsetY + static_cast<float>(focus) * kRowPitch;
@@ -243,15 +267,20 @@ UiScreen buildMainMenu(int w, int h, int focusIndex) {
     addSelection(screen.quads, m, barX, rowY, barW, kRowH);
     addHorn(screen.quads, m, barX, rowY + kRowH * 0.5f, kRowH);
     addTitleCardText(screen.text, m, false);
-    addRowText(screen.text, m, kMainLabels, kMainMenuRowCount, kMainX, kMainY);
+    addRowText(screen.text, m, kMainLabels, kMainMenuRowCount, kMainX, kMainY, focus);
     return screen;
 }
 
 UiScreen buildOptionsScreen(int w, int h, int focusIndex) {
+    return buildOptionsScreen(w, h, focusIndex, nullptr);
+}
+
+UiScreen buildOptionsScreen(int w, int h, int focusIndex, const PreviewTexture* backdrop) {
     UiScreen screen;
     if (!valid(w, h)) return screen;
     const Map m = frameMap(w, h);
     const int focus = clampFocus(focusIndex, kOptionsRowCount);
+    addWindowTexture(screen.quads, w, h, backdrop);
     addBackdrop(screen.quads, m, w, h);
     // The golden keeps the title menu up, cursor on Options (index 3).
     addPanel(screen.quads, m, kMainX, kMainY, kMainW, kMainH);
@@ -270,8 +299,8 @@ UiScreen buildOptionsScreen(int w, int h, int focusIndex) {
     addHorn(screen.quads, m, barX, rowY + kRowH * 0.5f, kRowH);
 
     addTitleCardText(screen.text, m, false);
-    addRowText(screen.text, m, kMainLabels, kMainMenuRowCount, kMainX, kMainY);
-    addRowText(screen.text, m, kOptionLabels, kOptionsRowCount, kOptX, kOptY);
+    addRowText(screen.text, m, kMainLabels, kMainMenuRowCount, kMainX, kMainY, kOptionsOnMainMenu);
+    addRowText(screen.text, m, kOptionLabels, kOptionsRowCount, kOptX, kOptY, focus);
     return screen;
 }
 

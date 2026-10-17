@@ -11,6 +11,8 @@
 
 namespace rt::native::preview {
 
+struct PreviewTexture;
+
 struct ModelStats {
     std::uint64_t triangles = 0;
     std::array<float, 3> bmin{};
@@ -25,6 +27,10 @@ struct ScreenQuad {
     float width = 0;
     float height = 0;
     std::array<float, 4> color{1, 1, 1, 1};
+    // Optional sampled source for UI art. Null retains the legacy flat-quad
+    // path; callers that provide a texture use the normalized UV rectangle.
+    const PreviewTexture* texture = nullptr;
+    float u0 = 0, v0 = 0, u1 = 1, v1 = 1;
 };
 
 ModelStats computeStats(const assets::NativeModel& model);
@@ -54,6 +60,15 @@ struct PreviewTexture {
     std::uint32_t height = 0;
     std::vector<std::uint8_t> rgba;  // width*height*4, R at byte 0
 };
+
+// ui_menu.h owns UiScreen's complete declaration and its three-argument
+// declarations are the default-compatible null-backdrop overloads. These
+// additive overloads keep the preview-facing explicit-backdrop API available
+// without making PreviewTexture storage part of the screen: the caller owns
+// the supplied texture.
+struct UiScreen;
+UiScreen buildMainMenu(int w, int h, int focusIndex, const PreviewTexture* backdrop);
+UiScreen buildOptionsScreen(int w, int h, int focusIndex, const PreviewTexture* backdrop);
 
 struct TerrainMesh {
     std::vector<std::array<float, 3>> positions;

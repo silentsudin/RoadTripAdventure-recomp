@@ -55,6 +55,8 @@ std::uint64_t fnv(const rt::native::preview::UiScreen& screen) {
     };
     for (const auto& q : screen.quads) {
         mix(q.x); mix(q.y); mix(q.width); mix(q.height); mixColor(q.color);
+        mix(q.texture ? 1.f : 0.f);
+        mix(q.u0); mix(q.v0); mix(q.u1); mix(q.v1);
     }
     for (const auto& q : screen.text) {
         mix(q.x); mix(q.y); mix(q.width); mix(q.height);
@@ -308,6 +310,41 @@ void testDeterministic() {
     check(buildOptionsScreen(0, 0, 0).quads.empty(), "zero size is empty");
 }
 
+void testBackdropQuad() {
+    using rt::native::preview::PreviewTexture;
+    using rt::native::preview::buildMainMenu;
+    using rt::native::preview::buildOptionsScreen;
+
+    const auto mainWithout = buildMainMenu(1280, 720, 2);
+    const auto optionsWithout = buildOptionsScreen(1280, 720, 1);
+    const PreviewTexture backdrop{2, 2, {1, 2, 3, 4, 5, 6, 7, 8,
+                                         9, 10, 11, 12, 13, 14, 15, 16}};
+    const auto mainWith = buildMainMenu(1280, 720, 2, &backdrop);
+    const auto optionsWith = buildOptionsScreen(1280, 720, 1, &backdrop);
+
+    // Default-compatible calls retain their exact pre-backdrop quad stream.
+    check(fnv(mainWithout) == fnv(buildMainMenu(1280, 720, 2, nullptr)),
+          "null main backdrop keeps legacy quad list");
+    check(fnv(optionsWithout) == fnv(buildOptionsScreen(1280, 720, 1, nullptr)),
+          "null options backdrop keeps legacy quad list");
+    check(mainWith.quads.size() == mainWithout.quads.size() + 1,
+          "main backdrop prepends one quad");
+    check(optionsWith.quads.size() == optionsWithout.quads.size() + 1,
+          "options backdrop prepends one quad");
+    if (!mainWith.quads.empty()) {
+        const auto& q = mainWith.quads.front();
+        check(q.texture == &backdrop && near(q.x, 0.f) && near(q.y, 0.f) &&
+                  near(q.width, 1280.f) && near(q.height, 720.f),
+              "main backdrop is full-window textured quad");
+        check(q.color == std::array<float, 4>{1.f, 1.f, 1.f, 1.f} &&
+                  near(q.u0, 0.f) && near(q.v0, 0.f) && near(q.u1, 1.f) && near(q.v1, 1.f),
+              "main backdrop has white tint and full UVs");
+    }
+    if (!optionsWith.quads.empty())
+        check(optionsWith.quads.front().texture == &backdrop,
+              "options backdrop is first textured quad");
+}
+
 void testParitySpotRead() {
     std::ifstream in("docs/native-reference/ui-parity.md");
     if (!in) in.open("../../docs/native-reference/ui-parity.md");
@@ -331,6 +368,7 @@ int main() {
     testFocusUniqueness();
     testMeasuredPanel();
     testDeterministic();
+    testBackdropQuad();
     testParitySpotRead();
     if (g_fail) {
         std::fprintf(stderr, "%d/%d ui_menu checks failed\n", g_fail, g_checks);
