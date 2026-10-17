@@ -259,6 +259,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_compile_features(native_preview_car_mesh_test PRIVATE cxx_std_20)
     target_compile_options(native_preview_car_mesh_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
+    add_executable(native_preview_lighting_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/native_preview_lighting_test.cpp")
+    target_link_libraries(native_preview_lighting_test PRIVATE rt_native_assets)
+    target_compile_features(native_preview_lighting_test PRIVATE cxx_std_20)
+    target_compile_options(native_preview_lighting_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
     add_executable(native_preview_ui_menu_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/native_preview_ui_menu_test.cpp")
     target_link_libraries(native_preview_ui_menu_test PRIVATE rt_native_assets)

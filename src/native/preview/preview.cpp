@@ -1,4 +1,5 @@
 #include "preview.h"
+#include "lighting.h"
 #include "preview_hud_shaders.h"
 #include "preview_shaders.h"
 
@@ -898,12 +899,6 @@ static void addQuad(std::vector<SceneVertex>& vertices, std::vector<std::uint32_
     for (std::uint32_t i : {0u, 2u, 1u, 0u, 3u, 2u}) indices.push_back(base + i);
 }
 
-static void argbToRgb(std::uint32_t argb, float out[3]) {
-    out[0] = static_cast<float>((argb >> 16) & 0xff) / 255.f;
-    out[1] = static_cast<float>((argb >> 8) & 0xff) / 255.f;
-    out[2] = static_cast<float>(argb & 0xff) / 255.f;
-}
-
 bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gameplay::FrameSnapshot& s,
                         const gameplay::World& world, std::vector<std::uint8_t>& rgbaOut, std::string& error,
                         const TerrainMesh* terrain, const std::vector<RouteLine>* routes,
@@ -1017,12 +1012,10 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
         carTexV.push_back({wx, wy, wz, 1.f, 1.f, 1.f, v.u, v.v});
     }
     for (std::uint32_t i : car.indices) indices.push_back(carBase + i);
-    float sky[3], fogColor[3];
-    argbToRgb(s.lighting.skyColour, sky); argbToRgb(s.lighting.fogColourRGBA, fogColor);
-    const float clear[4] = {sky[0], sky[1], sky[2], 1.f};
-    // GameLoop's world is converted to render units (0.1) before the camera
-    // matrices are made, so fog range must use the same scale as vView.
-    const float fog[4] = {fogColor[0], fogColor[1], fogColor[2], s.lighting.fogFar * .1f};
+    // GameLoop positions and camera matrices are in render units (game units
+    // * 0.1). The pure selector also preserves the legacy dark clear for an
+    // uninitialized FrameSnapshot, which keeps no-asset/default launches safe.
+    const SceneLighting lighting = selectSceneLighting(s.lighting);
         if (!textured) {
         if (std::getenv("RT_APP_DEBUG_OVERLAY") && !overlayV.empty()) {
             Mat pm, vm;
@@ -1051,7 +1044,7 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
                          overlayV.size(), wpos, vis, vis ? vxmin : 0.f, vis ? vxmax : 0.f,
                          vis ? vymin : 0.f, vis ? vymax : 0.f);
         }
-        return renderGeometry(r, vertices, indices, s.view, s.proj, clear, fog, rgbaOut, error,
+        return renderGeometry(r, vertices, indices, s.view, s.proj, lighting.clear.data(), lighting.fog.data(), rgbaOut, error,
                              &overlayV, &overlayI);
     }
     // Authentic-texture path: terrain triangles draw through the textured
@@ -1117,7 +1110,7 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
         }
     }
     return renderGeometryTextured(r, vertices, flatI, texV, texI, ranges, s.view, s.proj,
-                                 clear, fog, rgbaOut, error, &overlayV, &overlayI);
+                                  lighting.clear.data(), lighting.fog.data(), rgbaOut, error, &overlayV, &overlayI);
 }
 
 struct UiVertex { float x, y, r, g, b, a; };

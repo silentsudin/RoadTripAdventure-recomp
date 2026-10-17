@@ -18,6 +18,6 @@ void main() {
     vec3 n = normalize(cross(dFdx(vView), dFdy(vView)));
     float l = max(dot(n, normalize(vec3(0.4, 0.6, 1.0))), 0.0);
     vec3 lit = vec3(0.35 + 0.65 * l) * vColor * tex.rgb;
-    float fogAmount = clamp(length(vView) / max(pc.fog.a, 1e-3), 0.0, 1.0);
+    float fogAmount = smoothstep(0.5 * pc.fog.a, pc.fog.a, length(vView));
     outColor = vec4(mix(lit, pc.fog.rgb, fogAmount), 1.0);
 }
