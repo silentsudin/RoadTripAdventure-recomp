@@ -34,9 +34,9 @@ void testAnchoredGeometry() {
     check(dial != nullptr && dial->atlas == HudAtlas::DriveMeterPages);
 
     const HudElementSpec* speed = findHudElement(HudElement::DriveSpeedDigits);
-    check(speed != nullptr && rectEq(speed->ui, 532.f, 385.f, 58.f, 26.f));
-    // Rightmost 20px digit starts at anchor+78: right edge 492+78+20 = 590.
-    check(speed != nullptr && speed->ui.x + speed->ui.w == 590.f);
+    check(speed != nullptr && rectEq(speed->ui, 539.f, 388.f, 50.f, 23.f));
+    // SPEED LAW: ones digit (573,388) 16px wide -> right edge 589.
+    check(speed != nullptr && speed->ui.x + speed->ui.w == 589.f);
 
     const HudElementSpec* gear = findHudElement(HudElement::DriveGearBar);
     check(gear != nullptr && rectEq(gear->ui, 499.f, 412.f, 100.f, 18.f));
@@ -206,7 +206,7 @@ void testScoreMeterTextPins() {
 
     const auto meter = meterPageTextQuads(snapshot, 640, 480);
     check(meter.size() == 3u);
-    check(meter[0].x == 532.f && meter[0].y == 401.f);
+    check(meter[0].x == 539.f && meter[0].y == 404.f);
 
     check(scoreMeterPageTextQuads(ScoreMeterPage::None, snapshot, 42, 9001, 640, 480).empty());
     check(scoreMeterPageTextQuads(ScoreMeterPage::Score, snapshot, 42, 9001, 640, 480).size() ==

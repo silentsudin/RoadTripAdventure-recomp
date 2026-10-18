@@ -718,5 +718,41 @@
     "docs": ["code:src/native/app/enhancements_app.cpp", "plan"],
     "status": "wired",
     "notes": "GAP: W3-06 parses RT_ENHANCE_PHYSICS_HZ (enhancements_app.cpp:38) but FixedStepClock::kStepSeconds stays hard-fixed at 60 Hz (interp.h:82); logged at startup, not fake-wired"
+  },
+  {
+    "id": "dashcam_dir",
+    "ledger": "-",
+    "env_vars": ["RT_DASHCAM_DIR"],
+    "persisted_keys": [],
+    "default": "<unset>",
+    "gating": "opt-in (dev route clips)",
+    "owners": ["src/native/media/dashcam_source.cpp"],
+    "docs": ["code:src/native/media/dashcam_source.cpp", "plan"],
+    "status": "doc-only",
+    "notes": "W4-05: root dir for dev-recorded route footage; resolution order RT_DASHCAM_DIR > android dev-app files dir (release id refused) > $RT_SAVE_DIR/dashcam > app-local > ./dashcam; ROM ships NO video - in-game replay re-renders recorded input (AcquireVehicleInput 0x21A990), so this is a native dev affordance only; not yet consumed by main.cpp"
+  },
+  {
+    "id": "ffmpeg_binary",
+    "ledger": "-",
+    "env_vars": ["RT_FFMPEG"],
+    "persisted_keys": [],
+    "default": "ffmpeg (PATH lookup)",
+    "gating": "opt-in (override)",
+    "owners": ["src/native/media/dashcam_source.cpp"],
+    "docs": ["code:src/native/media/dashcam_source.cpp", "plan"],
+    "status": "doc-only",
+    "notes": "W4-05: ffmpeg override for clip frame decode; absent => isRuntimeAvailable() false, dashcam panel placeholder"
+  },
+  {
+    "id": "ffprobe_binary",
+    "ledger": "-",
+    "env_vars": ["RT_FFPROBE"],
+    "persisted_keys": [],
+    "default": "ffprobe (PATH lookup)",
+    "gating": "opt-in (override)",
+    "owners": ["src/native/media/dashcam_source.cpp"],
+    "docs": ["code:src/native/media/dashcam_source.cpp", "plan"],
+    "status": "doc-only",
+    "notes": "W4-05: ffprobe override for clip metadata (size/fps)"
   }
 ]

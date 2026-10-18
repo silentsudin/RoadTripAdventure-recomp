@@ -11,6 +11,48 @@ Supersedes the projection paragraph of `docs/native-map.md` §1.1 and `map_view.
 same law, now derived from the handler instead of fitted, plus the PAL branch, the race/split
 law and the blip rules.
 
+## 0. Wave-4 corrections (coordinator ruling 2026-10-18)
+
+Applied from the coordinator ruling of 2026-10-18; where this section conflicts with later sections, **this
+section wins**, except as flagged in 0.1.
+
+### 0.1 Town minimap = car-centred SCROLLING window (RESOLVED 2026-10-18)
+
+RESOLVED by fresh coordinator fit: the earlier "static world window" ruling was **wrong**. A fresh
+road-mask fit between `town_driving.png` and `town_driving_street.png` (same mask recipe as the W4-09
+flag below) gives residual 3276 differing px at shift 0 versus 496 px at shift (+6, -9) png px — the
+content rigidly translates with the car — and the car dot sits at the field centre in **both** frames.
+The map therefore **SCROLLS with the car** (north-up, car-centred), and the native car-centred
+projection in main.cpp is the correct model. §1/§3 content-shift measurement stands; the static-window
+claim is obsolete.
+
+**Historical flag (superseded):** W4-09's independent re-measure (road mask = RGB within L1 30 of
+(45,45,116), region png x 88..320 / y 300..413) found 1670 vs 1688 road pixels and 3078 differing
+pixels at shift 0, best rigid alignment (+6, -9) png px with 609 residual — itself consistent with
+scrolling; the "byte-static" reading it challenged had compared a different/duplicated region.
+
+### 0.2 Coordinate law
+
+Oracle golden PNGs are **1280x447**. Design = `(png_x / 2, png_y * 448 / 447)`.
+
+### 0.3 Verified geometry (design px, measured on the oracle goldens)
+
+| element | value |
+|---|---|
+| chrome plate | x 35..170, y 301..446, rounded corners r ~ 8 |
+| lavender map field | x 44..160.5, y 309..414 — sits in the **upper** plate; the chrome bar lies below it |
+| dark-green grips | (0,104,8) at x ~ 31..40 and x ~ 162..171, y 336..386 |
+| roads | navy (45,45,116), ~3 design px wide |
+| car dot | red, ~3.25 x 4.5 design px |
+| scroll scale | kKx = kKy = **0.20** design px per world unit (working estimate; grid spacing 7.5-8.5 px per 50 world units) |
+
+**GAP:** the exact scroll law is unresolved. Native currently draws a car-centered approximation.
+
+### 0.4 Dashcam fit mapping
+
+The old dashcam fit mapping "2.25 + 54px" is **deprecated**. Current fit: **1920x1080 source, scale ~1.5, xoff 0,
+yoff ~317** (73.3% IoU; refinement pending).
+
 ## 1. Projection law
 
 All handlers build a view block with `mapViewMatrix` 0x21F920 and let VU1 draw the map model (and the

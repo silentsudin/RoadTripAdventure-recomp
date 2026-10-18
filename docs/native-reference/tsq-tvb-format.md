@@ -62,13 +62,13 @@ note-off key).  This interpretation consumes the common melody pattern
 | `E1 ll rr` | left/right volume balance (pan plus possible gain) | high | `ACTION.TSQ:0x0199` `E1 40 00` and `0x01A5` `E1 00 40` form opposite hard balances; centered `E1 40 40` occurs at `0x0297`. |
 | `E2 pp` | program/sample slot selection | high | `ACTION.TSQ:0x019E` `E2 01` immediately precedes the key; `0x02A1` uses `E2 0F`.  Observed program operands stay within the populated TVB range (e.g. ACTION reaches `0x18` at `0x0364`), consistent with TVB slots 0–29. |
 | `E4 lo hi` | little-endian SPU pitch-register value / pitch bend | medium-high | `BGM_02.TSQ:0x0785` starts the repeated `E4 00 01 6F` pattern (pitch value `0x0100`, then delta `0x6F`).  Two operands are structurally certain; conversion to cents depends on the selected key/sample. |
-| `E5 lo hi` | pitch-register operation that also appears to retrigger/update the voice | medium | `BGM_03.TSQ:0x0776` has `E5 83 06` in a verified inner BGM track.  Operand width is well-supported; the retrigger/ADSR side effect needs driver tracing. |
+| `E5 lo hi` | absolute pitch-register value; stores it at channel `+0xE` and re-triggers the voice | high | `BGM_03.TSQ:0x0776` has `E5 83 06` in a verified inner BGM track; SNDMOD `play` dispatch at `0x5294` calls `key_pitch` (`0x4A40`), which stores `+0xE` then re-triggers.  This is a sound-driver opcode, not a road-section directive. |
 | `E8` / `E9` | likely reverb enable / disable | medium | `ACTION.TSQ:0x0194` begins `E9 F0 ...` (disable then note release); `ACTION.TSQ:0x02ED` has `E8 E0 5A` (enable followed by volume).  `E6 mm` and `E7 dd` are plausible reverb mode/depth controls in the Tamsoft family, but their apparent occurrences in this corpus are currently in unclassified pointer/outer areas, so they are not assigned here. |
-| `EA lo hi` | fine pitch tuning / scale | medium | `BGM_02.TSQ:0x019B` has `EA EE 10` (`0x10EE` little-endian) between program setup and the first key; two-byte width is certain, musical-unit conversion is inferred. |
+| `EA lo hi` | Q12 bend multiplier, stored at channel `+0xC` | high | `BGM_02.TSQ:0x019B` has `EA EE 10` (`0x10EE` little-endian) between program setup and the first key; SNDMOD `play` dispatch at `0x5294` calls `pitch_cent` (`0x48BC`).  This is a sound-driver opcode, not a road-section directive. |
 | `F0` | release/all-notes-off for this sequence track; no operand | high | `ACTION.TSQ:0x01A2` follows key `A1` and its `64`-tick delta, then is immediately followed by `FF`; `ACTION.TSQ:0x02A3` follows two keys.  It is a zero-operand opcode, not `F0 FF` as one terminator. |
 | `F1 aa` | possible one-byte control, semantics unknown | very low | The apparent candidates (`BGM_02.TSQ:0x011A` and `ROOM_1.TSQ:0x115E`) fall in inner pointer-table material; do not implement this opcode without a driver trace. |
 | `F8 lo hi` | signed little-endian relative jump; target is measured after its two operands | high | `ACTION.TSQ:0x02A5` is `F8 F3 FF`: next PC `0x02A8` plus signed `-13` = `0x029B`, exactly the `E1 40 40` phrase setup.  `0x02BE` `F8 F0 FF` similarly targets `0x02B1`.  Revisited targets are loop points. |
-| `F9` | zero-operand control, semantics unknown | low | `ACTION.TSQ:0x0196` is followed by valid deltas `0B 00`; treating either as an operand misaligns the following `E1 40 00`. |
+| `F9 lo hi` | external-channel fork; its signed little-endian offset is relative to the PC after both operands | high | `ACTION.TSQ:0x0196` is `F9 0B 00`, which SNDMOD `play` at `0x5294` dispatches to `ext_chan` (`0x45D4`); the spawned stream starts at `0x01A4`.  This is a sound-driver opcode, not a road-section directive. |
 | `FF` | end of track/phrase | high | `ACTION.TSQ:0x01A3` ends the complete phrase beginning at `0x0194`; another complete phrase follows physically at `0x01A4`, demonstrating why raw pointer-bounded spans must still stop decoding at `FF`. |
 
 `E3 lo hi` is only seen once by a naive flat scan, in the BGM outer metadata
@@ -109,7 +109,9 @@ preview, not an emulation of the SNDMOD driver: **60 ticks/sec** (proven —
 naturally **44100 Hz**, **key 48 = sample natural pitch** (proven — `freqtbl`
 at IRX 0x8A9C is 4096 at key 48 and doubles every 12 keys, i.e.
 `4096·2^((key-48)/12)`),
-E4/E5/EA signed `value/4096` semitone modifiers (structurally confirmed),
-linear E0 `value/127` and E1 `ll/64`,`rr/64` gains (proven up to the global
-SPU master scalar). See `sndmod-irx.md`; remaining open items are only the
+`E4` direct pitch (without retrigger), `E5` absolute pitch plus retrigger, and
+`EA` Q12 bend multiplier — all dispatched by SNDMOD `play` at `0x5294` (not
+road-section directives); `F9` is the two-operand external-channel fork.
+Linear E0 `value/127` and E1 `ll/64`,`rr/64` gains are proven up to the global
+SPU master scalar. See `sndmod-irx.md`; remaining open items are only the
 bit-accurate ADSR/reverb curves.

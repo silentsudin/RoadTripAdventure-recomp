@@ -259,12 +259,12 @@ named callee’s documented purpose.
 |---|---|---|---|---|
 | `0x01` | `u8 flag, u8 branchIdx` | if `TestFlagBitFc98(flag)` → jump table\[branchIdx]; else skip 2 | PROVEN | `0x0023AD50` |
 | `0x02` | `u8 flag, u8 branchIdx` | if flag **clear**, branch; else cont+2 | PROVEN | `0x0023AD70` |
-| `0x03` | `u8 a, u8 b` | `GetFlaggedSlotCount(a,b,0)` → conditional branch | PROVEN | `0x0023AD90` |
+| `0x03` | `u8 slot, u8 bit, u8 branchIdx` (**width 4** incl. opcode) | `GetFlaggedSlotCount(slot,bit,0)` → conditional branch (count≠0 → table[branchIdx], else skip 4) | PROVEN | `0x0023AD90` (width corrected per coordinator ruling 2026-10-18; see `script-vm.md` §3) |
 | `0x04` | `u8 branchIdx` | if `TestStampFlag(shop+0x23,+0x21)` branch | PROVEN | `0x0023ADA8` |
 | `0x05` | `u8 idx, u8 branchIdx` | if `TestFlagFc68(idx)` branch | PROVEN | `0x0023ADC8` |
 | `0x06` | `u8 bit, u8 branchIdx` | if `TestStateBitFc78(bit)` branch | PROVEN | `0x0023ADE8` |
 | `0x07` | `u8 branchIdx` | if `CheckSlotPresence()` branch (“enough teammates?” per game_state) | STRONG | `0x0023AE08` |
-| `0x08` | `u8 branchIdx` (+ optional skip) | `MatchSlotPairState` / `TestFlagFcb8` pair gate | PROVEN | `0x0023AE20` |
+| `0x08` | `u8 idxA, u8 idxB` (**width 3** incl. opcode) | `MatchSlotPairState`≠0 → table[idxA]; elif `TestFlagFcb8`≠0 → skip 3; else table[idxB] | PROVEN | `0x0023AE20` (width corrected per coordinator ruling 2026-10-18; see `script-vm.md` §3) |
 | `0x09`,`0x0A`,`0x0C` | — | fall through to unknown-op printf path | PROVEN | `0x0023B0E0` |
 | `0x0B` | `u8 result, u8 branchIdx` | if `GetOrSetPresidentRaceResult(-1)==result` branch (0 retired / 1 lost / 2 won) | PROVEN | `0x0023AEC0` |
 | `0x0D` | `u8 flag, u8 branchIdx` | if `TestFlagFca8Clear(flag)` branch | PROVEN | `0x0023AEE0` |

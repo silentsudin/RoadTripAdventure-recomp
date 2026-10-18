@@ -18,12 +18,15 @@
 //   buildDriveHud2P = 0x24E1A0   (2P layout)
 //
 // OPEN / GAP items (do not silently resolve):
-//   * Host speed units -> displayed mph divisor.  The shipped chain is
-//     mph = trunc((|v_f15| * 216.0) / 1.609)  (FUN_00249458/002494e8, floats at
-//     0x332F44 / 0x332F48 are both 1.6089999676).  The host physics speed
-//     (FrameSnapshot::speed, 0..20000) is a different domain; kDefaultSpeedDivisor
-//     (100, the current main.cpp mapping) vs 20000/186 = 107.527 is unresolved and
-//     is therefore a PARAMETER (see HudLiveInput::speedDivisor).
+//   * SPEED LAW (coordinator ruling 2026-10-18; ELF METER0 atlas + oracle goldens):
+//     V = floor(speed_word / 55.07) clamped to 0..186, zero-suppressed digits on METER0.
+//     hostMph lacks the clamp in hud_live.cpp (see HANDOFF-W4-10.md).
+//   * Shipped chain CalculateSpeedometerValue (FUN_00249458/002494e8, floats at 0x332F44 /
+//     0x332F48 both 1.6089999676): mph = trunc((|v_f15| * 216.0) / 1.609).  It disagrees
+//     with the law on the same word and is NOT the displayed path (unreconciled; see
+//     HANDOFF-W4-10.md).  The host physics speed (FrameSnapshot::speed, 0..20000) is a
+//     different domain; the law divisor is still passed as a PARAMETER
+//     (see HudLiveInput::speedDivisor).
 //   * Needle: ELF-derived law (no fit): z-rotation = pi * (rpm/10000 - 0.7) rad about the hub
 //     (UI (554,362)); rpm = CalculateTachometerValue(car,0,1) clamped to 10000 (engine rpm
 //     short @car+0x1D0), NOT speed.  The oracle gives 4 measured needle positions (3
@@ -77,17 +80,40 @@ inline constexpr Anchor kGaugeOrigins[3] = {{484, 294}, {484, 70}, {484, 294}};
 
 // Shipped km/h-like -> mph divisor (f32 @0x332F44 and @0x332F48, identical).
 inline constexpr float kShippedMphDivisor = 1.6089999675750732f;
-// Shipped speedometer clamp (FUN_00249458 `0xBA`): applies to CalculateSpeedometerValue
-// only; CalculateSpeedometerDigits (the digit path) has no clamp.
+// Shipped speedometer clamp (FUN_00249458 `0xBA`).  Superseded for display by kSpeedMax.
 inline constexpr int kShippedSpeedometerCap = 186;
-// GAP: provisional host divisor (main.cpp:2479 `speed / 100`).
-inline constexpr float kDefaultSpeedDivisor = 100.0f;
-// GAP: alt reading (host cap 20000 <-> shipped 186 mph).
+
+// SPEED LAW (coordinator ruling 2026-10-18): displayed V = floor(speed_word / kSpeedDivisorMph),
+// clamped to 0..kSpeedMax.
+inline constexpr float kSpeedDivisorMph = 55.07f;
+inline constexpr int kSpeedMax = 186;
+inline constexpr float kDefaultSpeedDivisor = kSpeedDivisorMph;
+// Retired reading (host cap 20000 <-> 186 mph).  Kept only so hud_live_test informational
+// lines still compile; not used for display.
 inline constexpr float kAltSpeedDivisor = 20000.0f / 186.0f;
 
-// Shipped digit path: trunc(raw / 1.609) where raw = |v_f15| * 216.0 (FUN_0021d358).
+// METER0 speed digits (1P gauge, buildGaugeHud): ones cell top-left at UI (573,388), each
+// higher digit kSpeedDigitStep px further left; 16x23 cells at u = 140 + 16*(d%7), v = 23*(d/7).
+inline constexpr int kSpeedOnesX = 573;
+inline constexpr int kSpeedOnesY = 388;
+inline constexpr int kSpeedDigitStep = -17;
+inline constexpr int kSpeedDigitW = 16;
+inline constexpr int kSpeedDigitH = 23;
+inline constexpr int kSpeedAtlasU0 = 140;
+inline constexpr int kSpeedAtlasVStep = 23;
+inline constexpr int kSpeedAtlasCols = 7;
+// mph badge box (design space). The "mph" text is baked into the METER0 page and is never
+// drawn separately.
+inline constexpr int kSpeedBadgeX = 556;
+inline constexpr int kSpeedBadgeY = 388;
+inline constexpr int kSpeedBadgeW = 48;
+inline constexpr int kSpeedBadgeH = 28;
+
+// Shipped digit path: trunc(raw / 1.609) where raw = |v_f15| * 216.0 (FUN_0021d358).  Not the
+// displayed path under the SPEED LAW (see the OPEN note above).
 [[nodiscard]] int shippedMphFromRaw(float raw216);
-// Host path: trunc(|hostSpeed| / divisor); trunc matches the shipped (int) cast.
+// Host path: floor(|hostSpeed| / divisor) per the law; the 0..kSpeedMax clamp is pending in
+// hud_live.cpp (HANDOFF-W4-10.md).
 [[nodiscard]] int hostMph(float hostSpeed, float divisor = kDefaultSpeedDivisor);
 
 // IntToPackedBCD 0x24F4A0: 8 nibbles, low nibble = ones.

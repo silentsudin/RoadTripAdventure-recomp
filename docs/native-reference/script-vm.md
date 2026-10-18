@@ -131,6 +131,17 @@ boundary with the widths above.
 * **The 3 non-clean references** (non-entry, one in each of: table `0x2A4450` idx 39, `0x2A5650` idx 16, `0x2A5FF0` idx 3): idx 39 starts with op 0E followed by a `0x00` byte; the other two point at zero bytes. They are not reachable from any entry by prefix branches (reach set is fully clean); they can only be reached via text escape codes (W2-07 scope) or are dead. Recorded as an open question.
 * **The 1 "bleed"**: table `0x2A7138` (town 7, slot 28) has an op 08 whose second branch idx (10) equals the table length (10); the next level-2 table starts directly after, so `table[10]` is that table's **name** word. Native behaviour reproduces the original's raw indexing (`readU32(table+idx*4)`); it is a source-data quirk, counted separately as `branch_bleed` and **not** as OOB.
 
+## 6a. Bytes 0x85..0x8B are rumble-hold bytes (coordinator ruling 2026-10-18)
+
+Opcodes `0x85..0x8B` are **rumble-hold bytes** of the pad-pattern interpreter (default arm `0x20A7E0..0x20A7E4`
+writes the byte to the hold counter; ROM-proven, see `event-bridge.md` and `audio-runtime.md` rumble section). They are
+**NOT** radio or cutscene triggers: `0x8A` is not "radio" and `0x8B` is not "cutscene". They are not part of the
+town prefix VM above (which stops at any byte `>= 0x20`, `0x23B140`).
+
+* Records of unknown width terminate stream walks (a walker must stop, not guess a width) and must be drained
+  immediately before the app session update seam.
+* No countdown opcode exists in the ROM. **GAP:** countdown semantics are unresolved.
+
 ## 7. Binding later waves
 
 `IScriptHost` has one method per named callee (§3), so a SaveData/economy host

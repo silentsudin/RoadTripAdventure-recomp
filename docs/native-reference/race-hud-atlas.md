@@ -161,30 +161,28 @@ A second, smaller yellow digit row sits at v=48, u = 32 + d×12, 12×16
 the rank-badge `24` and lost (IoU 0.22 vs 0.28 for the 16×16 row). It is
 not the timer.
 
-The lavender timer **capsule** behind the digits is not a single atlas
-cell with a matching colour. Oracle interior is `(87, 109, 159)`
-(n=3164, bbox screen 96,48,274×27). No CSA bank of this page has a colour
-within distance 50 of that, and the horizontal pill at `(0, 208, 87, 48)`
-is the wrong aspect (87×48 vs a 10:1 capsule) and the wrong colour (pink
-on CSA 0, yellow-green on CSA 1). Not reported as a cell.
+The timer **capsule** is the ElementC three-sprite panel (18 px cap + 12×8 px
+middle + 18 px cap), selected with CSA 1 by `raceHudElementC` at ROM
+`0x0022F7A4`–`0x0022F7B4`. Its CSA-1 texel tint is **RGB `(32, 24, 64)` at
+alpha `0.509`**, not opaque `(87, 109, 159)`. The latter is the composited
+screenshot colour, not the source/tint value.
 
 ### 3.3 Rank
 
 | element | bank | source u,v,w,h | dest x,y,w,h |
 |---|---|---|---|
 | rank oval (split disc) | 0 | **160, 105, 32, 32** | **90.0, 92.3, 32.0, 34.4** |
-| pink `2` | 0 | **56, 0, 28, 30** | **43.5, 96.6, 21.0, 25.8** |
-| pink `4` | 0 | **112, 0, 28, 30** | **66.5, 96.6, 21.0, 25.8** |
+| pink `2` | 0 | **56, 0, 28, 30** | **128, 88, 28, 30** (1:1 design px) |
+| pink `4` | 0 | **112, 0, 28, 30** | **151, 88, 28, 30** (1:1 design px) |
 | `th` | 0 | **98, 31, 22, 16** (ink 100, 32, 19, 15) | **93.0, 93.4, 16.0, 17.2** |
 | badge `2` (yellow) | 1 | 32, 64, 16, 16 | 104.0, 112.8, 8.0, 12.9 |
 | badge `4` (yellow) | 1 | 64, 64, 16, 16 | 111.0, 112.8, 8.0, 12.9 |
 
-Pink rank digits are the **28×30** row (u = (d%9)×28, v = (d/9)×30), not
-the 16×16 row. Resized onto the oracle `2` ink box (screen 88,94,38×22),
-IoU was 0.550 for 28×30, 0.378 for the v=64 16×16 `2`, 0.294 for the v=48
-12×16 `2`. They are drawn smaller than a 1:1 blit (a 1:1 28×30 would be
-56×30 screen px; the ink is 38×17). The dest above is the box the mock
-scales them into.
+Pink rank digits are the **1:1 28×30** row (u = `(d%9)×28`,
+v = `(d/9)×30`), not the 16×16 row. ROM `raceHudElementD`
+`0x002302B0`–`0x0023030C` emits those dimensions directly; the two-digit
+case places the tens at origin + `(0,0)` and ones at +`(23,0)`. The earlier
+scaled mock/screenshot boxes were not native geometry and are rejected.
 
 Ordinal source cells (CSA 0 pink; only `th` is on this frame):
 
@@ -221,13 +219,13 @@ the oracle.
 | OTALTIME | ends **(−1.0, −0.3)** and **(−0.9, −0.6)**; middle letters **−3 to −6 X**, Y within 1 | tight `(208,200,248)` centroids of the 8 letters. The packed cell is slightly tighter between O–T and L–T than the oracle word. A single quad cannot absorb that. |
 | timer digits | X **−0.3, −0.3, +1.8, 0, −1.1, +2.6** across `0 0 5 2 9 5`; Y within 0.5 | yellow centroids. Last `5` is the worst. |
 | rank oval | about **−2 X, −1 Y** vs the lavender+dark bbox (screen 182,87,64×32) | 32×32 disc placed at a 2×/1× blit |
-| pink `24` | best mask shift **(+1, 0)**; shape IoU 0.65 against the oracle pink | 28×30 scaled into the ink box, not 1:1 |
+| pink `24` | screenshot mock residual no longer authoritative | native ROM geometry is 1:1 28×30 (`0x002302B0`–`0x0023030C`) |
 | `th` | mask shift **(0, +1)**, IoU 0.41 | small glyph, outline-dominated |
 | badge `24` | mask shift **(0, +1)**, IoU 0.28 | same 16×16 digits, drawn at about half size; shape beats the 12×16 row but the fit is the weakest element |
 
-The timer capsule is absent from the paste (no matching cell), so the
-digits sit on the oracle's own oval in the overlay and on flat fill in
-`race_hud_mock.png`.
+The timer capsule must be composited as the CSA-1 ElementC panel with source
+tint RGB `(32,24,64)`, alpha `0.509` (`0x0022F7A4`–`0x0022F7B4`); the older
+flat-fill mock is not native-accurate.
 
 ## 5. What was not measured
 
@@ -235,6 +233,3 @@ digits sit on the oracle's own oval in the overlay and on flat fill in
   dest is given. Individual letter source runs are in §3.1.
 - Dest of digits 1, 3, 4, 6, 7, 8 and of `st`/`nd`/`rd`. They are not on
   this frame. Source cells are measured; dest is not extrapolated.
-- The timer capsule's caps. hud-layout.md describes an 18+middle+18 panel
-  for ElementC; that construction was not confirmed on these pixels, and
-  no capsule cell matched the oval colour `(87, 109, 159)`.

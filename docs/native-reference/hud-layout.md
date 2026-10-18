@@ -58,7 +58,8 @@ family, sys-gsl-packs.md §2). Element states live in the 0x8CB0 object at
 | "READY" overlay | (198, 115, 244, 40) | (.309, .273, .381, .083) | CONFIRMED | ElementA idx0 @0x8538: recs 0x29F768 {244x40 atlas(0,56)} centred (320,135) (0x232C18: y=135 P0 / 359 P1-bottom-half 316) |
 | "GO" overlay | (277, 69, 86, 46) | (.433, .177, .134, .096) | CONFIRMED | ElementA idx1 @0x8564: recs 0x29F788 {86x46 atlas(163,96)} centred (320,92) / (320,316) |
 | Start countdown bars | (215, 84, 210, 56) max | (.336, .208, .328, .117) | CONFIRMED | ElementA idx2/5/6 @0x8590/0x8614/0x8640: 210x56 atlas(0,0) csa0, 160x24 atlas(0,128) csa3, 136x48 atlas(0,152) csa10, all centred (320,112); type-3 bars fill value 0..max over 30 frames (scale 1.0/2.0) |
-| Per-player badge | (490, 20 | 234, 130, 32) | (.766, .075 | .521, .203, .067) | CONFIRMED (position) / OPEN (enable path) | group records +0x84A0 {dx=490, dy=20 (P0) / 234 (P1), recs=0x29F668, n=2}: 32x32 atlas(0,80) + 98x17 atlas(32,159) |
+| TOTALTIME banner | (20, 20, 162, 30) | (.031, .075, .253, .063) | CONFIRMED | ROM group `0x002EC1A8` = `{1, 20, 20, recs=0x29F628, n=2}`: origin is **uncentred** (not a centred `(320,20)` banner) |
+| Per-player LAPTIME badge | (490, 20 | 234, 130, 32) | (.766, .075 | .521, .203, .067) | CONFIRMED (position) / OPEN (enable path) | ROM group `0x002EC070` = `{0, 490, 20, recs=0x29F668, n=2}` (P0; P1 y=234): 32x32 atlas(0,80) + 98x17 atlas(32,159). The label is **LAPTIME**, not TOTALTIME. |
 
 ElementA (0x22EE70) generic records, 20 per player @+0x8538, stride 44 B:
 `{type, x, y, texEntry, csa, recs, count, value, -, max, scale}` — type 1
@@ -80,7 +81,7 @@ Normalized values below are the 1P anchor.
 |---|---|---|---|---|
 | Gauge dial face | (492, 336, 132, 96) | (.769, .733, .206, .200) | CONFIRMED | 0x24E1A0 `{0,0,132,96}` atlas(0,0) tex entry 0 at anchor |
 | Speed segments | (526, 336, 58, 60) for 10 | (.822, .733, .091, .125) | CONFIRMED (geometry) / OPEN (count) | 4x60 bars at anchor+(34+6i, 0), atlas u=0x88+6i, v=0; count from FUN_00249520 |
-| Speed digits | (532, 385, 58, 26) (3 digits) | (.831, .835, .091, .054) | CONFIRMED | 20x26 digits u=d*20, v=102, RIGHT-aligned: x = anchor+{78,59,40} (step -19), y = anchor+49 |
+| Speed digits (mph) | badge (556, 388, 48, 28) = x 556..604 y 388..416 | (.869, .866, .075, .063) | CONFIRMED (coordinator ruling 2026-10-18; supersedes the earlier 20x26 / step -19 row) | 16x23 quads, RIGHT-aligned, ones at (573, 388), step -17 px/digit; `V = floor(speed_word / 55.07)` clamped 0..186; u=(140+16*(d%7))/256, v=(23*(d/7))/128 on METER0 (256x128, `hudArt.speedDial`); white; `mph` text baked into METER0; see `gauge-calibration.md` |
 | Gear bar | (499, 412, 100, 18) | (.780, .892, .156, .038) | CONFIRMED | anchor+(7,76); 100x18 atlas(0,0); gear overlay = same rect, tex entry 1, **TEX2 CSA = 15 − gear**; gear 0 draws a 58x8 sliver atlas(0,24) at anchor+(30,82) |
 | Prompt icon | (501, 348, 16, 16) | (.783, .758, .025, .033) | CONFIRMED (free-run/0x22 scenes) | anchor+(9,12) or (9,36); 16x16 atlas(240, 0|24) |
 | Odometer digit | (502, 398, 16, 10) | (.784, .863, .025, .021) | CONFIRMED | anchor+(10,62); 16x10 atlas(u=(n+(n>0))*16, v=32) |
@@ -144,7 +145,8 @@ Three text systems; the HUD references these cells (module:
   512x384 PSMT4, 16x24 cells, 32 columns; slot i at
   `(col = i%32, row = i/32)`, ASCII c -> slot `(g/31)*32 + (g%31)`,
   g = c − 0x21. Layout metrics the HUD assumes: advance from
-  `uiGlyphWidths` **0x29A880** (8..16 px per ASCII char, 20 px JP),
+  `uiGlyphWidths` **0x29A880** (8..16 px per ASCII char, 20 px JP; = `DAT_0029A880`, u8 table indexed by
+  ASCII 0x20..0x7F; ELF-verified values: `'A'`=15, `'a'`=14, `' '`=8, `'.'`=12, digits `0..9`=12; coordinator ruling 2026-10-18),
   12 px line pitch on the `x = col*20 + 10, y = (row*12 + 5)*2` cell grid
   (native-2d.md §3.1).
 * **UiBatch font atlas** (TEX0 `0x2013780E65321A40`: TBP0 **0x1A40**, PSMT8
@@ -163,7 +165,7 @@ Three text systems; the HUD references these cells (module:
   v=0xC2; banners/icons: READY 244x40 (0,56), GO 86x46 (163,96), LAP badge
   24x24 (232,168), progress panel 112x32 (0,216), label 32x20 (160,194).
 * **Drive/METER atlas** (0x2A9B08 entry 0, TBP0 0x237A): speed digits
-  **20x26** u=d*20, v=102 (row ends exactly at the 128-tall page edge);
+  **16x23** u=(140+16*(d%7))/256, v=(23*(d/7))/128 (mph law, ruling 2026-10-18; replaces the older 20x26 / v=102 reading);
   speed segments 4x60 u=0x88+6i, v=0; odometer 16x10 u=(n+(n>0))*16, v=32;
   prompt icons 16x16 (240,0)/(240,24); gear cell = the 100x18 bar rect
   re-sampled from tex entry 1 with CSA = 15 − gear.

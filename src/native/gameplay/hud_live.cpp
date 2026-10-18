@@ -40,7 +40,10 @@ int shippedMphFromRaw(float raw216) {
 
 int hostMph(float hostSpeed, float divisor) {
     if (!(divisor > 0.f)) return 0;
-    return static_cast<int>(std::fabs(hostSpeed) / divisor);
+    const float q = std::fabs(hostSpeed) / divisor;
+    if (!(q > 0.f)) return 0;
+    if (q >= static_cast<float>(kSpeedMax)) return kSpeedMax;
+    return static_cast<int>(q);
 }
 
 std::uint32_t packedBcd(int value) {

@@ -2,11 +2,14 @@
 
 #include "assets/glyph_atlas.h"
 #include "gameplay/hud_layout.h"
+#include "gameplay/hud_live.h"
+#include "gameplay/race_hud_layout.h"
 #include "preview/preview.h"
 #include "preview/text_metrics.h"
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <vector>
@@ -203,10 +206,12 @@ inline std::vector<HudQuad> scorePageTextQuads(const gameplay::FrameSnapshot& sn
 }
 
 // METER-page speed text for the livery-test presentation.
-// CONFIRMED: DriveSpeedDigits is (532,385), emitted by 0x24E1A0 at the 1P
-// dial anchor (hud-layout.md §1.2). AUTHORED: converting FrameSnapshot::speed
-// to an integer and presenting it as three decimal digits; the ledger does not
-// pin the game's speed-value conversion or a livery-test METER page state.
+// SUPERSEDED (W4-10/W4-06): the 1P speed text is the mph law — ones digit at
+// (573,388), step -17, 16x23 quads into METER0 u=(140+16*(d%7))/256,
+// v=(23*(d/7))/128 (0x2498FC/0x249AB8/0x249AE8; W4-06 cell box 556..589 x
+// 388..411 matches the goldens). The old (532,385) 3-digit reading is wrong.
+// AUTHORED here: converting FrameSnapshot::speed to an integer and presenting
+// it as three decimal digits for the livery-test presentation only.
 inline std::vector<HudQuad> meterPageTextQuads(const gameplay::FrameSnapshot& snapshot,
                                                int width, int height) {
     namespace hud = rt::native::gameplay;
@@ -251,6 +256,263 @@ inline std::vector<HudQuad> townClockTextQuads(std::uint32_t clockTicks, int wid
     std::snprintf(buf, sizeof(buf), "%2u:%02u", hour % 24u, minute);
     if (const auto* el = hud::findHudElement(hud::HudElement::TownClockText))
         appendFonteText(quads, buf, el->ui.x, el->ui.y, kWhite, width, height);
+    return quads;
+}
+
+// ---------------------------------------------------------------------------
+// W4-06 race HUD element layout (gameplay/race_hud_layout.h).
+//
+// ROM arena records -> absolute design px (640x448) -> target-pixel HudQuads,
+// one call per texture pass so the caller can upload each page once
+// (previewUploadFontAtlas + previewRender2DTextured, as the main.cpp banner and
+// dial passes do). The mph numeral (coordinator law) and the speedometer needle
+// (GAP: needle law unresolved) are never emitted here.
+// ---------------------------------------------------------------------------
+
+// Live inputs. Times are the values handed to ElementC 0x22F750 (frames).
+// The HUD shows the total race time minus one frame, which is
+// hud_live::raceHudTimerValue (verified 2/2 on the goldens, hud-live.md).
+struct RaceHudLayoutState {
+    std::int32_t totalTime = 0;  // TOTAL ElementC value; 0 shows the dimmed "--" BCD 0xAAAAAA
+    std::int32_t lapTime = 0;    // LAP ElementC value (current-lap frames)
+    int lap = 1;                 // lap badge number; -1 hides the badge, 0 draws the flag glyph
+    int rank = 0;                // zero-based place (24th of 24 = 23)
+    int totalCars = 24;          // ElementD total; != 0 selects the large variant (goldens)
+    int gear = 1;                // car+0x1FF: 0 = R, 1..6
+    bool showLapBlock = true;    // LAPTIME banner + LAP ElementC (+0x84A0 / +0x84B4 enables)
+    bool showRank = true;        // ElementD +0x84FC enable
+};
+
+// Convenience: state for a native frame. The caller owns lap time, place and
+// gear until the session exposes them. FrameSnapshot::rank is the time rank
+// (getRaceTimeRank), not the race place, so it is not used here.
+inline RaceHudLayoutState raceHudLayoutStateFor(const gameplay::FrameSnapshot& snapshot, std::int32_t lapFrames,
+                                                int place0, int totalCars, int gear) {
+    RaceHudLayoutState s;
+    s.totalTime = gameplay::hud_live::raceHudTimerValue(static_cast<std::int32_t>(snapshot.elapsedFrames));
+    s.lapTime = lapFrames;
+    s.lap = snapshot.lap + 1;  // FrameSnapshot::lap counts completed laps
+    s.rank = place0;
+    s.totalCars = totalCars;
+    s.gear = gear;
+    return s;
+}
+
+// Texture pass = one decoded page (+ CLUT bank) the caller binds.
+enum class RaceHudPass : std::uint8_t {
+    ScoreCsa0,   // hudArt.raceAtlas  (SYS/SCORE.GSL unit @0x70, CSA 0): rank digits, suffix, oval
+    ScoreCsa1,   // hudArt.raceBanner (same texels, CSA 1): banners, capsules, timer digits, rank total
+    ScorePage1,  // SYS/SCORE.GSL unit @0x8350: lap disc (csa 8) + lap digits (csa 7). Not decoded by HudArt (GAP)
+    Meter0,      // hudArt.speedDial (ITEM/METER0.GSL unit @0x70): dial face + gear glyph
+};
+
+// Which pass draws a sprite, or false when no native page exists for it
+// (Score0 banks other than 0/1, Meter0Sub needle/hub/arc page).
+inline bool raceHudPassFor(const roadtrip::gameplay::RaceHudSprite& s, RaceHudPass& out) {
+    using roadtrip::gameplay::RaceHudPage;
+    switch (s.page) {
+        case RaceHudPage::Score0:
+            if (s.csa == 0) { out = RaceHudPass::ScoreCsa0; return true; }
+            if (s.csa == 1) { out = RaceHudPass::ScoreCsa1; return true; }
+            return false;
+        case RaceHudPage::Score1: out = RaceHudPass::ScorePage1; return true;
+        case RaceHudPage::Meter0: out = RaceHudPass::Meter0; return true;
+        case RaceHudPage::Meter0Sub: return false;
+    }
+    return false;
+}
+
+// Full ordered sprite list in ROM draw order: raceHudDraw 0x233860 (TOTAL banner,
+// TOTAL ElementC, then per player the LAPTIME banner, LAP ElementC and ElementD),
+// then the gauge task (dial face, gear glyph).
+inline std::vector<roadtrip::gameplay::RaceHudSprite> raceHudLayoutSprites(const RaceHudLayoutState& s) {
+    namespace L = roadtrip::gameplay;
+    using L::RaceHudPage;
+    using L::RaceHudSprite;
+    std::vector<RaceHudSprite> out;
+    const auto i16 = [](int v) { return static_cast<std::int16_t>(v); };
+
+    // ElementC 0x22F750: panel, separators, six BCD digits (low nibble first), lap badge.
+    const auto elementC = [&](L::RaceHudPoint o, std::int32_t value, int lap, int csa) {
+        out.push_back(L::raceHudAt(L::kRaceHudPanelCapLeft, o));
+        out.push_back(L::raceHudAt(L::kRaceHudPanelCapRight, o));
+        for (int k = 0; k < L::kRaceHudPanelMiddleTiles; ++k) {
+            RaceHudSprite m = L::raceHudAt(L::kRaceHudPanelMiddle, o);
+            m.x = i16(m.x + k * L::kRaceHudPanelMiddleStep);
+            out.push_back(m);
+        }
+        RaceHudSprite sep0 = L::raceHudAt(L::kRaceHudTimerSepMinutes, o);
+        RaceHudSprite sep1 = L::raceHudAt(L::kRaceHudTimerSepSeconds, o);
+        sep0.csa = sep1.csa = static_cast<std::uint8_t>(csa);
+        out.push_back(sep0);
+        out.push_back(sep1);
+        std::uint32_t bcd = gameplay::hud_live::raceTimerBcd(value);
+        for (int i = 0; i < 6; ++i) {
+            out.push_back(L::raceHudTimerDigitSprite(o, 5 - i, static_cast<int>(bcd & 0xFu), csa));
+            bcd >>= 4;
+        }
+        if (lap == -1) return;
+        out.push_back(L::raceHudAt(L::kRaceHudLapDisc, o));
+        const auto lapDigit = [&](int d, L::RaceHudPoint at) {
+            out.push_back({RaceHudPage::Score1, static_cast<std::uint8_t>(L::kRaceHudLapDigitCsa),
+                           i16(d * L::kRaceHudLapDigitW), i16(L::kRaceHudLapDigitV), i16(L::kRaceHudLapDigitW),
+                           i16(L::kRaceHudLapDigitH), i16(o.x + at.x), i16(o.y + at.y), 0});
+        };
+        if (lap == 0) out.push_back(L::raceHudAt(L::kRaceHudLapFlag, o));
+        else if (lap < 10) lapDigit(lap, L::kRaceHudLapDigitOne);
+        else {
+            lapDigit((lap / 10) % 10, L::kRaceHudLapDigitTens);
+            lapDigit(lap % 10, L::kRaceHudLapDigitOnes);
+        }
+    };
+
+    // TOTALTIME (0x233F10 group + ElementC bank 1, lap -1).
+    for (const RaceHudSprite& b : L::kRaceHudTotalBanner) out.push_back(b);
+    elementC(L::kRaceHudTotalPanelOrigin, s.totalTime, -1, L::kRaceHudTimerBankCsa[1]);
+
+    // LAPTIME (per-player group +0x84A0 + ElementC slot 0). The digit bank the
+    // updater selects is untraced; the goldens show the CSA 1 yellow.
+    if (s.showLapBlock) {
+        for (const RaceHudSprite& b : L::kRaceHudLapBanner) out.push_back(b);
+        elementC(L::kRaceHudLapPanelOrigin, s.lapTime, s.lap, L::kRaceHudTimerBankCsa[1]);
+    }
+
+    // Rank, ElementD 0x22FE50 at (40,88).
+    if (s.showRank && s.rank >= 0) {
+        const L::RaceHudPoint o = L::kRaceHudRankOrigin;
+        const int k = L::raceHudOrdinalIndex(s.rank);
+        const int place = s.rank + 1;
+        const auto suffix = [&](int dx) {
+            out.push_back({RaceHudPage::Score0, 0, i16(L::kRaceHudRankSuffixU0 + k * L::kRaceHudRankSuffixW),
+                           i16(L::kRaceHudRankSuffixV), i16(L::kRaceHudRankSuffixW), i16(L::kRaceHudRankSuffixH),
+                           i16(o.x + dx), i16(o.y), 0});
+        };
+        if (s.totalCars != 0) {
+            out.push_back(L::raceHudAt(L::kRaceHudRankPanel, o));
+            suffix(L::kRaceHudRankSuffixDx);
+            const auto big = [&](int d, int dx) {
+                out.push_back({RaceHudPage::Score0, 0, i16((d % 9) * L::kRaceHudRankDigitW),
+                               i16((d / 9) * L::kRaceHudRankDigitH), i16(L::kRaceHudRankDigitW),
+                               i16(L::kRaceHudRankDigitH), i16(o.x + dx), i16(o.y), 0});
+            };
+            if (place < 10) big(place, L::kRaceHudRankDigitOnesDx);
+            else {
+                big(place % 10, L::kRaceHudRankDigitOnesDx);
+                big((place / 10) % 10, L::kRaceHudRankDigitTensDx);
+            }
+            const auto total = [&](int d, L::RaceHudPoint at) {
+                out.push_back({RaceHudPage::Score0, 1, i16(L::kRaceHudRankTotalU0 + d * L::kRaceHudRankTotalW),
+                               i16(L::kRaceHudRankTotalV), i16(L::kRaceHudRankTotalW), i16(L::kRaceHudRankTotalH),
+                               i16(o.x + at.x), i16(o.y + at.y), 0});
+            };
+            if (s.totalCars < 10) total(s.totalCars, L::kRaceHudRankTotalOnes);
+            else {
+                total(s.totalCars % 10, L::kRaceHudRankTotalOnes);
+                total((s.totalCars / 10) % 10, L::kRaceHudRankTotalTens);
+            }
+        } else {
+            // Small variant (0x2302D8..0x2304DC): suffix at +30, 16x16 digits v=64
+            // at +14 (ones) / +0 (tens), csa 0. Not on the 1P goldens.
+            suffix(0x1e);
+            const auto small = [&](int d, int dx) {
+                out.push_back({RaceHudPage::Score0, 0, i16(d * 16), i16(64), i16(16), i16(16), i16(o.x + dx), i16(o.y), 0});
+            };
+            if (place < 10) small(place, 0xe);
+            else {
+                small(place % 10, 0xe);
+                small((place / 10) % 10, 0);
+            }
+        }
+    }
+
+    // Gauge (UpdateRaceHud handler 0): dial face, gear glyph. The mph digits are
+    // drawn by main.cpp (coordinator law). Needle, hub cap and boost arc live on
+    // Meter0Sub and are not emitted (needle: GAP, law unresolved).
+    out.push_back(L::kRaceHudDialFace);
+    out.push_back(L::raceHudGearSprite(s.gear));
+    return out;
+}
+
+// Design px -> target px. main.cpp's race passes use a per-axis stretch
+// (sx = W/640, sy = H/448, no offset); raceHudStretchViewport reproduces that.
+struct RaceHudViewport {
+    float sx = 1.f, sy = 1.f, ox = 0.f, oy = 0.f;
+};
+inline RaceHudViewport raceHudStretchViewport(int width, int height) {
+    return {static_cast<float>(width) / static_cast<float>(roadtrip::gameplay::kRaceHudDesignWidth),
+            static_cast<float>(height) / static_cast<float>(roadtrip::gameplay::kRaceHudDesignHeight), 0.f, 0.f};
+}
+
+// One sprite as a textured quad: UVs normalised by the page size, uniform white
+// (the pages are TFX DECAL), alpha = kRaceHudCapsuleAlpha on the half-alpha
+// capsule/disc texels (the decoder returns them opaque).
+inline HudQuad raceHudSpriteQuad(const roadtrip::gameplay::RaceHudSprite& s, const RaceHudViewport& vp) {
+    const auto ps = roadtrip::gameplay::raceHudPageSize(s.page);
+    const float pw = static_cast<float>(ps.width), ph = static_cast<float>(ps.height);
+    const float a = s.translucent ? roadtrip::gameplay::kRaceHudCapsuleAlpha : 1.f;
+    return {vp.ox + static_cast<float>(s.x) * vp.sx, vp.oy + static_cast<float>(s.y) * vp.sy,
+            static_cast<float>(s.w) * vp.sx, static_cast<float>(s.h) * vp.sy,
+            static_cast<float>(s.u) / pw, static_cast<float>(s.v) / ph,
+            static_cast<float>(s.u + s.w) / pw, static_cast<float>(s.v + s.h) / ph,
+            {1.f, 1.f, 1.f, a}};
+}
+
+// Quads of one pass, in ROM draw order.
+inline std::vector<HudQuad> raceHudLayoutQuads(const RaceHudLayoutState& state, RaceHudPass pass,
+                                               const RaceHudViewport& vp) {
+    std::vector<HudQuad> quads;
+    for (const auto& s : raceHudLayoutSprites(state)) {
+        RaceHudPass p{};
+        if (raceHudPassFor(s, p) && p == pass) quads.push_back(raceHudSpriteQuad(s, vp));
+    }
+    return quads;
+}
+
+// Stand-in for the ScorePage1 pass until SCORE.GSL unit @0x8350 is decoded:
+// the lap disc as flat scanlines in the measured capsule material
+// ((32,24,64) at alpha 0.509, see race_hud_layout.h). Shape AUTHORED (circle
+// in the 24x24 cell); golden disc box 468..492 x 51..76.
+inline std::vector<ScreenQuad> raceHudLapDiscFallback(const RaceHudLayoutState& state, const RaceHudViewport& vp) {
+    namespace L = roadtrip::gameplay;
+    std::vector<ScreenQuad> quads;
+    if (!state.showLapBlock || state.lap == -1) return quads;
+    const float x0 = static_cast<float>(L::kRaceHudLapPanelOrigin.x + L::kRaceHudLapDisc.x);
+    const float y0 = static_cast<float>(L::kRaceHudLapPanelOrigin.y + L::kRaceHudLapDisc.y);
+    const float r = static_cast<float>(L::kRaceHudLapDisc.w) * 0.5f;
+    const std::array<float, 4> c{L::kRaceHudCapsuleTexel.r / 255.f, L::kRaceHudCapsuleTexel.g / 255.f,
+                                 L::kRaceHudCapsuleTexel.b / 255.f, L::kRaceHudCapsuleAlpha};
+    for (int row = 0; row < L::kRaceHudLapDisc.h; ++row) {
+        const float dy = (static_cast<float>(row) + 0.5f) - r;
+        const float half = std::sqrt(std::max(0.f, r * r - dy * dy));
+        quads.push_back(ScreenQuad{vp.ox + (x0 + r - half) * vp.sx, vp.oy + (y0 + static_cast<float>(row)) * vp.sy,
+                                   2.f * half * vp.sx, vp.sy, c});
+    }
+    return quads;
+}
+
+// Stand-in lap number on the ScoreCsa1 pass: the yellow 12x16 digit row
+// (u = 32 + 12d, v = 48, the rank-total cells) centred on the 8-wide lap slot.
+// AUTHORED substitute for the 8x16 Score1 csa 7 digits; drop it once
+// ScorePage1 is decoded.
+inline std::vector<HudQuad> raceHudLapDigitFallbackQuads(const RaceHudLayoutState& state, const RaceHudViewport& vp) {
+    namespace L = roadtrip::gameplay;
+    std::vector<HudQuad> quads;
+    if (!state.showLapBlock || state.lap <= 0) return quads;
+    const auto put = [&](int d, L::RaceHudPoint at) {
+        const L::RaceHudSprite s{L::RaceHudPage::Score0, 1,
+                                 static_cast<std::int16_t>(L::kRaceHudRankTotalU0 + d * L::kRaceHudRankTotalW),
+                                 static_cast<std::int16_t>(L::kRaceHudRankTotalV),
+                                 static_cast<std::int16_t>(L::kRaceHudRankTotalW),
+                                 static_cast<std::int16_t>(L::kRaceHudRankTotalH),
+                                 static_cast<std::int16_t>(L::kRaceHudLapPanelOrigin.x + at.x - 2),
+                                 static_cast<std::int16_t>(L::kRaceHudLapPanelOrigin.y + at.y), 0};
+        quads.push_back(raceHudSpriteQuad(s, vp));
+    };
+    if (state.lap < 10) put(state.lap, L::kRaceHudLapDigitOne);
+    else {
+        put((state.lap / 10) % 10, L::kRaceHudLapDigitTens);
+        put(state.lap % 10, L::kRaceHudLapDigitOnes);
+    }
     return quads;
 }
 

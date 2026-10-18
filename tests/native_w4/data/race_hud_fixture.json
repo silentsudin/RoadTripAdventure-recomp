@@ -1,0 +1,1839 @@
+{
+ "schema": "w4-06 race hud fixture v1",
+ "generated_by": "build/scratch/w4-06/gen_fixture2.py + gen_final.py (reproduction in HANDOFF-W4-06.md)",
+ "coordinate_law": {
+  "golden_png": [
+   1280,
+   447
+  ],
+  "design": [
+   640,
+   448
+  ],
+  "design_x": "png_x/2",
+  "design_y": "png_y*448/447"
+ },
+ "tolerance_design_px": 2.0,
+ "frames": {
+  "race_hud_driving": {
+   "manifest_race_total_time_frames": 3178,
+   "manifest_race_place_minus_1": 23,
+   "readings": {
+    "total": "00'52\"95",
+    "lap": "00'13\"56",
+    "rank_place": 24,
+    "rank_total": 24,
+    "lap_badge": 1,
+    "gear": 4,
+    "mph": 63
+   },
+   "lap_frames_inferred": 814,
+   "row_phase_vs_rom": -1
+  },
+  "race_hud": {
+   "manifest_race_total_time_frames": 2447,
+   "manifest_race_place_minus_1": 23,
+   "readings": {
+    "total": "00'40\"76",
+    "lap": "00'01\"38",
+    "rank_place": 24,
+    "rank_total": 24,
+    "lap_badge": 1,
+    "gear": 1,
+    "mph": 39
+   },
+   "lap_frames_inferred": 83,
+   "row_phase_vs_rom": 0
+  }
+ },
+ "elements": [
+  {
+   "id": "total_banner",
+   "class": "nonsky",
+   "window_png": [
+    30,
+    380,
+    10,
+    51
+   ],
+   "rom_ink_design": [
+    20,
+    20,
+    182,
+    50
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     40,
+     364,
+     19,
+     50
+    ],
+    "race_hud": [
+     40,
+     364,
+     20,
+     50
+    ]
+   },
+   "measured_design_union": [
+    20.0,
+    19.04,
+    182.0,
+    50.11
+   ],
+   "residual_design": [
+    0.0,
+    -0.96,
+    0.0,
+    0.11
+   ],
+   "check": "ink",
+   "presence": "race",
+   "source": "group 0x2EC1A8 {1,20,20,recs 0x29F628,n 2} copied by InitHudConfig 0x233F10 to +0x8078; drawn by raceHudDraw 0x2338C8..0x23390C tex 0x29F5F8 entry 0 csa 1"
+  },
+  {
+   "id": "total_medallion_fill",
+   "class": "medal",
+   "window_png": [
+    30,
+    130,
+    10,
+    51
+   ],
+   "rom_ink_design": [
+    25,
+    26,
+    45,
+    47
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     52,
+     88,
+     26,
+     45
+    ],
+    "race_hud": [
+     52,
+     88,
+     26,
+     46
+    ]
+   },
+   "measured_design_union": [
+    26.0,
+    26.06,
+    44.0,
+    46.1
+   ],
+   "residual_design": [
+    1.0,
+    0.06,
+    -1.0,
+    -0.9
+   ],
+   "check": "ink",
+   "presence": "race",
+   "source": "rec 0x29F628 {0,0,u0,v112,32x30}; fill texels rel (5..25,6..27) on SCORE CSA1"
+  },
+  {
+   "id": "total_word_fill",
+   "class": "lavender",
+   "window_png": [
+    96,
+    380,
+    10,
+    51
+   ],
+   "rom_ink_design": [
+    49,
+    33,
+    179,
+    47
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     98,
+     356,
+     33,
+     45
+    ],
+    "race_hud": [
+     98,
+     356,
+     32,
+     46
+    ]
+   },
+   "measured_design_union": [
+    49.0,
+    32.07,
+    178.0,
+    46.1
+   ],
+   "residual_design": [
+    0.0,
+    -0.93,
+    -1.0,
+    -0.9
+   ],
+   "check": "ink",
+   "presence": "race",
+   "source": "medallion texels u29..31 (lavender) + rec 0x29F648 {32,12,u32,v81,130x18}"
+  },
+  {
+   "id": "total_panel",
+   "class": "nonsky",
+   "window_png": [
+    100,
+    380,
+    51,
+    80
+   ],
+   "rom_ink_design": [
+    60,
+    52,
+    185,
+    76
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     120,
+     370,
+     51,
+     75
+    ],
+    "race_hud": [
+     120,
+     370,
+     52,
+     76
+    ]
+   },
+   "measured_design_union": [
+    60.0,
+    51.11,
+    185.0,
+    76.17
+   ],
+   "residual_design": [
+    0.0,
+    -0.89,
+    0.0,
+    0.17
+   ],
+   "check": "ink",
+   "presence": "race",
+   "source": "ElementC 0x22F750 origin (60,52) (0x233F10 imm 0x3c/0x34); caps 0x2EBD40/0x2EBD60, middle 0x2EBD80 x12; csa 1; 50% translucent"
+  },
+  {
+   "id": "total_digits_fill",
+   "class": "yellow",
+   "window_png": [
+    120,
+    370,
+    52,
+    76
+   ],
+   "rom_ink_design": [
+    64,
+    56,
+    178,
+    72
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     136,
+     350,
+     57,
+     68
+    ],
+    "race_hud": [
+     136,
+     348,
+     58,
+     68
+    ]
+   },
+   "measured_design_union": [
+    68.0,
+    57.13,
+    175.0,
+    68.15
+   ],
+   "residual_design": [
+    4.0,
+    1.13,
+    -3.0,
+    -3.85
+   ],
+   "check": "contain",
+   "presence": "race",
+   "source": "ElementC digits x+{4,18,46,60,88,102} y+4 16x16 u=d*16 v=64 (template 0x2EBDE0, loop 0x22FB40..0x22FBAC)"
+  },
+  {
+   "id": "lap_banner",
+   "class": "nonsky",
+   "window_png": [
+    960,
+    1260,
+    10,
+    51
+   ],
+   "rom_ink_design": [
+    490,
+    21,
+    620,
+    50
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     980,
+     1240,
+     20,
+     50
+    ],
+    "race_hud": [
+     980,
+     1240,
+     20,
+     50
+    ]
+   },
+   "measured_design_union": [
+    490.0,
+    20.04,
+    620.0,
+    50.11
+   ],
+   "residual_design": [
+    0.0,
+    -0.96,
+    0.0,
+    0.11
+   ],
+   "check": "ink",
+   "presence": "race_conditional",
+   "source": "group 0x2EC074 {490,20,recs 0x29F668,n 2} copied by raceHudInit 0x2321B8 to +0x84A0; drawn 0x2339C4..0x233A04 csa 1"
+  },
+  {
+   "id": "lap_medallion_fill",
+   "class": "medal",
+   "window_png": [
+    960,
+    1060,
+    10,
+    51
+   ],
+   "rom_ink_design": [
+    497,
+    26,
+    517,
+    47
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     996,
+     1032,
+     26,
+     45
+    ],
+    "race_hud": [
+     996,
+     1032,
+     26,
+     46
+    ]
+   },
+   "measured_design_union": [
+    498.0,
+    26.06,
+    516.0,
+    46.1
+   ],
+   "residual_design": [
+    1.0,
+    0.06,
+    -1.0,
+    -0.9
+   ],
+   "check": "ink",
+   "presence": "race_conditional",
+   "source": "rec 0x29F668 {0,0,u0,v80,32x32}"
+  },
+  {
+   "id": "lap_word_fill",
+   "class": "lavender",
+   "window_png": [
+    1030,
+    1260,
+    10,
+    51
+   ],
+   "rom_ink_design": [
+    521,
+    33,
+    617,
+    46
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     1042,
+     1232,
+     33,
+     45
+    ],
+    "race_hud": [
+     1042,
+     1232,
+     34,
+     46
+    ]
+   },
+   "measured_design_union": [
+    521.0,
+    33.07,
+    616.0,
+    46.1
+   ],
+   "residual_design": [
+    0.0,
+    0.07,
+    -1.0,
+    0.1
+   ],
+   "check": "ink",
+   "presence": "race_conditional",
+   "source": "medallion texel u31 + rec 0x29F688 {32,12,u32,v159,98x17}"
+  },
+  {
+   "id": "lap_panel",
+   "class": "nonsky",
+   "window_png": [
+    986,
+    1260,
+    51,
+    80
+   ],
+   "rom_ink_design": [
+    494,
+    52,
+    619,
+    76
+   ],
+   "measured_png": {
+    "race_hud_driving": null,
+    "race_hud": [
+     988,
+     1238,
+     52,
+     76
+    ]
+   },
+   "measured_design_union": [
+    494.0,
+    52.12,
+    619.0,
+    76.17
+   ],
+   "residual_design": [
+    0.0,
+    0.12,
+    0.0,
+    0.17
+   ],
+   "check": "ink",
+   "presence": "race_conditional",
+   "source": "ElementC P0 slot 0 (494,52) from 0x2EC08C (raceHudInit); driving golden: panel overlaps a billboard, not separable"
+  },
+  {
+   "id": "lap_digits_fill",
+   "class": "yellow",
+   "window_png": [
+    986,
+    1240,
+    52,
+    76
+   ],
+   "rom_ink_design": [
+    498,
+    56,
+    612,
+    72
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     1004,
+     1216,
+     57,
+     68
+    ],
+    "race_hud": [
+     1002,
+     1214,
+     58,
+     68
+    ]
+   },
+   "measured_design_union": [
+    501.0,
+    57.13,
+    608.0,
+    68.15
+   ],
+   "residual_design": [
+    3.0,
+    1.13,
+    -4.0,
+    -3.85
+   ],
+   "check": "contain",
+   "presence": "race_conditional",
+   "source": "same ElementC digit law at origin (494,52)"
+  },
+  {
+   "id": "lap_badge_disc",
+   "class": "nonsky",
+   "window_png": [
+    925,
+    986,
+    51,
+    80
+   ],
+   "rom_ink_design": [
+    468,
+    52,
+    492,
+    76
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     936,
+     984,
+     51,
+     75
+    ],
+    "race_hud": [
+     936,
+     984,
+     52,
+     76
+    ]
+   },
+   "measured_design_union": [
+    468.0,
+    51.11,
+    492.0,
+    76.17
+   ],
+   "residual_design": [
+    0.0,
+    -0.89,
+    0.0,
+    0.17
+   ],
+   "check": "ink",
+   "presence": "race_conditional",
+   "source": "template 0x2EBE00 {-26,0,u232,v168,24x24} tex entry 1 (SCORE.GSL unit @0x8350) csa 8 (0x22FBC4)"
+  },
+  {
+   "id": "lap_digit_fill",
+   "class": "yellow",
+   "window_png": [
+    925,
+    986,
+    51,
+    80
+   ],
+   "rom_ink_design": [
+    476,
+    58,
+    482,
+    73
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     952,
+     962,
+     58,
+     70
+    ],
+    "race_hud": [
+     952,
+     962,
+     58,
+     70
+    ]
+   },
+   "measured_design_union": [
+    476.0,
+    58.13,
+    481.0,
+    70.16
+   ],
+   "residual_design": [
+    0.0,
+    0.13,
+    -1.0,
+    -2.84
+   ],
+   "check": "contain",
+   "presence": "race_conditional",
+   "source": "lap digit 8x16 u=lap*8 v=200 at (-18,+5), entry 1 csa 7 (0x22FC54..0x22FD38)"
+  },
+  {
+   "id": "rank_digits_fill",
+   "class": "pink",
+   "window_png": [
+    60,
+    180,
+    92,
+    124
+   ],
+   "rom_ink_design": [
+    43,
+    95,
+    85,
+    114
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     88,
+     168,
+     94,
+     112
+    ],
+    "race_hud": [
+     88,
+     168,
+     94,
+     112
+    ]
+   },
+   "measured_design_union": [
+    44.0,
+    94.21,
+    84.0,
+    112.25
+   ],
+   "residual_design": [
+    1.0,
+    -0.79,
+    -1.0,
+    -1.75
+   ],
+   "check": "ink",
+   "presence": "race_conditional",
+   "source": "ElementD 0x22FE50 origin (40,88) (raceHudInit 0x232388/0x23238C); 28x30 u=(d%9)*28 v=(d/9)*30 ones +23 tens +0, csa 0"
+  },
+  {
+   "id": "rank_oval",
+   "class": "lilac_navy",
+   "window_png": [
+    180,
+    260,
+    82,
+    126
+   ],
+   "rom_ink_design": [
+    91,
+    88,
+    123,
+    120
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     182,
+     246,
+     87,
+     119
+    ],
+    "race_hud": [
+     182,
+     246,
+     88,
+     120
+    ]
+   },
+   "measured_design_union": [
+    91.0,
+    87.19,
+    123.0,
+    120.27
+   ],
+   "residual_design": [
+    0.0,
+    -0.81,
+    0.0,
+    0.27
+   ],
+   "check": "ink",
+   "presence": "race_conditional",
+   "source": "template 0x2EBE40 {51,0,u160,v105,32x32} csa 0"
+  },
+  {
+   "id": "rank_suffix_fill",
+   "class": "pink",
+   "window_png": [
+    186,
+    218,
+    86,
+    104
+   ],
+   "rom_ink_design": [
+    94,
+    91,
+    109,
+    101
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     190,
+     216,
+     90,
+     99
+    ],
+    "race_hud": [
+     190,
+     216,
+     90,
+     100
+    ]
+   },
+   "measured_design_union": [
+    95.0,
+    90.2,
+    108.0,
+    100.22
+   ],
+   "residual_design": [
+    1.0,
+    -0.8,
+    -1.0,
+    -0.78
+   ],
+   "check": "ink",
+   "presence": "race_conditional",
+   "source": "suffix 22x16 u=32+22k v=31 at +51 (0x22FF78..0x22FFD0) csa 0"
+  },
+  {
+   "id": "rank_total_fill",
+   "class": "yellow",
+   "window_png": [
+    200,
+    250,
+    100,
+    124
+   ],
+   "rom_ink_design": [
+    105,
+    106,
+    120,
+    118
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     212,
+     240,
+     106,
+     116
+    ],
+    "race_hud": [
+     212,
+     240,
+     106,
+     116
+    ]
+   },
+   "measured_design_union": [
+    106.0,
+    106.24,
+    120.0,
+    116.26
+   ],
+   "residual_design": [
+    1.0,
+    0.24,
+    0.0,
+    -1.74
+   ],
+   "check": "ink",
+   "presence": "race_conditional",
+   "source": "total digits 12x16 u=32+12d v=48 at +71/+61,+16 csa 1 (0x23019C..0x2302CC)"
+  },
+  {
+   "id": "dial_face",
+   "class": "green",
+   "window_png": [
+    940,
+    1280,
+    270,
+    447
+   ],
+   "rom_ink_design": [
+    484,
+    294,
+    624,
+    422
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     968,
+     1248,
+     293,
+     421
+    ],
+    "race_hud": [
+     968,
+     1248,
+     294,
+     422
+    ]
+   },
+   "measured_design_union": [
+    484.0,
+    293.66,
+    624.0,
+    422.94
+   ],
+   "residual_design": [
+    0.0,
+    -0.34,
+    0.0,
+    0.94
+   ],
+   "check": "ink",
+   "presence": "race_and_town",
+   "source": "handler 0x2496C8 sprite (0,0,140x128) entry 0 csa 0 at 1P origin 0x2A8FF0 (484,294) (0x24997C..0x2499C4)"
+  },
+  {
+   "id": "mph_badge_plate",
+   "class": "badge_green",
+   "window_png": [
+    968,
+    1260,
+    360,
+    430
+   ],
+   "rom_ink_design": [
+    526,
+    382,
+    622,
+    422
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     1052,
+     1240,
+     381,
+     421
+    ],
+    "race_hud": [
+     1052,
+     1240,
+     382,
+     422
+    ]
+   },
+   "measured_design_union": [
+    526.0,
+    381.85,
+    620.0,
+    422.94
+   ],
+   "residual_design": [
+    0.0,
+    -0.15,
+    -2.0,
+    0.94
+   ],
+   "check": "ink",
+   "presence": "race_and_town",
+   "source": "baked into the dial face: METER0 texels u42..138 v88..128"
+  },
+  {
+   "id": "mph_digits_fill",
+   "class": "cyan",
+   "window_png": [
+    1090,
+    1180,
+    370,
+    420
+   ],
+   "rom_ink_design": [
+    556,
+    388,
+    589,
+    411
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     1112,
+     1172,
+     387,
+     407
+    ],
+    "race_hud": [
+     1114,
+     1172,
+     388,
+     406
+    ]
+   },
+   "measured_design_union": [
+    556.0,
+    387.87,
+    586.0,
+    407.91
+   ],
+   "residual_design": [
+    0.0,
+    -0.13,
+    -3.0,
+    -3.09
+   ],
+   "check": "contain",
+   "presence": "race_and_town",
+   "source": "mph law cells: ones (573,388) step -17 16x23 (handler 0 imm 0x59/0x5e/-0x11)"
+  },
+  {
+   "id": "mph_label",
+   "class": "label_blue",
+   "window_png": [
+    1180,
+    1250,
+    390,
+    420
+   ],
+   "rom_ink_design": [
+    595,
+    403,
+    617,
+    416
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     1190,
+     1232,
+     402,
+     415
+    ],
+    "race_hud": [
+     1190,
+     1232,
+     402,
+     416
+    ]
+   },
+   "measured_design_union": [
+    595.0,
+    402.9,
+    616.0,
+    416.93
+   ],
+   "residual_design": [
+    0.0,
+    -0.1,
+    -1.0,
+    0.93
+   ],
+   "check": "ink",
+   "presence": "race_and_town",
+   "source": "baked into the dial face: METER0 texels u111..133 v109..122"
+  },
+  {
+   "id": "gear_plate",
+   "class": "plate_blue",
+   "window_png": [
+    1130,
+    1230,
+    330,
+    378
+   ],
+   "rom_ink_design": [
+    579,
+    350,
+    601,
+    370
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     1158,
+     1200,
+     349,
+     369
+    ],
+    "race_hud": [
+     1158,
+     1200,
+     350,
+     370
+    ]
+   },
+   "measured_design_union": [
+    579.0,
+    349.78,
+    600.0,
+    370.83
+   ],
+   "residual_design": [
+    0.0,
+    -0.22,
+    -1.0,
+    0.83
+   ],
+   "check": "ink",
+   "presence": "race_and_town",
+   "source": "baked into the dial face: METER0 texels u95..117 v56..76"
+  },
+  {
+   "id": "gear_digit",
+   "class": "white",
+   "window_png": [
+    1158,
+    1201,
+    350,
+    369
+   ],
+   "rom_ink_design": [
+    581,
+    354,
+    601,
+    368
+   ],
+   "measured_png": {
+    "race_hud_driving": [
+     1168,
+     1201,
+     353,
+     365
+    ],
+    "race_hud": [
+     1174,
+     1190,
+     354,
+     366
+    ]
+   },
+   "measured_design_union": [
+    584.0,
+    353.79,
+    600.5,
+    366.82
+   ],
+   "residual_design": [
+    3.0,
+    -0.21,
+    -0.5,
+    -1.18
+   ],
+   "check": "contain",
+   "presence": "race_and_town",
+   "source": "gear glyph 20x14 at origin+(97,60) u=(g%5)*20+140 v=(g/5)*16+80 entry 0 csa 0 (0x2499D4..0x249A74)"
+  },
+  {
+   "id": "boost_arc_fill",
+   "class": "arc",
+   "window_png": [
+    1180,
+    1260,
+    300,
+    380
+   ],
+   "rom_ink_design": null,
+   "measured_png": {
+    "race_hud_driving": [
+     1204,
+     1236,
+     328,
+     380
+    ],
+    "race_hud": [
+     1204,
+     1236,
+     328,
+     380
+    ]
+   },
+   "measured_design_union": [
+    602.0,
+    328.73,
+    618.0,
+    380.85
+   ],
+   "residual_design": null,
+   "check": "none",
+   "presence": "race_and_town",
+   "source": "two rotated 20x60 quads about origin+(70,70) (template 0x327820); measured only, not emitted"
+  }
+ ],
+ "timer_cells": [
+  {
+   "block": "total",
+   "cell": "d0",
+   "cell_design": [
+    64,
+    56,
+    80,
+    72
+   ],
+   "window_png": [
+    128,
+    160,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     136,
+     152,
+     58,
+     68
+    ],
+    "race_hud": [
+     136,
+     152,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "total",
+   "cell": "d1",
+   "cell_design": [
+    78,
+    56,
+    94,
+    72
+   ],
+   "window_png": [
+    156,
+    188,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     164,
+     180,
+     58,
+     68
+    ],
+    "race_hud": [
+     164,
+     180,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "total",
+   "cell": "d2",
+   "cell_design": [
+    106,
+    56,
+    122,
+    72
+   ],
+   "window_png": [
+    212,
+    244,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     222,
+     238,
+     58,
+     68
+    ],
+    "race_hud": [
+     220,
+     236,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "total",
+   "cell": "d3",
+   "cell_design": [
+    120,
+    56,
+    136,
+    72
+   ],
+   "window_png": [
+    240,
+    272,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     248,
+     266,
+     58,
+     68
+    ],
+    "race_hud": [
+     248,
+     264,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "total",
+   "cell": "d4",
+   "cell_design": [
+    148,
+    56,
+    164,
+    72
+   ],
+   "window_png": [
+    296,
+    328,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     304,
+     320,
+     58,
+     68
+    ],
+    "race_hud": [
+     306,
+     320,
+     58,
+     66
+    ]
+   }
+  },
+  {
+   "block": "total",
+   "cell": "d5",
+   "cell_design": [
+    162,
+    56,
+    178,
+    72
+   ],
+   "window_png": [
+    324,
+    356,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     334,
+     350,
+     58,
+     68
+    ],
+    "race_hud": [
+     332,
+     348,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "lap",
+   "cell": "d0",
+   "cell_design": [
+    498,
+    56,
+    514,
+    72
+   ],
+   "window_png": [
+    996,
+    1028,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     1004,
+     1020,
+     58,
+     68
+    ],
+    "race_hud": [
+     1002,
+     1020,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "lap",
+   "cell": "d1",
+   "cell_design": [
+    512,
+    56,
+    528,
+    72
+   ],
+   "window_png": [
+    1024,
+    1056,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     1032,
+     1048,
+     58,
+     68
+    ],
+    "race_hud": [
+     1032,
+     1048,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "lap",
+   "cell": "d2",
+   "cell_design": [
+    540,
+    56,
+    556,
+    72
+   ],
+   "window_png": [
+    1080,
+    1112,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     1090,
+     1102,
+     58,
+     68
+    ],
+    "race_hud": [
+     1088,
+     1104,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "lap",
+   "cell": "d3",
+   "cell_design": [
+    554,
+    56,
+    570,
+    72
+   ],
+   "window_png": [
+    1108,
+    1140,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     1114,
+     1132,
+     58,
+     68
+    ],
+    "race_hud": [
+     1122,
+     1130,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "lap",
+   "cell": "d4",
+   "cell_design": [
+    582,
+    56,
+    598,
+    72
+   ],
+   "window_png": [
+    1164,
+    1196,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     1174,
+     1190,
+     58,
+     68
+    ],
+    "race_hud": [
+     1174,
+     1188,
+     58,
+     68
+    ]
+   }
+  },
+  {
+   "block": "lap",
+   "cell": "d5",
+   "cell_design": [
+    596,
+    56,
+    612,
+    72
+   ],
+   "window_png": [
+    1192,
+    1224,
+    55,
+    72
+   ],
+   "yellow_png": {
+    "race_hud_driving": [
+     1200,
+     1216,
+     58,
+     68
+    ],
+    "race_hud": [
+     1200,
+     1214,
+     58,
+     68
+    ]
+   }
+  }
+ ],
+ "color_samples": [
+  {
+   "what": "total_medallion_yellow",
+   "frame": "race_hud_driving",
+   "png": [
+    54,
+    28
+   ],
+   "rgb": [
+    208,
+    248,
+    48
+   ]
+  },
+  {
+   "what": "total_medallion_orange",
+   "frame": "race_hud_driving",
+   "png": [
+    62,
+    42
+   ],
+   "rgb": [
+    232,
+    176,
+    16
+   ]
+  },
+  {
+   "what": "banner_outline_navy",
+   "frame": "race_hud_driving",
+   "png": [
+    68,
+    20
+   ],
+   "rgb": [
+    8,
+    8,
+    48
+   ]
+  },
+  {
+   "what": "total_word_lavender",
+   "frame": "race_hud_driving",
+   "png": [
+    100,
+    34
+   ],
+   "rgb": [
+    208,
+    200,
+    248
+   ]
+  },
+  {
+   "what": "total_digit_fill",
+   "frame": "race_hud_driving",
+   "png": [
+    144,
+    58
+   ],
+   "rgb": [
+    201,
+    239,
+    48
+   ]
+  },
+  {
+   "what": "total_digit_fill",
+   "frame": "race_hud",
+   "png": [
+    144,
+    58
+   ],
+   "rgb": [
+    205,
+    244,
+    48
+   ]
+  },
+  {
+   "what": "total_capsule_translucent",
+   "frame": "race_hud_driving",
+   "png": [
+    238,
+    52
+   ],
+   "rgb": [
+    81,
+    105,
+    158
+   ]
+  },
+  {
+   "what": "total_capsule_translucent",
+   "frame": "race_hud",
+   "png": [
+    214,
+    52
+   ],
+   "rgb": [
+    76,
+    102,
+    158
+   ]
+  },
+  {
+   "what": "lap_medallion_yellow",
+   "frame": "race_hud_driving",
+   "png": [
+    996,
+    28
+   ],
+   "rgb": [
+    208,
+    248,
+    48
+   ]
+  },
+  {
+   "what": "lap_word_lavender",
+   "frame": "race_hud_driving",
+   "png": [
+    1042,
+    34
+   ],
+   "rgb": [
+    208,
+    200,
+    248
+   ]
+  },
+  {
+   "what": "lap_digit_fill",
+   "frame": "race_hud_driving",
+   "png": [
+    1010,
+    58
+   ],
+   "rgb": [
+    201,
+    239,
+    48
+   ]
+  },
+  {
+   "what": "lap_badge_disc_translucent",
+   "frame": "race_hud_driving",
+   "png": [
+    960,
+    52
+   ],
+   "rgb": [
+    45,
+    85,
+    159
+   ]
+  },
+  {
+   "what": "lap_badge_disc_translucent",
+   "frame": "race_hud",
+   "png": [
+    966,
+    58
+   ],
+   "rgb": [
+    77,
+    103,
+    158
+   ]
+  },
+  {
+   "what": "lap_badge_digit",
+   "frame": "race_hud_driving",
+   "png": [
+    960,
+    60
+   ],
+   "rgb": [
+    199,
+    238,
+    48
+   ]
+  },
+  {
+   "what": "rank_digit_pink",
+   "frame": "race_hud_driving",
+   "png": [
+    94,
+    102
+   ],
+   "rgb": [
+    248,
+    40,
+    200
+   ]
+  },
+  {
+   "what": "rank_oval_lilac",
+   "frame": "race_hud_driving",
+   "png": [
+    226,
+    92
+   ],
+   "rgb": [
+    176,
+    120,
+    168
+   ]
+  },
+  {
+   "what": "rank_oval_navy",
+   "frame": "race_hud_driving",
+   "png": [
+    234,
+    96
+   ],
+   "rgb": [
+    8,
+    8,
+    48
+   ]
+  },
+  {
+   "what": "rank_suffix_pink",
+   "frame": "race_hud_driving",
+   "png": [
+    192,
+    95
+   ],
+   "rgb": [
+    245,
+    39,
+    198
+   ]
+  },
+  {
+   "what": "rank_total_yellow",
+   "frame": "race_hud",
+   "png": [
+    232,
+    112
+   ],
+   "rgb": [
+    201,
+    240,
+    48
+   ]
+  },
+  {
+   "what": "dial_face_green",
+   "frame": "race_hud_driving",
+   "png": [
+    1100,
+    294
+   ],
+   "rgb": [
+    38,
+    86,
+    29
+   ]
+  },
+  {
+   "what": "mph_badge_green",
+   "frame": "race_hud_driving",
+   "png": [
+    1080,
+    382
+   ],
+   "rgb": [
+    50,
+    129,
+    62
+   ]
+  },
+  {
+   "what": "gear_plate_blue",
+   "frame": "race_hud_driving",
+   "png": [
+    1162,
+    352
+   ],
+   "rgb": [
+    74,
+    95,
+    196
+   ]
+  },
+  {
+   "what": "gear_digit_white",
+   "frame": "race_hud_driving",
+   "png": [
+    1170,
+    354
+   ],
+   "rgb": [
+    247,
+    250,
+    249
+   ]
+  },
+  {
+   "what": "mph_label_blue",
+   "frame": "race_hud_driving",
+   "png": [
+    1196,
+    407
+   ],
+   "rgb": [
+    1,
+    95,
+    183
+   ]
+  },
+  {
+   "what": "mph_digit_cyan",
+   "frame": "race_hud_driving",
+   "png": [
+    1160,
+    397
+   ],
+   "rgb": [
+    3,
+    222,
+    239
+   ]
+  },
+  {
+   "what": "boost_arc_lime",
+   "frame": "race_hud_driving",
+   "png": [
+    1210,
+    352
+   ],
+   "rgb": [
+    199,
+    223,
+    79
+   ]
+  }
+ ],
+ "pitch": {
+  "timer_pair_png": 28,
+  "timer_pair_design": 14,
+  "timer_group_design": 28,
+  "fonte_digit_advance": 12,
+  "meter_mph_step": 17
+ },
+ "needle": {
+  "status": "GAP: needle law unresolved",
+  "rom_pivot": [
+   554,
+   362
+  ],
+  "measured_pivot_axis_intersection": [
+   554.67,
+   362.58
+  ],
+  "axis_miss_rom_pivot_px": {
+   "race_hud_driving": 0.51,
+   "race_hud": 0.86
+  },
+  "tip_len_px": {
+   "race_hud_driving": 52.38,
+   "race_hud": 49.09
+  },
+  "rom_strip_len_px": 59,
+  "tip_angle_deg": {
+   "race_hud_driving": 104.09,
+   "race_hud": -146.11
+  },
+  "angle_convention": "design space, from pivot, 0=right, +=counter-clockwise (atan2(-dy,dx))",
+  "dial_outer_ticks_deg_dist": [
+   [
+    163.5,
+    65.2
+   ],
+   [
+    127.0,
+    63.3
+   ],
+   [
+    108.6,
+    63.1
+   ],
+   [
+    90.0,
+    61.8
+   ],
+   [
+    71.6,
+    62.8
+   ],
+   [
+    53.3,
+    63.0
+   ],
+   [
+    -142.9,
+    64.7
+   ],
+   [
+    -178.4,
+    65.0
+   ]
+  ]
+ }
+}

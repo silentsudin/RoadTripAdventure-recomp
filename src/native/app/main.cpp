@@ -2572,35 +2572,45 @@ int main() {
                                       0.f, 0.f, 132.f / 256.f, 1.f, {1.f, 1.f, 1.f, 1.f}}},
                                     {0.f, 0.f, 0.f, 0.f}, dialPixels, error))
                                 compositeOver(pixels, dialPixels);
-                            // Pass 2: speed digits from the dynamic parts page
-                            // (METER10 unit 0): 20x26 cells u=d*20, v=102 right-
-                            // aligned x = anchor+{78,59,40}, y=anchor+49
-                            // (hud-layout.md §1.2 CONFIRMED; placement validated
-                            // against the oracle's "63").  GAP: physics-unit ->
-                            // displayed-digit divisor not ROM-pinned; provisional
-                            // /100 pending oracle speed calibration.
-                            if (hudArt.speedDigits) {
-                                if (rt::native::preview::previewUploadFontAtlas(renderer, *hudArt.speedDigits, dialError)) {
-                                    const int kph = std::max(0, std::min(999,
-                                        static_cast<int>(std::lround(renderSnapshot.speed / 100.f))));
-                                    const int placeX[3] = {40, 59, 78};   // 100s,10s,1s
-                                    const int placeDiv[3] = {100, 10, 1};
-                                    std::vector<rt::native::preview::HudQuad> digitQuads;
-                                    for (int p = 0; p < 3; ++p) {
-                                        if (p < 2 && kph < placeDiv[p]) continue;  // suppress leading zeros
-                                        const int d = (kph / placeDiv[p]) % 10;
-                                        digitQuads.push_back({(492 + placeX[p]) * sx, (336 + 49) * sy,
-                                                            20.f * sx, 26.f * sy,
-                                                            static_cast<float>(d * 20) / 256.f, 102.f / 128.f,
-                                                            static_cast<float>(d * 20 + 20) / 256.f, 1.f,
-                                                            {1.f, 1.f, 1.f, 1.f}});
-                                    }
-                                    std::vector<std::uint8_t> digitPixels;
-                                    if (!digitQuads.empty() &&
-                                        rt::native::preview::previewRender2DTextured(
-                                            renderer, digitQuads, {0.f, 0.f, 0.f, 0.f}, digitPixels, error))
-                                        compositeOver(pixels, digitPixels);
+                            // Pass 2: SPEED DISPLAY LAW (verified 2026-10-18
+                            // against the oracle goldens build/scratch/oracle-
+                            // golden/*.png + METER0 page atlas measurement;
+                            // supersedes the provisional /100 kph guess and the
+                            // 20x26 METER10 cells with placeX {40,59,78}).
+                            // The numeral is MPH: V = floor(speed / 55.07)
+                            // clamped 0..186, zero-suppressed num_digits(V)
+                            // quads right-aligned with the ones digit at UI
+                            // (573,388), step -17 px per higher place; each
+                            // quad 16x23 sampling METER0 (hudArt.speedDial,
+                            // 256x128) at u = 140+16*(d%7), v = 23*(d/7);
+                            // uniform white, no tint.  "mph" is baked into the
+                            // METER0 page and is never drawn separately here.
+                            // mph badge box: x 556..604, y 389..416.
+                            // GAUGE RULING: the needle law is UNRESOLVED — mph
+                            // must NOT be mapped to a needle angle from this
+                            // display law; native draws no needle (backlog).
+                            if (hudArt.speedDial) {
+                                int mph = static_cast<int>(std::floor(renderSnapshot.speed / 55.07));
+                                mph = std::max(0, std::min(186, mph));
+                                const int nd = (mph >= 100) ? 3 : (mph >= 10) ? 2 : 1;
+                                const int placeDiv[3] = {100, 10, 1};
+                                std::vector<rt::native::preview::HudQuad> digitQuads;
+                                for (int p = 0; p < 3; ++p) {
+                                    if (p < 3 - nd) continue;  // suppress leading zeros
+                                    const int d = (mph / placeDiv[p]) % 10;
+                                    const float u0 = static_cast<float>(140 + 16 * (d % 7)) / 256.f;
+                                    const float v0 = static_cast<float>(23 * (d / 7)) / 128.f;
+                                    digitQuads.push_back({(573 - 17 * (2 - p)) * sx, 388.f * sy,
+                                                        16.f * sx, 23.f * sy,
+                                                        u0, v0, u0 + 16.f / 256.f, v0 + 23.f / 128.f,
+                                                        {1.f, 1.f, 1.f, 1.f}});
                                 }
+                                std::vector<std::uint8_t> digitPixels;
+                                if (!digitQuads.empty() &&
+                                    rt::native::preview::previewUploadFontAtlas(renderer, *hudArt.speedDial, dialError) &&
+                                    rt::native::preview::previewRender2DTextured(
+                                        renderer, digitQuads, {0.f, 0.f, 0.f, 0.f}, digitPixels, error))
+                                    compositeOver(pixels, digitPixels);
                             }
                             // Pass 3: time-of-day clock in the gauge's dark
                             // bottom band — oracle town_driving.png shows teal
@@ -2653,31 +2663,36 @@ int main() {
                                         renderer, colon, {0.f, 0.f, 0.f, 0.f}, colonPixels, error))
                                     compositeOver(pixels, colonPixels);
                             }
-                            // Oracle minimap, adjudicated against the full-res
-                            // oracle goldens 2026-10-18 (build/scratch/oracle-
-                            // golden/*.png, 1280x447 shot px -> design units
-                            // x/2, y*448/447).  TOWN pill: chrome plate rounded
-                            // rect (34,304,134,112) corner r~10 with a bright-
-                            // top bevel y 304..305.5 x 42..161 and a bottom
-                            // edge y 416 x 46..159; dark-green side grips
-                            // (34,343,7,42) and (162,343,7,42); lavender field
-                            // (45,312,113,102) centred (101.5,363) — the field
-                            // is the scissor rect times two exactly.  Roads navy
-                            // (45,45,116) stamped from the Peach Town street
-                            // graph (townGraph(1)); red car dot 2.6px at field
-                            // centre (north-up map, car always centred).
-                            // Projection = the game's own near zoom: 0.25 field
-                            // px per tile unit with the 0.47 vertical squash
-                            // (W2-11 law, DAT_00332CAC = -0.47) rescaled to the
-                            // measured field -> kKx = .25, kKy = .1175.  The
-                            // superseded v14 constants were dashcam-derived and
-                            // the dashcam PNGs carry a ~54 shot-px letterbox bar
-                            // that was never subtracted, which pushed that pill
-                            // ~24 design px too low (see the .qoder/wave-board.
-                            // md journal).  Green road marks + brown house blobs
-                            // remain live-state / un-grounded GAPs.  In a RACE
-                            // the oracle's map element is a different layout
-                            // entirely — see the race-map v1 block below.
+                            // Oracle town minimap, re-adjudicated 2026-10-18
+                            // directly against build/scratch/oracle-golden/*.png
+                            // (1280x447 shot px -> design x/2, y*448/447).
+                            // Chrome plate rounded rect (35,301,135,145) corner
+                            // r~8; the lavender map field (44,309,116,105) sits
+                            // in the UPPER plate with a chrome bar below it down
+                            // to y~446 (row-scan: field ends ~y414, chrome gray
+                            // continues to y446); dark-green grips (0,104,8) at
+                            // x 31..40 and 162..171, y 336..386; roads navy
+                            // (45,45,116) ~3 design px wide stamped from the
+                            // Peach Town street graph (townGraph(1)); red car
+                            // dot 3.25x4.5 design px.  Scroll law RESOLVED
+                            // 2026-10-18 (coordinator mask fit): roads shift
+                            // (+6,-9) png px between town_driving.png and
+                            // town_driving_street.png (road-mask residual
+                            // 3276 @shift 0 -> 496 @best shift), while the car
+                            // dot sits at the field centre (px ~206,365 vs
+                            // centre 205,362) — a car-centred north-up world
+                            // window that scrolls with the car, NOT a static
+                            // window; native's car-centred projection is the
+                            // right model.  Zoom per the ELF §1 handler law
+                            // (minimap.md: mapViewMatrix 0x21F920, x scale s =
+                            // 0.20 working estimate from road-grid spacing, y
+                            // scale s * 0.47 squash, DAT_00332CAC = -0.47; the
+                            // equal-axis kKy = 0.20 estimate came from the now
+                            // disproved static-window reading) (grid
+                            // spacing ~7.5-10 px per 50 world units on x).  Green
+                            // route dashes are a GAP.  In a RACE the oracle's
+                            // map element is a different layout entirely — see
+                            // the race-map v1 block below.
                             {
                                 const char* mmEnv = std::getenv("RT_APP_MINIMAP");
                                 const bool drawMinimap = !(mmEnv && std::string_view(mmEnv) == "0");
@@ -2697,8 +2712,8 @@ int main() {
                                 std::vector<rt::native::preview::ScreenQuad> mapQuads;
                                 if (drawMinimap && !mmRace) {
                                     // Rounded pill body rasterised in 1-UI-px rows
-                                    // (golden-truth corner radius ~10 design px).
-                                    constexpr float kPx = 34.f, kPy = 304.f, kPw = 134.f, kPh = 112.f, kRad = 10.f;
+                                    // (golden-truth corner radius ~8 design px).
+                                    constexpr float kPx = 35.f, kPy = 301.f, kPw = 135.f, kPh = 145.f, kRad = 8.f;
                                     for (float yy = 0.f; yy < kPh; yy += 1.f) {
                                         float inset = 0.f;
                                         if (yy < kRad)
@@ -2709,20 +2724,27 @@ int main() {
                                         mapQuads.push_back({(kPx + inset) * sx, (kPy + yy) * sy,
                                                           (kPw - 2.f * inset) * sx, h * sy, kChrome});
                                     }
-                                    // Frame bevel: bright top edge (y 304..305.5,
-                                    // x 42..161 in design units) and the darker
-                                    // bottom edge row measured at y ~416.
-                                    mapQuads.push_back({42.f * sx, 304.f * sy, 119.f * sx, 1.5f * sy, kChromeHi});
-                                    mapQuads.push_back({46.f * sx, 414.f * sy, 113.f * sx, 2.f * sy, kChromeLo});
-                                    // Dark-green grip blocks, both ends.
-                                    mapQuads.push_back({34.f * sx, 343.f * sy, 7.f * sx, 42.f * sy, kGrip});
-                                    mapQuads.push_back({162.f * sx, 343.f * sy, 7.f * sx, 42.f * sy, kGrip});
-                                    // Field + roads + car.
-                                    constexpr float kFx = 45.f, kFy = 312.f, kFw = 113.f, kFh = 102.f;
+                                    // Frame bevel: bright top edge along the new
+                                    // plate top (y ~301, x 42..161) and the
+                                    // darker bottom edge row near the plate foot
+                                    // (chrome bar below the field, y ~444).
+                                    mapQuads.push_back({42.f * sx, 301.f * sy, 119.f * sx, 1.5f * sy, kChromeHi});
+                                    mapQuads.push_back({46.f * sx, 444.f * sy, 113.f * sx, 2.f * sy, kChromeLo});
+                                    // Dark-green grip blocks, both ends (golden x
+                                    // 31..40 and 162..171, y 336..386).
+                                    mapQuads.push_back({31.f * sx, 336.f * sy, 9.f * sx, 50.f * sy, kGrip});
+                                    mapQuads.push_back({162.f * sx, 336.f * sy, 9.f * sx, 50.f * sy, kGrip});
+                                    // Field + roads + car.  Lavender field sits in
+                                    // the UPPER plate (golden-truth 44,309,116,105;
+                                    // chrome bar continues below to y~446).
+                                    constexpr float kFx = 44.f, kFy = 309.f, kFw = 116.f, kFh = 105.f;
                                     mapQuads.push_back({kFx * sx, kFy * sy, kFw * sx, kFh * sy, kField});
                                     const float carUiX = kFx + kFw * .5f, carUiY = kFy + kFh * .5f;
-                                    constexpr float kKx = .25f;
-                                    constexpr float kKy = .47f * .25f;
+                                    // Working zoom kKx = kKy = 0.20 design px per
+                                    // world unit (grid spacing 7.5-8.5 px per 50
+                                    // units); no 0.47 squash on the map.
+                                    constexpr float kKx = .20f;
+                                    constexpr float kKy = .20f;
                                     for (const auto& sgm : mmRoads) {
                                         const float ax = carUiX + (sgm[0] - renderSnapshot.carPosition.x) * kKx;
                                         const float ay = carUiY - (sgm[1] - renderSnapshot.carPosition.z) * kKy;
@@ -2734,10 +2756,12 @@ int main() {
                                             const float t = static_cast<float>(i) / static_cast<float>(steps);
                                             const float px = ax + dx * t, py = ay + dy * t;
                                             if (px < kFx || px > kFx + kFw || py < kFy || py > kFy + kFh) continue;
-                                            mapQuads.push_back({(px - .8f) * sx, (py - .8f) * sy, 1.6f * sx, 1.6f * sy, kRoad});
+                                            mapQuads.push_back({(px - 1.5f) * sx, (py - 1.5f) * sy, 3.f * sx, 3.f * sy, kRoad});
                                         }
                                     }
-                                    mapQuads.push_back({(carUiX - 1.3f) * sx, (carUiY - 1.3f) * sy, 2.6f * sx, 2.6f * sy, kCarDot});
+                                    // Car dot 3.25x4.5 design px (golden px
+                                    // 200..213 x 361..370 in the town shots).
+                                    mapQuads.push_back({(carUiX - 1.625f) * sx, (carUiY - 2.25f) * sy, 3.25f * sx, 4.5f * sy, kCarDot});
                                 }
                                 std::vector<std::uint8_t> mapPixels;
                                 if (drawMinimap && !mmRace && !mapQuads.empty() &&

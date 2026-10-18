@@ -24,10 +24,10 @@ Loop: read byte; `00..7F` = set countdown to that many ticks. Else:
 | `E2 pp` | `tone_chg` | TVB program slot |
 | `E3 tt` | `tempo` | 2 ops (consumes u16; master tempo scale) |
 | `E4 pp pp` | `pitch` | u16 |
-| `E5 pp pp` | `key_pitch` | u16 bend multiplier at +0xC (`freq = freqtbl*mult>>12`) |
+| `E5 pp pp` | `key_pitch` | u16 **absolute freq stored at +0xE**, re-triggers the voice (`key_pitch 0x4A40`); corrected per `audio-runtime.md` re-disassembly — the old "bend multiplier" claim was wrong |
 | `E6 m` / `E7 d` | `set_rev_mode` / `set_rev_depth` | 1 op each — **confirmed** (previously "plausible") |
 | `E8` / `E9` | reverb-on / reverb-off flag (+0x17) | 0 op — **confirmed** |
-| `EA cc cc` | `pitch_cent` | u16 cents |
+| `EA cc cc` | `pitch_cent` | u16 stored as the Q12 **bend multiplier at +0xC** (`pitch_cent 0x48BC`, `sh +0xC`); corrected per `audio-runtime.md` |
 | `F0` | `key_off` | |
 | `F1 a` | `pri_chg` | 1 op — voice priority byte |
 | `F8 dd dd` | `data_jump` | signed 16-bit delta added **after** the two operand bytes (matches our implementation) |
@@ -47,7 +47,7 @@ correct up to the global master scalar.
 the table halves/doubles every 12 keys (octave) from key 0 (256) up through
 key 71 (15464). Example entries: k0=256, k12=512, k24=1024, k36=2048,
 **k48=4096**, k60=8192. `key_on` computes
-`freq = freqtbl[key] * bendMult >> 12` (`bendMult` from E5, 0 = disabled).
+`freq = freqtbl[key] * bendMult >> 12` (`bendMult` from **EA**, 0 = disabled; was mis-attributed to E5).
 
 ## File loading
 

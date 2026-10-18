@@ -49,53 +49,75 @@ lines 102--129 implement the PSMT4+CT16 path (including the nontrivial CSA
 base), and lines 70--99/206--224 show the PSMT8 CT32/CT16 paths.  For this
 actual file the PSMT8+CT32 path is sufficient.
 
-## Native speed divisor
+## Speed display law (mph) — coordinator ruling 2026-10-18
 
-The current renderer in `src/native/app/main.cpp:2478-2479` displays
-`round(renderSnapshot.speed / 100.0)` and calls that value `kph`; it therefore
-uses **100 native speed units per displayed unit**.  `race-v13.ppm` contains
-no gauge (the lower-right crop is uniform), so it cannot tie a native numeric
-sample to either 63 or 99.  It must not be cited as a validation capture.
+The speed display law is **MPH** (supersedes the former `round(speed / 100)` "kph" provisional mapping and the
+divisor candidate table; the oracle frames `race_hud_driving.png` = 63 and `race_hud.png` = 99 show the baked
+`mph` label):
 
-Candidates, ordered by what is actually established:
+* `V = floor(speed_word / 55.07)`, clamped to `0..186`.
+* Drawn as **right-aligned 16x23 quads**, ones digit at design position **(573, 388)**, **step -17 px per digit**
+  (tens at 556, hundreds at 539).
+* Digit texels on **METER0** (256x128 atlas page; native id `hudArt.speedDial`):
+  `u = (140 + 16*(d % 7)) / 256`, `v = (23*(d / 7)) / 128` (integer division on `d / 7`).
+* Uniform white vertex colour.
+* The `mph` text is **baked into the METER0 page**; it is not drawn separately.
+* Badge box: x 556..604, y 388..416 (design px).
+* Grounding: coordinator ruling 2026-10-18 (earlier-wave verified); oracle PNGs `race_hud_driving.png` /
+  `race_hud.png`. GAP: the ELF vaddr of the divisor constant is not recorded in this doc.
+* `race-v13.ppm` contains no gauge (lower-right crop uniform) and is not a validation capture.
 
-| native units / displayed unit | status | reason |
-|---:|---|---|
-| 100 | current/provisional | exactly the live main.cpp mapping; no paired capture validates it |
-| 107.5269 | plausible cap-constrained alternative | `car_physics.cpp` caps the authored host state at 20000; this maps it to the shipped 186-mph HUD cap (`20000 / 186`) |
-| 66.85 | only if the consumer deliberately wants kph text/value | maps 20000 to the original 299.27-kph equivalent, but conflicts with the dial's `mph` label |
+**Do not** derive the needle angle from this display law (see below).
 
-The shipped speed algebra is more specific but is in a different raw-speed
-domain: `rules_tables.{h,cpp}` says `mph = raw / 1.6089999676`, integer
-truncated and capped at 186 (`kSpeedoMphDivisor`).  Until a capture records
-both `renderSnapshot.speed` and the displayed digits, the conversion between
-the host car's 0..20000 units and that raw domain is OPEN.  Recommendation:
-keep /100 only as a labelled provisional choice; prefer 107.5269 when the
-host cap is intended to coincide with the shipped 186-mph full scale.
+## Needle geometry and input law — resolved 2026-10-18 (W4-11)
 
-## Needle geometry
+The 1P METER0 needle is a **tachometer**, not a speedometer.  Its input is the
+signed engine-RPM halfword at `car + 0x1D0`; it is independent of the displayed
+MPH word and its gear byte remains `car + 0x1FF`.
 
-Angles use the conventional screen-space gauge convention: hub-to-tip, 0° =
-right, +90° = up.  A difference mask between the two static dial rasters
-isolates the two moving needle components.  PCA of each component gives:
+`0x249DD0` calls `CalculateTachometerValue(car, 0, 1)`; the helper at
+`0x249520` loads `lh v0,0x1D0(a0)`, caps values above `10000`, and returns the
+result unchanged because its scale parameter is zero.  The handler converts
+that value to float, divides by `10000.0f`, adds `-0.7f`, then stores it as the
+RotQuads z-rotation (`0x249DE4..0x249E0C`, `0x249EDC`).  RotQuads applies its
+half-turn convention, so the exact law on the physical runtime domain
+`0 <= rpm <= 10000` is:
 
-| frame | displayed mph | hub (px) | component bbox (px, exclusive) | angle |
-|---|---:|---|---|---:|
-| `race_hud_driving` | 63 | (1103, 360) | (1066,303)--(1116,360) | **+118.80°** |
-| `race_hud` | 99 | (1103, 360) | (1166,353)--(1202,366) | **+0.36°** |
+```text
+theta_rad = pi * (rpm / 10000 - 0.7)
+```
 
-A two-point affine fit in displayed-mph units is
+Here `theta=0` points up and positive rotation is clockwise on screen.  Thus
+idle is `-126°`, and the full scale is `+54°`.  The producer
+`AdvanceVehicleMotion` (`0x218EE0`, stores at `car+0x1D0`) clamps the field to
+`0..10000`; its gear-ratio use at `car+0x22C + 2*gear` supplies the semantic
+cross-check that this is engine RPM, rather than vehicle speed or animation.
 
-`angle_deg = 326.07 - 3.2900 * mph`  (equivalently rest angle `-33.93°`).
+The constants are ROM-pinned by `tests/native_w11/gauge_needle_test.cpp`:
+`pi` (`0x40490FDB`), divisor `10000.0f`, and bias `-0.7f`; the test also pins
+the load/call/divide/add/store instructions above.  The host primitive is
+`src/native/gameplay/gauge_needle.h`; integration is deliberately gated by
+`kRaceHudNeedleLawResolved` in `race_hud_layout.h`, which W4-11 does not edit.
 
-Its residuals are 0.00° for each supplied point because two points determine
-two coefficients; that is **not** independent confirmation.  It is only a
-candidate mapping, and `main.cpp` currently has **no needle render or needle
-mapping** (only the METER0 dial blit and METER10 digit quads at 2440--2497).
-The physically surprising extrapolated rest angle is a warning not to commit
-this fit without at least one low-speed frame.  If the needle is driven from
-native units directly, combine it with divisor `D` as
-`angle = -33.93 - 3.2900 * (speed / D)`.
+The authored quad is entry 1, CSA 12, `u=3,v=53,8x59`, pivot at dial-origin
+`+(70,68)` = design `(554,362)`, with strip vertices
+`(-4,-59),(4,-59),(-4,0),(4,0)`.  It is drawn before the 12x12 hub cap
+(`u=16,v=80`, pivot-independent at design `(548,358)`).
+
+Angles below are measured design-space hub-to-tip angles (`0=right`, positive
+CCW).  Converting them to the rotation convention (`theta = 90° - tipAngle`)
+and inverting the ROM law produces plausible, distinct engine states: near
+idle for no throttle and mid-range RPM while driving.  This validates the law
+without fitting it to MPH.
+
+| frame | displayed mph | design tip angle | implied RPM from ROM law | note |
+|---|---:|---:|---:|---|
+| `race_hud.png` | 39 | -146.11° | ~117 | no throttle; near idle |
+| `race_hud_driving.png` | 63 | +104.09° | ~6,217 | driving; mid-range |
+
+The former `(1166,353)--(1202,366)` shot-pixel box is the **gear plate**, not
+the needle, and must not be used for PCA or a speed-to-angle fit.  The old
+two-point MPH affine mapping is withdrawn.
 
 ## Embedded reproduction Python
 

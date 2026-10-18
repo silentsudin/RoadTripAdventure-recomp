@@ -61,7 +61,7 @@ Decoded scripts (semantics only; the module stores no verbatim record bytes):
 |---|---|---|
 | `0x0020A660` | per-frame pad-input update that also services rumble (per player, `slti … 2` loop bound ≡ 2 ports) | CONFIRMED |
 | `0x0020A6B0`–`0x0020A6C4` | hold counter (gp-0x5458+player) decrements once per frame; 0 → execute next opcode | CONFIRMED |
-| `0x0020A708`–`0x0020A7E0` | opcode dispatch: `0x80` small on, `0x81` small off, `0x82 <lit>` large = literal, `0x83` large off, `0x84` large = stored event strength (gp-0x5450+player read at `0x0020A7B4`), literals `0x01..0x7F` = frame hold, `0xFF` = end (all motors off, pointer cleared) | CONFIRMED |
+| `0x0020A708`–`0x0020A7E0` | opcode dispatch: `0x80` small on, `0x81` small off, `0x82 <lit>` large = literal, `0x83` large off, `0x84` large = stored event strength (gp-0x5450+player read at `0x0020A7B4`), and **every other byte except `0xFF`** is a frame hold via the default arm `0x0020A7E0` (`lbu` then `sb` to the counter): this includes `0x00` (zero-frame, immediately continues) and `0x85..0x8B` (133..139-frame holds), not only `0x01..0x7F`; `0xFF` = end (all motors off, pointer cleared) | CONFIRMED |
 | `0x0020A760`/`0x0020A770` | small motor is **binary** (0/1) | CONFIRMED |
 | `0x0020A85C`/`0x0020A864` | per-player actuator pair cleared: small at gp-0x5448+2p, large at gp-0x5447+2p | CONFIRMED |
 | `0x0020A7FC`–`0x0020A878` | idle/park sweep around the motors (counter to 0x168, clears at ≥0xB4) — purpose | INFERRED |

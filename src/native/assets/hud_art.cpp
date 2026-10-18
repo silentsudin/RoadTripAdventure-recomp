@@ -129,6 +129,25 @@ bool decodePsmt4Ct16(std::span<const std::uint8_t> gsl, const Unit& tex, const U
     return true;
 }
 
+bool decodePageAt(std::span<const std::uint8_t> gsl, std::size_t imageOffset,
+                  std::uint32_t width, std::uint32_t height, int clutBaseEntry,
+                  preview::PreviewTexture& out) {
+    std::size_t at = 0;
+    while (at + 16 <= gsl.size() && gsl[at + 3] != kEnd) {
+        Unit texture, palette;
+        std::size_t after = 0;
+        if (!parseUnit(gsl, at, texture, after)) return false;
+        if (texture.pixels == imageOffset && texture.psm == kPsmT4 &&
+            texture.width == width && texture.height == height) {
+            if (!parseUnit(gsl, after, palette, after) || palette.psm != kPsmCt16 ||
+                palette.width != 16 || palette.height != 16) return false;
+            return decodePsmt4Ct16(gsl, texture, palette, out, clutBaseEntry);
+        }
+        at = after;
+    }
+    return false;
+}
+
 std::filesystem::path packagedRoot() {
     if (const char* a = std::getenv("RT_ASSET_DIR"); a && *a) return std::filesystem::path(a);
     if (const char* d = std::getenv("RT_DATA_DIR"); d && *d) return std::filesystem::path(d) / "assets";
@@ -265,6 +284,10 @@ HudArt loadHudArt(const std::filesystem::path& discRoot) {
         preview::PreviewTexture digitsTex;
         if (!art.speedDigits && decodeMeterDial(bytes, digitsTex) && hasSpeedDigitRow(digitsTex))
             art.speedDigits = std::move(digitsTex);
+        // METER0's second image begins at 0x8550.  Its 16x16 CT16 palette
+        // follows immediately; CSA 12 starts at palette entry 192.
+        if (!art.gaugePage && decodePageAt(bytes, 0x8550, 128, 120, 12 * 16, tex))
+            art.gaugePage = std::move(tex);
         if (art.speedDial && art.speedDigits) break;
     }
     for (const auto& path : scoreAtlasPaths(discRoot)) {
@@ -279,6 +302,14 @@ HudArt loadHudArt(const std::filesystem::path& discRoot) {
             if (decodeRaceAtlas(bytes, banner, 56)) art.raceBanner = std::move(banner);
             else if (const char* dbg = std::getenv("RT_APP_CARDIAG"); dbg && *dbg == '1')
                 std::cerr << "hudart: raceBanner CSA1 decode failed\n";
+            // SCORE entry 1 starts at 0x8350.  Its palette has the same
+            // CSM1 layout as entry 0: CSA n begins at 48 + n*8 entries.
+            preview::PreviewTexture lapDigits;
+            if (decodePageAt(bytes, 0x8350, 256, 256, 48 + 7 * 8, lapDigits))
+                art.lapDigits = std::move(lapDigits);
+            preview::PreviewTexture lapDisc;
+            if (decodePageAt(bytes, 0x8350, 256, 256, 48 + 8 * 8, lapDisc))
+                art.lapDisc = std::move(lapDisc);
             break;
         }
     }

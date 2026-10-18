@@ -119,6 +119,7 @@ add_library(rt_native_assets STATIC ${RT_NATIVE_ASSET_SOURCES})
 target_include_directories(rt_native_assets PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_features(rt_native_assets PUBLIC cxx_std_20)
 target_compile_options(rt_native_assets PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w5" "${CMAKE_CURRENT_BINARY_DIR}/native_w5")  # W4-05 media + w5 tests
 
 # ---------------------------------------------------------------- Android app
 # SDL's Android activity loads a single libmain.so. Keep this branch before the
@@ -258,6 +259,12 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
         target_compile_options(w2_${_rt_w2_test_we} PRIVATE ${RT_NATIVE_WARN_OPTIONS})
     endforeach()
 
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w8" "${CMAKE_CURRENT_BINARY_DIR}/native_w8")  # W4-08 script_ops_test
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w4" "${CMAKE_CURRENT_BINARY_DIR}/native_w4")  # W4-06 race_hud_layout_test
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w12" "${CMAKE_CURRENT_BINARY_DIR}/native_w12")  # W4-12 HUD GSL pages
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w11" "${CMAKE_CURRENT_BINARY_DIR}/native_w11")  # W4-11 gauge_needle_test
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w14" "${CMAKE_CURRENT_BINARY_DIR}/native_w14")  # W5-03 race state probe
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w13" "${CMAKE_CURRENT_BINARY_DIR}/native_w13")  # W5-01 gauge_rpm_test
     add_executable(w3_enhancements_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/enhancements_app_test.cpp")
     target_link_libraries(w3_enhancements_test PRIVATE rt_native_assets)

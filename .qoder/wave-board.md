@@ -59,16 +59,72 @@ Reports: .qoder/wave2/W2-<NN>-report.md.
 | W2-13 | enhancement registry | anthropic (re-dispatched; hf id rejected) | claude-sonnet-5-5 | VERIFIED registry=50 coverage=51/51 ledger=17/17; scripts/w2_retention_gate.py PASS independently |
 | W2-04r | terrain Y amended acceptance | xai continue | grok-4.7 | r2 BLOCKED correctly (brief cited w2_score_v2.py/project()/px law not in tree; worker stopped instead of fabricating — postmortem in plan-journal). Superseded by W2-04r3 (anthropic sonnet-5-5, fresh derivation authorized) |
 
+## Wave 3 — DONE (integrated + pushed 7fecaa7)
+Order W3-01 -> 06 -> 04 -> 02 -> 03 -> 05. Six workers delivered; all clean-room verified.
+| ID | Task | Status |
+|----|------|--------|
+| W3-01 | proportional text metrics (pen) | WIRED — src/native/preview/text_metrics.h |
+| W3-02 | race graphs by course byte | WIRED — directory stride 8 @0x002bd578 (no deref), 24B nodes, id11->6/id16->15 remaps @0x24FDC8; staticGraph(courseByte) |
+| W3-03 | town collision grid | MODULE VERIFIED (collision_grid.h), NOT INTEGRATED — needs setTownCollisionGrid on GameLoop + resolve in integrateCar + build at NavRouteTables::open via townGraph(1) |
+| W3-04 | save/load slot env seams | WIRED — RT_APP_LOAD_SLOT/RT_APP_SAVE_SLOT default OFF (matrix determinism); title save-menu UI remains GAP |
+| W3-05 | event bridge | WIRED — 0x85..0x8B are rumble-hold bytes (NOT radio/cutscene); unknown-width records stop walk; drain before session.update |
+| W3-06 | enhancements app registry | WIRED — RT_ENHANCE_* at env-read points, legacy RT_APP_* precedence; ssaa + physics_hz registered, NO application site -> logged GAP, not fake-wired |
+Green sweep at 7fecaa7: 171 native + 25 w2/w3 binaries, 0 failures. NOTE: ctest is EMPTY by design — sweep = run build/native/*_test binaries directly + w2/w3 from repo root.
+
+## Clobber incidents (journal)
+- #1+2 (commits b01a7bc/a31b1d7): parallel session carried a clobbered main.cpp — mph-law /
+  radio-move / town-golden-truth / gauge-note blocks absent from blobs; LOST from tree AND history.
+  Recovered from coordinator constants; re-applied 2026-10-18 on top of 7fecaa7 (mph law Pass 2,
+  town golden-truth constants, gauge-discrepancy note). Mitigation: commit every green increment
+  IMMEDIATELY; workers never touch main.cpp.
+- Radio-panel MOVE constants were lost and are NOT reconstructable from summary -> backlog: re-measure
+  radio panel position vs oracle goldens before re-applying (never committed, low risk).
+
+## Minimap static-window ruling RESOLVED (was wrong)
+Fresh mask fit 2026-10-18 (coordinator, town_driving vs town_driving_street, navy mask L2<=30 over
+field): residual 3276 @shift0 -> 496 @(+6,-9) png px; car dot at field centre in both frames.
+=> MAP SCROLLS WITH CAR (north-up, car-centred) — earlier "byte-static" claim disproved.
+Native car-centred projection is correct. Zoom: per ELF minimap.md §1 (mapViewMatrix 0x21F920):
+x scale s=0.20 working estimate, y scale s*0.47 squash (DAT_00332CAC=-0.47) — equal-axis kKy=0.20
+came from the disproved static reading; squash restored. minimap.md §0.1 needs this same update.
+
+## Wave 4 — DISPATCHED 2026-10-18 ~11:50 (anthropic lanes until a dispatch ERRORS = credits out, user ruling)
+| ID | Task | Lane | Status |
+|----|------|------|--------|
+| W4-05 | dashcam footage pipeline (AVP research + dashcam_source.{h,cpp}) | anthropic opus-5-5 high | DONE — src/native/media/dashcam_source.{h,cpp} + tests/native_w5 (234 checks ROM+disc+ffmpeg / 220 ROM-less); env dirs RT_DASHCAM_DIR>android-dev>RT_SAVE_DIR/dashcam>app-local>./dashcam; ffmpeg/ffprobe subprocess-only; registry rows dashcam_dir/ffmpeg_binary/ffprobe_binary added to enhancements.cpp table (DocOnly) + csv/json regenerated via rt-w2-enh_registry. KEY FINDING: ROM ships NO video (0 IPU/MPEG accesses; in-game replay = input re-render, AcquireVehicleInput 0x21A990, SaveControlStateForReplay 0x21CBC8, buffer 0x100000..0x1FFFF8 12B stride). Panel units RESOLVED: fit is oracle-1280-space -> source px: crop_from_design(x,y,w,h)=(3x, 1.5y+317, 3w, 1.5h); clip naming <C-stem>[_n].<ext> UNPROVEN. Not consumed by main.cpp yet |
+| W4-06 | race HUD element layout (race_hud_layout.h + race_hud.h + fixtures) | anthropic opus-5-5 xhigh | DONE + coord-verified (463 checks pass vs real goldens+ELF, negative controls genuine) — 23 elements ROM+PNG confirmed within 2 design px; total/lap banners (20,20)/(490,20), ElementC panels y52, rank badge (40,88) digits 1:1, dial 140x128 @(484,294) [0x2A8FF0; (492,336) w132 = 2P anchor 0x2A9AF0], gear digit 20x14 @(581,354) u=(g%5)*20+140 v=(g/5)*16+80 g=car+0x1FF. Timer digits = SCORE.GSL page v=64 row pitch 14 (NOT FONTE 12 / METER0 17); capsule = CSA1 texel (32,24,64) @ alpha 0.509 (not opaque 87,109,159). NEEDLE: dial is 0..10 scale ~18.2deg/numeral, rests at 0 while display reads 39 mph -> NOT mph; law still GAP, nothing draws needle. PENDING coord: main.cpp integration, 4 doc corrections, SCORE.GSL @0x8350 + METER0 @0x8550 decode (stand-ins in place) |
+| W4-08 | script VM opcode canon + ElementA F3/countdown (script_ops.{h,cpp}) | anthropic sonnet-5-5 high | DONE — script_ops.{h,cpp} 3 dialects TownPrefix/PadPattern/TsqTrack, 256-row width tables (op 0x03 w4, 0x08 w3, 0x0E w7), walkRecord; 1514 checks ROM / 617 ROM-less; rumble 0x85..0x8B = 133..139-frame holds via pad interp default arm 0x20A7E0; pad holds ALL bytes except 0x80..0x84 and FF (incl 0x00); delta-0 delay=65536; F3 unproven (falls to 0x5640 terminate arm); EA/E5/F9 = SNDMOD play 0x5294, not road sections. script_ops.cpp test-compile only — add to rt_native_assets when event-drain consumer lands |
+| W4-09 | docs corrections (7 rulings) | anthropic sonnet-5-5 medium | DONE — all applied; its 7(a) static-window challenge RESOLVED above (scrolls with car); tsq-tvb-format.md:64/65/112 E5 text still stale (follow-up) |
+| W4-10 | speed-law constant harmonization | anthropic haiku-5-5 high | DONE — hud_live.h + hud_layout.h + new w2_hud_layout_test + patches A(hostMph clamp)/B(hud_live_test:327)/C(test_hud_layout rect+origin) applied by coordinator. OPEN: shippedMphFromRaw (216/1.609 chain) contradicts 55.07 law — unreconciled, not displayed path; 2P METER10 geometry unverified |
+Provider snapshot 11:48: openai 80% 5h / 73% wk; anthropic credits confirmed WORKING (5 dispatches accepted despite probe 429); zai probe "configured" but dispatches failed on key — still dead until a dispatch succeeds; opencode-go wk 0% banned.
+
+## Wave 5 — DISPATCHED 2026-10-18 ~12:45 (anthropic lanes until a dispatch ERRORS, user ruling)
+| ID | Task | Lane | Status |
+|----|------|------|--------|
+| W4-11 | gauge needle input law (tach hypothesis: needle angle source in UpdateRaceHud 0x2490A0 handler 0) | openai gpt-5.6-terra | DONE + coord-verified (fresh build, checks=8 failed=0, negative_control=CAUGHT, ROM-less SKIP ok; ROM chain disassembled independently: handler 0x249DC0 jal 0x249520 lh car+0x1D0 cap 10000, div.s 10000.0f @0x332F50, add.s -0.7f @0x332F54). LAW: theta=pi*(rpm/10000-0.7), 0=up CW; goldens consistent (117 RPM coast 39mph / 6217 RPM @63mph under CCW=90deg-theta_cw). Native rpm input still GAP -> needle stays undrawn; kRaceHudNeedleLawResolved flip = coordinator call at integration commit |
+| W4-12 | decode SCORE.GSL unit @0x8350 + METER0.GSL @0x8550 gauge page into HudArt (kill W4-06 stand-ins) | openai gpt-5.6-terra | DONE + coord-verified (fresh w12_hud_pages_test passed + native_hud_art_test green). HudArt += lapDigits (CSA7 cells u=lap*8 v=200 8x16), lapDisc (CSA8 u=232 v=168 24x24), gaugePage (CSA12 128x120 needle 3,53,8,59 hub 16,80,12,12 arc 40,48,20,60). Swap into W4-06 integration |
+Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is required"; USER RULING 2026-10-18: **Anthropic is no longer an agent provider** — dispatch openai/gpt-5.6-terra (or other remote providers) only from now on. Never opencode-go, never local (strata/omlx). W4-11/12 running on openai (ses_eb11ecce5ffeYDraODK1bFn31V, ses_eb11e82b0ffey4yWVPwk0GF9L4). Patch D APPLIED by coordinator (race_hud.h stale (532,385) comment -> mph law). Matrix settings-row hang under investigation (stack capture watchdog armed).
+
 ## Open GAPs / arbitration (coordinator-owned)
-- Speed unit scale: native speed/100 = 184/190 vs oracle 39/63 mph at race frames
-  2446/3177. Divisor matches rounding (0.625px); native physics ~4.7x guest raw
-  units. Fit from vehicle_trace.csv at W2-03 integration.
-- Digit page 1P vs 2P: A/B rescore at integration (METER0 1P vs current METER10).
-- gauge-calibration.md needle table superseded by hud-live.md (rpm-based).
-- script-vm.md §5.1 vs gsl-vm.md op-handler width: arbitration folded into W2-07.
-- Needle fit: needs >=4 oracle frames with rpm -> extend capture contract
-  (RT_CAPTURE_EXTRAS rpm logging).
-- Menu edge density 0.27, race 0.29 vs oracle (missing detail) — wave-2 modules target.
+- ~~Speed unit scale~~ RESOLVED: SPEED LAW V=floor(word/55.07) clamp 0..186 mph, METER0 digits
+  (573,388) step -17 16x23 u=140+16(d%7) v=23(d/7), white; mph baked in METER0; badge 556..604x389..416.
+- ~~Digit page 1P vs 2P~~ RESOLVED: METER0 (speedDial) for 1P; METER10 kept only for 2P handler-10.
+- ~~Needle law~~ RESOLVED by W4-11 (coord ROM-verified): theta=pi*(clamp(rpm,0,10000)/10000-0.7),
+  0=up positive CW; input = signed car+0x1D0 engine RPM (NOT mph). Goldens consistent: tip -146.11 deg
+  (CCW atan2) = 90-(-123.9) -> 117 RPM coast @39mph; +104.09 -> 6217 RPM @63mph. ROM: handler 0x249DC0
+  -> CalculateTachometerValue 0x249520 (lh +0x1D0, cap 10000 args (car,0,1)), /10000.0f -0.7f, half-turn
+  into uiArenaRotQuads +0x88. REMAINING GAP: native has no rpm source (AdvanceVehicleMotion 0x218EE0
+  gear-ratio chain) -> needle undrawn until physics exposes rpm.
+- W4-06 pending coord: main.cpp race-block integration (HANDOFF-W4-06 §Integration notes; keep mph
+  pass unchanged, no needle); 4 doc corrections (hud-layout 1.1 banner + per-player badge = LAPTIME,
+  race-hud-atlas rank 1:1 + capsule color, gauge-calibration needle row) — apply after integration commit.
+- W4-06 open: native FrameSnapshot inputs missing — race place (rank is time-rank, NOT place),
+  per-lap frame counter, gear (car+0x1FF).
+- W4-10 item: shippedMphFromRaw vs 55.07 law contradiction (reconcile before reuse).
+- W3-03 collision grid integration (see Wave 3 table).
+- script-vm 0x85..0x8B rumble wiring into main.cpp event drain.
+- Title/save-menu UI; ElementA countdown + F3; ssaa/physics_hz application sites.
+- Dashcam fit refinement (73.3% IoU at scale 1.5, yoff ~317).
 
 ## Score history
 v9 0.655/0.703/0.478/0.481 · v10 0.872/0.706/0.597/0.471 · v12 same+car span 2.2 RU ·

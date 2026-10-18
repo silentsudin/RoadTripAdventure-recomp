@@ -45,7 +45,13 @@ struct HudArt {
     std::optional<preview::PreviewTexture> speedDigits; // 256x128 dynamic gauge parts, digit row at v=102 (ITEM/METER10.GSL unit 0)
     std::optional<preview::PreviewTexture> raceAtlas;   // 256x256 elements (SYS/SCORE.GSL unit 0)
     std::optional<preview::PreviewTexture> raceBanner;   // same texels, CLUT bank CSA 1: TOTAL TIME banner + yellow timer (race-hud-atlas.md)
-    // needle: rotated procedurally (ElementA type-2 quad); no static texture.
+    // SCORE.GSL entry 1, own CT16 palette: lap count glyphs (CSA 7) and
+    // translucent LAP disc (CSA 8).  The consumer selects the applicable page.
+    std::optional<preview::PreviewTexture> lapDigits;
+    std::optional<preview::PreviewTexture> lapDisc;
+    // ITEM/METER0.GSL gauge sub-page (128x120 PSMT4, CSA 12): the rotated
+    // needle, hub cap, and boost arcs.  Geometry/rotation remain consumer-side.
+    std::optional<preview::PreviewTexture> gaugePage;
     // minimapMap: live-rendered viewport of world data (no static GSL graphic located).
 };
 

@@ -68,7 +68,7 @@ enum class HudElement : std::uint8_t {
     // viewport anchor table 0x2A9AF0: 1P (492, 336), 2P (492, 112)/(492, 336)).
     DriveDial,              // 132x96 gauge face at anchor
     DriveSpeedSegments,     // 4x60 bars inside the dial
-    DriveSpeedDigits,       // 20x26 digits, right-aligned in the dial
+    DriveSpeedDigits,       // 16x23 METER0 speed digits, right-aligned (SPEED LAW)
     DriveGearBar,           // 100x18 bar + palette-swapped gear cell
     DrivePromptIcon,        // 16x16 context icon
     DriveOdometer,          // 16x10 odometer digit
@@ -197,9 +197,10 @@ inline constexpr HudElementSpec kHudElements[] = {
      HudAtlas::DriveMeterPages, HudProvenance::Confirmed,
      "4x60 bars at anchor+(34+6i, 0), atlas u=0x88+6i; count runtime-driven "
      "(shown for 10 bars)"},
-    {HudElement::DriveSpeedDigits, {532.f, 385.f, 58.f, 26.f},
+    {HudElement::DriveSpeedDigits, {539.f, 388.f, 50.f, 23.f},
      HudAtlas::DriveMeterPages, HudProvenance::Confirmed,
-     "20x26 digits right-aligned anchor+(78,49), step -19, atlas u=d*20 v=102"},
+     "SPEED LAW (2026-10-18): METER0 16x23 digits, ones at (573,388), step -17, "
+     "u=140+16*(d%7), v=23*(d/7); bbox for up to 3 digits (x 539..589)"},
     {HudElement::DriveGearBar, {499.f, 412.f, 100.f, 18.f},
      HudAtlas::DriveMeterPages, HudProvenance::Confirmed,
      "anchor+(7,76); gear overlay same rect, tex1 csa = 15 - gear"},
@@ -309,7 +310,8 @@ inline constexpr HudGlyphSet kHudGlyphSets[] = {
      "16x20 digits (ElementG money/mileage: u = d*16, v=0xC2)"},
     // Drive/METER atlas (entry 0, TBP0 0x237A) ------------------------------
     {HudAtlas::DriveMeterPages, 0, 102, 20, 26, 20, 0, 10,
-     "drive speed digits 20x26 (u = digit*20, v=102)"},
+     "2P handler-10 drive speed digits 20x26 on METER10 (u = digit*20, v=102); "
+     "NOT the 1P speed law (see the METER0 set at the end of the table)"},
     {HudAtlas::DriveMeterPages, 136, 0, 4, 60, 6, 0, 10,
      "speed segment slivers (u = 0x88 + 6i, v=0)"},
     {HudAtlas::DriveMeterPages, 0, 32, 16, 10, 16, 0, 10,
@@ -322,6 +324,12 @@ inline constexpr HudGlyphSet kHudGlyphSets[] = {
      "4-9 at u=d*16-0x40 v=220 (uiDrawNumber16 0x201FD0/0x201E48)"},
     {HudAtlas::UiBatchFontAtlas, 0, 180, 10, 20, 0, 20, 10,
      "small 10x20 digit set, atlas rows v = 0xB4 + 20*row (uiDrawSmallText)"},
+    // SPEED LAW 1P speed digits on METER0 (buildGaugeHud 0x249A7C..0x249B48). Two rows because
+    // the grid model wraps at atlas width / uPitch; row 0 = digits 0-6, row 1 = 7-9.
+    {HudAtlas::DriveMeterPages, 140, 0, 16, 23, 16, 0, 7,
+     "METER0 speed digits 0-6: u = 140 + 16*d, v = 0"},
+    {HudAtlas::DriveMeterPages, 140, 23, 16, 23, 16, 0, 3,
+     "METER0 speed digits 7-9: u = 140 + 16*(d-7), v = 23"},
 };
 
 inline constexpr std::size_t kHudGlyphSetCount =

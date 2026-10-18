@@ -324,7 +324,7 @@ void runSpeed(Results& r) {
         const float raw = static_cast<float>(want) * hl::kShippedMphDivisor + 0.5f;
         const bool shipped = hl::shippedMphFromRaw(raw) == want;
         // Host divisors: raw hostSpeed that lands inside the digit bin must reproduce the digits.
-        const bool d100 = hl::hostMph(static_cast<float>(want) * 100.f + 50.f, hl::kDefaultSpeedDivisor) == want;
+        const bool d100 = hl::hostMph(static_cast<float>(want) * hl::kSpeedDivisorMph + 0.5f) == want;
         const bool d107 = hl::hostMph(static_cast<float>(want) * hl::kAltSpeedDivisor + 0.5f, hl::kAltSpeedDivisor) == want;
         const auto cells = hl::speedCells(want);
         const auto digs = digitsOf(cells);
