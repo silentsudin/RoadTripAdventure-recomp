@@ -1,0 +1,17 @@
+# image;string;box_x0;box_y0;box_x1;box_y1;bmin;pen_ui;meas_x0;meas_x1;meas_y0;meas_y1  (scan px, 1280x447; pen_ui -1=unknown -2=right-aligned plate at 574)
+main_menu.png;Adventure;920;277;1176;300;170;-1;924;1147;279;294
+main_menu.png;Quick Race;918;300;1182;325;170;-1;924;1169;303;321
+main_menu.png;2 Player;918;325;1182;349;170;-1;924;1109;327;346
+main_menu.png;Options;918;349;1182;373;170;-1;924;1091;351;370
+main_menu.png;Results;918;373;1182;397;170;-1;924;1085;375;390
+options.png;Vibration;512;176;828;200;170;-1;514;725;179;194
+options.png;Speaker;505;200;828;224;170;-1;514;699;203;222
+options.png;Sound Volume;505;224;828;248;170;-1;514;809;227;243
+options.png;Exit;505;248;828;272;170;-1;516;599;251;267
+factory_menu.png;Change parts;146;48;556;72;170;-1;150;451;51;70
+factory_menu.png;Race;140;73;560;97;100;-1;148;251;75;92
+factory_menu.png;Save data;140;97;560;121;100;-1;148;369;99;116
+factory_menu.png;Quit game;140;121;560;145;100;-1;148;367;123;142
+factory_menu.png;Drive around town;140;145;562;169;100;-1;150;553;147;164
+factory_menu.png;What do you want to do?;130;335;800;372;100;70;144;697;347;366
+factory_menu.png;Q's Factory;878;318;1146;346;170;-2;886;1143;321;340

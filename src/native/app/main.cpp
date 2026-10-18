@@ -2569,6 +2569,15 @@ int main() {
                             {
                                 const char* mmEnv = std::getenv("RT_APP_MINIMAP");
                                 const bool drawMinimap = !(mmEnv && std::string_view(mmEnv) == "0");
+                                // The pill drawn here is the TOWN minimap (Peach Town
+                                // street graph, lavender field).  In a race the oracle's
+                                // map element is a different layout entirely (race-map
+                                // law W2-11: car marker UI (102,183), zoom table
+                                // @0x2A42C0, scissor @0x2A42E0) whose frame geometry is
+                                // still a GAP; drawing the town pill over the race HUD
+                                // diverged from the oracle, so suppress it in race.
+                                const bool mmRace =
+                                    session.state() == rt::native::gameplay::SessionState::RACE;
                                 const std::array<float, 4> kChrome{128.f / 255.f, 128.f / 255.f, 128.f / 255.f, 1.f};
                                 const std::array<float, 4> kChromeHi{212.f / 255.f, 212.f / 255.f, 212.f / 255.f, 1.f};
                                 const std::array<float, 4> kChromeMid{164.f / 255.f, 164.f / 255.f, 164.f / 255.f, 1.f};
@@ -2578,7 +2587,7 @@ int main() {
                                 const std::array<float, 4> kRoad{45.f / 255.f, 45.f / 255.f, 116.f / 255.f, 1.f};
                                 const std::array<float, 4> kCarDot{1.f, 1.f / 255.f, 1.f / 255.f, 1.f};
                                 std::vector<rt::native::preview::ScreenQuad> mapQuads;
-                                if (drawMinimap) {
+                                if (drawMinimap && !mmRace) {
                                     // Rounded pill body rasterised in 1-UI-px rows
                                     // (corner radius ~4 UI px against the oracle).
                                     constexpr float kPx = 29.5f, kPy = 324.4f, kPw = 142.5f, kPh = 130.f, kRad = 4.f;
@@ -2623,7 +2632,7 @@ int main() {
                                     mapQuads.push_back({(carUiX - 1.3f) * sx, (carUiY - 1.3f) * sy, 2.6f * sx, 2.6f * sy, kCarDot});
                                 }
                                 std::vector<std::uint8_t> mapPixels;
-                                if (drawMinimap &&
+                                if (drawMinimap && !mmRace &&
                                     rt::native::preview::previewRender2D(
                                         renderer, mapQuads, {0.f, 0.f, 0.f, 0.f}, mapPixels, error))
                                     compositeOver(pixels, mapPixels);

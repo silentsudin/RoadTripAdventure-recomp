@@ -105,9 +105,9 @@ foreach(_rt_staged_source
         # EXISTS-guarded: absent files are harmless until their batch lands.
         assets/script_image.cpp assets/price_tables.cpp gameplay/script_vm.cpp
         gameplay/app_flow.cpp gameplay/vehicle_model.cpp gameplay/terrain_query.cpp
-        gameplay/race_rules.cpp gameplay/economy.cpp gameplay/text_script.cpp
-        gameplay/save_v2.cpp audio/audio_runtime.cpp audio/sfx_table.cpp
-        audio/vag_stream.cpp gameplay/hud_live.cpp gameplay/minimap.cpp
+        gameplay/race_rules.cpp gameplay/item_economy.cpp gameplay/text_script.cpp
+        gameplay/save_v2.cpp gameplay/audio_graph.cpp audio/vag_stream.cpp
+        gameplay/hud_live.cpp gameplay/minimap.cpp
         gameplay/input_map.cpp gameplay/enhancements.cpp)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_rt_staged_source}")
         list(APPEND RT_NATIVE_ASSET_SOURCES "${_rt_staged_source}")
