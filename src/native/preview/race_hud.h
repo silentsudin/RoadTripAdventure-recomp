@@ -283,9 +283,10 @@ struct RaceHudLayoutState {
     bool showRank = true;        // ElementD +0x84FC enable
 };
 
-// Convenience: state for a native frame. The caller owns lap time, place and
-// gear until the session exposes them. FrameSnapshot::rank is the time rank
-// (getRaceTimeRank), not the race place, so it is not used here.
+// Convenience: state for a native frame. Gear now comes from the session
+// (FrameSnapshot::gear, W6-04); the caller still owns lap time and place.
+// FrameSnapshot::rank is the time rank (getRaceTimeRank), not the race place,
+// so it is not used here.
 inline RaceHudLayoutState raceHudLayoutStateFor(const gameplay::FrameSnapshot& snapshot, std::int32_t lapFrames,
                                                 int place0, int totalCars, int gear) {
     RaceHudLayoutState s;

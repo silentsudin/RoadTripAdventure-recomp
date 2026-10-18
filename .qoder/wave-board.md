@@ -120,11 +120,28 @@ Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is requ
   (game_loop.{h,cpp}, w18 checks=13 CAUGHT first_shift_frame=114): FrameSnapshot.gear/rpm now
   exist; main.cpp gear-glyph wire pending, needle still withheld pending adjudicated art.
 - STATUS 2026-10-18 late: commit A = 3891052 pushed (green: sweep 109, matrix 32/32 rc=0,
-  det pair). Commit B pending = gear-source wiring in main.cpp (raceHudLayoutStateFor +
-  dialState take snapshot.gear; race_hud.h comment) — rebuild done, gates (pixel presence +
-  sweep + det + matrix) queued after W7 dispatches. Race app-level run at load shows
-  simulation_frame advancing fine (no regression); explore headless freeze CONFIRMED still
-  live (sim stuck at 1) — W7-02 diagnosing (background).
+  det pair). Commit B = gear-source wiring in main.cpp (raceHudLayoutStateFor +
+  dialState take snapshot.gear; race_hud.h comment). B GATES GREEN: matrixB 32/32 rc=0;
+  det pair race@FRAMES=110 byte-identical rc=0 sim=110 both runs; gear digit "1" pixel-
+  verified in race snapshot frames 110+116 (serif stem + flag at design ~(581,354));
+  sweep 110/110 (incl. new w19). Live gear-VALUE tracking stays unit-covered only
+  (w17 cells, w18 evolution first_shift=114): the headless autopilot race finishes at
+  frame 117 before any shift reaches the dial — documented shortcut in build/scratch/wB.
+- FREEZES RESOLVED (W7-02, build/scratch/w7-02/REPORT.md): race "freeze at 117" = the
+  1-lap session FINISHED (GameSession(1)); headless RESULTS is terminal (only Return/
+  input.confirm leaves it, main.cpp:2134). "Explore freeze sim=1" = by-design contract:
+  EXPLORE ticks only when socket-driven (session.cpp:52, pinned test_session.cpp:97-102).
+  Repro-footgun: `rt-app RT_APP_FRAMES=N` puts vars in argv which main ignores — env
+  must come BEFORE the binary. Backlog P1: headless autopilot driver (auto-continue
+  RESULTS + EXPLORE idle-tick, gated on RT_APP_MODE) to unblock live HUD tracking.
+  Earlier explore det pairs at sim=1 were trivially identical — future det gates must
+  assert rc=0 AND simulation_frame==FRAMES.
+- W7-03 DELIVERED (w20, checks=22 green, verified by re-run): collision grid reuses
+  W3-03 OccupancyGrid as-is; resolves the 84-vs-43 nav-entry discrepancy (84 = Peach
+  Town dir 0x2d98a8, 43 = static dir 0x2bd578 — both docs correct for their directory).
+  WIRING DEFERRED (ruling): cellUnits=1600/84≈19 but road half-width=60 → resolve()
+  as-is = invisible walls on tarmac; must scale cell to road width (or per-town extents)
+  before integrateCar wire. w20 registered; collision wire = backlog with this note.
 - WAVE-7 dispatched 2026-10-18: W7-01 needle draw procurement (openai, gauge_needle.h +
   w19 test + docs — needle bitmap/cell/pivot/rotation from handler 0x249DC0 path);
   W7-02 explore-freeze diagnosis (synthetic GLM-Flash, report-only); W7-03 town collision

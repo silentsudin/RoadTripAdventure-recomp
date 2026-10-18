@@ -2517,7 +2517,7 @@ int main() {
                         pv::RaceHudLayoutState hs = pv::raceHudLayoutStateFor(
                             snapshot,
                             static_cast<std::int32_t>(snapshot.elapsedFrames) - raceLapStartFrame,
-                            0, 24, 1);  // place0/totalCars/gear provisional (gear law GAP)
+                            0, 24, snapshot.gear);  // place0/totalCars provisional (no rival grid GAP); gear = W6-04 driveline
                         hs.showRank = false;  // no rival cars natively (GAP)
                         auto drawTextured = [&](const std::vector<pv::HudQuad>& quads,
                                               const rt::native::preview::PreviewTexture& tex) {
@@ -2579,7 +2579,7 @@ int main() {
                             // full-column blit at (492,336) w132 sat on the
                             // 2P anchor region (0x2A9AF0).
                             rt::native::preview::RaceHudLayoutState dialState;
-                            dialState.gear = 1;  // provisional: native gear source GAP
+                            dialState.gear = renderSnapshot.gear;  // W6-04 driveline: 0 = R, 1..5 forward
                             if (rt::native::preview::previewUploadFontAtlas(
                                     renderer, *hudArt.speedDial, dialError) &&
                                 rt::native::preview::previewRender2DTextured(
