@@ -111,9 +111,13 @@ Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is requ
 
 ## Open GAPs / arbitration (coordinator-owned)
 - WAVE-6 LANDED 2026-10-18 (mine=2 verified per worker; all four re-run green on canonical build):
-  W6-01 audio bus mixer PARKED — src/native/audio/audio_graph.{h,cpp} duplicates committed
-  gameplay/audio_graph.{h,cpp} (wave-2 voice graph); w15 NOT registered; files local-only,
-  reconcile bus layer into the existing module later. W6-02 title save/load UI integrated
+  W6-01 audio bus mixer RESOLVED-RETIRED 2026-10-18 (coordinator): parked
+  src/native/audio/audio_graph.{h,cpp} + tests/native_w15 DELETED — zero consumers, voice
+  machinery duplicated by committed gameplay/audio_graph.{h,cpp} (ROM-grounded: voice
+  classes, stealing, SPU gain, radio pairs); the only unique idea (named per-bus gain +
+  Q16.16 ramps, no consumer today) is documented in committed HANDOFF-W6-01.md and lands
+  in gameplay/audio_graph.h when a feature needs bus controls (e.g. separate music/SFX
+  sliders). Deletion beats addition. W6-02 title save/load UI integrated
   (preview/title_ui.{h,cpp} + w16 registered, checks=13 CAUGHT; main.cpp wiring pending).
   W6-03 mph/gear/minimap reconciliation (gear_glyph.h + w17 checks=15 CAUGHT: g==0=R, mph
   55.07 confirmed, kKy=kKx*0.47 via ROM float 0x332CAC). W6-04 driveline rpm/gear exposure
@@ -143,6 +147,15 @@ Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is requ
   as-is = invisible walls on tarmac; must scale cell to road width (or per-town extents)
   before integrateCar wire. w20 REGISTERED (coordinator): checks=22 green via CMake build,
   true-SKIP verified (env -i HOME=<empty> → exit 0, checks=0); collision wire = backlog.
+- WAVE-8 DISPATCHED 2026-10-18 16:3xZ (openai/gpt-5.6-terra, bg; openai 5h=100% wk=61%):
+  W8-01 title save/load UI main.cpp wiring + RT_APP_STATE=LOAD smoke (ses_eb05d398...qla4Z2);
+  W8-02 P1 headless autopilot driver RT_APP_AUTOPILOT (new Autopilot module + w22 unit test;
+  gates incl. ON-explore sim=300 and ON-race passes-117-terminates; ses_eb05d398...t3Bjia);
+  W8-03 collision sizing repair — free-corridor covers road ribbon (half-width 60 + margin),
+  w23 test, integrateCar wire proposal only (ses_eb05d398...W5V9n8m);
+  W8-04 rotated-quad preview path + drawGaugeNeedle (preview layer only, NO main.cpp; w21
+  test; coordinator wires dial after; ses_eb05d398...yBNqN3xf). Lanes: W8-01/02 both touch
+  main.cpp in different regions (title/menu vs session-loop) — clobber watch at integration.
 - WAVE-7 dispatched 2026-10-18: W7-01 needle draw procurement (openai, gauge_needle.h +
   w19 test + docs — needle bitmap/cell/pivot/rotation from handler 0x249DC0 path);
   W7-02 explore-freeze diagnosis (synthetic GLM-Flash, report-only); W7-03 town collision
