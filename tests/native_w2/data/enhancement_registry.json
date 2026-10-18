@@ -132,6 +132,18 @@
     "notes": "main.cpp:1881-1900: opt-in, env must be EXACTLY \"1\"; gate byte (player&master)!=0 per rumble-haptics.md; strength key not consumed yet (no global gain)"
   },
   {
+    "id": "autopilot",
+    "ledger": "-",
+    "env_vars": ["RT_APP_AUTOPILOT", "RT_APP_AUTOPILOT_HOLD"],
+    "persisted_keys": [],
+    "default": "off (no steering input)",
+    "gating": "headless (test affordance)",
+    "owners": ["src/native/app/main.cpp", "src/native/app/Autopilot.cpp", "src/native/app/Autopilot.h"],
+    "docs": ["code:src/native/app/main.cpp", "code:src/native/app/Autopilot.cpp"],
+    "status": "wired",
+    "notes": "main.cpp:2065-2072: both opt-in, env EXACTLY \"1\" (autopilot) / seconds (hold); pure-pursuit steering on the AI-car trail for race, heading-hold toward road waypoints in explore; w22_autopilot_test covers the decision law, ON-run gates tracked in wave-8 journal"
+  },
+  {
     "id": "radio_station_follow",
     "ledger": "radio",
     "env_vars": ["RT_APP_RADIO"],

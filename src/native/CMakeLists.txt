@@ -45,6 +45,7 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/nav_route_bridge.cpp # NavPath centerline -> authored RaceRoute zones
     gameplay/world_layout.cpp    # authentic fixed-point <-> tile-id <-> local-unit mapping (proven formulas)
     preview/ui_menu.cpp           # title/menu/options screen builders per ui-parity.md
+    preview/title_ui.cpp         # W6-02 title New Game / Continue UI state (W8-01 wiring)
     assets/title_screen.cpp       # runtime SYS/TITLE.GSL backdrop decoder
     assets/hud_art.cpp            # runtime race HUD art (METER dial + SCORE atlas)
     assets/image_converter.cpp  # texture upload chain -> RGBA8 ImageRecord
@@ -90,6 +91,7 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/perfstats.cpp      # host performance windows and ASCII overlay model
     runtime/testsocket.cpp      # JSON-lines native regression control socket
     runtime/guest_facade.cpp    # explicitly mapped guest-address compatibility facade
+    render/race_terrain.cpp     # COURSE WorldStrip terrain -> renderer-neutral textured mesh
 )
 # ---- staged module sources (coordinator-managed parallel dispatch). These
 # candidate files land from independent work streams; they are compiled into
@@ -119,6 +121,13 @@ add_library(rt_native_assets STATIC ${RT_NATIVE_ASSET_SOURCES})
 target_include_directories(rt_native_assets PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_features(rt_native_assets PUBLIC cxx_std_20)
 target_compile_options(rt_native_assets PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+# W9-02: player-car mesh/livery asset and chase-scene submission.
+add_library(rt_native_car_render STATIC preview/car_render.cpp)
+target_link_libraries(rt_native_car_render PUBLIC rt_native_assets)
+target_include_directories(rt_native_car_render PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_features(rt_native_car_render PUBLIC cxx_std_20)
+target_compile_options(rt_native_car_render PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w5" "${CMAKE_CURRENT_BINARY_DIR}/native_w5")  # W4-05 media + w5 tests
 
 # ---------------------------------------------------------------- Android app
@@ -137,7 +146,7 @@ if(ANDROID)
 
     find_library(RT_ANDROID_VULKAN_LIB vulkan REQUIRED)
     find_library(RT_ANDROID_LOG_LIB log REQUIRED)
-    add_library(main SHARED app/main.cpp preview/preview.cpp)
+    add_library(main SHARED app/main.cpp app/Autopilot.cpp preview/preview.cpp)
     target_link_libraries(main PRIVATE rt_native_assets SDL3::SDL3
         ${RT_ANDROID_VULKAN_LIB} ${RT_ANDROID_LOG_LIB})
     target_compile_features(main PRIVATE cxx_std_20)
@@ -232,10 +241,15 @@ if(Vulkan_FOUND)
     target_compile_features(rt-asset-menu PRIVATE cxx_std_20)
     target_compile_options(rt-asset-menu PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
 
+    add_executable(rt-w25-car-preview "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w25/car_preview_main.cpp" preview/preview.cpp)
+    target_link_libraries(rt-w25-car-preview PRIVATE rt_native_car_render Vulkan::Vulkan)
+    target_compile_features(rt-w25-car-preview PRIVATE cxx_std_20)
+    target_compile_options(rt-w25-car-preview PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
+
     # First interactive host increment: the scene is authored by preview.cpp
     # and copied to an SDL3 Vulkan swapchain for presentation.
     if(SDL3_FOUND)
-        add_executable(rt-app app/main.cpp preview/preview.cpp)
+        add_executable(rt-app app/main.cpp app/Autopilot.cpp preview/preview.cpp)
         target_link_libraries(rt-app PRIVATE rt_native_assets Vulkan::Vulkan SDL3::SDL3)
         target_compile_features(rt-app PRIVATE cxx_std_20)
         target_compile_options(rt-app PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
@@ -246,6 +260,13 @@ endif()
 option(RT_NATIVE_ASSETS_BUILD_TESTS
        "Build the synthetic native-asset contract tests as executables (not run)" OFF)
 if(RT_NATIVE_ASSETS_BUILD_TESTS)
+    if(Vulkan_FOUND)
+        add_executable(w25_car_render_test
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w25/car_render_test.cpp" preview/preview.cpp)
+        target_link_libraries(w25_car_render_test PRIVATE rt_native_car_render Vulkan::Vulkan)
+        target_compile_features(w25_car_render_test PRIVATE cxx_std_20)
+        target_compile_options(w25_car_render_test PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
+    endif()
     # Wave-2 batch tests (coordinator Step 0 glob; see .qoder/wave2-plan-sonnet.md).
     # tests/native_w2/<stem>_test.cpp -> executable w2_<stem> (stem keeps _test,
     # so targets read w2_script_vm_test etc.). Synthesize nothing when empty.
@@ -270,6 +291,16 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w18" "${CMAKE_CURRENT_BINARY_DIR}/native_w18")  # W6-04 driveline rpm/gear exposure
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w19" "${CMAKE_CURRENT_BINARY_DIR}/native_w19")  # W7-01 gauge needle draw spec
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w20" "${CMAKE_CURRENT_BINARY_DIR}/native_w20")  # W7-03 town collision grid contract
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w21" "${CMAKE_CURRENT_BINARY_DIR}/native_w21")  # W8-04 rotated-quad preview path
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w22" "${CMAKE_CURRENT_BINARY_DIR}/native_w22")  # W8-02 autopilot decision logic
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w23" "${CMAKE_CURRENT_BINARY_DIR}/native_w23")  # W8-03 collision sizing repair
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w24" "${CMAKE_CURRENT_BINARY_DIR}/native_w24")  # W9-01 race terrain fidelity
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w25" "${CMAKE_CURRENT_BINARY_DIR}/native_w25")  # W9-02 own car chase view
+    add_executable(w24_race_terrain_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w24/race_terrain_test.cpp")
+    target_link_libraries(w24_race_terrain_test PRIVATE rt_native_assets)
+    target_compile_features(w24_race_terrain_test PRIVATE cxx_std_20)
+    target_compile_options(w24_race_terrain_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
     add_executable(w3_enhancements_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/enhancements_app_test.cpp")
     target_link_libraries(w3_enhancements_test PRIVATE rt_native_assets)
@@ -716,6 +747,14 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_compile_features(native_assets_edges_integration_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_edges_integration_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 endif()
+
+# W9-01 standalone terrain evidence image; it writes a PNG from the user's
+# extracted COURSE/C00.BIN at run time and never packages disc-derived bytes.
+add_executable(rt-w24-terrain-preview
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w24/terrain_preview_main.cpp")
+target_link_libraries(rt-w24-terrain-preview PRIVATE rt_native_assets)
+target_compile_features(rt-w24-terrain-preview PRIVATE cxx_std_20)
+target_compile_options(rt-w24-terrain-preview PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
 # ---------------------------------------------------------------- coverage
 # Opt-in clang source-based coverage instrumentation (-fprofile-instr-generate

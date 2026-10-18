@@ -234,26 +234,33 @@ int main() {
     std::printf("evidence corridor_cells=%zu extent=%.1fx%.1f\n", corridorCells,
                 static_cast<double>(extentX), static_cast<double>(extentZ));
 
-    // == (d) building-interior-ish samples are BLOCKED / out of range =======
+    // == (d) off-ribbon samples are BLOCKED / out of range ===================
+    // Ground truth update 2026-10-18 (W8-03): the drivable ribbon is 60 units
+    // half-wide (drive-tuned, HANDOFF-W7-03), so the old ">2 cells (38 units)"
+    // far-side test contradicted the road itself.  A point is guaranteed blocked
+    // only past roadHalfWidth + two cell half-diagonals (free rule + the cell
+    // containing the point).
+    const float blockedFrom = OccupancyGrid::kTownRoadHalfWidth +
+                              std::sqrt(2.f) * grid.cellUnits();
     std::size_t sampled = 0, blockedSamples = 0;
     float worstFreeDistance = 0.f;
     for (std::size_t i = 0; i < town->transitions.size(); ++i) {
         const Point node = nodeMidpoint(*town, i);
-        for (float radius : {40.f, 50.f, 60.f}) {
+        for (float radius : {60.f, 90.f, 120.f}) {
             for (int k = 0; k < 8; ++k) {
                 const float theta = static_cast<float>(k) * 3.14159265f / 4.f;
                 const Point q{node.x + radius * std::cos(theta), node.z + radius * std::sin(theta)};
                 const float d = nearestSegmentDistance(q, *town);
-                if (d <= 2.f * grid.cellUnits()) continue;  // still road-adjacent; skip
+                if (d <= blockedFrom) continue;  // still road-adjacent; skip
                 ++sampled;
                 if (grid.blocked(q)) ++blockedSamples;
                 else worstFreeDistance = std::max(worstFreeDistance, d);
             }
         }
     }
-    check(sampled > 0, "produced building-interior-ish samples far from every route segment");
+    check(sampled > 0, "produced off-ribbon samples far from every route segment");
     check(blockedSamples == sampled,
-          "every sample >2 cells from all route segments is BLOCKED");
+          "every sample past the road ribbon + raster margin is BLOCKED");
     std::printf("evidence interior_samples=%zu blocked=%zu\n", sampled, blockedSamples);
     // Out-of-range reads must report blocked, never free.
     check(grid.blocked(Point{-10.f, -10.f}), "point below the grid is out of range (blocked)");

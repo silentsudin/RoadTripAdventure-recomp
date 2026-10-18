@@ -32,9 +32,12 @@
 #include "gameplay/shop.h"
 #include "gameplay/tile_streamer.h"
 #include "gameplay/world_layout.h"
+#include "app/Autopilot.h"
 #include "preview/car_mesh.h"
 #include "preview/preview.h"
 #include "preview/race_hud.h"
+#include "preview/rot_quad.h"
+#include "preview/title_ui.h"
 #include "preview/ui_menu.h"
 #include "runtime/guest_facade.h"
 #include "runtime/testsocket.h"
@@ -1305,12 +1308,13 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
     return mesh;
 }
 
-enum class AppState { TITLE, MENU, PLAYING };
+enum class AppState { TITLE, MENU, LOAD, PLAYING };
 
 const char* appStateName(AppState state) {
     switch (state) {
     case AppState::TITLE: return "TITLE";
     case AppState::MENU: return "MENU";
+    case AppState::LOAD: return "LOAD";
     case AppState::PLAYING: return "PLAYING";
     }
     return "UNKNOWN";
@@ -1347,6 +1351,7 @@ rt::native::gameplay::RenderPose renderPoseOfSnapshot(
 AppState initialAppState() {
     const char* value = std::getenv("RT_APP_STATE");
     if (value && std::strcmp(value, "MENU") == 0) return AppState::MENU;
+    if (value && std::strcmp(value, "LOAD") == 0) return AppState::LOAD;
     if (value && std::strcmp(value, "PLAYING") == 0) return AppState::PLAYING;
     return AppState::TITLE;
 }
@@ -1365,6 +1370,7 @@ std::vector<rt::native::preview::ScreenQuad> menuQuads(
     const std::array<float, 4> selectedRowColor{.36f, .56f, .86f, 1.f};
     const std::array<float, 4> cursorColor{1.f, .72f, .16f, 1.f};
     std::vector<Quad> quads{rect(112, 72, 800, 576, panelColor)};
+    if (state == AppState::LOAD) return {};
     if (state == AppState::TITLE) {
         quads.push_back(rect(202, 216, 620, 80, {.55f, .78f, 1.f, 1.f}));
         quads.push_back(rect(286, 386, 452, 30, {.88f, .93f, 1.f, 1.f}));
@@ -1387,7 +1393,12 @@ std::vector<rt::native::preview::ScreenQuad> menuQuads(
 // mode-select index (0..3); anything outside the main-menu row count falls
 // back to 0. PRESS START blinks on a 32-tick phase of the host frame counter.
 rt::native::preview::UiScreen buildLiveMenuScreen(
-    AppState state, const rt::native::gameplay::MenuFlow& flow, int frames, int width, int height) {
+    AppState state, const rt::native::gameplay::MenuFlow& flow,
+    const rt::native::preview::TitleUiState& titleUi, int frames, int width, int height) {
+    if (state == AppState::LOAD) {
+        auto draw = titleUi.emit(width, height);
+        return {std::move(draw.quads), std::move(draw.text)};
+    }
     if (state == AppState::TITLE) {
         const bool pressVisible = (frames / 32) % 2 == 0;
         return rt::native::preview::buildTitleScreen(width, height, pressVisible);
@@ -1811,11 +1822,19 @@ int main() {
     if (carIsBox) std::cout << "app: car model fallback (box)\n";
     // W3-04 slot-store seam (docs/native-reference/save-layout.md): native v2
     // save files (Container-wrapped SaveData, atomic tmp+rename, v1 raw
-    // migration).  The title menu has no load/save UI yet, so persistence is
-    // developer-opt-in and tests stay deterministic with the defaults OFF:
+    // migration).  Direct slot overrides remain developer-opt-in so tests stay
+    // deterministic with the defaults OFF:
     //   RT_APP_LOAD_SLOT=<0|1>  restore that slot into session progress at boot
     //   RT_APP_SAVE_SLOT=<0|1>  write session progress to that slot at shutdown
     rt::native::gameplay::SlotStore slotStore;
+    rt::native::preview::FakeCardBackend titleCard;
+    if (slotStore.list()[0]) {
+        rt::native::gameplay::SaveData saved{};
+        std::string saveError;
+        titleCard.setSlot(0, {.exists = true, .valid = slotStore.load(0, saved, &saveError),
+                              .corrupt = !saveError.empty()});
+    }
+    rt::native::preview::TitleUiState titleUi(titleCard);
     const auto envSlot = [](const char* name) -> std::optional<int> {
         const char* raw = std::getenv(name);
         if (!raw) return std::nullopt;
@@ -1944,6 +1963,7 @@ int main() {
         directStartRace = false;
     rt::native::gameplay::MenuFlow menuFlow;
     if (state == AppState::MENU) menuFlow.screen = rt::native::gameplay::MenuScreen::MODE_SELECT;
+    rt::native::preview::TitleAction titleAction = rt::native::preview::TitleAction::None;
     bool loggedAppState = false, loggedSessionState = false;
     AppState lastLoggedAppState = state;
     rt::native::gameplay::SessionState lastLoggedSessionState = session.state();
@@ -2042,6 +2062,18 @@ int main() {
         }
         return guestFacade.command(command, line);
     });
+    const bool autopilotEnabled = headlessApp && [] {
+        const char* value = std::getenv("RT_APP_AUTOPILOT");
+        return value && std::strcmp(value, "1") == 0;
+    }();
+    const int autopilotHoldFrames = [] {
+        const char* value = std::getenv("RT_APP_AUTOPILOT_HOLD");
+        return value ? std::max(1, std::atoi(value)) : 1;
+    }();
+    rt::native::app::Autopilot autopilot({.enabled = autopilotEnabled,
+                                          .resultsHoldFrames = autopilotHoldFrames});
+    if (autopilotEnabled)
+        std::cout << "rt-app autopilot: enabled results-hold=" << autopilotHoldFrames << "\n";
     rt::native::gameplay::OverlayModel perfOverlay(true);
     std::string perfOverlayText;
     double nextPerfWindow = monotonicSeconds() + perf.windowSeconds();
@@ -2109,7 +2141,7 @@ int main() {
             }
             if (event.type == SDL_EVENT_KEY_DOWN && !event.key.repeat) {
                 if (state == AppState::TITLE) titleAdvance = true;
-                if (state == AppState::MENU) {
+                if (state == AppState::MENU || state == AppState::LOAD) {
                     menuInput.up = menuInput.up || event.key.scancode == SDL_SCANCODE_UP;
                     menuInput.down = menuInput.down || event.key.scancode == SDL_SCANCODE_DOWN;
                     menuInput.confirm = menuInput.confirm || event.key.scancode == SDL_SCANCODE_RETURN;
@@ -2147,13 +2179,38 @@ int main() {
         } else if (state == AppState::MENU) {
             const auto menuEvent = rt::native::gameplay::tickMenuFlow(menuFlow, menuInput, dt);
             if (menuEvent.type == rt::native::gameplay::MenuEventType::MODE_SELECTED) {
-                state = AppState::PLAYING;
-                // Preserve the old direct-to-race menu launch while leaving
-                // EXPLORE available after results (and via direct PLAYING).
-                session.startRace();
+                if (menuEvent.mode == rt::native::gameplay::MenuMode::ADVENTURE) {
+                    state = AppState::LOAD;
+                } else {
+                    state = AppState::PLAYING;
+                    // Preserve the old direct-to-race menu launch while leaving
+                    // EXPLORE available after results (and via direct PLAYING).
+                    session.startRace();
+                }
             }
             if (menuEvent.type == rt::native::gameplay::MenuEventType::CANCEL && menuFlow.screen == rt::native::gameplay::MenuScreen::TITLE)
                 state = AppState::TITLE;
+        } else if (state == AppState::LOAD) {
+            if (menuInput.up) titleUi.up();
+            if (menuInput.down) titleUi.down();
+            if (menuInput.cancel && titleUi.back() == rt::native::preview::TitleAction::Back) {
+                state = AppState::MENU;
+            } else if (menuInput.confirm) {
+                titleAction = titleUi.confirm();
+            }
+            titleUi.tick();
+            if (titleUi.transition() == rt::native::preview::TitleTransition::Complete) {
+                if (titleAction == rt::native::preview::TitleAction::LoadContinue) {
+                    rt::native::gameplay::SaveData saved{};
+                    std::string saveError;
+                    if (slotStore.load(0, saved, &saveError))
+                        const_cast<rt::native::gameplay::SaveData&>(session.progress()) = std::move(saved);
+                } else if (titleAction == rt::native::preview::TitleAction::StartNewGame) {
+                    const_cast<rt::native::gameplay::SaveData&>(session.progress()) = slotStore.fresh();
+                }
+                state = AppState::PLAYING;
+                session.startRace();
+            }
         } else if (state == AppState::PLAYING && returnToMenu) {
             menuFlow.screen = rt::native::gameplay::MenuScreen::MODE_SELECT;
             state = AppState::MENU;
@@ -2209,7 +2266,14 @@ int main() {
                 // GameSession owns the race loop.  Its current public update path
                 // is AI-driven; Tab remains the race-mode selection control for
                 // the host UI and is logged below.
-                session.update(menuInput, testSocket.lockstep() ? &input : nullptr);
+                const auto autopilotStep = testSocket.lockstep()
+                    ? rt::native::app::AutopilotStep{}
+                    : autopilot.step(session.state());
+                if (autopilotStep.continueResults) {
+                    session.continueFromResults();
+                    std::cout << "rt-app autopilot: continued results\n";
+                }
+                session.update(menuInput, testSocket.lockstep() ? &input : autopilotStep.driveInput);
                 // Widescreen policy (output-modes.md): 3D fills the window; fovY
                 // pinned, aspect follows the presented extent.  Applied every
                 // frame because startRace() rebuilds loop params.
@@ -2610,9 +2674,9 @@ int main() {
                             // 0 up, positive CW, input = engine RPM at car
                             // +0x1D0 — NOT mph (div.s 10000.0f @0x332F50,
                             // add.s -0.7f @0x332F54 via 0x249DC0->0x249520).
-                            // The native session has no rpm feed yet (W5-01
-                            // gauge_rpm.h constants await driveline wiring), so
-                            // native still draws no needle.
+                            // Wired 2026-10-18: live rpm = renderSnapshot.rpm
+                            // (W6-04 driveline, game_loop.cpp), page = METER0
+                            // unit-2 CSA12 128x120 @0x8550 (hudArt.gaugePage).
                             if (hudArt.speedDial) {
                                 int mph = static_cast<int>(std::floor(renderSnapshot.speed / 55.07));
                                 mph = std::max(0, std::min(186, mph));
@@ -2635,6 +2699,26 @@ int main() {
                                     rt::native::preview::previewRender2DTextured(
                                         renderer, digitQuads, {0.f, 0.f, 0.f, 0.f}, digitPixels, error))
                                     compositeOver(pixels, digitPixels);
+                            }
+                            // Tachometer needle (W7-01 law, W8-04 rot-quad
+                            // path): cell (3,53,8,59) of METER0 unit-2 CSA12
+                            // 128x120 @0x8550 (hudArt.gaugePage).  dialOrigin
+                            // is the 1P gauge origin (484,294); needleQuad
+                            // adds kPivot (70,68) itself — pass it once.
+                            if (hudArt.gaugePage) {
+                                if (std::getenv("RT_APP_HUDTEXT"))
+                                    std::fprintf(stderr, "[hud] speed_word=%.0f mph=%d rpm=%d\n",
+                                                 renderSnapshot.speed,
+                                                 static_cast<int>(std::floor(renderSnapshot.speed / 55.07)),
+                                                 renderSnapshot.rpm);
+                                rt::native::preview::RgbaSurface dialSurface{
+                                    static_cast<int>(presenter.extent.width),
+                                    static_cast<int>(presenter.extent.height),
+                                    std::span<std::uint8_t>(pixels)};
+                                rt::native::preview::drawGaugeNeedle(
+                                    dialSurface, static_cast<float>(renderSnapshot.rpm),
+                                    *hudArt.gaugePage,
+                                    {484.f * sx, 294.f * sy, sx, sy});
                             }
                             // Pass 3: time-of-day clock in the gauge's dark
                             // bottom band — oracle town_driving.png shows teal
@@ -2977,7 +3061,7 @@ int main() {
                                 // Rebind FONTE after the backdrop: the same
                                 // 2D textured pass then keeps the blink and
                                 // publisher/copyright text over the art.
-                                const auto ui = buildLiveMenuScreen(state, menuFlow, frames, menuW, menuH);
+                                const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH);
                                 const rt::native::preview::PreviewTexture atlasTex{
                                     fontAtlas.width, fontAtlas.height, fontAtlas.pixels};
                                 if (!ui.text.empty() &&
@@ -3021,7 +3105,7 @@ int main() {
                         auto backdrop = menuQuads(state, menuFlow, menuW, menuH);
                         std::vector<rt::native::preview::ScreenQuad> quads;
                         if (!backdrop.empty() && !backdropDrawn) quads.push_back(backdrop.front());
-                        const auto ui = buildLiveMenuScreen(state, menuFlow, frames, menuW, menuH);
+                        const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH);
                         quads.insert(quads.end(), ui.quads.begin(), ui.quads.end());
                         if (backdropDrawn) {
                             std::vector<std::uint8_t> panelPixels;
@@ -3048,8 +3132,10 @@ int main() {
                         }
                         }
                     } else {
+                        auto fallback = menuQuads(state, menuFlow, menuW, menuH);
+                        if (state == AppState::LOAD) fallback = titleUi.emit(menuW, menuH).quads;
                         rendered = rt::native::preview::previewRender2D(
-                            renderer, menuQuads(state, menuFlow, menuW, menuH), menuClear, pixels, error);
+                            renderer, fallback, menuClear, pixels, error);
                     }
                 }
                 if (!rendered || !present(presenter, pixels, retry, error)) {

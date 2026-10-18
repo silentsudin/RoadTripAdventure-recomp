@@ -38,8 +38,12 @@ public:
     // f32 segments selected from 0x002D98A8 as described above.
     static constexpr float kTownMinimum = 0.f;
     static constexpr float kTownMaximum = 1600.f;
+    // game_loop.h's drive-tuned evidence records a 60-unit road half-width.
+    static constexpr float kTownRoadHalfWidth = 60.f;
 
-    [[nodiscard]] static OccupancyGrid fromTownGraph(const assets::NavGraph& graph) {
+    [[nodiscard]] static OccupancyGrid fromTownGraph(const assets::NavGraph& graph,
+                                                     float roadHalfWidth = kTownRoadHalfWidth,
+                                                     float margin = 0.f) {
         OccupancyGrid grid;
         // W3-03 deliberately derives resolution from the loaded graph's 84
         // segment records rather than embedding a second geometry table.
@@ -49,15 +53,18 @@ public:
         grid.cellUnits_ = (kTownMaximum - kTownMinimum) / static_cast<float>(grid.width_);
         grid.blocked_.assign(grid.width_ * grid.height_, true);
 
-        // A cell is driveable when its centre is within one derived grid cell
-        // of any ROM route segment.  This is a coarse road corridor, not a
-        // claim about the guest's mesh-collision shape.
+        // Mark every cell which can contain a point inside the road ribbon.
+        // The half-cell diagonal is a rasterization margin, so a point exactly
+        // roadHalfWidth from a segment cannot map to a blocked cell.
+        const float cellCoverageMargin = std::sqrt(2.f) * grid.cellUnits_ * .5f;
+        const float freeDistance = std::max(0.f, roadHalfWidth + margin) + cellCoverageMargin;
+        const float freeDistanceSquared = freeDistance * freeDistance;
         for (std::size_t z = 0; z < grid.height_; ++z) {
             for (std::size_t x = 0; x < grid.width_; ++x) {
                 const Point centre{kTownMinimum + (static_cast<float>(x) + 0.5f) * grid.cellUnits_,
                                    kTownMinimum + (static_cast<float>(z) + 0.5f) * grid.cellUnits_};
                 for (const assets::NavSegment& segment : graph.segments) {
-                    if (distanceSquaredToSegment(centre, segment) <= grid.cellUnits_ * grid.cellUnits_) {
+                    if (distanceSquaredToSegment(centre, segment) <= freeDistanceSquared) {
                         grid.blocked_[grid.index(x, z)] = false;
                         break;
                     }

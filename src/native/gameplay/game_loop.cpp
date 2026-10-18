@@ -208,6 +208,12 @@ FrameSnapshot GameLoop::tick(float /*dt*/, const MenuInput& /*menuInput*/) {
 
     tasks_.tick();  // (a) task walker pass
     if (params_.raceMode) raceTracker_.tick();
+    // ROM RunCountdownTimerTask (0x22DAE8): the GO bit goes into the race
+    // word at tick 0xF0 and SetVehicleMode switches to the free mode 6 there
+    // (tick/0x3c + 2), so even the attract-demo AI is held before GO.
+    // shortcut: input blanked for 240 race frames; upgrade when the READY/GO
+    // banner state machine (hud_layout RaceStart*) lands and can gate on it.
+    const bool held = params_.raceMode && raceTracker_.elapsedFrames() <= 240;
 
     for (int k = 0; k < params_.physicsTicksPerFrame; ++k) {
         const int before = ai_.waypointIndex;
@@ -221,7 +227,7 @@ FrameSnapshot GameLoop::tick(float /*dt*/, const MenuInput& /*menuInput*/) {
         in.gas = cmd.throttle;
         in.brake = cmd.brake;
         in.steer = cmd.steer;
-        integrateCar(in);  // (c) car physics, heading, and position integration
+        integrateCar(held ? CarInput{} : in);  // (c) car physics, heading, and position integration
     }
     return makeSnapshot();
 }
@@ -229,7 +235,14 @@ FrameSnapshot GameLoop::tick(float /*dt*/, const MenuInput& /*menuInput*/) {
 FrameSnapshot GameLoop::tickPlayer(float /*dt*/, const MenuInput& /*menuInput*/, const CarInput& input) {
     tasks_.tick();  // (a) task walker pass
     if (params_.raceMode) raceTracker_.tick();
-    for (int k = 0; k < params_.physicsTicksPerFrame; ++k) integrateCar(input);
+    // ROM RunCountdownTimerTask (0x22DAE8): the GO bit goes into the race
+    // word at tick 0xF0 and SetVehicleMode switches to the free mode 6 there
+    // (tick/0x3c + 2).  Blank the driver until then; the car holds at speed 0.
+    // shortcut: input blanked for 240 race frames; upgrade when the READY/GO
+    // banner state machine (hud_layout RaceStart*) lands and can gate on it.
+    const bool held = params_.raceMode && raceTracker_.elapsedFrames() <= 240;
+    for (int k = 0; k < params_.physicsTicksPerFrame; ++k)
+        integrateCar(held ? CarInput{} : input);
     return makeSnapshot();
 }
 

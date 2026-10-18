@@ -162,7 +162,8 @@ static void testRaceModeTracksLapsAndFinish() {
     raceParams.totalLaps = 1;
     GameLoop race(raceParams);
     FrameSnapshot raceSnapshot;
-    for (int i = 0; i < 130; ++i) raceSnapshot = race.tick(1.f / 60.f, mi);
+    // +240: the countdown hold (see above) parks the car for 4 s of frames.
+    for (int i = 0; i < 130 + 240; ++i) raceSnapshot = race.tick(1.f / 60.f, mi);
     CHECK(raceSnapshot.finished);
     CHECK(raceSnapshot.lap == 1);
     CHECK(raceSnapshot.elapsedFrames > 0);
@@ -172,6 +173,16 @@ static void testRaceModeTracksLapsAndFinish() {
     FrameSnapshot freeDriveSnapshot;
     for (int i = 0; i < 130; ++i) freeDriveSnapshot = freeDrive.tick(1.f / 60.f, mi);
     CHECK(!freeDriveSnapshot.finished);
+
+    // RunCountdownTimerTask (0x22DAE8) raises the race word's GO bit at tick
+    // 0xF0 (SetVehicleMode 2->6); before that a held gas must not move the car.
+    GameLoop countdown(raceParams);
+    const CarInput gas{.steer = 0, .gas = true};
+    FrameSnapshot held;
+    for (int i = 0; i < 240; ++i) held = countdown.tickPlayer(1.f / 60.f, mi, gas);
+    CHECK(held.speed == 0.f);
+    const FrameSnapshot released = countdown.tickPlayer(1.f / 60.f, mi, gas);
+    CHECK(released.speed > 0.f);
 }
 
 int main() {

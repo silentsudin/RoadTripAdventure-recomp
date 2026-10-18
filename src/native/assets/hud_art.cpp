@@ -100,14 +100,18 @@ bool decodePsmt8Ct16(std::span<const std::uint8_t> gsl, const Unit& tex, const U
 }
 
 bool decodePsmt4Ct16(std::span<const std::uint8_t> gsl, const Unit& tex, const Unit& pal,
-                     preview::PreviewTexture& out, int clutBaseEntry = 0) {
+                     preview::PreviewTexture& out, int clutBaseEntry = 0,
+                     bool csm1Swizzle = true) {
     const std::size_t expected = (static_cast<std::size_t>(tex.width) * tex.height + 1u) / 2u;
     if (tex.bytes != expected || pal.bytes != 512) return false;
     std::vector<std::uint8_t> decoded(static_cast<std::size_t>(tex.width) * tex.height * 4u);
     for (std::size_t i = 0; i < static_cast<std::size_t>(tex.width) * tex.height; ++i) {
         const std::uint8_t byte = gsl[tex.pixels + (i / 2)];
         const std::uint32_t idx = (byte >> ((i & 1u) * 4u)) & 0xFu;
-        const std::uint32_t phys = (idx & 7u) | ((idx & 8u) << 1);
+        // METER0 unit-2's CT16 palette is CSM0: the GS-faithful extract path
+        // indexes csa*16+v flat (its CSA-12 bank reproduces the oracle's gray
+        // needle); only the SCORE page's palette carries the CSM1 swizzle.
+        const std::uint32_t phys = csm1Swizzle ? ((idx & 7u) | ((idx & 8u) << 1)) : idx;
         // CSM1 swizzle (note: (idx&8)<<1 pushes phys up to 23, so the CLUT
         // base must leave headroom >= 24 entries), plus a per-CSA base entry
         // into the 512B CT16 unit.  The base is NOT bank*16: fitting the
@@ -131,7 +135,7 @@ bool decodePsmt4Ct16(std::span<const std::uint8_t> gsl, const Unit& tex, const U
 
 bool decodePageAt(std::span<const std::uint8_t> gsl, std::size_t imageOffset,
                   std::uint32_t width, std::uint32_t height, int clutBaseEntry,
-                  preview::PreviewTexture& out) {
+                  preview::PreviewTexture& out, bool csm1Swizzle = true) {
     std::size_t at = 0;
     while (at + 16 <= gsl.size() && gsl[at + 3] != kEnd) {
         Unit texture, palette;
@@ -141,7 +145,7 @@ bool decodePageAt(std::span<const std::uint8_t> gsl, std::size_t imageOffset,
             texture.width == width && texture.height == height) {
             if (!parseUnit(gsl, after, palette, after) || palette.psm != kPsmCt16 ||
                 palette.width != 16 || palette.height != 16) return false;
-            return decodePsmt4Ct16(gsl, texture, palette, out, clutBaseEntry);
+            return decodePsmt4Ct16(gsl, texture, palette, out, clutBaseEntry, csm1Swizzle);
         }
         at = after;
     }
@@ -286,7 +290,7 @@ HudArt loadHudArt(const std::filesystem::path& discRoot) {
             art.speedDigits = std::move(digitsTex);
         // METER0's second image begins at 0x8550.  Its 16x16 CT16 palette
         // follows immediately; CSA 12 starts at palette entry 192.
-        if (!art.gaugePage && decodePageAt(bytes, 0x8550, 128, 120, 12 * 16, tex))
+        if (!art.gaugePage && decodePageAt(bytes, 0x8550, 128, 120, 12 * 16, tex, false))
             art.gaugePage = std::move(tex);
         if (art.speedDial && art.speedDigits) break;
     }
