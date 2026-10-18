@@ -156,6 +156,28 @@ Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is requ
   W8-04 rotated-quad preview path + drawGaugeNeedle (preview layer only, NO main.cpp; w21
   test; coordinator wires dial after; ses_eb05d398...yBNqN3xf). Lanes: W8-01/02 both touch
   main.cpp in different regions (title/menu vs session-loop) — clobber watch at integration.
+- WAVE-8 CLOSED 2026-10-18 (coordinator, all four integrated + verified):
+  W8-01 title save/load wired (RT_APP_STATE=LOAD smoke rc=0 state=LOAD sim=0 — matches
+  handoff recipe exactly; selection law unit-covered w19 checks=12). W8-02 autopilot
+  ON gates GREEN with RT_APP_HEADLESS=1 (RECIPE AMENDMENT: autopilot gates on
+  headlessApp=RT_APP_HEADLESS, earlier OFF-looking ON runs simply lacked it):
+  explore@300 ticks sim=301 and frames@150 vs @300 differ (car moves); race@200 reaches
+  sim=200 (past finish 117 via results-continue, "continued results" logged) rc=0;
+  ON det pair @110 byte-identical. Registry gate caught the unregistered
+  RT_APP_AUTOPILOT/_HOLD — `autopilot` entry added, data files regenerated, w2-13
+  green 66/66 registry=64. W8-03 collision ribbon rule is now the default in
+  fromTownGraph; w20's ">2 cells" check updated to the cited road-width-60 bound
+  (sanctioned test fix). W8-04 rot-quad landed preview-only; dial main.cpp wiring =
+  coordinator backlog with hub-cap.
+- GOLDEN POLICY AMENDMENT 2026-10-18 (user directive, standing): the EMULATOR (recomp
+  running the guest, paraLLEl-GS) is the golden reference — native-vs-native det pairs
+  are regression pins, never proof of accuracy. Harness scripts/rt_oracle_diff.py
+  drives oracle (RT_PROGRESSIVE_FIELDS=1 + RT_GS_SSAA=2 → 640x448) + native per scene,
+  tolerant rule per goldens.py. First honest numbers (docs/native-reference/accuracy-vs-oracle.md):
+  title tolerant 23.4% / menu 57.2% / race 54.0% / town 74.8% — ALL FAIL; gaps are
+  scene CONTENT (real title art, menu chrome, own+opponent cars, textured terrain, town
+  3D), quantifying the "graphics broken" report. Wave 9 = scene-content packages, each
+  validated by tolerant-diff improvement.
 - WAVE-7 dispatched 2026-10-18: W7-01 needle draw procurement (openai, gauge_needle.h +
   w19 test + docs — needle bitmap/cell/pivot/rotation from handler 0x249DC0 path);
   W7-02 explore-freeze diagnosis (synthetic GLM-Flash, report-only); W7-03 town collision
@@ -201,6 +223,40 @@ Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is requ
 - script-vm 0x85..0x8B rumble wiring into main.cpp event drain.
 - Title/save-menu UI; ElementA countdown + F3; ssaa/physics_hz application sites.
 - Dashcam fit refinement (73.3% IoU at scale 1.5, yoff ~317).
+
+## Policy pivot CLOSED — 2026-10-18 (Ship-of-Harkinian, user decision)
+`src/native` may now commit AND ship mechanically translated guest functions
+(structurally faithful Ghidra-pseudocode ports) — AGENTS.md carries the rule.
+Assets stay BYO-disc (`RT_DISC`), never committed. The `nm | grep -c sub_00`
+gate applies only to the recomp product packaging, not `rt-app`.
+Worker prompts from here may say "port the pseudocode", not only "author fresh".
+
+## Wave 9 — SCENE CONTENT (dispatch pending quota)
+- **W9-01 race terrain textures** (`tests/native_w24`, build `build/w-W9-1`): textured
+  course ground replacing the grey placeholder in RACE — chain `0x2C9980` (mode 1),
+  `kCourseTextureBases` (`course_texture.cpp`, 13 entries, names cited), GSTRacks
+  upload format per `docs/native-textures.md`; wire `textureStore`/`hw_texture_replace`
+  into `drawRace3d` + `draw_course(…, store)`. Ground truth: golden race frames.
+- **W9-02 player car, chase view** (`tests/native_w25`, build `build/w-W9-2`):
+  resume partial `src/native/preview/car_render.{h,cpp}`; car parts list from the
+  chase camera's VIF1 traffic (0x2879F0 chain walk). Coordinator wires main.cpp.
+- **W9-03 physics calibration** (local-first): `kAccel=40` × 8 ticks ≈ 320
+  speed-words/frame vs oracle ≈ 5.7/frame (golden race 37 mph ≈ word 2037 at ~360
+  drive frames post-GO). Measure oracle speed(t) via mph digits in oracle race frames
+  (ones-digit law, `docs/native-reference/hud-layout-spec.md`); recalibrate
+  `kAccel`/`kCoast`/`kSpeedMax` + gear ratios; fps state-hash equality is the
+  determinism guard. Gate: native speed within a few mph of oracle at 60/120/240/300 post-GO.
+
+## Housekeeping 2026-10-18 (coordinator)
+- Registry gate green again: `autopilot`/`autopilot_hold` registered, data files
+  byte-identical (64 registry / 66 env / 66 socket).
+- `RT_APP_NATIVE_RENDER` remains UNREGISTERED (owner decision pending — keep or retire).
+- Needle wiring landed: pivot double-count fixed (dialOrigin = 484,294 + kPivot once),
+  gauge CT16 pages decoded CSM0-flat (`decodePsmt4Ct16(csm1Swizzle=false)` — only the
+  SCORE page swizzles), `[hud]` log float-format fixed. Drawn bearing vs law within ~2°
+  at f110; mph=0 through the whole countdown is the correct game behavior.
+- Pre-GO input gating (240 frames, `0x22DAE8` GO-at-0xF0 law) in tick()+tickPlayer();
+  unit test asserts speed 0 through GO; race-finish test budget 130+240.
 
 ## Score history
 v9 0.655/0.703/0.478/0.481 · v10 0.872/0.706/0.597/0.471 · v12 same+car span 2.2 RU ·
