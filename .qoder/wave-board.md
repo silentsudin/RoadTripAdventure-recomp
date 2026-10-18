@@ -119,6 +119,25 @@ Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is requ
   55.07 confirmed, kKy=kKx*0.47 via ROM float 0x332CAC). W6-04 driveline rpm/gear exposure
   (game_loop.{h,cpp}, w18 checks=13 CAUGHT first_shift_frame=114): FrameSnapshot.gear/rpm now
   exist; main.cpp gear-glyph wire pending, needle still withheld pending adjudicated art.
+- STATUS 2026-10-18 late: commit A = 3891052 pushed (green: sweep 109, matrix 32/32 rc=0,
+  det pair). Commit B pending = gear-source wiring in main.cpp (raceHudLayoutStateFor +
+  dialState take snapshot.gear; race_hud.h comment) — rebuild done, gates (pixel presence +
+  sweep + det + matrix) queued after W7 dispatches. Race app-level run at load shows
+  simulation_frame advancing fine (no regression); explore headless freeze CONFIRMED still
+  live (sim stuck at 1) — W7-02 diagnosing (background).
+- WAVE-7 dispatched 2026-10-18: W7-01 needle draw procurement (openai, gauge_needle.h +
+  w19 test + docs — needle bitmap/cell/pivot/rotation from handler 0x249DC0 path);
+  W7-02 explore-freeze diagnosis (synthetic GLM-Flash, report-only); W7-03 town collision
+  grid evidence + integrateCar wiring proposal (synthetic DeepSeek-Flash, tests/native_w20).
+  All new-files-only, no main.cpp/CMakeLists touches.
+- W7-01 VERIFIED + LANDED (commit C): coordinator re-ran test (checks=12 failed=0, CAUGHT),
+  ROM-checked cited floats (10000.0/-0.7/pi at 0x332F50/54/84) and cell immediate
+  (addiu 0x35 at 0x249E44); helpers uiArenaRotQuads/uiSetSpriteClamp/uiArenaBeginBatch
+  already named in game_symbols.toml. Fixed worker CMakeLists to house convention
+  (w19_gauge_needle_test target, rt_native_assets link) and converted assert() to
+  NDEBUG-proof check() accumulator. Spec: cell (3,53,8,59) in METER0 CSA12 page @0x8550,
+  pivot dial+(70,68). GAP: preview textured API is axis-aligned — needle stays UNDRAWN
+  until a 4-vertex rotated-quad draw path exists (backlog).
 - HUD PIXEL FALSE ALARM CLOSED 2026-10-18: "race HUD zero pixels" was my PPM parser's wrong
   header offset (14 vs 16 bytes), not the app. composite diagnostics prove dial ~24k px,
   banner ~6.9k, digits ~17k blend per frame into the 800x600 buffer. Evidence
