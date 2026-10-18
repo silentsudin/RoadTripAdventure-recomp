@@ -73,7 +73,7 @@ inline constexpr std::size_t kPartsCount          = 6;
 inline constexpr std::size_t kPlayerNameSize      = 19;
 inline constexpr std::size_t kCurrencyNameSize    = 18;  // see header note (config: 21, overlaps licence)
 inline constexpr std::size_t kLocationCount       = 10;  // unvisited_doors u32s / towns (0..9)
-inline constexpr std::size_t kRaceResultCount     = 35;
+inline constexpr std::size_t kRaceResultCount     = 78;  // InitSaveSlotDefaults 0x2277b0: 0xFF at 0xFF0 + i + 26*j (i<26, j<3) -> 78-byte blob
 inline constexpr std::size_t kBestTimeEntries     = 78;  // 312 bytes / u32
 inline constexpr std::size_t kControllerActionCount = 10;  // gas brake reverse jet wingUp wingDown horn view lights navigator
 inline constexpr std::uint32_t kMoneyCap          = 999999;  // SpendTimerBudget 0x23DC58
@@ -147,7 +147,7 @@ struct SaveData {
     std::uint32_t mileageM = 0;                                 // 0x658
     std::array<std::uint8_t, 2> wgpTeammates{};                 // 0x674 / 0x676
     std::array<std::uint32_t, kLocationCount> unvisitedDoors{}; // 0xBD8
-    std::array<std::uint8_t, kRaceResultCount> raceResults{};   // 0xFF0
+    std::array<std::uint8_t, kRaceResultCount> raceResults{};   // 0xFF0 (78-byte 3x26 grid; InitSaveSlotDefaults 0x2277b0)
     std::array<std::uint32_t, kBestTimeEntries> bestLap{};      // 0x1040
     std::array<std::uint32_t, kBestTimeEntries> bestTotal{};    // 0x1178
     std::uint32_t skiJumpBest = 0;                              // 0x12C8

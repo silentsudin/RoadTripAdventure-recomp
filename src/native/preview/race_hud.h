@@ -3,6 +3,7 @@
 #include "assets/glyph_atlas.h"
 #include "gameplay/hud_layout.h"
 #include "preview/preview.h"
+#include "preview/text_metrics.h"
 
 #include <algorithm>
 #include <array>
@@ -108,12 +109,20 @@ inline std::vector<HudQuad> fonteTextQuads(const char* text, float uiX, float ui
     const float y = offY + (uiY + rt::native::gameplay::kFrameYOffset) * s;
     const float cw = static_cast<float>(rt::native::assets::kGlyphCellWidth) * s;
     const float ch = static_cast<float>(rt::native::assets::kGlyphCellHeight) * s;
+    // Proportional pen (W3-01): the advance is the glyph's uiGlyphWidths
+    // entry (96 u8 values at ELF 0x0029A880..0x0029A8DF, re-verified from
+    // the ROM), while the inked cell stays a fixed 16x24 slot. Unloaded
+    // cells and non-ASCII bytes advance without a quad, matching the
+    // original cell-walk. Process-static table: the disc is read once at
+    // first use (RT_ELF override, else disc path, else authored fallback).
+    static const GlyphTable kGlyphMetrics{GlyphTable::fromRuntime()};
     for (const char* p = text; *p; ++p) {
         const int slot = rt::native::assets::fonteSlotForChar(*p);
-        if (slot < 0) { x += cw; continue; }
-        const auto uv = rt::native::assets::fonteSlotUv(slot);
-        quads.push_back({x, y, cw, ch, uv.u0, uv.v0, uv.u1, uv.v1, color});
-        x += cw;
+        if (slot >= 0) {
+            const auto uv = rt::native::assets::fonteSlotUv(slot);
+            quads.push_back({x, y, cw, ch, uv.u0, uv.v0, uv.u1, uv.v1, color});
+        }
+        x += kGlyphMetrics.glyph(static_cast<unsigned char>(*p)).advance * s;
     }
     return quads;
 }

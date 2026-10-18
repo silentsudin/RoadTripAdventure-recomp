@@ -32,14 +32,23 @@ struct Pose {
     float z;
     double expectY;
     bool town;  // Peach Town tile-local, else Peach Raceway (COURSE/C00)
+    // Per-pose tolerance, W2-04r3 user ruling (2026-10-18): static/settled
+    // poses stay at the original 0.05 game-unit gate; driving-telemetry poses
+    // are widened because expectY comes from the floating car body word
+    // (car+0x94) while heightAt() answers with the road surface underneath.
+    // The only widened pose is town_street: recorded residual 0.102001 is the
+    // ride-height float, identical in every run since the original W2-04
+    // (.qoder/wave2/W2-04-report.md:18, build/w-W2-04r3/run1.txt), which the
+    // report itself proposed re-registering at <=0.11.
+    double yTol;
 };
 
 // oracle-golden-frames.md harness car floats (car+0x90/+0x94/+0x98).
 constexpr Pose kPoses[] = {
-    {"town_driving", 506.283f, 442.230f, 30.000, true},
-    {"town_street", 518.557f, 481.538f, 30.098, true},
-    {"race_hud", 616.684f, 568.756f, 1.100, false},
-    {"race_driving", 747.502f, 479.340f, 1.100, false},
+    {"town_driving", 506.283f, 442.230f, 30.000, true, kOracleYMax},
+    {"town_street", 518.557f, 481.538f, 30.098, true, 0.11},
+    {"race_hud", 616.684f, 568.756f, 1.100, false, kOracleYMax},
+    {"race_driving", 747.502f, 479.340f, 1.100, false, kOracleYMax},
 };
 
 std::uint32_t lcg(std::uint32_t& state) {
@@ -96,6 +105,8 @@ struct Measure {
     int elfPinN = 0;
     int roundTrip = 0;
     int townBound = 0;
+    int poseOk = 0;
+    int poseN = 0;
     std::uint64_t hash = 0xcbf29ce484222325ull;
 };
 
@@ -125,7 +136,8 @@ int pinElf(const std::vector<std::uint8_t>& elf, Measure& m) {
 
 Measure measure(const rt::native::gameplay::TerrainMesh& town,
                 const rt::native::gameplay::TerrainMesh& race,
-                const std::vector<std::uint8_t>& elf) {
+                const std::vector<std::uint8_t>& elf,
+                bool printPoses = false) {
     using rt::native::gameplay::tileIdAt;
     using rt::native::gameplay::tilePlacementOf;
     Measure m;
@@ -133,11 +145,16 @@ Measure measure(const rt::native::gameplay::TerrainMesh& town,
     m.hash = fnv(m.hash, static_cast<std::uint64_t>(m.elfPins));
 
     double errMax = 0.0;
+    double poseErrs[sizeof(kPoses) / sizeof(kPoses[0])] = {0.0};
+    int poseIdx = 0;
     for (const Pose& pose : kPoses) {
         const auto& mesh = pose.town ? town : race;
         const auto sample = mesh.heightAt(pose.x, pose.z);
         const double err = sample.hit ? std::abs(static_cast<double>(sample.height) - pose.expectY)
                                       : 1.0e6;
+        poseErrs[poseIdx++] = err;
+        ++m.poseN;
+        if (err <= pose.yTol) ++m.poseOk;
         if (err > errMax) errMax = err;
         std::uint32_t bits = 0;
         static_assert(sizeof(bits) == sizeof(sample.height));
@@ -151,6 +168,15 @@ Measure measure(const rt::native::gameplay::TerrainMesh& town,
         if (sample.hit && sample.surface == expectSurface) ++m.surfacePins;
     }
     m.oracleYErrMax = errMax;
+    if (printPoses) {
+        // Per-pose attribution (W2-04r3 ruling: static/settled-pose Y exact;
+        // driving telemetry floats above the surface via car+0x94 ride height).
+        std::printf("W2-04 POSES");
+        for (std::size_t i = 0; i < sizeof(kPoses) / sizeof(kPoses[0]); ++i) {
+            std::printf(" %s=%.6f", kPoses[i].name, poseErrs[i]);
+        }
+        std::printf("\n");
+    }
 
     std::uint32_t state = kSeed;
     for (int i = 0; i < kTorusPoints; ++i) {
@@ -524,29 +550,37 @@ int main(int argc, char** argv) {
     rt::native::gameplay::TerrainMesh race;
     const bool loaded = townOk && raceOk && town.load(townBytes) && race.load(raceBytes);
     if (!loaded) {
-        std::printf("W2-04 SCORE oracle_y_err_max=1 tile_id_ok=0/%d coverage=0 fallback_hits=%d "
+        std::printf("W2-04 SCORE oracle_y_err_max=1 pose_gate=0/0 tile_id_ok=0/%d coverage=0 fallback_hits=%d "
                     "deterministic=0 FAIL\n",
                     kTorusPoints, kCoveragePoints);
         return 1;
     }
 
-    const Measure first = measure(town, race, elf);
+    const Measure first = measure(town, race, elf, true);
     const Measure second = measure(town, race, elf);
     const bool deterministic = first.hash == second.hash && first.coverageHits == second.coverageHits &&
-                               first.tileOk == second.tileOk && first.fallbackHits == second.fallbackHits;
+                               first.tileOk == second.tileOk && first.fallbackHits == second.fallbackHits &&
+                               first.poseOk == second.poseOk;
 
     const double coverage = static_cast<double>(first.coverageHits) / static_cast<double>(first.coverageN);
-    const bool yOk = first.oracleYErrMax <= kOracleYMax;
+    // W2-04r3 user ruling (2026-10-18): static/settled-pose Y is exact; the
+    // driving residual is documented, not thresholded. The single wide pose is
+    // town_street (expectY 30.098 = car+0x94 body word while the mesh answers
+    // the flat 30.200 triangle under it; residual 0.102001 constant since the
+    // original run -- .qoder/wave2/W2-04-report.md:50, which itself proposed
+    // re-registering <=0.11). Per-pose yTol on kPoses implements the ruling;
+    // oracle_y_err_max stays on the SCORE line for regression visibility.
+    const bool yOk = first.poseOk == first.poseN;
     const bool tileOk = first.tileOk == first.tileN;
     const bool coverOk = coverage >= kCoverageMin;
     const bool pinsOk = first.surfacePins == first.surfacePinN && first.elfPins == first.elfPinN &&
                         first.roundTrip == 64 && first.townBound == 2;
     const bool pass = yOk && tileOk && coverOk && deterministic && pinsOk;
 
-    std::printf("W2-04 SCORE oracle_y_err_max=%.6f tile_id_ok=%d/%d coverage=%.6f "
+    std::printf("W2-04 SCORE oracle_y_err_max=%.6f pose_gate=%d/%d tile_id_ok=%d/%d coverage=%.6f "
                 "fallback_hits=%d deterministic=%d surface_pins=%d/%d elf_pins=%d/%d "
                 "round_trip=%d/64 town_tile=%d/2 %s\n",
-                first.oracleYErrMax, first.tileOk, first.tileN, coverage, first.fallbackHits,
+                first.oracleYErrMax, first.poseOk, first.poseN, first.tileOk, first.tileN, coverage, first.fallbackHits,
                 deterministic ? 1 : 0, first.surfacePins, first.surfacePinN, first.elfPins,
                 first.elfPinN, first.roundTrip, first.townBound, pass ? "PASS" : "FAIL");
 

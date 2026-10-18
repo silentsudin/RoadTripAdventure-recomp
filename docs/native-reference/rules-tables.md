@@ -106,7 +106,8 @@ u32 0x22DDD0, u32 0x2508E0}`.
   `FUN_00237c48` writes place/lap/total into per-player bands of 26 slots
   (`26 × 3 players = 78` u32 rows per table — matches the PROVEN 78-entry
   arity in save-layout.md) and remaps race ids 26/27 → 24/25 — CONFIRMED.
-  (`save-layout.md` says 35 bytes at `0xFF0`; this code writes 26 of them.)
+  (`save-layout.md` now records the PROVEN 78-byte blob at `0xFF0` —
+  3 bands of 26 slots, one band per player — matching this code.)
 
 ### 1.4 Money census — the 13 mutation sites (CONFIRMED exhaustiveness)
 

@@ -107,8 +107,8 @@ foreach(_rt_staged_source
         gameplay/app_flow.cpp gameplay/vehicle_model.cpp gameplay/terrain_query.cpp
         gameplay/race_rules.cpp gameplay/item_economy.cpp gameplay/text_script.cpp
         gameplay/save_v2.cpp gameplay/audio_graph.cpp audio/vag_stream.cpp
-        gameplay/hud_live.cpp gameplay/minimap.cpp
-        gameplay/input_map.cpp gameplay/enhancements.cpp)
+         gameplay/hud_live.cpp gameplay/minimap.cpp gameplay/save_slots.cpp
+         gameplay/input_map.cpp gameplay/enhancements.cpp app/enhancements_app.cpp)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_rt_staged_source}")
         list(APPEND RT_NATIVE_ASSET_SOURCES "${_rt_staged_source}")
     endif()
@@ -257,6 +257,36 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
         target_compile_features(w2_${_rt_w2_test_we} PRIVATE cxx_std_20)
         target_compile_options(w2_${_rt_w2_test_we} PRIVATE ${RT_NATIVE_WARN_OPTIONS})
     endforeach()
+
+    add_executable(w3_enhancements_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/enhancements_app_test.cpp")
+    target_link_libraries(w3_enhancements_test PRIVATE rt_native_assets)
+    target_compile_features(w3_enhancements_test PRIVATE cxx_std_20)
+    target_compile_options(w3_enhancements_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(w3_minimap_track_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/minimap_track_test.cpp")
+    target_link_libraries(w3_minimap_track_test PRIVATE rt_native_assets)
+    target_compile_features(w3_minimap_track_test PRIVATE cxx_std_20)
+    target_compile_options(w3_minimap_track_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(w3_text_metrics_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/text_metrics_test.cpp")
+    target_link_libraries(w3_text_metrics_test PRIVATE rt_native_assets)
+    target_compile_features(w3_text_metrics_test PRIVATE cxx_std_20)
+    target_compile_options(w3_text_metrics_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(w3_collision_grid_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/collision_grid_test.cpp")
+    target_link_libraries(w3_collision_grid_test PRIVATE rt_native_assets)
+    target_compile_features(w3_collision_grid_test PRIVATE cxx_std_20)
+    target_compile_options(w3_collision_grid_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(w3_save_slots_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/save_slots_test.cpp")
+    target_link_libraries(w3_save_slots_test PRIVATE rt_native_assets)
+    target_compile_features(w3_save_slots_test PRIVATE cxx_std_20)
+    target_compile_options(w3_save_slots_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
     add_executable(native_facade_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_native_facade.cpp")
@@ -751,4 +781,14 @@ if(RT_NATIVE_ASSETS_COVERAGE)
         target_link_options(${rt_native_cov_tool} PRIVATE -fprofile-instr-generate)
     endforeach()
     message(STATUS "rt_native_assets: coverage instrumentation ON for: ${RT_NATIVE_COVERAGE_TARGETS}")
+endif()
+
+# W3-05: one isolated registration block; no changes to other workers' targets.
+target_sources(rt_native_assets PRIVATE gameplay/event_bridge.cpp)
+if(RT_NATIVE_ASSETS_BUILD_TESTS)
+    add_executable(w3_script_bridge_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/event_bridge_test.cpp")
+    target_link_libraries(w3_script_bridge_test PRIVATE rt_native_assets)
+    target_compile_features(w3_script_bridge_test PRIVATE cxx_std_20)
+    target_compile_options(w3_script_bridge_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 endif()

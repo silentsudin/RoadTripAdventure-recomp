@@ -59,7 +59,7 @@ interpretation; a direct field writer is stronger than a layout-only correlation
 | `0x0658` | u32 metres | odometer/mileage | summary divides by 1609 for miles | PROVEN |
 | `0x0674`, `0x0676` | u8 each | World Grand Prix teammates; 0 = none | WGP script opcode checks both | PROVEN |
 | `0x0BD8` | 10 × u32 bitmaps | unvisited house doors per location; set bit = not visited | `FUN_002277B0` writes new-game masks; door traversal clears bits | PROVEN |
-| `0x0FF0` | 35 × u8 | Adventure race place minus one; `0xFF` = not raced | race-table result consumers | PROVEN |
+| `0x0FF0` | 78 × u8 | Adventure race place minus one; `0xFF` = not raced. ROM truth: `InitSaveSlotDefaults` (`0x2277b0`) writes `0xFF` at `0xFF0 + i + 26*j` (i<26, j<3) — a contiguous 78-byte blob, 3 blocks of 26 (substructure per block unpinned) | race-table result consumers | PROVEN |
 | `0x1040` | 78 × u32 frames | best lap; `0x7fffffff` = none | `FUN_002277B0` initializes sentinel | PROVEN |
 | `0x1178` | 78 × u32 frames | best total time; `0x7fffffff` = none | `FUN_002277B0` initializes sentinel | PROVEN |
 | `0x12C8` | u32 metres | White Mountain ski-jump record | ski-jump result save field | PROVEN |
@@ -210,3 +210,24 @@ and size errors. **No original card/save bytes were available**, so these facts
 remain unvalidated until a real save sample exists: actual card geometry/FAT
 variants; real directory timestamps/mode variations; raw NAND ECC behavior;
 and whether any out-of-cluster semantic validator runs elsewhere in the game.
+
+## Native slot persistence seams (W3-04, 2026-10-18)
+
+`src/native/gameplay/save_slots.{h,cpp}` (`rt::native::gameplay::SlotStore`)
+implements two-slot native save persistence (`slot0.sav` / `slot1.sav`,
+atomic tmp + rename) over the existing `SaveData` blob. The app wiring is
+developer opt-in only — default runs never read or write slot files, so the
+feature matrix stays deterministic:
+
+- `RT_APP_SAVE_SLOT=<0|1>` — at shutdown, write `session.progress()` to
+  `slot<N>.sav` (strict parse; any other value is ignored).
+- `RT_APP_LOAD_SLOT=<0|1>` — after `GameSession` construction, load
+  `slot<N>.sav` into `session.progress()` (strict parse).
+- `RT_SAVE_DIR=<path>` — root directory for the slot files; default is
+  `$HOME/Library/Application Support/RoadTripNative`. The harness points this
+  at a scratch directory so round-trip tests never touch user data.
+
+The title-screen /Options > Save/Load menu UI remains a GAP; the ROM's
+memcard flow (`InitSaveSlotDefaults @0x2277b0`, 78 × `0xFF` race-result block
+at save offset `0xFF0`) is ground truth for the blob shape that `SlotStore`
+round-trips byte-exactly.

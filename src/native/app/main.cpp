@@ -15,6 +15,7 @@
 #include "audio/vag_loader.h"
 #include "gameplay/collectibles.h"
 #include "gameplay/dialogue.h"
+#include "gameplay/event_bridge.h"
 #include "gameplay/input.h"
 #include "gameplay/interp.h"
 #include "gameplay/glyphs.h"
@@ -23,6 +24,8 @@
 #include "gameplay/perfstats.h"
 #include "gameplay/radio.h"
 #include "gameplay/rumble.h"
+#include "gameplay/save_slots.h"
+#include "app/enhancements_app.h"
 #include "app/output_modes.h"
 #include "gameplay/session.h"
 #include "gameplay/settings.h"
@@ -651,7 +654,10 @@ int envInterpCap() {
 // the swapchain presentation cadence (vsync) paces rendering.
 int envInterpRate() {
     const char* value = std::getenv("RT_APP_INTERP_RATE");
-    return value && *value ? std::max(0, std::atoi(value)) : 0;
+    if (value && *value) return std::max(0, std::atoi(value));
+    // W3-06: RT_ENHANCE_TARGET_HZ is the registry spelling of the same render
+    // fps cap (0 = vsync pacing); explicit RT_APP_INTERP_RATE still wins.
+    return rt::native::app::Enhancements::instance().options().target_hz;
 }
 
 // RT_APP_TERRAIN=1 replaces the flat grass quad with real terrain extracted
@@ -1435,6 +1441,14 @@ int main() {
     if (headlessApp) SDL_SetHint("SDL_VIDEO_DRIVER", "dummy");  // SDL3: no macro
     bootstrapSettings();
     (void)rt::native::assets::RunFirstRunSetupIfRequired();
+    // W3-06 enhancement registry (RT_ENHANCE_*): parsed once at startup; every
+    // default equals the legacy behaviour, so an unset environment is a no-op.
+    // Applied here: target_hz (render cap fallback), fps_display, log_fps.
+    // ssaa and physics_hz are registered but have no native application site
+    // yet (no supersample path; logic quantum is fixed by
+    // FixedStepClock::kStepSeconds) — logged for transparency, wave-board GAP.
+    const auto& enhancements = rt::native::app::Enhancements::instance();
+    std::cout << "[enhance] " << enhancements.describeAll() << "\n";
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)) { std::cerr << "SDL_Init: " << SDL_GetError() << "\n"; return 1; }
     // Output-mode selection (RT_APP_RESOLUTION / RT_APP_FULLSCREEN,
     // output-modes.md).  Unset env stays exactly the legacy 800x600 windowed
@@ -1491,11 +1505,13 @@ int main() {
     if (triggersEnabled) std::cout << "rt-app triggers: enabled\n";
     const bool perfOverlayEnabled = [] {
         const char* value = std::getenv("RT_APP_PERFOVERLAY");
-        return value && std::strcmp(value, "1") == 0;
+        return (value && std::strcmp(value, "1") == 0) ||
+               rt::native::app::Enhancements::instance().options().fps_display;
     }();
     const bool perfLogEnabled = [] {
         const char* value = std::getenv("RT_APP_PERFLOG");
-        return value && std::strcmp(value, "1") == 0;
+        return (value && std::strcmp(value, "1") == 0) ||
+               rt::native::app::Enhancements::instance().options().log_fps;
     }();
     // RT_APP_STREAM=1 (with RT_APP_TERRAIN=1) replaces the eager 64-tile
     // load with hardware-style 4-slot streaming (slot = id & 3).
@@ -1510,6 +1526,13 @@ int main() {
     // tile-local game units — same space as snapshot.carPosition) stamped
     // navy into the bottom-left pill on drive frames.
     std::vector<std::array<float, 4>> mmRoads;
+    // Race-map v1 ink (W3-02 law, oracle-golden adjudicated 2026-10-18): the
+    // full segment list of staticGraph(10) (the 143-node loop chosen by IoU
+    // overlay against build/scratch/oracle-golden/race_hud.png), plus the
+    // auto-fit parameters — world-space centre of the node bounding box and
+    // the uniform px-per-unit scale that fits height 138 / width 64 design px.
+    std::vector<std::array<float, 4>> mmRaceNodes;
+    float mmRaceCx = 0.f, mmRaceCz = 0.f, mmRaceFit = 0.f;
     std::optional<rt::native::gameplay::NavDrive> navDrive;
     constexpr float kNavRouteSpeedUnitsPerFrame = 30.f;
     int navRouteLap = 0;
@@ -1588,6 +1611,26 @@ int main() {
                 for (const auto& seg : graph->segments)
                     mmRoads.push_back({seg.ax, seg.az, seg.bx, seg.bz});
                 std::cout << "rt-app minimap: town street segments=" << mmRoads.size() << "\n";
+            }
+            if (auto race = mmTables->staticGraph(10)) {
+                float minX = 1e30f, maxX = -1e30f, minZ = 1e30f, maxZ = -1e30f;
+                for (const auto& seg : race->segments) {
+                    mmRaceNodes.push_back({seg.ax, seg.az, seg.bx, seg.bz});
+                    minX = std::min(minX, std::min(seg.ax, seg.bx));
+                    maxX = std::max(maxX, std::max(seg.ax, seg.bx));
+                    minZ = std::min(minZ, std::min(seg.az, seg.bz));
+                    maxZ = std::max(maxZ, std::max(seg.az, seg.bz));
+                }
+                if (!mmRaceNodes.empty() && maxX > minX && maxZ > minZ) {
+                    // Uniform fit: height 138 design px, bounded by the 64 px
+                    // window width (see the race-map v1 law at the draw site).
+                    mmRaceFit = std::min(138.f / (maxZ - minZ), 64.f / (maxX - minX));
+                    mmRaceCx = (minX + maxX) * .5f;
+                    mmRaceCz = (minZ + maxZ) * .5f;
+                }
+                std::cout << "rt-app race map: static graph 10 segments=" << mmRaceNodes.size()
+                          << " fit=" << mmRaceFit << " centre=("
+                          << mmRaceCx << "," << mmRaceCz << ")\n";
             }
         }
     }
@@ -1758,9 +1801,36 @@ int main() {
         }
     }
     if (carIsBox) std::cout << "app: car model fallback (box)\n";
+    // W3-04 slot-store seam (docs/native-reference/save-layout.md): native v2
+    // save files (Container-wrapped SaveData, atomic tmp+rename, v1 raw
+    // migration).  The title menu has no load/save UI yet, so persistence is
+    // developer-opt-in and tests stay deterministic with the defaults OFF:
+    //   RT_APP_LOAD_SLOT=<0|1>  restore that slot into session progress at boot
+    //   RT_APP_SAVE_SLOT=<0|1>  write session progress to that slot at shutdown
+    rt::native::gameplay::SlotStore slotStore;
+    const auto envSlot = [](const char* name) -> std::optional<int> {
+        const char* raw = std::getenv(name);
+        if (!raw) return std::nullopt;
+        if (raw[0] == '0' && raw[1] == '\0') return 0;
+        if (raw[0] == '1' && raw[1] == '\0') return 1;
+        std::cout << "[save] ignoring " << name << "=\"" << raw << "\" (expect 0 or 1)\n";
+        return std::nullopt;
+    };
     // One lap lets the headless host exercise the complete authored session
     // loop promptly; GameSession enables race mode for its owned GameLoop.
     rt::native::gameplay::GameSession session(1);
+    if (const auto slot = envSlot("RT_APP_LOAD_SLOT")) {
+        rt::native::gameplay::SaveData loaded{};
+        std::string error;
+        if (slotStore.load(*slot, loaded, &error)) {
+            auto& progress = const_cast<rt::native::gameplay::SaveData&>(session.progress());
+            progress = std::move(loaded);
+            std::cout << "[save] loaded slot " << *slot << " (money " << progress.money
+                      << ", radio " << static_cast<int>(progress.radioStation) << ")\n";
+        } else {
+            std::cout << "[save] load slot " << *slot << " failed: " << error << " (continuing fresh)\n";
+        }
+    }
     // --- Radio glue (docs/native-reference/radio-stations.md §5) ------------
     // Explicit RT_APP_RADIO selects the station byte; "0" disables. Unset
     // defaults ON (Peach FM) when audio init succeeded and the station VAG
@@ -1986,6 +2056,21 @@ int main() {
     // before the first frame so the title blink does not wait for the lazy
     // scene-asset path. A miss keeps menuQuads() byte-identical.
     (void)loadFonteAtlas(fontAtlas);
+    // W3-05 event bridge (docs/native-reference/event-bridge.md): the seam
+    // where authored native script events (radio, countdown, camera preset,
+    // subtitle, flags) are pumped into the app once per presented frame.
+    // No producer enqueues yet — ROM opcode mappings (0x85-0x8B are
+    // rumble-hold bytes) stay unclaimed — so the default callbacks just log
+    // any event that a future authoring pass emits before the session step.
+    rt::native::gameplay::events::EventBridge eventBridge;
+    const rt::native::gameplay::events::Callbacks eventCallbacks{
+        [](const rt::native::gameplay::events::Event& ev) {
+            std::cout << "[event] type=" << static_cast<int>(ev.type)
+                      << " opcode=0x" << std::hex << static_cast<int>(ev.opcode)
+                      << " addr=0x" << std::hex << ev.address << std::dec
+                      << " valueKnown=" << (ev.valueKnown ? 1 : 0) << "\n";
+        },
+    };
     while (running && (!maxFrames || frames < maxFrames)) {
         if (testSocket.lockstep() && !testSocket.takeStep()) {
             // A socket-attached run is a fixed 60-Hz logic clock.  Never let
@@ -2109,6 +2194,10 @@ int main() {
             }
             (void)input;
             if (state == AppState::PLAYING) {
+                // W3-05: drain queued script events immediately before the
+                // session consumes input so a trigger lands in the same logic
+                // step it was emitted in (no cross-step latency).
+                eventBridge.drain(eventCallbacks);
                 // GameSession owns the race loop.  Its current public update path
                 // is AI-driven; Tab remains the race-mode selection control for
                 // the host UI and is logged below.
@@ -2564,40 +2653,42 @@ int main() {
                                         renderer, colon, {0.f, 0.f, 0.f, 0.f}, colonPixels, error))
                                     compositeOver(pixels, colonPixels);
                             }
-                            // Oracle minimap pill, bottom-left, both drive and
-                            // race (town_driving.png px-measured directly
-                            // 2026-10-17): chrome frame base (128,128,128)
-                            // bbox px(59..344,302..423) -> UI
-                            // (29.5,324.4,142.5,130) with a (212)-bright top
-                            // highlight row over a (164) row and a (115) bottom
-                            // shade; dark-green side grips (0,104,8) at px
-                            // (68..79 / 324..335, 342..382) -> UI
-                            // (34|162,367.3,5.5,43); lavender field
-                            // (116,108,128) px(88..319,313..414) -> UI
-                            // (44,336.2,115.5,108.5); roads navy (45,45,116)
-                            // from the Peach Town street graph; red car dot
-                            // (255,1,1) at field centre (north-up map, car
-                            // always centred).  Projection = the game's own
-                            // near zoom (map_view.h legacy: 0.25 field px per
-                            // tile unit, 0.47 vertical squash) rescaled to the
-                            // measured inner rect (115.5/113, 108.5/102).
-                            // Green road marks + brown house blobs are live
-                            // state / un-grounded placement -> deferred GAP.
+                            // Oracle minimap, adjudicated against the full-res
+                            // oracle goldens 2026-10-18 (build/scratch/oracle-
+                            // golden/*.png, 1280x447 shot px -> design units
+                            // x/2, y*448/447).  TOWN pill: chrome plate rounded
+                            // rect (34,304,134,112) corner r~10 with a bright-
+                            // top bevel y 304..305.5 x 42..161 and a bottom
+                            // edge y 416 x 46..159; dark-green side grips
+                            // (34,343,7,42) and (162,343,7,42); lavender field
+                            // (45,312,113,102) centred (101.5,363) — the field
+                            // is the scissor rect times two exactly.  Roads navy
+                            // (45,45,116) stamped from the Peach Town street
+                            // graph (townGraph(1)); red car dot 2.6px at field
+                            // centre (north-up map, car always centred).
+                            // Projection = the game's own near zoom: 0.25 field
+                            // px per tile unit with the 0.47 vertical squash
+                            // (W2-11 law, DAT_00332CAC = -0.47) rescaled to the
+                            // measured field -> kKx = .25, kKy = .1175.  The
+                            // superseded v14 constants were dashcam-derived and
+                            // the dashcam PNGs carry a ~54 shot-px letterbox bar
+                            // that was never subtracted, which pushed that pill
+                            // ~24 design px too low (see the .qoder/wave-board.
+                            // md journal).  Green road marks + brown house blobs
+                            // remain live-state / un-grounded GAPs.  In a RACE
+                            // the oracle's map element is a different layout
+                            // entirely — see the race-map v1 block below.
                             {
                                 const char* mmEnv = std::getenv("RT_APP_MINIMAP");
                                 const bool drawMinimap = !(mmEnv && std::string_view(mmEnv) == "0");
-                                // The pill drawn here is the TOWN minimap (Peach Town
-                                // street graph, lavender field).  In a race the oracle's
-                                // map element is a different layout entirely (race-map
-                                // law W2-11: car marker UI (102,183), zoom table
-                                // @0x2A42C0, scissor @0x2A42E0) whose frame geometry is
-                                // still a GAP; drawing the town pill over the race HUD
-                                // diverged from the oracle, so suppress it in race.
+                                // The pill drawn here is the TOWN minimap (Peach
+                                // Town street graph, lavender field, chrome).  The
+                                // oracle race element is the translucent ribbon
+                                // drawn by the race-map v1 block below.
                                 const bool mmRace =
                                     session.state() == rt::native::gameplay::SessionState::RACE;
                                 const std::array<float, 4> kChrome{128.f / 255.f, 128.f / 255.f, 128.f / 255.f, 1.f};
                                 const std::array<float, 4> kChromeHi{212.f / 255.f, 212.f / 255.f, 212.f / 255.f, 1.f};
-                                const std::array<float, 4> kChromeMid{164.f / 255.f, 164.f / 255.f, 164.f / 255.f, 1.f};
                                 const std::array<float, 4> kChromeLo{115.f / 255.f, 115.f / 255.f, 115.f / 255.f, 1.f};
                                 const std::array<float, 4> kGrip{0.f, 104.f / 255.f, 8.f / 255.f, 1.f};
                                 const std::array<float, 4> kField{116.f / 255.f, 108.f / 255.f, 128.f / 255.f, 1.f};
@@ -2606,8 +2697,8 @@ int main() {
                                 std::vector<rt::native::preview::ScreenQuad> mapQuads;
                                 if (drawMinimap && !mmRace) {
                                     // Rounded pill body rasterised in 1-UI-px rows
-                                    // (corner radius ~4 UI px against the oracle).
-                                    constexpr float kPx = 29.5f, kPy = 324.4f, kPw = 142.5f, kPh = 130.f, kRad = 4.f;
+                                    // (golden-truth corner radius ~10 design px).
+                                    constexpr float kPx = 34.f, kPy = 304.f, kPw = 134.f, kPh = 112.f, kRad = 10.f;
                                     for (float yy = 0.f; yy < kPh; yy += 1.f) {
                                         float inset = 0.f;
                                         if (yy < kRad)
@@ -2618,25 +2709,25 @@ int main() {
                                         mapQuads.push_back({(kPx + inset) * sx, (kPy + yy) * sy,
                                                           (kPw - 2.f * inset) * sx, h * sy, kChrome});
                                     }
-                                    // Frame sheen: bright top edge, mid row, dark
-                                    // bottom edge (all inset from the corners).
-                                    mapQuads.push_back({(kPx + kRad) * sx, kPy * sy, (kPw - 2.f * kRad) * sx, 1.1f * sy, kChromeHi});
-                                    mapQuads.push_back({(kPx + kRad) * sx, (kPy + 1.1f) * sy, (kPw - 2.f * kRad) * sx, 1.1f * sy, kChromeMid});
-                                    mapQuads.push_back({(kPx + kRad) * sx, (kPy + kPh - 2.2f) * sy, (kPw - 2.f * kRad) * sx, 2.2f * sy, kChromeLo});
+                                    // Frame bevel: bright top edge (y 304..305.5,
+                                    // x 42..161 in design units) and the darker
+                                    // bottom edge row measured at y ~416.
+                                    mapQuads.push_back({42.f * sx, 304.f * sy, 119.f * sx, 1.5f * sy, kChromeHi});
+                                    mapQuads.push_back({46.f * sx, 414.f * sy, 113.f * sx, 2.f * sy, kChromeLo});
                                     // Dark-green grip blocks, both ends.
-                                    mapQuads.push_back({34.f * sx, 367.3f * sy, 5.5f * sx, 43.f * sy, kGrip});
-                                    mapQuads.push_back({162.f * sx, 367.3f * sy, 5.5f * sx, 43.f * sy, kGrip});
+                                    mapQuads.push_back({34.f * sx, 343.f * sy, 7.f * sx, 42.f * sy, kGrip});
+                                    mapQuads.push_back({162.f * sx, 343.f * sy, 7.f * sx, 42.f * sy, kGrip});
                                     // Field + roads + car.
-                                    constexpr float kFx = 44.f, kFy = 336.2f, kFw = 115.5f, kFh = 108.5f;
+                                    constexpr float kFx = 45.f, kFy = 312.f, kFw = 113.f, kFh = 102.f;
                                     mapQuads.push_back({kFx * sx, kFy * sy, kFw * sx, kFh * sy, kField});
                                     const float carUiX = kFx + kFw * .5f, carUiY = kFy + kFh * .5f;
-                                    constexpr float kKx = .25f * (115.5f / 113.f);
-                                    constexpr float kKy = .47f * .25f * (108.5f / 102.f);
+                                    constexpr float kKx = .25f;
+                                    constexpr float kKy = .47f * .25f;
                                     for (const auto& sgm : mmRoads) {
-                                        const float ax = carUiX + (sgm[0] - snapshot.carPosition.x) * kKx;
-                                        const float ay = carUiY - (sgm[1] - snapshot.carPosition.z) * kKy;
-                                        const float bx = carUiX + (sgm[2] - snapshot.carPosition.x) * kKx;
-                                        const float by = carUiY - (sgm[3] - snapshot.carPosition.z) * kKy;
+                                        const float ax = carUiX + (sgm[0] - renderSnapshot.carPosition.x) * kKx;
+                                        const float ay = carUiY - (sgm[1] - renderSnapshot.carPosition.z) * kKy;
+                                        const float bx = carUiX + (sgm[2] - renderSnapshot.carPosition.x) * kKx;
+                                        const float by = carUiY - (sgm[3] - renderSnapshot.carPosition.z) * kKy;
                                         const float dx = bx - ax, dy = by - ay;
                                         const int steps = std::max(1, static_cast<int>(std::hypot(dx, dy)));
                                         for (int i = 0; i <= steps; ++i) {
@@ -2649,10 +2740,118 @@ int main() {
                                     mapQuads.push_back({(carUiX - 1.3f) * sx, (carUiY - 1.3f) * sy, 2.6f * sx, 2.6f * sy, kCarDot});
                                 }
                                 std::vector<std::uint8_t> mapPixels;
-                                if (drawMinimap && !mmRace &&
+                                if (drawMinimap && !mmRace && !mapQuads.empty() &&
                                     rt::native::preview::previewRender2D(
                                         renderer, mapQuads, {0.f, 0.f, 0.f, 0.f}, mapPixels, error))
                                     compositeOver(pixels, mapPixels);
+                                if (drawMinimap && mmRace && !mmRaceNodes.empty() && mmRaceFit > 0.f) {
+                                    // ---- Race map v1 (staticGraph(10); oracle-
+                                    // golden adjudicated 2026-10-18) --------------
+                                    // The oracle race element is a translucent
+                                    // blue-violet road ribbon, upper-left, with NO
+                                    // field quad and NO chrome (build/scratch/
+                                    // oracle-golden/race_hud.png: core (61,61,131)
+                                    // fully-saturated chroma, stroke ~4-6 design
+                                    // px, red player arrow; green route dashes x>
+                                    // 60 tied to raceMapPlacements -> GAP).  v1
+                                    // law: draw the whole course world-fixed and
+                                    // auto-fit — staticGraph(10), the 143-node
+                                    // loop chosen by IoU overlay (the oracle
+                                    // reveals only ~40% of it per lap, so the
+                                    // native full reveal is a documented v1
+                                    // divergence) — through the identity
+                                    // orientation (screen x = +world x, screen y
+                                    // up = +world z, no town 0.47 squash),
+                                    // uniform scale to height 138 design px inside
+                                    // rect x 48..112, y 134..272 (centre
+                                    // (80,203)).  Ink layers: ~8px outer glow at
+                                    // .25, 6px halo at .45, 5px core at .55; the
+                                    // per-stamp overlap along the path saturates
+                                    // the core toward the oracle's pure core
+                                    // chroma, while single stamps keep the
+                                    // oracle's translucency at sparse edges.
+                                    // Player-centred scroll via minimap_track::
+                                    // trackProject, the zoom schedule and the 39
+                                    // raceMapPlacements @0x2A4050 are refinement
+                                    // GAPs (.qoder/wave-board.md).
+                                    const float cx = 80.f, cy = 203.f;
+                                    const auto proj = [&](float wx, float wz) {
+                                        return std::array<float, 2>{
+                                            cx + (wx - mmRaceCx) * mmRaceFit,
+                                            cy - (wz - mmRaceCz) * mmRaceFit};
+                                    };
+                                    const std::array<float, 4> kRibbonGlow{
+                                        70.f / 255.f, 70.f / 255.f, 140.f / 255.f, .25f};
+                                    const std::array<float, 4> kRibbonMid{
+                                        70.f / 255.f, 70.f / 255.f, 140.f / 255.f, .45f};
+                                    const std::array<float, 4> kRibbonCore{
+                                        70.f / 255.f, 70.f / 255.f, 140.f / 255.f, .55f};
+                                    // Liang-Barsky clip against the ribbon window
+                                    // (1 design px margin so the glow bleeds to
+                                    // the measured ribbon extent, not past it).
+                                    const auto clip = [&](float& x0, float& y0, float& x1, float& y1) {
+                                        float t0 = 0.f, t1 = 1.f;
+                                        const float dx = x1 - x0, dy = y1 - y0;
+                                        const float p[4] = {-dx, dx, -dy, dy};
+                                        const float q[4] = {x0 - 47.f, 113.f - x0, y0 - 133.f, 273.f - y0};
+                                        for (int i = 0; i < 4; ++i) {
+                                            if (p[i] == 0.f) {
+                                                if (q[i] < 0.f) return false;
+                                            } else {
+                                                const float r = q[i] / p[i];
+                                                if (p[i] < 0.f) { if (r > t1) return false; if (r > t0) t0 = r; }
+                                                else             { if (r < t0) return false; if (r < t1) t1 = r; }
+                                            }
+                                        }
+                                        x0 += dx * t0; y0 += dy * t0;
+                                        x1 += dx * t1; y1 += dy * t1;
+                                        return true;
+                                    };
+                                    const auto stamp = [&](float x0, float y0, float x1, float y1,
+                                                        float w, const std::array<float, 4>& col,
+                                                        std::vector<rt::native::preview::ScreenQuad>& dst) {
+                                        if (!clip(x0, y0, x1, y1)) return;
+                                        const int steps = std::max(1, static_cast<int>(
+                                            std::hypot(x1 - x0, y1 - y0)));
+                                        for (int i = 0; i <= steps; ++i) {
+                                            const float t = static_cast<float>(i) / static_cast<float>(steps);
+                                            dst.push_back({(x0 + (x1 - x0) * t - w * .5f) * sx,
+                                                        (y0 + (y1 - y0) * t - w * .5f) * sy,
+                                                        w * sx, w * sy, col});
+                                        }
+                                    };
+                                    std::vector<rt::native::preview::ScreenQuad> halo, core;
+                                    for (const auto& sgm : mmRaceNodes) {
+                                        const auto a = proj(sgm[0], sgm[1]);
+                                        const auto b = proj(sgm[2], sgm[3]);
+                                        stamp(a[0], a[1], b[0], b[1], 8.f, kRibbonGlow, halo);
+                                        stamp(a[0], a[1], b[0], b[1], 6.f, kRibbonMid, halo);
+                                        stamp(a[0], a[1], b[0], b[1], 5.f, kRibbonCore, core);
+                                    }
+                                    // Red player arrow: short tail along heading
+                                    // plus head dot (heading 0 = +Z = screen up in
+                                    // the identity orientation, so forward on
+                                    // screen is (sin h, -cos h)).
+                                    const auto carUi = proj(renderSnapshot.carPosition.x,
+                                                        renderSnapshot.carPosition.z);
+                                    const float dirX = std::sin(renderSnapshot.heading);
+                                    const float dirY = -std::cos(renderSnapshot.heading);
+                                    stamp(carUi[0] - dirX * 5.f, carUi[1] - dirY * 5.f,
+                                        carUi[0] + dirX * 2.f, carUi[1] + dirY * 2.f,
+                                        3.f, kCarDot, core);
+                                    core.push_back({(carUi[0] - 2.f) * sx, (carUi[1] - 2.f) * sy,
+                                                 4.f * sx, 4.f * sy, kCarDot});
+                                    std::vector<std::uint8_t> ribbonPixels;
+                                    if (!halo.empty() &&
+                                        rt::native::preview::previewRender2D(
+                                            renderer, halo, {0.f, 0.f, 0.f, 0.f}, ribbonPixels, error))
+                                        compositeOver(pixels, ribbonPixels);
+                                    std::vector<std::uint8_t> corePixels;
+                                    if (!core.empty() &&
+                                        rt::native::preview::previewRender2D(
+                                            renderer, core, {0.f, 0.f, 0.f, 0.f}, corePixels, error))
+                                        compositeOver(pixels, corePixels);
+                                }
                             }
                         }
                         if (hudTextEnabled && rendered) {
@@ -2811,6 +3010,13 @@ int main() {
                 perf.notePresent();
                 if (interpEnabled) ++interpRenders;
                 if (const char* snap = std::getenv("RT_APP_SNAPSHOT")) {
+                    // Optional one-shot: RT_APP_SNAPSHOT_AT=<simframe> dumps
+                    // that logic frame only (default: every frame, last frame
+                    // wins).  Lets adjudication grab a mid-race frame instead
+                    // of the RESULTS screen the final frame shows.
+                    const char* at = std::getenv("RT_APP_SNAPSHOT_AT");
+                    const long want = at ? std::atol(at) : -1;
+                    if (want < 0 || static_cast<long>(renderSnapshot.frame) == want) {
                     std::ofstream snapStream(snap, std::ios::binary);
                     snapStream << "P6\n" << presenter.extent.width << ' ' << presenter.extent.height
                              << "\n255\n";
@@ -2821,6 +3027,7 @@ int main() {
                     }
                     std::cout << "rt-app snapshot: " << snap << " (" << presenter.extent.width
                               << 'x' << presenter.extent.height << ")\n";
+                    }
                 }
                 if (retry && !recreateSwapchain()) { running = false; break; }
             } while (retry && presenter.extent.width && presenter.extent.height);
@@ -2864,6 +3071,14 @@ int main() {
     }
     if (gamepad) SDL_CloseGamepad(gamepad);
     destroyAudio(audio);
+    // W3-04: opt-in shutdown persistence (see slot-store seam at session boot).
+    if (const auto slot = envSlot("RT_APP_SAVE_SLOT")) {
+        std::string error;
+        if (slotStore.save(*slot, session.progress(), &error))
+            std::cout << "[save] wrote slot " << *slot << " (" << slotStore.path(*slot).string() << ")\n";
+        else
+            std::cout << "[save] save slot " << *slot << " failed: " << error << "\n";
+    }
     rt::native::preview::previewDestroy(renderer); destroy(presenter); SDL_DestroyWindow(window); SDL_Quit();
     return 0;
 }
