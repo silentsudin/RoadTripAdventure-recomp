@@ -56,6 +56,7 @@ set(RT_NATIVE_ASSET_SOURCES
     assets/setup_wizard.cpp     # first-run validated native asset cache
     assets/tsq_sequencer.cpp    # bounded TSQ event decoder and offline TVB PCM renderer
     gameplay/car_physics.cpp    # authored car-physics tick (no guest code)
+    gameplay/guest_vehicle.cpp  # translated guest longitudinal model (0x218EE0/0x21A310)
     gameplay/camera.cpp         # authored chase camera (spring/slew + look-at view matrix)
     gameplay/task.cpp           # authored task scheduler (48-slot pool + parent/sibling tree)
     gameplay/dialogue.cpp       # authored NPC dialogue line and input-advance model
@@ -301,6 +302,11 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     target_link_libraries(w24_race_terrain_test PRIVATE rt_native_assets)
     target_compile_features(w24_race_terrain_test PRIVATE cxx_std_20)
     target_compile_options(w24_race_terrain_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+    add_executable(w26_guest_vehicle_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w26/guest_vehicle_test.cpp")
+    target_link_libraries(w26_guest_vehicle_test PRIVATE rt_native_assets)
+    target_compile_features(w26_guest_vehicle_test PRIVATE cxx_std_20)
+    target_compile_options(w26_guest_vehicle_test PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
     add_executable(w3_enhancements_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/enhancements_app_test.cpp")
     target_link_libraries(w3_enhancements_test PRIVATE rt_native_assets)

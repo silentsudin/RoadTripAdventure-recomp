@@ -231,6 +231,14 @@ Assets stay BYO-disc (`RT_DISC`), never committed. The `nm | grep -c sub_00`
 gate applies only to the recomp product packaging, not `rt-app`.
 Worker prompts from here may say "port the pseudocode", not only "author fresh".
 
+## HARD RULE amended 2026-10-18 (user mandate) — DECOMP, not static recomp
+This is a DECOMPILATION project: no PS2Recomp recompiler output (`generated/`,
+sub_XXXXXXXX function tables, rt_game_register/dlopen scheme) may EVER be
+compiled/linked/shipped in the native app — not even statically. Shipped game
+logic = C/C++ transcribed from Ghidra pseudocode with real structs and direct
+calls. A "link the generated dylib statically" proposal was rejected. PS2Recomp
+stays oracle-only (running the real game for goldens/probes).
+
 ## Wave 9 — SCENE CONTENT (dispatch pending quota)
 - **W9-01 race terrain textures** (`tests/native_w24`, build `build/w-W9-1`): textured
   course ground replacing the grey placeholder in RACE — chain `0x2C9980` (mode 1),
