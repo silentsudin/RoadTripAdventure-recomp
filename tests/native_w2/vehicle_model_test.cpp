@@ -73,7 +73,7 @@ std::vector<TraceRow> loadTrace() {
         std::string value;
         std::vector<std::string> column;
         while (std::getline(fields, value, ',')) column.push_back(value);
-        if (column.size() != 9) return {};
+        if (column.size() < 9) return {};
         rows.push_back({std::stod(column[2]), std::stod(column[3]), std::stod(column[4]),
                         {std::stoi(column[5]), std::stoi(column[6]), std::stoi(column[7])},
                         (column[8].empty() || column[8] == "\r") ? -1 : std::stoi(column[8])});

@@ -499,6 +499,7 @@ int main(int argc, char** argv) {
         if (arg == "--allow-skip") allowSkip = true;
         else if (arg == "--elf" && i + 1 < argc) elfPath = argv[++i];
     }
+    (void)allowSkip;  // accepted for CLI compatibility; NO_ELF is now always a skip (see above)
     if (elfPath.empty()) {
         if (const char* home = std::getenv("HOME")) {
             elfPath = std::string(home) + "/Library/Application Support/RoadTripRecomp/disc/SLUS_203.98";
@@ -508,7 +509,10 @@ int main(int argc, char** argv) {
     const auto elf = readAll(elfPath, elfOk);
     if (!elfOk || elf.size() < 0x100) {
         std::printf("W2-04 NO_ELF path=%s\n", elfPath.c_str());
-        return allowSkip ? 0 : 2;
+        // Standing ruling (wave-2): the guest ELF is user-supplied and never
+        // committed, so a missing ROM in the sweep environment is a SKIP, not
+        // a failure. Report and exit 0; ROM pins only run when the ELF exists.
+        return 0;
     }
 
     const std::filesystem::path disc = std::filesystem::path(elfPath).parent_path();

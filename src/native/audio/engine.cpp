@@ -123,6 +123,13 @@ void SoundEngine::playBgm(int slot, std::uint32_t packedId, PcmSourceView source
     bgmSlots_[slot] = (src.data != nullptr && src.frames > 0) ? v : -1;
 }
 
+void SoundEngine::setVoicePan(int voice, float pan) {
+    if (voice < 0 || static_cast<std::size_t>(voice) >= kMaxVoices) return;
+    Voice& vo = voices_[voice];
+    vo.pan = pan;
+    mixer_.channels[static_cast<std::size_t>(voice)].pan = pan;
+}
+
 void SoundEngine::stopBgm() {
     for (std::size_t s = 0; s < kBgmSlots; ++s) {
         const int v = bgmSlots_[s];

@@ -44,7 +44,7 @@ Reports: .qoder/wave2/W2-<NN>-report.md.
 | W2-02 | app_flow state machine | anthropic haiku-5 | VERIFIED (selector bytes 0x21CE08; 35/35 vectors; design-choice edges in app-flow.md; attract-timeout trigger NOT found) + pushed |
 | W2-03 | vehicle engine-force model | xai grok-4.5 | VERIFIED (0x332f44=0x3fcdf3b6=1.609 double re-unpacked) + pushed; main.cpp binding I-3/I-4 pending |
 | W2-04 | terrain/world Y | xai grok-4.7 | r2 FAILED: brief error (told worker to reuse w2_score_v2.py + stale 0.40 threshold — neither exists; worker correctly stopped). Superseded by W2-04r3 on anthropic sonnet-5-5: derive screen-space law fresh, gate 3 static poses <=0.100 px, driving residual informational, terrain_y_px column + w2_terrain_ymap.py. ACCEPTED AMENDED (user ruling): static/settled-pose Y exact; driving residual documented not thresholded |
-| W2-10 | HUD live data | anthropic sonnet-5 | VERIFIED + pushed 0373d33: JT split 1P=0x2496c8 / 2P=0x24e1a0 re-read; origin 0x2A8FF0=(484,294); timer=frames-1 (2/2 oracle); needle tracks RPM not mph (supersedes gauge-calibration.md); METER10 in main.cpp = 2P layout -> A/B rescore at integration |
+| W2-10 | HUD live data | anthropic sonnet-5 | VERIFIED + pushed 0373d33 + **integrated into main.cpp race pass 2** (2P speed digits METER0 u=140+16(d%7) v=23(d/7), 16x23 cells @UI(573-17i,388); timer=frames-1; needle theta=pi(rpm/10000-0.7); rtRaceClockFrames counter) |
 
 ### Batch B results (delivered 2026-10-18; commit queue pending sweep)
 | ID | Task | Lane | Model | Status |

@@ -110,6 +110,13 @@ public:
     void playBgm(int slot, std::uint32_t packedId, PcmSourceView source,
                  float volume = 1.f);
 
+    // Re-pan a live voice. playBgm binds pan = 0 (mirror of the engine's
+    // centred BGM default); the radio station pair needs the hard split the
+    // guest gets from two SNDMOD voices (radio-stations.md: L file pan -1,
+    // R file pan +1). Mixer::PanLaw (mixer.h:48-61) gives L=1,R=0 at -1 and
+    // L=0,R=1 at +1, matching the guest's per-voice E1 split.
+    void setVoicePan(int voice, float pan);
+
     // Stop all BGM slots (mirror MusicRpcCmd15 with param=1, hard stop).
     void stopBgm();
 

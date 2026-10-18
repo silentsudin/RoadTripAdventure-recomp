@@ -282,7 +282,8 @@ constexpr int kAudioChannels = 2;
 struct AudioHost {
     rt::native::audio::SoundEngine engine;
     std::vector<std::int16_t> bgm;
-    rt::native::audio::PcmBuffer radioPcm;   // radio L half (mono-left fallback), host-owned
+    rt::native::audio::PcmBuffer radioPcm;   // radio L half (hard-panned left), host-owned
+    rt::native::audio::PcmBuffer radioPcmRight;  // radio R half (hard-panned right), host-owned
     rt::native::audio::BgmPlayer tsqBgm;
     bool usingTsqBgm = false;
     SDL_AudioStream* stream = nullptr;
@@ -1775,34 +1776,50 @@ int main() {
     }
     std::cout << "app: radio=" << (radioFollow ? "on" : "off") << "\n";
     // startRadio decodes the station's authentic stereo pair and hands it to the
-    // SoundEngine. MONO-LEFT FALLBACK (radio-stations.md §5 "Stereo (AUTHORED
-    // mapping)"): playBgm (engine.h:110-111) exposes no pan and calls bindVoice
-    // with pan=0 (engine.cpp:122), so playing both halves as two voices would
-    // sum them to the same centre level (mixer pan law, mixer.h:56-60). We
-    // therefore route the LEFT half only. GAP: the RIGHT half
-    // (SOUND/*CH_R.VAG) is not separately routed because engine.h exposes no
-    // per-voice pan; a true split needs pan+1/-1 wired through playBgm.
+    // SoundEngine as TWO hard-panned voices, matching the guest's SNDMOD split
+    // (radio-stations.md §5 "Stereo (AUTHORED mapping)"): the L file plays at
+    // pan -1 (left speaker only) and the R file at pan +1 (right speaker only).
+    // SoundEngine::setVoicePan (engine.h) re-pans the bound BGM voices; the
+    // mixer's PanLaw (mixer.h:48-61) yields L=1,R=0 at pan=-1 and L=0,R=1 at
+    // pan=+1. If the R half fails to load we fall back to the L half centred
+    // (mono, audible both sides) rather than losing a speaker.
     const auto startRadio = [&](const rt::native::gameplay::RadioVagPair& pair) {
-        rt::native::audio::PcmBuffer left;
+        rt::native::audio::PcmBuffer left, right;
         const auto leftPath = resolveDiscOrPackaged(pair.left, std::filesystem::path("audio") / pair.left);
         if (leftPath.empty() || !rt::native::audio::loadVagFile(leftPath, left)) {
             std::cerr << "rt-app radio: VAG load failed: "
                       << (leftPath.empty() ? (discRoot() / pair.left).string() : leftPath.string()) << "\n";
             return;
         }
+        bool haveRight = false;
+        const auto rightPath = resolveDiscOrPackaged(pair.right, std::filesystem::path("audio") / pair.right);
+        if (!rightPath.empty() && rt::native::audio::loadVagFile(rightPath, right))
+            haveRight = true;
         SDL_LockAudioStream(audio.stream);   // fillAudio ticks the engine concurrently
         audio.engine.stopBgm();              // mirrors cmd 0x35 (options Off, 0x213A30)
         audio.radioPcm = std::move(left);    // host owns the PCM lifetime
         audio.engine.playBgm(0, 0u,
                              {audio.radioPcm.samples.data(), audio.radioPcm.frames, /*loop=*/true}, .7f);
+        audio.engine.setVoicePan(0, haveRight ? -1.f : 0.f);
+        if (haveRight) {
+            audio.radioPcmRight = std::move(right);
+            audio.engine.playBgm(1, 0u,
+                                 {audio.radioPcmRight.samples.data(), audio.radioPcmRight.frames, /*loop=*/true},
+                                 .7f);
+            audio.engine.setVoicePan(1, +1.f);
+        } else {
+            audio.radioPcmRight = {};
+        }
         SDL_UnlockAudioStream(audio.stream);
-        std::cout << "rt-app radio: started " << pair.left << " (" << audio.radioPcm.frames
-                  << " frames, mono-left)\n";
+        std::cout << "rt-app radio: started " << pair.left
+                  << (haveRight ? " + R (hard-panned stereo)" : " (mono-left fallback, R half missing)")
+                  << " (" << audio.radioPcm.frames << " frames)\n";
     };
     const auto stopRadio = [&] {
         SDL_LockAudioStream(audio.stream);
         audio.engine.stopBgm();
         audio.radioPcm = {};
+        audio.radioPcmRight = {};
         SDL_UnlockAudioStream(audio.stream);
         std::cout << "rt-app radio: stopped\n";
     };

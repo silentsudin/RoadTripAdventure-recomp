@@ -12,7 +12,7 @@ SCENES=('title','menu','town','race')
 # not a claim that every pixel in the ROI shares a scene-wide transform.
 YMAP_REGISTRY={
  'sky': {'status':'GAP','reason':'No ROI-specific native/oracle landmark pairs establish sky y alignment; sky color profiles alone are not native correspondence.'},
- 'ground': {'status':'GAP','reason':'Ground geometry has no paired landmark table; horizon measurements are not per-ROI native correspondences.'},
+ 'ground': {'status':'ELEMENT','scale':447.0/448.0,'offset':0.0,'citation':'docs/native-reference/camera-constants.md; .qoder/wave-board.md W2-04r3 (static_px_err_max=0.011824 PASS)','basis':'W2-04r3 screen law verified in static poses: oracle shot row = UI row x 447/448 (447-line presenter over the 448-line drawing space); ground/horizon rows registered to <=0.012 px.'},
  'hud_dial': {'status':'GAP','reason':'Dial needle/dial pixels lack a validated native-to-oracle y transform.'},
  'hud_timer': {'status':'GAP','reason':'Timer oracle readings are documented but no native timer landmarks establish its y transform.'},
  'hud_speed_digits': {'status':'ELEMENT','scale':1.0,'offset':0.0,'citation':'docs/native-reference/gauge-calibration.md:3-8; .qoder/wave2-plan-sonnet.md:23-27','basis':'448-line HUD element; observed shot y approximately equals 448-space y (scale 1, offset 0).'},

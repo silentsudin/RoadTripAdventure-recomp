@@ -5,12 +5,21 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <filesystem>
 #include <iterator>
 #include <string>
 using namespace rt::native::gameplay;
 namespace rr=rt::native::gameplay::race_rules;
 namespace {
-std::string elfPath(int argc,char**argv){ if(const char* e=std::getenv("RT_ELF");e&&*e)return e; for(int i=1;i+1<argc;++i)if(std::string(argv[i])=="--elf")return argv[i+1];return {}; }
+std::string elfPath(int argc,char**argv){ if(const char* e=std::getenv("RT_ELF");e&&*e)return e; for(int i=1;i+1<argc;++i)if(std::string(argv[i])=="--elf")return argv[i+1];
+ // Fallback discovery shared with the other ROM-pinned tests (the ROM is
+ // user-supplied; the sweep never exports RT_ELF).
+ const std::filesystem::path home = std::getenv("HOME") ? std::getenv("HOME") : "";
+ for (const auto& c : { home/"Library/Application Support/RoadTripRecomp/disc/SLUS_203.98",
+                        home/"slus_203.98", home/"Documents/RoadTrip/SLUS_203.98",
+                        std::filesystem::path("disc/SLUS_203.98") })
+     if (std::filesystem::exists(c)) return c.string();
+ return {}; }
 std::uint32_t le32(const std::vector<std::uint8_t>& b,std::size_t o){return std::uint32_t(b[o])|(std::uint32_t(b[o+1])<<8)|(std::uint32_t(b[o+2])<<16)|(std::uint32_t(b[o+3])<<24);}
 std::uint64_t hash(std::uint64_t h,std::uint64_t v){for(int i=0;i<8;++i){h^=v>>(8*i);h*=1099511628211ull;}return h;}
 struct Result {int payout=0,licence=0,records=0,wgp=0,rank=0,bands=0;std::uint64_t h=1469598103934665603ull;};
