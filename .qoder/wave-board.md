@@ -103,9 +103,26 @@ Provider snapshot 11:48: openai 80% 5h / 73% wk; anthropic credits confirmed WOR
 |----|------|------|--------|
 | W4-11 | gauge needle input law (tach hypothesis: needle angle source in UpdateRaceHud 0x2490A0 handler 0) | openai gpt-5.6-terra | DONE + coord-verified (fresh build, checks=8 failed=0, negative_control=CAUGHT, ROM-less SKIP ok; ROM chain disassembled independently: handler 0x249DC0 jal 0x249520 lh car+0x1D0 cap 10000, div.s 10000.0f @0x332F50, add.s -0.7f @0x332F54). LAW: theta=pi*(rpm/10000-0.7), 0=up CW; goldens consistent (117 RPM coast 39mph / 6217 RPM @63mph under CCW=90deg-theta_cw). Native rpm input still GAP -> needle stays undrawn; kRaceHudNeedleLawResolved flip = coordinator call at integration commit |
 | W4-12 | decode SCORE.GSL unit @0x8350 + METER0.GSL @0x8550 gauge page into HudArt (kill W4-06 stand-ins) | openai gpt-5.6-terra | DONE + coord-verified (fresh w12_hud_pages_test passed + native_hud_art_test green). HudArt += lapDigits (CSA7 cells u=lap*8 v=200 8x16), lapDisc (CSA8 u=232 v=168 24x24), gaugePage (CSA12 128x120 needle 3,53,8,59 hub 16,80,12,12 arc 40,48,20,60). Swap into W4-06 integration |
+| W4-06i | integrate race HUD into main.cpp (coordinator) | coordinator | DONE 2026-10-18: race block draws via raceHudLayoutSprites grouped by page/CLUT (Score0 csa0 -> raceAtlas [empty, rank off], csa1 -> raceBanner, Score1 csa7 -> lapDigits, csa8 -> lapDisc, authored fallbacks retained); dial Pass1 now Meter0 pass @ (484,294) w140 (ROM 0x2A8FF0; was 492,336 w132 = 2P anchor); textured capsule alpha 0.509 replaces flat pill; kRaceHudNeedleLawResolved flipped TRUE (+w4 test expectation) = law-resolved, still undrawn pending native rpm; showRank=false (no rival cars); lap block real via snapshot.lap + coordinator lap-frame reset. Gates: build 0err, sweep 106/106, matrix 32/0/0, determinism PASS |
+| W5-01 | engine RPM law from ROM (car+0x1D0 source) | openai gpt-5.6-terra | DONE + coord-verified (w13 checks=9 failed=0, negative_control=CAUGHT, in sweep). rpm = trunc(longitudinal_motion*128/gear_ratio) cap 0..10000; two auto-shift policies + boost targets 3000/9000 in gauge-rpm-source.md; calibration residual -1 RPM both goldens (106->116 vs ~117, 5634->6216 vs ~6217). GAP: mph alone cannot yield rpm — needs gearbox + longitudinal motion state |
+| W5-02 | docs corrections batch (4 rulings) | openai gpt-5.6-terra | DONE + coord-verified (rumble-haptics: 0x85..0x8B = 133..139-frame holds, all bytes except 0x80..0x84+FF incl 0x00 via default arm 0x0020A7E0; tsq-tvb: EA/E5/F9 = SNDMOD play 0x5294 dispatches not road sections; hud-layout: TOTALTIME (20,20) uncentred 0x002EC1A8 + LAPTIME badge (490,20) 0x002EC070; race-hud-atlas: rank digits 1:1 28x30 + capsule (32,24,64) alpha 0.509). Shipped in f760280 |
+| W5-03 | race-state input ROM sources (place / lap frames / gear) | openai gpt-5.6-terra | DONE + coord-verified (w14 checks=6 failed=0, negative_control=CAUGHT, in sweep). place = car+0x247 byte (RankCarsByProgress write 0x0022d8a0); lap frames = car+0x260 u32 (inc 0x0022e100..108, reset at boundary 0x0022d4c0); gear = car+0x1FF byte (write 0x0021a38c, GetVehicleGear 0x002495bc). Native: lap done via snapshot; place needs rival grid; gear needs sim gearbox |
 Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is required"; USER RULING 2026-10-18: **Anthropic is no longer an agent provider** — dispatch openai/gpt-5.6-terra (or other remote providers) only from now on. Never opencode-go, never local (strata/omlx). W4-11/12 running on openai (ses_eb11ecce5ffeYDraODK1bFn31V, ses_eb11e82b0ffey4yWVPwk0GF9L4). Patch D APPLIED by coordinator (race_hud.h stale (532,385) comment -> mph law). Matrix settings-row hang under investigation (stack capture watchdog armed).
 
 ## Open GAPs / arbitration (coordinator-owned)
+- WAVE-6 LANDED 2026-10-18 (mine=2 verified per worker; all four re-run green on canonical build):
+  W6-01 audio bus mixer PARKED — src/native/audio/audio_graph.{h,cpp} duplicates committed
+  gameplay/audio_graph.{h,cpp} (wave-2 voice graph); w15 NOT registered; files local-only,
+  reconcile bus layer into the existing module later. W6-02 title save/load UI integrated
+  (preview/title_ui.{h,cpp} + w16 registered, checks=13 CAUGHT; main.cpp wiring pending).
+  W6-03 mph/gear/minimap reconciliation (gear_glyph.h + w17 checks=15 CAUGHT: g==0=R, mph
+  55.07 confirmed, kKy=kKx*0.47 via ROM float 0x332CAC). W6-04 driveline rpm/gear exposure
+  (game_loop.{h,cpp}, w18 checks=13 CAUGHT first_shift_frame=114): FrameSnapshot.gear/rpm now
+  exist; main.cpp gear-glyph wire pending, needle still withheld pending adjudicated art.
+- HUD PIXEL FALSE ALARM CLOSED 2026-10-18: "race HUD zero pixels" was my PPM parser's wrong
+  header offset (14 vs 16 bytes), not the app. composite diagnostics prove dial ~24k px,
+  banner ~6.9k, digits ~17k blend per frame into the 800x600 buffer. Evidence
+  build/scratch/w406int/{race_hud4.png,race4.log}. RULE: parse PPMs with PIL, never by hand.
 - ~~Speed unit scale~~ RESOLVED: SPEED LAW V=floor(word/55.07) clamp 0..186 mph, METER0 digits
   (573,388) step -17 16x23 u=140+16(d%7) v=23(d/7), white; mph baked in METER0; badge 556..604x389..416.
 - ~~Digit page 1P vs 2P~~ RESOLVED: METER0 (speedDial) for 1P; METER10 kept only for 2P handler-10.
@@ -114,13 +131,22 @@ Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is requ
   (CCW atan2) = 90-(-123.9) -> 117 RPM coast @39mph; +104.09 -> 6217 RPM @63mph. ROM: handler 0x249DC0
   -> CalculateTachometerValue 0x249520 (lh +0x1D0, cap 10000 args (car,0,1)), /10000.0f -0.7f, half-turn
   into uiArenaRotQuads +0x88. REMAINING GAP: native has no rpm source (AdvanceVehicleMotion 0x218EE0
-  gear-ratio chain) -> needle undrawn until physics exposes rpm.
-- W4-06 pending coord: main.cpp race-block integration (HANDOFF-W4-06 §Integration notes; keep mph
-  pass unchanged, no needle); 4 doc corrections (hud-layout 1.1 banner + per-player badge = LAPTIME,
-  race-hud-atlas rank 1:1 + capsule color, gauge-calibration needle row) — apply after integration commit.
-- W4-06 open: native FrameSnapshot inputs missing — race place (rank is time-rank, NOT place),
-  per-lap frame counter, gear (car+0x1FF).
-- W4-10 item: shippedMphFromRaw vs 55.07 law contradiction (reconcile before reuse).
+  gear-ratio chain; W5-01 derivation: rpm = trunc(motion*128/gear_ratio), residual
+  -1 RPM at both goldens — driveline wiring pending) -> needle undrawn until physics
+  exposes rpm. kRaceHudNeedleLawResolved flipped TRUE 2026-10-18 (law-resolved, not wired).
+- ~~W4-06 pending coord~~ DONE 2026-10-18: main.cpp race block integrated (builders +
+  W4-12 textures + Meter0 dial pass at (484,294) + textured capsule + real lap block;
+  mph Pass 2 untouched, no needle). 4 doc corrections applied (W5-02; the
+  gauge-calibration needle row was W4-11's own update).
+- W4-06 native inputs: lap DONE (snapshot.lap + coordinator lap-frame reset in
+  main.cpp); place (car+0x247 per race-state-inputs.md) needs a rival grid —
+  showRank=false meanwhile; gear: W6-04 exposes snapshot.gear (0=R,1..5) — the
+  main.cpp dial passes still feed provisional 1 until the wire lands (next commit).
+- ~~W4-10 item: shippedMphFromRaw vs 55.07~~ RESOLVED by W6-03 (driveline-exposure.md +
+  w17): ROM carries TWO independent velocity paths — the HUD display law is
+  floor(word/55.07) (goldens match, re-pinned); the separate *216/1.609 path at
+  0x00249508 is another velocity consumer, not HUD mph. hud_live::shippedMphFromRaw
+  models the latter and must not be reused for the HUD.
 - W3-03 collision grid integration (see Wave 3 table).
 - script-vm 0x85..0x8B rumble wiring into main.cpp event drain.
 - Title/save-menu UI; ElementA countdown + F3; ssaa/physics_hz application sites.

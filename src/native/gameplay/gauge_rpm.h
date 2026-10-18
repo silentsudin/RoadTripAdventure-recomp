@@ -33,15 +33,15 @@ inline constexpr std::array<std::int32_t, 2> kAutoDownshiftCurrentRpm{{5000, 300
 inline constexpr std::array<std::int32_t, 2> kAutoDownshiftProjectedRpm{{8000, 4000}};
 
 // The ROM's gear-coupled mechanical conversion, expressed in the useful
-// inverse direction for a native physics state. `drivelineSpeedQ7` is the
+// inverse direction for a native physics state. `longitudinalMotion` is the
 // separate longitudinal/coupling state, not the HUD speed word (MPH is a
 // different display conversion). The live EE routine is an integrator around
 // this coupling; use its previous RPM/traction/throttle dynamics before this
 // final clamp if frame-exact transient behaviour is required.
-inline constexpr std::int32_t rpmFromMotionState(std::int64_t drivelineSpeedQ7,
+inline constexpr std::int32_t rpmFromMotionState(std::int64_t longitudinalMotion,
                                                   std::int16_t gearRatio) {
-    if (gearRatio <= 0 || drivelineSpeedQ7 <= 0) return 0;
-    const auto rpm = (drivelineSpeedQ7 * kDrivelineFraction) / gearRatio;
+    if (gearRatio <= 0 || longitudinalMotion <= 0) return 0;
+    const auto rpm = (longitudinalMotion * kDrivelineFraction) / gearRatio;
     return static_cast<std::int32_t>(std::clamp<std::int64_t>(rpm, 0, kRedlineRpm));
 }
 

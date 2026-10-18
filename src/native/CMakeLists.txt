@@ -265,6 +265,9 @@ if(RT_NATIVE_ASSETS_BUILD_TESTS)
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w11" "${CMAKE_CURRENT_BINARY_DIR}/native_w11")  # W4-11 gauge_needle_test
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w14" "${CMAKE_CURRENT_BINARY_DIR}/native_w14")  # W5-03 race state probe
     add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w13" "${CMAKE_CURRENT_BINARY_DIR}/native_w13")  # W5-01 gauge_rpm_test
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w16" "${CMAKE_CURRENT_BINARY_DIR}/native_w16")  # W6-02 title save/load UI
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w17" "${CMAKE_CURRENT_BINARY_DIR}/native_w17")  # W6-03 gear glyph + mph reconciliation
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w18" "${CMAKE_CURRENT_BINARY_DIR}/native_w18")  # W6-04 driveline rpm/gear exposure
     add_executable(w3_enhancements_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/enhancements_app_test.cpp")
     target_link_libraries(w3_enhancements_test PRIVATE rt_native_assets)

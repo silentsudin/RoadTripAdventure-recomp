@@ -270,11 +270,16 @@ inline constexpr RaceHudRect kRaceHudMphBadge{556, 388, 604, 416};
 // png x[1204,1236) y[328,380), i.e. design (602,328.7)-(618,380.9). Documented only.
 inline constexpr RaceHudPoint kRaceHudBoostArcPivot{554, 364};
 
-// ------------------------------------------------------------------ needle (GAP)
+// ------------------------------------------------- needle (law RESOLVED W4-11)
 
-// GAP: needle law unresolved (coordinator ruling 2026-10-18, gauge-calibration.md). No
-// mph->angle mapping exists in this module and nothing here draws a needle.
-inline constexpr bool kRaceHudNeedleLawResolved = false;
+// RESOLVED (W4-11, coordinator ROM-verified 2026-10-18, gauge-calibration.md +
+// gauge-rpm-source.md): theta_rad = pi*(clamp(rpm,0,10000)/10000 - 0.7), 0 up,
+// positive clockwise; input = signed engine RPM at car+0x1D0 (handler 0x249DC0 ->
+// CalculateTachometerValue 0x249520 -> div.s 10000.0f 0x332F50 -> add.s -0.7f
+// 0x332F54).  No mph->angle mapping exists and none may be introduced.  Drawing
+// stays withheld until the native session exposes an rpm feed (gauge_needle.h
+// builders are ready); this flag means law-resolved, NOT wired.
+inline constexpr bool kRaceHudNeedleLawResolved = true;
 // ROM geometry (handler 0): rotated quad about origin + (70,68). `addiu v0,zero,0x46`
 // @0x249E54 and `addiu v1,zero,0x44` @0x249E24 give the pivot (554,362). The sprite is
 // u3 v53 8x59 (0x249E40/44/48, 0x249E30) on Meter0Sub csa 12. Strip vertices are

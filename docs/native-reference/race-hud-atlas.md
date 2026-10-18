@@ -1,10 +1,10 @@
 # Race HUD atlas — TOTAL TIME banner, timer, rank
 
 Measured 2026-10-17 against `build/scratch/oracle-golden/race_hud_driving.png`
-(1280×447) and the decoded SCORE pages in `build/scratch/hud-art/`. Every
-rectangle below was read off pixels (PIL); nothing here is copied from the
-ROM UV tables in [`hud-layout.md`](hud-layout.md). Those tables are cited
-only as a cross-check.
+(1280×447) and the decoded SCORE pages in `build/scratch/hud-art/`. The
+original pixel measurements remain below; ROM-verified corrections explicitly
+marked with an address supersede them where they differ. The ROM UV tables in
+[`hud-layout.md`](hud-layout.md) are otherwise cross-checks only.
 
 Validation paste: `build/scratch/hud-art/race_hud_mock.py` →
 `race_hud_mock.png`. Oracle crop: `oracle_race_topleft.png` (px 0..440 ×
@@ -178,7 +178,7 @@ screenshot colour, not the source/tint value.
 | badge `2` (yellow) | 1 | 32, 64, 16, 16 | 104.0, 112.8, 8.0, 12.9 |
 | badge `4` (yellow) | 1 | 64, 64, 16, 16 | 111.0, 112.8, 8.0, 12.9 |
 
-Pink rank digits are the **1:1 28×30** row (u = `(d%9)×28`,
+Pink rank-badge digits are the **1:1 28×30** row (u = `(d%9)×28`,
 v = `(d/9)×30`), not the 16×16 row. ROM `raceHudElementD`
 `0x002302B0`–`0x0023030C` emits those dimensions directly; the two-digit
 case places the tens at origin + `(0,0)` and ones at +`(23,0)`. The earlier

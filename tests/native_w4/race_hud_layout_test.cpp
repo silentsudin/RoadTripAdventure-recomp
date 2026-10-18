@@ -364,8 +364,9 @@ void numericChecks() {
                                   L::kRaceHudMphOnes.x + L::kRaceHudMphCellW, L::kRaceHudMphOnes.y + L::kRaceHudMphCellH};
     check(inside(mphCells, L::kRaceHudMphBadgePlate), "3-digit mph cells inside the baked badge plate");
 
-    // Needle stays a documented GAP.
-    check(!L::kRaceHudNeedleLawResolved, "needle law flagged unresolved");
+    // Needle law resolved (W4-11 tach law, coordinator ROM-verified); drawing
+    // still gated on a native rpm feed (kRaceHudNeedleLawResolved = wired? no).
+    check(L::kRaceHudNeedleLawResolved, "needle law flagged resolved (W4-11)");
     check(L::kRaceHudNeedlePivot.x == 554 && L::kRaceHudNeedlePivot.y == 362 &&
               within(L::kRaceHudNeedleMeasuredPivotX, 554, 1.0) && within(L::kRaceHudNeedleMeasuredPivotY, 362, 1.0),
           "measured needle pivot within 1 px of the ROM pivot");

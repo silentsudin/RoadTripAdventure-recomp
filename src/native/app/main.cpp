@@ -1737,6 +1737,14 @@ int main() {
     // Shipped race-HUD art (dial face METER0.GSL + SCORE.GSL atlas) loaded
     // once at runtime; missing disc leaves the authored placeholders.
     static const rt::native::assets::HudArt hudArt = rt::native::assets::loadHudArt(discRoot());
+    if (const char* dbg = std::getenv("RT_APP_CARDIAG"); dbg && *dbg == '1')
+        std::cout << "rt-app hudart: dial=" << hudArt.speedDial.has_value()
+                  << " digits=" << hudArt.speedDigits.has_value()
+                  << " banner=" << hudArt.raceBanner.has_value()
+                  << " atlas=" << hudArt.raceAtlas.has_value()
+                  << " lapDigits=" << hudArt.lapDigits.has_value()
+                  << " lapDisc=" << hudArt.lapDisc.has_value()
+                  << " gauge=" << hudArt.gaugePage.has_value() << "\n";
     if (const char* cm = std::getenv("RT_APP_CARMODEL")) {
         const int q = *cm ? std::atoi(cm) : 0;
         char leaf[24];
@@ -2477,76 +2485,81 @@ int main() {
                             {0.f, 0.f, 0.f, 0.f}, hudPixels, error);
                         if (rendered) compositeOver(pixels, hudPixels);
                     }
-                    // Authentic race top-left block: TOTAL TIME banner +
-                    // MM'SS"TT timer from SCORE.GSL unit 0 texels, CLUT
-                    // bank CSA 1 (race-hud-atlas.md, validated by
-                    // race_hud_side_by_side.png; cells source-atlas px ->
-                    // dest UI x/2,y/0.931 of race_hud_driving.png).
+                    // Authentic race top-left block through the W4-06 verified
+                    // layout builders (race_hud_layout.h; 463 ROM+golden
+                    // checks).  Sprites group by ROM texture page/CLUT bank:
+                    // SCORE CSA-0 (raceAtlas; rank digits, hidden today),
+                    // SCORE CSA-1 (raceBanner: TOTALTIME banner at (20,20)
+                    // uncentred per ROM group 0x2EC1A8, ElementC capsule at
+                    // alpha 0.509, timer digits on page v64 row pitch 14),
+                    // SCORE page-1 CSA-7 lap digits and CSA-8 lap disc
+                    // (W4-12 HudArt pages when decoded, authored fallbacks
+                    // otherwise).  The gauge page (Meter0) rides the shared
+                    // dial block below.  GAP: rank/ElementD hidden — the
+                    // native session has no rival cars (place lives at car
+                    // +0x247 per race-state-inputs.md for a future grid).
                     if (rendered && session.state() == rt::native::gameplay::SessionState::RACE &&
                         hudArt.raceBanner) {
-                        const float sx = static_cast<float>(presenter.extent.width) / 640.f;
-                        const float sy = static_cast<float>(presenter.extent.height) / 448.f;
-                        std::vector<rt::native::preview::HudQuad> bannerQuads;
-                        auto cell = [&bannerQuads](float su, float sv, float sw, float sh,
-                                                 float dx, float dy, float dw, float dh) {
-                            bannerQuads.push_back({dx, dy, dw, dh,
-                                                su / 256.f, sv / 256.f,
-                                                    (su + sw) / 256.f, (sv + sh) / 256.f,
-                                                    {1.f, 1.f, 1.f, 1.f}});
-                            };
-                            // Banner: yellow T medallion + lavender OTALTIME.
-                            cell(0.f, 110.f, 36.f, 34.f, 20.f * sx, 18.3f * sy, 36.f * sx, 36.5f * sy);
-                            cell(30.f, 80.f, 130.f, 18.f, 47.5f * sx, 33.3f * sy, 131.f * sx, 17.2f * sy);
-                            // Timer capsule digits d*16 at v64, marks at v48.
-                            const unsigned fr = snapshot.elapsedFrames;
-                            const unsigned m = std::min(fr / 3600u, 99u);
-                            const unsigned s = (fr / 60u) % 60u;
-                            const unsigned cs = static_cast<unsigned>(fr % 60u) * 100u / 60u;
-                            const unsigned digs[6] = {m / 10u, m % 10u, s / 10u, s % 10u, cs / 10u, cs % 10u};
-                            const float dxs[6] = {65.f, 79.f, 106.f, 121.f, 148.5f, 162.f};
-                            for (int i = 0; i < 6; ++i)
-                                cell(static_cast<float>(digs[i]) * 16.f, 64.f, 16.f, 16.f,
-                                   dxs[i] * sx, 59.1f * sy, 14.5f * sx, 17.2f * sy);
-                            cell(160.f, 48.f, 16.f, 16.f, 94.f * sx, 54.8f * sy, 14.5f * sx, 17.2f * sy);   // '
-                            cell(176.f, 48.f, 16.f, 16.f, 135.f * sx, 54.8f * sy, 14.5f * sx, 17.2f * sy);  // "
-                            // Timer capsule behind the digits: oracle
-                            // race_hud_driving.png capsule fill (87,109,159)
-                            // bbox px(96,48,274x27) -> UI (48,51.6,137,29),
-                            // rounded ends r=h/2 (measured 2026-10-17; the
-                            // brighter blue around it is sky, not the pill).
-                            {
-                                const std::array<float, 4> kCapsule{87.f / 255.f, 109.f / 255.f, 159.f / 255.f, 1.f};
-                                std::vector<rt::native::preview::ScreenQuad> capsule;
-                                constexpr float kCx = 48.f, kCy = 51.6f, kCw = 137.f, kCh = 29.f, kCr = 14.5f;
-                                for (float yy = 0.f; yy < kCh; yy += 1.f) {
-                                    float inset = 0.f;
-                                    if (yy < kCr)
-                                        inset = kCr - std::sqrt(std::max(0.f, kCr * kCr - (kCr - yy) * (kCr - yy)));
-                                    else if (yy > kCh - kCr)
-                                        inset = kCr - std::sqrt(std::max(0.f, kCr * kCr - (yy - (kCh - kCr)) * (yy - (kCh - kCr))));
-                                    capsule.push_back({(kCx + inset) * sx, (kCy + yy) * sy,
-                                                    (kCw - 2.f * inset) * sx, std::min(1.f, kCh - yy) * sy, kCapsule});
-                                }
-                                std::vector<std::uint8_t> capsulePixels;
-                                if (rt::native::preview::previewRender2D(
-                                        renderer, capsule, {0.f, 0.f, 0.f, 0.f}, capsulePixels, error))
-                                    compositeOver(pixels, capsulePixels);
-                            }
-                            std::string bannerError;
-                            std::vector<std::uint8_t> bannerPixels;
-                            if (rt::native::preview::previewUploadFontAtlas(renderer, *hudArt.raceBanner, bannerError) &&
-                                rt::native::preview::previewRender2DTextured(
-                                    renderer, bannerQuads, {0.f, 0.f, 0.f, 0.f}, bannerPixels, error))
-                                compositeOver(pixels, bannerPixels);
+                        namespace pv = rt::native::preview;
+                        namespace rg = roadtrip::gameplay;
+                        const pv::RaceHudViewport vp = pv::raceHudStretchViewport(
+                            static_cast<int>(presenter.extent.width),
+                            static_cast<int>(presenter.extent.height));
+                        // Current-lap frame counter resets when a lap completes
+                        // (ROM clears car+0x260 at the boundary 0x0022D4C0);
+                        // native completions arrive through snapshot.lap.
+                        static int raceLapSeen = -1;
+                        static int raceLapStartFrame = 0;
+                        if (static_cast<int>(snapshot.lap) != raceLapSeen) {
+                            raceLapSeen = static_cast<int>(snapshot.lap);
+                            raceLapStartFrame = static_cast<int>(snapshot.elapsedFrames);
+                        }
+                        pv::RaceHudLayoutState hs = pv::raceHudLayoutStateFor(
+                            snapshot,
+                            static_cast<std::int32_t>(snapshot.elapsedFrames) - raceLapStartFrame,
+                            0, 24, 1);  // place0/totalCars/gear provisional (gear law GAP)
+                        hs.showRank = false;  // no rival cars natively (GAP)
+                        auto drawTextured = [&](const std::vector<pv::HudQuad>& quads,
+                                              const rt::native::preview::PreviewTexture& tex) {
+                            if (quads.empty()) return;
+                            std::vector<std::uint8_t> px;
+                            std::string err;
+                            if (pv::previewUploadFontAtlas(renderer, tex, err) &&
+                                pv::previewRender2DTextured(
+                                    renderer, quads, {0.f, 0.f, 0.f, 0.f}, px, error))
+                                compositeOver(pixels, px);
                             else if (const char* dbg = std::getenv("RT_APP_CARDIAG"); dbg && *dbg == '1') {
                                 static bool once = false;
-                                if (!once) { once = true; std::cout << "rt-app banner FAIL: " << bannerError << " / " << error << "\n"; }
+                                if (!once) { once = true; std::cout << "rt-app race HUD pass FAIL: " << err << " / " << error << "\n"; }
                             }
+                        };
+                        std::vector<pv::HudQuad> csa0, csa1, lapDigitQ, lapDiscQ;
+                        for (const auto& s : pv::raceHudLayoutSprites(hs)) {
+                            if (s.page == rg::RaceHudPage::Meter0 ||
+                                s.page == rg::RaceHudPage::Meter0Sub)
+                                continue;  // the shared dial block below owns the gauge
+                            const pv::HudQuad q = pv::raceHudSpriteQuad(s, vp);
+                            if (s.page == rg::RaceHudPage::Score0 && s.csa == 0) csa0.push_back(q);
+                            else if (s.page == rg::RaceHudPage::Score0) csa1.push_back(q);
+                            else if (s.csa == 8) lapDiscQ.push_back(q);
+                            else lapDigitQ.push_back(q);
                         }
-                        // Shipped speedometer dial (oracle gauge face rect
-                        // (492,336,132,96) of 640x480 — hud-layout.md:81
-                        // CONFIRMED, atlas entry 0; texture ITEM/METER0.GSL
-                        // unit 0, 256x128 PSMT8 — hud_art.cpp).  Rides the
+                        if (hudArt.raceAtlas) drawTextured(csa0, *hudArt.raceAtlas);
+                        drawTextured(csa1, *hudArt.raceBanner);
+                        if (hudArt.lapDigits) drawTextured(lapDigitQ, *hudArt.lapDigits);
+                        else drawTextured(pv::raceHudLapDigitFallbackQuads(hs, vp), *hudArt.raceBanner);
+                        if (hudArt.lapDisc) drawTextured(lapDiscQ, *hudArt.lapDisc);
+                        else {
+                            std::vector<std::uint8_t> discPixels;
+                            if (pv::previewRender2D(renderer, pv::raceHudLapDiscFallback(hs, vp),
+                                                   {0.f, 0.f, 0.f, 0.f}, discPixels, error))
+                                compositeOver(pixels, discPixels);
+                        }
+                    }
+                        // Shipped speedometer dial through the W4-06 verified
+                        // Meter0 pass (ROM quad 0x2A8FF0: dial face 140x128 at
+                        // design (484,294); the earlier (492,336) w132 blit sat
+                        // on the 2P anchor 0x2A9AF0's region).  Rides the
                         // shared HUD slot; the font upload below now detects
                         // the buffer switch and rebinds FONTE (preview.cpp
                         // hudAtlasPtr), so digits stay crisp over the dial.
@@ -2558,18 +2571,24 @@ int main() {
                             const float sy = static_cast<float>(presenter.extent.height) / 448.f;
                             std::vector<std::uint8_t> dialPixels;
                             std::string dialError;
-                            // Pass 1: baked dial ring (ITEM/METER0.GSL unit 0),
-                            // source (0,0)-(132,128) -> dest 132x128 at anchor
-                            // (492,336).  §1.2's {0,0,132,96} record crops the
-                            // ring's bottom; pixel evidence vs the oracle
-                            // (build/scratch/hud-art/sim_dial_v2_vs_golden.png,
-                            // 2026-10-17) confirms the full column matches.
+                            // Pass 1: baked dial ring + gear glyph through the
+                            // W4-06 Meter0 pass (face sprite u(0,0)+140x128 at
+                            // dest (484,294) per ROM quad 0x2A8FF0; gear digit
+                            // 20x14 at dial offset (97,60) = (581,354),
+                            // u=(g%5)*20+140 v=(g/5)*16+80).  The prior
+                            // full-column blit at (492,336) w132 sat on the
+                            // 2P anchor region (0x2A9AF0).
+                            rt::native::preview::RaceHudLayoutState dialState;
+                            dialState.gear = 1;  // provisional: native gear source GAP
                             if (rt::native::preview::previewUploadFontAtlas(
                                     renderer, *hudArt.speedDial, dialError) &&
                                 rt::native::preview::previewRender2DTextured(
                                     renderer,
-                                    {{492.f * sx, 336.f * sy, 132.f * sx, 128.f * sy,
-                                      0.f, 0.f, 132.f / 256.f, 1.f, {1.f, 1.f, 1.f, 1.f}}},
+                                    rt::native::preview::raceHudLayoutQuads(
+                                        dialState, rt::native::preview::RaceHudPass::Meter0,
+                                        rt::native::preview::raceHudStretchViewport(
+                                            static_cast<int>(presenter.extent.width),
+                                            static_cast<int>(presenter.extent.height))),
                                     {0.f, 0.f, 0.f, 0.f}, dialPixels, error))
                                 compositeOver(pixels, dialPixels);
                             // Pass 2: SPEED DISPLAY LAW (verified 2026-10-18
@@ -2586,9 +2605,14 @@ int main() {
                             // uniform white, no tint.  "mph" is baked into the
                             // METER0 page and is never drawn separately here.
                             // mph badge box: x 556..604, y 389..416.
-                            // GAUGE RULING: the needle law is UNRESOLVED — mph
-                            // must NOT be mapped to a needle angle from this
-                            // display law; native draws no needle (backlog).
+                            // GAUGE RULING (W4-11, ROM-verified): the needle
+                            // law is theta = pi*(clamp(rpm,0,10000)/10000-0.7),
+                            // 0 up, positive CW, input = engine RPM at car
+                            // +0x1D0 — NOT mph (div.s 10000.0f @0x332F50,
+                            // add.s -0.7f @0x332F54 via 0x249DC0->0x249520).
+                            // The native session has no rpm feed yet (W5-01
+                            // gauge_rpm.h constants await driveline wiring), so
+                            // native still draws no needle.
                             if (hudArt.speedDial) {
                                 int mph = static_cast<int>(std::floor(renderSnapshot.speed / 55.07));
                                 mph = std::max(0, std::min(186, mph));

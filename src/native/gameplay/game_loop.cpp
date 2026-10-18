@@ -1,11 +1,76 @@
 #include "gameplay/game_loop.h"
 
 #include "gameplay/car_physics.h"
+#include "gameplay/gauge_rpm.h"
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace rt::native::gameplay {
+namespace {
+
+constexpr int kGearboxRow = 0;
+constexpr int kAutoShiftPolicy = 0;
+constexpr std::int32_t kCoastGoldenSpeedWord = 2148;  // floor(39 mph * 55.07)
+constexpr std::int32_t kCoastGoldenMotion = 106;
+constexpr std::int32_t kLoadGoldenSpeedWord = 3469;   // floor(63 mph * 55.07)
+constexpr std::int32_t kLoadGoldenMotion = 5634;
+
+std::int32_t motionFromSpeedWord(std::int32_t speedWord, bool loaded) {
+    if (speedWord <= 0) return 0;
+    const std::int64_t numerator = static_cast<std::int64_t>(speedWord) *
+        (loaded ? kLoadGoldenMotion : kCoastGoldenMotion);
+    const std::int32_t denominator = loaded ? kLoadGoldenSpeedWord : kCoastGoldenSpeedWord;
+    return static_cast<std::int32_t>(std::min<std::int64_t>(
+        numerator / denominator, std::numeric_limits<std::int32_t>::max()));
+}
+
+int highestForwardGear() {
+    int highest = 1;
+    for (int gear = 1; gear < static_cast<int>(gauge_rpm::kGearRatioTable[kGearboxRow].size()); ++gear) {
+        if (gauge_rpm::kGearRatioTable[kGearboxRow][gear] <= 0) break;
+        highest = gear;
+    }
+    return highest;
+}
+
+int projectedRpm(std::int32_t motion, int gear) {
+    return gauge_rpm::rpmFromMotionState(
+        motion, gauge_rpm::kGearRatioTable[kGearboxRow][gear]);
+}
+
+}  // namespace
+
+void advanceDriveline(DrivelineState& state, std::int32_t speedWord, const CarInput& input) {
+    if (input.reverse || speedWord < 0) {
+        state.longitudinalMotion = 0;
+        state.gear = 0;
+        state.rpm = 0;
+        state.boostTargetRpm = 0;
+        return;
+    }
+
+    const int maxGear = highestForwardGear();
+    if (state.gear < 1 || state.gear > maxGear) state.gear = 1;
+    state.longitudinalMotion = motionFromSpeedWord(speedWord, input.gas);
+    int rpm = projectedRpm(state.longitudinalMotion, state.gear);
+    if (state.gear < maxGear && rpm >= gauge_rpm::kAutoUpshiftRpm[kAutoShiftPolicy]) {
+        ++state.gear;
+        rpm = projectedRpm(state.longitudinalMotion, state.gear);
+    } else if (state.gear > 1 && rpm < gauge_rpm::kAutoDownshiftCurrentRpm[kAutoShiftPolicy] &&
+               projectedRpm(state.longitudinalMotion, state.gear - 1) <
+                   gauge_rpm::kAutoDownshiftProjectedRpm[kAutoShiftPolicy]) {
+        --state.gear;
+        rpm = projectedRpm(state.longitudinalMotion, state.gear);
+    }
+    state.rpm = rpm;
+    // AdvanceVehicleMotion's 3000/9000 literals sit on a flag path whose
+    // selector is not yet recovered. Preserve the target deterministically
+    // for future integration without allowing an unproven target to perturb
+    // the ROM-derived coupling projection.
+    state.boostTargetRpm = rpm < 9501 ? (input.gas ? 9000 : 3000) : 0;
+}
 
 GameLoop::GameLoop(const GameLoopParams& params) : params_(params) { reset(); }
 
@@ -13,6 +78,7 @@ void GameLoop::reset() {
     tasks_ = TaskPool();
     groundY_ = 0.f;  // race course starts at datum; anchors re-set it
     car_ = CarState();
+    driveline_ = DrivelineState();
     camera_ = CameraState();
     raceTracker_ = RaceTracker(0);
     lapCount_ = 0;
@@ -52,6 +118,11 @@ float GameLoop::roadDistance(Vec2 p) const {
 
 void GameLoop::integrateCar(const CarInput& input) {
     tickCar(car_, input, world_.surfaceMaterialAt(ai_.position.x, ai_.position.z));
+    advanceDriveline(driveline_, car_.speed, input);
+    // Legacy CarState fields remain a coherent presentation mirror. Neither
+    // field feeds the existing physics integration, so this cannot perturb it.
+    car_.gear = driveline_.gear;
+    car_.rpm = driveline_.rpm;
     const float sp = static_cast<float>(car_.speed);
     const float steer = static_cast<float>(car_.steeringAngle) / static_cast<float>(kSteerLock);
     ai_.heading = wrapAngle(ai_.heading + steer * (sp / params_.speedRef) * params_.turnRate);
@@ -104,6 +175,8 @@ FrameSnapshot GameLoop::makeSnapshot() {
     s.frame = frame_;
     s.clock = clock_;
     s.lighting = lighting_;
+    s.rpm = driveline_.rpm;
+    s.gear = driveline_.gear;
     if (params_.raceMode) {
         s.lap = static_cast<int>(raceTracker_.lapCount());
         s.elapsedFrames = raceTracker_.elapsedFrames();

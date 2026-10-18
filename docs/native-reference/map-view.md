@@ -90,7 +90,8 @@ indices, identity strings — not shipped bytes).
   (`config [map]` GS template `0x3380B`, scissor `[45,156,158,207]`), so no
   retail ELF behaviour pins an *enhanced* marker set. The legacy town-minimap
   projection formula (`fx = 102 + (x−px)·s/200`, `fy = 183 − (z−pz)·0.47·s/200`,
-  zoom table `0x2A42C0`) is CONFIRMED against the game's Quick-Pic icons to
+  so `kKy = kKx × 0.47`; ROM `DAT_00332CAC = -0.4699999988079071f` at
+  `0x00332CAC`; zoom table `0x2A42C0`) is CONFIRMED against the game's Quick-Pic icons to
   ≤1.5 px and is kept in the module for `RT_APP_MAP_ENHANCED` parity.
 
 ## Second-screen page machine: **AUTHORED (sibling port, no ELF evidence)**

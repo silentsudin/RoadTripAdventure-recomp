@@ -97,7 +97,25 @@ struct FrameSnapshot {
     std::uint32_t bestLap = 0;         // best completed lap (race mode only)
     bool finished = false;             // race crossed the configured lap count
     int rank = 0;                      // getRaceTimeRank for the current/final time
+    // Appended for HUD consumers. Gear follows the ROM byte domain
+    // provisionally: 0 = R, 1..5 = forward (native row 0 has five forwards).
+    int rpm = 0;                       // 0..10000, integer tachometer value
+    int gear = 1;                      // 0 = R; 1..5 = forward
 };
+
+// Deterministic presentation-side driveline state. `longitudinalMotion` is
+// the coupling-domain value consumed by gauge_rpm::rpmFromMotionState, not
+// the car speed word. It is exposed so tests can pin the integer-only model.
+struct DrivelineState {
+    std::int32_t longitudinalMotion = 0;
+    int gear = 1;
+    int rpm = 0;
+    int boostTargetRpm = 0;
+};
+
+// Advances the session's authored gearbox/tachometer state from CarState::speed
+// and player/AI controls. This has no feedback into vehicle integration.
+void advanceDriveline(DrivelineState& state, std::int32_t speedWord, const CarInput& input);
 
 class GameLoop {
 public:
@@ -137,6 +155,7 @@ private:
     TaskPool tasks_;
     World world_;
     CarState car_;
+    DrivelineState driveline_;
     AiState ai_;
     CameraState camera_;
     WaypointPath path_;

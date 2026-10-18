@@ -44,9 +44,11 @@ Oracle golden PNGs are **1280x447**. Design = `(png_x / 2, png_y * 448 / 447)`.
 | dark-green grips | (0,104,8) at x ~ 31..40 and x ~ 162..171, y 336..386 |
 | roads | navy (45,45,116), ~3 design px wide |
 | car dot | red, ~3.25 x 4.5 design px |
-| scroll scale | kKx = kKy = **0.20** design px per world unit (working estimate; grid spacing 7.5-8.5 px per 50 world units) |
+| scroll scale | **kKx ≈ 0.20** design px per world unit; **kKy = kKx × 0.47** (north-up y squash) |
 
-**GAP:** the exact scroll law is unresolved. Native currently draws a car-centered approximation.
+The car-centred scrolling law and y squash are settled: `DAT_00332CAC` is raw f32
+`0xBEF0A3D7 = -0.4699999988079071` at `0x00332CAC`; the signed y model scale is
+`-0.47 s` (`0x002425B8..0x00242614`).
 
 ### 0.4 Dashcam fit mapping
 

@@ -64,7 +64,12 @@ divisor candidate table; the oracle frames `race_hud_driving.png` = 63 and `race
 * The `mph` text is **baked into the METER0 page**; it is not drawn separately.
 * Badge box: x 556..604, y 388..416 (design px).
 * Grounding: coordinator ruling 2026-10-18 (earlier-wave verified); oracle PNGs `race_hud_driving.png` /
-  `race_hud.png`. GAP: the ELF vaddr of the divisor constant is not recorded in this doc.
+  `race_hud.png`. The native HUD digit producer is separately pinned: handler 0 calls
+  `CalculateSpeedometerDigits` at `0x00249A7C`, which divides the Q15-velocity-derived
+  `sqrt(v·v) * 216.0` value by the exact f32 `1.6089999675750732` (`0x00332F48`; `div.s`
+  at `0x00249508`). That is **not** a fixed-point encoding of the host `speed_word / 55.07`
+  contract: it is the original velocity-vector domain. `hud_live` therefore correctly retains
+  `55.07f` for its host speed word instead of substituting the unrelated ROM f32 divisor.
 * `race-v13.ppm` contains no gauge (lower-right crop uniform) and is not a validation capture.
 
 **Do not** derive the needle angle from this display law (see below).
@@ -118,6 +123,22 @@ without fitting it to MPH.
 The former `(1166,353)--(1202,366)` shot-pixel box is the **gear plate**, not
 the needle, and must not be used for PCA or a speed-to-angle fit.  The old
 two-point MPH affine mapping is withdrawn.
+
+## Gear glyph semantics — ROM/atlas pinned 2026-10-18 (W6-03)
+
+`GetVehicleGear` is the two-instruction helper at `0x002495B8`: its delay slot
+`lb v0,0x1ff(a0)` at **`0x002495BC`** returns the signed car byte. Handler 0 calls
+it at `0x002499D4`, then emits the glyph with `g % 5` / `g / 5` at
+`0x00249A04..0x00249A58`: `u=(g%5)*20+140`, `v=(g/5)*16+80`, `20x14`, destination
+`(581,354)` (gauge origin `(484,294)` plus `(97,60)`). There is no +/- adjustment
+before indexing.
+
+The contact sheet `build/scratch/w6-03/gear_cells.png`, decoded from canonical
+`ITEM/METER0.GSL`, reads row 0 as **R 1 2 3 4** and row 1 as **5 6 blank blank blank**.
+Thus `g==0` is **reverse**, not neutral or first gear; `g==1..6` are the visible forward
+gears. This METER0 source page is PSMT8 + CT32 (not CT16/CSA12); CSA 12 applies to the
+separate PSMT4 needle page. `src/native/gameplay/gear_glyph.h` and
+`tests/native_w17/gear_glyph_test.cpp` pin the settled table and index law.
 
 ## Embedded reproduction Python
 
