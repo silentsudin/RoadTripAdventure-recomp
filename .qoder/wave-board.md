@@ -141,7 +141,8 @@ Provider switch ~12:57: Anthropic dispatches now ERROR "x-api-key header is requ
   Town dir 0x2d98a8, 43 = static dir 0x2bd578 — both docs correct for their directory).
   WIRING DEFERRED (ruling): cellUnits=1600/84≈19 but road half-width=60 → resolve()
   as-is = invisible walls on tarmac; must scale cell to road width (or per-town extents)
-  before integrateCar wire. w20 registered; collision wire = backlog with this note.
+  before integrateCar wire. w20 REGISTERED (coordinator): checks=22 green via CMake build,
+  true-SKIP verified (env -i HOME=<empty> → exit 0, checks=0); collision wire = backlog.
 - WAVE-7 dispatched 2026-10-18: W7-01 needle draw procurement (openai, gauge_needle.h +
   w19 test + docs — needle bitmap/cell/pivot/rotation from handler 0x249DC0 path);
   W7-02 explore-freeze diagnosis (synthetic GLM-Flash, report-only); W7-03 town collision
