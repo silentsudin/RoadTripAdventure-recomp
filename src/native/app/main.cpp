@@ -34,6 +34,7 @@
 #include "gameplay/world_layout.h"
 #include "app/Autopilot.h"
 #include "guest/guest_kernel.h"
+#include "guest/guest_vif1.h"
 #include "guest/guest_shim.h"
 
 namespace guest { extern uint64_t g_diagCdReads, g_diagCdSectors; extern uint16_t g_bootButtons; }
@@ -3398,6 +3399,7 @@ int main() {
         for (std::size_t i = 0; i < nf && i < 24; ++i)
             std::cout << "  fault 0x" << std::hex << fs[i].addr << std::dec
                       << " x" << fs[i].count << "\n";
+        rtguest::vif1MaybeDumpCode();  // RT_VIF1_CODE_DUMP (W3 step 2 aid)
     }
     if (interpEnabled)
         std::cout << "rt-app interp: steps=" << interpClock.stepsTaken()

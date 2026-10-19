@@ -69,3 +69,14 @@ regression goldens.py neighborhood metric (both directions, >48/channel off, 3% 
 2. Port entry programs 2-6 to C++ (evidence: docs/vu1-microcode.md + captures in
    build/vu1hle-caps; `vu1_replay --hle` stays the oracle for program semantics).
 3. Renderer feed replacing preview stand-ins; title, race, town scanout goldens land.
+
+## Survey result (step 1 landed 2026-10-19)
+
+`guest_vif1.{h,cpp}` decodes every VIF1 segment delivered by the CHCR trap over a
+full boot+attract (1801 vblanks) with no boot-state change (`vif1_test` pins the
+semantics). Census at segs=4000 (`RT_VIF_HIST=1`): MSCALF@VU1-pc 0x20 dominates
+(~1.38M calls), MSCALF@0x50 secondary (~29K), MSCAL mostly one-time inits (counts
+23-46), MSCNT/MPG/DIRECT present (237 MPG uploads observed). Step 2 targets:
+port the entry at 0x20 (per-frame strip path) and 0x50 first; the uploaded micro
+programs live in the interpreter's `vu1Code()` after the MPG/chain loaders run —
+capture before transliterating (dump hook pending).

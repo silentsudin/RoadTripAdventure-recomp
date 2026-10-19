@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include "guest_kernel.h"
 #include "guest_shim.h"
+#include "guest_vif1.h"
 #include "guest_decls.inc"
 
 namespace guest {
@@ -100,58 +101,15 @@ uint32_t normalizeQwcFromArg(uint32_t value) {      // Support.h:1254
 // (future) native GS/VIF consumer. Shortcut: walk-and-count only (see header).
 void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
                     uint32_t qwc, uint32_t tadr) {
-    // W3 step 1 (docs/native-reference/w13-gs-sink-design.md): survey the VIF1
-    // code subset the game actually streams. Encoding mirrors the oracle's
-    // ps2_vif1_interpreter.cpp (opcode=(w>>24)&0x7F, imm=w&0xFFFF,
-    // num=(w>>16)&0xFF); opcode table cited there. VIF1 only (0x10009000):
-    // the GIF channel payload is GIF packets, counted at segment level.
+    // W3 step 1 (docs/native-reference/w13-gs-sink-design.md): VIF1 channel payloads
+    // are decoded by the native interpreter (guest_vif1.cpp); RT_VIF_HIST reporting
+    // lives there. The GIF channel payload is GIF packets, counted at segment level.
     static const bool vifHist = std::getenv("RT_VIF_HIST") != nullptr;
-    static std::map<uint32_t, uint64_t> ops;     // VIF1 opcodes seen (key: opcode | entry<<8)
     static std::map<uint32_t, uint64_t> gifSegs; // GIF chain segs by tag upper bits[61:58]
-    static uint64_t vsegs = 0, gsegs = 0, gqw = 0;
+    static uint64_t gsegs = 0, gqw = 0;
     auto hist = [&](uint32_t chan, uint32_t addr, uint32_t qw) {
-        if (!vifHist || chan != 0x10009000u) return;
-        const uint8_t* p = rtguest::kRam + (addr & 0x01FFFFFFu);
-        const uint32_t bytes = qw * 16u;
-        uint32_t pos = 0;
-        while (pos + 4 <= bytes) {
-            uint32_t w;
-            std::memcpy(&w, p + pos, 4);
-            const uint32_t op = (w >> 24) & 0x7Fu;
-            const uint32_t imm = w & 0xFFFFu;
-            const uint32_t num = (w >> 16) & 0xFFu;
-            uint32_t advance = 4;
-            uint32_t key = op;
-            if (op == 0x14u || op == 0x15u) {
-                key = op | ((imm & 0x3FFu) << 8);   // MSCAL/MSCALF: record entry PC
-            } else if (op == 0x20u || op == 0x30u || op == 0x31u) {
-                advance = 20;                        // +4 data words
-            } else if (op == 0x4Au) {
-                advance = 4 + (num == 0u ? 256u : num) * 8u;
-            } else if (op == 0x50u || op == 0x51u) {
-                uint32_t q = imm == 0u ? 65536u : imm;
-                if (4u + q * 16u > bytes - pos) q = (bytes - pos - 4u) / 16u;
-                advance = 4 + q * 16u;
-            } else if ((op & 0x60u) == 0x60u) {
-                const uint32_t vecBytes = (op & 0x3u) == 0u ? 2u
-                    : (op & 0x3u) == 1u ? 4u : (op & 0x3u) == 2u ? 8u : 16u;
-                key = op;                            // (vn,vl) in low 6 bits already
-                advance = 4 + (num == 0u ? 256u : num) * vecBytes;
-            }
-            ++ops[key];
-            if (pos + advance > bytes) break;        // desync guard: stop, don't wander
-            pos += advance;
-        }
-        if (++vsegs % 2000u == 0u) {
-            std::fprintf(stderr, "[vifhist] segs=%llu\n", (unsigned long long)vsegs);
-            for (auto& [k, c] : ops)
-                if (k > 0xFFu)
-                    std::fprintf(stderr, "  op=%#x mscal_pc=%#x count=%llu\n",
-                                 k & 0xFFu, (k >> 8) * 8u, (unsigned long long)c);
-                else
-                    std::fprintf(stderr, "  op=%#x count=%llu\n", k,
-                                 (unsigned long long)c);
-        }
+        if (chan != 0x10009000u) return;
+        rtguest::vif1Consume(addr, qw);
     };
     uint64_t words = 0;
     uint32_t links = 0;
