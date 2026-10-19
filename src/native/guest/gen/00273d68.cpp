@@ -13,30 +13,30 @@ uint32_t scePadInfoAct(uint32_t param_1, uint32_t param_2, uint32_t param_3, uin
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x72))) != '\x01') {
       return 0;
     }
-    if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 100))) < 2) {
+    if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 100))) < 2) {
       return 0;
     }
-    if (param_3 < (long)(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x6a)))) {
+    if (param_3 < (long)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x6a)))) {
       if (param_3 == -1) {
-        return (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x6a)));
+        return (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x6a)));
       }
       iVar2 = (int)param_3;
       if (param_4 == 2) {
-        return (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + iVar2 * 4 + 0x31)));
+        return (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + iVar2 * 4 + 0x31)));
       }
       if (param_4 < 3) {
         if (param_4 != 1) {
           return 0;
         }
-        return (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + iVar2 * 4 + 0x30)));
+        return (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + iVar2 * 4 + 0x30)));
       }
       if (param_4 == 3) {
-        return (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + iVar2 * 4 + 0x32)));
+        return (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + iVar2 * 4 + 0x32)));
       }
       if (param_4 != 4) {
         return 0;
       }
-      return (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + iVar2 * 4 + 0x33)));
+      return (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + iVar2 * 4 + 0x33)));
     }
   }
   return 0;

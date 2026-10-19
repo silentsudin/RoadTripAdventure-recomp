@@ -7,7 +7,7 @@ namespace guest {
 uint32_t gs_controls_rumble_start(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
 uint32_t puVar1;
   
-  if ((((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + param_2 + 0xc))) & (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe)))) != 0) && (param_4 != 0)) {
+  if ((((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + param_2 + 0xc))) & (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe)))) != 0) && (param_4 != 0)) {
     puVar1 = (*(uint32_t*)rtguest::G((uint32_t)(0x29ad60u + (uint32_t)(param_3) * 4)));
     if (0xff < param_4) {
       param_4 = 0xff;

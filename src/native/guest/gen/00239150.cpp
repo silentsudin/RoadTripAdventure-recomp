@@ -17,7 +17,7 @@ uint32_t DisplayTextDialog(uint32_t param_1, uint32_t param_2, ...) {
     uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))),0);
     uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af0u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10);
     uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af4u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10);
-    if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) != 0) {
+    if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) != 0) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar3 + 0xc))) = 2;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar3 + 0xd))) = 1;

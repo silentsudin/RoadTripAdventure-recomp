@@ -23,7 +23,7 @@ uint32_t ShowSaveCreateSpinner(uint32_t param_1, uint32_t param_2, ...) {
         gs_tasks_kill();
       }
       else {
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) & 0x7f;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) & 0x7f;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 0;
       }
     }
@@ -32,7 +32,7 @@ uint32_t ShowSaveCreateSpinner(uint32_t param_1, uint32_t param_2, ...) {
       PlayUiSound(0x1a);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 1;
       gs_tasks_spawn(param_1,0x2291c8,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd))));
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) | 0x80;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) | 0x80;
       return 0;
     }
     if (lVar4 == -1) {

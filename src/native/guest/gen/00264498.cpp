@@ -72,7 +72,7 @@ uint32_t puVar17;
     (*(uint16_t*)rtguest::G((uint32_t)puVar17 + (uint32_t)(2) * sizeof(uint16_t))) = 0x1b8;
   }
   else {
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x25)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x25)));
     if (bVar1 == 1) {
       iVar15 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x28)));
       uiDrawPanel9(0x50,0x18,0x1e0,0x18,0);
@@ -155,11 +155,11 @@ uint32_t puVar17;
       iVar13 = 0x31;
       iVar9 = 0x31;
       do {
-        lVar7 = GetQueuedByte(((((*(int32_t*)rtguest::G(0x177fd88)) & 0xff) - iVar19) - (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x10)))) -
+        lVar7 = GetQueuedByte(((((*(int32_t*)rtguest::G(0x177fd88)) & 0xff) - iVar19) - (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x10)))) -
                               1 & 0xff);
         if (lVar7 != -1) {
           lVar7 = HasQueuedByteFlag(((((*(int32_t*)rtguest::G(0x177fd88)) & 0xff) - iVar19) -
-                                    (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x10)))) - 1 & 0xff);
+                                    (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x10)))) - 1 & 0xff);
           if (lVar7 == 0) {
             uiDrawText(0x78,iVar13,0x3352e8,0xd);
           }

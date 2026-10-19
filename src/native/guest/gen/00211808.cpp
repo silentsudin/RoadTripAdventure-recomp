@@ -18,7 +18,7 @@ uint32_t StartTownExplorationTask(uint32_t param_1, uint32_t param_2, ...) {
     (*(int32_t*)rtguest::G(0x177ea5c)) = (int)0x177f760 + (int)lVar2 * 0x1c;
     if (lVar2 == 0) {
       (*(int32_t*)rtguest::G(0x177ea5c)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) * 4))) +
-                     (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x21))) * 0x10;
+                     (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x21))) * 0x10;
     }
     gs_tasks_spawn(param_1,0x20dc50,0x30000);
     gs_tasks_spawn(param_1,0x22c518,0);

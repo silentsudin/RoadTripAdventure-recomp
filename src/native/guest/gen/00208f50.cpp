@@ -40,8 +40,8 @@ uint32_t pbVar4;
       PlayUiSound(0x1b);
     }
     else {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x50))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x50))) & 0xfd;
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x51))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x51))) & 0xfd;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x50))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x50))) & 0xfd;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x51))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x51))) & 0xfd;
       gs_options_speaker_set((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd))));
       PlayUiSound(0x1f);
       pbVar4 = (uint32_t)(iVar5 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd))) + 0x50);

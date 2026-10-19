@@ -155,7 +155,7 @@ LAB_002561f4:
     goto switchD_002561a0_default;
   case 8:
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30))) & 0xa000) != 0) {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) ^ 1;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) ^ 1;
       goto LAB_00256464;
     }
   default:

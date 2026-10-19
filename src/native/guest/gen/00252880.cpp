@@ -76,7 +76,7 @@ uint32_t auStack_d0 = rtguest::allocFrame(128);
   (*(uint64_t*)rtguest::G((uint32_t)uStack_e8)) = 0;
   uiArenaSprites(iVar2,uStack_100,1,0,0,1);
   uiArenaSubmit(iVar2);
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
   if (bVar1 != 1) {
     if (1 < bVar1) {
       if (bVar1 != 2) {

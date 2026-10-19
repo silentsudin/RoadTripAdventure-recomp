@@ -44,7 +44,7 @@ uint32_t RunMenuSelectionTask(uint32_t param_1, uint32_t param_2, ...) {
   uiDrawHintBar(1);
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28)));
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) == '\0') goto LAB_00209b18;
-  bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
+  bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
   if (bVar2 == 1) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) == 1) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 2;
@@ -54,7 +54,7 @@ uint32_t RunMenuSelectionTask(uint32_t param_1, uint32_t param_2, ...) {
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 0;
 LAB_00209af0:
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) & 0x7f;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) & 0x7f;
   }
   else {
     if (bVar2 < 2) {
@@ -102,7 +102,7 @@ LAB_00209b1c:
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd)));
       if (cVar1 == '\x01') {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 10))) = 3;
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) | 0x80;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) | 0x80;
         gs_tasks_spawn(param_1,0x227380,2);
         return 0;
       }
@@ -121,7 +121,7 @@ LAB_00209b1c:
       }
       else if (cVar1 == '\x02') {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 10))) = 6;
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) | 0x80;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) | 0x80;
         gs_tasks_spawn(param_1,0x227380,2);
         return 0;
       }

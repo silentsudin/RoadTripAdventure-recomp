@@ -33,7 +33,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(64);
   if (iVar2 == 0) {
     return 0;
   }
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a)));
   pfVar14 = (uint32_t)(param_2 + 0x90);
   iVar13 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x254)));
   pbVar12 = (uint32_t)(iVar13 + (uint32_t)bVar1 * 8);
@@ -44,7 +44,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(64);
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(2) * sizeof(int8_t)));
     while( true ) {
       if (bVar1 == (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(3) * sizeof(int8_t)))) {
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = bVar1;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = bVar1;
       }
       else {
         iVar6 = uVar8 * 0x18 + iVar2;
@@ -53,13 +53,13 @@ uint32_t auStack_a0 = rtguest::allocFrame(64);
         fVar16 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x14)));
         if ((fVar16 - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x14)))) * ((*(float*)rtguest::G((uint32_t)pfVar14)) - fVar17) -
             (fVar17 - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x10)))) * ((*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x98))) - fVar16) < 0.0) {
-          (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = bVar1;
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = bVar1;
         }
         else {
-          (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(3) * sizeof(int8_t)));
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(3) * sizeof(int8_t)));
         }
       }
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a)));
       pbVar12 = (uint32_t)(iVar13 + (uint32_t)bVar1 * 8);
       uVar8 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar12));
       pfVar5 = (uint32_t)(uVar8 * 0x18 + iVar2);
@@ -76,25 +76,25 @@ uint32_t auStack_a0 = rtguest::allocFrame(64);
           ((*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(2) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)pfVar5))) * ((*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x98))) - (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(3) * sizeof(float)))) < 0.0) break;
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(4) * sizeof(int8_t)));
       if (bVar1 == (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(5) * sizeof(int8_t)))) {
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = bVar1;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = bVar1;
       }
       else {
         iVar6 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar12)) * 0x18 + iVar2;
         if (((*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(5) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x14)))) * ((*(float*)rtguest::G((uint32_t)pfVar14)) - (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(4) * sizeof(float)))) -
             ((*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(4) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x10)))) * ((*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x98))) - (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(5) * sizeof(float)))) < 0.0)
         {
-          (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = bVar1;
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = bVar1;
         }
         else {
-          (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(5) * sizeof(int8_t)));
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))) = (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(5) * sizeof(int8_t)));
         }
       }
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a)));
       pbVar12 = (uint32_t)(iVar13 + (uint32_t)bVar1 * 8);
     }
     bVar3 = (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(6) * sizeof(int8_t)));
   }
-  (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24b))) = bVar3;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24b))) = bVar3;
   cVar15 = '\x02';
   if ((*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(4) * sizeof(int8_t))) != (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(5) * sizeof(int8_t)))) {
     iVar7 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar12)) * 0x18 + iVar2;
@@ -166,7 +166,7 @@ LAB_0025058c:
   iVar13 = iVar13 + (uint32_t)bVar1 * 8;
   fVar21 = (float)(int)uVar8 / (*(uint32_t*)rtguest::G(0x332fac));
   fVar18 = (*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x98)));
-  pfVar5 = (uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 1))) * 0x18 + iVar2);
+  pfVar5 = (uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 1))) * 0x18 + iVar2);
   fVar16 = (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(3) * sizeof(float)));
   fVar20 = (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(1) * sizeof(float)));
   fVar19 = ((*(float*)rtguest::G((uint32_t)pfVar5)) + (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(2) * sizeof(float)))) * 0.5 - (*(float*)rtguest::G((uint32_t)pfVar14));

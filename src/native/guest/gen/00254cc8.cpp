@@ -10,7 +10,7 @@ uint32_t GetTuningParamFromCarSlot(uint32_t param_1, uint32_t param_2, ...) {
   undefined4 uVar3;
   
   uVar3 = 0;
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x24a)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x24a)));
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 600)));
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) & 4) != 0) {
     UpdateAiCourseSteering(param_2);

@@ -58,7 +58,7 @@ uint32_t gs_controls_player_control(uint32_t param_1, uint32_t param_2, uint32_t
     uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x01780a54 + iVar5)));
   }
   if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((uVar2 & 1) * 2 + param_2 + 0x38))) & uVar3) != 0) {
-    PlayUiSound((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x245))) + 0x8000);
+    PlayUiSound((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x245))) + 0x8000);
   }
   return uVar8;
 }

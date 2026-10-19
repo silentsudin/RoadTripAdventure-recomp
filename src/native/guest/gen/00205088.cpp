@@ -14,7 +14,7 @@ uint32_t UpdateMenuFlowTask(uint32_t param_1, uint32_t param_2, ...) {
   ClearInputTransientState(param_2);
   iVar3 = (int)param_1;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) != '\0') {
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25)));
     if (bVar1 == 1) {
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 2;

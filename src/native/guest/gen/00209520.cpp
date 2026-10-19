@@ -61,7 +61,7 @@ uint32_t titleNewGameContinue(uint32_t param_1, uint32_t param_2, ...) {
       PlayUiSound(0x1a);
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));
       if (cVar1 == '\x01') {
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) | 0x80;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) | 0x80;
         gs_tasks_spawn(param_1,0x228d10,0);
         return 0;
       }

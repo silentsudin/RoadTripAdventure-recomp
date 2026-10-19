@@ -52,7 +52,7 @@ LAB_002053ec:
   if ((char)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(7) * sizeof(int16_t))) == '\0') {
     cVar2 = NavigateGridSelection
                       (param_2,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xd))),1,
-                       (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xb))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x11))),
+                       (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xb))) + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x11))),
                        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(6) * sizeof(int16_t)))) & 3,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(6) * sizeof(int16_t)))) >> 2 ^ 1) & 1);
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(8) * sizeof(int16_t))));
     uVar5 = (uint32_t)bVar1;
@@ -206,7 +206,7 @@ LAB_002056b0:
                      (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) * 2 + -0x14,2);
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(8) * sizeof(int16_t))));
       }
-      if (bVar1 < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x11)))) {
+      if (bVar1 < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x11)))) {
         uiDrawIcon20((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) +
                      ((int)((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) + (uint32_t)((uint32_t)(uint16_t)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) >> 0xf)) >> 1) + -10,
                      ((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t)))) * 2,3);

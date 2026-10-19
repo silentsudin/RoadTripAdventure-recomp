@@ -45,13 +45,13 @@ uint32_t pbVar5;
       PlayUiSound(0x1b);
     }
     else {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x50))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x50))) & 0xfd;
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x51))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x51))) & 0xfd;
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x52))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x52))) & 0xfd;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x50))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x50))) & 0xfd;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x51))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x51))) & 0xfd;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x52))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x52))) & 0xfd;
       pbVar5 = (uint32_t)(iVar6 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xd))) + 0x50);
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x53))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x53))) & 0xfd;
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x55))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x55))) & 0xfd;
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x54))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x54))) & 0xfd;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x53))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x53))) & 0xfd;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x55))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x55))) & 0xfd;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x54))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x54))) & 0xfd;
       (*(int8_t*)rtguest::G((uint32_t)pbVar5)) = (*(int8_t*)rtguest::G((uint32_t)pbVar5)) | 2;
       (*(uint32_t*)rtguest::G(0x333290)) = (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xd)));
       iVar1 = ((5 - (*(uint32_t*)rtguest::G(0x333290))) * 0x3fff) / 5;

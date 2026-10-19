@@ -26,14 +26,14 @@ uint32_t puVar10;
       while( true ) {
         bVar3 = false;
         if (puVar10 != (uint32_t)0x0) {
-          bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar10 + 0x19a)));
-          bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x19a)));
+          bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar10 + 0x19a)));
+          bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x19a)));
           iVar5 = (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar10 + 0x19b))) - (uint32_t)(bVar1 < 2);
           iVar4 = (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x19b))) - (uint32_t)(bVar2 < 2);
           bVar3 = iVar4 < iVar5;
           if (((iVar5 == iVar4) && (bVar3 = bVar2 < bVar1, bVar1 == bVar2)) &&
-             (bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x24b))) < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar10 + 0x24b))),
-             (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar10 + 0x24b))) == (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x24b))))) {
+             (bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x24b))) < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar10 + 0x24b))),
+             (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar10 + 0x24b))) == (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x24b))))) {
             bVar3 = (*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar10 + 0x24c))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x24c)));
           }
         }

@@ -174,7 +174,7 @@ LAB_00221c74:
         (*(uint32_t*)rtguest::G((uint32_t)uStack_1b0)) = 0;
         vu0ApplyMatrix(uStack_1b0,auStack_220,uStack_1b0);
         vifObjectMatrix(auStack_1e0);
-        iVar3 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 7))) * 10;
+        iVar3 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 7))) * 10;
         vifBatchRegs((long)(iVar3 + 0x1be4) | 0x19308000U | (long)(iVar3 + 0x1bec) << 0x25 |
                      0x2010000540000000,7,0,0xf);
         vifCallModel((*(uint32_t*)rtguest::G(0x177eaec)) + 0x10);
@@ -189,9 +189,9 @@ LAB_00221c74:
         }
         else {
           vifObjectMatrix(param_3);
-          uVar4 = (uint32_t)(int)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 6))) * 2 + 0x1c44);
+          uVar4 = (uint32_t)(int)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 6))) * 2 + 0x1c44);
           vifBatchRegs(uVar4 | 0x20138c85dd308000,7,
-                       uVar4 | 0x1d408000 | (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 5))) << 0x38 |
+                       uVar4 | 0x1d408000 | (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 5))) << 0x38 |
                        0x138c85c0000000,7);
           vifCallModel((*(uint32_t*)rtguest::G(0x177eb04)) + 0x10);
         }
@@ -201,7 +201,7 @@ LAB_00221c74:
         uVar5 = 0;
         vifCallModel((*(uint32_t*)rtguest::G(0x177eaf0)) + 0x10);
         vifFixedRegs(0x20138c85dd309c44,7,
-                     (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 5))) << 0x38 | 0x138c85dd409c44,7);
+                     (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 5))) << 0x38 | 0x138c85dd409c44,7);
         vu0UnitMatrix(auStack_b0);
         vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x80))),auStack_b0,auStack_b0);
         vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x84))),auStack_b0,auStack_b0);

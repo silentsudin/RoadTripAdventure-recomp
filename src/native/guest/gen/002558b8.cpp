@@ -36,11 +36,11 @@ uint32_t puVar14;
     uVar5 = 0x60404040;
   }
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x8a0))) = uVar5;
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 5)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 5)));
   uiSpriteWrite(param_2 + 0x800,
                 ((int)((uint32_t)bVar1 * 0x1c - (uint32_t)bVar1) / 2 + 0x65) * 0x10000 >> 0x10,
                 (bVar1 & 1) * 0x120000 + 0x13e0000 >> 0x10,0x1b0,0x120,0x20,0x1c);
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 5)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 5)));
   uiSpriteWrite(param_2 + 0x850,
                 ((int)((uint32_t)bVar1 * 0x1c - (uint32_t)bVar1) / 2 + 0x65) * 0x10000 >> 0x10,
                 (bVar1 & 1) * 0x120000 + 0x1260000 >> 0x10,0x1d5,0x11c,0x20,0x20);

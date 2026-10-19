@@ -16,7 +16,7 @@ uint32_t pbVar3;
 uint32_t auStack_70 = rtguest::allocFrame(32);
   
   lVar6 = 0;
-  uVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) / 0xc;
+  uVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) / 0xc;
   iVar7 = uVar1 - 1;
   if (uVar1 != 0) {
     bVar2 = (*(int8_t*)rtguest::G((uint32_t)param_2));
@@ -40,7 +40,7 @@ LAB_0023a988:
   }
   iVar8 = 0;
   uiSetPaletteBank(10);
-  uVar1 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) % 0xc;
+  uVar1 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) % 0xc;
   iVar7 = uVar1 - 4;
   iVar5 = 0xad - uVar1;
   if (iVar7 < 0) {
@@ -126,7 +126,7 @@ LAB_0023ac4c:
     iVar5 = iVar5 + 0xc;
     iVar7 = 0;
     if (2 < iVar8) {
-      if ((((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) == 0) || (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) / 0xc) % 3 == 0)) &&
+      if ((((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) == 0) || (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) / 0xc) % 3 == 0)) &&
          ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) == 0x7fff)) {
         (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) = (short)lVar6;
       }

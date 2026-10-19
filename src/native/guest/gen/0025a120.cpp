@@ -191,7 +191,7 @@ LAB_0025a5c0:
         while( true ) {
           iVar12 = (int)lVar13 + 1;
           lVar13 = (long)iVar12;
-          bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x1c)));
+          bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x1c)));
           (*(int8_t*)rtguest::G((uint32_t)pbVar11 + (uint32_t)(1) * sizeof(int8_t))) = bVar2;
           vu0CopyVector(pbVar11 + 0x20,(*(uint32_t*)rtguest::G((uint32_t)(0x2c3a00u + (uint32_t)(bVar2) * 4))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar11)) * 0x10);
           gs_tasks_spawn(param_1,0x259a08,pbVar11);

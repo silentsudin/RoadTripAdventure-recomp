@@ -41,12 +41,12 @@ uint32_t psVar6;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x22)));
     }
     else {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) ^ 1;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) ^ 1;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x22)));
     }
     if (cVar1 == -1) {
       gs_map_draw_functions_town(0x177ace0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))),param_2);
-      fVar9 = 50.0 / (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) * 0x10)));
+      fVar9 = 50.0 / (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) * 0x10)));
       vifUploadColours(0x2a4370,0x2a4360);
       psVar6 = 0x0177b058;
       iVar8 = 0x270;
@@ -62,7 +62,7 @@ uint32_t psVar6;
       vifCallModel(0x290870);
       vifUploadColours(0x2a4390,0x2a4360);
       do {
-        uVar2 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)psVar6 + 0xaf))) * 8)));
+        uVar2 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)psVar6 + 0xaf))) * 8)));
         lVar4 = tileSlotLoaded(param_2,uVar2);
         if (((lVar4 != 0) && ((*(int16_t*)rtguest::G((uint32_t)psVar6)) != 0)) &&
            (lVar4 = tileSlotOrigin(auStack_d0,(int)0x177ace0 + iVar8,uVar2 & 3),

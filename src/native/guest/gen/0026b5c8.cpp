@@ -23,12 +23,12 @@ uint32_t actionStageSelectGridMenu(uint32_t param_1, uint32_t param_2, ...) {
   uiDrawPanelCells(0,0,0xf,0xb,0);
   uiDrawPanelCells(0xf,0,0x1e,0xb,0);
   bVar2 = NavigateGridSelection(param_2,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27))),2,10,0,1);
-  (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27))) = bVar2;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27))) = bVar2;
   if (bVar2 < 10) {
     uiDrawBarWithArrow(0x1e,(uint32_t)bVar2 * 0x18 + 0x22,0x118);
   }
   else {
-    uiDrawBarWithArrow(0x14a,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27))) * 0x18 + -0xce,0x118);
+    uiDrawBarWithArrow(0x14a,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27))) * 0x18 + -0xce,0x118);
   }
   iVar3 = 0;
   iVar5 = 0;
@@ -61,7 +61,7 @@ uint32_t actionStageSelectGridMenu(uint32_t param_1, uint32_t param_2, ...) {
     }
     else {
       PlayUiSound(0x1a);
-      gs_tasks_spawn(param_1,0x20f950,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27))) + 0x23);
+      gs_tasks_spawn(param_1,0x20f950,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27))) + 0x23);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 1;
     }
   }

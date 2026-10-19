@@ -59,7 +59,7 @@ uint32_t pbVar12;
   }
   iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28)));
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) != '\0') {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) & 0x7f;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) & 0x7f;
   }
   lVar11 = uiMenuRun(iVar4);
   if (lVar11 == 0) {
@@ -80,11 +80,11 @@ LAB_00239c88:
     return 0;
   }
   cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xd)));
-  if ((long)cVar8 == (long)(int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xb))) - 1)) goto LAB_00239c88;
+  if ((long)cVar8 == (long)(int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xb))) - 1)) goto LAB_00239c88;
   iVar7 = ((int)cVar8 + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2)))) * 0x10;
   if (((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2bddd3 + (uint32_t)(iVar7) * 1)) < 4) &&
      ((long)(*(int8_t*)rtguest::G(0x177fdb1)) < (long)(uint32_t)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2bddd3 + (uint32_t)(iVar7) * 1)))) {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) | 0x80;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) | 0x80;
     if ((*(uint8_t*)rtguest::G((uint32_t)0x2bddd3 + (uint32_t)(((int)cVar8 + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2)))) * 0x10) * 1)) == '\x01') {
       gs_tasks_spawn(param_1,0x23bb00,0x2ec5e8);
       return 0;
@@ -98,7 +98,7 @@ LAB_00239c88:
   }
   if (((int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xd))) + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2))) == 0x19) &&
      (lVar11 = TestStateBitFc78(100), lVar11 == 0)) {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) | 0x80;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) | 0x80;
     gs_tasks_spawn(param_1,0x23bb00,0x2ec638);
     return 0;
   }

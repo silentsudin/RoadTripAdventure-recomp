@@ -119,7 +119,7 @@ uint32_t puVar15;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_b8)) = 0;
   uiArenaSprites(iVar5,uStack_d0,1,0,0,1);
   uiArenaSubmit(iVar5);
-  bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25)));
+  bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25)));
   if (bVar2 != 1) {
     if (1 < bVar2) {
       if (bVar2 != 2) {

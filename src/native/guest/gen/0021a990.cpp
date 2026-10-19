@@ -41,7 +41,7 @@ uint32_t puVar10;
     if ((long)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x10))) + 2))) + -1) <= (long)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x19b))))
     goto LAB_0021aa98;
     if (uVar2 == 2) {
-      PlayUiSound((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x245))) + 0x8000);
+      PlayUiSound((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x245))) + 0x8000);
       PlayUiSound(0x309);
       uVar8 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198)));
     }

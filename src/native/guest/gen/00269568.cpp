@@ -29,11 +29,11 @@ uint32_t shopPartsBuyMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     iVar13 = (int)uVar8;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x5f))) = 1;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) = 1;
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xc))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xc))) | (uint32_t)uVar14;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xc))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xc))) | (uint32_t)uVar14;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) = 0;
     return 0;
   }
-  bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
+  bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
   iVar13 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x28)));
   if (bVar2 == 1) {
     if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x24))) != '\0') && (iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 4))), iVar3 != -1)) {
@@ -101,7 +101,7 @@ LAB_00269804:
       DestroyTaskRecord(param_1);
       gs_tasks_spawn(param_1,0x246250,
                      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dc8a8 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xd))) * 4))) |
-                     (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) << 8 | uVar14 << 0x14);
+                     (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) << 8 | uVar14 << 0x14);
     }
     return 0;
   }

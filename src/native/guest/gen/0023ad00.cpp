@@ -83,7 +83,7 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
     goto LAB_0023afe0;
   default:
-    ::printf((char *)rtguest::G((uint32_t)(0x2ec718u)), (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x22))), (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    ::printf((char *)rtguest::G((uint32_t)(0x2ec718u)), (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x22))), (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
     if ((*(int8_t*)rtguest::G((uint32_t)param_3)) < 0x20) {
       for (param_3 = pbVar8 + 2; (*(int8_t*)rtguest::G((uint32_t)param_3)) < 0x20; param_3 = param_3 + 1) {
       }
@@ -148,7 +148,7 @@ LAB_0023b140:
     ReleaseStampFlag(param_2);
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))) = (*(int8_t*)rtguest::G((uint32_t)param_3));
     param_3 = pbVar8 + 3;
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))) = (*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))) = (*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
     goto LAB_0023b13c;
   case 0x15:
     pbVar8 = pbVar8 + 2;

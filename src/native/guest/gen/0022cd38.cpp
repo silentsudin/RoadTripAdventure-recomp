@@ -127,7 +127,7 @@ LAB_0022d0a8:
         PlayBgmSlot5();
       }
       else if ((lVar5 == -1) ||
-              (lVar5 = (long)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))), lVar5 == (int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) - 1))) {
+              (lVar5 = (long)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))), lVar5 == (int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) - 1))) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = 2;
         PlayUiSound(0x1a);
       }

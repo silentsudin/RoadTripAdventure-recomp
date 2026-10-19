@@ -59,12 +59,12 @@ LAB_00228190:
   }
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 2))) = 0x78;
   if ((uVar2 & 0x100) == 0) {
-    bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) ^ 1;
+    bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) ^ 1;
   }
   else {
-    bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c)));
+    bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c)));
   }
-  (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xc))) = bVar3 & 1;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xc))) = bVar3 & 1;
   iVar8 = ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) & 0xf) * 0x3448;
   if ('\x03' < (char)(*(int8_t*)rtguest::G((uint32_t)0x177fdb1 + (uint32_t)(iVar8) * 1))) {
     (*(int8_t*)rtguest::G((uint32_t)0x177fdb1 + (uint32_t)(iVar8) * 1)) = 3;

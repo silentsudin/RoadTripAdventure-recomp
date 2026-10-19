@@ -25,11 +25,11 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
   case 0:
   case 1:
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xf))) != '\0') {
-      bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+      bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
       goto LAB_0026680c;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 2;
-    bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) | 2;
+    bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) | 2;
     goto LAB_00266804;
   case 2:
     (*(uint32_t*)rtguest::G(0x1780a42)) = navStampDigitByDpad(param_2,(*(uint32_t*)rtguest::G(0x1780a42)));
@@ -57,7 +57,7 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
       lVar6 = TestFlagFc68((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) + 1);
       if (lVar6 == 0) {
         PlayUiSound(0x1c);
-        bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
         goto LAB_0026680c;
       }
       PlayUiSound(0x1a);
@@ -67,14 +67,14 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
     break;
   case 3:
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xf))) != '\0') {
-      bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+      bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
       goto LAB_0026680c;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 4;
     break;
   case 4:
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) == '\0') {
-      bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+      bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
       goto LAB_0026680c;
     }
     PlayUiSound(0x1a);
@@ -90,17 +90,17 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
     }
     break;
   default:
-    bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) & 0xfd;
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) = bVar3;
+    bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) & 0xfd;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) = bVar3;
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xf))) != '\0') {
-      bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+      bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
       goto LAB_0026680c;
     }
     bVar3 = bVar3 | 1;
 LAB_00266804:
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) = bVar3;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) = bVar3;
   }
-  bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+  bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
 LAB_0026680c:
   if ((bVar3 & 2) != 0) {
     uiArenaInit(0x1762400,0x10000);
@@ -155,7 +155,7 @@ LAB_0026680c:
       }
     }
     uiArenaSubmit(0x1762400);
-    bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+    bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
   }
   if ((bVar3 & 1) != 0) {
     iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));

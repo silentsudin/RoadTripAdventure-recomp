@@ -15,9 +15,9 @@ uint32_t auStack_90 = rtguest::allocFrame(48);
 uint32_t auStack_60 = rtguest::allocFrame(16);
   
   iVar3 = 0;
-  uVar2 = (uint32_t)(int)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 6))) * 2 + 0x1c44);
+  uVar2 = (uint32_t)(int)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 6))) * 2 + 0x1c44);
   vifFixedRegs(uVar2 | 0x20138c85dd308000,7,
-               uVar2 | 0x1d408000 | (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 5))) << 0x38 | 0x138c85c0000000,7);
+               uVar2 | 0x1d408000 | (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 5))) << 0x38 | 0x138c85c0000000,7);
   vu0UnitMatrix(auStack_90);
   vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)param_2)),auStack_90,auStack_90);
   vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint32_t))),auStack_90,auStack_90);

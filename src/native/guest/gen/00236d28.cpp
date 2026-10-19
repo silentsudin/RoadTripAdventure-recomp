@@ -52,14 +52,14 @@ uint32_t DrawRowsAndUpdateState(uint32_t param_1, uint32_t param_2, ...) {
     }
     else {
       iVar6 = iVar7 << 1;
-      uiDrawNumber10(0x17c,iVar6,(*(uint32_t*)rtguest::G((uint32_t)0x1782a74 + (uint32_t)(iVar8 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) * 0x18) * 4)),0);
+      uiDrawNumber10(0x17c,iVar6,(*(uint32_t*)rtguest::G((uint32_t)0x1782a74 + (uint32_t)(iVar8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) * 0x18) * 4)),0);
       uiDrawText(0x186,iVar7,0x333860,0);
       uiDrawNumber10(0x1b8,iVar6,
-                     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) * 0x18 + 0x1782a75))),0);
+                     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) * 0x18 + 0x1782a75))),0);
       uiDrawText(0x1c2,iVar7,0x333860,0);
       uiDrawNumber10(500,iVar6,
-                     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) * 0x18 + 0x1782a76))),0);
-      iVar2 = iVar8 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) * 0x18;
+                     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) * 0x18 + 0x1782a76))),0);
+      iVar2 = iVar8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) * 0x18;
       uiDrawNumber10(0x230,iVar6,
                      (int)(char)(*(uint32_t*)rtguest::G((uint32_t)0x1782a74 + (uint32_t)(iVar2) * 4)) + (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1782a75))) +
                      (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1782a76))),0);

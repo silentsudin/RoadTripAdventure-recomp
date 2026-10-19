@@ -11,7 +11,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
   
   iVar2 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 8))) == 0) {
-    gs_tasks_spawn(param_1,0x20dc50,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c))) | 0x60000);
+    gs_tasks_spawn(param_1,0x20dc50,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c))) | 0x60000);
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c))) & 0x10000) == 0) {
       (*(uint32_t*)rtguest::G(0x177ea5c)) = 0x0177f7b4 + ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c))) & 0xff) * 0xc;
       gs_tasks_spawn(param_1,0x20dc50,0x70301);
@@ -28,7 +28,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
     (*(uint32_t*)rtguest::G(0x1752650)) = 0;
     vu0UnitMatrix(0x1752610);
     (*(uint32_t*)rtguest::G(0x1752644)) = (*(uint32_t*)rtguest::G(0x332e20));
-    if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x0177f7bc + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c))) * 0xc))) & 0x400) == 0) {
+    if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x0177f7bc + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c))) * 0xc))) & 0x400) == 0) {
       (*(uint32_t*)rtguest::G(0x1752644)) = 0;
     }
   }

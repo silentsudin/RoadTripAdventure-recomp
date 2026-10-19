@@ -36,9 +36,9 @@ uint32_t RunMenuNavigationTask(uint32_t param_1, uint32_t param_2, ...) {
     bVar5 = bVar5 | 2;
   }
   if (((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) == 0) ||
-     (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) == '\0' && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) != bVar5)))) {
+     (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) == '\0' && ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) != bVar5)))) {
     DestroyTaskRecord(param_1);
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = bVar5;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = bVar5;
     uVar3 = uiMenuCreate(param_1);
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xc))) == '\0') {
       uiMenuAddItem(uVar3,0x2ea360,0);
@@ -46,7 +46,7 @@ uint32_t RunMenuNavigationTask(uint32_t param_1, uint32_t param_2, ...) {
     else {
       uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ad20u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
       uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ad24u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
-      if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xd))) != '\0') && (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) & 1) != 0)) {
+      if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xd))) != '\0') && (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) & 1) != 0)) {
         uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ad28u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
       }
       uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ad2cu + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
@@ -62,7 +62,7 @@ uint32_t RunMenuNavigationTask(uint32_t param_1, uint32_t param_2, ...) {
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) != '\0') && ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) == 1)) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) = 0;
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) & 0x7f;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) & 0x7f;
   }
   lVar4 = uiMenuRun(iVar2,param_2);
   if (lVar4 != 1) {
@@ -96,7 +96,7 @@ LAB_0020a028:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 0x400000;
     return 0;
   case 2:
-    if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) & 2) != 0) {
+    if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) & 2) != 0) {
       PlayUiSound(0x1a);
       gs_tasks_kill(param_1);
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));
@@ -110,7 +110,7 @@ LAB_0020a028:
     uVar3 = 0x2092d8;
     break;
   case 3:
-    if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) & 2) == 0) {
+    if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) & 2) == 0) {
       uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x30)));
       goto LAB_0020a0ec;
     }
@@ -131,7 +131,7 @@ LAB_0020a0ec:
     goto switchD_00209f88_default;
   }
   gs_tasks_spawn(param_1,uVar3,0);
-  (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) | 0x80;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) | 0x80;
 switchD_00209f88_default:
   return 0;
 }

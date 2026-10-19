@@ -127,7 +127,7 @@ LAB_002713d4:
           if (param_1 != 0) break;
           uVar4 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar5));
         }
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = bVar1 - 0x30;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = bVar1 - 0x30;
       } while( true );
     }
   }

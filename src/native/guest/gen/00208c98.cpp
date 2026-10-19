@@ -30,24 +30,24 @@ uint32_t gs_options_sub_tasks_vibration(uint32_t param_1, uint32_t param_2, ...)
   }
   else {
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28)));
-    bVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x51))) & 0xfd;
-    bVar7 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x52))) & 0xfd;
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x51))) = bVar8;
-    bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x53))) & 0xfd;
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x52))) = bVar7;
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x53))) = bVar4;
+    bVar8 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x51))) & 0xfd;
+    bVar7 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x52))) & 0xfd;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x51))) = bVar8;
+    bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x53))) & 0xfd;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x52))) = bVar7;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x53))) = bVar4;
     iVar9 = (int)param_2;
-    bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xe)));
+    bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xe)));
     if (bVar2 == 2) {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x53))) = bVar4 | 2;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x53))) = bVar4 | 2;
     }
     else if (bVar2 < 3) {
       if (bVar2 == 0) {
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x52))) = bVar7 | 2;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x52))) = bVar7 | 2;
       }
     }
     else if (bVar2 == 4) {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x51))) = bVar8 | 2;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x51))) = bVar8 | 2;
     }
     lVar6 = uiMenuRun(iVar3,param_2);
     if (lVar6 == 1) {

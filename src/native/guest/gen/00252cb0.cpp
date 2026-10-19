@@ -158,7 +158,7 @@ LAB_00253120:
       DrawTextHalfY(500 - iVar11,iVar9,auStack_70,uVar14);
     }
     if (9 < iVar7) {
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x25)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x25)));
       if (bVar1 != 1) {
         if (1 < bVar1) {
           if (bVar1 != 2) {

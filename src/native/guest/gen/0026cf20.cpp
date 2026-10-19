@@ -13,11 +13,11 @@ uint32_t BrowseItemsMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   creditsScene();
   iVar3 = (int)param_1;
   DrawRaceSummaryRow((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))),0,param_2);
-  DrawRaceSummaryRow((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) + 1,1,param_2);
-  bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26)));
+  DrawRaceSummaryRow((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) + 1,1,param_2);
+  bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26)));
   iVar4 = (int)param_2;
   if ((bVar2 < 0x18) && (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x34))) & 0x2000) != 0)) {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = bVar2 + 2;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = bVar2 + 2;
     bVar2 = bVar2 + 2;
   }
   if (bVar2 == 0) {
@@ -25,7 +25,7 @@ uint32_t BrowseItemsMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   }
   else {
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x34))) & 0x8000) != 0) {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = bVar2 - 2;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = bVar2 - 2;
     }
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8)));
   }

@@ -90,7 +90,7 @@ uint32_t puVar10;
   if ((bVar8 == 0) && (0x10 < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))))) {
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28)));
     lVar6 = uiMenuRun(iVar1,param_2);
-    bVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd)));
+    bVar8 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd)));
     if (lVar6 == 1) {
       if ((char)bVar8 < '\x03') {
         if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x30))) & 0x40) != 0) {
@@ -110,7 +110,7 @@ uint32_t puVar10;
 LAB_002488b0:
           gs_tasks_spawn(param_1,0x22bb88,uVar7);
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) = 1;
-          bVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd)));
+          bVar8 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd)));
           goto LAB_002488c4;
         }
         iVar3 = (uint32_t)bVar8 << 0x18;
@@ -131,19 +131,19 @@ LAB_002488c4:
     }
 LAB_002488c8:
     uVar7 = iVar3 >> 0x18;
-    if (uVar7 == (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)))) {
+    if (uVar7 == (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)))) {
       bVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
     }
     else {
       if (uVar7 == 0) {
 LAB_00248954:
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = bVar8;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = bVar8;
       }
       else if ((uVar7 == 1) && ((*(int8_t*)rtguest::G(0x177fdd4)) != '\0')) {
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = bVar8;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = bVar8;
       }
       else if ((uVar7 == 2) && ((*(int8_t*)rtguest::G(0x177fdd6)) != '\0')) {
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = bVar8;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = bVar8;
       }
       else {
         if (uVar7 == 3) goto LAB_00248954;
@@ -157,7 +157,7 @@ LAB_00248954:
           }
           goto LAB_002489b0;
         }
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = bVar8;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = bVar8;
       }
 LAB_002489ac:
       bVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
@@ -189,7 +189,7 @@ LAB_002489b4:
   }
   if ((bVar8 == 0) &&
      ((((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x30))) & 0x10) != 0 ||
-      ((((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x32))) & 0x10) != 0 && (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 10))) & 2) != 0)))))) {
+      ((((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x32))) & 0x10) != 0 && (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 10))) & 2) != 0)))))) {
     gs_tasks_spawn(param_1,0x20dc50,0x300006);
     iVar11 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x18)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 4))) = 0xffffffff;

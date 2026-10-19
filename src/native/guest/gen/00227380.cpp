@@ -18,7 +18,7 @@ uint32_t pcVar4;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) != 0) goto LAB_00227728;
   uVar2 = uiMenuCreate();
   iVar7 = (int)uVar2;
-  (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xc))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) & 1;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xc))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) & 1;
   switch((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c)))) {
   case 0:
     uiMenuAddItem(uVar2,0x2eb030,0);

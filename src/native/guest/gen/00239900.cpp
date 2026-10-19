@@ -47,7 +47,7 @@ uint32_t ShowPlayerSelect(uint32_t param_1, ...) {
   }
   else {
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));
-    if ((long)cVar1 != (long)(int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) - 1)) {
+    if ((long)cVar1 != (long)(int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) - 1)) {
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x1c)));
       iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) = 1;

@@ -64,7 +64,7 @@ uint32_t puVar4;
         return 0;
       }
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) == '\0') {
-        uVar6 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x20)));
+        uVar6 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x20)));
       }
       else {
         uVar6 = (uint32_t)(char)(*(uint32_t*)rtguest::G((uint32_t)0x2ac098 + (uint32_t)((char)(*(uint32_t*)rtguest::G((uint32_t)0x002ac080u + (uint32_t)(iVar9) * 4))) * 4));

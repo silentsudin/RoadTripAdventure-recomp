@@ -21,14 +21,14 @@ uint32_t puVar7;
   uVar5 = 0;
   iVar6 = 0;
   do {
-    if (((int)(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) >> (uVar5 & 0x1f) & 1U) == 0) {
+    if (((int)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) >> (uVar5 & 0x1f) & 1U) == 0) {
       lVar2 = tileSlotLoaded(param_2,(*(uint32_t*)rtguest::G((uint32_t)puVar7)));
       if (lVar2 != 0) {
         ::printf((char *)rtguest::G((uint32_t)((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x2a3960))))));
         gs_tasks_spawn(param_1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x2a3930))),0);
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) | (uint32_t)(1 << (uVar5 & 0x1f));
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) | (uint32_t)(1 << (uVar5 & 0x1f));
       }
-      if (((int)(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) >> (uVar5 & 0x1f) & 1U) != 0) {
+      if (((int)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) >> (uVar5 & 0x1f) & 1U) != 0) {
         uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puVar7));
         iVar4 = iVar6;
         goto LAB_002413d4;
@@ -41,7 +41,7 @@ LAB_002413d4:
       lVar2 = tileSlotLoaded(param_2,uVar1);
       if (lVar2 == 0) {
         (*(uint8_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)0x2a3940u + iVar4))))) = (*(uint32_t*)rtguest::G((uint32_t)0x2a3950 + (uint32_t)(iVar4) * 4));
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) & ~(uint32_t)(1 << (uVar5 & 0x1f));
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) & ~(uint32_t)(1 << (uVar5 & 0x1f));
       }
     }
     uVar5 = uVar5 + 1;

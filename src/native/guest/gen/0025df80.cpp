@@ -26,7 +26,7 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
   fVar13 = (*(uint32_t*)rtguest::G(0x3330f0));
   puVar9 = (uint32_t)param_2;
   puVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 6)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 6)));
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar9 + 5))) & 0x8000) == 0) {
     bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19)));
     if (bVar2 == 1) {

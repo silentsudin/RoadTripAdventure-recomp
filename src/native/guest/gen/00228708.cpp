@@ -16,9 +16,9 @@ uint32_t aiStack_2c = rtguest::allocFrame(12);
   uiDrawTextCell(10,9,0x2eb660,0);
   iVar3 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) == 0) {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c)));
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c)));
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x27))) = (char)((uint32_t)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) >> 8);
-    ::printf((char *)rtguest::G((uint32_t)(0x2eb670u)), (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) + 1, ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) >> 8 & 0xffU) + 1);
+    ::printf((char *)rtguest::G((uint32_t)(0x2eb670u)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) + 1, ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) >> 8 & 0xffU) + 1);
     ::printf((char *)rtguest::G((uint32_t)(0x333630u)));
     lVar2 = sceMcMkdir((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))),0,0x2eb690);
     if (lVar2 != 0) {

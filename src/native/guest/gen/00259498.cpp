@@ -31,7 +31,7 @@ uint32_t CheckCarArrivedAtZone(uint32_t param_1, uint32_t param_2, ...) {
       }
     }
     else {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) | (uint32_t)(1 << (param_2 & 0x1f));
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) | (uint32_t)(1 << (param_2 & 0x1f));
     }
   }
   return 0;

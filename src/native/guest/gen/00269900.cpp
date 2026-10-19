@@ -25,7 +25,7 @@ uint32_t shopBodySellMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) = 0;
     return 0;
   }
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25)));
   iVar12 = (int)param_2;
   if (bVar1 == 1) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) != '\0') {

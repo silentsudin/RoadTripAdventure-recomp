@@ -95,7 +95,7 @@ uint32_t puVar8;
         PlayUiSound(0x302);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 8))) = 1;
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x18)));
-        (*(uint32_t*)rtguest::G((uint32_t)0x177eb4c + (uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x10) * 4)) = 0;
+        (*(uint32_t*)rtguest::G((uint32_t)0x177eb4c + (uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x10) * 4)) = 0;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 1;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
       }
@@ -106,7 +106,7 @@ uint32_t puVar8;
       fVar9 = (float)cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)));
       (*(float*)rtguest::G((uint32_t)pfVar2 + (uint32_t)(4) * sizeof(float))) = -fVar9;
       vecNormalizeVu0(pfVar7,pfVar7);
-      vu0ScaleVector((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4bd0 + ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) & 3) * 4))),pfVar7
+      vu0ScaleVector((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4bd0 + ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) & 3) * 4))),pfVar7
                      ,pfVar7);
       vu0AddVector(pfVar2,pfVar2,pfVar7);
       cVar5 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 8)));
@@ -116,10 +116,10 @@ uint32_t puVar8;
       cVar5 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 8)));
     }
     if (cVar5 == '\0') {
-      vu0UnitMatrix(0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40);
-      vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40,
-                    0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40);
-      vu0CopyVectorXYZ(0x0177eb40 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x10,pfVar2);
+      vu0UnitMatrix(0x0177eb10 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40);
+      vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),0x0177eb10 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40,
+                    0x0177eb10 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40);
+      vu0CopyVectorXYZ(0x0177eb40 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x10,pfVar2);
     }
   }
   return 0;

@@ -11,7 +11,7 @@ uint32_t SetAiSteeringTarget(uint32_t param_1, uint32_t param_2, uint32_t param_
   int iVar4;
   float fVar5;
   
-  iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 600))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24a))) * 0xc;
+  iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 600))) + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24a))) * 0xc;
   iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x78)));
   uVar3 = 0;
   if (iVar4 == 1) {

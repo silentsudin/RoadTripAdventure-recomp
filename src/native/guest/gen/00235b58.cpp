@@ -19,7 +19,7 @@ uint32_t DrawRaceResultsScreen(uint32_t param_1, uint32_t param_2, ...) {
     uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
     goto LAB_00235ca4;
   }
-  if (4 < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x20)))) {
+  if (4 < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x20)))) {
     UpdateRaceRecords(param_2);
     uiFade(0xffffffff80000000);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 0x400000;

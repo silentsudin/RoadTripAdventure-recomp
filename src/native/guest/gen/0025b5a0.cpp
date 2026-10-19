@@ -16,7 +16,7 @@ uint32_t puVar6;
   uint uVar7;
   
   uVar7 = 0x138;
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) == 2) {
     uVar7 = 0xa8;
   }

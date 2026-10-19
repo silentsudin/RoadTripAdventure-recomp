@@ -66,7 +66,7 @@ uint32_t UpdateCarouselPromptDialog(uint32_t param_1, uint32_t param_2, ...) {
         if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x32))) & 0x10) == 0) {
           return 0;
         }
-        if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) == 0) {
+        if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) == 0) {
           return 0;
         }
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x18)));

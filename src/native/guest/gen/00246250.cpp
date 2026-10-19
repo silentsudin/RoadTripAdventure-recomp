@@ -99,9 +99,9 @@ uint32_t puStack_78;
       puVar34 = puVar34 + 0x80;
     } while ((*(int32_t*)rtguest::G((uint32_t)iStack_84)) < 0x10);
     (*(uint32_t*)rtguest::G(0x1757b8c)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x1c))) >> 0x14 & 1;
-    (*(uint32_t*)rtguest::G(0x1757b80)) = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x1c)));
+    (*(uint32_t*)rtguest::G(0x1757b80)) = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x1c)));
     (*(uint32_t*)rtguest::G(0x1757b88)) = ClassifyObjectContext((*(int32_t*)rtguest::G((uint32_t)iStack_90)));
-    uVar19 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x1d)));
+    uVar19 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x1d)));
     (*(uint32_t*)rtguest::G(0x1757b84)) = uVar19;
     if (((*(uint32_t*)rtguest::G(0x1757b88)) & 3) == 0) {
       if ((*(uint32_t*)rtguest::G(0x1757b88)) == 4) {
@@ -252,7 +252,7 @@ LAB_002467bc:
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x25)));
   }
   if (cVar1 != '\0') goto LAB_00246bd4;
-  bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
+  bVar12 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
   (*(int32_t*)rtguest::G((uint32_t)iStack_7c)) = 0;
   if (bVar12 < 2) {
 LAB_00246860:
@@ -423,7 +423,7 @@ LAB_00246b4c:
   }
 LAB_00246bd4:
   UpdateSceneLightsAndFog(3,0);
-  uVar19 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
+  uVar19 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
   (*(int32_t*)rtguest::G((uint32_t)iStack_8c)) = 0;
   if (uVar19 != 0) {
     do {
@@ -457,7 +457,7 @@ LAB_00246c28:
         if (bVar12 == 0x30) {
           ClearTaskListFlag(param_1);
           bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x25)));
-          uVar19 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
+          uVar19 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
         }
         if (0x40 < bVar12) {
           bVar12 = bVar12 - 1;
@@ -470,15 +470,15 @@ LAB_00246c28:
       else {
 LAB_00246d18:
         fVar37 = (float)cosf(fVar38);
-        iVar28 = (int)(fVar37 * ((float)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26))) + 32.0)) -
-                 (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
+        iVar28 = (int)(fVar37 * ((float)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26))) + 32.0)) -
+                 (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
         fVar37 = (float)sinf(fVar38);
         (*(int32_t*)rtguest::G((uint32_t)iStack_74)) = (int)(fVar37 * 112.0);
         iVar29 = iVar28 + 0xa0;
         fVar37 = (float)cosf(fVar38);
         iVar36 = (*(int32_t*)rtguest::G((uint32_t)iStack_74)) + 0xf0;
-        iVar33 = ((int)(fVar37 * ((float)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26))) + 24.0)) -
-                 (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)))) + 0xf0;
+        iVar33 = ((int)(fVar37 * ((float)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26))) + 24.0)) -
+                 (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)))) + 0xf0;
         if (0.0 < fVar38) {
           iVar29 = iVar28 + 0xa1;
         }
@@ -535,7 +535,7 @@ LAB_00246d18:
         updateLightDirection(iVar7 * 400 + 0x1756380);
         BuildCarouselQuadC(fVar38,iVar7 * 0xf0 + 0x1755300,iVar36,iVar33,iVar29,
                            (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 8))));
-        uVar19 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
+        uVar19 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
       }
       (*(int32_t*)rtguest::G((uint32_t)iStack_8c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_8c)) + 1;
     } while ((*(int32_t*)rtguest::G((uint32_t)iStack_8c)) < (int)uVar19);
@@ -545,7 +545,7 @@ LAB_00246d18:
   vifBeginPacket(1);
   vifDirect(0x1752780,6);
   vifDirect(0x2a8b20,3);
-  bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
+  bVar12 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
   uVar19 = (uint32_t)(bVar12 >> 1);
   bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x27)));
   do {
@@ -568,8 +568,8 @@ LAB_00246d18:
     iVar29 = -1;
 LAB_00247180:
     drawCarouselCar((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x28))),iVar29,(*(int32_t*)rtguest::G((uint32_t)iStack_90)));
-    iVar7 = (int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x27))) + uVar19) % (int)(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
-    if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26))) == 0) {
+    iVar7 = (int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x27))) + uVar19) % (int)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
+    if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26))) == 0) {
       trap(7);
     }
     if (iVar28 != iVar7) {
@@ -590,7 +590,7 @@ LAB_002471f0:
     }
     uVar19 = uVar19 - 1;
     if ((int)uVar19 < 0) break;
-    bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
+    bVar12 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
     bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x27)));
   } while( true );
   uVar11 = vifEndPacket(1);
@@ -677,7 +677,7 @@ LAB_002471f0:
   }
   iVar28 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x18))) + 0x28)));
   if (iVar28 != 0) {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar28 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar28 + 0xe))) & 0x7f;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar28 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar28 + 0xe))) & 0x7f;
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)uStack_88)) & 0x40) != 0) {
     bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x27)));

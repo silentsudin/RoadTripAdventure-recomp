@@ -53,7 +53,7 @@ uint32_t piVar6;
   piVar6 = (uint32_t)(iVar2 + 0xc + iVar8 + 0x80a0);
   if ((*(int32_t*)rtguest::G((uint32_t)piVar6)) == 0) {
     DrawTextHalfY(0x78,0xa0,0x329068,6);
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
   }
   else {
     DrawTextHalfY(0x78,0xa0,0x334b98,0);
@@ -77,7 +77,7 @@ uint32_t piVar6;
     uiDrawTime(300,0x74,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + iVar2 + 0xc + 0x80f0))),uVar5);
     DrawTextHalfY(0x78,0x100,0x3290c0,0);
     uiDrawTime(300,0x80,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + iVar2 + 0x8110))),0);
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
   }
   if (bVar1 != 1) {
     if (1 < bVar1) {

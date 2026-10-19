@@ -16,7 +16,7 @@ uint32_t puVar3;
         iVar2 = ((*(uint32_t*)rtguest::G((uint32_t)param_1)) & 0x1ff) * 2;
         (*(uint32_t*)rtguest::G((uint32_t)param_1)) = ((*(uint32_t*)rtguest::G((uint32_t)param_1)) & 0x1ff) + 1;
         puVar3 = (uint32_t)((int)param_1 + iVar2 + 9);
-        bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + iVar2 + 8)));
+        bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + iVar2 + 8)));
         if (bVar1 != 1) break;
         RotateThreadReadyQueue((*(uint8_t*)rtguest::G((uint32_t)puVar3)));
       }

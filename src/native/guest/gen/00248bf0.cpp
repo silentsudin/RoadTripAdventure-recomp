@@ -65,7 +65,7 @@ uint32_t UpdateCarouselSubMenu(uint32_t param_1, uint32_t param_2, ...) {
     }
     else {
       PlayUiSound(0x1b);
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) & 0x7f;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) & 0x7f;
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) == '\x01') {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xd))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xd))) + '\x01';
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 0;
@@ -87,12 +87,12 @@ uint32_t UpdateCarouselSubMenu(uint32_t param_1, uint32_t param_2, ...) {
       PlayUiSound(0x1a);
       gs_tasks_spawn(param_1,0x229758,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xd))));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 1;
-      bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) | 0x80;
+      bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) | 0x80;
       goto LAB_00248e34;
     }
     PlayUiSound(0x1a);
     gs_tasks_spawn(param_1,0x239150,0x327740);
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) | 0x80;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) | 0x80;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 3;
   }
   else {
@@ -102,7 +102,7 @@ uint32_t UpdateCarouselSubMenu(uint32_t param_1, uint32_t param_2, ...) {
     }
     bVar2 = 2;
 LAB_00248e34:
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) = bVar2;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) = bVar2;
   }
   cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
 LAB_00248e3c:
@@ -111,7 +111,7 @@ LAB_00248e3c:
       if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x32))) & 0x10) == 0) {
         return 0;
       }
-      if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 10))) & 2) == 0) {
+      if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 10))) & 2) == 0) {
         return 0;
       }
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x18)));

@@ -51,7 +51,7 @@ uint32_t puVar18;
     uVar9 = (*(uint32_t*)rtguest::G(0x177ad48));
     InitCameraTransforms(param_2,0x177ac50);
     BgmStop1();
-    iVar8 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 0x10;
+    iVar8 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 0x10;
     StoreIndexedPosition
               ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x2d9e70))),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x2d9e74))),
                (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9e78 + iVar8))),0,0);
@@ -86,11 +86,11 @@ uint32_t puVar18;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbc))) = uVar6;
     (*(uint32_t*)rtguest::G((uint32_t)puVar18)) = 2;
-    (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb8))) = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9f40 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 2)));
+    (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb8))) = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9f40 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 2)));
 LAB_002628dc:
     fVar5 = (*(uint32_t*)rtguest::G(0x177ace8));
     fVar4 = (*(uint32_t*)rtguest::G(0x177ace0));
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbd)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbd)));
     if (bVar1 == 1) {
       if (432.0 <= (*(uint32_t*)rtguest::G(0x177ace8))) {
         SetRoadData((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28))),0,1);
@@ -104,13 +104,13 @@ LAB_00262b5c:
     }
     else if (bVar1 < 2) {
       if (bVar1 == 0) {
-        iVar8 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 0x10;
+        iVar8 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 0x10;
         if (0.0 <= ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e4c + iVar8))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e44 + iVar8)))) *
                    ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e48 + iVar8)))) -
                    ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e48 + iVar8))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e40 + iVar8)))) *
                    ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e4c + iVar8))))) {
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (uint32_t)(*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(5) * sizeof(uint64_t))) & 0xfffffeff;
-          iVar8 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 0x10;
+          iVar8 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 0x10;
           if (0.0 <= (((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e1c + iVar8))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e14 + iVar8)))) *
                       (fVar4 - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e18 + iVar8)))) -
                      ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e18 + iVar8))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e10 + iVar8)))) *
@@ -283,7 +283,7 @@ LAB_00262fcc:
   case 7:
     uiFade(0xffffffff80000000,iVar3,iVar3);
     uVar9 = (*(uint32_t*)rtguest::G(0x177ad48));
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbd)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbd)));
     if (bVar1 == 1) {
       SoundStopAllChannels();
       InitCameraTransforms(param_2,0x177ac50);

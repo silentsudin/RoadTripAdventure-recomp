@@ -84,7 +84,7 @@ uint32_t pfVar6;
     iVar7 = iVar7 + 1;
     pfVar6 = pfVar6 + 0x270;
     iVar5 = iVar5 + 0x270;
-  } while ((iVar7 < 2) && ((((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) != 0 || (iVar7 != 1))));
+  } while ((iVar7 < 2) && ((((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) != 0 || (iVar7 != 1))));
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x48) != 0) {
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
     goto LAB_002422bc;

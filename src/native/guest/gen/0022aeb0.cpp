@@ -142,7 +142,7 @@ LAB_0022b238:
   if (cVar8 == '\x02') {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0xc))) == '\a') {
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) == '\r') {
-        iVar5 = (int)((int)(char)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x3e))) + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x3e))) >> 7))
+        iVar5 = (int)((int)(char)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x3e))) + (uint32_t)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x3e))) >> 7))
                 >> 1;
         lVar6 = (long)(*(uint16_t*)rtguest::G((uint32_t)0x0175253c + 2));
         if ((long)(*(uint16_t*)rtguest::G((uint32_t)0x0175253c + 2)) < 0) {
@@ -159,7 +159,7 @@ LAB_0022b238:
         cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24)));
       }
       else if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) == '\x05') {
-        iVar5 = (int)((int)(char)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x3e))) + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x3e))) >> 7))
+        iVar5 = (int)((int)(char)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x3e))) + (uint32_t)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x3e))) >> 7))
                 >> 1;
         lVar6 = (long)(*(uint16_t*)rtguest::G((uint32_t)0x0175265c + 2));
         if ((long)(*(uint16_t*)rtguest::G((uint32_t)0x0175265c + 2)) < 0) {

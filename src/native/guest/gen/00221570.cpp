@@ -18,10 +18,10 @@ uint32_t puVar1;
   int iVar3;
   undefined4 uVar4;
   
-  iVar2 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 5))) * 3;
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x29d150 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x29d1a0))) * 4)));
+  iVar2 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 5))) * 3;
+  (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x29d150 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x29d1a0))) * 4)));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_58)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x29d150 + (uint32_t)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x29d1a2 + (uint32_t)(iVar2) * 1)) * 4)));
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x29d150 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x29d1a1))) * 4)));
+  (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x29d150 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x29d1a1))) * 4)));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_54)) = 0;
   vifUploadColours(uStack_60,uStack_60);
   vu0UnitMatrix(auStack_a0);
@@ -52,7 +52,7 @@ LAB_002216ac:
     vu0CopyVector(auStack_f0,iVar2 * 0x10 + 0x29cb60);
     vu0MulMatrix(auStack_120,param_1,auStack_120);
     vifObjectMatrix(auStack_120);
-    vifCallModel((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ab34 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 6))) * 4))) + 0x10);
+    vifCallModel((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ab34 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 6))) * 4))) + 0x10);
     vifCallModel((*(uint32_t*)rtguest::G(0x177ab30)) + 0x10);
     iVar2 = iVar3;
     if (3 < iVar3) {

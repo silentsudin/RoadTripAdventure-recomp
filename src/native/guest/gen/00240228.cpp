@@ -47,7 +47,7 @@ uint32_t UpdateCameraTransition(uint32_t param_1, uint32_t param_2, ...) {
     }
     break;
   case 2:
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27)));
     if ((bVar1 & 1) == 0) {
       if (((bVar1 & 2) != 0) &&
          (iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) + -1, (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) = iVar2, iVar2 < 1)) {
@@ -61,7 +61,7 @@ uint32_t UpdateCameraTransition(uint32_t param_1, uint32_t param_2, ...) {
       if (0x167 < iVar2) {
         bVar1 = bVar1 & 0xfe | 2;
 LAB_002403f8:
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) = bVar1;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) = bVar1;
       }
     }
     if ((bVar1 & 4) == 0) {
@@ -82,7 +82,7 @@ LAB_002403f8:
       if (0x167 < iVar2) {
         bVar1 = bVar1 & 0xfb | 8;
 LAB_00240450:
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) = bVar1;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) = bVar1;
       }
 LAB_00240454:
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x20)));

@@ -40,7 +40,7 @@ LAB_00287378:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)auStack_80 + iVar2 + 4))) = (*(uint32_t*)rtguest::G(0x1776ea0));
   (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)auStack_80 + iVar2 + 8))) = (int)param_4;
   (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) = param_1;
-  (*(int8_t*)rtguest::G((uint32_t)(uint32_t)puVar3)) = (uint32_t)param_4;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)puVar3)) = (uint32_t)param_4;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)auStack_80 + iVar2 + 0xc))) = 0x44;
   sceSifWriteBackDCache(param_3,param_4);
   if ((param_2 & 1) == 0) {

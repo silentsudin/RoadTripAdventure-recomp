@@ -31,10 +31,10 @@ uint32_t piVar6;
     if (lVar4 != 0) {
       if ((lVar4 != -1) && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xd))) == '\0')) {
         for (iVar7 = 1; iVar7 < 8; iVar7 = iVar7 + 1) {
-          ClearFlaggedSlotBit(iVar7,(*(uint8_t*)rtguest::G((uint32_t)0x177f76c + (uint32_t)(iVar7 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) * 0x1c) * 1)),0)
+          ClearFlaggedSlotBit(iVar7,(*(uint8_t*)rtguest::G((uint32_t)0x177f76c + (uint32_t)(iVar7 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) * 0x1c) * 1)),0)
           ;
         }
-        uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
+        uVar5 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
         piVar6 = 0x0177ea60;
         iVar7 = 10;
         do {
@@ -43,7 +43,7 @@ uint32_t piVar6;
             (*(int32_t*)rtguest::G((uint32_t)piVar6)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 +
                               (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0177fdd0 + uVar5 * 2 + 2))) * 4))) +
                       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0177fdd0 + uVar5 * 2 + 3))) * 0x10;
-            uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
+            uVar5 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
           }
           piVar6 = piVar6 + 0x4;  // T* element step
         } while (-1 < iVar7);

@@ -190,20 +190,20 @@ LAB_0026c234:
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) != '\0') {
     puVar11 = (uint32_t)(iVar2 + 0x50);
     do {
-      lVar5 = TestStampFlag((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))),iVar14 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))));
+      lVar5 = TestStampFlag((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))),iVar14 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))));
       uVar6 = 0x10;
       if (lVar5 == 0) {
         uVar6 = 0x12;
       }
       (*(uint8_t*)rtguest::G((uint32_t)puVar11)) = uVar6;
       lVar5 = CheckUnlockCondition
-                        ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))),iVar14 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))),
+                        ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))),iVar14 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))),
                          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x14))));
       if (lVar5 != 0) {
         (*(uint8_t*)rtguest::G((uint32_t)puVar11)) = 0x11;
       }
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) == '\t') {
-        lVar5 = IsMapEntryEnabled(iVar14 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))));
+        lVar5 = IsMapEntryEnabled(iVar14 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))));
         if (lVar5 == 0) {
           (*(uint8_t*)rtguest::G((uint32_t)puVar11)) = 0x11;
         }
@@ -228,8 +228,8 @@ LAB_0026c234:
     return 0;
   }
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25))) = 1;
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));
-  (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) = bVar1;
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) = bVar1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1c))) == 0) {
     StartTownExplorationTask(param_1,param_2);
     return 0;

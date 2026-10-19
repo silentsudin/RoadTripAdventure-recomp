@@ -23,12 +23,12 @@ uint32_t raceCourseSelectScene(uint32_t param_1, uint32_t param_2, ...) {
   uiDrawPanelCells(0,0,0xf,0xf,0);
   uiDrawPanelCells(0xf,0,0x1e,0xf,0);
   bVar1 = NavigateGridSelection(param_2,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))),2,0xe,0,1);
-  (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) = bVar1;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) = bVar1;
   if (bVar1 < 0xe) {
     uiDrawBarWithArrow(0x32,(uint32_t)bVar1 * 0x18 + 0x22,0x104);
   }
   else {
-    uiDrawBarWithArrow(0x15e,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) * 0x18 + -0x12e,0x104);
+    uiDrawBarWithArrow(0x15e,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) * 0x18 + -0x12e,0x104);
   }
   iVar3 = 0;
   iVar2 = 0;

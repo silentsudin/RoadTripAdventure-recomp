@@ -30,7 +30,7 @@ uint32_t puVar13;
     iVar14 = 0;
   }
   else {
-    iVar14 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1))) - 1;
+    iVar14 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1))) - 1;
   }
   uVar18 = 0;
   if ((param_4 != 0) && (param_3 == 0)) {
@@ -113,7 +113,7 @@ uint32_t puVar13;
     if ((param_2 != 0) && (param_4 == 0)) {
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 3))) == '\x03') {
         iVar14 = 0;
-        if (0 < (int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1))) - 1)) {
+        if (0 < (int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1))) - 1)) {
           iVar15 = uVar16 * 4;
           uVar17 = 0x60;
           puVar12 = 0x01787008 + iVar15;
@@ -151,16 +151,16 @@ uint32_t puVar13;
             uVar6 = gs_tasks_spawn(param_1,0x218458,uVar9 | 0x800000);
             iVar15 = iVar15 + 4;
             SetTaskFlag(uVar6);
-            if (uVar16 == (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)))) {
+            if (uVar16 == (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)))) {
               return 0;
             }
             iVar14 = iVar14 + 1;
             uVar17 = uVar17 + 0x20;
-          } while (iVar14 < (int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1))) - 1));
+          } while (iVar14 < (int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1))) - 1));
         }
       }
       else {
-        iVar14 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1))) - 2;
+        iVar14 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1))) - 2;
         puVar12 = 0x01787008 + uVar16 * 4;
         uVar17 = iVar14 * 0x20 + 0x60;
         puVar13 = 0x01787009 + uVar16 * 4;
@@ -183,7 +183,7 @@ uint32_t puVar13;
             puVar13 = puVar13 + 4;
             (*(uint8_t*)rtguest::G((uint32_t)puVar12 + (uint32_t)(2) * sizeof(uint8_t))) = (char)iVar15;
             iVar15 = iVar15 + -1;
-            bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)));
+            bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)));
             uVar9 = (uint32_t)bVar3;
             puVar12 = puVar12 + 4;
             if (uVar16 == uVar9) {
@@ -191,7 +191,7 @@ uint32_t puVar13;
             }
           }
           else {
-            bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)));
+            bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)));
             uVar9 = (uint32_t)bVar3;
           }
           if (iVar14 <= (int)(bVar3 - 8)) break;
@@ -221,14 +221,14 @@ uint32_t puVar13;
               puVar13 = puVar13 + 4;
               (*(uint8_t*)rtguest::G((uint32_t)puVar12 + (uint32_t)(2) * sizeof(uint8_t))) = (char)uVar18;
               uVar18 = uVar18 + 1;
-              bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)));
+              bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)));
               puVar12 = puVar12 + 4;
               if (uVar16 == bVar3) {
                 return 0;
               }
             }
             else {
-              bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)));
+              bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)));
             }
             if ((int)(bVar3 - 1) <= iVar14) break;
             piVar8 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 4)));

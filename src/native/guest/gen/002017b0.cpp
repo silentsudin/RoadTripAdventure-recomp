@@ -235,14 +235,14 @@ switchD_002018dc_default:
     }
   }
 LAB_00201a74:
-  bVar5 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(uVar4 + 0x29a860)));
+  bVar5 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(uVar4 + 0x29a860)));
   if ((*(uint32_t*)rtguest::G(0x335684)) < 0x9fc) {
     uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,uVar2,(short)param_2,
                   (int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)uStack_40)) + (0x10 - (char)bVar5) / 2) * 0x10000) >> 0x10,
                   (*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)),
                   (int)((((int)(char)bVar5 + (uint32_t)(bVar5 >> 7) >> 1) + 8) * 0x10000) >> 0x10,
                   (0x18 - iVar6) * 0x10000 >> 0x10);
-    bVar5 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(uVar4 + 0x29a860)));
+    bVar5 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(uVar4 + 0x29a860)));
     (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
   }
   return param_1 + (char)bVar5;

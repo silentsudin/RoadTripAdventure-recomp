@@ -21,7 +21,7 @@ uint32_t pfVar5;
   (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) = 320.0;
   iVar6 = (int)param_1;
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 600)));
-  if (2 < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24a)))) {
+  if (2 < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24a)))) {
     (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) = 80.0;
   }
   (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(1) * 4)) = 0.0;

@@ -12,7 +12,7 @@ uint32_t UpdateInputMapping(uint32_t param_1, ...) {
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (char)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) >> 8);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
   }
-  else if ((*(uint32_t*)rtguest::G(0x3356c0)) == (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) << 1) {
+  else if ((*(uint32_t*)rtguest::G(0x3356c0)) == (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) << 1) {
     (*(uint32_t*)rtguest::G(0x3356c0)) = 0xffffffff;
     return false;
   }

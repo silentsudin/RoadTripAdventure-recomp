@@ -45,7 +45,7 @@ uint32_t puVar11;
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 0xc;
   gifChainEndTag(0x2a3490,0xd);
   sendTexturePackets(0x2a3490);
-  if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) != 0) {
+  if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) != 0) {
     vu0UnitMatrix(0x177eb10);
     vu0CopyVector(0x177eb40,0x2a37d0);
     return 0;

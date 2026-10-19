@@ -26,7 +26,7 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
   else {
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) != '\0') {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) & 0x7f;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) & 0x7f;
     }
     lVar4 = uiMenuRun(iVar3);
     if (lVar4 != 0) {
@@ -35,7 +35,7 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
       }
       if (lVar4 == -2) {
         gs_tasks_kill(param_1);
-        bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
+        bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
         goto LAB_002094d4;
       }
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd)));
@@ -45,7 +45,7 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
       }
       else if (cVar1 < '\x02') {
         if (cVar1 != '\0') {
-          bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
+          bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
           goto LAB_002094d4;
         }
         PlayUiSound(0x1a);
@@ -54,7 +54,7 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
       else {
         if (cVar1 != '\x02') {
           if (cVar1 != '\x03') {
-            bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
+            bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
             goto LAB_002094d4;
           }
           PlayUiSound(0x1b);
@@ -68,11 +68,11 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
         uVar5 = 0x2090c0;
       }
       gs_tasks_spawn(param_1,uVar5,0);
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) | 0x80;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) | 0x80;
     }
   }
 LAB_002094d0:
-  bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
+  bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
 LAB_002094d4:
   if ((bVar2 & 0x80) != 0) {
     uiDrawHintBar(3);

@@ -20,7 +20,7 @@ uint32_t pbVar4;
   uiDrawTextCell(0x14,0xb,uVar3,5);
   DrawCarouselStatBars((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))),param_2);
   iVar7 = (int)param_2;
-  if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 3))) & 4) == 0) {
+  if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 3))) & 4) == 0) {
     cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 2)));
   }
   else {

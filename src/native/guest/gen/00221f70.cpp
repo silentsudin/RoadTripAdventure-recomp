@@ -28,7 +28,7 @@ uint32_t puVar5;
   
   iVar7 = (int)param_2;
   iVar2 = (*(uint32_t*)rtguest::G((uint32_t)0x177ea50 + (uint32_t)(param_3) * 4));
-  iVar3 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) * 0x44;
+  iVar3 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) * 0x44;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_70)) = param_1;
   vu0MulMatrix(auStack_180,param_2,iVar7 + 0x40);
   (*(float*)rtguest::G((uint32_t)fStack_14c)) = (*(float*)rtguest::G((uint32_t)fStack_14c)) - 1.0;
@@ -106,7 +106,7 @@ uint32_t puVar5;
         drawCarWheelsMid(auStack_180,iVar7 + 0x80,iVar2);
       }
       else {
-        vifFixedRegs(0x20138c85dd309c44,7,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 5))) << 0x38 | 0x138c85dd409c44,7);
+        vifFixedRegs(0x20138c85dd309c44,7,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 5))) << 0x38 | 0x138c85dd409c44,7);
         uVar6 = 0;
         vu0UnitMatrix(auStack_b0);
         vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x80))),auStack_b0,auStack_b0);

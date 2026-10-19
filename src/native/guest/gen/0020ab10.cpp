@@ -41,7 +41,7 @@ LAB_0020abdc:
       (*(uint32_t*)rtguest::G((uint32_t)puVar12)) = 0;
     }
     else {
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0xc + iVar13)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0xc + iVar13)));
       (*(int8_t*)rtguest::G((uint32_t)pbVar14 + (uint32_t)(1) * sizeof(int8_t))) = ~(*(int8_t*)rtguest::G((uint32_t)bStack_5e));
       (*(int8_t*)rtguest::G((uint32_t)pbVar14)) = ~(*(int8_t*)rtguest::G((uint32_t)bStack_5d));
       if ((bVar1 & 2) == 0) goto LAB_0020abdc;

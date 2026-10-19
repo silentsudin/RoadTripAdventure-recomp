@@ -34,8 +34,8 @@ uint32_t auStack_40 = rtguest::allocFrame(12);
     else {
       uVar4 = 0xb4;
       if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x210))) == 0) {
-        bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x247)));
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x23))) = bVar1;
+        bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x247)));
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x23))) = bVar1;
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x21))) = (*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)((int)((uint32_t)bVar1 << 0x18) >> 0x15) * 1)) + param_5 + -1
         ;
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x18)));

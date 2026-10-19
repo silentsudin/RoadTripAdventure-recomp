@@ -135,8 +135,8 @@ uint32_t puVar16;
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x800) == 0) {
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10)));
       if (bVar12 == 8) {
-        if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) != (uint32_t)0x0) && (1 < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))))) {
-          uVar7 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1;
+        if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) != (uint32_t)0x0) && (1 < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))))) {
+          uVar7 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1;
           iVar13 = 0;
           if (0 < (int)uVar7) {
             pcVar8 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4)))));
@@ -148,8 +148,8 @@ uint32_t puVar16;
               pcVar8 = pcVar8 + 2;
               (*(int32_t*)rtguest::G((uint32_t)piVar9)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + cVar2 * 4))) + (*(int8_t*)rtguest::G((uint32_t)pcVar1)) * 0x10;
               piVar9 = piVar9 + 0x4;  // T* element step
-            } while (iVar13 < (int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1));
-            uVar7 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1;
+            } while (iVar13 < (int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1));
+            uVar7 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1;
           }
           gs_tasks_spawn(param_1,0x20dc50,uVar7 | 0x370300);
         }
@@ -157,7 +157,7 @@ uint32_t puVar16;
         gs_tasks_spawn(param_1,0x20dc50,0x750000);
         SpawnGameViewTasks(param_1,0);
         iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10)));
-        iVar13 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 2;
+        iVar13 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 2;
         if (0 < iVar13) {
           uVar18 = iVar13 * 0x20 + 0x60;
           puVar16 = 0x01787008;
@@ -179,14 +179,14 @@ uint32_t puVar16;
             iVar15 = iVar15 + -1;
             (*(uint8_t*)rtguest::G((uint32_t)puVar16 + (uint32_t)(1) * sizeof(uint8_t))) = uVar3;
             puVar16 = puVar16 + 4;
-            if ((uVar7 == (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1)))) || (iVar13 < 1)) break;
+            if ((uVar7 == (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1)))) || (iVar13 < 1)) break;
             piVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4)));
           }
         }
       }
       else {
-        if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) != (uint32_t)0x0) && (1 < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))))) {
-          bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1)));
+        if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) != (uint32_t)0x0) && (1 < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))))) {
+          bVar12 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1)));
           iVar13 = 0;
           if (0 < (int)(bVar12 - 1)) {
             pcVar8 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4)))));
@@ -197,7 +197,7 @@ uint32_t puVar16;
               pcVar1 = pcVar8 + 1;
               pcVar8 = pcVar8 + 2;
               (*(int32_t*)rtguest::G((uint32_t)piVar9)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + cVar2 * 4))) + (*(int8_t*)rtguest::G((uint32_t)pcVar1)) * 0x10;
-              bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1)));
+              bVar12 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1)));
               piVar9 = piVar9 + 0x4;  // T* element step
             } while (iVar13 < (int)(bVar12 - 1));
           }

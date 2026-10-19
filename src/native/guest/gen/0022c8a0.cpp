@@ -45,7 +45,7 @@ uint32_t RunSelectionMenuTask(uint32_t param_1, ...) {
       }
       if (lVar5 != -1) {
         cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xd)));
-        if ((long)cVar1 != (long)(int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xb))) - 1)) {
+        if ((long)cVar1 != (long)(int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xb))) - 1)) {
           iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) = 1;
           (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 4))) = (int)cVar1;

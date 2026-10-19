@@ -22,7 +22,7 @@ uint32_t auStack_70 = rtguest::allocFrame(32);
   iVar9 = 0x18;
   iVar10 = 0;
   do {
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24a)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24a)));
     if (((int)(bVar1 / 0x14 - 1) <= (int)uVar7) && ((int)uVar7 <= (int)(bVar1 / 0x14 + 1))) {
       iVar6 = 0;
       while( true ) {
@@ -43,12 +43,12 @@ uint32_t auStack_70 = rtguest::allocFrame(32);
               uVar3 = 0x20;
             }
           }
-          ::sprintf((char *)rtguest::G((uint32_t)(auStack_70)), (char *)rtguest::G((uint32_t)(0x328050)), uVar3, (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + iVar10 + iVar6))) * 5, ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25c))) + iVar10 + iVar6))) & 0x3f) * 5);
+          ::sprintf((char *)rtguest::G((uint32_t)(auStack_70)), (char *)rtguest::G((uint32_t)(0x328050)), uVar3, (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + iVar10 + iVar6))) * 5, ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25c))) + iVar10 + iVar6))) & 0x3f) * 5);
           uiDebugText8((uVar7 & 7) * 0x50 + 0x20,iVar6 * 8 + 0x40,auStack_70,0xf);
         }
         iVar6 = iVar6 + 1;
         if (0x13 < iVar6) break;
-        bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24a)));
+        bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24a)));
       }
     }
     uVar7 = uVar7 + 1;

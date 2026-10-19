@@ -52,7 +52,7 @@ uint32_t puVar1;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_138)) = (*(uint32_t*)rtguest::G(0x177ace8));
   vifObjectMatrix(afStack_170);
   vifCallModel(0x290870);
-  if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 10))) & 2) != 0) {
+  if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 10))) & 2) != 0) {
     vifUploadColours(0x2a4380,0x2a4360);
     iVar3 = (int)(*(uint32_t*)rtguest::G(0x177b094));
     uVar2 = 2;
