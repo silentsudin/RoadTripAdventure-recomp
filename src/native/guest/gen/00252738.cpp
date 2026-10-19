@@ -48,7 +48,9 @@ uint32_t piVar6;
       return 0;
     }
     GetOrSetPresidentRaceResult(2);
+    return 0;
   }
+  return 0;
 }
 
 

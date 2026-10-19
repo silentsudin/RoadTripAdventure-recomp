@@ -68,6 +68,7 @@ uint32_t puVar9;
                     /* WARNING: Could not recover jumptable at 0x00267da8. Too many branches */
                     /* WARNING: Treating indirect jump as call */
   rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(0x32f2b0u + (uint32_t)((int)param_2) * 4))))));
+  return 0;
 }
 
 

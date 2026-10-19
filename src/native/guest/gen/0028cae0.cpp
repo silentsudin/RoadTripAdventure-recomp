@@ -35,6 +35,7 @@ uint32_t sceSifGetIopAddr(uint32_t param_1, uint32_t param_2, uint32_t param_3, 
 LAB_0028cb9c:
     uVar1 = 0xfffefffe;
   }
+  return uVar1;
 }
 
 

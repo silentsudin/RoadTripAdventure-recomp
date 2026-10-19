@@ -65,6 +65,7 @@ uint32_t ppuVar8;
     else {
       ppuVar8 = 0x29b03cu;
     }
+    goto LAB_0020b9c4;
   case 5:
     puVar3 = 0x00100000;
     cVar1 = (*(int8_t*)rtguest::G(0x100003));
@@ -106,6 +107,7 @@ uint32_t ppuVar8;
       piVar4 = piVar4 + 1;
     } while (-1 < iVar9);
     ppuVar8 = 0x29b054u;
+    goto LAB_0020b9c4;
   case 8:
     puVar3 = 0x00100000;
     cVar1 = (*(int8_t*)rtguest::G(0x100003));
@@ -130,6 +132,7 @@ LAB_0020b9c4:
     cdReadEntry(ppuVar8,0x100000);
 LAB_0020b9d0:
     (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+    return 0;
   case 10:
     puVar3 = 0x00100000;
     cVar1 = (*(int8_t*)rtguest::G(0x100003));
@@ -157,6 +160,7 @@ LAB_0020b9d0:
   sceDmaSync(uVar7,0,0);
   sendTexturePackets(0x100000);
 switchD_0020b624_default:
+  return 0;
 }
 
 

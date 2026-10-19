@@ -40,6 +40,7 @@ uint32_t auStack_30 = rtguest::allocFrame(4);
     vu0CopyVector(param_1 + 0x70,auStack_30);
     uVar2 = 1;
   }
+  return uVar2;
 }
 
 

@@ -83,6 +83,7 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
     break;
   default:
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8cbc)));
+    goto LAB_00263ba4;
   }
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8cbc)));
 LAB_00263ba4:
@@ -101,6 +102,7 @@ LAB_00263ba4:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 0xffffffff;
     gs_tasks_kill(param_1);
   }
+  return 0;
 }
 
 

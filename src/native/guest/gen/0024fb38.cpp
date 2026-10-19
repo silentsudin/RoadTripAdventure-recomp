@@ -12,6 +12,7 @@ uint32_t SetGamePausedState(uint32_t param_1, uint32_t param_2, ...) {
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) & 0xffffdfff;
   SoundFadeOutChannels();
+  return 0;
 }
 
 

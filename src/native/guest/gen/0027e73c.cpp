@@ -25,6 +25,7 @@ uint32_t puVar8;
         iVar6 = iVar6 + -1;
         (*(uint8_t*)rtguest::G((uint32_t)puVar2)) = (*(uint8_t*)rtguest::G((uint32_t)puVar7));
       } while (iVar6 != -1);
+      return __dest;
     }
   }
   else {
@@ -73,6 +74,7 @@ uint32_t puVar8;
       puVar8 = (uint32_t)((int)puVar8 + 1);
     }
   }
+  return __dest;
 }
 
 

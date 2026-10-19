@@ -47,6 +47,7 @@ uint32_t puVar4;
     uVar2 = 0;
   }
                     /* WARNING: Read-only address (ram,0x21779500) is written */
+  return uVar2;
 }
 
 

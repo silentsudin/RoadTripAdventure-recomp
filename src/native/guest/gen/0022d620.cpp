@@ -47,12 +47,14 @@ uint32_t pfVar3;
       }
       else {
         if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x19a))) != '\x02') {
+          return 0;
         }
         uVar2 = 1;
       }
     }
   }
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x19a))) = uVar2;
+  return 0;
 }
 
 

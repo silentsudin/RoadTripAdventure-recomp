@@ -42,6 +42,7 @@ uint32_t piVar9;
       _malloc_trim_r(param_1,(*(uint32_t*)rtguest::G(0x2e90d8)));
     }
     __malloc_unlock(param_1);
+    return 0;
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 4))) = uVar6;
   bVar10 = false;
@@ -141,6 +142,7 @@ LAB_00282d30:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0xc))) = piVar9;
   }
   __malloc_unlock(param_1);
+  return 0;
 }
 
 

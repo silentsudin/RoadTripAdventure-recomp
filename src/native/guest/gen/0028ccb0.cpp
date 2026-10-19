@@ -22,7 +22,7 @@ uint32_t puStack_40;
     iVar3 = (*(uint32_t*)rtguest::G(0x177a050));
     while( true ) {
       (*(uint32_t*)rtguest::G(0x177a050)) = iVar3 + 1;
-      (*(uint32_t*)rtguest::G((uint32_t)0x177a058 + (uint32_t)(iVar3) * 4)) = cVar2;
+      (*(uint8_t*)rtguest::G(0x177a058 + (uint32_t)iVar3)) = cVar2;
       if ((*(int8_t*)rtguest::G((uint32_t)param_1 + (uint32_t)((*(uint32_t*)rtguest::G(0x177a050))) * sizeof(int8_t))) == '\0') break;
       cVar2 = (*(int8_t*)rtguest::G((uint32_t)param_1 + (uint32_t)((*(uint32_t*)rtguest::G(0x177a050))) * sizeof(int8_t)));
       iVar3 = (*(uint32_t*)rtguest::G(0x177a050));
@@ -35,7 +35,12 @@ uint32_t puStack_40;
   puStack_40 = 0x0177a040;
   sceSifWriteBackDCache(0x177a040,0x68);
   sceSifSetReg(4,0x40000);
-  lVar1 = sceSifSetDma(rtguest::allocFrame(0x20),1);
+  uint32_t dma = rtguest::allocFrame(0x10);
+  (*(uint32_t*)rtguest::G(dma)) = puStack_40;
+  (*(uint32_t*)rtguest::G(dma + 4)) = (*(uint32_t*)rtguest::G(uStack_3c));
+  (*(uint32_t*)rtguest::G(dma + 8)) = (*(uint32_t*)rtguest::G(uStack_38));
+  (*(uint32_t*)rtguest::G(dma + 0xc)) = (*(uint32_t*)rtguest::G(uStack_34));
+  lVar1 = sceSifSetDma(dma,1);
   if (lVar1 != 0) {
     sceSifSetReg(4,0x10000);
     sceSifSetReg(4,0x20000);

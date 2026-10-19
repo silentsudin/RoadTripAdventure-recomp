@@ -54,6 +54,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(4);
       iVar1 = -0x79;
     }
   }
+  return iVar1;
 }
 
 

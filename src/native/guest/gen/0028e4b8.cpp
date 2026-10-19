@@ -36,6 +36,7 @@ uint32_t __fixunsdfdi(uint32_t param_1, ...) {
     }
     lVar2 = lVar2 + uVar4;
   }
+  return lVar2;
 }
 
 

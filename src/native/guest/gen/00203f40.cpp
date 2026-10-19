@@ -15,6 +15,7 @@ uint32_t pbVar3;
   do {
     uVar2 = (uint32_t)bVar1;
     if (uVar2 == 0) {
+      return iVar4;
     }
     pbVar3 = param_1 + 1;
     if (uVar2 == 0x7e) {
@@ -31,9 +32,11 @@ LAB_00203fa0:
       }
       if (uVar2 == 0x2f) {
         uVar2 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar3));
+        goto LAB_00203f8c;
       }
       if (uVar2 == 0x60) {
         uVar2 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar3));
+        goto LAB_00203f8c;
       }
       if (-1 < (int)(uVar2 << 0x18)) goto LAB_00203fa0;
       iVar4 = iVar4 + 0x14;

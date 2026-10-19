@@ -12,6 +12,7 @@ uint32_t FlagIndexBitsUpTo(uint32_t param_1, uint32_t param_2, uint32_t param_3,
   
   if (param_3 == 0xffffffff) {
     iVar1 = CountSetBitsInByteArray();
+    return iVar1;
   }
   if (param_3 < param_2 << 5) {
     iVar1 = 0;
@@ -23,6 +24,7 @@ uint32_t FlagIndexBitsUpTo(uint32_t param_1, uint32_t param_2, uint32_t param_3,
         do {
           if (param_3 == uVar2) {
             if (((*(int32_t*)rtguest::G((uint32_t)param_1)) >> (uVar3 & 0x1f) & 1U) != 0) {
+              return iVar1;
             }
             return -1;
           }

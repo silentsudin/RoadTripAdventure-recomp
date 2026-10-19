@@ -16,7 +16,7 @@ uint32_t piVar2;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x846c))) = 0;
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)piVar2));
   while( true ) {
-    piVar2 = piVar2 + 1;
+    piVar2 = piVar2 + sizeof(int32_t);
     if (0 < iVar1) {
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x846c))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x846c))) + iVar1;
     }

@@ -17,6 +17,7 @@ uint32_t get_iob(uint32_t param_1, ...) {
     SignalSema((*(uint32_t*)rtguest::G(0x2e9990)));
     iVar1 = 0;
   }
+  return iVar1;
 }
 
 

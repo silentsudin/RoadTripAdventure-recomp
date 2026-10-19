@@ -50,6 +50,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(16);
       _sceFsSigSema();
       if (iVar1 == 0) {
         DeleteSema(uVar3);
+        return 0xfffffff5;
       }
       WaitSema(uVar3);
       DeleteSema(uVar3);

@@ -130,6 +130,7 @@ uint32_t puVar6;
     (*(uint32_t*)rtguest::G(0x177af60)) = 0x7ae3d70;
     (*(uint32_t*)rtguest::G(0x177af64)) = 0x000f5bf5;
   }
+  return 0;
 }
 
 

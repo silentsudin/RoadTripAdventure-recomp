@@ -37,12 +37,14 @@ uint32_t puVar7;
           }
           (*(uint32_t*)rtguest::G((uint32_t)0x2dce70 + (uint32_t)(iVar8) * 4)) =
                uVar1 & 0xf0000000 | (uVar1 & 0xfffffff) + 1 + (uVar4 & 0xfffffff) & 0xfffffff;
+          return 0;
         }
         iVar3 = iVar2 * 4;
         iVar8 = iVar6;
       } while ((*(uint32_t*)rtguest::G((uint32_t)0x2dce70 + (uint32_t)(iVar2) * 4)) >> 0x1c != 3);
     }
   }
+  return 0;
 }
 
 

@@ -29,6 +29,7 @@ uint32_t HandleMenuScrollSelect(uint32_t param_1, uint32_t param_2, ...) {
   else {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x26bc08));
   }
+  return 0;
 }
 
 

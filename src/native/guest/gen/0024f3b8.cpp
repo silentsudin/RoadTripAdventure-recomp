@@ -23,6 +23,7 @@ uint32_t pbVar1;
       pbVar1 = param_1 + iVar3;
     }
   }
+  return iVar4;
 }
 
 

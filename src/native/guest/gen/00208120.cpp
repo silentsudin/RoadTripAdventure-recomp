@@ -13,6 +13,7 @@ uint32_t frameBlend(uint32_t param_1, uint32_t param_2, ...) {
   }
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x29a940))) = (long)(param_1 * 0x8c0) | 0xa28128000;
   vifDirect(0x29a930 + param_2,9);
+  return 0;
 }
 
 

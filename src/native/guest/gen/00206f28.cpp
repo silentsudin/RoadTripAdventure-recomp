@@ -22,6 +22,7 @@ uint32_t pfVar3;
   
   iVar6 = (int)param_4 + -1;
   if (param_4 == 0) {
+    return param_8;
   }
   uVar4 = (*(uint32_t*)rtguest::G((uint32_t)param_1));
   do {
@@ -113,6 +114,7 @@ uint32_t pfVar3;
     }
     iVar6 = iVar6 + -1;
     if (iVar6 == -1) {
+      return param_8;
     }
     uVar4 = (*(uint32_t*)rtguest::G((uint32_t)param_1));
   } while( true );

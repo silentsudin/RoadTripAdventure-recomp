@@ -14,6 +14,7 @@ uint32_t IntToPackedBCD(uint32_t param_1, ...) {
     uVar2 = uVar2 | param_1 % 10 << ((uVar1 & 7) << 2);
     uVar1 = uVar1 + 1;
   }
+  return uVar2;
 }
 
 

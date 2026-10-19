@@ -384,6 +384,7 @@ uint32_t pbVar25;
       }
     }
   }
+  return 0;
 }
 
 

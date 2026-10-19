@@ -80,6 +80,7 @@ uint32_t puVar8;
         do {
           if ((uVar1 & 1) != 0) {
             if (param_3 == uVar7) {
+              return uVar4;
             }
             uVar7 = uVar7 + 1;
           }
@@ -90,6 +91,7 @@ uint32_t puVar8;
       }
     }
   }
+  return uVar1;
 }
 
 

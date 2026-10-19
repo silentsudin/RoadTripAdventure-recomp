@@ -16,6 +16,7 @@ uint32_t FadeOutMenuTask(uint32_t param_1, ...) {
     gs_tasks_kill(param_1);
     return 0;
   }
+  return 0;
 }
 
 

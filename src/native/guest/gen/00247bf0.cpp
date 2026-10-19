@@ -38,6 +38,7 @@ uint32_t DrawCarouselSlotPanel(uint32_t param_1, uint32_t param_2, ...) {
     return 0;
   }
   uiDrawTextCell(0x18,0xf,0x334490,0);
+  return 0;
 }
 
 

@@ -55,6 +55,7 @@ uint32_t sceCdDiskReady(uint32_t param_1, ...) {
       uVar2 = 0xffffffff;
     }
   }
+  return uVar2;
 }
 
 

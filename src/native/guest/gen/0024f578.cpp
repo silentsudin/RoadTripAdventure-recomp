@@ -15,6 +15,7 @@ uint32_t uiArenaSubmit(uint32_t param_1, ...) {
     vifDirect(param_1 + 0x10,iVar1 >> 4);
     return 0;
   }
+  return 0;
 }
 
 

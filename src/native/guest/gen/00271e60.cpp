@@ -35,10 +35,12 @@ uint32_t textEmitGlyphsToGs(uint32_t param_1, uint32_t param_2, uint32_t param_3
                           (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x00330190 + (uVar1 & 0xff) * 8))),(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(5) * sizeof(int32_t))));
       param_6 = param_6 + -1;
       if (param_6 == -1) {
+        return iVar8;
       }
       uVar1 = (*(uint16_t*)rtguest::G((uint32_t)param_5));
     }
   }
+  return iVar8;
 }
 
 

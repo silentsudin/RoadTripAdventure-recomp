@@ -65,6 +65,7 @@ uint32_t puVar6;
       pvVar2 = (uint32_t)gs_tasks_kill(param_1);
     }
   }
+  return pvVar2;
 }
 
 

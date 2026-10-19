@@ -51,8 +51,10 @@ LAB_0023e11c:
   uVar3 = (uint32_t)(uVar9 - (int)cVar1);
   (*(uint16_t*)rtguest::G((uint32_t)param_1)) = uVar3;
   if ((int)((uVar9 - (int)cVar1) * 0x10000) >> 0x10 < 0x1ff) {
+    return 0;
   }
   (*(int8_t*)rtguest::G(0x335708)) = bVar2 ^ 1;
+  goto LAB_0023e11c;
 }
 
 

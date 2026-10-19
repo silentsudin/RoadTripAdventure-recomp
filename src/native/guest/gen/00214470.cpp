@@ -183,7 +183,9 @@ LAB_00214894:
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)__s));
 LAB_002149f8:
       (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(0x18) * sizeof(int32_t))) = 1;
+      return iVar3;
     }
+    goto LAB_00214aa0;
   }
   if (0x65 < iVar6) {
     if (iVar6 == 200) {
@@ -197,10 +199,12 @@ LAB_00214a90:
         return 0;
       }
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) == '\0') {
+        return 0x66;
       }
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))) == 0) {
         PlayUiSound(0x1a);
         (*(int32_t*)rtguest::G((uint32_t)__s)) = 300;
+        return 300;
       }
       PlayUiSound(0x1b);
       goto LAB_00214a3c;
@@ -221,6 +225,7 @@ LAB_00214a90:
       (*(int32_t*)rtguest::G((uint32_t)__s)) = 399;
       return 399;
     }
+    goto LAB_00214aa0;
   }
   if (iVar6 == 1) {
 LAB_0021456c:
@@ -231,6 +236,7 @@ LAB_0021456c:
     if (iVar6 < 2) {
       if (iVar6 != 0) {
         (*(int32_t*)rtguest::G((uint32_t)__s)) = 0;
+        goto LAB_00214a90;
       }
       (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(__s)), 0, 0x6c));
       GetControllerButtonConfig(puVar14,param_4);
@@ -240,6 +246,7 @@ LAB_0021456c:
     if (iVar6 != 2) {
       if (iVar6 != 100) {
         (*(int32_t*)rtguest::G((uint32_t)__s)) = 0;
+        goto LAB_00214a90;
       }
       (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(3) * sizeof(int32_t))) = 1;
       (*(int32_t*)rtguest::G((uint32_t)__s)) = 0x65;

@@ -61,6 +61,7 @@ uint32_t auStack_80 = rtguest::allocFrame(64);
       } while (iVar2 < 0x1a);
     }
   }
+  return uVar3;
 }
 
 

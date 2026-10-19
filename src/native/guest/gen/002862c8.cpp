@@ -54,6 +54,7 @@ uint32_t pcVar3;
       EIntr();
     }
   }
+  return iVar5;
 }
 
 

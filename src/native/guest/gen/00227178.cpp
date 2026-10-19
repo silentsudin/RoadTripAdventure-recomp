@@ -28,6 +28,7 @@ uint32_t puVar2;
     (*(uint32_t*)rtguest::G(0x3356ec)) = (uint32_t)(*(uint32_t*)rtguest::G(0x3356f0));
     (*(uint32_t*)rtguest::G(0x3356f0)) = 0;
   }
+  return puVar2;
 }
 
 

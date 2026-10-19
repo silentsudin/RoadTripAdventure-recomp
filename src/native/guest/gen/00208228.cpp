@@ -13,6 +13,7 @@ uint32_t FindNthSetBit(uint32_t param_1, uint32_t param_2, ...) {
   while( true ) {
     if ((param_1 & uVar1) != 0) {
       if (param_2 == 0) {
+        return uVar2;
       }
       param_2 = param_2 + -1;
     }

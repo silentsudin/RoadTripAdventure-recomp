@@ -54,6 +54,7 @@ uint32_t puVar6;
       if (puVar1 != 0x002e8cc8) {
         if (uVar9 < 0x10) {
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 4))) = 1;
+          return 0;
         }
         uVar9 = uVar9 - 0xc & 0xfffffff0;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 4))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 4))) & 1 | uVar9;
@@ -72,6 +73,7 @@ uint32_t puVar6;
       (*(uint32_t*)rtguest::G(0x2e90f0)) = uVar5;
     }
   }
+  return 0;
 }
 
 

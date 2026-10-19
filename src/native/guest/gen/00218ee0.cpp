@@ -201,6 +201,7 @@ LAB_00219210:
     else {
       if (iVar7 <= iVar14) {
         iVar8 = 0 / iVar12;
+        goto LAB_0021931c;
       }
       iVar14 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x218)));
       iVar8 = iVar5 + iVar10;
@@ -214,6 +215,7 @@ LAB_00219210:
         }
         if (iVar13 + iVar8 / iVar12 <= iVar9) {
           iVar15 = iVar7 / iVar14;
+          goto LAB_00219308;
         }
         iVar8 = 0;
         iVar13 = iVar9;

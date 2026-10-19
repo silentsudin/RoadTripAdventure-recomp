@@ -16,6 +16,7 @@ uint32_t sceCdCallback(uint32_t param_1, ...) {
     (*(uint32_t*)rtguest::G(0x1773580)) = param_1;
     EIntr();
   }
+  return uVar1;
 }
 
 

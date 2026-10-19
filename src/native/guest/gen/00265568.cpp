@@ -194,6 +194,7 @@ LAB_00265adc:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = 0xffffffff;
     gs_tasks_kill(param_1);
   }
+  return 0;
 }
 
 

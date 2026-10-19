@@ -38,6 +38,7 @@ uint32_t puVar2;
     uiDrawTime(iVar1,iVar5 * 0xc + 0x29,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x017808d8 + iVar3))),3);
     return 0;
   }
+  return 0;
 }
 
 

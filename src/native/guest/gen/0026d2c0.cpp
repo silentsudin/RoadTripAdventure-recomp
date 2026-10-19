@@ -23,6 +23,7 @@ uint32_t StartDayCycleStepTask(uint32_t param_1, uint32_t param_2, ...) {
     PlayBgmSlot1();
     return 0;
   }
+  return 0;
 }
 
 

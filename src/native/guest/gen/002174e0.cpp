@@ -28,6 +28,7 @@ uint32_t UpdateOptionsMenu(uint32_t param_1, uint32_t param_2, ...) {
     gs_tasks_kill(param_1);
     return 0;
   }
+  return 0;
 }
 
 

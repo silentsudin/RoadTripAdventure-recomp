@@ -203,6 +203,7 @@ uint32_t piVar6;
                 (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0x66;
               }
             }
+            goto LAB_002135ac;
           }
 LAB_00213014:
           PlayUiSound(0x1b);
@@ -216,6 +217,7 @@ LAB_00213014:
         }
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x8204))) = 0;
         (*(int32_t*)rtguest::G((uint32_t)param_4)) = iVar3;
+        goto LAB_002135ac;
       }
       if (iVar3 != 1) {
         if (1 < iVar3) {
@@ -226,9 +228,11 @@ LAB_00213014:
             (*(int32_t*)rtguest::G((uint32_t)param_4)) = 3;
             (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t))) = 6;
           }
+          goto LAB_002135ac;
         }
         if (iVar3 != 0) {
           (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t))) = 0;
+          goto LAB_002135a8;
         }
         piVar6 = (uint32_t)(param_3 + 0x10);
         uVar8 = 1;
@@ -301,6 +305,7 @@ LAB_00213014:
 LAB_002134a8:
     (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t))) = iVar3;
     (*(int32_t*)rtguest::G((uint32_t)param_4)) = iVar4;
+    goto LAB_002135ac;
   }
   if (iVar3 == 0xcb) {
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(0x17) * sizeof(int32_t)));
@@ -345,6 +350,7 @@ LAB_002134a8:
         }
         if (iVar3 != 200) {
           (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t))) = 0;
+          goto LAB_002135a8;
         }
         (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0xc9;
         (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t))) = 10;
@@ -369,6 +375,7 @@ LAB_002134a8:
       if (iVar3 + -1 != 0) goto LAB_002135ac;
       iVar3 = 6;
       iVar4 = 0xca;
+      goto LAB_002134a8;
     }
     if (iVar3 != 300) {
       if (iVar3 < 0x12d) {
@@ -378,6 +385,7 @@ LAB_002134a8:
 LAB_0021359c:
           (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x10))) = iVar3;
           (*(int32_t*)rtguest::G((uint32_t)param_4)) = iVar4;
+          goto LAB_002135ac;
         }
         (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t))) = 0;
       }
@@ -392,6 +400,7 @@ LAB_0021359c:
       }
 LAB_002135a8:
       (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0;
+      goto LAB_002135ac;
     }
     (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t))) = 0x10;
     (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0x12d;

@@ -49,6 +49,7 @@ LAB_0022dbb4:
     if ((*(int8_t*)rtguest::G(0x177adea)) == '\0') {
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
       if (((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) != 0x168) && ((uVar3 & 0x8000) == 0)) {
+        return 0;
       }
     }
     else {
@@ -61,6 +62,7 @@ LAB_0022dbb4:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = 0xffffffff;
     gs_tasks_kill(param_1);
   }
+  return 0;
 }
 
 

@@ -91,6 +91,7 @@ uint32_t aiStack_120 = rtguest::allocFrame(16);
     _sceFsSigSema();
     iVar6 = -0x10004;
   }
+  return iVar6;
 }
 
 

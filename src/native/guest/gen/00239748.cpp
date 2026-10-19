@@ -43,6 +43,7 @@ uint32_t ShowSequencedMessages(uint32_t param_1, uint32_t param_2, ...) {
       }
       if (lVar7 == -2) {
         gs_tasks_kill(param_1);
+        return 0;
       }
       PlayUiSound(0x1a);
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) != '\x02') {
@@ -51,6 +52,7 @@ uint32_t ShowSequencedMessages(uint32_t param_1, uint32_t param_2, ...) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) = 0;
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) = cVar4 + '\x01';
         ShowResidentMessage(param_1,param_2);
+        return 0;
       }
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) + 1)));
@@ -59,6 +61,7 @@ uint32_t ShowSequencedMessages(uint32_t param_1, uint32_t param_2, ...) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = 2;
     }
   }
+  return 0;
 }
 
 

@@ -59,6 +59,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     (*(int32_t*)rtguest::G((uint32_t)param_3)) = ((uint32_t)uVar5 >> 0x14) + uVar1 + -0x433;
   }
   (*(int32_t*)rtguest::G((uint32_t)param_4)) = iVar6;
+  return uVar4;
 }
 
 

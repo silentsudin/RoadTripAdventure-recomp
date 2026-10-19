@@ -20,8 +20,10 @@ uint32_t CheckInputMapping(uint32_t param_1, uint32_t param_2, ...) {
       }
       (*(uint32_t*)rtguest::G(0x3356c0)) = 0xffffffff;
       (*(uint8_t*)rtguest::G((uint32_t)0x335720 + (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) >> 8 & 7) * 1)) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
+      return false;
     }
     if ((*(uint32_t*)rtguest::G(0x3356c0)) != 0) {
+      return false;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x60))) = 0xffffffff;
     uVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));

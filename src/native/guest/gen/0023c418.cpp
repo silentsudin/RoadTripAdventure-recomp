@@ -17,42 +17,54 @@ uint32_t SetObjectAttribute(uint32_t param_1, uint32_t param_2, uint32_t param_3
       return 0;
     }
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0xfbff;
+    return 0;
   case 2:
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0xfffc;
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ecee4 + iVar2 * 0x18)));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = uVar1;
     if (iVar2 == 1) {
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = uVar1 | 1;
+      return 0;
     }
     if (iVar2 == 2) {
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = uVar1 | 2;
+      return 0;
     }
     break;
   case 7:
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 6))) = (char)param_3;
+    return 0;
   case 8:
     if (param_3 != 0) {
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) | 0x10;
+      return 0;
     }
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0xffef;
+    return 0;
   case 9:
     if (param_3 != 0) {
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) | 0x1000;
+      return 0;
     }
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0xefff;
+    return 0;
   case 10:
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) =
          (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0xdfbf | (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002f0304 + iVar2 * 0x10)));
+    return 0;
   case 0xb:
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002f03ec + iVar2 * 0x14)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 7))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(0x002f03f0 + iVar2 * 5)));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0xfcdb | uVar1;
+    return 0;
   case 0xc:
     if (param_3 != 0) {
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) | 0x4000;
+      return 0;
     }
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0xbfff;
   }
+  return 0;
 }
 
 

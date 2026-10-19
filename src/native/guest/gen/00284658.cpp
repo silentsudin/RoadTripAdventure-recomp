@@ -16,6 +16,7 @@ uint32_t _mprec_log10(uint32_t param_1, ...) {
       uVar1 = dpmul(uVar1,0x4024000000000000);
     }
   }
+  return uVar1;
 }
 
 

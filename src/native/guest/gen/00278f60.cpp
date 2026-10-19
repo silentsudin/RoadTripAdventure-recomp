@@ -50,11 +50,13 @@ uint32_t sceCdRead(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_
         return 1;
       }
       scePrintf(0x331d68);
+      return 1;
     }
     (*(int32_t*)rtguest::G(0x2e6f54)) = 0;
     (*(uint32_t*)rtguest::G(0x2e6f30)) = 0;
     SignalSema((*(int32_t*)rtguest::G(0x2e6f28)));
   }
+  return 0;
 }
 
 

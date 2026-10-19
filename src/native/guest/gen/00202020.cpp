@@ -44,6 +44,7 @@ LAB_00202104:
     unaff_s0_lo = unaff_s0_lo / 10;
     param_5 = (*(uint32_t*)rtguest::G(0x335684));
     if (unaff_s0_lo == 0) {
+      return unaff_s1_lo;
     }
   } while( true );
 }

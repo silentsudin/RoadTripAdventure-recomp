@@ -36,6 +36,7 @@ uint32_t _sceCd_ncmd_prechk(uint32_t param_1, ...) {
         } while (iVar1 != -1);
       }
       (*(uint32_t*)rtguest::G(0x2e6f38)) = 0;
+      return 1;
     }
     SignalSema((*(int32_t*)rtguest::G(0x2e6f28)));
   }
@@ -43,6 +44,7 @@ uint32_t _sceCd_ncmd_prechk(uint32_t param_1, ...) {
     scePrintf(0x331c38,param_1,(*(uint32_t*)rtguest::G(0x2e6f1c)));
     return 0;
   }
+  return 0;
 }
 
 

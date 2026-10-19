@@ -19,6 +19,7 @@ uint32_t AdvanceTimedTask(uint32_t param_1, ...) {
     return 0;
   }
   gs_tasks_kill(param_1);
+  return 0;
 }
 
 

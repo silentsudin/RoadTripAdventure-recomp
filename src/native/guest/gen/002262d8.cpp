@@ -17,10 +17,11 @@ uint32_t SetDrawSkyColours(uint32_t param_1, uint32_t param_2, ...) {
     return 0;
   }
   (*(float*)rtguest::G((uint32_t)param_1)) = (float)(*(int8_t*)rtguest::G(0x177f754)) / 255.0;
-  (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(float))) = (float)(*(uint32_t*)rtguest::G(0x177f755)) / 255.0;
-  bVar2 = (*(uint32_t*)rtguest::G(0x177f756));
+  (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(float))) = (float)(*(uint8_t*)rtguest::G(0x177f755)) / 255.0;
+  bVar2 = (*(uint8_t*)rtguest::G(0x177f756));
   (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(float))) = 1.0;
   (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(float))) = (float)bVar2 / 255.0;
+  return 0;
 }
 
 

@@ -67,6 +67,7 @@ uint32_t afStack_60 = rtguest::allocFrame(8);
     uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x28)));
   }
   if ((uVar2 & 0x2000) != 0) {
+    return 0;
   }
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) == 2) {
     SetViewDistanceGlobals(0x45000000,0x44f90000);
@@ -85,16 +86,19 @@ uint32_t afStack_60 = rtguest::allocFrame(8);
     pcVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc)));
 LAB_0021e8cc:
     rtCall(pcVar3, param_1,param_2);
+    return 0;
   }
   if ((((*(uint16_t*)rtguest::G((uint32_t)0x177ade8 + (uint32_t)(uVar13 * 0x138) * 2)) & 0x200) != 0) && (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 10))) & 2) == 0)) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) = 0;
     pcVar3 = (*(uint8_t*)rtguest::G(0x21e4d8));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = (*(uint8_t*)rtguest::G(0x21e4d8));
+    goto LAB_0021e8cc;
   }
   if ((uVar2 & 0x400) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = (*(uint8_t*)rtguest::G(0x21ec58));
     RunCameraZoomTransition(param_1,param_2);
+    return 0;
   }
   if (((uVar2 & 0x48008) == 0) &&
      (uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))),
@@ -198,10 +202,13 @@ LAB_0021eb8c:
   FixedPosToFloatVec4(auStack_b0,0x0177acf0 + uVar13 * 0x9c);
   buildCamera(0x177e6d0 + uVar13 * 400,puVar14,auStack_e0,auStack_a0);
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x28))) & 0x8000) != 0) {
+    return 0;
   }
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea0c + iVar8))) != 0) {
+    return 0;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0xb))) != '\0') {
+    return 0;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x22))) == -1) {
     uVar7 = GetGridCellIndex(0x0177acf0 + uVar13 * 0x9c);
@@ -211,6 +218,7 @@ LAB_0021eb8c:
   }
   ResolveCameraTerrainCollision
             (0x177e6d0 + uVar13 * 400,puVar14,param_2,auStack_e0,auStack_a0,uVar7);
+  return 0;
 }
 
 

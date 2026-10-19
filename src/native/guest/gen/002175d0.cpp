@@ -34,6 +34,7 @@ uint32_t afStack_30 = rtguest::allocFrame(8);
       }
     }
   }
+  return uVar1;
 }
 
 

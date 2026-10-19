@@ -17,6 +17,7 @@ uint32_t StartCourseEventTask(uint32_t param_1, uint32_t param_2, ...) {
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xf))) != '\0') {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x28))) | 0x400000;
     uiFade(0x10000000);
+    return 0;
   }
   lVar1 = CheckUnlockCondition
                     ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x21))),
@@ -29,6 +30,7 @@ uint32_t StartCourseEventTask(uint32_t param_1, uint32_t param_2, ...) {
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) = 0;
   shopScene(param_1,param_2);
   gs_tasks_spawn(param_1,0x208270,0);
+  return 0;
 }
 
 

@@ -23,6 +23,7 @@ uint32_t scePadSetButtonInfo(uint32_t param_1, uint32_t param_2, uint32_t param_
       iVar1 = (*(uint32_t*)rtguest::G(0x1773510));
     }
   }
+  return iVar1;
 }
 
 

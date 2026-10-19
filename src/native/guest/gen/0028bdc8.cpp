@@ -19,6 +19,7 @@ uint32_t sceSifFreeIopHeap(uint32_t param_1, ...) {
       uVar1 = 0xffffffff;
     }
   }
+  return uVar1;
 }
 
 

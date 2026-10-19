@@ -45,6 +45,7 @@ LAB_00204804:
       param_5 = param_5 + -1;
     } while (param_5 != -1);
   }
+  return param_1;
 }
 
 

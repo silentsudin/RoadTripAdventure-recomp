@@ -148,6 +148,7 @@ LAB_0025f998:
     gs_tasks_kill(param_1);
     return 0;
   }
+  return 0;
 }
 
 

@@ -68,6 +68,7 @@ uint32_t __moddi3(uint32_t param_1, uint32_t param_2, ...) {
       if (0x00000000u != (uint32_t)0x20) {
         (*(uint32_t*)rtguest::G((uint32_t)uStack_20)) = uVar10 & 0xffffffff | uVar12 << 0x20;
       }
+      goto LAB_0028decc;
     }
     uVar15 = uVar14 << (uVar3 & 0x1f);
     uVar9 = uVar13 << (uVar3 & 0x1f) | uVar6 >> (uVar7 & 0x1f);
@@ -136,6 +137,7 @@ LAB_0028de30:
       (*(uint32_t*)rtguest::G((uint32_t)uStack_20)) = CONCAT44(uVar11 >> (uVar3 & 0x1f),
                            uVar11 << (uVar7 & 0x1f) | uVar6 >> (uVar3 & 0x1f));
     }
+    goto LAB_0028decc;
   }
   if (uVar12 < uVar8) {
     if (uVar8 < 0x10000) {

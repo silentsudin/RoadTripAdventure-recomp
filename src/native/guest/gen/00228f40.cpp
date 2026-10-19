@@ -48,11 +48,13 @@ uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
       gs_tasks_spawn(param_1,0x2282c0,1);
       uVar2 = 3;
     }
+    goto LAB_002291b0;
   case 1:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) == 0) {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) == 0) {
         gs_tasks_spawn(param_1,0x2282c0,1);
         uVar2 = 4;
+        goto LAB_002291b0;
       }
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) + 4;
     }
@@ -62,6 +64,7 @@ uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 1;
         gs_tasks_kill(param_1);
+        return 0;
       }
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) + 8;
     }
@@ -71,6 +74,7 @@ uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 0;
     gs_tasks_kill(param_1);
+    return 0;
   case 3:
     if (((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) < 3) && (-1 < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))))) {
       iVar3 = 0;
@@ -88,6 +92,7 @@ uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
       if ((-1 < iVar3) && (iVar3 < 3)) {
         gs_tasks_spawn(param_1,0x228510,0x101);
         uVar2 = 5;
+        goto LAB_002291b0;
       }
 LAB_0022919c:
       iVar3 = 4;
@@ -105,6 +110,7 @@ LAB_0022919c:
 LAB_002291b0:
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) = uVar2;
 switchD_00228f98_default:
+  return 0;
 }
 
 

@@ -16,6 +16,7 @@ uint32_t __sprint_r(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 8))) = 0;
   }
+  return uVar1;
 }
 
 

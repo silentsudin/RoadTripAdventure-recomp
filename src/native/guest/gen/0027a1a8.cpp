@@ -34,6 +34,7 @@ uint32_t sceMcSync(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
       SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
     }
   }
+  return uVar3;
 }
 
 

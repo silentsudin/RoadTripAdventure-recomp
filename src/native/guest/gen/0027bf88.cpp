@@ -30,6 +30,7 @@ uint32_t litodp(uint32_t param_1, ...) {
     }
   }
   uVar1 = __pack_d(uStack_30);
+  return uVar1;
 }
 
 

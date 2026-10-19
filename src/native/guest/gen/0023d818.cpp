@@ -21,6 +21,7 @@ uint32_t puVar2;
         puVar2 = puVar2 + 1;
       } while (iVar3 < (*(int32_t*)rtguest::G(0x1782a60)));
     }
+    return uVar1;
   }
   return 0;
 }

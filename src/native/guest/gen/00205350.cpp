@@ -86,6 +86,7 @@ LAB_002053ec:
         } while (iVar10 < (int)(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xb))));
         cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xd)));
       }
+      goto LAB_00205544;
     }
   }
   else {
@@ -215,6 +216,7 @@ LAB_002056b0:
       return 1;
     }
     if ((((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 6))) & 8) != 0) && ((uVar7 & 0x800) != 0)) {
+      return 1;
     }
     if ((uVar7 & 0x10) != 0) {
       return 0xffffffff;
@@ -228,6 +230,7 @@ LAB_002056b0:
       return 0xfffffffe;
     }
   }
+  return 0;
 }
 
 

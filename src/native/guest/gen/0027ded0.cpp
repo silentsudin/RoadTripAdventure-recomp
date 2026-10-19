@@ -84,6 +84,7 @@ uint32_t puVar16;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar16 + uVar3 + 4))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar16 + uVar3 + 4))) | 1;
         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xc))) = iVar2;
         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 8))) = iVar1;
+        goto LAB_0027e5cc;
       }
     }
     uVar14 = uVar14 + 1;
@@ -109,11 +110,13 @@ LAB_0027e054:
       (*(uint32_t*)rtguest::G((uint32_t)ppuVar12 + (uint32_t)(2) * sizeof(uint32_t))) = (uint32_t)0x2e8cd0u;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)ppuVar12 + uVar3))) = uVar3;
       (*(uint32_t*)rtguest::G((uint32_t)ppuVar12 + (uint32_t)(3) * sizeof(uint32_t))) = (uint32_t)0x2e8cd0u;
+      goto LAB_0027e5cc;
     }
     (*(uint32_t*)rtguest::G(0x2e8cdc)) = 0x2e8cd0u;
     (*(uint32_t*)rtguest::G(0x002e8cd8)) = (uint32_t)0x2e8cd0u;
     if (-1 < (long)uVar13) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar8 + uVar9 + 4))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar8 + uVar9 + 4))) | 1;
+      goto LAB_0027e5cc;
     }
     uVar4 = uVar3 >> 9;
     if (uVar9 < 0x200) {
@@ -209,6 +212,7 @@ LAB_0027e250:
               (*(uint32_t*)rtguest::G((uint32_t)ppuVar12 + (uint32_t)(2) * sizeof(uint32_t))) = (uint32_t)0x2e8cd0u;
               (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)ppuVar12 + uVar3))) = uVar3;
               (*(uint32_t*)rtguest::G((uint32_t)ppuVar12 + (uint32_t)(3) * sizeof(uint32_t))) = (uint32_t)0x2e8cd0u;
+              goto LAB_0027e5cc;
             }
             if (-1 < (long)uVar10) {
               iVar2 = (*(uint32_t*)rtguest::G((uint32_t)puVar16 + (uint32_t)(3) * sizeof(uint32_t)));
@@ -216,6 +220,7 @@ LAB_0027e250:
               (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar16 + uVar9 + 4))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar16 + uVar9 + 4))) | 1;
               (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xc))) = iVar2;
               (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 8))) = iVar1;
+              goto LAB_0027e5cc;
             }
             puVar16 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar16 + (uint32_t)(3) * sizeof(uint32_t)));
             if (puVar16 == puVar7) break;

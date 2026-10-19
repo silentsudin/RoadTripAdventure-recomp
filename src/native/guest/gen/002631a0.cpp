@@ -71,6 +71,7 @@ LAB_002632d8:
     lVar5 = GetSpeedFromF15Vector(0x177ad40);
     if (lVar5 != 0) {
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28)));
+      goto LAB_00263684;
     }
     iVar2 = 0;
     pfVar10 = (uint32_t)0x002da090;
@@ -171,11 +172,13 @@ LAB_0026365c:
     (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) & 0xf7ff;
     SetObjectField844C(uVar7,0);
     uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28)));
+    goto LAB_00263684;
   case 7:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) & 0xfffffeff | 8;
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 8;
     PlayBgmSlot5();
     uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28)));
+    goto LAB_00263684;
   case 8:
     uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2))) << 0x18);
     sVar6 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2)));
@@ -187,6 +190,7 @@ LAB_0026365c:
     break;
   default:
     uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28)));
+    goto LAB_00263684;
   }
   uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28)));
 LAB_00263684:
@@ -206,6 +210,7 @@ LAB_00263684:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 4))) = 0xffffffff;
     gs_tasks_kill(param_1);
   }
+  return 0;
 }
 
 

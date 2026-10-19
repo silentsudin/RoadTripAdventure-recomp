@@ -10,6 +10,7 @@ uint32_t AbortCdOperation(uint32_t q0, ...) {
     sceCdBreak();
     return 0;
   }
+  return 0;
 }
 
 

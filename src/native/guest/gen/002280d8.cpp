@@ -33,6 +33,7 @@ uint32_t pcVar6;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) = 1;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 4))) = (int)cVar1;
     gs_tasks_kill(param_1);
+    return 0;
   }
   uVar4 = uiMenuCreate();
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) & 0x100) == 0) {
@@ -68,6 +69,7 @@ LAB_00228190:
   if ('\x03' < (char)(*(int8_t*)rtguest::G((uint32_t)0x177fdb1 + (uint32_t)(iVar8) * 1))) {
     (*(int8_t*)rtguest::G((uint32_t)0x177fdb1 + (uint32_t)(iVar8) * 1)) = 3;
   }
+  return 0;
 }
 
 

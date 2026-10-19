@@ -75,6 +75,7 @@ uint32_t apuStack_6c = rtguest::allocFrame(12);
       (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x74))) = fVar8;
       (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x78))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x78))) * fVar7 * fVar9;
     }
+    goto LAB_00251920;
   }
   fVar7 = (float)vecDotProductVu0(iVar4,iVar4);
   fVar7 = SQRT(fVar7);

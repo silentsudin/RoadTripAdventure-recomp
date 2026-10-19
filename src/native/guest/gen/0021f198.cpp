@@ -79,6 +79,7 @@ uint32_t puVar5;
     PrintDoorParams(param_1);
     return 0;
   }
+  return 0;
 }
 
 

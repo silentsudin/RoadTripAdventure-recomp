@@ -131,6 +131,7 @@ LAB_00236688:
 LAB_00236808:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar10 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar10 + 5))) | 0x400000;
   gs_tasks_kill(param_1);
+  return 0;
 }
 
 

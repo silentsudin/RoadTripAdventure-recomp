@@ -73,6 +73,7 @@ uint32_t sceCdSearchFile(uint32_t param_1, uint32_t param_2, ...) {
         }
         uVar5 = (*(uint32_t*)rtguest::G(0x21773740));
         SignalSema((*(int32_t*)rtguest::G(0x2e6f28)));
+        return uVar5;
       }
     }
     SignalSema((*(int32_t*)rtguest::G(0x2e6f28)));

@@ -10,7 +10,7 @@ uint32_t gifTexQuadTag(uint32_t param_1, ...) {
   
   uVar1 = (*(uint64_t*)rtguest::G(0x29cc20));
   (*(uint64_t*)rtguest::G((uint32_t)param_1)) = (*(uint64_t*)rtguest::G(0x29cc20));
-  uVar2 = (*(uint32_t*)rtguest::G(0x29cc28));
+  uVar2 = (*(uint64_t*)rtguest::G(0x29cc28));
   (*(uint64_t*)rtguest::G((uint32_t)param_1)) = uVar1 & 0xffffffffffff8000 | 4;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint64_t))) = uVar2;
   return 0;

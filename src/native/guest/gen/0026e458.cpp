@@ -26,6 +26,7 @@ uint32_t psVar2;
       uVar3 = (uint32_t)(lVar4 >> 0xd) & 1;
     }
   }
+  return uVar3;
 }
 
 

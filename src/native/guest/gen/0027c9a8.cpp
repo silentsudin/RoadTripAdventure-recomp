@@ -16,6 +16,7 @@ uint32_t piVar2;
     if (iVar1 == 0) {
       SignalSema((*(uint32_t*)rtguest::G(0x2e99ac)));
       iVar1 = abort();
+      return iVar1;
     }
     if ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 8))) == param_1) break;
     piVar2 = (uint32_t)(iVar1 + 0x14);
@@ -27,6 +28,7 @@ uint32_t piVar2;
     free(__ptr);
   }
   SignalSema((*(uint32_t*)rtguest::G(0x2e99ac)));
+  return iVar1;
 }
 
 

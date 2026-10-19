@@ -19,8 +19,10 @@ uint32_t navigateRouletteTargetGrid(uint32_t param_1, uint32_t param_2, ...) {
          (((uVar2 & 0x8000) == 0 || (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9994 + param_2 * 0x30))) & 0x8000) != 0)))) {
         if ((uVar1 & 0x2000) == 0) {
           if ((uVar2 & 0x2000) == 0) {
+            return param_2;
           }
           if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9994 + param_2 * 0x30))) & 0x2000) != 0) {
+            return param_2;
           }
         }
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9990 + param_2 * 0x30)));
@@ -39,6 +41,7 @@ uint32_t navigateRouletteTargetGrid(uint32_t param_1, uint32_t param_2, ...) {
   if (iVar3 != param_2) {
     PlayUiSound(0x1d);
   }
+  return iVar3;
 }
 
 

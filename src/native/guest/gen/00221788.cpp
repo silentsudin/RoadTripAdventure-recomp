@@ -218,6 +218,7 @@ LAB_00221c74:
           puVar8 = puVar8 + 0x10;
         } while ((int)uVar5 < 4);
       }
+      return iVar12;
     }
     uVar5 = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(2) * sizeof(uint32_t)));
   } while( true );

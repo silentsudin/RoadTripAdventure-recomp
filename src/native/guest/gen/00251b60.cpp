@@ -45,6 +45,7 @@ uint32_t apuStack_7c = rtguest::allocFrame(12);
     pvVar3 = (uint32_t)getExtraPacketArea(0x10e30);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x20))) = pvVar3;
     pvVar3 = (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(pvVar3)), 0, 0x10e30));
+    return pvVar3;
   }
   iVar11 = (int)param_2;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8))) == 1) {
@@ -288,6 +289,7 @@ LAB_002522bc:
 LAB_00252384:
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = pvVar3;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 0;
+    return pvVar3;
   case 0xffffffff:
   case 1:
   case 4:
@@ -368,6 +370,7 @@ LAB_00252488:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = 0xffffffff;
     pvVar3 = (uint32_t)gs_tasks_kill(param_1);
   }
+  return pvVar3;
 }
 
 

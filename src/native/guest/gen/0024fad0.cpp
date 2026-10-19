@@ -10,6 +10,7 @@ uint32_t DrawOptionSlider(uint32_t param_1, uint32_t param_2, uint32_t param_3, 
     uiDrawArrow(param_1 + -0x14,param_2);
     return 0;
   }
+  return 0;
 }
 
 

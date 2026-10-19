@@ -92,6 +92,7 @@ LAB_00240454:
     if (0x2770d < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x14)))) {
       (*(uint8_t*)rtguest::G(0x335738)) = 3;
       EmptyStub();
+      return 0;
     }
     break;
   case 3:
@@ -117,6 +118,7 @@ LAB_00240454:
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) = 5;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) = 0;
       EmptyStub();
+      return 0;
     }
     break;
   case 4:
@@ -129,6 +131,7 @@ LAB_00240454:
     if (100.0 <= (*(uint32_t*)rtguest::G(0x2a2bb4))) {
       (*(uint8_t*)rtguest::G(0x335738)) = 6;
       EmptyStub();
+      return 0;
     }
     break;
   case 6:
@@ -139,7 +142,9 @@ LAB_00240454:
   case 7:
     ::printf((char *)rtguest::G((uint32_t)(0x2ec8e0u)));
     gs_tasks_kill(param_1);
+    return 0;
   }
+  return 0;
 }
 
 

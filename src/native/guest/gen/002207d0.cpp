@@ -25,6 +25,7 @@ uint32_t DrawSceneArcRibbonFaded(uint32_t param_1, ...) {
     uVar3 = iVar2 >> 6;
     (*(uint32_t*)rtguest::G(0x0029d130)) = (long)(int)(uVar3 << 0x10 | uVar3 << 8 | uVar3);
     vifDirect(0x29d0f0,6);
+    return 0;
   }
   if (iVar1 - 0x278d1U < 0x7ff) {
     iVar2 = iVar1 + -0x278d0;
@@ -34,9 +35,11 @@ uint32_t DrawSceneArcRibbonFaded(uint32_t param_1, ...) {
     uVar3 = iVar2 >> 6;
     (*(uint32_t*)rtguest::G(0x0029d130)) = (long)(int)(uVar3 << 0x10 | uVar3 << 8 | uVar3);
     vifDirect(0x29d0f0,6);
+    return 0;
   }
   (*(uint32_t*)rtguest::G(0x0029d130)) = 0x202020;
   vifDirect(0x29d0f0,6);
+  return 0;
 }
 
 

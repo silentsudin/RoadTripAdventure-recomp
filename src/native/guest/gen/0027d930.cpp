@@ -25,6 +25,7 @@ uint32_t __fpcmp_parts_d(uint32_t param_1, uint32_t param_2, ...) {
       if ((*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint32_t))) == 0) {
         iVar2 = -1;
       }
+      return iVar2;
     }
     if (uVar3 == 2) {
       if (uVar1 == 2) {
@@ -34,6 +35,7 @@ uint32_t __fpcmp_parts_d(uint32_t param_1, uint32_t param_2, ...) {
       if ((*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint32_t))) != 0) {
         iVar2 = 1;
       }
+      return iVar2;
     }
     if (uVar1 != 2) {
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint32_t)));
@@ -42,12 +44,14 @@ uint32_t __fpcmp_parts_d(uint32_t param_1, uint32_t param_2, ...) {
           if ((int)(*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint32_t))) <= (int)(*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint32_t)))) {
             if ((*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) < (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4)))) goto LAB_0027da24;
             if ((*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) <= (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4)))) {
+              return 0;
             }
           }
           iVar2 = 1;
           if (uVar3 == 0) {
             iVar2 = -1;
           }
+          return iVar2;
         }
       }
 LAB_0027da24:
@@ -55,6 +59,7 @@ LAB_0027da24:
       if (uVar3 == 0) {
         iVar2 = 1;
       }
+      return iVar2;
     }
     uVar3 = (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint32_t)));
   }
@@ -62,6 +67,7 @@ LAB_0027da24:
   if (uVar3 == 0) {
     iVar2 = 1;
   }
+  return iVar2;
 }
 
 

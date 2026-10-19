@@ -26,6 +26,7 @@ uint32_t cosf(uint32_t param_1, ...) {
       if (uVar1 < 2) {
         if (uVar1 == 0) {
           fVar2 = (float)__kernel_cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_30)),(*(uint32_t*)rtguest::G((uint32_t)uStack_2c)));
+          return fVar2;
         }
       }
       else if (uVar1 == 2) {
@@ -35,6 +36,7 @@ uint32_t cosf(uint32_t param_1, ...) {
       fVar2 = (float)__kernel_sinf((*(uint32_t*)rtguest::G((uint32_t)uStack_30)),(*(uint32_t*)rtguest::G((uint32_t)uStack_2c)),1);
     }
   }
+  return fVar2;
 }
 
 

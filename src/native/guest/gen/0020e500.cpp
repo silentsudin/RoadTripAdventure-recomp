@@ -22,6 +22,7 @@ uint32_t debugScreenSave(uint32_t param_1, uint32_t param_2, uint32_t param_3, .
   }
   sceClose(lVar3);
   iVar1 = ::printf((char *)rtguest::G((uint32_t)(0x333390u)));
+  return iVar1;
 }
 
 

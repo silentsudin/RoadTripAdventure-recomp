@@ -21,6 +21,7 @@ uint32_t scePadGetState(uint32_t param_1, uint32_t param_2, ...) {
       }
     }
   }
+  return cVar1;
 }
 
 

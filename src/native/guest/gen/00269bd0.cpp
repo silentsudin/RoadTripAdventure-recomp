@@ -13,6 +13,7 @@ uint32_t FlagIndexGetNth(uint32_t param_1, uint32_t param_2, uint32_t param_3, .
   
   if (param_3 == 0xffffffff) {
     iVar1 = CountSetBitsInByteArray();
+    return iVar1;
   }
   if (param_3 < param_2 << 5) {
     uVar4 = 0;

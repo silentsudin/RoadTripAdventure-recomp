@@ -77,6 +77,7 @@ uint32_t puVar10;
     sendTexturePackets(puVar9);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) = puVar10;
     if (puVar10 != (uint32_t)0x0) {
+      return 0;
     }
     return 1;
   case 4:
@@ -116,6 +117,7 @@ uint32_t puVar10;
     sendTexturePackets(puVar9);
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) = iVar6;
     if (iVar6 == 0) {
+      return 1;
     }
     if (0x38a780 < iVar6) {
       fatal(0x2ea4c0);
@@ -140,6 +142,7 @@ uint32_t puVar10;
   cdReadEntry(uVar4,uVar7);
   (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
 switchD_0020af38_default:
+  return 0;
 }
 
 

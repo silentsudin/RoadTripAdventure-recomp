@@ -39,6 +39,7 @@ uint32_t __kernel_sin(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...)
       param_1 = dpsub(param_1,uVar2);
     }
   }
+  return param_1;
 }
 
 

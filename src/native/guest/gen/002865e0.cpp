@@ -23,6 +23,7 @@ uint32_t scePrintfPutChar(uint32_t param_1, ...) {
   (*(uint32_t*)rtguest::G((uint32_t)0x1776d40 + (uint32_t)(iVar1) * 4)) = 10;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x1776d41))) = 0;
   kputs();
+  return 0;
 }
 
 

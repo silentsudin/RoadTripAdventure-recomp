@@ -65,6 +65,7 @@ uint32_t sceCdInit(uint32_t param_1, ...) {
       }
     }
   }
+  return uVar3;
 }
 
 

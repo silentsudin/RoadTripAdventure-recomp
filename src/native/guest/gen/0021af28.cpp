@@ -196,6 +196,7 @@ LAB_0021b310:
     param_3 = param_3 + 1;
     pfVar5 = pfVar5 + 4;
     if (2 < (int)uVar10) {
+      return uVar11;
     }
   } while( true );
 }

@@ -19,6 +19,7 @@ uint32_t sceSifGetNextRequest(uint32_t param_1, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = uVar2;
   }
   EIntr();
+  return iVar1;
 }
 
 

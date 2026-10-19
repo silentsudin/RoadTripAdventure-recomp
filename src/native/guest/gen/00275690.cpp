@@ -36,6 +36,7 @@ uint32_t __ieee754_sqrtf(uint32_t param_1, ...) {
     }
     param_1 = (param_1 - param_1) / (param_1 - param_1);
   }
+  return param_1;
 }
 
 

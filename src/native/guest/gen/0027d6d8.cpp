@@ -18,6 +18,7 @@ uint32_t __unpack_f(uint32_t param_1, uint32_t param_2, ...) {
   (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint32_t))) = uVar2 - 0x7f;
   (*(uint32_t*)rtguest::G((uint32_t)param_2)) = 3;
   (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(3) * sizeof(uint32_t))) = (uVar1 & 0x7fffff) << 7 | 0x40000000;
+  return 0;
 }
 
 

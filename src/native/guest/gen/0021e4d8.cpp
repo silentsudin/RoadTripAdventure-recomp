@@ -19,6 +19,7 @@ uint32_t puVar4;
       return 0;
     }
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) != 0x40) {
+      return 0;
     }
     iVar6 = 0;
     puVar4 = 0x0177ade8;
@@ -60,6 +61,7 @@ LAB_0021e5d8:
       bVar2 = true;
 LAB_0021e668:
       if (!bVar2) {
+        return 0;
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) = 0;
       pcVar3 = (*(uint8_t*)rtguest::G(0x21ee98));
@@ -72,6 +74,7 @@ LAB_0021e668:
     pcVar3 = (*(uint8_t*)rtguest::G(0x21e328));
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = pcVar3;
+  return 0;
 }
 
 

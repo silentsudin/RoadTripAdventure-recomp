@@ -61,6 +61,7 @@ uint32_t ApplyCupAttraction(uint32_t param_1, ...) {
     uVar2 = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x88))) = 1;
   }
+  return uVar2;
 }
 
 

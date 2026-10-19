@@ -29,8 +29,10 @@ uint32_t AwardRaceResult(uint32_t param_1, ...) {
         return 0;
       }
       GetOrSetPresidentRaceResult(2);
+      return 0;
     }
   }
+  return 0;
 }
 
 

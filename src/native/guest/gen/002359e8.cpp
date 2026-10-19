@@ -31,6 +31,7 @@ uint32_t DrawStandingsEntry(uint32_t param_1, uint32_t param_2, uint32_t param_3
     uiDrawTime(0x1e0,iVar5,(*(uint32_t*)rtguest::G((uint32_t)0x1787074 + (uint32_t)(iVar3 * 4) * 4)),0);
     return 0;
   }
+  return 0;
 }
 
 

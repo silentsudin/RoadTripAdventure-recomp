@@ -13,6 +13,7 @@ uint32_t TestStateBitFc88(uint32_t param_1, ...) {
   if ((param_1 & 0xff) != 0) {
     uVar2 = (uint32_t)(((*(uint64_t*)rtguest::G((uint32_t)0x177fc88 + (uint32_t)((uVar1 & 0xff) >> 6) * 8)) & 1L << (uVar2 & 0x3f)) != 0);
   }
+  return uVar2;
 }
 
 

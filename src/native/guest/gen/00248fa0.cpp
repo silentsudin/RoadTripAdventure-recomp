@@ -36,6 +36,7 @@ uint32_t UpdateTaskTimerLimit(uint32_t param_1, uint32_t param_2, ...) {
         return 0;
       }
       if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) == 0) {
+        return 0;
       }
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x18)));
     }
@@ -48,6 +49,7 @@ uint32_t UpdateTaskTimerLimit(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = 0;
     PlayUiSound(0x1b);
   }
+  return 0;
 }
 
 

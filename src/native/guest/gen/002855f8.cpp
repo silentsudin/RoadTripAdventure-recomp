@@ -33,6 +33,7 @@ uint32_t puVar3;
     }
   }
   (*(uint32_t*)rtguest::G(0x002e9140)) = puVar3;
+  return puVar1;
 }
 
 

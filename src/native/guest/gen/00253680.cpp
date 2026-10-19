@@ -72,6 +72,7 @@ uint32_t afStack_40 = rtguest::allocFrame(8);
   else {
     if (1 < iVar4) {
       if (iVar4 != 2) {
+        return 0;
       }
       if (((*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b0 + uVar7 * 0x40)))) ||
          (bVar2 = true, (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b4 + uVar7 * 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))))) {
@@ -100,6 +101,7 @@ uint32_t afStack_40 = rtguest::allocFrame(8);
           lVar5 = 0;
         }
         if (lVar5 == 0) {
+          return 0;
         }
         iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 600)));
         iVar4 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a))) * 3;
@@ -107,8 +109,10 @@ uint32_t afStack_40 = rtguest::allocFrame(8);
 LAB_00253b4c:
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + iVar4 * 4 + 0x78))) = 0;
       (*(int32_t*)rtguest::G((uint32_t)piVar10)) = 0;
+      return 0;
     }
     if (iVar4 != 0) {
+      return 0;
     }
     if (((*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b0 + uVar7 * 0x40)))) ||
        (bVar2 = true, (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b4 + uVar7 * 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))))) {
@@ -122,12 +126,14 @@ LAB_00253b4c:
     }
     if (bVar2) {
       SteerAiToDefaultWaypoint(param_1);
+      return 0;
     }
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a)));
     iVar6 = 1;
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 600))) + (uint32_t)bVar1 * 0xc + 0x78))) = 0;
   (*(int32_t*)rtguest::G((uint32_t)piVar10)) = iVar6;
+  return 0;
 }
 
 

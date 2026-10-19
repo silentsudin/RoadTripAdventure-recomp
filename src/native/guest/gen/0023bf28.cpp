@@ -21,6 +21,7 @@ uint32_t puVar5;
     while( true ) {
       if (((*(uint32_t*)rtguest::G((uint32_t)0x1780390 + (uint32_t)(iVar7 * 5 + param_2 * 0xd12 + iVar2) * 4)) & 1 << (uVar8 & 0x1f)) != 0) {
         if (param_3 == 0) {
+          return uVar8;
         }
         param_3 = param_3 + -1;
       }
@@ -54,6 +55,7 @@ uint32_t puVar5;
           if (((uVar3 & 1 << (uVar8 & 0x1f)) != 0) &&
              (((param_4 & 8) == 0 || (lVar4 = DispatchByIndex15(param_1,uVar8), lVar4 != 0)))) {
             if (param_3 == 0) {
+              return uVar8;
             }
             param_3 = param_3 + -1;
           }

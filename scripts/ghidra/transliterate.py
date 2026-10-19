@@ -719,7 +719,10 @@ def transliterate(path: Path, report: dict,
             return ""
         declared.add(name)
         return m.group(0)
-    body = re.sub(r"^[ \t]*[A-Za-z_]\w*(?:\s*\*+)?[ \t]+(\w+)[ \t]*;\n",
+    # the guard matters: without it "return 0;" reads as a declaration of "0"
+    # and every later one in the TU gets dropped (silent case fall-through)
+    body = re.sub(r"^[ \t]*(?!(?:return|case|break|continue|goto|default|do|else)\b)"
+                  r"[A-Za-z_]\w*(?:\s*\*+)?[ \t]+([A-Za-z_]\w*)[ \t]*;\n",
                   dedup_decl, body, flags=re.M)
 
     # (&DAT_x)[i] and DAT_x[i]: Ghidra's "array at global" idiom — element type

@@ -14,11 +14,14 @@ uint32_t fadeOutTask(uint32_t param_1, ...) {
       return 0;
     }
     gs_tasks_kill();
+    return 0;
   }
   if (iVar1 < 0x20) {
     uiFade((0x20 - iVar1) * 0x4000000);
+    return 0;
   }
   gs_tasks_kill();
+  return 0;
 }
 
 

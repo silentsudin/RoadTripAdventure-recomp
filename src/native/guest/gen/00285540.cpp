@@ -20,6 +20,7 @@ uint32_t read(uint32_t __fd, uint32_t __buf, uint32_t __nbytes, ...) {
 LAB_00285598:
     sVar1 = -1;
   }
+  return sVar1;
 }
 
 

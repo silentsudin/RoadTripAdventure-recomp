@@ -114,6 +114,7 @@ LAB_00207404:
     (*(float*)rtguest::G((uint32_t)pfVar7 + (uint32_t)(1) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)fStack_7c));
     (*(float*)rtguest::G((uint32_t)pfVar7 + (uint32_t)(3) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)fStack_74));
   }
+  return lVar1;
 }
 
 

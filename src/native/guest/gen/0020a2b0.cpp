@@ -20,12 +20,14 @@ uint32_t DispatchMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     if (iVar1 == 2) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) = 5;
       gs_tasks_spawn(param_1,0x209cb0,5);
+      return 0;
     }
     if (iVar1 == 3) {
       gs_tasks_spawn(param_1,0x20dc50,0x410000);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) = 4;
       uVar3 = gs_tasks_spawn(param_1,0x208a88,0);
       SetTaskFlag(uVar3);
+      return 0;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) = 2;
     uVar3 = 0x208848;
@@ -34,6 +36,7 @@ uint32_t DispatchMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) == '\0') {
       if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xf))) == '\0') && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) == '\x03')) {
         if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30))) == 0) {
+          return 0;
         }
         PlayBgmSlot2();
         DestroyTaskRecord(param_1);
@@ -41,10 +44,13 @@ uint32_t DispatchMenuTask(uint32_t param_1, uint32_t param_2, ...) {
         gs_tasks_spawn(param_1,0x208a88,4);
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = 0;
         PlayUiSound(0x1f);
+        return 0;
       }
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) != '\x04') {
+        return 0;
       }
       if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30))) & 0x8000800) == 0) {
+        return 0;
       }
       PlayBgmSlot2();
       DestroyTaskRecord(param_1);
@@ -52,6 +58,7 @@ uint32_t DispatchMenuTask(uint32_t param_1, uint32_t param_2, ...) {
       gs_tasks_spawn(param_1,0x209cb0,5);
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = 0;
       PlayUiSound(0x1f);
+      return 0;
     }
     switch((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25)))) {
     case 0:
@@ -77,12 +84,14 @@ uint32_t DispatchMenuTask(uint32_t param_1, uint32_t param_2, ...) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 4))) = uVar2;
       gs_tasks_kill(param_1);
+      return 0;
     default:
       goto switchD_0020a3a4_default;
     }
   }
   gs_tasks_spawn(param_1,uVar3,0);
 switchD_0020a3a4_default:
+  return 0;
 }
 
 

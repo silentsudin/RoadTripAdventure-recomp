@@ -105,6 +105,7 @@ LAB_00235ca4:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) = uVar4;
     gs_tasks_kill(param_1);
   }
+  return 0;
 }
 
 

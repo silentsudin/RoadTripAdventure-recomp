@@ -21,12 +21,14 @@ uint32_t __pack_d(uint32_t param_1, ...) {
   if (uVar1 != 4) {
     if (uVar1 == 2) {
       uVar3 = 0;
+      goto LAB_0027d824;
     }
     uVar3 = 0;
     if (uVar2 == 0) goto LAB_0027d824;
     uVar1 = (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint32_t)));
     if ((int)uVar1 < -0x3fe) {
       uVar3 = 0;
+      goto LAB_0027d824;
     }
     if ((int)uVar1 < 0x400) {
       uVar4 = (uint32_t)(int)(uVar1 + 0x3ff);
@@ -45,6 +47,7 @@ uint32_t __pack_d(uint32_t param_1, ...) {
         uVar4 = (uint32_t)(int)(uVar1 + 0x400);
         uVar3 = uVar2 >> 9;
       }
+      goto LAB_0027d824;
     }
   }
   uVar4 = 0x7ff;

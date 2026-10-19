@@ -93,6 +93,7 @@ LAB_00289ba8:
       _sceFsSigSema();
       if (iVar5 == 0) {
         DeleteSema(uVar3);
+        return 0xfffffff5;
       }
       WaitSema(uVar3);
       DeleteSema(uVar3);

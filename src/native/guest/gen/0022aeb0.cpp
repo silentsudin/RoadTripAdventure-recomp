@@ -193,6 +193,7 @@ LAB_0022b238:
       if ((uVar2 & 0x8000) != 0) {
         copyCarModel(uVar2 & 0xff,0);
         cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
+        goto LAB_0022b864;
       }
     }
     goto switchD_0022b654_caseD_7;
@@ -218,6 +219,7 @@ LAB_0022b238:
       gs_tasks_spawn(param_1,0x23b168,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G(0x002a7ef4)) + 0x20))));
       cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
     }
+    goto LAB_0022b864;
   }
   if (cVar8 != '\x01') {
     if ((cVar8 != '\x04') || ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) == '\0')) goto LAB_0022b864;
@@ -226,6 +228,7 @@ LAB_0022b238:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xc))) = (*(uint8_t*)rtguest::G(0x22c418));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))) = 0;
     ReleaseStampFlag(param_2);
+    goto switchD_0022b654_caseD_7;
   }
   lVar6 = ClassifyObjectContext(param_2);
   if (lVar6 == 0) {
@@ -237,6 +240,7 @@ LAB_0022b238:
   }
   if (cVar8 == '\0') {
     cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
+    goto LAB_0022b864;
   }
   uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4)));
   sVar4 = (short)(uVar2 >> 8);
@@ -272,6 +276,7 @@ switchD_0022b654_caseD_7:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xc))) = (*(uint8_t*)rtguest::G(0x22c418));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
+    goto switchD_0022b654_caseD_7;
   case 8:
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) = 2;
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) = sVar4 + 1;
@@ -290,6 +295,7 @@ switchD_0022b654_caseD_7:
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = uVar2;
+    goto switchD_0022b654_caseD_7;
   case 0xf:
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
@@ -383,6 +389,7 @@ LAB_0022b864:
       PlayBgmSlot5();
     }
   }
+  return 0;
 }
 
 

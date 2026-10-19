@@ -65,6 +65,7 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
   default:
     vifDirect(param_1 + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + param_1 + 0x5420))) * 0xf0 + 0x2b80,2);
     vifDirect(param_1 + param_2 * 0xf0 + 0x2ba0,0xd);
+    return 0;
   case 7:
     vifUploadAt16(0x177f5e0);
     UploadPaintBgColors((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x177f760 +
@@ -84,6 +85,7 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
     vifCallModel((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177f318 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x5410))) * 0x18))) + 0x10);
     psVar5 = (uint32_t)(param_1 + iVar7 + 0x5420);
     if ((*(int16_t*)rtguest::G((uint32_t)psVar5)) == 0) {
+      return 0;
     }
     vifUploadAt16(0x177f5e0);
     vifDirect(param_1 + (*(int16_t*)rtguest::G((uint32_t)psVar5)) * 0xf0 + 0x2b80,2);
@@ -122,6 +124,7 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
     vifCallModel((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177f318 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x5410))) * 0x18))) + 0x10);
     psVar5 = (uint32_t)(param_1 + iVar7 + 0x5420);
     if ((*(int16_t*)rtguest::G((uint32_t)psVar5)) == 0) {
+      return 0;
     }
     vifUploadAt16(0x177f5e0);
     vifObjectMatrix(auStack_70);
@@ -129,6 +132,7 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177f324 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x5410))) * 0x18)));
   }
   vifCallModel(iVar3 + 0x10);
+  return 0;
 }
 
 

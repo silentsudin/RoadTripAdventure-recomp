@@ -22,6 +22,7 @@ uint32_t scePadGetButtonMask(uint32_t param_1, uint32_t param_2, ...) {
       iVar2 = 0;
     }
   }
+  return iVar2;
 }
 
 

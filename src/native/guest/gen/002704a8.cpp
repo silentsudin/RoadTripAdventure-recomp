@@ -11,6 +11,7 @@ uint32_t sceDmaPutStallAddr(uint32_t param_1, ...) {
   if (param_1 != -1) {
     REG_DMAC_STADR = (int)param_1;
   }
+  return uVar1;
 }
 
 

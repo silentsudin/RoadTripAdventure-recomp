@@ -39,7 +39,9 @@ uint32_t sceSifInitRpc(uint32_t q0, ...) {
       lVar1 = sifCmdGetFlag(0);
     } while (lVar1 == 0);
     sceSifSetReg(0xffffffff80000002,1);
+    return 0;
   }
+  return 0;
 }
 
 

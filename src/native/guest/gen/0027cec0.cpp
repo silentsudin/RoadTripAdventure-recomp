@@ -50,6 +50,7 @@ uint32_t aiStack_30 = rtguest::allocFrame(16);
     iVar2 = decode_uleb128(pbVar3,aiStack_30);
     pbVar3 = (uint32_t)(iVar2 + (*(int32_t*)rtguest::G((uint32_t)aiStack_30 + (uint32_t)(0) * 4)));
   }
+  return pbVar3;
 }
 
 

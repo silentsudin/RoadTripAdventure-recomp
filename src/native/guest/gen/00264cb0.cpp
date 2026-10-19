@@ -25,6 +25,7 @@ uint32_t acStack_50 = rtguest::allocFrame(48);
   __src = (uint32_t)GetSlotDataPtr(0,0);
   (uint32_t)(uintptr_t)(::strcpy((char *)rtguest::G((uint32_t)(pcVar1)), (char *)rtguest::G((uint32_t)(__src))));
   pcVar1 = (uint32_t)(uintptr_t)(::strcat((char *)rtguest::G((uint32_t)(param_1)), (char *)rtguest::G((uint32_t)(acStack_50))));
+  return pcVar1;
 }
 
 

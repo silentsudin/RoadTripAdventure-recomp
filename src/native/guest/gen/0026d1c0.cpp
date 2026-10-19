@@ -38,6 +38,7 @@ uint32_t AdvanceDayCycleStep(uint32_t param_1, uint32_t param_2, ...) {
     uVar4 = gs_tasks_spawn(param_1,0x26ca48,cVar3);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) = uVar4;
   }
+  return 0;
 }
 
 

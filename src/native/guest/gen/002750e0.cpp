@@ -12,6 +12,7 @@ uint32_t puVar3;
   
   if (param_2 == 1.0) {
     puVar3 = (uint32_t)atanf();
+    return puVar3;
   }
   uVar2 = (uint32_t)param_1 >> 0x1f | (int)param_2 >> 0x1e & 2U;
   if ((uint32_t)ABS((float)param_1) < 0x800000) {
@@ -19,6 +20,7 @@ uint32_t puVar3;
       return (uint32_t)0x40490fda;
     }
     if (uVar2 < 3) {
+      return param_1;
     }
     if (uVar2 == 3) {
       return (uint32_t)0xc0490fda;
@@ -43,6 +45,7 @@ uint32_t puVar3;
     else {
       if (uVar2 < 2) {
         if (uVar2 == 0) {
+          return puVar3;
         }
       }
       else if (uVar2 == 2) {
@@ -51,6 +54,7 @@ uint32_t puVar3;
       puVar3 = (uint32_t)(((float)puVar3 - 1.5099579e-07) - 3.1415925);
     }
   }
+  return puVar3;
 }
 
 

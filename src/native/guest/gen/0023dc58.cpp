@@ -21,6 +21,7 @@ uint32_t SpendTimerBudget(uint32_t param_1, uint32_t param_2, ...) {
       uVar1 = 0;
     }
   }
+  return uVar1;
 }
 
 

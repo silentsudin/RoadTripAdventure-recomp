@@ -34,6 +34,7 @@ uint32_t psVar5;
       return 0;
     }
   }
+  return 0;
 }
 
 

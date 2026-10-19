@@ -11,6 +11,7 @@ uint32_t CheckSlotPresence(uint32_t q0, ...) {
   if (((*(int8_t*)rtguest::G(0x177fdd4)) != '\0') && (uVar1 = 2, (*(int8_t*)rtguest::G(0x177fdd6)) != '\0')) {
     uVar1 = 0;
   }
+  return uVar1;
 }
 
 

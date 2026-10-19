@@ -35,6 +35,7 @@ uint32_t auStack_30 = rtguest::allocFrame(16);
   else if (cVar1 == '\x18') {
     buildCamera(0x177e6d0 + (uVar2 & 1) * 400,0x29cca0,0,0);
   }
+  return 0;
 }
 
 

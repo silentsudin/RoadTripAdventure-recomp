@@ -33,6 +33,7 @@ uint32_t puVar4;
     bVar2 = true;
 LAB_0021f070:
     if (!bVar2) {
+      return 0;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = 0;
     pcVar3 = (*(uint8_t*)rtguest::G(0x21ee98));
@@ -44,6 +45,7 @@ LAB_0021f070:
     pcVar3 = (*(uint8_t*)rtguest::G(0x21e328));
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = pcVar3;
+  return 0;
 }
 
 

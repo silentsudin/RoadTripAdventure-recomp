@@ -18,13 +18,16 @@ uint32_t auStack_20 = rtguest::allocFrame(16);
     return 0;
   }
   if ((*(uint32_t*)rtguest::G((uint32_t)uStack_40)) < 2) {
+    return 0;
   }
   if ((*(uint32_t*)rtguest::G((uint32_t)uStack_40)) != 4) {
     if ((*(int32_t*)rtguest::G((uint32_t)iStack_38)) < 0) {
+      return 0;
     }
     if ((*(int32_t*)rtguest::G((uint32_t)iStack_38)) < 0x1f) {
       iVar1 = (int)((*(uint64_t*)rtguest::G((uint32_t)uStack_30)) >> (long)(0x3c - (*(int32_t*)rtguest::G((uint32_t)iStack_38))));
       if ((*(int32_t*)rtguest::G((uint32_t)iStack_3c)) == 0) {
+        return iVar1;
       }
       return -iVar1;
     }
@@ -33,6 +36,7 @@ uint32_t auStack_20 = rtguest::allocFrame(16);
   if ((*(int32_t*)rtguest::G((uint32_t)iStack_3c)) != 0) {
     iVar1 = -0x80000000;
   }
+  return iVar1;
 }
 
 

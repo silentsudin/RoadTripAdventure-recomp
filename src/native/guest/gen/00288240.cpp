@@ -31,6 +31,7 @@ uint32_t sceSifRemoveRpc(uint32_t param_1, uint32_t param_2, ...) {
   }
 LAB_002882b0:
   EIntr();
+  return iVar3;
 }
 
 

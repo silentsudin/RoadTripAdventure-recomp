@@ -32,6 +32,7 @@ uint32_t puVar1;
   }
   else if (param_3 < 2) {
     if (param_3 != 0) {
+      return 0;
     }
     iVar2 = (*(uint32_t*)rtguest::G(0x335684));
     if (((*(uint32_t*)rtguest::G(0x335688)) != 2) && ((*(uint32_t*)rtguest::G(0x335688)) = 2, (*(uint32_t*)rtguest::G(0x335684)) < 0xa00)) {
@@ -42,6 +43,7 @@ uint32_t puVar1;
       (*(uint64_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(1) * sizeof(uint64_t))) = 0x16;
     }
     if (0x9fb < iVar2) {
+      return 0;
     }
     uVar4 = 0x118;
     uVar5 = 0x54;
@@ -51,6 +53,7 @@ uint32_t puVar1;
   }
   else {
     if (param_3 != 2) {
+      return 0;
     }
     iVar2 = (*(uint32_t*)rtguest::G(0x335684));
     if (((*(uint32_t*)rtguest::G(0x335688)) != 5) && ((*(uint32_t*)rtguest::G(0x335688)) = 5, (*(uint32_t*)rtguest::G(0x335684)) < 0xa00)) {
@@ -61,6 +64,7 @@ uint32_t puVar1;
       (*(uint64_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(1) * sizeof(uint64_t))) = 0x16;
     }
     if (0x9fb < iVar2) {
+      return 0;
     }
     uVar4 = 0xdc;
     uVar5 = 0x22;
@@ -70,6 +74,7 @@ uint32_t puVar1;
   }
   uiSpriteWrite(iVar2,param_1,param_2,uVar3,uVar4,uVar5,uVar6);
   (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
+  return 0;
 }
 
 

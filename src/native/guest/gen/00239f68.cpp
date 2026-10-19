@@ -27,6 +27,7 @@ uint32_t pcVar3;
       PlayBgmSlot6();
       return 0;
     }
+    return 0;
   }
   pcVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c)));
   uVar5 = uiMenuCreate();
@@ -71,6 +72,7 @@ LAB_0023a0b0:
   SetFlaggedSlotBit((*(int8_t*)rtguest::G((uint32_t)pcVar3)),cVar1,0);
   PlayBgmSlot3();
   PlayUiSound(0x302);
+  return 0;
 }
 
 

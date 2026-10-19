@@ -55,6 +55,7 @@ uint32_t vu0DropShadowMatrix(uint32_t param_1, uint32_t param_2, uint32_t param_
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(6) * sizeof(float))) = fVar1 * param_2 * fVar5;
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(10) * sizeof(float))) = fVar1 * (param_3 * fVar5 - fVar2);
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0xe) * sizeof(float))) = fVar1 * -fVar5;
+  return 0;
 }
 
 

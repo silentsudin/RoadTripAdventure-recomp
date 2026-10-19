@@ -52,6 +52,7 @@ joined_r0x0027e710:
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)puVar6)) = uVar1;
     puVar6 = (uint32_t)((int)puVar6 + 1);
   }
+  return __dest;
 }
 
 

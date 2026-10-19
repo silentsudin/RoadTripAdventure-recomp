@@ -61,6 +61,7 @@ uint32_t pfVar3;
       }
     }
   }
+  return uVar4;
 }
 
 

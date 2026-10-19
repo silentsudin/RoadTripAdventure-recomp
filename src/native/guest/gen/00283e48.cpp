@@ -61,6 +61,7 @@ uint32_t puVar8;
   }
   (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar1 + 0x10))) = iVar10 + -1;
   _Bfree(param_1,param_2);
+  return uVar1;
 }
 
 

@@ -33,6 +33,7 @@ uint32_t sceSifLoadIopHeap(uint32_t param_1, uint32_t param_2, ...) {
       uVar2 = 0xffffffff;
     }
   }
+  return uVar2;
 }
 
 

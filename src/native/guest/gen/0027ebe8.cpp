@@ -27,6 +27,7 @@ uint32_t puVar6;
     if (pcVar1 == (uint32_t)0x0) {
       uVar2 = _getpid_r(param_1);
       uVar2 = _kill_r(param_1,uVar2,param_2);
+      return uVar2;
     }
     uVar2 = 0;
     if (pcVar1 != (uint32_t)0x1) {
@@ -45,6 +46,7 @@ uint32_t puVar6;
     uVar2 = 0xffffffffffffffff;
     (*(uint32_t*)rtguest::G((uint32_t)puVar6)) = 0x16;
   }
+  return uVar2;
 }
 
 

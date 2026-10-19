@@ -193,6 +193,7 @@ LAB_00219b40:
   case 4:
   case 6:
     (*(int32_t*)rtguest::G((uint32_t)iStack_90)) = 0x11c7;
+    goto LAB_00219b40;
   case 0xf:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 0x200;
     break;
@@ -232,9 +233,11 @@ LAB_00219c08:
     case 9:
     default:
       gs_controls_rumble_start(param_1,uVar2 & 1,5,0xff);
+      return 0;
     }
     gs_controls_rumble_start(param_1,uVar2 & 1,uVar5,0xff);
   }
+  return 0;
 }
 
 

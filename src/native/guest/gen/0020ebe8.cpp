@@ -32,6 +32,7 @@ uint32_t SpawnGameViewTasks(uint32_t param_1, uint32_t param_2, ...) {
   SetTaskFlag(uVar1);
   uVar1 = gs_tasks_spawn(param_1,0x221300,2);
   SetTaskFlag(uVar1);
+  return 0;
 }
 
 

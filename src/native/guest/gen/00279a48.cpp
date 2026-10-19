@@ -27,6 +27,7 @@ uint32_t sceMcGetSlotMax(uint32_t param_1, ...) {
       SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
     }
   }
+  return iVar1;
 }
 
 

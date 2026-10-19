@@ -62,6 +62,7 @@ uint32_t apcStack_5c = rtguest::allocFrame(12);
   iVar3 = (int)(*(uint32_t*)rtguest::G((uint32_t)apcStack_5c + (uint32_t)(0) * 4)) - (int)pcVar5;
 LAB_00280f50:
   (*(int32_t*)rtguest::G((uint32_t)param_8)) = iVar3;
+  return uVar6;
 }
 
 

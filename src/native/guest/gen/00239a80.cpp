@@ -63,9 +63,11 @@ uint32_t pbVar12;
   }
   lVar11 = uiMenuRun(iVar4);
   if (lVar11 == 0) {
+    return 0;
   }
   if (lVar11 == -2) {
     gs_tasks_kill(param_1);
+    return 0;
   }
   if (lVar11 == -1) {
 LAB_00239c88:
@@ -75,6 +77,7 @@ LAB_00239c88:
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = (uint32_t)bVar2;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = 2;
+    return 0;
   }
   cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xd)));
   if ((long)cVar8 == (long)(int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xb))) - 1)) goto LAB_00239c88;
@@ -84,16 +87,20 @@ LAB_00239c88:
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) | 0x80;
     if ((*(uint8_t*)rtguest::G((uint32_t)0x2bddd3 + (uint32_t)(((int)cVar8 + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2)))) * 0x10) * 1)) == '\x01') {
       gs_tasks_spawn(param_1,0x23bb00,0x2ec5e8);
+      return 0;
     }
     if ((*(uint8_t*)rtguest::G((uint32_t)0x2bddd3 + (uint32_t)(((int)cVar8 + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2)))) * 0x10) * 1)) != '\x02') {
       gs_tasks_spawn(param_1,0x23bb00,0x2ec618);
+      return 0;
     }
     gs_tasks_spawn(param_1,0x23bb00,0x2ec600);
+    return 0;
   }
   if (((int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xd))) + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2))) == 0x19) &&
      (lVar11 = TestStateBitFc78(100), lVar11 == 0)) {
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) | 0x80;
     gs_tasks_spawn(param_1,0x23bb00,0x2ec638);
+    return 0;
   }
   PlayUiSound(0x1a);
   iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x18)));
@@ -113,6 +120,7 @@ LAB_00239c88:
 LAB_00239ee4:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) = 0x2bddd0 + (uint32_t)bVar2 * 0x10;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = 2;
+  return 0;
 }
 
 

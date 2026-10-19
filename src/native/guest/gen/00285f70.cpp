@@ -19,6 +19,7 @@ uint32_t iRotateThreadReadyQueue(uint32_t param_1, ...) {
   else {
     param_1 = 0xffffffff;
   }
+  return param_1;
 }
 
 

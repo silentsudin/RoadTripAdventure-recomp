@@ -11,6 +11,7 @@ uint32_t CountSetBits(uint32_t param_1, ...) {
   for (; param_1 != 0; param_1 = param_1 >> 1) {
     iVar1 = iVar1 + (param_1 & 1);
   }
+  return iVar1;
 }
 
 

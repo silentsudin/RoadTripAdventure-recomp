@@ -13,6 +13,7 @@ uint32_t pcVar1;
     goto LAB_0027971c;
   case 2:
     pcVar1 = (*(uint32_t*)rtguest::G(0x2e8988));
+    goto LAB_0027971c;
   case 3:
     pcVar1 = (*(uint32_t*)rtguest::G(0x2e898c));
 LAB_0027971c:
@@ -20,14 +21,17 @@ LAB_0027971c:
       return 0;
     }
     rtCall(pcVar1);
+    return 0;
   case 0xb:
     if ((*(uint32_t*)rtguest::G(0x2e8990)) != (uint32_t)0x0) {
       rtCall((*(uint32_t*)rtguest::G(0x2e8990)), 0, (*(uint32_t*)rtguest::G(0x2e899c)));
+      return 0;
     }
     break;
   case 0xc:
     if ((*(uint32_t*)rtguest::G(0x2e8994)) != (uint32_t)0x0) {
       rtCall((*(uint32_t*)rtguest::G(0x2e8994)), 1, (*(uint32_t*)rtguest::G(0x2e89a0)));
+      return 0;
     }
     break;
   case 0xd:
@@ -35,6 +39,7 @@ LAB_0027971c:
       rtCall((*(uint32_t*)rtguest::G(0x2e8998)), (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint32_t))), (*(uint32_t*)rtguest::G(0x2e89a4)));
     }
   }
+  return 0;
 }
 
 

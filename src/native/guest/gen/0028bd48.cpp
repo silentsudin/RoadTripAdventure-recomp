@@ -19,6 +19,7 @@ uint32_t sceSifAllocSysMemory(uint32_t param_1, uint32_t param_2, uint32_t param
       uVar1 = 0;
     }
   }
+  return uVar1;
 }
 
 

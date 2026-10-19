@@ -16,6 +16,7 @@ uint32_t FindSetBitRank(uint32_t param_1, uint32_t param_2, ...) {
   for (param_1 = param_1 & uVar1 - 1; param_1 != 0; param_1 = param_1 >> 1) {
     iVar2 = iVar2 + (param_1 & 1);
   }
+  return iVar2;
 }
 
 

@@ -74,6 +74,7 @@ uint32_t afStack_3c = rtguest::allocFrame(28);
     }
     iVar3 = __kernel_rem_pio2f(fStack_40,param_2,iVar1 + -0x86,iVar3,2,0x331560);
     if (-1 < (int)param_1) {
+      return iVar3;
     }
     fVar5 = (*(float*)rtguest::G((uint32_t)pfVar4));
     fVar6 = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(1) * sizeof(float)));
@@ -112,6 +113,7 @@ LAB_00275584:
   fVar6 = (fVar7 - fVar5) - fVar6;
   (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(1) * sizeof(float))) = fVar6;
   if (-1 < (int)param_1) {
+    return iVar3;
   }
 LAB_0027566c:
   (*(float*)rtguest::G((uint32_t)pfVar4)) = -fVar5;

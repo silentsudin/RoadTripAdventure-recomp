@@ -79,12 +79,14 @@ uint32_t puStack_9c;
       pcVar19 = 0x332198u;
     }
     if (puStack_9c == (uint32_t)0x0) {
+      return pcVar19;
     }
     pcVar20 = pcVar19 + 8;
     if ((*(int8_t*)rtguest::G((uint32_t)pcVar19 + (uint32_t)(3) * sizeof(int8_t))) == '\0') {
       pcVar20 = pcVar19 + 3;
     }
     (*(uint32_t*)rtguest::G((uint32_t)puStack_9c)) = pcVar20;
+    return pcVar19;
   }
   lVar4 = dpcmp(param_2,0);
   if (lVar4 == 0) {
@@ -93,6 +95,7 @@ uint32_t puStack_9c;
       return 0x200261u;
     }
     (*(uint32_t*)rtguest::G((uint32_t)puStack_9c)) = 0x00332399;
+    return 0x200261u;
   }
   (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = _d2b(param_1,param_2,iStack_b0,iStack_ac);
   iVar13 = (*(int32_t*)rtguest::G((uint32_t)iStack_ac));
@@ -375,6 +378,7 @@ LAB_002824f8:
           if ((lVar4 < 0) || (((lVar4 == 0 && ((*(uint32_t*)rtguest::G((uint32_t)uStack_a8)) == 0)) && ((param_2 & 1) == 0)))) {
             if (lVar14 < 1) {
               (*(int8_t*)rtguest::G((uint32_t)pcVar20)) = cVar10;
+              goto LAB_00282620;
             }
             uVar5 = _lshift(param_1,(*(uint32_t*)rtguest::G((uint32_t)uStack_6c)),1);
             (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = (uint32_t)uVar5;
@@ -382,17 +386,21 @@ LAB_002824f8:
             if (lVar4 < 1) {
               if (lVar4 != 0) {
                 (*(int8_t*)rtguest::G((uint32_t)pcVar20)) = cVar10;
+                goto LAB_00282620;
               }
               if ((uVar17 & 1) == 0) {
                 (*(int8_t*)rtguest::G((uint32_t)pcVar20)) = cVar10;
+                goto LAB_00282620;
               }
             }
             if (iVar13 + 0x31 == 0x3a) goto LAB_002824f8;
             (*(int8_t*)rtguest::G((uint32_t)pcVar20)) = (char)(iVar13 + 0x31);
+            goto LAB_00282620;
           }
           if (0 < lVar14) {
             if (uVar17 == 0x39) goto LAB_002824f8;
             (*(int8_t*)rtguest::G((uint32_t)pcVar20)) = cVar10 + '\x01';
+            goto LAB_00282620;
           }
           (*(int8_t*)rtguest::G((uint32_t)pcVar20)) = cVar10;
           pcVar20 = pcVar20 + 1;
@@ -441,6 +449,7 @@ LAB_002825c8:
           pcVar20 = pcVar20 + -1;
           if ((*(int8_t*)rtguest::G((uint32_t)pcVar20)) != '9') {
             (*(int8_t*)rtguest::G((uint32_t)pcVar20)) = (*(int8_t*)rtguest::G((uint32_t)pcVar20)) + '\x01';
+            goto LAB_00282620;
           }
         } while (pcVar20 != pcVar19);
         uVar22 = uVar22 + 1;
@@ -575,6 +584,7 @@ LAB_002822c0:
           uVar5 = dpmul(0x4024000000000000,uVar5);
           uVar11 = dpmul(0x4024000000000000,uVar8);
         }
+        goto LAB_00282664;
       }
       uVar17 = 1;
       uVar5 = dpmul((*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x00332428 + (*(uint32_t*)rtguest::G((uint32_t)uStack_90)) * 8))),uVar7);
@@ -605,6 +615,7 @@ LAB_00281eb8:
         uVar12 = uVar12 + 1;
 LAB_00281ee8:
         (*(int8_t*)rtguest::G((uint32_t)pcVar21)) = cVar10 + '\x01';
+        goto LAB_00282664;
       }
       uVar5 = dpsub(0x3fe0000000000000,uVar5);
       lVar4 = dpcmp(uVar8,uVar5);
@@ -614,6 +625,7 @@ LAB_00281ee8:
         for (; (*(int8_t*)rtguest::G((uint32_t)pcVar20)) == '0'; pcVar20 = pcVar20 + -1) {
         }
         pcVar20 = pcVar20 + 1;
+        goto LAB_00282664;
       }
       goto LAB_00281d84;
     }
@@ -646,6 +658,7 @@ LAB_00282664:
   if (puStack_9c != (uint32_t)0x0) {
     (*(uint32_t*)rtguest::G((uint32_t)puStack_9c)) = pcVar20;
   }
+  return pcVar19;
 }
 
 

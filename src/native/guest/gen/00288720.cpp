@@ -143,6 +143,7 @@ LAB_00288a64:
                     /* WARNING: Read-only address (ram,0x21779580) is written */
                     /* WARNING: Read-only address (ram,0x21779588) is written */
                     /* WARNING: Read-only address (ram,0x21779590) is written */
+  return 0;
 }
 
 

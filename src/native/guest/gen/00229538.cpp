@@ -41,10 +41,13 @@ uint32_t ShowSaveCreateSpinner(uint32_t param_1, uint32_t param_2, ...) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) = 0;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) = 2;
+      return 0;
     }
     if (lVar4 != -2) {
+      return 0;
     }
     gs_tasks_kill(param_1);
+    return 0;
   }
   uVar3 = uiMenuCreate();
   if ((*(uint32_t*)rtguest::G(0x333284)) == 1) {
@@ -74,6 +77,7 @@ LAB_00229648:
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x5f))) = 2;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xe))) = 1;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xd))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x24)));
+  return 0;
 }
 
 

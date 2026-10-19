@@ -21,6 +21,7 @@ uint32_t RunFadeOutExitTask(uint32_t param_1, uint32_t param_2, ...) {
   gs_tasks_kill(param_1);
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x50))) = 0x80000000;
   uiFade(0xffffffff80000000);
+  return 0;
 }
 
 

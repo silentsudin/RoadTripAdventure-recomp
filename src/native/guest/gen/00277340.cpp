@@ -42,6 +42,7 @@ uint32_t floor(uint32_t __x, ...) {
     else {
       uVar10 = (uint32_t)(0xfffff >> (uVar6 & 0x1f));
       if ((uVar5 & uVar10) == 0 && uVar8 == 0) {
+        return __x;
       }
       uVar1 = dpadd(__x,0x7e37e43c8800759c);
       lVar2 = dpcmp(uVar1,0);
@@ -57,11 +58,14 @@ uint32_t floor(uint32_t __x, ...) {
   else {
     if (0x33 < (int)uVar6) {
       if (uVar6 != 0x400) {
+        return __x;
       }
       dVar3 = (double)dpadd(__x,__x);
+      return dVar3;
     }
     uVar9 = 0xffffffff >> (uVar9 - 0x413 & 0x1f);
     if ((uVar7 & uVar9) == 0) {
+      return __x;
     }
     uVar1 = dpadd(__x,0x7e37e43c8800759c);
     lVar2 = dpcmp(uVar1,0);

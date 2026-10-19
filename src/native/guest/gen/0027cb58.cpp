@@ -17,6 +17,7 @@ uint32_t search_fdes(uint32_t param_1, uint32_t param_2, ...) {
     param_1 = (uint32_t)((int)param_1 + iVar1 + 4);
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)param_1));
   }
+  return param_1;
 }
 
 

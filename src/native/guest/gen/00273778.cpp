@@ -19,6 +19,7 @@ uint32_t scePadEnd(uint32_t q0, ...) {
       (*(uint32_t*)rtguest::G(0x002e6ec0)) = 0;
     }
   }
+  return iVar1;
 }
 
 

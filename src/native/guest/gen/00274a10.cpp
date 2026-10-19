@@ -14,15 +14,18 @@ uint32_t sinf(uint32_t param_1, ...) {
   (*(uint32_t*)rtguest::G((uint32_t)uStack_20)) = param_1;
   if ((param_1 & 0x7fffffff) < 0x3f490fd9) {
     fVar2 = (float)__kernel_sinf(param_1,0,0);
+    return fVar2;
   }
   uVar1 = __ieee754_rem_pio2f(uStack_30);
   uVar1 = uVar1 & 3;
   if (uVar1 == 1) {
     fVar2 = (float)__kernel_cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_30)),(*(uint32_t*)rtguest::G((uint32_t)uStack_2c)));
+    return fVar2;
   }
   if (uVar1 < 2) {
     if (uVar1 == 0) {
       fVar2 = (float)__kernel_sinf((*(uint32_t*)rtguest::G((uint32_t)uStack_30)),(*(uint32_t*)rtguest::G((uint32_t)uStack_2c)),1);
+      return fVar2;
     }
   }
   else if (uVar1 == 2) {

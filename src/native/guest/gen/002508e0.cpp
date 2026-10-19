@@ -26,8 +26,10 @@ uint32_t pbVar11;
   }
   else {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x22))) == -1) {
+      return 0;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x22))) == '\"') {
+      return 0;
     }
     iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x254)));
   }
@@ -151,6 +153,7 @@ LAB_00250aa8:
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + uVar5))) = (char)uVar7 + -1;
       iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 600)));
       iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x25c)));
+      goto LAB_00250c1c;
     }
   }
 LAB_00250c20:
@@ -208,6 +211,7 @@ LAB_00250c24:
     pbVar11 = (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x25c))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24a))));
     (*(int8_t*)rtguest::G((uint32_t)pbVar11)) = (*(int8_t*)rtguest::G((uint32_t)pbVar11)) | (uint32_t)iVar8;
   }
+  return uVar7;
 }
 
 

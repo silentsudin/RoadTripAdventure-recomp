@@ -36,6 +36,7 @@ uint32_t puVar15;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x28))) = pvVar6;
     pvVar6 = (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(pvVar6)), 0, 0x11230));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x28))) + 0x90f0))) = 0;
+    return pvVar6;
   }
   iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x28)));
   puVar15 = (uint32_t)(iVar4 + 0x90f0);
@@ -140,12 +141,14 @@ LAB_0025a5c0:
       InitHudConfig2(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x90f8))));
       iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x90f4)));
     }
+    goto LAB_0025a86c;
   case 2:
     (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar16 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar16 + 0x28))) & 0xfffffeff | 8;
     (*(uint16_t*)rtguest::G((uint32_t)puVar15)) = 3;
     PlayBgmSlot5();
     iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x90f4)));
+    goto LAB_0025a86c;
   case 3:
     uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) << 0x18);
     if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) < 0x80) {
@@ -214,6 +217,7 @@ switchD_0025a200_caseD_ffff:
     break;
   default:
     iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x90f4)));
+    goto LAB_0025a86c;
   }
   iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x90f4)));
 LAB_0025a86c:
@@ -248,6 +252,7 @@ LAB_0025a86c:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 4))) = 0xffffffff;
     pvVar6 = (uint32_t)gs_tasks_kill(param_1);
   }
+  return pvVar6;
 }
 
 

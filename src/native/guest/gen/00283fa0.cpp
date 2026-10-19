@@ -23,10 +23,12 @@ uint32_t puVar4;
         iVar2 = 1;
       }
       if ((*(uint32_t*)rtguest::G((uint32_t)puVar3)) != (*(uint32_t*)rtguest::G((uint32_t)puVar4))) {
+        return iVar2;
       }
     } while ((uint32_t)(param_1 + 0x14) < puVar3);
     iVar1 = 0;
   }
+  return iVar1;
 }
 
 

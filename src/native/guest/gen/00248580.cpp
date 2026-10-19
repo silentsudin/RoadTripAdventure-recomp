@@ -174,6 +174,7 @@ LAB_002489ac:
           goto LAB_002489b4;
         }
         copyCarModel(uVar7 & 0xff,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))) + 0xd))));
+        goto LAB_002489ac;
       }
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) = 0;
       bVar8 = 0;
@@ -197,6 +198,7 @@ LAB_002489b4:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))) = 0;
     PlayUiSound(0x1b);
   }
+  return 0;
 }
 
 

@@ -23,6 +23,7 @@ uint32_t piVar3;
     iVar1 = 1 << (param_2 & 0x1f);
     piVar2 = (uint32_t)_calloc_r(param_1,1,iVar1 * 4 + 0x14);
     if (piVar2 == (uint32_t)0x0) {
+      return 0;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)piVar2 + 4))) = param_2;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)piVar2 + 8))) = iVar1;

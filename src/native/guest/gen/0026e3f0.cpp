@@ -15,9 +15,9 @@ uint32_t sceGsResetPath(uint32_t q0, ...) {
   _ctc2((uint32_t)uVar1 | 0x200);
   SYNC(0x10);
   REG_VIF1_FIFO = (*(uint32_t*)rtguest::G(0x2dcda0));
-  (*(uint8_t*)rtguest::G(0x10005004)) = (*(uint32_t*)rtguest::G(0x2dcda4));
-  (*(uint8_t*)rtguest::G(0x10005008)) = (*(uint32_t*)rtguest::G(0x2dcda8));
-  (*(uint8_t*)rtguest::G(0x1000500c)) = (*(uint32_t*)rtguest::G(0x2dcdac));
+  (*(uint32_t*)rtguest::G(0x10005004)) = (*(uint32_t*)rtguest::G(0x2dcda4));
+  (*(uint32_t*)rtguest::G(0x10005008)) = (*(uint32_t*)rtguest::G(0x2dcda8));
+  (*(uint32_t*)rtguest::G(0x1000500c)) = (*(uint32_t*)rtguest::G(0x2dcdac));
   REG_GIF_CTRL = 1;
   return 0;
 }

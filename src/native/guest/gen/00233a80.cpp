@@ -178,6 +178,7 @@ LAB_00233de0:
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) = 1;
     gs_tasks_kill(param_1);
   }
+  return 0;
 }
 
 

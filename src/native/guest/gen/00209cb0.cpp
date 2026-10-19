@@ -64,11 +64,13 @@ uint32_t RunMenuNavigationTask(uint32_t param_1, uint32_t param_2, ...) {
   }
   lVar4 = uiMenuRun(iVar2,param_2);
   if (lVar4 != 1) {
+    return 0;
   }
   switch((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)))) {
   case 0:
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x30))) & 0x40) == 0) {
       PlayUiSound(0x1c);
+      return 0;
     }
     PlayUiSound(0x1a);
     gs_tasks_kill(param_1);
@@ -80,6 +82,7 @@ uint32_t RunMenuNavigationTask(uint32_t param_1, uint32_t param_2, ...) {
   case 1:
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x30))) & 0x40) == 0) {
       PlayUiSound(0x1c);
+      return 0;
     }
     PlayUiSound(0x1a);
     gs_tasks_kill(param_1);
@@ -89,6 +92,7 @@ uint32_t RunMenuNavigationTask(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 10))) = 1;
 LAB_0020a028:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 0x400000;
+    return 0;
   case 2:
     if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) & 2) != 0) {
       PlayUiSound(0x1a);
@@ -98,6 +102,7 @@ LAB_0020a028:
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) = 2;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 10))) = 2;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 0x400000;
+      return 0;
     }
     PlayUiSound(0x1a);
     uVar3 = 0x2092d8;
@@ -115,6 +120,7 @@ LAB_0020a028:
 LAB_0020a0ec:
     if ((uVar1 & 0x40) == 0) {
       PlayUiSound(0x1c);
+      return 0;
     }
     PlayUiSound(0x1a);
     uVar3 = 0x20a580;
@@ -125,6 +131,7 @@ LAB_0020a0ec:
   gs_tasks_spawn(param_1,uVar3,0);
   (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) | 0x80;
 switchD_00209f88_default:
+  return 0;
 }
 
 

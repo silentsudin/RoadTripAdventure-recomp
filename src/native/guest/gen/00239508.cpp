@@ -60,8 +60,10 @@ uint32_t piVar6;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xc))) = (*(uint8_t*)rtguest::G(0x239748));
       ShowSequencedMessages(param_1,param_2);
       PlayUiSound(0x1b);
+      return 0;
     }
   }
+  return 0;
 }
 
 

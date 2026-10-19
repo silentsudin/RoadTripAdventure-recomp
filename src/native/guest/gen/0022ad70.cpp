@@ -35,6 +35,7 @@ uint32_t ClassifyObjectContext(uint32_t param_1, ...) {
   if (((uVar4 & 0xff00ff00) != 0x9000500) && (uVar3 = 5, (uVar4 & 0xff00ff00) != 0x9000700)) {
     uVar3 = 0;
   }
+  return uVar3;
 }
 
 

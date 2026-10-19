@@ -112,6 +112,7 @@ LAB_0022be88:
   }
   cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0xd)));
   if ((long)cVar1 == (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27)))) {
+    return 0;
   }
 LAB_0022bed4:
   uVar11 = 0;
@@ -137,6 +138,7 @@ LAB_0022bed4:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x20))) = uVar4;
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0xe))) | 0x80;
   }
+  return 0;
 }
 
 

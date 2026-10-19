@@ -259,6 +259,7 @@ LAB_0027c610:
     free((uint32_t)(*(int32_t*)rtguest::G((uint32_t)piVar23)));
     lVar10 = (long)(*(int32_t*)rtguest::G((uint32_t)piVar9));
   }
+  return lVar10;
 }
 
 

@@ -76,11 +76,13 @@ uint32_t puVar11;
     }
     else {
       if ((*(uint32_t*)rtguest::G(0x3356c0)) != 2) {
+        return 0;
       }
       (*(uint32_t*)rtguest::G(0x3356c0)) = 0xffffffff;
     }
     uVar6 = 0;
   }
+  return uVar6;
 }
 
 

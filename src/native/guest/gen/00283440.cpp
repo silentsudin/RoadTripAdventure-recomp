@@ -59,6 +59,7 @@ LAB_002834fc:
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3))) | 1;
     }
   }
+  return 0;
 }
 
 

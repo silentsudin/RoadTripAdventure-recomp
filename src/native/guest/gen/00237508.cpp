@@ -71,6 +71,7 @@ LAB_002375e8:
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xc))) = (*(uint8_t*)rtguest::G(0x2364b0));
   DrawLicenseResultsScreen(param_1,param_2);
+  return 0;
 }
 
 

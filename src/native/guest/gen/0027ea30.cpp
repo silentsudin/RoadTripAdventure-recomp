@@ -32,6 +32,7 @@ uint32_t puVar1;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_10)) = in_t2;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_8)) = in_t3;
   iVar2 = vfprintf((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 8))),__format,uStack_38);
+  return iVar2;
 }
 
 

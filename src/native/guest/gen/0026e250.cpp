@@ -41,7 +41,9 @@ uint32_t puVar2;
     (*(uint16_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint16_t))) = param_3;
     (*(uint16_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(3) * sizeof(uint16_t))) = (uint32_t)((uint32_t)uVar1 >> 0x10) & 0xff;
     SetGsCrt(param_2 & 1,param_3 & 0xff,param_4 & 1);
+    return 0;
   }
+  return 0;
 }
 
 

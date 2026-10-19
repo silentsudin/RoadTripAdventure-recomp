@@ -62,6 +62,7 @@ uint32_t pcVar5;
     while( true ) {
       if ((long)(int)cVar6 == 0) {
         (*(int8_t*)rtguest::G((uint32_t)pcVar3)) = '\0';
+        return param_1;
       }
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)pcVar5));
       pcVar5 = pcVar5 + 1;
@@ -74,6 +75,7 @@ uint32_t pcVar5;
     }
   } while ((long)(int)cVar6 != (long)cVar1);
   (*(int8_t*)rtguest::G((uint32_t)pcVar3)) = '\0';
+  return param_1;
 }
 
 

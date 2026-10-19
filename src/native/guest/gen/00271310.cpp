@@ -64,6 +64,7 @@ LAB_002714f4:
           while( true ) {
             pbVar5 = pbVar5 + 1;
             if (uVar4 == 0) {
+              return iVar7;
             }
             if (uVar4 == 0x1b) {
               (*(int8_t*)rtguest::G((uint32_t)abStack_4bf + (uint32_t)(0) * 1)) = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
@@ -76,38 +77,47 @@ LAB_002713d4:
                   bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
                   pbVar5 = pbVar5 + 1;
                   if (bVar1 == 0) {
+                    return iVar7;
                   }
                   uVar4 = uVar4 << 8 | (uint32_t)bVar1;
                 }
+                goto LAB_002714f4;
               }
               bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
               pbVar5 = pbVar5 + 1;
               if (bVar1 == 0) {
+                return iVar7;
               }
               if (iVar6 == 1) {
                 uVar4 = charCodeToTileCoord();
+                goto LAB_002714f4;
               }
               if (iVar6 != 0) {
                 if (iVar6 == 2) {
                   uVar4 = xorHighBitPair();
                 }
+                goto LAB_002714f4;
               }
               if (0x9f < uVar4) {
                 if (0xf < (uVar4 - 0xe0 & 0xffff)) {
                   iVar6 = 2;
                   uVar4 = xorHighBitPair();
+                  goto LAB_002714f4;
                 }
                 if (0xa0 < bVar1) {
                   iVar6 = 0;
                   uVar4 = xorHighBitPair();
+                  goto LAB_002714f4;
                 }
               }
               iVar6 = 1;
               uVar4 = charCodeToTileCoord();
+              goto LAB_002714f4;
             }
             bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
             pbVar5 = pbVar5 + 1;
             if (bVar1 == 0) {
+              return iVar7;
             }
             if ((uint32_t)(bVar1 - 0x30) < 8) break;
             if (bVar1 == 0x26) goto LAB_002714f4;
@@ -120,6 +130,7 @@ LAB_002713d4:
       } while( true );
     }
   }
+  return iVar7;
 }
 
 

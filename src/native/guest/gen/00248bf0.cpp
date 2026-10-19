@@ -98,6 +98,7 @@ uint32_t UpdateCarouselSubMenu(uint32_t param_1, uint32_t param_2, ...) {
   else {
     if (lVar5 != -1) {
       cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
+      goto LAB_00248e3c;
     }
     bVar2 = 2;
 LAB_00248e34:
@@ -108,8 +109,10 @@ LAB_00248e3c:
   if (cVar3 == '\0') {
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x30))) & 0x10) == 0) {
       if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x32))) & 0x10) == 0) {
+        return 0;
       }
       if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 10))) & 2) == 0) {
+        return 0;
       }
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x18)));
     }
@@ -122,6 +125,7 @@ LAB_00248e3c:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8))) = 0;
     PlayUiSound(0x1b);
   }
+  return 0;
 }
 
 

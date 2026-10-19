@@ -14,6 +14,7 @@ uint32_t scePadGetModVersion(uint32_t q0, ...) {
   if (lVar2 < 0) {
     uVar1 = 0;
   }
+  return uVar1;
 }
 
 

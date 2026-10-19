@@ -39,11 +39,13 @@ uint32_t raceSummaryScene(uint32_t param_1, uint32_t param_2, ...) {
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2))) = 0x8000;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))) = 0xfffff800;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 3;
+      goto switchD_0026728c_caseD_4;
     }
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x30))) & 0x10) != 0) {
       PlayUiSound(0x1b);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 4;
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) & 0xfd | 1;
+      goto switchD_0026728c_caseD_4;
     }
     bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
     break;
@@ -107,9 +109,11 @@ switchD_0026728c_caseD_4:
           iVar7 = raceSummaryDrawSkiJumpRow(0x32,iVar7 + 0x18);
           raceSummaryDrawCurlingRow(0x32,iVar7 + 0x18);
           bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+          goto LAB_0026789c;
         }
         if (uVar5 != 0x1b) {
           bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+          goto LAB_0026789c;
         }
       }
       else {
@@ -117,6 +121,7 @@ switchD_0026728c_caseD_4:
         if (uVar5 < 0x1a) {
           DrawRaceSummaryRow(uVar5,uVar5 - (uVar5 & 0x3fe),param_2);
           bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+          goto LAB_0026789c;
         }
         uVar9 = 0x15e;
         if ((uVar5 & 1) == 0) {
@@ -127,9 +132,11 @@ switchD_0026728c_caseD_4:
           iVar7 = raceSummaryDrawSkiJumpRow(uVar9,iVar7 + 0x18);
           raceSummaryDrawCurlingRow(uVar9,iVar7 + 0x18);
           bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+          goto LAB_0026789c;
         }
         if (uVar6 != 0xc) {
           bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+          goto LAB_0026789c;
         }
       }
     }
@@ -155,6 +162,7 @@ switchD_0026728c_caseD_4:
       if (uVar5 < 0x1a) {
         DrawRaceSummaryRow(uVar5,uVar5 - (uVar5 & 0x3fe),param_2);
         bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026789c;
       }
       uVar9 = 0x15e;
       if ((uVar5 & 1) == 0) {
@@ -165,9 +173,11 @@ switchD_0026728c_caseD_4:
         iVar7 = raceSummaryDrawSkiJumpRow(uVar9,iVar7 + 0x18);
         raceSummaryDrawCurlingRow(uVar9,iVar7 + 0x18);
         bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026789c;
       }
       if (uVar6 != 0xd) {
         bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026789c;
       }
     }
   }
@@ -178,6 +188,7 @@ switchD_0026728c_caseD_4:
       if (iVar7 < 0x1a) {
         DrawRaceSummaryRow(iVar7,0,param_2);
         bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026789c;
       }
       uVar9 = 0x32;
       if (uVar6 == 0xe) {
@@ -185,9 +196,11 @@ switchD_0026728c_caseD_4:
         iVar7 = raceSummaryDrawSkiJumpRow(0x32,iVar7 + 0x18);
         raceSummaryDrawCurlingRow(0x32,iVar7 + 0x18);
         bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026789c;
       }
       if (uVar6 * 2 != 0x1d) {
         bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026789c;
       }
     }
     else {
@@ -195,6 +208,7 @@ switchD_0026728c_caseD_4:
       if (uVar5 < 0x1a) {
         DrawRaceSummaryRow(uVar5,uVar5 - (uVar5 & 0x3fe),param_2);
         bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026789c;
       }
       uVar9 = 0x15e;
       if ((uVar5 & 1) == 0) {
@@ -205,9 +219,11 @@ switchD_0026728c_caseD_4:
         iVar7 = raceSummaryDrawSkiJumpRow(uVar9,iVar7 + 0x18);
         raceSummaryDrawCurlingRow(uVar9,iVar7 + 0x18);
         bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026789c;
       }
       if (uVar6 != 0xd) {
         bVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026789c;
       }
     }
   }

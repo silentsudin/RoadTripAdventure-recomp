@@ -89,6 +89,7 @@ LAB_0021a3f0:
     iVar7 = iVar7 + -1;
     if (iVar7 < -0x20) {
       lVar9 = -0x20;
+      goto LAB_0021a450;
     }
     iVar8 = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x242)));
   }
@@ -227,6 +228,7 @@ LAB_0021a6cc:
     sVar4 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1d2)));
     if (sVar2 != 0) {
       iVar7 = ((int)sVar2 * (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1b8)))) / 0x28be;
+      goto LAB_0021a7a4;
     }
   }
   else {

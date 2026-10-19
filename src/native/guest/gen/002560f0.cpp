@@ -127,6 +127,7 @@ LAB_002561f4:
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) == '\0') {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = 3;
       cVar2 = '\0';
+      goto LAB_00256470;
     }
     uVar3 = (*(uint32_t*)rtguest::G((uint32_t)param_3));
     uVar6 = uVar3 >> 0x14 & 0xf;
@@ -143,6 +144,7 @@ LAB_002561f4:
     uVar3 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 5))) + iVar7;
     if (0xb < uVar3) {
       cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
+      goto LAB_00256470;
     }
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 5))) = (char)uVar3;
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 3))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 3))) + (char)lVar8;
@@ -150,12 +152,14 @@ LAB_002561f4:
       PlayUiSound(0x1d);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = 1;
     }
+    goto switchD_002561a0_default;
   case 8:
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30))) & 0xa000) != 0) {
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) ^ 1;
       goto LAB_00256464;
     }
   default:
+    goto switchD_002561a0_default;
   }
   (*(uint32_t*)rtguest::G((uint32_t)param_3)) = uVar3 & uVar1 | uVar6;
 switchD_002561a0_default:

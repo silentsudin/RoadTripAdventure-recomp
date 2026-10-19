@@ -80,6 +80,7 @@ uint32_t puVar4;
       uVar1 = 0xfffefffc;
     }
   }
+  return uVar1;
 }
 
 

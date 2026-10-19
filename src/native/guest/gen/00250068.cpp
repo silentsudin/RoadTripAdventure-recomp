@@ -184,6 +184,7 @@ LAB_0025058c:
       uiDebugText8(300,0x60,0x3344b8,0xf);
     }
   }
+  return bVar1;
 }
 
 

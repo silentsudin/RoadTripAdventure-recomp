@@ -19,6 +19,7 @@ uint32_t textEntrySelectInput(uint32_t param_1, uint32_t param_2, ...) {
           return 1;
         }
         PlayUiSound(0x1c);
+        return 0;
       }
       if ((long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) <
           (long)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c40d8 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) * 0xc)))) {
@@ -29,8 +30,10 @@ uint32_t textEntrySelectInput(uint32_t param_1, uint32_t param_2, ...) {
              (*(uint32_t*)rtguest::G((uint32_t)(0x2c3b10u + (uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) * 4) * 4)));
         (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) = sVar2;
         if (sVar2 != iVar1) {
+          return 0;
         }
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = 0x5b;
+        return 0;
       }
       goto LAB_0025b8e8;
     }
@@ -42,9 +45,11 @@ uint32_t textEntrySelectInput(uint32_t param_1, uint32_t param_2, ...) {
   if (0 < sVar2) {
     PlayUiSound(0x1b);
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) + -1;
+    return 0;
   }
 LAB_0025b8e8:
   PlayUiSound(0x1c);
+  return 0;
 }
 
 

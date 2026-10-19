@@ -35,10 +35,12 @@ uint32_t piVar7;
       gs_tasks_spawn(param_1,0x237388,0);
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 3;
+    return 0;
   }
   if (cVar3 == '\x03') {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x50))) = 0x80000000;
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) == '\0') {
+      return 0;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) | 0x400000;
     GetOrSetPresidentRaceResult((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 4))));
@@ -47,12 +49,14 @@ uint32_t piVar7;
   }
   if (cVar3 == '\x02') {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) == '\0') {
+      return 0;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 0;
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 4))) == -1) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) & 0xffff7fff;
       SoundFadeOutChannels();
       PlayBgmSlot4();
+      return 0;
     }
     GetOrSetPresidentRaceResult(0);
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 10))) == '\0') {
@@ -68,6 +72,7 @@ uint32_t piVar7;
       DestroyTaskRecord(param_1);
       gs_tasks_spawn(param_1,0x237388,0);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 3;
+      return 0;
     }
 LAB_0020f778:
     iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x18)));
@@ -75,8 +80,10 @@ LAB_0020f77c:
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) = 0;
     gs_tasks_kill(param_1);
+    return 0;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xf))) != '\0') {
+    return 0;
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) & 0x10) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) & 0xffffffef | 0x20;
@@ -126,6 +133,7 @@ LAB_0020f77c:
       if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x30))) & 0x800) != 0) {
 LAB_0020f820:
         if ((uVar2 & 0x8000) != 0) {
+          return 0;
         }
         SoundStopAllChannels();
         PlayUiSound(0x1f);
@@ -138,6 +146,7 @@ LAB_0020f820:
         uVar4 = gs_tasks_spawn(param_1,0x26bc08,bVar9);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 2;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) = uVar4;
+        return 0;
       }
       if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 10))) & 2) == 0) {
         cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24)));
@@ -148,6 +157,7 @@ LAB_0020f820:
       }
     }
     if ((cVar3 == '\0') && ((uVar2 & 0x200) == 0)) {
+      return 0;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x50))) = 0x80000000;
     uiFade(0xffffffff80000000);
@@ -167,11 +177,13 @@ LAB_0020f820:
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 4))) = 0;
       gs_tasks_kill(param_1);
+      return 0;
     }
     ResetRaceRanks();
   }
   else {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) == '\0') {
+      return 0;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 10))) == '\0') {
       AccumulateDistanceTotals();
@@ -194,6 +206,7 @@ LAB_0020f7ac:
         RestoreControlStateFromReplay(param_2);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 4;
         sceGsSyncPath(0,0);
+        return 0;
       }
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 10))) == 1) {
         UpdateRaceRecords(param_2);
@@ -204,6 +217,7 @@ LAB_0020f7ac:
         DestroyTaskRecord(param_1);
         uVar8 = 0x237508;
       }
+      goto LAB_0020f908;
     }
     if (0x22 < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x20)))) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) = 0x400000;
@@ -218,6 +232,7 @@ LAB_0020f7ac:
 LAB_0020f908:
   gs_tasks_spawn(param_1,uVar8,0);
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 3;
+  return 0;
 }
 
 

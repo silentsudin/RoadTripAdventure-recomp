@@ -61,6 +61,7 @@ LAB_0023c750:
     (*(uint8_t*)rtguest::G((uint32_t)0x177fd08 + (uint32_t)((*(int32_t*)rtguest::G(0x177fd88))) * 1)) = uVar7;
     (*(int32_t*)rtguest::G(0x177fd88)) = (*(int32_t*)rtguest::G(0x177fd88)) + 1;
   }
+  return uVar8;
 }
 
 

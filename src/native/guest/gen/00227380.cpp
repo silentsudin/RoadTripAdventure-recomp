@@ -76,12 +76,15 @@ uint32_t pcVar4;
   case 0x11:
     uiMenuAddItem(uVar2,0x2eb030,0);
     uVar5 = 0x2eb300;
+    goto LAB_00227694;
   case 0x12:
   case 0x13:
     uVar5 = 0x2eb318;
+    goto LAB_00227694;
   case 0x14:
   case 0x15:
     uVar5 = 0x2eb328;
+    goto LAB_00227694;
   case 0x16:
   case 0x17:
     uiMenuAddItem(uVar2,0x2eb338,0);
@@ -94,12 +97,14 @@ uint32_t pcVar4;
   case 0x19:
     uiMenuAddItem(uVar2,0x2eb378,0);
     uVar5 = 0x2eb398;
+    goto LAB_00227694;
   case 0x1a:
   case 0x1b:
     uVar5 = 0x2eb338;
 LAB_00227694:
     uiMenuAddItem(uVar2,uVar5,0);
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8)));
+    goto LAB_00227720;
   case 0x1c:
   case 0x1d:
     uiMenuAddItem(uVar2,0x2eb318,0);
@@ -109,11 +114,14 @@ LAB_002276c4:
     uiMenuAddItem(uVar2,0x3335e8,0x10);
     uiMenuAddItem(uVar2,0x3335e0,0x10);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xd))) = 1;
+    goto switchD_002273dc_caseD_3;
   case 0x1e:
   case 0x1f:
     uiMenuAddItem(uVar2,0x3335f0,0);
+    goto switchD_002273dc_caseD_3;
   default:
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8)));
+    goto LAB_00227720;
   }
   uVar6 = 0;
 LAB_00227560:
@@ -142,6 +150,7 @@ LAB_00227728:
       return 0;
     }
   }
+  return 0;
 }
 
 

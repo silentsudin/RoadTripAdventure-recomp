@@ -42,8 +42,10 @@ uint32_t pbVar5;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) < 3) {
     DrawRowsAndUpdateState(param_1,param_2);
+    return 0;
   }
   UpdateRankingsAndAdvance(param_1,param_2);
+  return 0;
 }
 
 

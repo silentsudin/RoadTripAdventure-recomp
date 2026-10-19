@@ -15,16 +15,20 @@ uint32_t aiStack_30 = rtguest::allocFrame(16);
   if (bVar1 < 0x70) {
     if (0x4f < bVar1) {
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x3f8))) = bVar1 - 0x50;
+      return lVar2;
     }
     if (bVar1 == 6) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x477))) = 1;
+      return lVar2;
     }
     if (bVar1 == 0x23) {
       lVar2 = decode_uleb128(lVar2,aiStack_30);
       (*(int64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 8))) = (long)(*(int32_t*)rtguest::G((uint32_t)aiStack_30 + (uint32_t)(0) * 4));
+      return lVar2;
     }
 LAB_0027d0d0:
     abort();
+    return extraout_a0;
   }
   if (bVar1 == 0x90) {
     lVar2 = decode_sleb128(lVar2,aiStack_30);
@@ -40,6 +44,7 @@ LAB_0027d0d0:
 LAB_0027d090:
   lVar2 = decode_sleb128(lVar2,aiStack_30);
   (*(int64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) = (long)(*(int32_t*)rtguest::G((uint32_t)aiStack_30 + (uint32_t)(0) * 4));
+  return lVar2;
 }
 
 

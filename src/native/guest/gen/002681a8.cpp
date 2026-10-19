@@ -90,10 +90,12 @@ LAB_002683c8:
       if (((int)(*(uint64_t*)rtguest::G((uint32_t)uStack_60)) >> (uVar7 & 0x1f) & 1U) != 0) {
         iVar5 = iVar1;
       }
+      return iVar5;
     }
     uVar6 = 4;
   }
   iVar1 = CountSetBitsInByteArray(uStack_60,uVar6);
+  return iVar1;
 }
 
 

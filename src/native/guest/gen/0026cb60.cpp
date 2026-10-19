@@ -35,6 +35,7 @@ uint32_t StartAreaIntroDayCycle(uint32_t param_1, uint32_t param_2, ...) {
       gs_tasks_spawn(param_1,0x2082d8,0);
       PlayBgmSlot5();
       cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
+      goto LAB_0026cca4;
     }
     if (sVar1 != 0x34c) {
       if ((cVar3 == '\x02') && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xf))) == '\0')) {
@@ -44,6 +45,7 @@ uint32_t StartAreaIntroDayCycle(uint32_t param_1, uint32_t param_2, ...) {
         PlayBgmSlot1();
         cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
       }
+      goto LAB_0026cca4;
     }
     gs_tasks_kill((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x27))) = 1;

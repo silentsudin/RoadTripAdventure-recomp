@@ -18,6 +18,7 @@ uint32_t ComputeScaledPartValue(uint32_t param_1, uint32_t param_2, uint32_t par
   else {
     iVar1 = (iVar3 * ((iVar1 - iVar2) + 3000)) / 4000;
   }
+  return iVar1;
 }
 
 

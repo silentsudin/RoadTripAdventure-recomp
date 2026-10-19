@@ -15,6 +15,7 @@ uint32_t WrapCoordinate(uint32_t param_1, ...) {
   if (fVar1 < (*(uint32_t*)rtguest::G(0x332b1c))) {
     (*(float*)rtguest::G((uint32_t)param_1)) = fVar1 + (*(uint32_t*)rtguest::G(0x332b20));
   }
+  return 0;
 }
 
 

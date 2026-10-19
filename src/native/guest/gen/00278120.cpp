@@ -15,6 +15,7 @@ uint32_t sceCdPOffCallback(uint32_t param_1, uint32_t param_2, ...) {
   (*(uint32_t*)rtguest::G(0x1773584)) = param_1;
   (*(uint32_t*)rtguest::G(0x1773588)) = param_2;
   EIntr();
+  return uVar1;
 }
 
 

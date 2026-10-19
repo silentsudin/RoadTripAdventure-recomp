@@ -10,10 +10,10 @@ uint32_t puVar1;
   int iVar3;
   int iVar4;
   
-  iVar4 = (int)param_3;
+  iVar4 = (int)(int16_t)param_3;
   puVar1 = (uint32_t)sceGsGetEnv();
-  iVar2 = param_2 + 0x3f;
-  iVar3 = param_2 + 0x7e;
+  iVar2 = (int16_t)param_2 + 0x3f;
+  iVar3 = (int16_t)param_2 + 0x7e;
   if (-1 < iVar2) {
     iVar3 = iVar2;
   }

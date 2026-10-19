@@ -80,6 +80,7 @@ uint32_t puVar2;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8308))) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8308))) = 0x40000000;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8304))) = 0x1e;
+      return 0;
     case -2:
       (*(uint64_t*)rtguest::G((uint32_t)puVar2)) = 0x14000000003;
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x82e8))) = 0xe0;
@@ -101,10 +102,12 @@ uint32_t puVar2;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8308))) = 0x40000000;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8304))) = 0x1e;
+    return 0;
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x830c))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)puVar2)) = 0;
 switchD_002334bc_default:
+  return 0;
 }
 
 

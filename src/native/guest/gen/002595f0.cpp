@@ -95,6 +95,7 @@ LAB_002599a8:
     goto LAB_002599a8;
   default:
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4)));
+    goto LAB_002599ac;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) == '\0') {
     bVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
@@ -156,6 +157,7 @@ LAB_002599ac:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = 0xffffffff;
     gs_tasks_kill(param_1);
   }
+  return 0;
 }
 
 

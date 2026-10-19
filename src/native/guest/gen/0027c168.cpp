@@ -18,6 +18,7 @@ uint32_t decode_uleb128(uint32_t param_1, uint32_t param_2, ...) {
     uVar2 = uVar2 | (bVar1 & 0x7f) << (uVar3 & 0x1f);
   }
   (*(uint32_t*)rtguest::G((uint32_t)param_2)) = uVar2;
+  return param_1;
 }
 
 

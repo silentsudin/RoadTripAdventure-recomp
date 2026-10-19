@@ -94,9 +94,11 @@ uint32_t pfVar6;
     if (cVar2 == '\x01') {
       PlayUiSound(0x307);
       iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
+      goto LAB_002422bc;
     }
     if (cVar2 != '\x02') {
       iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
+      goto LAB_002422bc;
     }
     PlayUiSound(0x308);
   }

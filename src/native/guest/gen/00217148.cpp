@@ -62,11 +62,13 @@ LAB_00217338:
       goto LAB_00217338;
     }
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24)));
+    goto LAB_00217348;
   case 9:
     if ((*(uint32_t*)rtguest::G(0x1727b98)) == 0) {
       (*(uint32_t*)rtguest::G(0x172fc98)) = 0;
       (*(uint32_t*)rtguest::G(0x172fc94)) = 0;
       uVar2 = 0x2665b8;
+      goto LAB_00217338;
     }
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24)));
 LAB_00217348:
@@ -86,6 +88,7 @@ LAB_00217348:
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 0xffffffff;
   gs_tasks_kill(param_1);
+  return 0;
 }
 
 

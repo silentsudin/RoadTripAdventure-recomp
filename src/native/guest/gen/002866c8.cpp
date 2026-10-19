@@ -29,6 +29,7 @@ uint32_t fpDoubleToInt(uint32_t param_1, ...) {
   else {
     iVar1 = (int)(uVar2 << (long)(int)lVar3);
   }
+  return iVar1;
 }
 
 

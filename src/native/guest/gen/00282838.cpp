@@ -16,6 +16,7 @@ uint32_t puVar2;
     (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(2) * sizeof(uint32_t))) = puVar2 + 3;
     (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(puVar2 + 3)), 0, (long)(param_2 * 0x58)));
   }
+  return lVar1;
 }
 
 

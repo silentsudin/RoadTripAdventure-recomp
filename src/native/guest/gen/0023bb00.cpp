@@ -22,7 +22,9 @@ uint32_t ShowMessageAndWait(uint32_t param_1, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 0;
     gs_tasks_kill(param_1);
+    return 0;
   }
+  return 0;
 }
 
 

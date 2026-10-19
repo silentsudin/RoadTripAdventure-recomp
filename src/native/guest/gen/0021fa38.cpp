@@ -19,6 +19,7 @@ uint32_t cellVisible(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) 
       return lVar1 != 0;
     }
   }
+  return true;
 }
 
 

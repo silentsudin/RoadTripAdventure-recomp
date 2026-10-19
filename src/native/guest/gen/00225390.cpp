@@ -46,6 +46,7 @@ uint32_t puVar4;
       (*(uint32_t*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(param_1 * 4) * 4)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)puVar4)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)0x17307f4 + (uint32_t)(iVar2) * 4)) = 0;
+      return 0;
     }
     fVar5 = (float)((*(uint32_t*)rtguest::G((uint32_t)puVar4)) & 0xf);
     (*(uint32_t*)rtguest::G((uint32_t)uStack_44)) = 0x3f800000;
@@ -63,6 +64,7 @@ uint32_t puVar4;
     fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar3))) + 0.0625;
   }
   (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar3))) = fVar5;
+  return 0;
 }
 
 

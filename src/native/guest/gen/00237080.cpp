@@ -88,7 +88,9 @@ uint32_t ppuVar11;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = 0;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = 1;
     PlayUiSound(0x1a);
+    return 0;
   }
+  return 0;
 }
 
 

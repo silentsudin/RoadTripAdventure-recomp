@@ -92,6 +92,7 @@ uint32_t puVar3;
     gs_tasks_kill(param_1);
     return 0;
   }
+  return 0;
 }
 
 

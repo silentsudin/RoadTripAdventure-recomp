@@ -40,6 +40,7 @@ uint32_t fpFormatFloatSci(uint32_t param_1, ...) {
     return 0;
   }
   ::printf((char *)rtguest::G((uint32_t)(0x3325e8)), iVar3);
+  return 0;
 }
 
 

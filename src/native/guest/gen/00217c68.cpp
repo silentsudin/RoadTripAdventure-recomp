@@ -43,6 +43,7 @@ LAB_00217d04:
     else if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1bc))) != 0) {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1e0))) != 0 || (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1e4))) != 0) {
         iVar10 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x208)));
+        goto LAB_00217d38;
       }
       goto LAB_00217d04;
     }
@@ -114,8 +115,10 @@ LAB_00217d4c:
         param_4 = 0;
       }
       SndRpcCmd22(uVar7,2,param_4,uVar2,(int)uVar4 >> 0x10 & 1);
+      return 0;
     }
   }
+  return 0;
 }
 
 

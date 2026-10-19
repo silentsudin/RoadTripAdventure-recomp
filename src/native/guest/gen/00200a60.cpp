@@ -34,6 +34,7 @@ uint32_t puVar2;
   else if (param_3 < 9) {
     if (param_3 == 2) {
       if (0x9fb < (*(uint32_t*)rtguest::G(0x335684))) {
+        return 0;
       }
       iVar3 = ((int)param_2 << 0x11) >> 0x10;
       iVar1 = (*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70;
@@ -44,8 +45,10 @@ uint32_t puVar2;
     }
     else if (param_3 < 3) {
       if (param_3 != 1) {
+        return 0;
       }
       if (0x9fb < (*(uint32_t*)rtguest::G(0x335684))) {
+        return 0;
       }
       iVar3 = ((int)param_2 << 0x11) >> 0x10;
       iVar1 = (*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70;
@@ -56,8 +59,10 @@ uint32_t puVar2;
     }
     else {
       if (param_3 != 4) {
+        return 0;
       }
       if (0x9fb < (*(uint32_t*)rtguest::G(0x335684))) {
+        return 0;
       }
       iVar3 = ((int)param_2 << 0x11) >> 0x10;
       iVar1 = (*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70;
@@ -70,6 +75,7 @@ uint32_t puVar2;
   else {
     if (param_3 == 0x20) {
       if (0x9fb < (*(uint32_t*)rtguest::G(0x335684))) {
+        return 0;
       }
       iVar3 = ((int)param_2 << 0x11) >> 0x10;
       iVar1 = (*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70;
@@ -77,8 +83,10 @@ uint32_t puVar2;
     }
     else if (param_3 < 0x21) {
       if (param_3 != 0x10) {
+        return 0;
       }
       if (0x9fb < (*(uint32_t*)rtguest::G(0x335684))) {
+        return 0;
       }
       iVar3 = ((int)param_2 << 0x11) >> 0x10;
       iVar1 = (*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70;
@@ -86,6 +94,7 @@ uint32_t puVar2;
     }
     else if (param_3 == 0x40) {
       if (0x9fb < (*(uint32_t*)rtguest::G(0x335684))) {
+        return 0;
       }
       iVar3 = ((int)param_2 << 0x11) >> 0x10;
       iVar1 = (*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70;
@@ -93,8 +102,10 @@ uint32_t puVar2;
     }
     else {
       if (param_3 != 0x80) {
+        return 0;
       }
       if (0x9fb < (*(uint32_t*)rtguest::G(0x335684))) {
+        return 0;
       }
       iVar3 = ((int)param_2 << 0x11) >> 0x10;
       iVar1 = (*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70;
@@ -106,6 +117,7 @@ uint32_t puVar2;
   }
   uiSpriteWrite(iVar1,param_1,iVar3,uVar4,uVar5,uVar6,uVar7);
   (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
+  return 0;
 }
 
 

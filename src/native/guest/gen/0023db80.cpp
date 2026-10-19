@@ -11,6 +11,7 @@ uint32_t MatchSlotPairState(uint32_t param_1, uint32_t param_2, ...) {
       (uVar1 = 0, (*(int8_t*)rtguest::G(0x177fdd6)) == param_1)) && (uVar1 = 2, (*(uint32_t*)rtguest::G(0x177fdd7)) != param_2)) {
     uVar1 = 0;
   }
+  return uVar1;
 }
 
 

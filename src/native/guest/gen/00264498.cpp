@@ -129,6 +129,7 @@ uint32_t acStack_90 = rtguest::allocFrame(48);
     else if (bVar1 < 2) {
       if (bVar1 != 0) {
         cVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x26)));
+        goto LAB_00264c5c;
       }
       iVar15 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x28)));
       uiDrawPanel9(100,0x18,0x1b8,0xc,0);
@@ -208,9 +209,11 @@ uint32_t acStack_90 = rtguest::allocFrame(48);
         }
         uiDrawPanel9(0x140 - sVar5,(0x108 - iVar15) / 2,(int)sVar5 << 1,iVar15,0);
         cVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x26)));
+        goto LAB_00264c5c;
       }
       if (bVar1 != 3) {
         cVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x26)));
+        goto LAB_00264c5c;
       }
       lVar7 = (long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 2)));
       if (0 < lVar7) {

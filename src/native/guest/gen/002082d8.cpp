@@ -19,8 +19,10 @@ uint32_t fadeInTask(uint32_t param_1, ...) {
     uiFade((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 8))) << 0x1a);
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 8))) == 0x20) {
       gs_tasks_kill(param_1);
+      return 0;
     }
   }
+  return 0;
 }
 
 

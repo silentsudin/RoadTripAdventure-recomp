@@ -31,6 +31,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     puVar9 = (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))) + 0x8cb0);
     pvVar4 = (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(puVar9)), 0, 0x10));
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 0;
+    return pvVar4;
   }
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
   puVar9 = (uint32_t)(iVar1 + 0x8cb0);
@@ -151,6 +152,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 4))) = 0xffffffff;
     pvVar4 = (uint32_t)gs_tasks_kill(param_1);
   }
+  return pvVar4;
 }
 
 

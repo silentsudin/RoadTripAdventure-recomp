@@ -23,6 +23,7 @@ uint32_t sceTtyInit(uint32_t q0, ...) {
     (*(uint32_t*)rtguest::G(0x21776ac2)) = 0;
     (*(int32_t*)rtguest::G(0x1776aa8)) = ttyRingInit(0x100);
   }
+  return bVar1;
 }
 
 

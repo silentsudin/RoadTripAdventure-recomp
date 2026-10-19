@@ -15,6 +15,7 @@ uint32_t navStampDigitByDpad(uint32_t param_1, uint32_t param_2, ...) {
     if ((uVar1 & 0x4000) == 0) {
       if ((uVar1 & 0x8000) == 0) {
         if ((uVar1 & 0x2000) == 0) {
+          return param_2;
         }
         iVar3 = param_2 + (char)(*(uint32_t*)rtguest::G((uint32_t)0x2dbd33 + (uint32_t)(iVar3 * 0xc) * 4));
       }
@@ -34,6 +35,7 @@ uint32_t navStampDigitByDpad(uint32_t param_1, uint32_t param_2, ...) {
     PlayUiSound(0x1d);
     iVar2 = iVar3;
   }
+  return iVar2;
 }
 
 

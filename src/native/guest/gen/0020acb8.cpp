@@ -13,7 +13,7 @@ uint32_t puVar1;
       param_4 = 0xff;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x00335698 + param_2))) = 0;
-    (*(uint32_t*)rtguest::G((uint32_t)0x3356a0 + (uint32_t)(param_2) * 4)) = (char)param_4;
+    (*(uint8_t*)rtguest::G((uint32_t)0x3356a0 + param_2)) = (char)param_4;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x00333358 + param_2 * 4))) = puVar1;
   }
   return 0;

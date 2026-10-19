@@ -23,6 +23,7 @@ uint32_t TestFlagFc68(uint32_t param_1, ...) {
     }
     bVar1 = ((*(uint64_t*)rtguest::G((uint32_t)0x177fc68 + (uint32_t)(iVar3 >> 6) * 8)) & 1L << ((long)iVar2 & 0x3fU)) != 0;
   }
+  return bVar1;
 }
 
 

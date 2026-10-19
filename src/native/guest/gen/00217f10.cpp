@@ -20,6 +20,7 @@ uint32_t UpdateContinuousSoundEffect(uint32_t param_1, uint32_t param_2, uint32_
     uVar2 = (*(uint16_t*)rtguest::G((uint32_t)param_2));
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) & 0x40) == 0) {
       if ((*(uint16_t*)rtguest::G((uint32_t)param_2)) == 0) {
+        return 0;
       }
       if ((param_5 & 3) != 0) {
         PlayUiSound((param_5 & 1) + 0x8010);
@@ -28,10 +29,13 @@ uint32_t UpdateContinuousSoundEffect(uint32_t param_1, uint32_t param_2, uint32_
     }
     if (0 < (short)uVar2) {
       (*(uint16_t*)rtguest::G((uint32_t)param_2)) = 0xfffe;
+      return 0;
     }
     if (-1 < (short)uVar2) {
+      return 0;
     }
     (*(uint16_t*)rtguest::G((uint32_t)param_2)) = uVar2 + 1;
+    return 0;
   }
   (*(int32_t*)rtguest::G((uint32_t)param_4)) = (*(int32_t*)rtguest::G((uint32_t)param_4)) + -100;
   uVar3 = 0xb2;
@@ -70,6 +74,7 @@ LAB_00217fe4:
   if ((uVar2 == 0) && ((param_5 & 3) != 0)) {
     PlayUiSound((param_5 & 1) + 0x8010);
   }
+  return uVar3;
 }
 
 

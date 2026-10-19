@@ -32,6 +32,7 @@ uint32_t floorf(uint32_t param_1, ...) {
       }
     }
   }
+  return param_1;
 }
 
 

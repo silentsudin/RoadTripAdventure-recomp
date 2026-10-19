@@ -21,6 +21,7 @@ uint32_t pbVar4;
     iVar3 = MeasureTextWidth(param_1,param_2 + -1);
     iVar2 = iVar2 + iVar3;
   }
+  return iVar2;
 }
 
 

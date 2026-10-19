@@ -68,6 +68,7 @@ LAB_00261d00:
     if ((uVar1 & 0x40) == 0) {
       if ((uVar1 & 0x10) == 0) {
         cVar7 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25)));
+        goto switchD_00261c40_default;
       }
       PlayUiSound(0x1b);
       goto LAB_00261d00;
@@ -97,12 +98,14 @@ LAB_00261d00:
     }
     break;
   default:
+    goto switchD_00261c40_default;
   }
   cVar7 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25)));
 switchD_00261c40_default:
   if (cVar7 != '\x03') {
     DrawScoreCounter();
   }
+  return 0;
 }
 
 

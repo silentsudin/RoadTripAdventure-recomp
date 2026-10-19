@@ -51,6 +51,7 @@ uint32_t RunSelectionMenuTask(uint32_t param_1, ...) {
           (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 4))) = (int)cVar1;
           PlayUiSound(0x1a);
           gs_tasks_kill(param_1);
+          return 0;
         }
       }
       PlayUiSound(0x1b);
@@ -60,6 +61,7 @@ uint32_t RunSelectionMenuTask(uint32_t param_1, ...) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xe))) = 2;
     }
   }
+  return 0;
 }
 
 

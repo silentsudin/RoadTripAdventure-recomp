@@ -52,6 +52,7 @@ LAB_00206e68:
         PlayUiSound(0x1d);
         iVar2 = (iVar5 + -1) * param_4;
       }
+      goto LAB_00206f0c;
     }
     if ((uVar4 & 0x1000) != 0) {
       iVar2 = iVar5 * param_4;
@@ -60,6 +61,7 @@ LAB_00206e68:
         PlayUiSound(0x1d);
         iVar2 = iVar5 * param_4;
       }
+      goto LAB_00206f0c;
     }
     if ((uVar4 & 0x4000) != 0) {
       iVar2 = iVar5 * param_4;

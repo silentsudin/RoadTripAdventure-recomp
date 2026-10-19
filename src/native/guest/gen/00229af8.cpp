@@ -83,6 +83,7 @@ LAB_00229d64:
       cVar6 = '\x02';
 LAB_00229ea8:
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) = cVar6;
+      goto LAB_00229eac;
     }
     if (bVar3 < 2) {
       if (bVar3 == 0) {
@@ -103,6 +104,7 @@ LAB_00229cf4:
         }
         gs_tasks_spawn(param_1,0x22a320,1);
         cVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) + '\x01';
+        goto LAB_00229ea8;
       }
       bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
     }
@@ -123,13 +125,16 @@ LAB_00229cf4:
   }
   lVar5 = uiMenuRun(iVar1,param_2);
   if (lVar5 != 1) {
+    return 0;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd))) != '\0') {
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) & 1;
+    return 0;
   }
 LAB_00229ee4:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 8))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0xc))) = (*(uint8_t*)rtguest::G(0x22a2f8));
+  return 0;
 }
 
 

@@ -24,6 +24,7 @@ uint32_t UpdateInputDeviceState(uint32_t param_1, ...) {
     return 0;
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = 0;
+  return 0;
 }
 
 

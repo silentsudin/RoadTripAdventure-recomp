@@ -671,6 +671,7 @@ LAB_002471f0:
   }
   DrawTextListRows((*(uint32_t*)rtguest::G(0x1757b80)),(*(uint32_t*)rtguest::G((uint32_t)0x1757ba0 + (uint32_t)(uVar19) * 4)),0);
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 8))) == 0) {
+    return 0;
   }
   iVar28 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x18))) + 0x28)));
   if (iVar28 != 0) {
@@ -679,26 +680,33 @@ LAB_002471f0:
   if (((*(uint32_t*)rtguest::G((uint32_t)uStack_88)) & 0x40) != 0) {
     bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x27)));
     if ((long)(int)(*(uint32_t*)rtguest::G(0x1757b84)) == (long)(short)(*(uint32_t*)rtguest::G((uint32_t)0x1757ba0 + (uint32_t)(bVar12) * 4))) {
+      return 0;
     }
     if (((*(uint32_t*)rtguest::G(0x1757b80)) == 0) && ((*(uint32_t*)rtguest::G(0x1757b88)) == 0)) {
       if ((uint32_t)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x335720 + (uint32_t)(bVar12 & 7) * 1)) != (long)(short)(*(uint32_t*)rtguest::G((uint32_t)0x1757ba0 + (uint32_t)(bVar12) * 4))) {
+        return 0;
       }
       iVar30 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 4))) = bVar12 & 7;
       PlayUiSound(0x1a);
+      return 0;
     }
     iVar30 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x18)));
     sVar5 = (*(uint32_t*)rtguest::G((uint32_t)0x1757ba0 + (uint32_t)(bVar12) * 4));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x24))) = 1;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 4))) = (int)sVar5;
     if ((*(uint32_t*)rtguest::G(0x1757b80)) == 0xd) {
+      return 0;
     }
     PlayUiSound(0x1a);
+    return 0;
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)uStack_88)) & 0x10) == 0) {
+    return 0;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_90)) + 0xf))) != '\0') {
+    return 0;
   }
   PlayUiSound(0x1b);
   goto LAB_00247758;

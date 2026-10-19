@@ -31,6 +31,7 @@ uint32_t piVar2;
     iWakeupThread();
     return 0;
   }
+  return 0;
 }
 
 

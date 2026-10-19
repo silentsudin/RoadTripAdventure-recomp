@@ -56,7 +56,9 @@ uint32_t __s;
   }
   else if ((*(int32_t*)rtguest::G(0x2e6ec4)) != 0) {
     ::printf((char *)rtguest::G((uint32_t)(0x331238u)), param_3);
+    return 0;
   }
+  return 0;
 }
 
 

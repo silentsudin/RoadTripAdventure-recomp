@@ -25,15 +25,18 @@ uint32_t UpdateMenuFlowTask(uint32_t param_1, uint32_t param_2, ...) {
       if (iVar2 < 2) {
         if (iVar2 == 0) {
           gs_tasks_spawn(param_1,0x26d438,0);
+          return 0;
         }
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 0;
       }
       else {
         if (iVar2 == 2) {
           gs_tasks_spawn(param_1,0x26b848,0);
+          return 0;
         }
         if (iVar2 == 3) {
           gs_tasks_spawn(param_1,0x211320,0);
+          return 0;
         }
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 0;
       }
@@ -46,16 +49,19 @@ uint32_t UpdateMenuFlowTask(uint32_t param_1, uint32_t param_2, ...) {
         if (iVar2 == 1) {
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 2;
           gs_tasks_spawn(param_1,0x211170,0);
+          return 0;
         }
         if (iVar2 < 2) {
           if (iVar2 == 0) {
             (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 1;
             gs_tasks_spawn(param_1,0x209520,0);
+            return 0;
           }
         }
         else if (iVar2 == 2) {
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 1;
           gs_tasks_spawn(param_1,0x209848,0);
+          return 0;
         }
       }
     }
@@ -66,6 +72,7 @@ uint32_t UpdateMenuFlowTask(uint32_t param_1, uint32_t param_2, ...) {
       SoundInitVolumes();
     }
   }
+  return 0;
 }
 
 

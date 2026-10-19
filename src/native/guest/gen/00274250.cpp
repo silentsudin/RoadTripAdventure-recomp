@@ -31,6 +31,7 @@ uint32_t puVar3;
       iVar4 = (*(uint32_t*)rtguest::G(0x1773514));
     }
   }
+  return iVar4;
 }
 
 

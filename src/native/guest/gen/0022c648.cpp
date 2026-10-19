@@ -99,6 +99,7 @@ uint32_t pcVar14;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xab4))) = 0x100000;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xbf4))) = 0x200000;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xa14))) = 0x100000;
+  return iVar8;
 }
 
 

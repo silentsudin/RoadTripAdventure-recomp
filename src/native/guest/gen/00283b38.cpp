@@ -100,12 +100,14 @@ uint32_t puVar15;
   while( true ) {
     if (iVar17 < 1) {
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x10))) = iVar17;
+      return uVar5;
     }
     puVar12 = puVar12 + -1;
     if ((*(uint32_t*)rtguest::G((uint32_t)puVar12)) != 0) break;
     iVar17 = iVar17 + -1;
   }
   (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x10))) = iVar17;
+  return uVar5;
 }
 
 

@@ -12,6 +12,7 @@ uint32_t RunFadeHoldTask(uint32_t param_1, uint32_t param_2, ...) {
     return 0;
   }
   gs_tasks_kill();
+  return 0;
 }
 
 

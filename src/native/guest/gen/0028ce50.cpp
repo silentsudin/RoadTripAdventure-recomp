@@ -57,6 +57,7 @@ uint32_t acStack_80 = rtguest::allocFrame(80);
     ::printf((char *)rtguest::G((uint32_t)(0x3327d0u)), param_1);
     uVar3 = 0;
   }
+  return uVar3;
 }
 
 

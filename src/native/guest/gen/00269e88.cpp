@@ -27,6 +27,7 @@ uint32_t pcVar1;
     else {
       if (lVar2 != 4) {
         pcVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc)));
+        goto LAB_00269f28;
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) = 0;
       pcVar1 = (*(uint8_t*)rtguest::G(0x268e40));

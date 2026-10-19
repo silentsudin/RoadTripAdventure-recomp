@@ -14,6 +14,7 @@ uint32_t CalculateBoostGaugeValue(uint32_t param_1, uint32_t param_2, uint32_t p
   if (param_2 != 0) {
     iVar1 = (iVar1 * (int)param_2 + 0x3ffff) / 0x40000;
   }
+  return iVar1;
 }
 
 

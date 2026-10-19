@@ -31,26 +31,35 @@ LAB_0023cda0:
       return false;
     }
     if (0x32898 < param_3) {
+      return true;
     }
+    return false;
   }
   if (param_1 == '\x06') {
     if (param_2 == 10) {
       if (45000 < iVar3 - 0x1a5e0U) {
+        return true;
       }
+      return false;
     }
     if (param_2 == 0x11) {
       if (((*(uint32_t*)rtguest::G(0x177fca0)) & 8) == 0) {
+        return true;
       }
+      return false;
     }
     if (param_2 == 0x20) {
       if ((long)(*(uint64_t*)rtguest::G(0x177fc98)) < 0) {
+        return true;
       }
+      return false;
     }
   }
   if ((param_1 == '\a') && (param_2 == 10)) {
     bVar1 = ((*(uint64_t*)rtguest::G(0x177fc98)) & 0x100000000000000) != 0;
 LAB_0023cf8c:
     if (!bVar1) {
+      return true;
     }
   }
   else {
@@ -59,9 +68,11 @@ LAB_0023cf8c:
         if (((*(uint32_t*)rtguest::G(0x177fca0)) & 0x200000) == 0) {
           return 0x1c906 < iVar3 - 0xafc9U;
         }
+        return false;
       }
       if (param_2 == 5) {
         if (((*(uint32_t*)rtguest::G(0x177fca0)) & 0x200000) != 0) {
+          return true;
         }
         bVar1 = 0x1c906 < iVar3 - 0xafc9U;
         goto LAB_0023cf8c;
@@ -90,6 +101,7 @@ LAB_0023cf8c:
     }
   }
 switchD_0023cfc8_default:
+  return false;
 }
 
 

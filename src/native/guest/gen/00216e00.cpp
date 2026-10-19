@@ -67,6 +67,7 @@ LAB_00216eb8:
                   0x1a2 - (*(uint32_t*)rtguest::G(0x177acf8)) / 0x91140,0x333580,4);
   }
   uiArenaSubmit(param_3);
+  return 0;
 }
 
 

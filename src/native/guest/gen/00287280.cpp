@@ -9,7 +9,7 @@ uint32_t puVar1;
   int iVar2;
   
   iVar2 = (*(uint32_t*)rtguest::G(0x1776eac));
-  if (param_1 < 0) {
+  if ((int32_t)param_1 < 0) {
     iVar2 = (*(int32_t*)rtguest::G(0x1776ea4));
   }
   puVar1 = (uint32_t)((int)param_1 * 8 + iVar2);

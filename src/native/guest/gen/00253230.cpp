@@ -23,6 +23,7 @@ uint32_t SetAiSteeringTarget(uint32_t param_1, uint32_t param_2, uint32_t param_
     if (param_2 < 0x81) {
       if (-0x81 < param_2) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x74))) = 1;
+        goto LAB_0025339c;
       }
       uVar1 = 0x8001;
     }
@@ -45,12 +46,14 @@ uint32_t SetAiSteeringTarget(uint32_t param_1, uint32_t param_2, uint32_t param_
           }
         }
       }
+      goto LAB_0025339c;
     }
     if (iVar4 != 2) goto LAB_0025339c;
     if (param_2 < 0x2001) {
       if (-0x2001 < param_2) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x74))) = 2;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x78))) = 0;
+        goto LAB_0025339c;
       }
       uVar1 = 0x2005;
     }
@@ -73,6 +76,7 @@ LAB_0025339c:
   if ((param_3 < iVar4) && (0 < param_3)) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x74))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x74))) & 0xa000;
   }
+  return uVar3;
 }
 
 

@@ -46,6 +46,7 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
       else if (cVar1 < '\x02') {
         if (cVar1 != '\0') {
           bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
+          goto LAB_002094d4;
         }
         PlayUiSound(0x1a);
         uVar5 = 0x208c98;
@@ -54,6 +55,7 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
         if (cVar1 != '\x02') {
           if (cVar1 != '\x03') {
             bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
+            goto LAB_002094d4;
           }
           PlayUiSound(0x1b);
           iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));
@@ -77,6 +79,7 @@ LAB_002094d4:
     return 0;
   }
   uiDrawHintBar(2);
+  return 0;
 }
 
 

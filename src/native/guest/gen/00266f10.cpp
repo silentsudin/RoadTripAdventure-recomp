@@ -30,6 +30,7 @@ uint32_t auStack_80 = rtguest::allocFrame(48);
   else {
     uiDrawText(param_1,param_2 / 2,0x32f250,3);
   }
+  return iVar1;
 }
 
 

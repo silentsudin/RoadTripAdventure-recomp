@@ -60,11 +60,13 @@ LAB_00209af0:
     if (bVar2 < 2) {
       if (bVar2 != 0) {
         iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8)));
+        goto LAB_00209b1c;
       }
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) == 0) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 1;
         gs_tasks_spawn(param_1,0x228f40,0);
         iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8)));
+        goto LAB_00209b1c;
       }
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 0;
       goto LAB_00209af0;
@@ -72,6 +74,7 @@ LAB_00209af0:
     if (bVar2 == 2) {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) != 1) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 0;
+        goto LAB_00209af0;
       }
       PlayUiSound(0x303);
       gs_tasks_spawn(param_1,0x22a050,0);
@@ -80,6 +83,7 @@ LAB_00209af0:
     else {
       if (bVar2 != 3) {
         iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8)));
+        goto LAB_00209b1c;
       }
       iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
@@ -112,12 +116,14 @@ LAB_00209b1c:
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) = 1;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = 3;
           gs_tasks_kill(param_1);
+          return 0;
         }
       }
       else if (cVar1 == '\x02') {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 10))) = 6;
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) | 0x80;
         gs_tasks_spawn(param_1,0x227380,2);
+        return 0;
       }
     }
     else if (lVar6 == -1) {
@@ -126,8 +132,10 @@ LAB_00209b1c:
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = 0xffffffff;
       gs_tasks_kill(param_1);
+      return 0;
     }
   }
+  return 0;
 }
 
 

@@ -41,6 +41,7 @@ LAB_00205cac:
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0xf))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 6))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x5f))) = 0;
+  return puVar5;
 }
 
 

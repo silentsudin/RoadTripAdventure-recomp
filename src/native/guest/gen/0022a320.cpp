@@ -31,6 +31,7 @@ uint32_t RunCardOpSequenceTask(uint32_t param_1, ...) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 2;
     }
     gs_tasks_kill(param_1);
+    return 0;
   }
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4)));
   if (iVar2 != 2) {
@@ -38,9 +39,11 @@ uint32_t RunCardOpSequenceTask(uint32_t param_1, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = iVar2;
     gs_tasks_kill(param_1);
+    return 0;
   }
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 1;
   gs_tasks_spawn(param_1,0x228510,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))));
+  return 0;
 }
 
 

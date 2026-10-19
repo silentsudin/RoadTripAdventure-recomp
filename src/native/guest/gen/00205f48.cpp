@@ -10,6 +10,7 @@ uint32_t DrawWidgetIfFlag16Alt(uint32_t param_1, uint32_t param_2, ...) {
                  -10,((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t)))) * 2,3);
     return 0;
   }
+  return 0;
 }
 
 

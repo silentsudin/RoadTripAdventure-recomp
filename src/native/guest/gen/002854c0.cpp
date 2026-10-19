@@ -20,6 +20,7 @@ uint32_t write(uint32_t __fd, uint32_t __buf, uint32_t __n, ...) {
 LAB_00285520:
     sVar1 = -1;
   }
+  return sVar1;
 }
 
 

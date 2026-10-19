@@ -10,6 +10,7 @@ uint32_t switchD_0023c440_setObjectAttrFlag0x1000(uint32_t param_1, uint32_t par
     return 0;
   }
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_4 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_4 + 8))) & 0xefff;
+  return 0;
 }
 
 

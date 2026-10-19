@@ -29,6 +29,7 @@ uint32_t piVar4;
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)piVar4 + (uint32_t)(1) * sizeof(int32_t)));
     }
   }
+  return uVar5;
 }
 
 

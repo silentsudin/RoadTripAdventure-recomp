@@ -48,6 +48,7 @@ uint32_t pbVar2;
       PlayBgmSlot6();
     }
   }
+  return 0;
 }
 
 

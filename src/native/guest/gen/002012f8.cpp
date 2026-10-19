@@ -58,6 +58,7 @@ LAB_00201410:
   (*(uint16_t*)rtguest::G((uint32_t)param_1)) = uVar1;
 LAB_00201400:
   (*(int16_t*)rtguest::G((uint32_t)param_2)) = (*(int16_t*)rtguest::G((uint32_t)param_2)) + 0x140;
+  return 0;
 }
 
 

@@ -221,6 +221,7 @@ LAB_0020bcdc:
     (*(uint32_t*)rtguest::G(0x3356c0)) = 0xffffffff;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 * 4 + param_2 + 0x60))) = (int)param_4;
   }
+  return 0;
 }
 
 

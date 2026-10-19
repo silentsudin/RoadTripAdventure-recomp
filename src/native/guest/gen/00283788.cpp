@@ -35,6 +35,7 @@ uint32_t puVar5;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 * 4 + (int)param_2 + 0x14))) = param_4;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x10))) = iVar1 + 1;
   }
+  return param_2;
 }
 
 

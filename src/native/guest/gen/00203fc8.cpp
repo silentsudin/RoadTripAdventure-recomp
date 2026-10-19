@@ -43,6 +43,7 @@ uint32_t puVar3;
     }
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)param_3));
   }
+  return param_1;
 }
 
 

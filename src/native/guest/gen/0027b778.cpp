@@ -10,6 +10,7 @@ uint32_t __main(uint32_t q0, ...) {
     __do_global_ctors();
     return 0;
   }
+  return 0;
 }
 
 

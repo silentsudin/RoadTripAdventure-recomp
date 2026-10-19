@@ -44,6 +44,7 @@ uint32_t psVar6;
       return 0;
     }
   }
+  return 0;
 }
 
 

@@ -9,6 +9,7 @@ uint32_t pcVar1;
   
   if (param_1 < 8) {
     pcVar1 = (uint32_t)(uintptr_t)(::strcpy((char *)rtguest::G((uint32_t)(param_2)), (char *)rtguest::G((uint32_t)((*(uint32_t*)rtguest::G((uint32_t)(0x2e6ec8u + (uint32_t)((int)param_1) * 4)))))));
+    return pcVar1;
   }
   (*(int8_t*)rtguest::G((uint32_t)param_2)) = '\0';
   return 0x330000u;

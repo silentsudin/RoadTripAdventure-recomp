@@ -35,6 +35,7 @@ uint32_t puVar4;
           (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(0x11) * sizeof(uint32_t))) = 0;
           (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(0x12) * sizeof(uint32_t))) = 0;
           (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 3))) = 1;
+          return puVar2;
         }
         puVar2 = puVar2 + 0x16;
       }

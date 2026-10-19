@@ -73,6 +73,7 @@ LAB_0026f95c:
     if ((*(int16_t*)rtguest::G((uint32_t)psVar3 + (uint32_t)(1) * sizeof(int16_t))) != 3) {
       iVar11 = ::printf((char *)rtguest::G((uint32_t)(0x330110u)));
       uVar8 = (uint32_t)iVar11;
+      goto LAB_0026f9e0;
     }
     if (sVar2 != 1) {
       iVar1 = (iVar10 + 0x9ff) / iVar10;
@@ -99,6 +100,7 @@ LAB_0026f95c:
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint64_t))) = uVar8;
 LAB_0026f9e0:
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(uint64_t))) = 0;
+  return uVar8;
 }
 
 

@@ -16,6 +16,7 @@ uint32_t CalculateSpeedometerValue(uint32_t param_1, uint32_t param_2, uint32_t 
   if (param_2 != 0) {
     iVar1 = (iVar1 * (int)param_2 + 0xb9) / 0xba;
   }
+  return iVar1;
 }
 
 

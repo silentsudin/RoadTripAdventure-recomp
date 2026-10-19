@@ -13,6 +13,7 @@ uint32_t scePadEnterPressMode(uint32_t param_1, uint32_t param_2, ...) {
   else {
     uVar1 = scePadSetButtonInfo(param_1,param_2,0xfff);
   }
+  return uVar1;
 }
 
 

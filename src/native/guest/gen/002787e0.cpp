@@ -22,6 +22,7 @@ uint32_t sceCdSyncS(uint32_t param_1, ...) {
   else {
     uVar2 = sceSifCheckStatRpc(0x2e8948);
   }
+  return uVar2;
 }
 
 

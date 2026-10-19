@@ -20,6 +20,7 @@ uint32_t piVar2;
         iVar1 = (*(int32_t*)rtguest::G((uint32_t)piVar2));
         while( true ) {
           if (iVar1 == param_1) {
+            return piVar2;
           }
           piVar2 = (uint32_t)(*(int32_t*)rtguest::G((uint32_t)piVar2 + (uint32_t)(0xe) * sizeof(int32_t)));
           if (piVar2 == (uint32_t)0x0) break;

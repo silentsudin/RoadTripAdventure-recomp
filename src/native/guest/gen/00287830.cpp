@@ -26,6 +26,7 @@ uint32_t sifAllocRpcPacket(uint32_t param_1, ...) {
         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x14))) = iVar3;
         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18))) = iVar2;
         EIntr();
+        return iVar3;
       }
       iVar1 = iVar1 + 1;
       iVar3 = iVar3 + 0x40;

@@ -24,6 +24,7 @@ uint32_t scePadSetMainMode(uint32_t param_1, uint32_t param_2, uint32_t param_3,
       iVar1 = (*(uint32_t*)rtguest::G(0x1773514));
     }
   }
+  return iVar1;
 }
 
 

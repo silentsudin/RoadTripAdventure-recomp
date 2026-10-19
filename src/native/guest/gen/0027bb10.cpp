@@ -89,6 +89,7 @@ LAB_0027bbac:
           }
           (*(uint32_t*)rtguest::G((uint32_t)uStack_70)) = 3;
           puVar4 = uStack_70;
+          goto LAB_0027bd8c;
         }
       }
     }

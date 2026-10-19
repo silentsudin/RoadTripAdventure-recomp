@@ -79,8 +79,10 @@ uint32_t gs_options_sub_tasks_vibration(uint32_t param_1, uint32_t param_2, ...)
     }
     else if (lVar6 == -2) {
       gs_tasks_kill(param_1);
+      return 0;
     }
   }
+  return 0;
 }
 
 

@@ -51,6 +51,7 @@ LAB_0023a988:
     bVar2 = (*(int8_t*)rtguest::G((uint32_t)param_2));
     while (0x1f < bVar2) {
       if (lVar6 == (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2)))) {
+        return param_2;
       }
       if (bVar2 != 0x24) {
         uVar4 = uiDrawGlyph(uVar4,(iVar5 + iVar7) * 2,iVar7 << 1,param_2);
@@ -118,6 +119,7 @@ LAB_0023ac4c:
       bVar2 = (*(int8_t*)rtguest::G((uint32_t)param_2));
     }
     if (bVar2 != 10) {
+      return param_2;
     }
     iVar8 = iVar8 + 1;
     param_2 = param_2 + 1;

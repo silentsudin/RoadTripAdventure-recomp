@@ -59,6 +59,7 @@ LAB_00223f0c:
         }
         break;
       default:
+        goto switchD_00223df4_caseD_4;
       case 7:
         drawCarEffectB(fVar5,0x3f000000,0,param_3,puVar3,7);
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) == 0) {
@@ -79,6 +80,7 @@ LAB_00224004:
           }
           (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff74 + iVar1))) = fVar5 + 0.0625;
           (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff84 + iVar1))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff84 + iVar1))) + 0.0625;
+          goto switchD_00223df4_caseD_4;
         }
         break;
       case 8:

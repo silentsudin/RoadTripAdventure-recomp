@@ -30,6 +30,7 @@ uint32_t piVar3;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(piVar3 + 3))) = 7;
       textGridInitAttrs(piVar3 + 6,param_1,param_2);
       textGridClear(piVar3);
+      return piVar3;
     }
   }
   return (uint32_t)0x0;

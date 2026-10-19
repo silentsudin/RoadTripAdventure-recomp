@@ -35,9 +35,11 @@ uint32_t ShowPlayerSelect(uint32_t param_1, ...) {
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28)));
   lVar6 = uiMenuRun(iVar2);
   if (lVar6 == 0) {
+    return 0;
   }
   if (lVar6 == -2) {
     gs_tasks_kill(param_1);
+    return 0;
   }
   PlayUiSound(0x1a);
   if (lVar6 == -1) {
@@ -58,6 +60,7 @@ uint32_t ShowPlayerSelect(uint32_t param_1, ...) {
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = 0xffffffff;
 LAB_00239a40:
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = 2;
+  return 0;
 }
 
 

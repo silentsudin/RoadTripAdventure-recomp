@@ -42,6 +42,7 @@ uint32_t ppuVar5;
     }
     if ((*(uint32_t*)rtguest::G(0x178321e)) == '\0') {
       bVar3 = (*(int8_t*)rtguest::G((uint32_t)param_1));
+      goto LAB_0024799c;
     }
     uVar4 = 6;
     if (((*(uint64_t*)rtguest::G((uint32_t)param_2)) & 0x10) != 0) {

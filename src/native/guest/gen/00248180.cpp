@@ -68,6 +68,7 @@ uint32_t UpdateRaceResultsMenu(uint32_t param_1, uint32_t param_2, ...) {
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
   }
   if (cVar1 != '\0') {
+    return 0;
   }
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) < 0x11) {
     uVar2 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x30)));
@@ -80,6 +81,7 @@ uint32_t UpdateRaceResultsMenu(uint32_t param_1, uint32_t param_2, ...) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) | 0x400000;
       gs_tasks_kill(param_1);
+      return 0;
     }
     uVar2 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x30)));
   }
@@ -99,6 +101,7 @@ uint32_t UpdateRaceResultsMenu(uint32_t param_1, uint32_t param_2, ...) {
 LAB_00248364:
   uiDrawIcon3(0x1fe,0x20,0);
   uiDrawIcon3(0x1a4,0x20,1);
+  return 0;
 }
 
 

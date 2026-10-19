@@ -241,10 +241,12 @@ LAB_0026a2a4:
     uiDrawText(600 - iVar17,(iVar15 * 0x1d) / 2 + 0x21,auStack_110,0);
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_60)) + 0x30))) & 0x10) == 0) {
       cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
+      goto LAB_0026a8dc;
     }
     goto LAB_0026a8cc;
   default:
     cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
+    goto LAB_0026a8dc;
   }
   iVar15 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x28)));
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x27))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0xd)));

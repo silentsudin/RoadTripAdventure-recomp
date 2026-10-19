@@ -14,6 +14,7 @@ uint32_t FinishTaskOnInputIdle(uint32_t param_1, uint32_t param_2, ...) {
     gs_tasks_kill();
     return 0;
   }
+  return 0;
 }
 
 

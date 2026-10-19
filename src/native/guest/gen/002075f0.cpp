@@ -21,6 +21,7 @@ uint32_t uiSetSpriteXY(uint32_t param_1, uint32_t param_2, uint32_t param_3, uin
   (*(int16_t*)rtguest::G((uint32_t)param_1)) = (short)((iVar2 << 6) / 5) + 0x7000;
   (*(int16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(int16_t))) = sVar1 + 0x7800;
   (*(int16_t*)rtguest::G((uint32_t)param_2)) = (short)(((iVar2 + param_5) * 0x40) / 5) + 0x7000;
+  return 0;
 }
 
 

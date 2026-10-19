@@ -68,12 +68,14 @@ uint32_t auStack_6c = rtguest::allocFrame(12);
         fVar6 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x104)));
         lVar2 = rtCall((*(uint32_t*)rtguest::G(0x335710)), iVar5, auStack_70, auStack_6c, param_6, param_3);
         if ((lVar2 != -1) && ((*(float*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x104))) <= fVar6)) {
+          return 0;
         }
         (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) + 0x80;
         buildCamera(param_1,param_2,param_4,param_5);
       } while (-1 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))));
     }
   }
+  return 0;
 }
 
 

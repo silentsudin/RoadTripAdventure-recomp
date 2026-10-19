@@ -49,6 +49,7 @@ LAB_00287378:
   else {
     uVar1 = isceSifSetDma(auStack_80);
   }
+  return uVar1;
 }
 
 

@@ -16,6 +16,7 @@ uint32_t DispatchInputMapping(uint32_t param_1, uint32_t param_2, ...) {
                     /* WARNING: Could not recover jumptable at 0x0020ce1c. Too many branches */
                     /* WARNING: Treating indirect jump as call */
   uVar1 = rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(0x2ea690u + (uint32_t)((*(uint32_t*)rtguest::G(0x3356c0))) * 4))))));
+  return uVar1;
 }
 
 

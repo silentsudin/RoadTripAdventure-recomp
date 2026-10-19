@@ -18,6 +18,7 @@ uint32_t textGridScrollUp(uint32_t param_1, uint32_t param_2, ...) {
     return 0;
   }
   textGridFillRectBlank(param_1,0,0,uVar2);
+  return 0;
 }
 
 

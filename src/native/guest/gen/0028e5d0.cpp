@@ -27,6 +27,7 @@ uint32_t auStack_20 = rtguest::allocFrame(16);
       }
     }
   }
+  return uVar1;
 }
 
 

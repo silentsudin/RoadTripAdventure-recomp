@@ -22,6 +22,7 @@ uint32_t __kernel_sinf(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...
                           );
     }
   }
+  return param_1;
 }
 
 

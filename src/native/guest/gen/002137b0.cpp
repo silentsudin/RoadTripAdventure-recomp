@@ -66,6 +66,7 @@ LAB_00213a40:
       }
       else if (iVar4 != 0x12d) {
         (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0;
+        goto LAB_00213a40;
       }
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x8210))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x8210))) + 0x28;
       iVar4 = (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t)));
@@ -75,9 +76,11 @@ LAB_00213a40:
         (*(int32_t*)rtguest::G((uint32_t)param_4)) = 399;
         goto LAB_00213a30;
       }
+      goto LAB_00213a50;
     }
     if (iVar4 != 0x65) {
       (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0;
+      goto LAB_00213a40;
     }
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x30)));
   }

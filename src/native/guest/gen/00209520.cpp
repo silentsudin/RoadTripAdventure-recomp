@@ -61,6 +61,7 @@ uint32_t titleNewGameContinue(uint32_t param_1, uint32_t param_2, ...) {
       if (cVar1 == '\x01') {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) | 0x80;
         gs_tasks_spawn(param_1,0x228d10,0);
+        return 0;
       }
       if (cVar1 < '\x02') {
         if (cVar1 == '\0') goto LAB_00209768;
@@ -73,6 +74,7 @@ LAB_00209768:
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = (int)cVar1;
         gs_tasks_kill(param_1);
+        return 0;
       }
     }
     else if (lVar4 == -1) {
@@ -81,8 +83,10 @@ LAB_00209768:
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = 0xffffffff;
       gs_tasks_kill(param_1);
+      return 0;
     }
   }
+  return 0;
 }
 
 

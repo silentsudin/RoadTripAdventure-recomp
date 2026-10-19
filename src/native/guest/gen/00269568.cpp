@@ -103,11 +103,13 @@ LAB_00269804:
                      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dc8a8 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xd))) * 4))) |
                      (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) << 8 | uVar14 << 0x14);
     }
+    return 0;
   }
   iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x18)));
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x24))) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 4))) = 0xffffffff;
   gs_tasks_kill(param_1);
+  return 0;
 }
 
 

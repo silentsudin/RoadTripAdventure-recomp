@@ -18,6 +18,7 @@ uint32_t fsAllocFd(uint32_t q0, ...) {
     if (iVar2 == 0) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(uVar3 + 4))) = 0x10000000;
       SignalSema(uVar1);
+      return uVar3;
     }
     if (0x1779b7f < uVar3 + 0x10) break;
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(uVar3 + 0x14)));

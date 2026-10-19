@@ -19,17 +19,20 @@ uint32_t auStack_2c = rtguest::allocFrame(12);
       return 0;
     }
     uVar1 = ::printf((char *)rtguest::G((uint32_t)(0x2eb530u)), lVar2);
+    return uVar1;
   }
   lVar2 = sceMcSync(1,auStack_30,auStack_2c);
   if (lVar2 != 1) {
     uVar1 = (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) < 0x79);
     if (uVar1 != 0) {
+      return uVar1;
     }
     ::printf((char *)rtguest::G((uint32_t)(0x2eb558u)));
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 0xfffffffe;
     uVar1 = gs_tasks_kill(param_1);
+    return uVar1;
   }
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x20))) == 2) {
     if ((*(int32_t*)rtguest::G(0x3356f8)) == 0) {
@@ -43,6 +46,7 @@ uint32_t auStack_2c = rtguest::allocFrame(12);
     if (0x3b < (*(uint32_t*)rtguest::G(0x3356fc))) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 1;
+      goto LAB_00228388;
     }
   }
   else {
@@ -53,6 +57,7 @@ uint32_t auStack_2c = rtguest::allocFrame(12);
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = uVar3;
 LAB_00228388:
   uVar1 = gs_tasks_kill(param_1);
+  return uVar1;
 }
 
 

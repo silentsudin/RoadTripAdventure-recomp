@@ -21,6 +21,7 @@ uint32_t sceTtyRead(uint32_t param_1, uint32_t param_2, ...) {
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + iVar2)));
     } while (((cVar1 != '\n') && (cVar1 != '\r')) && (iVar2 = iVar3, iVar3 < param_2));
   }
+  return iVar3;
 }
 
 

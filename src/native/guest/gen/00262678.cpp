@@ -35,6 +35,7 @@ uint32_t puVar18;
     pvVar10 = (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(puVar18)), 0, 0x14));
     (*(uint32_t*)rtguest::G((uint32_t)puVar18)) = 0;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x8cbd))) = 0;
+    return pvVar10;
   }
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28)));
   puVar18 = (uint32_t)(iVar3 + 0x8cb0);
@@ -251,6 +252,7 @@ LAB_00262b5c:
   case 3:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (uint32_t)(*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(5) * sizeof(uint64_t))) & 0xfffffeff | 8;
     (*(uint32_t*)rtguest::G((uint32_t)puVar18)) = 4;
+    goto switchD_0026272c_default;
   case 4:
     uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2))) << 0x18,iVar3,iVar3);
     if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2))) < 0x80) {
@@ -258,6 +260,7 @@ LAB_00262b5c:
 LAB_00262fcc:
       (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2))) = sVar7;
       iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28)));
+      goto switchD_0026272c_default;
     }
     uVar9 = 0xffffffff;
     break;
@@ -273,6 +276,7 @@ LAB_00262fcc:
     uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2))) << 0x18,iVar3,iVar3);
     if (0 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2)))) {
       sVar7 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2))) + -0x10;
+      goto LAB_00262fcc;
     }
     uVar9 = 2;
     break;
@@ -302,9 +306,11 @@ LAB_00262fcc:
         else {
           iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28)));
         }
+        goto switchD_0026272c_default;
       }
       if (bVar1 != 2) {
         iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28)));
+        goto switchD_0026272c_default;
       }
       SoundStopAllChannels();
       InitCameraTransforms(param_2,0x177ac50);
@@ -320,6 +326,7 @@ LAB_00262fcc:
   case 0xffffffff:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4))) = 1;
   default:
+    goto switchD_0026272c_default;
   }
   iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28)));
   (*(uint32_t*)rtguest::G((uint32_t)puVar18)) = uVar9;
@@ -335,6 +342,7 @@ switchD_0026272c_default:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 4))) = 0xffffffff;
     pvVar10 = (uint32_t)gs_tasks_kill(param_1);
   }
+  return pvVar10;
 }
 
 

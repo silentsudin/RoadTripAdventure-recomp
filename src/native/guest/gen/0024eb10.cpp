@@ -81,6 +81,7 @@ LAB_0024ec9c:
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int32_t)));
     }
   }
+  return 0;
 }
 
 

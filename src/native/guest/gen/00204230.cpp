@@ -31,6 +31,7 @@ uint32_t uiDrawTextShade(uint32_t param_1, uint32_t param_2, uint32_t param_3, u
       }
     } while ((*(int8_t*)rtguest::G((uint32_t)param_4)) != 0);
   }
+  return param_1;
 }
 
 

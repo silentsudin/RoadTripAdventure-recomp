@@ -17,7 +17,9 @@ uint32_t UpdateMenuConfirmTask(uint32_t param_1, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 4))) = 0;
     gs_tasks_kill();
+    return 0;
   }
+  return 0;
 }
 
 

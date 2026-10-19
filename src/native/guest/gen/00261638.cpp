@@ -33,6 +33,7 @@ uint32_t puVar11;
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 0;
           gs_tasks_kill(param_1);
+          return 0;
         }
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) = 1;
       }
@@ -110,6 +111,7 @@ uint32_t puVar11;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 0xffffffff;
       gs_tasks_kill(param_1);
+      return 0;
     }
   }
   else {
@@ -137,6 +139,7 @@ LAB_00261970:
     puVar8 = 0x000f423f;
   }
   DrawScoreAndRemaining((*(int32_t*)rtguest::G(0x177fdb4)) - (int)puVar8,param_2);
+  return 0;
 }
 
 

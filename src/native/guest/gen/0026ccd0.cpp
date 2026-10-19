@@ -56,6 +56,7 @@ uint32_t pcVar5;
       else {
         if (cVar1 != '\v') {
           gs_tasks_spawn(param_1,0x26ca48);
+          return 0;
         }
         pcVar5 = (*(uint8_t*)rtguest::G(0x26d2c0));
       }
@@ -68,6 +69,7 @@ uint32_t pcVar5;
       gs_tasks_kill(param_1);
     }
   }
+  return 0;
 }
 
 

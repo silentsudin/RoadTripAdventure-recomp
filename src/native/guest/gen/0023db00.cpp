@@ -21,6 +21,7 @@ uint32_t puVar2;
                (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + cVar1 * 4))) + 0xc)));
     }
   }
+  return puVar2;
 }
 
 

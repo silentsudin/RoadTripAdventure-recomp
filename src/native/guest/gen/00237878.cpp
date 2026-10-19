@@ -75,6 +75,7 @@ uint32_t pbVar11;
     gs_tasks_kill(param_1);
     return 0;
   }
+  return 0;
 }
 
 

@@ -69,8 +69,10 @@ uint32_t puVar8;
       return 1;
     }
     if ((int)puVar8 < 0x3fbb81) {
+      return 0;
     }
     fatal(0x2ea4c0);
+    return 0;
   case 4:
     (*(uint32_t*)rtguest::G(0x3356c0)) = 0xffffffff;
   default:
@@ -79,6 +81,7 @@ uint32_t puVar8;
   cdReadEntry(ppuVar6,0x100000);
   (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
 switchD_0020b390_default:
+  return 0;
 }
 
 

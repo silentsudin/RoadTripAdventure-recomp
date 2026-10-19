@@ -17,6 +17,7 @@ uint32_t puVar5;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) = iVar3;
     pvVar4 = (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)((uint32_t)(iVar3 + 0x8cb0))), 0, 0x10));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) + 0x8cb0))) = 0;
+    return pvVar4;
   }
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28)));
   puVar5 = (uint32_t)(iVar3 + 0x8cb0);
@@ -62,6 +63,7 @@ uint32_t puVar5;
     break;
   default:
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4)));
+    goto LAB_00263e04;
   }
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4)));
 LAB_00263e04:
@@ -75,6 +77,7 @@ LAB_00263e04:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 0xffffffff;
     pvVar4 = (uint32_t)gs_tasks_kill(iVar3);
   }
+  return pvVar4;
 }
 
 

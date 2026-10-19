@@ -77,6 +77,7 @@ uint32_t puVar14;
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x10))) = iVar13;
     }
   }
+  return uVar6;
 }
 
 

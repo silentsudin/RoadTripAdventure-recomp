@@ -46,12 +46,14 @@ uint32_t pcVar2;
   }
   param_3 = param_3 + -1;
   if (param_3 == -1) {
+    return pcVar2;
   }
   do {
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)pcVar2));
     while (pcVar2 = pcVar2 + 1, cVar1 == '\0') {
       param_3 = param_3 + -1;
       if (param_3 == -1) {
+        return pcVar2;
       }
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)pcVar2));
     }

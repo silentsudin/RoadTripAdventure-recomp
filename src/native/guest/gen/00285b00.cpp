@@ -17,6 +17,7 @@ uint32_t enableDmac(uint32_t param_1, ...) {
   if (uVar2 != 0) {
     EIntr();
   }
+  return uVar1;
 }
 
 

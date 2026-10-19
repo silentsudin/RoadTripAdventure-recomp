@@ -65,6 +65,7 @@ uint32_t actionStageSelectGridMenu(uint32_t param_1, uint32_t param_2, ...) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 1;
     }
   }
+  return 0;
 }
 
 

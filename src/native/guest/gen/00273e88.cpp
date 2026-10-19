@@ -43,6 +43,7 @@ uint32_t scePadInfoComb(uint32_t param_1, uint32_t param_2, uint32_t param_3, ui
       }
     }
   }
+  return uVar2;
 }
 
 

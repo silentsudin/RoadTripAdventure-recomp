@@ -11,6 +11,7 @@ uint32_t DispatchByIndex15(uint32_t param_1, ...) {
                     /* WARNING: Could not recover jumptable at 0x0024368c. Too many branches */
                     /* WARNING: Treating indirect jump as call */
     uVar1 = rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(0x2f1280u + (uint32_t)((int)param_1) * 4))))));
+    return uVar1;
   }
   return 0;
 }

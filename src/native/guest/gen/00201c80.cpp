@@ -71,9 +71,11 @@ LAB_00201d10:
       }
       if (uVar4 == 0x2f) {
         uVar4 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar6));
+        goto LAB_00201cfc;
       }
       if (uVar4 == 0x60) {
         uVar4 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar6));
+        goto LAB_00201cfc;
       }
       if (-1 < (int)(uVar4 << 0x18)) goto LAB_00201d10;
       iVar7 = iVar7 + 0x14;

@@ -41,6 +41,7 @@ uint32_t puVar3;
       }
     }
   }
+  return param_2;
 }
 
 

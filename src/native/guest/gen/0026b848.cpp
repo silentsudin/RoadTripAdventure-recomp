@@ -38,6 +38,7 @@ uint32_t debugMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     uiMenuAddItem(uVar3,0x32f9a0,0x10);
     uiMenuAddItem(uVar3,0x335600,0x10);
     uiMenuAddItem(uVar3,0x32f9b0,0x10);
+    return 0;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) == '\0') {
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
@@ -48,11 +49,13 @@ uint32_t debugMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
   }
   if (cVar1 != '\0') {
+    return 0;
   }
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x50))) = 0x8033cc66;
   lVar4 = uiMenuRun(iVar2);
   if (lVar4 != 1) {
+    return 0;
   }
   PlayUiSound(0x1a);
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 1;
@@ -68,6 +71,7 @@ uint32_t debugMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     goto LAB_0026bbbc;
   case 3:
     uVar3 = 0x26b470;
+    goto LAB_0026bbbc;
   case 4:
     uVar3 = 0x26b5c8;
     break;
@@ -95,6 +99,7 @@ uint32_t debugMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     uVar3 = 0x26c460;
 LAB_0026bbbc:
     gs_tasks_spawn(param_1,uVar3,1);
+    return 0;
   case 0xb:
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
@@ -105,6 +110,7 @@ LAB_0026bbbc:
   }
   gs_tasks_spawn(param_1,uVar3,0);
 switchD_0026ba80_default:
+  return 0;
 }
 
 

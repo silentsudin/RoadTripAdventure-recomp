@@ -49,6 +49,7 @@ uint32_t pcVar7;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = 2;
     }
   }
+  return 0;
 }
 
 

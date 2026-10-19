@@ -17,6 +17,7 @@ uint32_t lfVersionCheck(uint32_t q0, ...) {
       bVar2 = iVar1 != 0;
     }
   }
+  return bVar2;
 }
 
 

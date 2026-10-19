@@ -25,6 +25,7 @@ uint32_t sceSifSearchModuleByName(uint32_t param_1, ...) {
       uVar1 = 0xfffefffc;
     }
   }
+  return uVar1;
 }
 
 

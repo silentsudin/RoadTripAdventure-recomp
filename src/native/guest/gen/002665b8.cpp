@@ -58,6 +58,7 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
       if (lVar6 == 0) {
         PlayUiSound(0x1c);
         bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+        goto LAB_0026680c;
       }
       PlayUiSound(0x1a);
       gs_tasks_spawn(param_1,0x22bfd0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))));
@@ -67,12 +68,14 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
   case 3:
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xf))) != '\0') {
       bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+      goto LAB_0026680c;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 4;
     break;
   case 4:
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) == '\0') {
       bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+      goto LAB_0026680c;
     }
     PlayUiSound(0x1a);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 2;
@@ -91,6 +94,7 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) = bVar3;
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xf))) != '\0') {
       bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
+      goto LAB_0026680c;
     }
     bVar3 = bVar3 | 1;
 LAB_00266804:

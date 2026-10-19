@@ -52,6 +52,7 @@ uint32_t ShowAwardMessage(uint32_t param_1, uint32_t param_2, ...) {
       return 0;
     }
   }
+  return 0;
 }
 
 

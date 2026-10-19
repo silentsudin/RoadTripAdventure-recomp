@@ -11,6 +11,7 @@ uint32_t GetVehicleTransmissionMode(uint32_t param_1, ...) {
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x244))) != -1) && (uVar1 = 2, (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x244))) != '\x01')) {
     uVar1 = 0;
   }
+  return uVar1;
 }
 
 

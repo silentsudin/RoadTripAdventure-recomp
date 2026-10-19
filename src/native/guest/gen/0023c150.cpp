@@ -36,6 +36,7 @@ uint32_t puVar10;
           iVar2 = iVar2 + 1;
         }
       }
+      return iVar2;
     }
   }
   else {
@@ -64,6 +65,7 @@ uint32_t puVar10;
           if ((((uVar7 & 1 << (uVar12 & 0x1f)) != 0) &&
               (((param_4 & 8) == 0 || (lVar8 = DispatchByIndex15(param_1,uVar12), lVar8 != 0)))) &&
              (iVar3 = iVar2 + 1, uVar12 == param_2)) {
+            return iVar2;
           }
           iVar2 = iVar3;
           uVar11 = uVar11 + 1;
@@ -81,6 +83,7 @@ uint32_t puVar10;
   if (param_2 == 0xffffffff) {
     iVar6 = iVar2;
   }
+  return iVar6;
 }
 
 

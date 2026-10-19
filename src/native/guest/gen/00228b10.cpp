@@ -24,10 +24,12 @@ uint32_t LoadSaveSlotTask(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 0;
     gs_tasks_kill(param_1);
+    return 0;
   }
   if (3 < bVar1) {
     if (bVar1 != 5) {
       if (bVar1 != 6) {
+        return 0;
       }
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) != 0) {
         PlayUiSound(0x1b);
@@ -35,6 +37,7 @@ uint32_t LoadSaveSlotTask(uint32_t param_1, uint32_t param_2, ...) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 0;
         gs_tasks_kill(param_1);
+        return 0;
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c)));
       PlayUiSound(0x303);
@@ -42,11 +45,13 @@ uint32_t LoadSaveSlotTask(uint32_t param_1, uint32_t param_2, ...) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 1;
       gs_tasks_kill(param_1);
+      return 0;
     }
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) != 0) {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) == 1) {
         gs_tasks_spawn(param_1,0x2280d8,0x100);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) = 6;
+        return 0;
       }
       uVar3 = 0x12;
       goto LAB_00228c80;
@@ -56,8 +61,10 @@ LAB_00228c70:
 LAB_00228c80:
     gs_tasks_spawn(param_1,0x227380,uVar3);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) = 3;
+    return 0;
   }
   if (bVar1 != 1) {
+    return 0;
   }
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4)));
   if (iVar2 == 1) {
@@ -76,6 +83,7 @@ LAB_00228bc4:
     gs_tasks_spawn(param_1,0x227380,0x10);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) = 3;
   }
+  return 0;
 }
 
 

@@ -11,6 +11,7 @@ uint32_t sioPutCharCRLF(uint32_t param_1, ...) {
     return 0;
   }
   sioPutChar();
+  return 0;
 }
 
 

@@ -13,6 +13,7 @@ uint32_t sceSifSyncIop(uint32_t q0, ...) {
   if (bVar1) {
     sceResetttyinit();
   }
+  return bVar1;
 }
 
 

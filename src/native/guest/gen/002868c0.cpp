@@ -159,6 +159,7 @@ LAB_00286910:
       rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), cVar4);
       cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar8));
     } while ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0');
+    goto LAB_00286e58;
   case 0x35:
   case 0x36:
     if ((*(float*)rtguest::G((uint32_t)param_2)) == 0.0) {
@@ -172,8 +173,10 @@ LAB_00286910:
       fpFormatFloatSci(uVar5);
       param_2 = param_2 + 2;
     }
+    goto LAB_00286e58;
   case 0x38:
     lVar7 = 0x68;
+    goto LAB_00286910;
   case 0x3c:
     goto switchD_0028693c_caseD_3c;
   case 0x3f:
@@ -212,6 +215,7 @@ LAB_00286910:
       rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), cVar4);
       cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar8));
     } while ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0');
+    goto LAB_00286e58;
   case 0x43:
     pfVar11 = param_2 + 2;
     pcVar9 = (uint32_t)(*(float*)rtguest::G((uint32_t)param_2));
@@ -234,6 +238,7 @@ LAB_00286910:
         cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar9));
       } while (cVar4 != '\0');
     }
+    goto LAB_00286e58;
   case 0x45:
     if (lVar7 == 0x6c) {
       uVar10 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)param_2));
@@ -270,6 +275,7 @@ LAB_00286910:
         rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), cVar4);
         cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar8));
       } while ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0');
+      goto LAB_00286e58;
     }
     break;
   case 0x48:
@@ -312,13 +318,16 @@ LAB_00286910:
       rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), cVar4);
       cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar8));
     } while ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0');
+    goto LAB_00286e58;
   default:
     break;
   }
 switchD_0028693c_default:
   param_1 = pbVar2 + 2;
+  goto LAB_00286e58;
 switchD_0028693c_caseD_3c:
   lVar7 = 0x6c;
+  goto LAB_00286910;
 switchD_0028693c_caseD_1:
   goto switchD_0028693c_default;
 }

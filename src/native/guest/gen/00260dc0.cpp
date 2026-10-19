@@ -73,6 +73,7 @@ switchD_00260e9c_caseD_2:
       sVar4 = __umoddi3((*(uint64_t*)rtguest::G((uint32_t)puVar10)),0x14);
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbe))) = ((uint32_t)((*(uint64_t*)rtguest::G((uint32_t)puVar10)) >> 5) & 0xf) * 0xc + 0x300;
       (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) = sVar4 * 0xccc;
+      return 0;
     }
     auditRouletteOutcome(iVar11);
     iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x18)));
@@ -80,6 +81,7 @@ switchD_00260e9c_caseD_2:
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = 0xffffffff;
     gs_tasks_kill(param_1);
+    return 0;
   case 2:
     goto switchD_00260e9c_caseD_2;
   case 3:
@@ -156,6 +158,7 @@ switchD_00260e9c_caseD_9:
             else if (iVar9 == 2) {
               SetWheelSprite2(iVar1,0,0);
               SetWheelSprite(iVar1,0,0);
+              goto LAB_00261308;
             }
             uiFade(0xffffffff80000000);
             (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = 1;
@@ -163,6 +166,7 @@ switchD_00260e9c_caseD_9:
         }
 LAB_00261308:
         raceHudDraw(iVar1);
+        return 0;
       }
     }
     break;
@@ -180,6 +184,7 @@ LAB_00261338:
   if ((uVar6 & 0x10000) == 0) {
     raceHudDraw(iVar1);
   }
+  return 0;
 }
 
 

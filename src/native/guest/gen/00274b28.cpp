@@ -70,6 +70,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
       dVar2 = (double)dpsub();
       (*(double*)rtguest::G((uint32_t)pdVar13)) = dVar2;
       (*(double*)rtguest::G((uint32_t)pdVar13 + (uint32_t)(1) * sizeof(double))) = dVar2;
+      return 0;
     }
     uVar10 = (uint32_t)param_1 & 0xffffffff |
              (long)((int)uVar10 + (iVar14 + -0x416) * -0x100000) << 0x20;
@@ -95,6 +96,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
     }
     iVar8 = __kernel_rem_pio2(auStack_70,param_2,iVar14 + -0x416,iVar8,2,0x3312f8);
     if (-1 < (long)uVar15) {
+      return iVar8;
     }
     dVar7 = (double)dpsub(0,(*(double*)rtguest::G((uint32_t)pdVar13)));
     dVar2 = (*(double*)rtguest::G((uint32_t)pdVar13 + (uint32_t)(1) * sizeof(double)));
@@ -144,6 +146,7 @@ LAB_00274f1c:
   dVar2 = (double)dpsub(uVar1,uVar3);
   (*(double*)rtguest::G((uint32_t)pdVar13 + (uint32_t)(1) * sizeof(double))) = dVar2;
   if (-1 < (long)uVar15) {
+    return iVar8;
   }
   dVar7 = (double)dpsub(0,dVar7);
   (*(double*)rtguest::G((uint32_t)pdVar13)) = dVar7;

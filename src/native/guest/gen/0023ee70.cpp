@@ -50,6 +50,7 @@ uint32_t puVar11;
     vu0CopyVector(0x177eb40,0x2a37d0);
     return 0;
   }
+  return 0;
 }
 
 

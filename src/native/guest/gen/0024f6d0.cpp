@@ -21,6 +21,7 @@ uint32_t uiArenaSetColour(uint32_t param_1, uint32_t param_2, ...) {
     gifAdPair(iVar1,param_2,1);
     return 0;
   }
+  return 0;
 }
 
 

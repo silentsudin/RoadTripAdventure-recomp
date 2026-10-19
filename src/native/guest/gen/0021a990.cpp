@@ -34,10 +34,12 @@ uint32_t puVar10;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x19a))) == '\0') {
       uVar2 = (uint32_t)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198)));
+      goto LAB_0021aa98;
     }
     uVar8 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198)));
     uVar2 = (uint32_t)(short)uVar8;
     if ((long)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x10))) + 2))) + -1) <= (long)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x19b))))
+    goto LAB_0021aa98;
     if (uVar2 == 2) {
       PlayUiSound((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x245))) + 0x8000);
       PlayUiSound(0x309);
@@ -118,6 +120,7 @@ LAB_0021aa98:
       (*(uint32_t*)rtguest::G((uint32_t)puVar10)) = psVar4;
       if (0x1ffff8 < (int)psVar4) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))) = uVar5 & 0xffffffdf;
+        goto LAB_0021ac54;
       }
       (*(int16_t*)rtguest::G((uint32_t)psVar1 + (uint32_t)(7) * sizeof(int16_t))) = (short)uVar13;
       (*(int16_t*)rtguest::G((uint32_t)psVar4)) = 1;
@@ -127,14 +130,17 @@ LAB_0021aa98:
 LAB_0021ac54:
   if ((uVar11 & 0x800) == 0) {
     if ((uVar11 & 0x100) == 0) {
+      return uVar13;
     }
     uVar2 = uVar13 & 0xff00;
     if (0x3f < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 8)))) {
+      return uVar2;
     }
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x1b8))) < 0x1000) {
       return uVar2 | 1;
     }
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x1b8))) < 0x1801) {
+      return uVar2;
     }
   }
   return uVar13 & 0xff00 | 2;

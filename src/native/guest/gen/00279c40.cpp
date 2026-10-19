@@ -11,6 +11,7 @@ uint32_t sceMcMkdir(uint32_t q0, ...) {
   if (lVar1 == 0) {
     (*(uint32_t*)rtguest::G(0x2e89b8)) = 0xb;
   }
+  return lVar1;
 }
 
 

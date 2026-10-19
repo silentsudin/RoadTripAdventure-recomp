@@ -27,6 +27,7 @@ uint32_t __kernel_cosf(uint32_t param_1, uint32_t param_2, ...) {
       fVar3 = (1.0 - fVar2) - ((fVar4 * 0.5 - fVar2) - (fVar4 * fVar3 - param_1 * param_2));
     }
   }
+  return fVar3;
 }
 
 

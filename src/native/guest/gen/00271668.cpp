@@ -23,6 +23,7 @@ uint32_t puVar3;
       (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(4) * sizeof(uint32_t))) = (*(uint32_t*)rtguest::G((uint32_t)puVar3));
     }
   }
+  return uVar2;
 }
 
 

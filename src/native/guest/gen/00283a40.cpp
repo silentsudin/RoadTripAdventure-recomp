@@ -51,6 +51,7 @@ uint32_t _lo0bits(uint32_t param_1, ...) {
       return 1;
     }
   }
+  return iVar1;
 }
 
 

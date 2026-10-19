@@ -20,12 +20,14 @@ uint32_t __dest;
       if (param_3 == 0) {
         if (cVar1 == '\0') {
           (*(int8_t*)rtguest::G((uint32_t)__dest)) = '\0';
+          return param_1;
         }
       }
       else {
         iVar5 = iVar5 + -1;
         if (iVar5 < 0) {
           (*(int8_t*)rtguest::G((uint32_t)__dest)) = '\0';
+          return param_1;
         }
       }
       if (-1 < cVar1) break;

@@ -11,6 +11,7 @@ uint32_t piVar1;
   if (((*(uint32_t*)rtguest::G((uint32_t)(0x2d98a8u + (uint32_t)(param_1) * 4))) == (uint32_t)0x0) || ((*(int32_t*)rtguest::G((uint32_t)piVar1)) == 0)) {
     piVar1 = (uint32_t)0x0;
   }
+  return piVar1;
 }
 
 

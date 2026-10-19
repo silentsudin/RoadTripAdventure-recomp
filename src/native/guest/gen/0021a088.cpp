@@ -128,6 +128,7 @@ LAB_0021a23c:
     if (!bVar1) {
       lVar4 = lVar5;
     }
+    goto LAB_0021a2ec;
   }
   sVar7 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1d6)));
   lVar4 = (long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1d6)));
@@ -139,6 +140,7 @@ LAB_0021a2ec:
     lVar4 = 0x400;
   }
   (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1d6))) = sVar7 - (short)lVar4;
+  return 0;
 }
 
 

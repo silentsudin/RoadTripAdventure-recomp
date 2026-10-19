@@ -50,6 +50,7 @@ LAB_0021e440:
         while (puVar5 = puVar5 + 0x138, (uVar3 & 0x27e) != uVar6) {
           iVar7 = iVar7 + 1;
           if (0x17 < iVar7) {
+            return 0;
           }
           uVar3 = (*(uint16_t*)rtguest::G((uint32_t)puVar5));
         }
@@ -57,6 +58,7 @@ LAB_0021e440:
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (char)iVar7;
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (char)uVar1;
       }
+      return 0;
     }
     iVar7 = iVar7 + 1;
     if (0x17 < iVar7) {

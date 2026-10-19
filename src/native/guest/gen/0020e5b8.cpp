@@ -49,6 +49,7 @@ uint32_t auStack_d0 = rtguest::allocFrame(128);
     sceClose(lVar4);
     iVar2 = ::printf((char *)rtguest::G((uint32_t)(0x333390u)));
   }
+  return iVar2;
 }
 
 

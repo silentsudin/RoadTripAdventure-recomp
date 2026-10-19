@@ -226,6 +226,7 @@ LAB_0025f14c:
     break;
   default:
     lVar8 = (long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb6)));
+    goto LAB_0025f1b8;
   }
   lVar8 = (long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb6)));
 LAB_0025f1b8:
@@ -334,6 +335,7 @@ LAB_0025f508:
     break;
   default:
     bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 10)));
+    goto LAB_0025f558;
   }
   bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 10)));
 LAB_0025f558:

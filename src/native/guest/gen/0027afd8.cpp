@@ -172,6 +172,7 @@ LAB_0027b498:
     iVar5 = uVar6 - uVar7;
     uVar14 = uVar7 >> 0x10;
     uVar7 = uVar7 & 0xffff;
+    goto LAB_0027b1e0;
   }
   uVar16 = (uint32_t)(int)(uVar14 << (uVar13 & 0x1f));
   uVar3 = uVar6 >> (0x20 - uVar13 & 0x1f);

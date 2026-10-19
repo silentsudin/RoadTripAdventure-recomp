@@ -31,10 +31,12 @@ uint32_t puVar12;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))) = 1;
     gs_tasks_kill();
+    return 0;
   }
   if (cVar1 == '\x03') {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) | 0x400000;
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) == '\0') {
+      return 0;
     }
     DestroyTaskRecord();
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x27))) = 0;
@@ -50,6 +52,7 @@ uint32_t puVar12;
   }
   if (cVar1 == '\x02') {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) == '\0') {
+      return 0;
     }
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))) != -1) {
       uVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4)));
@@ -61,30 +64,37 @@ uint32_t puVar12;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x14))) =
            (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x14))) + ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 8))) & 3) * 9000 + 9000;
       switchD_002108bc_updateTownExplorationTaskReturn();
+      return 0;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 0;
     ClearTaskListFlag();
     SoundFadeOutChannels();
     ApplySoundVolumes((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x14))));
     UpdateSceneLightsAndFog(0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x22))));
+    return 0;
   }
   if (cVar1 == '\x06') {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0xf))) != '\0') {
+      return 0;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 0;
     ClearTaskPoolFlag();
 LAB_002107f4:
     gs_tasks_spawn(param_1,0x208270,0);
+    return 0;
   }
   if (cVar1 == '\n') {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) != '\0') {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) & 0xfffafbff;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 0;
       SoundFadeOutChannels();
+      return 0;
     }
+    return 0;
   }
   if (cVar1 == '\a') {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) == '\0') {
+      return 0;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x27))) != '\x02') {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 6;
@@ -93,6 +103,7 @@ LAB_002107f4:
                           param_1,param_2);
       }
       StartTownModeTask(param_1,param_2,0);
+      return 0;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 0;
     ClearTaskListFlag();
@@ -113,6 +124,7 @@ LAB_002107f4:
       (*(int32_t*)rtguest::G(0x335730)) = (*(int32_t*)rtguest::G(0x335730)) + 1;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) == '\0') {
+      return 0;
     }
     switch((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4)))) {
     case 4:
@@ -121,6 +133,7 @@ LAB_002107f4:
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 9;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x20))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x14)));
       switchD_002108bc_updateTownExplorationTaskReturn();
+      return 0;
     case 5:
       AwardHouseStampIfUnset((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x23))));
       gs_tasks_spawn(param_1,0x26d008,0);
@@ -128,10 +141,13 @@ LAB_002107f4:
       lVar7 = TestFlagBitFc98(0x50);
       if (lVar7 != 0) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) | 0x1000;
+        return 0;
       }
+      return 0;
     case 6:
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 5;
       switchD_002108bc_updateTownExplorationTaskReturn();
+      return 0;
     case 7:
     case 8:
     case 9:
@@ -142,7 +158,9 @@ LAB_002107f4:
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x27))) == '\0') {
         SpawnTownEntities((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x21))),
                           param_1,param_2);
+        return 0;
       }
+      return 0;
     case 0xb:
       DestroyTaskRecord(param_1);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x27))) = 0;
@@ -167,20 +185,25 @@ LAB_002107f4:
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = uVar5 | 0x400000;
       switchD_002108bc_updateTownExplorationTaskReturn();
+      return 0;
     case 0xc:
       UiDestroyRemovedNodes(param_1);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x27))) = 0;
       SpawnTownEntities((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x21))),
                         param_1,param_2);
+      return 0;
     case 0xf:
       UiDestroyRemovedNodes(param_1);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x27))) = 0;
       switchD_002108bc_updateTownExplorationTaskReturn();
+      return 0;
     default:
+      return 0;
     }
   }
   if (cVar1 == '\t') {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) == '\0') {
+      return 0;
     }
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 2))) = (short)((*(uint32_t*)rtguest::G(0x177fdb8)) / 6000);
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x23))) == '\0') {
@@ -205,9 +228,11 @@ LAB_002107f4:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a88ec + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x22))) * 8))) == 0) {
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x14))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x20))) + 9000;
       switchD_002108bc_updateTownExplorationTaskReturn();
+      return 0;
     }
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x14))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a88ec + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x22))) * 8)));
     switchD_002108bc_updateTownExplorationTaskReturn();
+    return 0;
   }
   if (cVar1 == '\b') {
     piVar11 = (uint32_t)((int)puVar12 + 0x14);
@@ -221,12 +246,14 @@ LAB_002107f4:
     }
     updateTimeOfDayLight((*(uint32_t*)rtguest::G(0x177ace4)),param_2,(*(int32_t*)rtguest::G((uint32_t)piVar11)));
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) == '\0') {
+      return 0;
     }
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))) != 0xb) {
       gs_tasks_spawn(param_1,0x26d008,1);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 10;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) & 0xfffffbff;
       switchD_002108bc_updateTownExplorationTaskReturn();
+      return 0;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = 0x400000;
     AccumulateDistanceSingle();
@@ -235,6 +262,7 @@ LAB_002107f4:
     SetTaskListFlag(param_1);
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x23))) == '\0') {
       uVar10 = (uint32_t)(*(uint32_t*)rtguest::G(0x177fdb2));
+      goto LAB_00211070;
     }
     lVar7 = MatchSlotPairState((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x21))));
     if (lVar7 == 0) goto LAB_00210ff0;
@@ -242,6 +270,7 @@ LAB_002107f4:
   }
   else {
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) & 0x8000) != 0) {
+      return 0;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0xb))) != '\0') {
       if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x2c))) & 1) != 0) {
@@ -291,12 +320,15 @@ LAB_002107f4:
                                      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x21))));
           if (lVar7 == 0) goto LAB_00210ff0;
           (*(int32_t*)rtguest::G(0x177ea5c)) = (int)0x177f760 + (int)lVar7 * 0x1c;
+          goto LAB_00211038;
         }
         uVar10 = (uint32_t)(*(uint32_t*)rtguest::G(0x177fdb2));
+        goto LAB_00211070;
       }
       uVar5 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5)));
     }
     if ((uVar5 & 0x400) != 0) {
+      return 0;
     }
     iVar6 = (*(int32_t*)rtguest::G(0x177ae54));
     if ((*(int32_t*)rtguest::G(0x177ae54)) < 0) {
@@ -329,7 +361,9 @@ LAB_002107f4:
         gs_tasks_spawn(param_1,0x217148,0);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 2;
 code_r0x00211154:
+        return 0;
       }
+      return 0;
     }
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))) != 1) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 8;
@@ -338,8 +372,10 @@ code_r0x00211154:
                       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x23))) * 4)))))));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) | 0x50000;
       SoundStopAllChannels();
+      return 0;
     }
     if ((((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) & 0x1000) != 0) && (lVar7 = IsSlotActive(param_2), lVar7 == 0)) {
+      return 0;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = 0x400000;
     AccumulateDistanceSingle();
@@ -377,6 +413,7 @@ LAB_00211038:
 LAB_0021109c:
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 4;
   switchD_002108bc_updateTownExplorationTaskReturn();
+  return 0;
 }
 
 

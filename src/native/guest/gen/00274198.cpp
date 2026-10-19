@@ -27,6 +27,7 @@ uint32_t puVar4;
     _send_to_iop(param_1,param_2);
     uVar3 = 1;
   }
+  return uVar3;
 }
 
 

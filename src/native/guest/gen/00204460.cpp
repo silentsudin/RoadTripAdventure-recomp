@@ -51,6 +51,7 @@ uint32_t uiDrawNumberAuto(uint32_t param_1, uint32_t param_2, uint32_t param_3, 
   }
   param_1 = param_1 + iVar1 * 10;
   uiDrawNumber10(param_1,param_2,param_3,param_4);
+  return param_1;
 }
 
 

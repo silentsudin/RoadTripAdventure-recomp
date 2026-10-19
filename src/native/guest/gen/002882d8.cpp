@@ -37,6 +37,7 @@ uint32_t sceSifRemoveRpcQueue(uint32_t param_1, ...) {
 LAB_00288348:
   (*(int32_t*)rtguest::G(0x1778868)) = iVar1;
   EIntr();
+  return iVar4;
 }
 
 

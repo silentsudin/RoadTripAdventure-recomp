@@ -30,6 +30,7 @@ uint32_t _lf_bind(uint32_t q0, ...) {
   else {
     uVar1 = 0;
   }
+  return uVar1;
 }
 
 

@@ -28,6 +28,7 @@ uint32_t puVar2;
   else {
     uVar1 = 0;
   }
+  return uVar1;
 }
 
 

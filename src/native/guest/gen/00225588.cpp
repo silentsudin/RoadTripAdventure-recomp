@@ -10,6 +10,7 @@ uint32_t pvVar1;
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x0172ff70)), 0, 0x800));
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x01730770)), 0, 0x80));
   pvVar1 = (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x017307f0)), 0, 0x400));
+  return pvVar1;
 }
 
 

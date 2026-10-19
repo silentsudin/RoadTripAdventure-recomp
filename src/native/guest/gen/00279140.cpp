@@ -23,6 +23,7 @@ uint32_t sceCdGetError(uint32_t q0, ...) {
       SignalSema((*(uint32_t*)rtguest::G(0x2e6f2c)));
     }
   }
+  return uVar1;
 }
 
 

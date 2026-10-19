@@ -28,6 +28,7 @@ uint32_t dialogueCmdPlaySoundCue(uint32_t param_1, ...) {
     gs_tasks_kill(param_1);
     return 0;
   }
+  return 0;
 }
 
 

@@ -9,6 +9,7 @@ uint32_t SoundStopVoiceByHandle(uint32_t param_1, ...) {
     SendRpcCmd9Value((*(uint32_t*)rtguest::G((uint32_t)0x335728 + (uint32_t)(param_1) * 4)));
     return 0;
   }
+  return 0;
 }
 
 

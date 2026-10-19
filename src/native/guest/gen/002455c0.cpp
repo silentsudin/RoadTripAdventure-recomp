@@ -498,6 +498,7 @@ LAB_002461d0:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 8))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x25))) = 1;
   PlayUiSound(0x1a);
+  return 0;
 }
 
 

@@ -145,6 +145,7 @@ uint32_t piVar12;
     gs_tasks_kill(param_1);
     return 0;
   }
+  return 0;
 }
 
 

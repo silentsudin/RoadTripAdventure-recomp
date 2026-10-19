@@ -34,6 +34,7 @@ uint32_t IsPointInsideQuad(uint32_t param_1, uint32_t param_2, ...) {
       }
     }
   }
+  return uVar1;
 }
 
 

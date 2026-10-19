@@ -55,20 +55,24 @@ uint32_t pcVar3;
   iVar1 = (int)param_1;
   (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(pcVar3 + 0x18))) = iVar1;
   if (param_1 == 0) {
+    return pcVar3;
   }
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x10)));
   if (iVar2 != 0) {
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x14)));
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x14))) == 0) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x14))) = pcVar3;
+      return pcVar3;
     }
     do {
       iVar2 = iVar1;
       iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x14)));
     } while (iVar1 != 0);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x14))) = pcVar3;
+    return pcVar3;
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x10))) = pcVar3;
+  return pcVar3;
 }
 
 

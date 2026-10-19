@@ -83,6 +83,7 @@ uint32_t pbVar7;
     while( true ) {
       pbVar7 = pbVar5;
       if (pbVar7 == (uint32_t)0x0) {
+        return 0;
       }
       if (((*(int8_t*)rtguest::G((uint32_t)pbVar7)) & 2) != 0) break;
 LAB_00204bd4:

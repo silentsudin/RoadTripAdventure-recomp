@@ -44,6 +44,7 @@ LAB_00201f80:
     param_3 = param_3 / 10;
     iVar3 = (*(uint32_t*)rtguest::G(0x335684));
     if (param_3 == 0) {
+      return param_1;
     }
   } while( true );
 }

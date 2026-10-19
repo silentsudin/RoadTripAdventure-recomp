@@ -41,6 +41,7 @@ uint32_t TestSegmentInBoxWindow(uint32_t param_1, uint32_t param_2, uint32_t par
       uVar1 = 1;
     }
   }
+  return uVar1;
 }
 
 

@@ -17,20 +17,25 @@ uint32_t puVar2;
   if (((*(uint32_t*)rtguest::G((uint32_t)0x17803a0 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & uVar1) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)0x17803a0 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) =
          (*(uint32_t*)rtguest::G((uint32_t)0x17803a0 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & ~uVar1;
+    return 0;
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)0x178039c + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & uVar1) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)0x178039c + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) =
          (*(uint32_t*)rtguest::G((uint32_t)0x178039c + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & ~uVar1;
+    return 0;
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)0x1780398 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & uVar1) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)0x1780398 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) =
          (*(uint32_t*)rtguest::G((uint32_t)0x1780398 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & ~uVar1;
+    return 0;
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)0x1780394 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & uVar1) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)0x1780394 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) =
          (*(uint32_t*)rtguest::G((uint32_t)0x1780394 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & ~uVar1;
+    return 0;
   }
   (*(uint32_t*)rtguest::G((uint32_t)puVar2)) = (*(uint32_t*)rtguest::G((uint32_t)puVar2)) & ~uVar1;
+  return 0;
 }
 
 

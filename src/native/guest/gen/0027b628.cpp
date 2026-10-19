@@ -22,6 +22,7 @@ uint32_t puVar2;
     __deregister_frame_info(0x2e99c0);
     return 0;
   }
+  return 0;
 }
 
 

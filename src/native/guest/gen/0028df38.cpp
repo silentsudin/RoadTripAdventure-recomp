@@ -292,6 +292,7 @@ LAB_0028e3ec:
       else {
         uVar14 = 0;
         if ((uVar15 != uVar9 - uVar3) || ((uint32_t)lVar1 <= uVar18 << (uVar8 & 0x1f)))
+        goto LAB_0028e484;
         uVar10 = uVar10 - 1;
       }
     }

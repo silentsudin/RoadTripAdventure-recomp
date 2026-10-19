@@ -61,6 +61,7 @@ uint32_t puVar4;
     puVar4 = 0x0029fa08;
   }
   if (iVar1 == iVar3) {
+    return 0;
   }
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(__s)), 0, 0x2c));
   (*(int32_t*)rtguest::G((uint32_t)__s)) = iVar3;
@@ -83,6 +84,7 @@ LAB_00233300:
   (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(5) * sizeof(int32_t))) = (int)puVar4;
   (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(6) * sizeof(int32_t))) = 1;
   (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(9) * sizeof(int32_t))) = 0x1e;
+  return 0;
 }
 
 

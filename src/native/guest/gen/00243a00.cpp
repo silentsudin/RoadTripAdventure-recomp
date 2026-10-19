@@ -19,8 +19,10 @@ uint32_t GetPartValueU16(uint32_t param_1, uint32_t param_2, ...) {
   else {
     uVar1 = 0xb;
     if (param_1 != 0xc) {
+      return 0;
     }
   }
+  return uVar1;
 }
 
 

@@ -49,6 +49,7 @@ uint32_t puVar1;
       SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
     }
   }
+  return lVar2;
 }
 
 

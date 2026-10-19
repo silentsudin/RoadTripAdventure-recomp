@@ -16,6 +16,7 @@ uint32_t sceSifInvalidateDCache(uint32_t param_1, uint32_t param_2, ...) {
     EIntr();
     return 0;
   }
+  return 0;
 }
 
 

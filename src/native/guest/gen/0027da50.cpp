@@ -37,6 +37,7 @@ uint32_t __pack_f(uint32_t param_1, ...) {
       else {
         uVar3 = uVar2 >> 7;
       }
+      goto LAB_0027dad4;
     }
     uVar4 = 0xff;
   }

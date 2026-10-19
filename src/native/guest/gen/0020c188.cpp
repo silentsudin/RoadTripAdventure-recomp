@@ -182,6 +182,7 @@ uint32_t puVar13;
     (*(uint32_t*)rtguest::G(0x3356c0)) = 0xffffffff;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_5 * 4 + param_2 + 0x60))) = param_4;
   }
+  return 0;
 }
 
 

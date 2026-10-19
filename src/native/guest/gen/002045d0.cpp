@@ -29,6 +29,7 @@ uint32_t pcVar4;
       param_4 = pcVar4;
     }
   }
+  return param_1;
 }
 
 

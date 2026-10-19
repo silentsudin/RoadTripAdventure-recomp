@@ -31,6 +31,7 @@ uint32_t puVar4;
       uVar2 = 0;
     }
   }
+  return uVar2;
 }
 
 

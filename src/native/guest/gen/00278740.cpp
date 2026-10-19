@@ -25,6 +25,7 @@ uint32_t sceCdSync(uint32_t param_1, ...) {
       uVar1 = 0;
     }
   }
+  return uVar1;
 }
 
 

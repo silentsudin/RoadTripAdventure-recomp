@@ -59,6 +59,7 @@ uint32_t puVar1;
   if (lVar2 != 0) {
     (*(uint32_t*)rtguest::G(0x1776e90)) = 0x01776dc0;
     sceSifSendCmd(0xffffffff80000000,0x1776e80,0x14,0,0,0);
+    return 0;
   }
   (*(uint32_t*)rtguest::G(0x1776ea0)) = 0;
   do {
@@ -71,6 +72,7 @@ uint32_t puVar1;
   (*(uint32_t*)rtguest::G(0x1776e90)) = 0x01776dc0;
   (*(uint32_t*)rtguest::G(0x1776e8c)) = 0;
   sceSifSendCmd(0xffffffff80000002,0x1776e80,0x14,0,0,0);
+  return 0;
 }
 
 

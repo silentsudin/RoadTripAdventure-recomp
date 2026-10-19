@@ -50,14 +50,17 @@ uint32_t psVar7;
       }
       if (((*(int8_t*)rtguest::G(0x177ae9a)) == 0x40) && ((*(uint32_t*)rtguest::G(0x33314c)) <= (*(uint32_t*)rtguest::G(0x177ace8)))) {
         uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
+        goto LAB_002600f0;
       }
       if (((*(int8_t*)rtguest::G(0x177ae9a)) == 0x41) && ((*(uint32_t*)rtguest::G(0x177ace8)) < (*(uint32_t*)rtguest::G(0x333150)))) {
         uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
+        goto LAB_002600f0;
       }
       uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0)));
       if ((*(int8_t*)rtguest::G(0x177ae9a)) != 0x54) goto LAB_00260148;
       if ((uVar4 & 1) == 0) {
         uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
+        goto LAB_002600f0;
       }
 LAB_00260154:
       if ((*(int8_t*)rtguest::G(0x177ae9a)) == 0x55) {
@@ -167,6 +170,7 @@ LAB_002602dc:
     break;
   default:
     lVar6 = (long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb6)));
+    goto LAB_00260378;
   }
   lVar6 = (long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb6)));
 LAB_00260378:
@@ -182,14 +186,17 @@ LAB_00260378:
       }
       if (((*(uint32_t*)rtguest::G(0x177b10a)) == 0x40) && ((*(uint32_t*)rtguest::G(0x333160)) <= (*(uint32_t*)rtguest::G(0x177af58)))) {
         uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
+        goto LAB_00260478;
       }
       if (((*(uint32_t*)rtguest::G(0x177b10a)) == 0x41) && ((*(uint32_t*)rtguest::G(0x177af58)) < (*(uint32_t*)rtguest::G(0x333164)))) {
         uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
+        goto LAB_00260478;
       }
       uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0)));
       if ((*(uint32_t*)rtguest::G(0x177b10a)) != 0x54) goto LAB_002604ac;
       if ((uVar4 & 2) == 0) {
         uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
+        goto LAB_00260478;
       }
 LAB_002604b8:
       if ((*(uint32_t*)rtguest::G(0x177b10a)) == 0x55) {
@@ -248,6 +255,7 @@ LAB_002604ac:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 4))) = 0xffffffff;
     gs_tasks_kill(param_1);
   }
+  return 0;
 }
 
 

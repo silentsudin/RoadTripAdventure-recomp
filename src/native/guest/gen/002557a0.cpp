@@ -19,6 +19,7 @@ uint32_t DrawPaintCursorSprites(uint32_t param_1, uint32_t param_2, ...) {
   }
   uiSpriteWrite(param_2 + 0x3220,(*(uint16_t*)rtguest::G(0x2ac620)),(*(uint32_t*)rtguest::G(0x2ac622)),0,0,0x20,0x20);
   uiSpriteWrite(param_2 + 0x3270,(*(uint16_t*)rtguest::G(0x2ac620)),(*(uint32_t*)rtguest::G(0x2ac622)),0,0,0x20,0x20);
+  return 0;
 }
 
 

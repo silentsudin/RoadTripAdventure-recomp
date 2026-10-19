@@ -52,6 +52,7 @@ uint32_t AdvanceAnimationPhaseState(uint32_t param_1, ...) {
         (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) = 0;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = 9;
         PlayUiSound(0x34);
+        return 0;
       }
       if (cVar1 == '\x0f') {
         (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) = 0;
@@ -61,6 +62,7 @@ uint32_t AdvanceAnimationPhaseState(uint32_t param_1, ...) {
       }
     }
   }
+  return 0;
 }
 
 

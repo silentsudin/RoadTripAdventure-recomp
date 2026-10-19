@@ -19,8 +19,9 @@ uint32_t sceSdTransToIOP(uint32_t param_1, uint32_t param_2, uint32_t param_3, u
         return 0;
       }
       do {
-        lVar2 = sceSifDmaStat(lVar1);
+        lVar2 = (int32_t)sceSifDmaStat(lVar1);
       } while (-1 < lVar2);
+      return 0;
     }
   }
   return 0xffffffff;

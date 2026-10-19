@@ -30,6 +30,7 @@ uint32_t decode_sleb128(uint32_t param_1, uint32_t param_2, ...) {
   else {
     (*(uint32_t*)rtguest::G((uint32_t)param_2)) = uVar4;
   }
+  return param_1;
 }
 
 

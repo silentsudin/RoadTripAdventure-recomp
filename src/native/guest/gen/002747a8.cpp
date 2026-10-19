@@ -15,6 +15,7 @@ uint32_t scePadSetWarningLevel(uint32_t param_1, ...) {
   if (lVar2 < 0) {
     uVar1 = 0;
   }
+  return uVar1;
 }
 
 

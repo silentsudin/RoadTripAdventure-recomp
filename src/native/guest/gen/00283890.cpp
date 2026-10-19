@@ -49,6 +49,7 @@ uint32_t pcVar5;
       uVar2 = _multadd(param_1,uVar2,10,cVar1 + -0x30);
     } while (param_4 != 0);
   }
+  return uVar2;
 }
 
 

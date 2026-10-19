@@ -11,6 +11,7 @@ uint32_t uiArenaInit(uint32_t param_1, uint32_t param_2, ...) {
     return 0;
   }
   (*(int32_t*)rtguest::G((uint32_t)param_1)) = 0;
+  return 0;
 }
 
 

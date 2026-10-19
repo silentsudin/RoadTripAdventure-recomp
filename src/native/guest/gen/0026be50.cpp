@@ -37,6 +37,7 @@ uint32_t auStack_140 = rtguest::allocFrame(256);
         return 0;
       }
       StartTownExplorationTask();
+      return 0;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = 0;
     uVar4 = uiMenuCreate();
@@ -67,6 +68,7 @@ LAB_0026bf48:
       } while (iVar10 < (int)uVar9);
     }
     LayoutTextItems(uVar4,auStack_340,uVar9,0xf);
+    return 0;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x24))) == '\0') goto LAB_0026c230;
   iVar14 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 4)));
@@ -76,6 +78,7 @@ LAB_0026bfd4:
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 0xffffffff;
     gs_tasks_kill();
+    return 0;
   }
   if (iVar14 == 5) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) != '\0') {
@@ -123,17 +126,21 @@ LAB_0026c0ac:
         DestroyTaskRecord();
         SpawnTownDialogueTasks(param_1,param_2);
         cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25)));
+        goto LAB_0026c234;
       }
       if (iVar14 != -1) {
         cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25)));
+        goto LAB_0026c234;
       }
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25))) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x50))) = 0x8033cc66;
 LAB_0026c230:
       cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25)));
+      goto LAB_0026c234;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) == '\0') {
       cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25)));
+      goto LAB_0026c234;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = 0;
     uVar4 = uiMenuCreate();
@@ -167,6 +174,7 @@ LAB_0026c18c:
   cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25)));
 LAB_0026c234:
   if (cVar3 != '\0') {
+    return 0;
   }
   bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
   if (bVar1 != 0) {
@@ -210,22 +218,26 @@ LAB_0026c234:
   }
   lVar5 = uiMenuWindow(iVar2,param_2,auStack_440);
   if (lVar5 == 0) {
+    return 0;
   }
   if (lVar5 == -1) {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 0xffffffff;
     gs_tasks_kill(param_1);
+    return 0;
   }
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25))) = 1;
   bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));
   (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) = bVar1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1c))) == 0) {
     StartTownExplorationTask(param_1,param_2);
+    return 0;
   }
   cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23)));
   if ((long)(uint32_t)bVar1 < (long)(char)(*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)(cVar3 * 8) * 1))) {
     SpawnTownDialogueTasks(param_1,param_2);
+    return 0;
   }
   lVar5 = MatchSlotPairState(cVar3,(uint32_t)bVar1);
   if (lVar5 == 0) {
@@ -236,6 +248,7 @@ LAB_0026c234:
   }
   gs_tasks_spawn(param_1,0x20dc50,0x70301);
   gs_tasks_spawn(param_1,0x22c518,1);
+  return 0;
 }
 
 

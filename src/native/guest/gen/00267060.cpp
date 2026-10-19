@@ -54,6 +54,7 @@ uint32_t puStack_5c;
   else {
     uiDrawText(param_1,param_2 / 2,0x32f250,3);
   }
+  return iVar2;
 }
 
 

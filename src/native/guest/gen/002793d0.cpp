@@ -70,6 +70,7 @@ uint32_t puVar5;
     puVar5 = puVar4;
   }
   sceSifCallRpc(0x17739c0,param_2,bVar1,puVar4,0x40,puVar5,uVar6,uVar7);
+  return 0;
 }
 
 

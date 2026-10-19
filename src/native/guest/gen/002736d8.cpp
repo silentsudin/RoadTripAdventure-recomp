@@ -29,6 +29,7 @@ uint32_t puVar1;
   if (lVar3 < 0) {
     uVar2 = 0;
   }
+  return uVar2;
 }
 
 

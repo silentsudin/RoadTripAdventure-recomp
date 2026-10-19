@@ -35,6 +35,7 @@ uint32_t shopBodySellMenuTask(uint32_t param_1, uint32_t param_2, ...) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 4))) = 0xffffffff;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) = 1;
         gs_tasks_kill(param_1,0xffffffffffffffff);
+        return 0;
       }
       iVar5 = DispatchByIndex15(0);
       DestroyTaskRecord(param_1);
@@ -67,12 +68,14 @@ uint32_t shopBodySellMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   else if (bVar1 == 2) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) == '\0') {
       cVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x26)));
+      goto LAB_00269b48;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 0;
   }
   else {
     if (bVar1 != 3) {
       cVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x26)));
+      goto LAB_00269b48;
     }
     uVar6 = findFlaggedSlotIndexAlt((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x23))),0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))))
     ;
@@ -113,6 +116,7 @@ LAB_00269b48:
       gs_tasks_spawn(param_1,0x246250,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) << 8 | uVar11 << 0x14);
     }
   }
+  return 0;
 }
 
 

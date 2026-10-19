@@ -32,6 +32,7 @@ uint32_t _hi0bits(uint32_t param_1, ...) {
       iVar1 = iVar2 + 1;
     }
   }
+  return iVar1;
 }
 
 

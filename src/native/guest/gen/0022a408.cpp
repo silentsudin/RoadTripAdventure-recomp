@@ -68,6 +68,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
             if ((*(uint32_t*)rtguest::G(0x332ddc)) < fVar9) {
               (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x84))) = fVar9 - fVar10;
             }
+            goto LAB_0022a570;
           }
           if ((*(uint32_t*)rtguest::G(0x332dd8)) <= fVar9) goto LAB_0022a570;
         }

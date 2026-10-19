@@ -25,6 +25,7 @@ uint32_t sceMcFlush(uint32_t param_1, ...) {
       SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
     }
   }
+  return lVar1;
 }
 
 

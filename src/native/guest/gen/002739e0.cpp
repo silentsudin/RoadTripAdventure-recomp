@@ -23,6 +23,7 @@ uint32_t scePadPortClose(uint32_t param_1, uint32_t param_2, ...) {
       uVar1 = (*(uint32_t*)rtguest::G(0x177350c));
     }
   }
+  return uVar1;
 }
 
 

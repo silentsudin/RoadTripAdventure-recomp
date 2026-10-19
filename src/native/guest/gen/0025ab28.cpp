@@ -127,14 +127,17 @@ uint32_t acStack_a0 = rtguest::allocFrame(64);
       sVar4 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) + 1;
       (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) = sVar4;
       if (sVar4 < 0x11) {
+        return 0;
       }
       iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x18)));
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x20)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
       gs_tasks_kill(param_1);
+      return 0;
     }
     if (bVar2 != 0) {
+      return 0;
     }
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x28))) + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x28))) + 0xe))) & 0x7f;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25))) = 1;
@@ -160,6 +163,7 @@ uint32_t acStack_a0 = rtguest::allocFrame(64);
     PlayUiSound(0x1a);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25))) = 2;
   }
+  return 0;
 }
 
 

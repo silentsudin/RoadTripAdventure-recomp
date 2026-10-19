@@ -30,6 +30,7 @@ uint32_t UpdateMenuScreenTask(uint32_t param_1, ...) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) == 1) {
       gs_tasks_spawn(param_1,0x269f48,0);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 1;
+      return 0;
     }
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));
   }
@@ -39,6 +40,7 @@ uint32_t UpdateMenuScreenTask(uint32_t param_1, ...) {
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 1;
   gs_tasks_kill(param_1);
+  return 0;
 }
 
 

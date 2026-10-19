@@ -73,6 +73,7 @@ uint32_t DrawRecordTableRows(uint32_t param_1, uint32_t param_2, uint32_t param_
     uVar3 = 0;
   }
   SetStageConfig(param_4,uVar6,iVar5,cVar1,(*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(iVar5) * sizeof(int32_t))),uVar3);
+  return 0;
 }
 
 

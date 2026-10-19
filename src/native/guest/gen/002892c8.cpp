@@ -69,6 +69,7 @@ LAB_00289424:
         _sceFsSigSema();
         if (iVar6 == 0) {
           DeleteSema(uVar4);
+          return 0xfffffff5;
         }
         if ((uVar1 & 0x8000) != 0) {
           DeleteSema(uVar4);
@@ -83,6 +84,7 @@ LAB_00289424:
     uVar2 = 0xfffffff7;
   }
                     /* WARNING: Read-only address (ram,0x21779500) is written */
+  return uVar2;
 }
 
 

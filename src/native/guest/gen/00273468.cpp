@@ -39,6 +39,7 @@ uint32_t puStack_170;
   else if ((*(int32_t*)rtguest::G(0x2e6ec4)) != 0) {
     puVar3 = (uint32_t)::printf((char *)rtguest::G((uint32_t)(0x3311a0u)));
   }
+  return puVar3;
 }
 
 

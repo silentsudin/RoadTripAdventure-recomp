@@ -15,9 +15,9 @@ uint32_t sceVpu0Reset(uint32_t q0, ...) {
   _ctc2((uint32_t)uVar1 | 2);
   SYNC(0x10);
   REG_VIF0_FIFO = (*(uint32_t*)rtguest::G(0x2e6ea0));
-  (*(uint8_t*)rtguest::G(0x10004004)) = (*(uint32_t*)rtguest::G(0x2e6ea4));
-  (*(uint8_t*)rtguest::G(0x10004008)) = (*(uint32_t*)rtguest::G(0x2e6ea8));
-  (*(uint8_t*)rtguest::G(0x1000400c)) = (*(uint32_t*)rtguest::G(0x2e6eac));
+  (*(uint32_t*)rtguest::G(0x10004004)) = (*(uint32_t*)rtguest::G(0x2e6ea4));
+  (*(uint32_t*)rtguest::G(0x10004008)) = (*(uint32_t*)rtguest::G(0x2e6ea8));
+  (*(uint32_t*)rtguest::G(0x1000400c)) = (*(uint32_t*)rtguest::G(0x2e6eac));
   return 0;
 }
 

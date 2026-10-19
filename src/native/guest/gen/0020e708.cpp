@@ -82,6 +82,7 @@ uint32_t piVar13;
           bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27)));
         }
         cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25)));
+        goto LAB_0020eb84;
       }
     }
     cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25)));
@@ -135,6 +136,7 @@ uint32_t piVar13;
           }
           cVar8 = '\x01';
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25))) = 1;
+          goto LAB_0020eb84;
         }
         uVar9 = uVar9 + 1;
         ppuVar11 = ppuVar11 + 2;

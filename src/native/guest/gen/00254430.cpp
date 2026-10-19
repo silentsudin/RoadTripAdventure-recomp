@@ -295,6 +295,7 @@ LAB_00254c0c:
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 0xffffffff;
   gs_tasks_kill();
+  return 0;
 }
 
 

@@ -152,6 +152,7 @@ uint32_t puVar13;
             iVar15 = iVar15 + 4;
             SetTaskFlag(uVar6);
             if (uVar16 == (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)))) {
+              return 0;
             }
             iVar14 = iVar14 + 1;
             uVar17 = uVar17 + 0x20;
@@ -186,6 +187,7 @@ uint32_t puVar13;
             uVar9 = (uint32_t)bVar3;
             puVar12 = puVar12 + 4;
             if (uVar16 == uVar9) {
+              return 0;
             }
           }
           else {
@@ -222,6 +224,7 @@ uint32_t puVar13;
               bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 1)));
               puVar12 = puVar12 + 4;
               if (uVar16 == bVar3) {
+                return 0;
               }
             }
             else {
@@ -230,10 +233,12 @@ uint32_t puVar13;
             if ((int)(bVar3 - 1) <= iVar14) break;
             piVar8 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 4)));
           }
+          return 0;
         }
       }
     }
   }
+  return 0;
 }
 
 

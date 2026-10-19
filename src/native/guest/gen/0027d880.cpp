@@ -21,9 +21,11 @@ uint32_t __unpack_d(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) = uVar2 << 8 | 0x1000000000000000;
     (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint32_t))) = (int)uVar3 + -0x3ff;
     (*(uint32_t*)rtguest::G((uint32_t)param_2)) = 3;
+    return 0;
   }
   if (uVar2 == 0) {
     (*(uint32_t*)rtguest::G((uint32_t)param_2)) = 4;
+    return 0;
   }
   if ((uVar1 & 0x8000000000000) == 0) {
     (*(uint32_t*)rtguest::G((uint32_t)param_2)) = 0;
@@ -32,6 +34,7 @@ uint32_t __unpack_d(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)param_2)) = 1;
   }
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) = uVar2;
+  return 0;
 }
 
 

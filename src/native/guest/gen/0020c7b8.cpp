@@ -51,6 +51,7 @@ uint32_t puVar7;
     sceDmaSync(uVar3,0,0);
     sendTexturePackets(puVar7);
   }
+  return param_1;
 }
 
 

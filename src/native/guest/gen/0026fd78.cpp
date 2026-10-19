@@ -10,10 +10,10 @@ uint32_t sceGsSetDefClear(uint32_t param_1, uint32_t param_2, uint32_t param_3, 
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(uint64_t))) = param_7 & 0xff | 0x3f80000000000000 | (uint32_t)param_9 << 0x10 | (param_8 & 0xff) << 8
                | (uint32_t)param_10 << 0x18;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(6) * sizeof(uint64_t))) = (long)((int)param_3 << 4) | (long)((int)param_4 << 4) << 0x10 |
-               (uint32_t)param_11 << 0x20;
+               (uint64_t)param_11 << 0x20;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(9) * sizeof(uint64_t))) = 5;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(8) * sizeof(uint64_t))) = (long)(((int)param_3 + (int)param_5) * 0x10) |
-               (long)(((int)param_4 + (int)param_6) * 0x10) << 0x10 | (uint32_t)param_11 << 0x20;
+               (long)(((int)param_4 + (int)param_6) * 0x10) << 0x10 | (uint64_t)param_11 << 0x20;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0xb) * sizeof(uint64_t))) = 0x47;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint64_t))) = 0x47;
   (*(uint64_t*)rtguest::G((uint32_t)param_1)) = 0x30000;

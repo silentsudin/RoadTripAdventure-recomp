@@ -24,6 +24,7 @@ uint32_t puVar5;
     puVar5 = param_1;
     if (puVar2 <= 0x30ffffff) {
       if (1.0 < (float)param_1 + 1e+30) {
+        return param_1;
       }
       fVar6 = (float)param_1 * (float)param_1;
       goto LAB_002778f0;
@@ -69,6 +70,7 @@ LAB_002778f0:
       puVar5 = (uint32_t)-(float)puVar5;
     }
   }
+  return puVar5;
 }
 
 

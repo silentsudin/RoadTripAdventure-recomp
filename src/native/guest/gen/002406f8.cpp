@@ -47,9 +47,11 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     vu0SubVector(auStack_70,0x2a3870,0x177ace0);
     fVar6 = (float)vecDotProductVu0(auStack_70,auStack_70);
     if ((*(uint32_t*)rtguest::G(0x332ea8)) <= SQRT(fVar6)) {
+      return 0;
     }
     fVar6 = (float)GetSpeedFromF15Vector(0x177ad40);
     if ((int)fVar6 < 10) {
+      return 0;
     }
     PlayUiSound(0x14);
     (*(uint8_t*)rtguest::G(0x33573a)) = 1;
@@ -58,6 +60,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     (*(uint32_t*)rtguest::G(0x2a2bc0)) = (float)(*(uint32_t*)rtguest::G(0x332eb0));
     (*(uint32_t*)rtguest::G(0x2a2bc4)) = (float)(*(uint32_t*)rtguest::G(0x332eb4));
     switchD_002407e4_proximityEventNoOpCase();
+    return 0;
   case 1:
     (*(uint32_t*)rtguest::G(0x2a2bc4)) = (*(uint32_t*)rtguest::G(0x2a2bc4)) - (*(uint32_t*)rtguest::G(0x33570c));
     (*(uint32_t*)rtguest::G(0x33570c)) = (*(uint32_t*)rtguest::G(0x33570c)) + (*(uint32_t*)rtguest::G(0x332ebc));
@@ -68,6 +71,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) = 1;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x27))) = 1;
       switchD_002407e4_proximityEventNoOpCase();
+      return 0;
     }
     break;
   case 2:
@@ -112,8 +116,10 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
       }
     }
     if ((*(uint32_t*)rtguest::G(0x2a2bc0)) < 1920.0) {
+      return 0;
     }
     (*(uint8_t*)rtguest::G(0x33573a)) = 4;
+    return 0;
   case 3:
     break;
   case 4:
@@ -128,6 +134,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
       (*(uint32_t*)rtguest::G(0x2a2bc8)) = (*(uint32_t*)rtguest::G(0x2a2bc8)) - (*(uint32_t*)rtguest::G(0x332edc));
     }
     if ((*(float*)rtguest::G((uint32_t)fStack_5c)) < (*(uint32_t*)rtguest::G(0x2a2bc4))) {
+      return 0;
     }
     (*(uint8_t*)rtguest::G(0x33573a)) = 0;
     break;
@@ -139,6 +146,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     goto switchD_002407e4_default;
   }
 switchD_002407e4_default:
+  return 0;
 }
 
 

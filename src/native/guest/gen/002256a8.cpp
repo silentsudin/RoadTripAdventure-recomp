@@ -15,6 +15,7 @@ uint32_t drawSkyLayers(uint32_t param_1, uint32_t param_2, ...) {
     vifCallModel(0x298a50);
     return 0;
   }
+  return 0;
 }
 
 

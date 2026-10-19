@@ -14,6 +14,7 @@ uint32_t GetRaceTimeRank(uint32_t param_1, ...) {
      (uVar2 = 2, 0x278d0 < iVar1)) {
     uVar2 = 0;
   }
+  return uVar2;
 }
 
 

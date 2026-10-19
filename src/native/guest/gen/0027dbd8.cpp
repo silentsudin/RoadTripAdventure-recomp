@@ -10,6 +10,7 @@ uint32_t pvVar1;
   __malloc_lock((*(uint32_t*)rtguest::G(0x002e8cc0)));
   pvVar1 = (uint32_t)_malloc_r((*(uint32_t*)rtguest::G(0x002e8cc0)),__size);
   __malloc_unlock((*(uint32_t*)rtguest::G(0x002e8cc0)));
+  return pvVar1;
 }
 
 

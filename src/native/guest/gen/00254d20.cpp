@@ -59,6 +59,7 @@ uint32_t piVar5;
     }
     vu0CopyVector(iVar2 + 0x8cc0,0x177ace0);
     uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
+    goto LAB_00254fe0;
   case 2:
     (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) & 0xfffffeff;
@@ -105,6 +106,7 @@ LAB_00254fe0:
       gs_tasks_kill(param_1);
       return 0;
     }
+    return 0;
   case 3:
     goto switchD_00254df0_caseD_3;
   case 4:

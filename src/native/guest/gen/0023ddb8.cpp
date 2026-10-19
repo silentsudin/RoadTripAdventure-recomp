@@ -13,6 +13,7 @@ uint32_t FindCurrentTaskIndex(uint32_t q0, ...) {
         iVar1 = iVar1 + 1) {
     }
   }
+  return iVar1;
 }
 
 

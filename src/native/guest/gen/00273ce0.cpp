@@ -13,6 +13,7 @@ uint32_t scePadGetReqState(uint32_t param_1, uint32_t param_2, ...) {
     iVar2 = scePadGetDmaStr(param_1);
     uVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x71)));
   }
+  return uVar1;
 }
 
 

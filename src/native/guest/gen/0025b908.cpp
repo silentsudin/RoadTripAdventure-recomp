@@ -29,10 +29,12 @@ uint32_t textEntryMoveCursor(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint16_t*)rtguest::G((uint32_t)uStack_20 + 4)) = (uint32_t)(uVar6 >> 0x20);
     if ((*(uint16_t*)rtguest::G((uint32_t)uStack_20 + 4)) != 0) {
       uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30)));
+      goto LAB_0025ba2c;
     }
     (*(uint16_t*)rtguest::G((uint32_t)uStack_20 + 6)) = (uint32_t)(uVar6 >> 0x30);
     if ((*(uint16_t*)rtguest::G((uint32_t)uStack_20 + 6)) != 0) {
       uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30)));
+      goto LAB_0025ba2c;
     }
     if (bVar2 / 0x1a == 0) {
       uVar4 = bVar2 + 0x4e | 0x8000;

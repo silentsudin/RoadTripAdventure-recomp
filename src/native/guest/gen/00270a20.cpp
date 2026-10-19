@@ -27,6 +27,7 @@ uint32_t sceDmaSync(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
     }
     uVar1 = 0;
   }
+  return uVar1;
 }
 
 

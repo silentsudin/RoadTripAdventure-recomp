@@ -25,6 +25,7 @@ uint32_t __format;
       uVar2 = uVar2 | 8;
     }
     if ((REG_GIF_STAT & 0xc00) == 0) {
+      return uVar2;
     }
     return uVar2 | 0x10;
   }
@@ -40,12 +41,14 @@ joined_r0x0026e554:
     if ((REG_DMAC_2_GIF_CHCR & 0x100) == 0) goto joined_r0x0026e59c;
   }
   __format = 0x32fd28u;
+  goto LAB_0026e684;
 joined_r0x0026e5dc:
   if ((uVar3 & 0x100) == 0) goto joined_r0x0026e614;
   bVar1 = 0x1000000 < uVar2;
   uVar2 = uVar2 + 1;
   if (bVar1) {
     __format = 0x32fd88u;
+    goto LAB_0026e684;
   }
   uVar3 = _cfc2(in_vc13);
   goto joined_r0x0026e5dc;
@@ -58,10 +61,12 @@ joined_r0x0026e614:
     uVar2 = uVar2 + 1;
   } while (bVar1);
   __format = 0x32fdb0u;
+  goto LAB_0026e684;
   while (bVar1 = uVar2 < 0x1000001, uVar2 = uVar2 + 1, bVar1) {
 joined_r0x0026e59c:
     if ((REG_VIF1_STAT & 0x1f000003) == 0) {
       uVar3 = _cfc2(in_vc13);
+      goto joined_r0x0026e5dc;
     }
   }
   __format = 0x32fd58u;

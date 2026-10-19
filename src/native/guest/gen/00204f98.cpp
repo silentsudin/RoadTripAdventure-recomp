@@ -7,7 +7,7 @@ namespace guest {
 uint32_t gs_tasks_walker(uint32_t param_1, uint32_t param_2, ...) {
   do {
     if ((*(int8_t*)rtguest::G((uint32_t)param_1)) == '\x01') {
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))))), param_1, param_2);
+      rtCall((*(uint32_t*)rtguest::G((uint32_t)(param_1 + 0xc))), param_1, param_2);
       (*(int8_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x24) * sizeof(int8_t))) = '\0';
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) + 1;
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) != 0) {

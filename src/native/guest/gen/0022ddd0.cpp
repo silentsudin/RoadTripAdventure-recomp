@@ -55,6 +55,7 @@ LAB_0022de60:
       }
       if (cVar1 != '\x1c') {
         gs_music_play_bgm(0xa0d0201);
+        goto LAB_0022dee4;
       }
       uVar8 = 0xa160000;
     }
@@ -90,8 +91,10 @@ LAB_0022dee4:
         return 0;
       }
       gs_tasks_spawn(param_1,0x263c38,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1c))));
+      return 0;
     }
     gs_tasks_spawn(param_1,0x22dc68,0);
+    return 0;
   }
   uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x28)));
   SetDashConfig(uVar2,0,0);
@@ -252,10 +255,12 @@ LAB_0022e564:
             uVar5 = 1;
 LAB_0022e538:
             uVar12 = 1;
+            goto LAB_0022e540;
           }
           if (0x50 < bVar3) {
             if (bVar3 != 0x60) {
               uVar6 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 1)));
+              goto LAB_0022e568;
             }
             SetSlotConfig(uVar2,1,2,(*(uint8_t*)rtguest::G((uint32_t)puVar16 + (uint32_t)(7) * sizeof(uint8_t))));
             iVar15 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x10)));
@@ -269,6 +274,7 @@ LAB_0022e538:
                                   ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) * 0xc + (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22)))) *
                                   8 + 0x1783be8,0x177aec0,uVar2);
               iVar15 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x10)));
+              goto LAB_0022e564;
             }
             uVar6 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 1)));
           }
@@ -294,6 +300,7 @@ LAB_0022e568:
       raceHudDraw(uVar2);
     }
   }
+  return 0;
 }
 
 

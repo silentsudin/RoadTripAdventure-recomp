@@ -14,6 +14,7 @@ uint32_t CalculateTachometerValue(uint32_t param_1, uint32_t param_2, uint32_t p
   if (param_2 != 0) {
     lVar1 = (long)(((int)lVar1 * (int)param_2 + 9999) / 10000);
   }
+  return lVar1;
 }
 
 

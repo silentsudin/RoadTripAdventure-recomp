@@ -14,6 +14,7 @@ uint32_t __sread(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   else {
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x50))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x50))) + iVar1;
   }
+  return iVar1;
 }
 
 

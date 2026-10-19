@@ -20,6 +20,7 @@ uint32_t ReadPadState(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...)
   }
   if (lVar3 != 2) {
     if (lVar3 != 6) {
+      return 0;
     }
     switch((*(uint8_t*)rtguest::G((uint32_t)0x333360 + (uint32_t)(iVar5) * 1))) {
     case 0:
@@ -63,11 +64,14 @@ uint32_t ReadPadState(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...)
     case 5:
     case 6:
     default:
+      return 0;
     }
     uVar4 = scePadRead(param_2,0,param_3);
+    return uVar4;
   }
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + iVar5 + 0xc))) = 1;
   uVar4 = scePadRead(param_2,0,param_3);
+  return uVar4;
 }
 
 

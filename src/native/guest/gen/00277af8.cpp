@@ -27,6 +27,7 @@ uint32_t scalbnf(uint32_t param_1, uint32_t param_2, ...) {
     param_1 = (float)copysignf(fVar2,param_1);
     param_1 = param_1 * fVar2;
   }
+  return param_1;
 }
 
 

@@ -87,6 +87,7 @@ LAB_0028135c:
         while (puVar7 = puVar7 + -1, puVar12 < puVar7) {
           if ((*(uint32_t*)rtguest::G((uint32_t)puVar7)) != 0) {
             (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x10))) = iVar11;
+            return iVar13;
           }
           iVar11 = iVar11 + -1;
         }
@@ -94,6 +95,7 @@ LAB_0028135c:
       }
     }
   }
+  return iVar13;
 }
 
 

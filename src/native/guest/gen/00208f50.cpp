@@ -34,6 +34,7 @@ uint32_t pbVar4;
   if (lVar3 != 0) {
     if (lVar3 == -2) {
       gs_tasks_kill(param_1);
+      return 0;
     }
     if (lVar3 == -1) {
       PlayUiSound(0x1b);
@@ -51,6 +52,7 @@ uint32_t pbVar4;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) = 0;
   }
+  return 0;
 }
 
 

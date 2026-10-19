@@ -23,7 +23,9 @@ uint32_t uiArenaBeginBatch(uint32_t param_1, uint32_t param_2, uint32_t param_3,
       return 0;
     }
     gifBeginSpriteBatch(iVar1,0);
+    return 0;
   }
+  return 0;
 }
 
 

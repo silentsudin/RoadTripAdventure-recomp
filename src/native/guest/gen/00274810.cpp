@@ -14,9 +14,11 @@ uint32_t cos(uint32_t __x, ...) {
   uVar3 = (long)__x >> 0x20 & 0x7fffffff;
   if (uVar3 < 0x3fe921fc) {
     dVar1 = (double)__kernel_cos(__x,0);
+    return dVar1;
   }
   if (0x7fefffff < uVar3) {
     dVar1 = (double)dpsub();
+    return dVar1;
   }
   uVar3 = __ieee754_rem_pio2(__x,uStack_20);
   uVar3 = uVar3 & 3;
@@ -29,6 +31,7 @@ LAB_00274900:
     if (uVar3 < 2) {
       if (uVar3 == 0) {
         dVar1 = (double)__kernel_cos((*(uint64_t*)rtguest::G((uint32_t)uStack_20)),(*(uint64_t*)rtguest::G((uint32_t)uStack_18)));
+        return dVar1;
       }
     }
     else if (uVar3 == 2) {
@@ -37,6 +40,7 @@ LAB_00274900:
     }
     dVar1 = (double)__kernel_sin((*(uint64_t*)rtguest::G((uint32_t)uStack_20)),(*(uint64_t*)rtguest::G((uint32_t)uStack_18)),1);
   }
+  return dVar1;
 }
 
 

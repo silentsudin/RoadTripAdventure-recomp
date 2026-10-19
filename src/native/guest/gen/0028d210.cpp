@@ -296,6 +296,7 @@ LAB_0028d794:
       else {
         uVar12 = 0;
         if ((uVar7 != uVar9 - uVar2) || ((uint32_t)lVar1 <= uVar17 << (uVar19 & 0x1f)))
+        goto LAB_0028d830;
         uVar14 = uVar14 - 1;
       }
     }
@@ -306,6 +307,7 @@ LAB_0028d830:
   if (uVar20 != 0) {
     uVar6 = CONCAT44(-(uint32_t)(-uVar14 != 0) - uVar12,-uVar14);
   }
+  return uVar6;
 }
 
 

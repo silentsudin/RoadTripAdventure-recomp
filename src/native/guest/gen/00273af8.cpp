@@ -13,6 +13,7 @@ uint32_t scePadGetFrameCount(uint32_t param_1, uint32_t param_2, ...) {
     iVar1 = scePadGetDmaStr(param_1);
     uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x58)));
   }
+  return uVar2;
 }
 
 

@@ -40,6 +40,7 @@ uint32_t pbVar2;
     iVar3 = iVar3 + (uint32_t)bVar1;
   } while (-1 < iVar5);
   uiDrawNumber16(0x1fe,0x95,iVar3,0);
+  return 0;
 }
 
 

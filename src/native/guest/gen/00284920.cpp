@@ -39,6 +39,7 @@ uint32_t __s;
       (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(__s)), 0, __n));
     }
   }
+  return lVar1;
 }
 
 

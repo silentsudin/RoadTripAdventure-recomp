@@ -166,14 +166,17 @@ LAB_00253120:
           sVar6 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2))) + 1;
           (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2))) = sVar6;
           if (sVar6 < 0x11) {
+            return 0;
           }
           iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x18)));
           (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2))) = 0;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x20)));
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) = 1;
           gs_tasks_kill(param_1);
+          return 0;
         }
         if (bVar1 != 0) {
+          return 0;
         }
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x25))) = 1;
       }
@@ -182,6 +185,7 @@ LAB_00253120:
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x20))) = 0;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x25))) = 2;
       }
+      return 0;
     }
     iVar9 = (*(int32_t*)rtguest::G((uint32_t)piVar13 + (uint32_t)(0x15) * sizeof(int32_t)));
     piVar13 = piVar13 + 1;

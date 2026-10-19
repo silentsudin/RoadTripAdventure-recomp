@@ -65,11 +65,13 @@ uint32_t asStack_3e = rtguest::allocFrame(14);
     (*(uint16_t*)rtguest::G((uint32_t)uStack_40)) = 0x70;
     if (uVar4 == 0x65) {
       (*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)) = 0x90;
+      goto LAB_00201a74;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)pbVar3)) < 0x66) {
       if (uVar4 == 0x61) {
         (*(uint16_t*)rtguest::G((uint32_t)uStack_40)) = 0x1e0;
         (*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)) = 0x78;
+        goto LAB_00201a74;
       }
       (*(uint16_t*)rtguest::G((uint32_t)uStack_40)) = 0x1b0;
     }
@@ -77,6 +79,7 @@ uint32_t asStack_3e = rtguest::allocFrame(14);
       if (uVar4 == 0x75) {
         (*(uint16_t*)rtguest::G((uint32_t)uStack_40)) = 0x180;
         (*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)) = 0x90;
+        goto LAB_00201a74;
       }
       (*(uint16_t*)rtguest::G((uint32_t)uStack_40)) = 0x1b0;
     }
@@ -133,6 +136,7 @@ switchD_002018dc_default:
     if (uVar4 != 0x7e) {
       (*(uint16_t*)rtguest::G((uint32_t)uStack_40)) = (uint32_t)((int)(uVar4 - 0x21) % 0x1f << 4);
       (*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)) = (short)((int)(uVar4 - 0x21) / 0x1f) * 0x18;
+      goto LAB_00201a74;
     }
     uVar4 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar3));
     (*(uint16_t*)rtguest::G((uint32_t)uStack_40)) = 0x1b0;
@@ -193,6 +197,7 @@ switchD_002018dc_default:
       break;
     case 0x52:
       (*(uint16_t*)rtguest::G((uint32_t)uStack_40)) = 0xa0;
+      goto switchD_002018dc_default;
     case 0x55:
       (*(uint16_t*)rtguest::G((uint32_t)uStack_40)) = 400;
       (*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)) = 0x78;
@@ -226,6 +231,7 @@ switchD_002018dc_default:
       (*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)) = 0x90;
       break;
     default:
+      goto switchD_002018dc_default;
     }
   }
 LAB_00201a74:

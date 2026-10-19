@@ -11,6 +11,7 @@ uint32_t __malloc_unlock(uint32_t q0, ...) {
     SignalSema((*(uint32_t*)rtguest::G(0x2e99a8)));
     return 0;
   }
+  return 0;
 }
 
 

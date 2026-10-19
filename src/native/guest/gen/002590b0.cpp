@@ -17,6 +17,7 @@ uint32_t ApplySoundVolumes(uint32_t param_1, ...) {
     SoundRpcCmd34();
     return 0;
   }
+  return 0;
 }
 
 

@@ -36,6 +36,7 @@ uint32_t auStack_50 = rtguest::allocFrame(32);
   if (param_1 == 1) {
     REG_DMAC_CTRL = REG_DMAC_CTRL | 1;
   }
+  return uVar5;
 }
 
 

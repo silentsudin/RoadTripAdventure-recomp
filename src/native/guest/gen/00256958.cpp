@@ -44,6 +44,7 @@ LAB_00256a3c:
     SlideInPaintEditorWindow(param_1,param_2);
     return 0;
   }
+  return 0;
 }
 
 

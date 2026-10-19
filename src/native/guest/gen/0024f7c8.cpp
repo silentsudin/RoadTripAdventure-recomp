@@ -44,6 +44,7 @@ uint32_t puVar1;
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x44))) = 0xffffff - ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)puVar1)) + param_6);
     } while (iVar6 < param_3);
   }
+  return 0;
 }
 
 

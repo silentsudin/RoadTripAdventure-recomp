@@ -21,6 +21,7 @@ uint32_t cdReadPoll(uint32_t q0, ...) {
   else {
     lVar3 = sceCdSync(1);
     if (lVar3 != 0) {
+      return lVar3;
     }
     iVar1 = sceCdGetError();
     if (iVar1 == 0) {

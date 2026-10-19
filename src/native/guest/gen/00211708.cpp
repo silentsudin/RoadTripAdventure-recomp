@@ -20,6 +20,7 @@ uint32_t SpawnTownDialogueTasks(uint32_t param_1, uint32_t param_2, ...) {
   }
   gs_tasks_spawn(param_1,0x20dc50,0x30000);
   gs_tasks_spawn(param_1,0x22c518,0);
+  return 0;
 }
 
 

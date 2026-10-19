@@ -52,6 +52,7 @@ uint32_t __kernel_cos(uint32_t param_1, uint32_t param_2, ...) {
       uVar2 = dpsub(uVar5,uVar2);
     }
   }
+  return uVar2;
 }
 
 

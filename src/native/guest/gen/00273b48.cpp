@@ -16,6 +16,7 @@ uint32_t __src;
     (uint32_t)(uintptr_t)(::memcpy((char *)rtguest::G((uint32_t)(param_3)), (char *)rtguest::G((uint32_t)(__src)), (long)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)__src + 0x60)))));
     uVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)__src + 0x60)));
   }
+  return uVar1;
 }
 
 

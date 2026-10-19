@@ -13,6 +13,7 @@ uint32_t scePadInfoPressMode(uint32_t param_1, uint32_t param_2, ...) {
     lVar2 = scePadGetButtonMask(param_1);
     bVar1 = lVar2 == 0x3ffff;
   }
+  return bVar1;
 }
 
 

@@ -39,6 +39,7 @@ uint32_t psVar11;
         gifSetTexRegs(iVar10,(long)(*(int16_t*)rtguest::G((uint32_t)psVar11 + (uint32_t)(3) * sizeof(int16_t))) << 0x14 | (long)((*(int16_t*)rtguest::G((uint32_t)psVar11 + (uint32_t)(1) * sizeof(int16_t))) + 0x243e) << 0x25 |
                              0x20000005dc00a43e,5);
         (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 8))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 8))) & 0xfffffffffffffff0 | 7;
+        return 0;
       }
       uVar4 = (long)((int)(*(int16_t*)rtguest::G((uint32_t)psVar11)) + iVar12 * (*(int16_t*)rtguest::G((uint32_t)psVar11 + (uint32_t)(2) * sizeof(int16_t)))) | 0x2000000000008000U |
               (long)(*(int16_t*)rtguest::G((uint32_t)psVar11 + (uint32_t)(3) * sizeof(int16_t))) << 0x14 | 0x5dc000000U |

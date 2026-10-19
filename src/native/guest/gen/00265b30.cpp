@@ -52,6 +52,7 @@ uint32_t notebookStampListTask(uint32_t param_1, uint32_t param_2, ...) {
     else {
       if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x30))) & 0x10) == 0) {
         bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x27)));
+        goto LAB_00265cec;
       }
       PlayUiSound(0x1b);
       gs_tasks_spawn(param_1,0x20dc50,0x40005);
@@ -83,6 +84,7 @@ LAB_00265ce4:
       break;
     }
     bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x27)));
+    goto LAB_00265cec;
   }
   bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x27)));
 LAB_00265cec:
