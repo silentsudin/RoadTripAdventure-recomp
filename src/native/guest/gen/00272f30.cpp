@@ -18,8 +18,7 @@ uint32_t puVar1;
   float in_stack_00000000;
   
   fVar2 = (in_stack_00000000 * param_8 * (-param_6 + param_7)) / (-param_8 + in_stack_00000000);
-  vu0UnitMatrix();
-  puVar1 = (uint32_t)param_9;
+  vu0UnitMatrix(param_9);  // MIPS 0x272fb0: $a0 = $s0 = same buffer as puVar1=param_9 identity stores
   (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(5) * sizeof(uint32_t))) = param_1;
   (*(uint32_t*)rtguest::G((uint32_t)puVar1)) = param_1;
   (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(10) * sizeof(uint32_t))) = 0;

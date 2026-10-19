@@ -14,7 +14,7 @@ void textGridDrawFrame(uint64_t param_1, uint64_t param_2, uint64_t param_3, uin
   uVar3 = uVar4 + param_4 + -1;
   uVar1 = (uint32_t)param_3;
   uVar2 = uVar1 + param_5 + -1;
-  textBufferBlendPixel16();
+  textBufferBlendPixel16(param_1,param_2,param_3,0xf9,7);  // MIPS 0x271b28-30: $a3=0xf9, 5th arg via $t0=7
   textBufferBlendPixel16(param_1,uVar3,param_3,0xf5,7);
   textBufferBlendPixel16(param_1,param_2,uVar2,0xfa,7);
   textBufferBlendPixel16(param_1,uVar3,uVar2,0xf6,7);
