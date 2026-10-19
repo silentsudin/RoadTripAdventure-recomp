@@ -22,9 +22,8 @@ uint32_t puVar2;
       puVar2 = (uint32_t)0x0;
       iVar1 = (param_3 * 2 + iVar3) * 2;
       if ((*(uint32_t*)rtguest::G((uint32_t)0x1782b1e + (uint32_t)(iVar1) * 4)) != '\0') {
-        puVar2 = 
-                  ((char)(*(uint32_t*)rtguest::G((uint32_t)0x1782b1f + (uint32_t)(iVar1) * 4)) * 0x10 +
-                   (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + (char)(*(uint32_t*)rtguest::G((uint32_t)0x1782b1e + (uint32_t)(iVar1) * 4)) * 4))) + 0xc);
+        puVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((char)(*(uint32_t*)rtguest::G((uint32_t)0x1782b1f + (uint32_t)(iVar1) * 4)) * 0x10 +
+                   (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + (char)(*(uint32_t*)rtguest::G((uint32_t)0x1782b1e + (uint32_t)(iVar1) * 4)) * 4))) + 0xc)));
       }
     }
     uiDrawTextCell(param_1,param_2,puVar2,3);

@@ -334,9 +334,8 @@ code_r0x00211154:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))) != 1) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x25))) = 8;
       gs_tasks_spawn(param_1,0x23b168,
-                     
-                      ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x21))) * 4 +
-                      (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x23))) * 4)))));
+                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x21))) * 4 +
+                      (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x23))) * 4)))))));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) | 0x50000;
       SoundStopAllChannels();
     }

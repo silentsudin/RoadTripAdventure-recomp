@@ -44,9 +44,8 @@ uint32_t ppuVar9;
       iVar8 = iVar4;
       if ((int)uVar5 < 6) {
         uiDrawNumber10(0x19a,iVar7,
-                       
-                        (0x0029fcb8 +
-                        ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) + 3))) * 6 + uVar5) * 4),0);
+                       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0029fcb8 +
+                        ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) + 3))) * 6 + uVar5) * 4))),0);
       }
     }
     uVar5 = uVar5 + 1;

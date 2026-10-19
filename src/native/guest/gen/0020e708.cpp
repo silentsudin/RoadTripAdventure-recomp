@@ -89,8 +89,7 @@ uint32_t piVar13;
   else {
     cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25)));
     if (cVar8 == '\x02') {
-      lVar5 = tileSlotLoaded(param_2,
-                                      (0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8));
+      lVar5 = tileSlotLoaded(param_2,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8))));
       if (lVar5 == 0) {
         ::printf((char *)rtguest::G((uint32_t)(0x2ea770u)), (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8))));
         DestroyTaskRecord(param_1);
@@ -172,8 +171,7 @@ uint32_t piVar13;
   }
 LAB_0020eb84:
   if ((cVar8 == '\x04') &&
-     (lVar5 = tileSlotLoaded(param_2,
-                                      (0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8)),
+     (lVar5 = tileSlotLoaded(param_2,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8)))),
      lVar5 != 0)) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25))) = 2;
   }

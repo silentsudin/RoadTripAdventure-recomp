@@ -9,9 +9,8 @@ uint32_t GetPlayerScoreboardPtr(uint32_t param_1, ...) {
   if (((*(uint32_t*)rtguest::G((uint32_t)0x178700b + (uint32_t)(param_1) * 4)) & 0xf0) == 0) {
     return 0x0177fd8c + ((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x178700b + (uint32_t)(param_1) * 4)) & 1) * 0xd12;
   }
-  return 
-          ((char)(*(uint32_t*)rtguest::G((uint32_t)0x1787009 + (uint32_t)(param_1) * 4)) * 0x10 +
-           (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + (char)(*(uint32_t*)rtguest::G((uint32_t)0x1787008 + (uint32_t)(param_1) * 4)) * 4))) + 0xc);
+  return (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((char)(*(uint32_t*)rtguest::G((uint32_t)0x1787009 + (uint32_t)(param_1) * 4)) * 0x10 +
+           (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + (char)(*(uint32_t*)rtguest::G((uint32_t)0x1787008 + (uint32_t)(param_1) * 4)) * 4))) + 0xc)));
 }
 
 

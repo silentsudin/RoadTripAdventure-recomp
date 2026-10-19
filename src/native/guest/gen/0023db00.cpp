@@ -17,9 +17,8 @@ uint32_t puVar2;
     iVar3 = (param_2 * 0x1a24 + (int)param_1) * 2;
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0177fdd0 + iVar3 + 2)));
     if (cVar1 != '\0') {
-      return 
-              ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0177fdd0 + iVar3 + 3))) * 0x10 +
-               (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + cVar1 * 4))) + 0xc);
+      return (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0177fdd0 + iVar3 + 3))) * 0x10 +
+               (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + cVar1 * 4))) + 0xc)));
     }
   }
 }

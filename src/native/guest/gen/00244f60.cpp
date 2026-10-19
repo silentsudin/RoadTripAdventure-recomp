@@ -67,10 +67,9 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
     vifDirect(param_1 + param_2 * 0xf0 + 0x2ba0,0xd);
   case 7:
     vifUploadAt16(0x177f5e0);
-    UploadPaintBgColors(
-                         ((int)0x177f760 +
+    UploadPaintBgColors((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x177f760 +
                          ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x5410))) % 3) * 0x1c +
-                         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x540c))) * 0x3448 + 5));
+                         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x540c))) * 0x3448 + 5))));
     vifUploadAt4(param_1 + param_2 * 400 + 0x3a80);
     vifObjectMatrix(auStack_70);
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ab34 + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + param_1 + 0x5420))) * 4)));

@@ -159,6 +159,8 @@ def sig_name_args(sig: str) -> tuple[str, str]:
 def scan_operand(text: str, pos: int) -> tuple[str, int]:
     """One deref operand starting at pos: a balanced paren group, or one token
     (identifier, optionally indexed, or a number). Returns (operand, index past it)."""
+    while pos < len(text) and text[pos] in " \t\r\n":
+        pos += 1  # Ghidra wraps long lines between the cast and its operand
     if pos < len(text) and text[pos] == "(":
         end = match_bal(text, pos)
         if end < 0:

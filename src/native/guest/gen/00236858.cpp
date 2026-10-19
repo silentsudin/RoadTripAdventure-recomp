@@ -115,15 +115,13 @@ uint32_t asStack_80 = rtguest::allocFrame(32);
     uiDrawPanelCells(10,0xe,0x14,0x11,0);
     if (iVar15 < 6) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x20))) =
-           
-            (0x0029fcb8 + ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x10))) + 3))) * 6 + iVar15) * 4);
+           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0029fcb8 + ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x10))) + 3))) * 6 + iVar15) * 4)));
       uiDrawTextCell(0xb,0xf,0x2ec480,0);
       uiDrawTextCell(0xb,0x10,(*(uint32_t*)rtguest::G((uint32_t)(0x29fd30u + (uint32_t)(iVar15) * 4))),0);
       uiDrawTextCell(0xd,0x10,0x333838,0);
       uiDrawNumber10(0x19a,0x18a,
-                     
-                      (0x0029fcb8 +
-                      ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x10))) + 3))) * 6 + iVar15) * 4),0);
+                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0029fcb8 +
+                      ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x10))) + 3))) * 6 + iVar15) * 4))),0);
       DrawScoreAndRemaining(-(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x20))),param_2);
       uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x30)));
     }
