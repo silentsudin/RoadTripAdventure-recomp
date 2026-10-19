@@ -527,6 +527,12 @@ const std::vector<EnhancementSpec>& registryTable() {
           "code:src/native/guest/guest_libs_dma.cpp|docs/native-reference/w13-gs-sink-design.md",
           RetentionStatus::Wired,
           "W3 step 1: histogram the VIF1 code subset (opcodes, MSCAL entries) and GIF chain segments (tag path fields) while consumeChannel walks; stderr [vifhist]/[gifhist]"},
+         {"vu1_code_dump", "-",
+          "RT_VIF1_CODE_DUMP", "", "off", "diagnostic (W3)",
+          "src/native/guest/guest_vif1.cpp",
+          "code:src/native/guest/guest_vif1.cpp|docs/native-reference/w13-gs-sink-design.md",
+          RetentionStatus::Wired,
+          "W3 step 1: write the VU1 micro image (as VIF1code uploads it) to the given path at MSCAL seam, hash-checked FNV-1a vs the oracle's image"},
      };
     return kRegistry;
 }

@@ -80,3 +80,62 @@ semantics). Census at segs=4000 (`RT_VIF_HIST=1`): MSCALF@VU1-pc 0x20 dominates
 port the entry at 0x20 (per-frame strip path) and 0x50 first; the uploaded micro
 programs live in the interpreter's `vu1Code()` after the MPG/chain loaders run —
 capture before transliterating (dump hook pending).
+
+## Step 2 grounding (2026-10-19 evening)
+
+`RT_VIF1_CODE_DUMP` landed (committed): the captured 16 KiB image hashes
+FNV-1a 64 `0xe2868a5859386847` over the whole image — byte-identical to the
+oracle's `Vu1Native::imageHash` (docs/vu1-microcode.md), so the MPG reconstruction
+is exact. Jump-table slots decode as documented (0x1268, 0x1438, 0x1620, 0x03e8,
+0x0080, 0x1898, 0x1aa0, 0x1318). Naming caution (docs/native-reference/
+action-mscalf6.md): MSCALF imm = byte-addr/8, so census `pc 0x20` = slot 2 =
+**LitStrip** (code 0x1620, lit two-light+specular strip, unclipped) and `pc 0x50`
+= slot 5 = **OffsetStrip** (0x1898, unlit per-vertex offset, unclipped).
+Disassembler: build/scratch/w3-step2/vu1dis.py (decoder fields/op tables lifted
+from the capture-verified ps2_vu1_exec.inl: upper op = word bits 5-0, dest mask
+bits 24-21 bit0=w; lower opHi=(w>>25)&0x7F with Dobie selectors). Entry dumps:
+entry2_litstrip.dis (0 unresolved), entry5_offsetstrip.dis. LitStrip opens:
+XTOP vi1 (TOP), vi13=TOP+402 (batch header qword — docs confirm), vertex loop
+reading LQ @TOP+1.., writes GIF vertex qwords via SQ into the double buffer
+(141/571 halves), kicks via XGKICK vi13/vi2, clears the batch-sent flag via
+ISWR. Port those two first, entries 3/4/6 when race/town scenes come up.
+
+## Step 2 done (2026-10-19): slot programs ported and capture-verified
+
+`src/native/guest/guest_vu1.{h,cpp}` transliterates the four slot programs
+(Init, SetupLit, LitStrip, OffsetStrip) over the interpreter's VIF1 data
+memory; blocks cite micro-op ranges of the entry dumps above. Float semantics
+are implemented compiler-independently (exact double + single round-toward-
+zero + the `.inl` clamps), so no host FE_TOWARDZERO/FMA-contraction reliance.
+Verified by `vu1strips_test` (tests/native_guest/test_vu1strips.cpp): replays
+the oracle's captures — field_lit 6000/6000 LitStrip records and qr0_rare
+2400 OffsetStrip records — with every XGKICK packet byte-exact, the whole
+data memory (outside the interpreter's 1006..1023 save-stack scratch) byte-
+exact, and the live VF registers + q + vi14 exact. The oracle's own HLE
+(ps2xRuntime vu1_hle) is comparison ground truth only, nothing links here.
+The seam is live at boot (`vif1SetHooks(&vu1OnMscal, nullptr)` from the DMA
+consumer): 1.37M program runs through boot+attract, 828 invocations still
+unported (the ~24 direct-PC one-shot programs 0x90..0x1908 and slots
+3/4/6/7 — ObjectStrip/WorldStrip/Sky/SetupClipped, race/interior scenes),
+and RAM at vblank 1800 is byte-identical to the pre-port build (programs
+touch VIF1 memory only, never EE RAM). XGKICK output is counted, not yet
+fed to the render chain — step 3 takes it. `RT_VU1_CAPTURE`/`RT_VU1_RECORDS`
+select the capture replayed in the test (skip when absent).
+
+## Step 2b scoping (2026-10-19, measured boot+attract census)
+
+Direct-PC one-shot programs actually invoked in boot+attract (per-boot counts
+x23/x46 = once per load / once per object): 0x90, 0xa8, 0xb8, 0xd8, 0xe8,
+0xf0, 0xf8, 0x110, 0x128, 0x800, 0x868, 0x8a8, 0x8e0, 0xbd0, 0x1060, 0x1070,
+0x10a0, 0x10a8, 0x10c8, 0x1120, plus 0x1890/0x1898/0x18b0/0x1908 — the last
+four call *into* OffsetStrip (its body starts at 0x1898) bypassing the slot
+table, so a dispatcher keyed on program regions (not just slot PCs) covers
+them. The 0x90 program is a LitStrip-loop variant that loads the matrices
+from data memory inside the loop (LQ f17/18/19/27 + f13..16 at 0x140-0x158);
+the 0x800/0x868/0x8a8 programs loop with LQI f21..23 from qword 101/61 and
+BAL to shared subroutines in the 0x2f8..0x420 region (never MSCALed — internal
+calls). Micro image for this reading: the code blob embedded in
+build/vu1hle-caps/*.vu1cap (extracted to build/scratch/w3-step2/code.bin,
+same hash), dumps in oneshots1.dis. Transliterate these for the full attract
+scanout in step 2b; disassembler branch-offset display has a cosmetic imm11
+bug (shows +16344 for a loop-back) — semantics from .inl unchanged.

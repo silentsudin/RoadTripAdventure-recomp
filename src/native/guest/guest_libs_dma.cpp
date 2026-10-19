@@ -18,6 +18,7 @@
 #include "guest_kernel.h"
 #include "guest_shim.h"
 #include "guest_vif1.h"
+#include "guest_vu1.h"
 #include "guest_decls.inc"
 
 namespace guest {
@@ -105,6 +106,10 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
     // are decoded by the native interpreter (guest_vif1.cpp); RT_VIF_HIST reporting
     // lives there. The GIF channel payload is GIF packets, counted at segment level.
     static const bool vifHist = std::getenv("RT_VIF_HIST") != nullptr;
+    // W3 step 2: the MSCAL/MSCALF seam runs the transliterated VU1 programs
+    // (guest_vu1.cpp); their XGKICK output reaches the GS in step 3.
+    static const bool vu1Wired = (rtguest::vif1SetHooks(&rtguest::vu1OnMscal, nullptr), true);
+    (void)vu1Wired;
     static std::map<uint32_t, uint64_t> gifSegs; // GIF chain segs by tag upper bits[61:58]
     static uint64_t gsegs = 0, gqw = 0;
     auto hist = [&](uint32_t chan, uint32_t addr, uint32_t qw) {

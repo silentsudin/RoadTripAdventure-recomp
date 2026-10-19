@@ -4,6 +4,7 @@
 // at :759-990). Generic UNPACK path only — the oracle's fast path is an
 // optimization, not a semantic. Nothing from ps2xRuntime links here (decomp rule).
 #include "guest_vif1.h"
+#include "guest_vu1.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -75,6 +76,8 @@ void vif1HistDump() {
     std::fprintf(stderr, "[vifhist] segs=%llu mscals=%llu unpackWrites=%llu directQw=%llu\n",
                  (unsigned long long)g_segs, (unsigned long long)g_mscals,
                  (unsigned long long)g_unpackWrites, (unsigned long long)g_directQw);
+    std::fprintf(stderr, "[vu1] runs=%llu unported=%llu\n",
+                 (unsigned long long)vu1Runs(), (unsigned long long)vu1Unported());
     for (auto& [k, c] : g_ops) {
         if (k > 0xFFu) std::fprintf(stderr, "  op=%#x mscal_pc=%#x count=%llu\n", k & 0xFFu,
                                     ((k >> 8) * 8u), (unsigned long long)c);

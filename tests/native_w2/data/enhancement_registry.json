@@ -946,5 +946,17 @@
     "docs": ["code:src/native/guest/guest_libs_dma.cpp", "docs/native-reference/w13-gs-sink-design.md"],
     "status": "wired",
     "notes": "W3 step 1: histogram the VIF1 code subset (opcodes, MSCAL entries) and GIF chain segments (tag path fields) while consumeChannel walks; stderr [vifhist]/[gifhist]"
+  },
+  {
+    "id": "vu1_code_dump",
+    "ledger": "-",
+    "env_vars": ["RT_VIF1_CODE_DUMP"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W3)",
+    "owners": ["src/native/guest/guest_vif1.cpp"],
+    "docs": ["code:src/native/guest/guest_vif1.cpp", "docs/native-reference/w13-gs-sink-design.md"],
+    "status": "wired",
+    "notes": "W3 step 1: write the VU1 micro image (as VIF1code uploads it) to the given path at MSCAL seam, hash-checked FNV-1a vs the oracle's image"
   }
 ]
