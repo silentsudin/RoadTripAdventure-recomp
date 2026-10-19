@@ -9,6 +9,23 @@ never shipped): `ps2xRuntime/src/lib/Kernel/Syscalls/{Thread,Sync,System,Interru
 
 - 0x00207b50 (P15b skip): writes DMAC GIF-port MMIO registers; needs the W12 MMIO model
   in the shim (same class as the kRam-hole MMIO staging) — port once handlers exist.
+- VIF1 register block (0x1000_0000 range): menu tasks whose FIRST frame reaches
+  uiFade→vifDirect are unpinnable before W12 — the VIF1 MMIO fatal-loop kills the pin
+  process (exit 133 class). Include the VIF1 block in the W12 MMIO scope (REG_* staging
+  already in guest_decls.inc fallbacks).
+- Syscall v0 semantics: kernel stubs' `in_v0 = syscall(N)` captures must return the REAL
+  v0 per the guest ABI — iSleepThread/iWakeupThread return the caller's thread id (W11-39
+  fixed the two stubs to `in_v0 = syscall(...)` capture; the value model lands with W12).
+- retnarrow ledger (`build/scratch/port/retnarrow.py`, 773 pseudocode-64-bit vs uint32_t
+  return/param sites): the 10 trap/softfloat-path sites are fixed; the rest are W12-gated
+  per-site ABI evidence — do NOT blanket-widen. Also bare-call $4-forwarding sites
+  (incl. bare `dpsub()` in cos 00274810) stay on that ledger.
+- Deferred stubs on disk: exactly the 27 in `build/scratch/port/kernel_stubs.json`
+  (`syscall(0xN)` shape, corpus 1515+27=1542). The 48-stub link ledger counts called
+  entries; some already have real TUs.
+- trapscan gate (`build/scratch/port/trapscan.py`, 0 entry-brk corpus-wide): W12 dispatcher
+  code must keep Ghidra `in_v*` pseudo-local initializations and never `>> 0x20` on
+  uint32_t, or clang -O2 replaces the function with a `brk #0x1` stub (UB entry-brk class).
 
 ## Threading model found in the corpus (call-site evidence)
 
