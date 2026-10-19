@@ -24,11 +24,11 @@ const Fault* faults(size_t* n) {
     return out.empty() ? nullptr : out.data();
 }
 
-static std::unordered_map<uint32_t, GuestFnPtr>& g_table() {
-    static std::unordered_map<uint32_t, GuestFnPtr> t;
+static std::unordered_map<uint32_t, void*>& g_table() {
+    static std::unordered_map<uint32_t, void*> t;
     return t;
 }
-void registerGuest(uint32_t addr, GuestFnPtr fn) { g_table()[addr] = fn; }
+void registerGuest(uint32_t addr, void* fn) { g_table()[addr] = fn; }
 uint64_t fnEntry(uint32_t addr) {
     auto it = g_table().find(addr);
     return it == g_table().end() ? 0 : reinterpret_cast<uint64_t>(it->second);

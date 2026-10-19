@@ -60,9 +60,11 @@ inline void* G(uint32_t a) {
 bool loadImage(const uint8_t* elfFile, size_t size);
 
 // Indirect-call registry: OUR table of translated functions (plan doc, decision 2).
+// Entries stored as void* (dlsym pattern): signatures vary per function as ports
+// widen 64-bit params, so no function-pointer-to-function-pointer cast is made.
+void registerGuest(uint32_t addr, void* fn);
 typedef uint64_t (*GuestFnPtr)(uint64_t, uint64_t, uint64_t, uint64_t,
                                uint64_t, uint64_t, uint64_t, uint64_t);
-void registerGuest(uint32_t addr, GuestFnPtr fn);
 uint64_t callGuest(uint32_t addr, uint64_t a0 = 0, uint64_t a1 = 0,
                    uint64_t a2 = 0, uint64_t a3 = 0, uint64_t a4 = 0,
                    uint64_t a5 = 0, uint64_t a6 = 0, uint64_t a7 = 0);
@@ -73,7 +75,7 @@ uint64_t fnEntry(uint32_t addr);  // lookup only, 0 if absent
 // Transliterator-emitted registration.
 #define RT_GUEST_FN(addr, name)                                        \
     namespace { struct RtReg_ { RtReg_() {                             \
-        rtguest::registerGuest(addr, reinterpret_cast<rtguest::GuestFnPtr>(&name)); \
+        rtguest::registerGuest(addr, reinterpret_cast<void*>(&name)); \
     } } rt_reg_; }
 
 // Ghidra expression tokens. CONCATxy(a,b): a is x bytes (high), b is y bytes (low).

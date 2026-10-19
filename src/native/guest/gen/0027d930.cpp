@@ -42,8 +42,8 @@ uint32_t __fpcmp_parts_d(uint32_t param_1, uint32_t param_2, ...) {
       if (uVar3 == (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint32_t)))) {
         if ((int)(*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint32_t))) <= (int)(*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint32_t)))) {
           if ((int)(*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint32_t))) <= (int)(*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint32_t)))) {
-            if ((*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) < (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4)))) goto LAB_0027da24;
-            if ((*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) <= (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4)))) {
+            if ((*(uint64_t*)rtguest::G((uint32_t)(param_2 + 4 * sizeof(uint32_t)))) < (*(uint64_t*)rtguest::G((uint32_t)(param_1 + 4 * sizeof(uint32_t))))) goto LAB_0027da24;
+            if ((*(uint64_t*)rtguest::G((uint32_t)(param_2 + 4 * sizeof(uint32_t)))) <= (*(uint64_t*)rtguest::G((uint32_t)(param_1 + 4 * sizeof(uint32_t))))) {
               return 0;
             }
           }

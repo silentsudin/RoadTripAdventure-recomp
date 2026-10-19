@@ -4,11 +4,11 @@
 
 namespace guest {
 
-uint32_t GetIntField_ed330(uint32_t param_1, uint32_t param_2, ...) {
-  return (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ed330 + param_2 * 0x1c)));
+uint32_t GetIntField_ed330(uint64_t param_1, uint32_t param_2, ...) {
+  return (*(uint32_t*)rtguest::G((uint32_t)(0x002ed330 + param_2 * 0x1c)));
 }
 
 
-RT_GUEST_FN(0x002436f8, guest::GetIntField_ed330)
+RT_GUEST_FN(0x002436f8, GetIntField_ed330)
 
 }  // namespace guest

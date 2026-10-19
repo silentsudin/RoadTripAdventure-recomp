@@ -4,11 +4,11 @@
 
 namespace guest {
 
-uint32_t GetLabelEntry_effd8(uint32_t param_1, uint32_t param_2, ...) {
-  return (*(uint32_t*)rtguest::G((uint32_t)(0x2effd8u + (uint32_t)(param_2 * 3) * 4)));
+uint32_t GetLabelEntry_effd8(uint64_t param_1, uint32_t param_2, ...) {
+  return (*(uint32_t*)rtguest::G((uint32_t)(0x2effd8u + param_2 * 3 * 4)));
 }
 
 
-RT_GUEST_FN(0x00243568, guest::GetLabelEntry_effd8)
+RT_GUEST_FN(0x00243568, GetLabelEntry_effd8)
 
 }  // namespace guest

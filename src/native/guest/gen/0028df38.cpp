@@ -32,8 +32,8 @@ uint32_t __udivdi3(uint32_t param_1, uint32_t param_2, ...) {
   uVar16 = (uint32_t)(int)uVar15;
   uVar18 = (uint32_t)param_1;
   uVar19 = (uint32_t)(int)uVar18;
-  uVar9 = (uint32_t)((uint32_t)param_1 >> 0x20);
-  uVar10 = (uint32_t)((uint32_t)param_2 >> 0x20);
+  uVar9 = (uint32_t)(param_1 >> 0x20);
+  uVar10 = (uint32_t)(param_2 >> 0x20);
   if (uVar14 == 0) {
     if (uVar16 <= uVar17) {
       if (uVar16 == 0) {

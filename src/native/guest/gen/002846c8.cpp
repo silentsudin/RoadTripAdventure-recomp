@@ -8,7 +8,7 @@ uint32_t isinf(uint32_t param_1, ...) {
   uint uVar1;
   
   uVar1 = 0x7ff00000 -
-          ((uint32_t)((uint32_t)param_1 >> 0x20) & 0x7fffffff | ((uint32_t)param_1 | -(uint32_t)param_1) >> 0x1f);
+          ((uint32_t)(param_1 >> 0x20) & 0x7fffffff | ((uint32_t)param_1 | -(uint32_t)param_1) >> 0x1f);
   return ((int)(uVar1 | -uVar1) >> 0x1f) + 1;
 }
 

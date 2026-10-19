@@ -18,7 +18,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
   
   uVar4 = _Balloc(param_1,1);
   uVar5 = param_2 >> 0x20 & 0x7fffffff;
-  (*(uint32_t*)rtguest::G((uint32_t)auStack_4c + (uint32_t)(0) * 4)) = (uint32_t)((uint32_t)param_2 >> 0x20) & 0xfffff;
+  (*(uint32_t*)rtguest::G((uint32_t)auStack_4c + (uint32_t)(0) * 4)) = (uint32_t)(param_2 >> 0x20) & 0xfffff;
   uVar8 = uVar5 >> 0x14;
   iVar6 = (int)uVar4;
   puVar7 = (uint32_t)(iVar6 + 0x14);

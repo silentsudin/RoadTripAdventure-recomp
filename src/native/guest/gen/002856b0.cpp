@@ -4,13 +4,13 @@
 
 namespace guest {
 
-uint32_t sysFstat(uint32_t param_1, uint32_t param_2, ...) {
+uint64_t sysFstat(uint64_t param_1, uint32_t param_2, ...) {
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x48))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) = 0x2000;
   return 0;
 }
 
 
-RT_GUEST_FN(0x002856b0, guest::sysFstat)
+RT_GUEST_FN(0x002856b0, sysFstat)
 
 }  // namespace guest

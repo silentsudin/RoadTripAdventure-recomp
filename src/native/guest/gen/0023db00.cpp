@@ -1,10 +1,12 @@
 // guest:0x0023db00 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
+#define GetSlotDataPtr GetSlotDataPtr_decl
 #include "guest_decls.inc"
+#undef GetSlotDataPtr
 
 namespace guest {
 
-uint32_t GetSlotDataPtr(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t GetSlotDataPtr(uint64_t param_1, uint32_t param_2, ...) {
   char cVar1;
 uint32_t puVar2;
   int iVar3;

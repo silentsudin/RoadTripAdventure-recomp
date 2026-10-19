@@ -57,7 +57,7 @@ LAB_0027bbac:
           uVar6 = uVar2 + lVar3;
           lVar3 = __muldi3((*(uint64_t*)rtguest::G((uint32_t)uStack_80)) >> 0x20,(*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) >> 0x20);
           uVar5 = uVar1 + (uVar6 << 0x20);
-          (*(uint64_t*)rtguest::G((uint32_t)uStack_60)) = ((uint32_t)(uVar6 < uVar2) << 0x20) + (uint32_t)(uVar5 < uVar1) +
+          (*(uint64_t*)rtguest::G((uint32_t)uStack_60)) = ((uint64_t)(uVar6 < uVar2) << 0x20) + (uint64_t)(uVar5 < uVar1) +
                       (uVar6 >> 0x20) + lVar3;
           (*(int32_t*)rtguest::G((uint32_t)iStack_68)) = (*(int32_t*)rtguest::G((uint32_t)iStack_a8)) + (*(int32_t*)rtguest::G((uint32_t)iStack_88)) + 4;
           (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = (uint32_t)((*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) != (*(uint32_t*)rtguest::G((uint32_t)uStack_8c)));

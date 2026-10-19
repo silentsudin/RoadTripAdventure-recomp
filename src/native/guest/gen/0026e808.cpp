@@ -38,13 +38,13 @@ uint32_t sceGsSetDefLoadImage(uint32_t param_1, uint32_t param_2, uint32_t param
     uVar2 = (uint32_t)(iVar4 * iVar3 >> 5);
   }
   if ((long)uVar2 < 0x8000) {
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 10))) = 0;
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x50))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x54))) = 0;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xb))) = 0;
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x58))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x5c))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)param_1)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 4))) = 0;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 1))) = 0;
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = 0;
     (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(10) * sizeof(uint64_t))) = (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(10) * sizeof(uint64_t))) & 0xf3ffffffffff8000 | uVar2 & 0x7fff | 0x800000000008000;
     (*(uint64_t*)rtguest::G((uint32_t)param_1)) = (*(uint64_t*)rtguest::G((uint32_t)param_1)) & 0xfffffffffff8000 | 0x1000000000000004;

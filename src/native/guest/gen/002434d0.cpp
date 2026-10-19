@@ -1,10 +1,12 @@
 // guest:0x002434d0 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
+#define GetLabelEntry_eced0 GetLabelEntry_eced0_decl
 #include "guest_decls.inc"
+#undef GetLabelEntry_eced0
 
 namespace guest {
 
-uint32_t GetLabelEntry_eced0(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t GetLabelEntry_eced0(uint64_t param_1, uint32_t param_2, ...) {
   return (*(uint32_t*)rtguest::G((uint32_t)(0x2eced0u + (uint32_t)(param_2 * 6) * 4)));
 }
 

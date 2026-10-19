@@ -15,7 +15,7 @@ uint32_t GetFlaggedSlotCount(uint32_t param_1, uint32_t param_2, uint32_t param_
            (((*(uint32_t*)rtguest::G((uint32_t)0x178039c + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & uVar1) != 0) +
            (((*(uint32_t*)rtguest::G((uint32_t)0x17803a0 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & uVar1) != 0);
   }
-  return ((*(uint32_t*)rtguest::G((uint32_t)(0x1780390u + param_1 * 5 + param_3 * 0xd12) + (uint32_t)((int)param_2 >> 5) * 4)) & 1 << (param_2 & 0x1f)
+  return ((*(uint32_t*)rtguest::G((uint32_t)(0x1780390u + (param_1 * 5 + param_3 * 0xd12 + (int)param_2 / 32) * sizeof(uint32_t)))) & 1 << (param_2 & 0x1f)
          ) != 0;
 }
 

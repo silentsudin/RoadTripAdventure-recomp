@@ -1,10 +1,12 @@
 // guest:0x00285930 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
+#define sceSifInvalidateDCache sceSifInvalidateDCache_decl
 #include "guest_decls.inc"
+#undef sceSifInvalidateDCache
 
 namespace guest {
 
-uint32_t sceSifInvalidateDCache(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t sceSifInvalidateDCache(uint64_t param_1, uint64_t param_2, ...) {
   uint uVar1;
   
   uVar1 = Status & 0x10000;

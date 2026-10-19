@@ -31,7 +31,7 @@ uint32_t puVar8;
     do {
       iVar9 = iVar9 + -1;
       (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = 0;
-      puVar8 = puVar8 + 1;
+      puVar8 = puVar8 + (uint32_t)(1) * sizeof(uint32_t);
     } while (iVar9 != 0);
   }
   puVar4 = (uint32_t)(iVar11 + 0x14);
@@ -40,18 +40,18 @@ uint32_t puVar8;
   if (param_3 == 0) {
     do {
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)puVar4));
-      puVar4 = puVar4 + 1;
+      puVar4 = puVar4 + (uint32_t)(1) * sizeof(uint32_t);
       (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = uVar3;
-      puVar8 = puVar8 + 1;
+      puVar8 = puVar8 + (uint32_t)(1) * sizeof(uint32_t);
     } while (puVar4 < puVar7);
   }
   else {
     uVar3 = 0;
     do {
       (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = (*(uint32_t*)rtguest::G((uint32_t)puVar4)) << param_3 | uVar3;
-      puVar8 = puVar8 + 1;
+      puVar8 = puVar8 + (uint32_t)(1) * sizeof(uint32_t);
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)puVar4));
-      puVar4 = puVar4 + 1;
+      puVar4 = puVar4 + (uint32_t)(1) * sizeof(uint32_t);
       uVar3 = uVar3 >> (0x20 - param_3 & 0x1f);
     } while (puVar4 < puVar7);
     (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = uVar3;

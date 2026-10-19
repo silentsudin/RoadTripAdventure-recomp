@@ -1,10 +1,12 @@
 // guest:0x00273af8 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
+#define scePadGetFrameCount scePadGetFrameCount_decl
 #include "guest_decls.inc"
+#undef scePadGetFrameCount
 
 namespace guest {
 
-uint32_t scePadGetFrameCount(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t scePadGetFrameCount(uint64_t param_1, uint32_t param_2, ...) {
   int iVar1;
   undefined4 uVar2;
   

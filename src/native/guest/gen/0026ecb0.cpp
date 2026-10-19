@@ -18,7 +18,7 @@ uint32_t sceGsExecStoreImage(uint32_t param_1, ...) {
   uVar7 = 0;
   uVar2 = (uint32_t)(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x40)));
   uVar6 = uVar2 & 0xfff;
-  uVar5 = (uint32_t)((uint32_t)(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x40))) >> 0x20) & 0xfff;
+  uVar5 = (uint32_t)((*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x40))) >> 0x20) & 0xfff;
   uVar4 = 0;
   switch((uint32_t)((uint32_t)(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x20))) >> 0x18) & 0x3f) {
   case 0:
@@ -65,7 +65,7 @@ uint32_t sceGsExecStoreImage(uint32_t param_1, ...) {
     }
   }
   if (uVar8 != 0) {
-    (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x40 | 0x20000000))) = (long)(int)(uVar2 & 0xfff) | (uint32_t)uVar4 << 0x20;
+    (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x40 | 0x20000000))) = (long)(int)(uVar2 & 0xfff) | (uint64_t)uVar4 << 0x20;
   }
   while ((REG_DMAC_1_VIF1_CHCR & 0x100) != 0) {
     bVar1 = 0x1000000 < uVar7;
