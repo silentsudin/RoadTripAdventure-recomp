@@ -101,6 +101,14 @@ static uint64_t t_boot_body(uint64_t, uint64_t, uint64_t, uint64_t) {
     return 0;
 }
 
+// WaitVSyncTick park (what sceGsSyncV's host body does on a green thread).
+static uint64_t t_vsync_body(uint64_t, uint64_t, uint64_t, uint64_t) {
+    wr32(0x400B00, (uint32_t)rtguest::kWaitVSync(7));
+    wr32(0x400B04, (uint32_t)rtguest::kWaitVSync(-1));
+    guest::ExitDeleteThread();
+    return 0;
+}
+
 int main() {
     kResetKernel();
     std::memset(kRam, 0, 0x500000);  // scratch zone for all pins
@@ -280,6 +288,24 @@ int main() {
     kPumpToIdle();
     CHECK(rd32(0x400A04) == 1);               // resumed past the first sleep
     kPumpToIdle();                            // parked again: no crash
+
+    // 11) WaitVSyncTick park (sceGsSyncV host path): the parked green thread
+    // resumes inside kWaitVSync at kVblank and returns its fixedResult.
+    kResetKernel();
+    registerGuest(0x0F000B00, (void*)&t_vsync_body);
+    makeTh(0x400B10, 0x0F000B00, 0x2000, 20);
+    CHECK(guest::CreateThread(0x400B10) == 2);
+    CHECK(guest::StartThread(2, 0) == 0);
+    kPumpToIdle();
+    CHECK(rd32(0x400B00) == 0);                 // parked: no vblank yet
+    kVblank();
+    kPumpToIdle();
+    CHECK(rd32(0x400B00) == 7u);                // resumed with fixedResult 7
+    CHECK(rd32(0x400B04) == 0);                 // parked again
+    kVblank();
+    kPumpToIdle();
+    CHECK(rd32(0x400B04) == 0xFFFFFFFFu);       // fixedResult -1
+    CHECK(kThreadCount() == 0);
 
     std::printf("test_w12_kernel: %s (%d failures)\n", fails ? "FAILED" : "ok", fails);
     return fails ? 1 : 0;

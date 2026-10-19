@@ -51,16 +51,16 @@ uint32_t g_iopHeapBump = 0x00002000;
 
 // ---- RAM access (oracle getMemPtr: null outside physical RAM) ----
 void* mem(uint32_t a) {
-    const uint32_t p = a & 0x1FFFFFFFu;
+    const uint32_t p = a & 0x01FFFFFFu;
     return p < RT_GUEST_RAM_SIZE ? rtguest::kRam + p : nullptr;
 }
 uint32_t rdW(uint32_t a) {
     uint32_t v = 0;
-    std::memcpy(&v, rtguest::kRam + (a & 0x1FFFFFFFu), 4);
+    std::memcpy(&v, rtguest::kRam + (a & 0x01FFFFFFu), 4);
     return v;
 }
 void wrW(uint32_t a, uint32_t v) {
-    std::memcpy(rtguest::kRam + (a & 0x1FFFFFFFu), &v, 4);
+    std::memcpy(rtguest::kRam + (a & 0x01FFFFFFu), &v, 4);
 }
 
 // t_SifRpcClientData / t_SifRpcServerData / t_SifRpcDataQueue field offsets
@@ -86,7 +86,7 @@ uint32_t iopAlloc(uint32_t bytes) {
 
 std::string cstrGuest(uint32_t a, uint32_t cap) {
     if (!mem(a)) return {};
-    const uint32_t p = a & 0x1FFFFFFFu;
+    const uint32_t p = a & 0x01FFFFFFu;
     std::string s;
     for (uint32_t i = 0; i < cap && rtguest::kRam[p + i]; ++i) s += (char)rtguest::kRam[p + i];
     return s;
@@ -155,7 +155,7 @@ uint32_t sceSifGetOtherData(uint32_t rdAddr, uint32_t srcAddr, uint32_t dstAddr,
     if (size >= RT_GUEST_RAM_SIZE) return (uint32_t)-1;
     if (srcAddr >= (2u << 20) || !mem(dstAddr) || dstAddr + size > RT_GUEST_RAM_SIZE)
         return (uint32_t)-1;
-    std::memcpy(mem(dstAddr), iopRam() + (srcAddr & 0x1FFFFFFFu), size);
+    std::memcpy(mem(dstAddr), iopRam() + (srcAddr & 0x01FFFFFFu), size);
     if (mem(rdAddr)) {  // SifRpcReceiveData_t src/dest/size at +0x10/+0x14/+0x18
         wrW(rdAddr + 0x10, srcAddr); wrW(rdAddr + 0x14, dstAddr); wrW(rdAddr + 0x18, size);
     }
@@ -176,10 +176,12 @@ uint32_t sceSifBindRpc(uint32_t clientPtr, uint32_t rpcId, uint64_t mode64, ...)
     if (it != g_rpcServers.end()) serverPtr = it->second;
     auto& cl = g_rpcClients[clientPtr];
     cl.sid = rpcId; cl.busy = false;
-    if (!serverPtr && !g_modulesById.empty()) {
+    if (!serverPtr) {
         // Unknown sid: publish a dummy server descriptor (oracle
         // rpcAllocServerAddr + memset + sid; client->server != 0 is the SDK's
-        // "bound" signal).
+        // "bound" signal). Not gated on the module table: at boot the game
+        // binds SdRpc (0x80000701) before any LoadModule — the oracle serves
+        // it from the real IOP's SdServer; we serve it from the host.
         serverPtr = rtguest::kHeapAlloc(kSdStructSize);
         if (serverPtr < RT_GUEST_RAM_SIZE && mem(serverPtr)) {
             std::memset(mem(serverPtr), 0, kSdStructSize);

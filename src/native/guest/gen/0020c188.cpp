@@ -4,6 +4,7 @@
 
 namespace guest {
 
+// 2026-10-19 MIPS cross-check 0x0020c188: Ghidra halved chunk walk (qword +0x10 / stride size*8+8); real MIPS qword +0x20, stride size*16+0x10 (see gen/0020dde0.cpp).
 uint32_t loadCourseTile(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
     uint32_t iStack_68 = rtguest::allocFrame(4);
   char cVar1;
@@ -42,9 +43,9 @@ uint32_t puVar13;
         fatal(0x2ea490);
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar5));
       }
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x10))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x10)));
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x20))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x20)));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + (uint32_t)uVar2 * 0x10 + 0x13)));
-      puVar5 = puVar5 + (uint32_t)uVar2 * 8 + 8;
+      puVar5 = puVar5 + (uint32_t)uVar2 * 0x10 + 0x10;
     }
     uVar9 = sceDmaGetChan(1);
     sceDmaSync(uVar9,0,0);
@@ -156,12 +157,12 @@ uint32_t puVar13;
           if (cVar1 != '\x10') {
             fatal(0x2ea490);
           }
-          (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x10))) =
-               (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x10))) & 0xffffc000ffffffff |
-               ((long)(int)(((uint32_t)((*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x10))) >> 0x20) & 0x3fff) + (int)sVar10) &
+          (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x20))) =
+               (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x20))) & 0xffffc000ffffffff |
+               ((long)(int)(((uint32_t)((*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x20))) >> 0x20) & 0x3fff) + (int)sVar10) &
                0x3fffU) << 0x20;
           cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar5)) * 0x10 + 0x13)));
-          puVar5 = puVar5 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar5)) * 8 + 8;
+          puVar5 = puVar5 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar5)) * 0x10 + 0x10;
         }
         uVar9 = sceDmaGetChan(1);
         sceDmaSync(uVar9,0,0);

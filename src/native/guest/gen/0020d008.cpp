@@ -4,6 +4,7 @@
 
 namespace guest {
 
+// 2026-10-19 MIPS cross-check 0x0020d008: MIPS walker uses qword +0x20 and stride size*16+0x10; this TU already expresses those as sizeof(uint16_t) products (see gen/0020dde0.cpp).
 uint32_t HandleInputEvent(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   ushort uVar1;
   int iVar2;

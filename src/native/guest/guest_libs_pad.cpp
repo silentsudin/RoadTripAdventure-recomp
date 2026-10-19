@@ -47,7 +47,7 @@ uint32_t g_padFrameCount = 0;
 
 // Oracle getMemPtr: null outside physical RAM (G() quarantines instead).
 void* mem(uint32_t a) {
-    const uint32_t p = a & 0x1FFFFFFFu;
+    const uint32_t p = a & 0x01FFFFFFu;
     return p < RT_GUEST_RAM_SIZE ? rtguest::kRam + p : nullptr;
 }
 

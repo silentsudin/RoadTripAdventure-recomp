@@ -802,5 +802,29 @@
     "docs": ["code:src/native/guest/guest_libs_pad.cpp", "docs/native-reference/w12-kernel-design.md"],
     "status": "wired",
     "notes": "W12: host libpad traces motor/mode changes (SetActDirect, SetMainMode, SetActAlign)"
+  },
+  {
+    "id": "dma_trace",
+    "ledger": "-",
+    "env_vars": ["RT_DMA_TRACE"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/guest/guest_libs_dma.cpp"],
+    "docs": ["code:src/native/guest/guest_libs_dma.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: host libdma logs each DMAC submission (channel, chcr, chain walk, words) — payloads walk-discarded until the gs-sink lands"
+  },
+  {
+    "id": "cd_image",
+    "ledger": "-",
+    "env_vars": ["RT_IMAGE"],
+    "persisted_keys": [],
+    "default": "unset",
+    "gating": "override (W12)",
+    "owners": ["src/native/guest/guest_libs_cd.cpp"],
+    "docs": ["code:src/native/guest/guest_libs_cd.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: raw 2048-byte-sector disc image for CD reads outside the extracted-tree .lbn_map manifest"
   }
 ]

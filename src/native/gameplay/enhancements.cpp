@@ -455,6 +455,18 @@ const std::vector<EnhancementSpec>& registryTable() {
           "code:src/native/guest/guest_libs_pad.cpp|docs/native-reference/w12-kernel-design.md",
           RetentionStatus::Wired,
           "W12: host libpad traces motor/mode changes (SetActDirect, SetMainMode, SetActAlign)"},
+         {"dma_trace", "-",
+          "RT_DMA_TRACE", "", "off", "diagnostic (W12)",
+          "src/native/guest/guest_libs_dma.cpp",
+          "code:src/native/guest/guest_libs_dma.cpp|docs/native-reference/w12-kernel-design.md",
+          RetentionStatus::Wired,
+          "W12: host libdma logs each DMAC submission (channel, chcr, chain walk, words) — payloads walk-discarded until the gs-sink lands"},
+         {"cd_image", "-",
+          "RT_IMAGE", "", "unset", "override (W12)",
+          "src/native/guest/guest_libs_cd.cpp",
+          "code:src/native/guest/guest_libs_cd.cpp|docs/native-reference/w12-kernel-design.md",
+          RetentionStatus::Wired,
+          "W12: raw 2048-byte-sector disc image for CD reads outside the extracted-tree .lbn_map manifest"},
      };
     return kRegistry;
 }

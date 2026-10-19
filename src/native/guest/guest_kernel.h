@@ -49,5 +49,11 @@ uint32_t kHeapAlloc(uint32_t bytes);  // oracle guestMalloc region (RPC dummy se
 void kResetSifRegs();                 // oracle seedDefaultSifRegsLocked
 void kSetCmdHandler(uint32_t cid, uint32_t fn, uint32_t arg);
 void kEraseCmdHandler(uint32_t cid);
+// Fire an installed dmac-cause handler chain (respects the EnableDmacHandler
+// mask) — used by the host libdma stubs on transfer completion.
+void kFireDmacCause(uint32_t cause);
+// Park the calling green thread until the next kVblank (WaitVSyncTick mirror,
+// Interrupt.cpp:78); kVblank resumes it and the call returns fixedResult.
+int32_t kWaitVSync(int fixedResult);
 
 }  // namespace rtguest

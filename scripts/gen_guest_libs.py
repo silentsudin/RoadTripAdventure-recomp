@@ -58,6 +58,29 @@ HAND |= {
     "scePadSetVrefParam", "scePadGetPortMax", "scePadGetSlotMax",
     "scePadGetModVersion", "scePadSetWarningLevel",
 }
+# Wave 3 (guest_libs_dma.cpp): libdma send/sync/register model.
+HAND |= {
+    "sceDmaGetChan", "sceDmaReset", "sceDmaPutEnv", "sceDmaGetEnv",
+    "sceDmaPutStallAddr", "sceDmaSend", "sceDmaSendI", "sceDmaSendN",
+    "sceDmaSync",
+}
+# Wave 4 (guest_libs_cd.cpp / guest_libs_fs.cpp): libcdvd + libfs host bodies.
+HAND |= {
+    "sceCdDelayThread", "sceCdCallback", "sceCdInitEeCB", "sceCdSearchFile",
+    "sceCdNcmdDiskReady", "sceCdSync", "sceCdSyncS", "sceCdInit", "sceCdMmode",
+    "sceCdRead", "sceCdGetError", "sceCdBreak", "sceSdTransToIOP",
+    "_sceFsSemInit", "sceFsInit", "sceFsReset", "sceOpen", "sceClose",
+    "sceLseek", "sceRead", "sceWrite", "sceIoctl",
+}
+# Wave 5 (guest_libs_gs.cpp): libgraph state bodies + vblank park.
+HAND |= {
+    "sceGsResetGraph", "sceGsResetPath", "sceGsSyncV", "sceGsSyncPath",
+    "sceGsSetDefLoadImage", "sceGsSetDefStoreImage", "sceGsExecLoadImage",
+    "sceGsExecStoreImage", "sceGsSetDefDBuffDc", "sceGsSwapDBuffDc",
+    "sceGsSetDefDispEnv", "sceGsPutDispEnv", "sceGszbufaddr",
+    "sceGsSetDefDrawEnv", "sceGsSetDefClear", "sceGsPutDrawEnv",
+    "sceGsSetDefDrawEnv2",
+}
 
 
 def def_name(addr: str) -> str:

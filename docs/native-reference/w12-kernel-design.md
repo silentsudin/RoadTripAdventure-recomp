@@ -196,3 +196,47 @@ polling + a WaitSema nothing signals. Next wave: CD/FileIO host bodies
 (oracle Stubs/CD.cpp, FileIO.cpp) so SYSTEM.CNF/BOOT2 load. Scheduling note: a
 pure guest spin (no syscalls) never yields to the pump — the game's CD wait
 parks on a sema, so CD services close it; timer preemption stays a W13 risk.
+
+## Increment 4 (boot to TITLE): CD/FS/DMA/GS waves + fixes
+
+Boot diagnostic now reaches `state=TITLE` (`Initialize Start...` →
+`Initialized Done.`, 120 vblanks, faults=0). What landed:
+
+- Wave 3 `guest_libs_dma.cpp` (9 HAND of 14; Recv/Watch/Pause = oracle
+  TODO_NAMED, stay pending): kRam IS the DMAC register file (guest MMIO
+  reads stay coherent with the stubs); `submitSend`/`submitSync` mirror
+  Support.h:1338/1440; chains/normal transfers are WALKED and walk-discarded
+  — `consumeChannel()` is the seam for the future native GS sink. Completion
+  fires `kFireDmacCause` (kernel dmac chain + EnableDmacHandler mask).
+  `submitSync` also completes direct-MMIO kicks (guest wrote CHCR.STR itself,
+  e.g. sendTexturePackets@00207b50 writes 0x105): STR/busy cleared + cause.
+- Wave 4 `guest_libs_cd.cpp` (13) + `guest_libs_fs.cpp` (9): sceCdRead =
+  synchronous sector copy → return 1 (oracle CD.cpp:226); disc substrate =
+  extracted tree + `.lbn_map.tsv` sidecar (path→ISO LBA; the game's CD LSN
+  IS the ISO LBA, proven by the game's static SYS table entry0 0x3fbe6 =
+  SYS/FONTE.GSL @261094). Unmanifested LBNs need the raw image (RT_IMAGE
+  fallback wired; FirstRunExtraction retains no image path — deviation).
+- Wave 5 `guest_libs_gs.cpp` (17): state faithful (GParam from ResetGraph →
+  sceGsSyncV returns interlace?-1:1; GsImage 12-byte struct from SetDefLoad/
+  StoreImage; SwapDBuffDc returns which^1). Kernel `kWaitVSync(fixedResult)`
+  parks the green thread until kVblank (WaitVSyncTick mirror,
+  Interrupt.cpp:78). GS DEVICE calls are state-only (gs-sink TODO): packets
+  reach the DMA model walk-discarded; scanout parity comes with the native
+  renderer.
+- BindRpc serves a dummy server for ANY sid (ungated): boot binds SdRpc
+  0x80000701 before any LoadModule; client->server != 0 is the SDK's bound
+  signal (sceSdRemoteInit spins on client+0x24).
+
+Fix-class found (W11 corpus, boot path): **Ghidra halves the GSL chunk
+walk.** All 11 `fatal(0x2ea490)` ("GSL DMA Tag Error!") walker TUs read the
+tag qword at cursor+0x10 and stride size*8+8 in pseudocode; real MIPS is
+`ld/sd 0x20(cursor)` and `addiu cursor, size<<4, 0x10` (lbu type at +3;
+exit char 'p'; patch = FB block += 0x1a40 — the same texture-base remap the
+texture docs carry). Fixed with capstone citations against the user's ELF
+(vaddr−0x1FF000). Recipe: when a boot scene self-fats, disassemble before
+touching host stubs.
+
+Bug fixed en route: host stub files masked RAM with 0x1FFFFFFF (512 MB!) —
+PS2 RAM mask is 0x01FFFFFF; DMAC reg writes at 0x1000Exxx overran kRam and
+SIGSEGV'd at sceDmaReset (kRam+0x1000E020). The gen corpus masks correctly
+via G(); only hand waves carried the typo.

@@ -28,83 +28,8 @@ static void rtPending(const char* name) {
         std::fprintf(stderr, "[hostlib] pending host port: %s -> 0\n", name);
 }
 
-uint32_t sceGsResetGraph(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, ...) { rtPending("sceGsResetGraph"); return 0; }
-RT_STUB_FN(0x0026E250, guest::sceGsResetGraph)
-
-uint32_t sceGsResetPath(uint32_t q0, ...) { rtPending("sceGsResetPath"); return 0; }
-RT_STUB_FN(0x0026E3F0, guest::sceGsResetPath)
-
-uint32_t sceGsSyncV(uint32_t q0, ...) { rtPending("sceGsSyncV"); return 0; }
-RT_STUB_FN(0x0026E458, guest::sceGsSyncV)
-
-uint32_t sceGsSyncPath(uint32_t q0, ...) { rtPending("sceGsSyncPath"); return 0; }
-RT_STUB_FN(0x0026E4F0, guest::sceGsSyncPath)
-
-uint32_t sceGsSetDefLoadImage(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, uint32_t q6, uint32_t q7, ...) { rtPending("sceGsSetDefLoadImage"); return 0; }
-RT_STUB_FN(0x0026E808, guest::sceGsSetDefLoadImage)
-
-uint32_t sceGsSetDefStoreImage(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, uint32_t q6, uint32_t q7, ...) { rtPending("sceGsSetDefStoreImage"); return 0; }
-RT_STUB_FN(0x0026E9F0, guest::sceGsSetDefStoreImage)
-
-uint32_t sceGsExecLoadImage(uint32_t q0, ...) { rtPending("sceGsExecLoadImage"); return 0; }
-RT_STUB_FN(0x0026EB30, guest::sceGsExecLoadImage)
-
-uint32_t sceGsExecStoreImage(uint32_t q0, ...) { rtPending("sceGsExecStoreImage"); return 0; }
-RT_STUB_FN(0x0026ECB0, guest::sceGsExecStoreImage)
-
-uint32_t sceGsSetDefDBuffDc(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, uint32_t q6, ...) { rtPending("sceGsSetDefDBuffDc"); return 0; }
-RT_STUB_FN(0x0026F450, guest::sceGsSetDefDBuffDc)
-
-uint32_t sceGsSwapDBuffDc(uint32_t q0, uint32_t q1, ...) { rtPending("sceGsSwapDBuffDc"); return 0; }
-RT_STUB_FN(0x0026F738, guest::sceGsSwapDBuffDc)
-
-uint32_t sceGsSetDefDispEnv(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, ...) { rtPending("sceGsSetDefDispEnv"); return 0; }
-RT_STUB_FN(0x0026F798, guest::sceGsSetDefDispEnv)
-
-uint32_t sceGsPutDispEnv(uint32_t q0, ...) { rtPending("sceGsPutDispEnv"); return 0; }
-RT_STUB_FN(0x0026FA08, guest::sceGsPutDispEnv)
-
-uint32_t sceGszbufaddr(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceGszbufaddr"); return 0; }
-RT_STUB_FN(0x0026FAC8, guest::sceGszbufaddr)
-
-uint32_t sceGsSetDefDrawEnv(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, ...) { rtPending("sceGsSetDefDrawEnv"); return 0; }
-RT_STUB_FN(0x0026FB90, guest::sceGsSetDefDrawEnv)
-
-uint32_t sceGsSetDefClear(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, uint32_t q6, uint32_t q7, uint32_t q8, uint32_t q9, uint32_t q10, ...) { rtPending("sceGsSetDefClear"); return 0; }
-RT_STUB_FN(0x0026FD78, guest::sceGsSetDefClear)
-
-uint32_t sceGsPutDrawEnv(uint32_t q0, ...) { rtPending("sceGsPutDrawEnv"); return 0; }
-RT_STUB_FN(0x0026FE80, guest::sceGsPutDrawEnv)
-
-uint32_t sceGsSetDefDrawEnv2(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, ...) { rtPending("sceGsSetDefDrawEnv2"); return 0; }
-RT_STUB_FN(0x0026FF68, guest::sceGsSetDefDrawEnv2)
-
 uint32_t memclr(uint32_t q0, uint64_t q1, ...) { rtPending("memclr"); return 0; }
 RT_STUB_FN(0x00270148, guest::memclr)
-
-uint32_t sceDmaGetChan(uint32_t q0, ...) { rtPending("sceDmaGetChan"); return 0; }
-RT_STUB_FN(0x00270180, guest::sceDmaGetChan)
-
-uint32_t sceDmaReset(uint32_t q0, ...) { rtPending("sceDmaReset"); return 0; }
-RT_STUB_FN(0x002701A8, guest::sceDmaReset)
-
-uint32_t sceDmaPutEnv(uint32_t q0, ...) { rtPending("sceDmaPutEnv"); return 0; }
-RT_STUB_FN(0x00270298, guest::sceDmaPutEnv)
-
-uint32_t sceDmaGetEnv(uint32_t q0, ...) { rtPending("sceDmaGetEnv"); return 0; }
-RT_STUB_FN(0x00270470, guest::sceDmaGetEnv)
-
-uint32_t sceDmaPutStallAddr(uint32_t q0, ...) { rtPending("sceDmaPutStallAddr"); return 0; }
-RT_STUB_FN(0x002704A8, guest::sceDmaPutStallAddr)
-
-uint32_t sceDmaSend(uint32_t q0, uint32_t q1, ...) { rtPending("sceDmaSend"); return 0; }
-RT_STUB_FN(0x002704D0, guest::sceDmaSend)
-
-uint32_t sceDmaSendN(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceDmaSendN"); return 0; }
-RT_STUB_FN(0x002705A8, guest::sceDmaSendN)
-
-uint32_t sceDmaSendI(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceDmaSendI"); return 0; }
-RT_STUB_FN(0x00270690, guest::sceDmaSendI)
 
 uint32_t sceDmaRecv(uint32_t q0, ...) { rtPending("sceDmaRecv"); return 0; }
 RT_STUB_FN(0x00270778, guest::sceDmaRecv)
@@ -114,9 +39,6 @@ RT_STUB_FN(0x00270840, guest::sceDmaRecvN)
 
 uint32_t sceDmaRecvI(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceDmaRecvI"); return 0; }
 RT_STUB_FN(0x00270930, guest::sceDmaRecvI)
-
-uint32_t sceDmaSync(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceDmaSync"); return 0; }
-RT_STUB_FN(0x00270A20, guest::sceDmaSync)
 
 uint32_t sceDmaWatch(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, ...) { rtPending("sceDmaWatch"); return 0; }
 RT_STUB_FN(0x00270AE8, guest::sceDmaWatch)
@@ -129,45 +51,6 @@ RT_STUB_FN(0x00272658, guest::sceGifPkCloseGifTag)
 
 uint32_t sceVpu0Reset(uint32_t q0, ...) { rtPending("sceVpu0Reset"); return 0; }
 RT_STUB_FN(0x00273408, guest::sceVpu0Reset)
-
-uint32_t sceCdDelayThread(uint16_t q0, ...) { rtPending("sceCdDelayThread"); return 0; }
-RT_STUB_FN(0x00277C70, guest::sceCdDelayThread)
-
-uint32_t sceCdCallback(uint32_t q0, ...) { rtPending("sceCdCallback"); return 0; }
-RT_STUB_FN(0x00277CD8, guest::sceCdCallback)
-
-uint32_t sceCdInitEeCB(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceCdInitEeCB"); return 0; }
-RT_STUB_FN(0x00277E90, guest::sceCdInitEeCB)
-
-uint32_t sceCdSearchFile(uint32_t q0, uint32_t q1, ...) { rtPending("sceCdSearchFile"); return 0; }
-RT_STUB_FN(0x00278238, guest::sceCdSearchFile)
-
-uint32_t sceCdNcmdDiskReady(uint32_t q0, ...) { rtPending("sceCdNcmdDiskReady"); return 0; }
-RT_STUB_FN(0x002786A8, guest::sceCdNcmdDiskReady)
-
-uint32_t sceCdSync(uint64_t q0, ...) { rtPending("sceCdSync"); return 0; }
-RT_STUB_FN(0x00278740, guest::sceCdSync)
-
-uint64_t sceCdSyncS(uint64_t q0, ...) { rtPending("sceCdSyncS"); return 0; }
-RT_STUB_FN(0x002787E0, guest::sceCdSyncS)
-
-uint32_t sceCdInit(uint32_t q0, ...) { rtPending("sceCdInit"); return 0; }
-RT_STUB_FN(0x002789C0, guest::sceCdInit)
-
-uint32_t sceCdMmode(uint32_t q0, ...) { rtPending("sceCdMmode"); return 0; }
-RT_STUB_FN(0x00278E98, guest::sceCdMmode)
-
-uint32_t sceCdRead(uint32_t q0, uint32_t q1, uint64_t q2, uint32_t q3, ...) { rtPending("sceCdRead"); return 0; }
-RT_STUB_FN(0x00278F60, guest::sceCdRead)
-
-uint32_t sceCdGetError(uint32_t q0, ...) { rtPending("sceCdGetError"); return 0; }
-RT_STUB_FN(0x00279140, guest::sceCdGetError)
-
-uint32_t sceCdBreak(uint32_t q0, ...) { rtPending("sceCdBreak"); return 0; }
-RT_STUB_FN(0x002791D8, guest::sceCdBreak)
-
-uint32_t sceSdTransToIOP(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, ...) { rtPending("sceSdTransToIOP"); return 0; }
-RT_STUB_FN(0x00279338, guest::sceSdTransToIOP)
 
 uint32_t sceMcInit(uint32_t q0, ...) { rtPending("sceMcInit"); return 0; }
 RT_STUB_FN(0x002797A8, guest::sceMcInit)
@@ -321,33 +204,6 @@ RT_STUB_FN(0x002878F8, guest::_sceRpcGetFPacket)
 
 uint32_t _sceRpcGetFPacket2(uint32_t q0, uint32_t q1, ...) { rtPending("_sceRpcGetFPacket2"); return 0; }
 RT_STUB_FN(0x00287928, guest::_sceRpcGetFPacket2)
-
-uint32_t _sceFsSemInit(uint32_t q0, ...) { rtPending("_sceFsSemInit"); return 0; }
-RT_STUB_FN(0x00288AE0, guest::_sceFsSemInit)
-
-uint32_t sceFsInit(uint32_t q0, ...) { rtPending("sceFsInit"); return 0; }
-RT_STUB_FN(0x00288C30, guest::sceFsInit)
-
-uint32_t sceFsReset(uint32_t q0, ...) { rtPending("sceFsReset"); return 0; }
-RT_STUB_FN(0x00288E88, guest::sceFsReset)
-
-uint32_t sceOpen(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceOpen"); return 0; }
-RT_STUB_FN(0x00288EC0, guest::sceOpen)
-
-uint32_t sceClose(uint32_t q0, ...) { rtPending("sceClose"); return 0; }
-RT_STUB_FN(0x00289148, guest::sceClose)
-
-uint32_t sceLseek(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceLseek"); return 0; }
-RT_STUB_FN(0x002892C8, guest::sceLseek)
-
-uint32_t sceRead(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceRead"); return 0; }
-RT_STUB_FN(0x00289500, guest::sceRead)
-
-uint32_t sceWrite(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceWrite"); return 0; }
-RT_STUB_FN(0x00289770, guest::sceWrite)
-
-uint32_t sceIoctl(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("sceIoctl"); return 0; }
-RT_STUB_FN(0x00289A30, guest::sceIoctl)
 
 uint32_t _sceSifLoadElfPart(uint32_t q0, uint32_t q1, uint32_t q2, uint64_t q3, ...) { rtPending("_sceSifLoadElfPart"); return 0; }
 RT_STUB_FN(0x0028C990, guest::_sceSifLoadElfPart)

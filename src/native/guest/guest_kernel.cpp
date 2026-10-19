@@ -53,7 +53,7 @@ constexpr uint32_t kMinHostStack = 0x10000u;  // shortcut: host C frames are
 
 enum Status : uint8_t { StReady, StRunning, StWaiting, StWaitingSuspended,
                         StSuspended, StDormant };
-enum WaitReason : uint8_t { WaitNone, WaitSleep, WaitSemaphore };
+enum WaitReason : uint8_t { WaitNone, WaitSleep, WaitSemaphore, WaitVSync };
 
 struct KThread {
     int id = 0, status = StDormant, initPri = 0, curPri = 0;
@@ -109,6 +109,7 @@ ucontext_t g_pump{};
 bool g_inInterrupt = false, g_resched = false;
 uint64_t g_micro = 0, g_vsyncTick = 0;
 uint32_t g_vsyncFlagAddr = 0, g_vsyncTickAddr = 0;
+std::vector<int> g_vsyncWaiters;  // WaitVSyncTick parks (Interrupt.cpp:78-82)
 uint32_t g_heapBase = 0, g_heapLimit = 0, g_heapBump = 0;
 uint32_t g_gsImr = 0, g_gsCrt[5] = {};
 uint64_t g_sifTransferId = 1;
@@ -339,12 +340,12 @@ int32_t sifSetDma(uint32_t listAddr, uint32_t count) {
 void copyModel(uint32_t dst, uint32_t src, uint32_t size) {
     if (dst && src && size && size <= RT_GUEST_RAM_SIZE) {
         std::memcpy(G(dst), G(src), size);
-        g_installs.push_back(Install{dst & 0x1FFFFFFFu, src & 0x1FFFFFFFu, size});
+        g_installs.push_back(Install{dst & 0x01FFFFFFu, src & 0x01FFFFFFu, size});
     }
 }
 uint32_t resolveOverridePc(uint32_t pc) {
     if (fnEntry(pc)) return pc;
-    const uint32_t phys = pc & 0x1FFFFFFFu;
+    const uint32_t phys = pc & 0x01FFFFFFu;
     for (const Install& in : g_installs)
         if (phys >= in.dst && phys < in.dst + in.len) {
             const uint32_t src = in.src + (phys - in.dst);
@@ -651,6 +652,24 @@ int32_t opSetVSyncFlag(uint32_t flagAddr, uint32_t tickAddr) {
     return KE_OK;
 }
 
+// WaitVSyncTick park (Interrupt.cpp:78-82 → EeScheduler::waitVSync). The
+// fixedResult is carried in waitId; kVblank resumes every parked thread with
+// it (sceGsSyncV's per-GParam interlace choice lives in the GS host body).
+int32_t opWaitVSync(int fixedResult) {
+    if (!g_cur || g_inInterrupt) return KE_ERROR;  // host/handler ctx: no block
+    g_vsyncWaiters.push_back(curThread()->id);
+    return blockCurrent(WaitVSync, fixedResult);
+}
+
+void wakeVSyncWaiters() {
+    std::vector<int> invs;
+    invs.swap(g_vsyncWaiters);
+    for (int id : invs) {
+        KThread* t = thread(id);
+        if (t && t->waitReason == WaitVSync) makeReady(*t, (int32_t)t->waitId);
+    }
+}
+
 }  // namespace
 
 // ---- frame-loop driver ----
@@ -663,8 +682,10 @@ void kVblank() {
     g_vsyncFlagAddr = 0;  // one-shot like the oracle
     g_vsyncTickAddr = 0;
     dispatchIrq(false, 0u);  // intc cause 0 (vblank handlers)
-    // no VSync-wait waits exist in this corpus (no WaitVSync entry stubs).
+    wakeVSyncWaiters();      // WaitVSyncTick parks (sceGsSyncV host body)
 }
+
+int32_t kWaitVSync(int fixedResult) { return opWaitVSync(fixedResult); }
 
 void kPumpToIdle() {
     getcontext(&g_pump);
@@ -731,6 +752,7 @@ void seedSifRegs() {
 void kResetKernel() {
     g_threads.clear(); g_retired.clear(); g_sem.clear(); g_alarm.clear();
     g_intc.clear(); g_dmac.clear(); g_invoc.clear(); g_installs.clear();
+    g_vsyncWaiters.clear();
     g_sifRegs.clear(); g_syscallOverride.clear(); g_sifCmdHandlers.clear();
     seedSifRegs();
     for (auto& q : g_ready) q.clear();
@@ -752,6 +774,7 @@ void kSetCmdHandler(uint32_t cid, uint32_t fn, uint32_t arg) {
     g_sifCmdHandlers[cid] = {fn, arg};
 }
 void kEraseCmdHandler(uint32_t cid) { g_sifCmdHandlers.erase(cid); }
+void kFireDmacCause(uint32_t cause) { dispatchIrq(true, cause); }
 
 }  // namespace rtguest
 

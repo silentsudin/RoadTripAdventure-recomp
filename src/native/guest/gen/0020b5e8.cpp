@@ -4,6 +4,7 @@
 
 namespace guest {
 
+// 2026-10-19 MIPS cross-check 0x0020b5e8: Ghidra halved chunk walk (qword +0x10 / stride size*8+8); real MIPS qword +0x20, stride size*16+0x10 (see gen/0020dde0.cpp).
 uint32_t loadShopSet(uint32_t param_1, uint32_t param_2, ...) {
   char cVar1;
   ushort uVar2;
@@ -24,17 +25,17 @@ uint32_t ppuVar8;
     cVar1 = (*(int8_t*)rtguest::G(0x100003));
     while (cVar1 != 'p') {
       if (cVar1 == '\x10') {
-        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
       else {
         fatal(0x2ea490);
-        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
            uVar6 & 0xffffc000ffffffff |
            ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x1f2e) & 0x3fffU) << 0x20;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
-      puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+      puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x10;
     }
     break;
   case 2:
@@ -45,17 +46,17 @@ uint32_t ppuVar8;
     cVar1 = (*(int8_t*)rtguest::G(0x100003));
     while (cVar1 != 'p') {
       if (cVar1 == '\x10') {
-        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
       else {
         fatal(0x2ea490);
-        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
            uVar6 & 0xffffc000ffffffff |
            ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x1cc6) & 0x3fffU) << 0x20;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
-      puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+      puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x10;
     }
     break;
   case 4:
@@ -77,9 +78,9 @@ uint32_t ppuVar8;
         fatal(0x2ea490);
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar3));
       }
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)uVar2 * 0x10 + 0x13)));
-      puVar3 = puVar3 + (uint32_t)uVar2 * 8 + 8;
+      puVar3 = puVar3 + (uint32_t)uVar2 * 0x10 + 0x10;
     }
     break;
   case 6:
@@ -113,17 +114,17 @@ uint32_t ppuVar8;
     cVar1 = (*(int8_t*)rtguest::G(0x100003));
     while (cVar1 != 'p') {
       if (cVar1 == '\x10') {
-        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
       else {
         fatal(0x2ea490);
-        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
            uVar6 & 0xffffc000ffffffff |
            ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x285e) & 0x3fffU) << 0x20;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
-      puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+      puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x10;
     }
     break;
   case 9:
@@ -138,17 +139,17 @@ LAB_0020b9d0:
     cVar1 = (*(int8_t*)rtguest::G(0x100003));
     while (cVar1 != 'p') {
       if (cVar1 == '\x10') {
-        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
       else {
         fatal(0x2ea490);
-        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
            uVar6 & 0xffffc000ffffffff |
            ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x34be) & 0x3fffU) << 0x20;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
-      puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+      puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x10;
     }
     break;
   case 0xb:
