@@ -167,3 +167,31 @@ save-stack addressing; 1024 kept as the canonical base).
 
 Remaining unported at boot: only the 828 direct-PC one-shot invocations
 (step 2b scope above).
+
+## Step 2d done (2026-10-20): model streams live — DMA chain walk fixed, mscals parity
+
+The boot VIF1 stream was not reaching the interpreter (mscals=0 native vs 25,080
+oracle). Root causes, both fixed:
+
+1. `consumeChannel` (guest_libs_dma.cpp) now mirrors the oracle chain walk
+   (ps2_memory.cpp:1540-1685): tag ids 0 REFE / 1 CNT / 2 REF / 3-4 CALL-class /
+   5 CALL(ASP) / 6 RET / 7 END, payload placement per id, CHCR.TTE prefixing the
+   tag's upper 64 bits into the VIF stream as two codes, TIE+tag IRQ, and
+   MADR/ASR0/ASR1 write-back; per-chain one concatenated `chainBuf` handed to
+   the new `vif1Consume(data, sizeBytes)` entry (matches processVIF1Data).
+   The old walk followed REFE addr fields as next-tag links and decoded the
+   static model blob — all 1.37M census MSCALs were phantoms.
+2. Transliteration bug class: 12 stores across 11 builder TUs (all reading the
+   ring pointer global 0x3356ec: 002263b8/480/540/6e8/7a8/c28/d58/e88/f70,
+   00227048, 00227178×2) were emitted as `*(uint32_t*)G((uint32_t)*(uint32_t*)G(
+   (uint32_t)*(uint32_t*)G(0x3356ec) + 0*4))` — a double dereference (host
+   codegen loads slot+0 and stores to that value), so the pseudocode's
+   `*vifPacketPtr = X` never wrote the CALL/END tag low dword (tq/id). Fixed to
+   the single-deref form used by the +4/+8/+12 stores. The game's per-frame
+   chain is CALL tags (id=3, tq=qword count of the model block, tag-hi
+   FLUSH+DIRECT) at 0x1750bf0/c00/c10 + END, kicked via TADR + CHCR 0x145.
+
+Boot@1801 census (RT_VIF_HIST=1): segs=1801 mscals=25080 (== oracle probe to
+the unit) unpackWrites=1,170,345 directQw=92,945, vu1 runs=25080 unported=0;
+the `fault 0x10000002` class (garbage pointers from the double-deref stores)
+is gone. RAM@1800 vs /tmp/eerm_o1800.bin: 1453 B total (was 1474).

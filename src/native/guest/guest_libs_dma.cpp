@@ -15,6 +15,7 @@
 #include <cstring>
 #include <map>
 #include <unordered_map>
+#include <vector>
 #include "guest_kernel.h"
 #include "guest_shim.h"
 #include "guest_vif1.h"
@@ -98,8 +99,8 @@ uint32_t normalizeQwcFromArg(uint32_t value) {      // Support.h:1254
     return value & 0xFFFFu;
 }
 
-// Data-plane seam: walk the submission, count words, hand payloads to the
-// (future) native GS/VIF consumer. Shortcut: walk-and-count only (see header).
+// Data plane: walk the submission per the oracle's chain semantics and hand the
+// VIF1 channel's concatenated stream to the native interpreter.
 void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
                     uint32_t qwc, uint32_t tadr) {
     // W3 step 1 (docs/native-reference/w13-gs-sink-design.md): VIF1 channel payloads
@@ -112,25 +113,37 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
     (void)vu1Wired;
     static std::map<uint32_t, uint64_t> gifSegs; // GIF chain segs by tag upper bits[61:58]
     static uint64_t gsegs = 0, gqw = 0;
-    auto hist = [&](uint32_t chan, uint32_t addr, uint32_t qw) {
-        if (chan != 0x10009000u) return;
-        rtguest::vif1Consume(addr, qw);
-    };
     uint64_t words = 0;
     uint32_t links = 0;
-    if ((chcr & 0x4u) != 0u) {  // MODE=1 chain
-        uint32_t addr = tadr;
-        while (addr && links < 4096u) {
-            const uint64_t* tag = reinterpret_cast<const uint64_t*>(
-                rtguest::kRam + (addr & 0x01FFFFFFu));
-            const uint32_t tq = static_cast<uint32_t>(tag[0] & 0xFFFFu);
-            const uint32_t id = static_cast<uint32_t>((tag[0] >> 28) & 0x7u);
-            const uint32_t next = static_cast<uint32_t>((tag[0] >> 32) & 0x7FFFFFFFu);
+    if ((chcr & 0x4u) != 0u) {  // MODE=1 chain — mirrors ps2_memory.cpp:1565-1685.
+        // Tag ids per the oracle: 0 REFE (payload at addr, chain ends), 1 CNT (payload
+        // follows the tag, chain continues after it), 2 REF (payload follows, chain jumps
+        // to addr), 3/4 CALL-class (payload at addr, continue after tag), 5 CALL (push
+        // return addr), 6 RET (pop), 7 END. With CHCR.TTE the tag's upper 64 bits join
+        // the VIF stream as two VIF codes ahead of the payload — the game carries its
+        // per-object STCYCL/MSCAL there, so skipping them drifts the decode.
+        // shortcut: RAM-only addresses (no scratchpad chains), guest RAM masks like the
+        // rest of the shim; add SPR spans if a chain ever parks tags in scratchpad.
+        const bool tagCodes = channelBase == 0x10009000u && (chcr & 0x40u) != 0u;
+        const bool tie = (chcr & (1u << 7)) != 0u;
+        uint32_t tagAddr = tadr, asp = 0, asr0 = 0, asr1 = 0;
+        static std::vector<uint8_t> chainBuf;
+        chainBuf.clear();
+        bool endChain = false;
+        for (; links < 4096u && !endChain && tagAddr != 0u; ++links) {
+            const uint32_t physTag = tagAddr & 0x01FFFFFFu;
+            if (physTag + 16u > RT_GUEST_RAM_SIZE) break;
+            const std::uint64_t* tp = reinterpret_cast<const std::uint64_t*>(
+                rtguest::kRam + physTag);
+            const std::uint64_t tag = tp[0];
+            const uint32_t tq = static_cast<uint32_t>(tag & 0xFFFFu);
+            const uint32_t id = static_cast<uint32_t>((tag >> 28) & 0x7u);
+            const bool irq = ((tag >> 31) & 1ull) != 0ull;
+            const uint32_t addr = static_cast<uint32_t>((tag >> 32) & 0x7FFFFFFFu);
             words += 1u + tq;
-            hist(channelBase, addr + 16u, tq);
             if (vifHist && channelBase == 0x1000A000u) {  // GIF tags: path/NPIX field
-                ++gifSegs[static_cast<uint32_t>((tag[1] >> 58) & 0x3Fu)];
-                if (++gsegs % 500u == 0u) {
+                ++gifSegs[static_cast<uint32_t>((tp[1] >> 58) & 0x3Fu)];
+                if (gsegs++ % 500u == 0u) {
                     std::fprintf(stderr, "[gifhist] segs=%llu qw=%llu\n",
                                  (unsigned long long)gsegs, (unsigned long long)gqw);
                     for (auto& [k, c] : gifSegs)
@@ -139,16 +152,55 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
                 }
                 gqw += tq;
             }
-            ++links;
-            if (id == 1u || id == 3u) addr = next;       // CALL / END use addr
-            else if (id == 0u) addr = next;              // REFE: ref-end, link
-            else break;                                  // BRTC/MSKNG: stop walk
-            if (id == 3u) break;                         // END terminates
+            uint32_t dataAddr = 0;
+            bool hasPayload = tq > 0u;
+            endChain = false;
+            switch (id) {
+            case 0: dataAddr = addr; tagAddr += 16u; endChain = true; break;
+            case 1: dataAddr = tagAddr + 16u; tagAddr = dataAddr + tq * 16u; break;
+            case 2: dataAddr = tagAddr + 16u; tagAddr = addr; break;
+            case 3: case 4: dataAddr = addr; tagAddr += 16u; break;
+            case 5: {
+                dataAddr = tagAddr + 16u;
+                const uint32_t retAddr = dataAddr + tq * 16u;
+                if (asp == 0u) { asr0 = retAddr; asp = 1u; }
+                else if (asp == 1u) { asr1 = retAddr; asp = 2u; }
+                tagAddr = addr;
+                break;
+            }
+            case 6:
+                dataAddr = tagAddr + 16u;
+                if (asp == 2u) { tagAddr = asr1; asp = 1u; }
+                else if (asp == 1u) { tagAddr = asr0; asp = 0u; }
+                else endChain = true;
+                break;
+            case 7: dataAddr = tagAddr + 16u; endChain = true; break;
+            default: hasPayload = false; endChain = true; break;
+            }
+            if (tagCodes) {
+                const std::uint8_t* up = rtguest::kRam + physTag + 8u;
+                chainBuf.insert(chainBuf.end(), up, up + 8u);
+            }
+            if (hasPayload && channelBase == 0x10009000u) {
+                const uint32_t phys = dataAddr & 0x01FFFFFFu;
+                uint32_t len = tq * 16u;
+                if (phys + len > RT_GUEST_RAM_SIZE) len = RT_GUEST_RAM_SIZE - phys;
+                chainBuf.insert(chainBuf.end(), rtguest::kRam + phys,
+                                rtguest::kRam + phys + len);
+            }
+            if (irq && tie) endChain = true;
         }
+        if (!chainBuf.empty())
+            rtguest::vif1Consume(chainBuf.data(), static_cast<std::uint32_t>(chainBuf.size()));
+        // Oracle register write-back (ps2_memory.cpp:1687-1690) sans CHCR: the callers
+        // own CHCR completion, and re-writing STR here would re-trap.
+        dmaWrite(channelBase + 0x30u, tagAddr);
+        dmaWrite(channelBase + 0x40u, asr0);
+        dmaWrite(channelBase + 0x50u, asr1);
     } else {
         words = 1u + qwc;                                // normal: madr count (qwc words)
-        if ((chcr & 0x40u) != 0u) hist(channelBase, tadr + 16u, qwc);  // TTE: tag heads block
-        else hist(channelBase, madr, qwc);
+        if (channelBase == 0x10009000u)
+            rtguest::vif1Consume(rtguest::kRam + (madr & 0x01FFFFFFu), qwc * 16u);
     }
     if (dmaTrace())
         std::fprintf(stderr, "[dma] ch=0x%x chcr=0x%x madr=0x%x qwc=0x%x tadr=0x%x "

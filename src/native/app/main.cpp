@@ -3400,6 +3400,7 @@ int main() {
             std::cout << "  fault 0x" << std::hex << fs[i].addr << std::dec
                       << " x" << fs[i].count << "\n";
         rtguest::vif1MaybeDumpCode();  // RT_VIF1_CODE_DUMP (W3 step 2 aid)
+        if (rtguest::vif1HistOn()) rtguest::vif1HistDump();  // census even for short boots
     }
     if (interpEnabled)
         std::cout << "rt-app interp: steps=" << interpClock.stepsTaken()

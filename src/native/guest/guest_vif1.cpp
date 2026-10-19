@@ -85,10 +85,10 @@ void vif1HistDump() {
     }
 }
 
-void vif1Consume(std::uint32_t segAddr, std::uint32_t qwcWords) {
-    const std::uint8_t* data = rtguest::kRam + (segAddr & 0x01FFFFFFu);
+void vif1Consume(const std::uint8_t* data, std::uint32_t sizeBytes) {
+    // One decoded unit, as the oracle's processVIF1Data(data, sizeBytes): the DMA
+    // layer concatenates a chain's payload spans (and TTE tag-upper VIF codes).
     std::uint32_t pos = 0;
-    const std::uint32_t sizeBytes = qwcWords * 16u;
     Vif1Regs& r = vif1();
     const bool hist = histOn();
     if (++g_segs % 2000u == 0u && hist) vif1HistDump();
@@ -123,7 +123,8 @@ void vif1Consume(std::uint32_t segAddr, std::uint32_t qwcWords) {
             const std::uint32_t pc = static_cast<std::uint32_t>(imm) * 8u;
             mscLatch();
             ++g_mscals;
-            if (hist) g_ops[opcode | (static_cast<std::uint32_t>(imm & 0x3FFu) << 8)] += 1;
+            if (hist)
+                g_ops[opcode | (static_cast<std::uint32_t>(imm & 0x3FFu) << 8)] += 1;
             if (g_mscal) g_mscal(pc, r.top, r.itop);
             continue;
         }

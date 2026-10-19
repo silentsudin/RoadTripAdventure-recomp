@@ -59,7 +59,7 @@ int main() {
     put((0x04u << 24) | 0x0005u);           // ITOP 5
     put((0x17u << 24));                     // MSCNT -> top=0x10, tops=0x30, DBF set
     padQw();
-    rtguest::vif1Consume(kSeg, wpos / 16u);
+    rtguest::vif1Consume(rtguest::kRam + kSeg, wpos);
     check(r.cycle == 0x0101u, "STCYCL");
     check(r.base == 0x10u && r.ofst == 0x20u, "BASE/OFFSET");
     check(r.top == 0x10u && r.tops == 0x30u && (r.stat & (1u << 7)), "MSCNT latch+DBF");
@@ -68,7 +68,7 @@ int main() {
     wpos = 0;
     put((0x15u << 24) | 0x002Fu);           // MSCALF entry 0x2F (pc 0x178)
     padQw();
-    rtguest::vif1Consume(kSeg, wpos / 16u);
+    rtguest::vif1Consume(rtguest::kRam + kSeg, wpos);
     check(g_mscalCalls == 1 && g_pc == 0x178u && g_top == 0x30u, "MSCALF hook pc/top");
     check(r.tops == 0x10u && !(r.stat & (1u << 7)), "MSCALF DBF wrap to BASE");
 
@@ -79,7 +79,7 @@ int main() {
     for (int i = 0; i < 8; ++i) vec[i] = 0x1000u + i;
     putBytes(reinterpret_cast<const std::uint8_t*>(vec), sizeof(vec));
     padQw();
-    rtguest::vif1Consume(kSeg, wpos / 16u);
+    rtguest::vif1Consume(rtguest::kRam + kSeg, wpos);
     check(vuW(0x100, 0) == 0x1000u && vuW(0x100, 3) == 0x1003u, "UNPACK V4-32 vec0");
     check(vuW(0x101, 1) == 0x1005u, "UNPACK V4-32 vec1");
 
@@ -89,7 +89,7 @@ int main() {
     const std::int16_t h[4] = {-1, 2, -3, 4};
     putBytes(reinterpret_cast<const std::uint8_t*>(h), sizeof(h));
     padQw();
-    rtguest::vif1Consume(kSeg, wpos / 16u);
+    rtguest::vif1Consume(rtguest::kRam + kSeg, wpos);
     check(vuW(0x102, 0) == 0xFFFFFFFFu && vuW(0x102, 2) == 0xFFFFFFFDu, "V4-16 sign extend");
 
     // STROW + UNPACK V4-32 mask-enable all-ROW (mask spec 1 per field, cycle 0).
@@ -102,7 +102,7 @@ int main() {
     put((0x7Cu << 24) | (1u << 16) | 0x0103u);  // UNPACK V4-32|mask, num=1
     putBytes(reinterpret_cast<const std::uint8_t*>(vec), 16);
     padQw();
-    rtguest::vif1Consume(kSeg, wpos / 16u);
+    rtguest::vif1Consume(rtguest::kRam + kSeg, wpos);
     check(vuW(0x103, 0) == 7u && vuW(0x103, 3) == 10u, "STMASK row fill");
 
     // MPG uploads microcode at imm*8.
@@ -111,7 +111,7 @@ int main() {
     const std::uint8_t prog[16] = {0x11,2,3,4,5,6,7,8, 9,10,11,12,13,14,15,16};
     putBytes(prog, 16);
     padQw();
-    rtguest::vif1Consume(kSeg, wpos / 16u);
+    rtguest::vif1Consume(rtguest::kRam + kSeg, wpos);
     check(std::memcmp(rtguest::vu1Code() + 8, prog, 16) == 0, "MPG upload at 8");
 
     // DIRECT: 1 qword payload handed to the hook.
@@ -119,7 +119,7 @@ int main() {
     put((0x50u << 24) | 1u);
     putBytes(prog, 16);
     padQw();
-    rtguest::vif1Consume(kSeg, wpos / 16u);
+    rtguest::vif1Consume(rtguest::kRam + kSeg, wpos);
     check(g_directCalls == 1 && g_directBytes == 16 && !g_directHl, "DIRECT hook");
 
     // UNPACK with W bit: dest = vuAddr + TOP.
@@ -127,7 +127,7 @@ int main() {
     put((0x6Cu << 24) | (1u << 16) | 0x8100u);   // vf (TOP + 0x100)
     putBytes(reinterpret_cast<const std::uint8_t*>(vec), 16);
     padQw();
-    rtguest::vif1Consume(kSeg, wpos / 16u);
+    rtguest::vif1Consume(rtguest::kRam + kSeg, wpos);
     // W-bit adds TOPS (oracle :736), not the latched TOP.
     check(vuW(0x100 + (r.tops & 0x3FFu), 0) == 0x1000u, "UNPACK W-bit TOPS offset");
 

@@ -36,8 +36,9 @@ using Vif1MscalFn = void (*)(std::uint32_t pc, std::uint32_t top, std::uint32_t 
 using Vif1DirectFn = void (*)(const std::uint8_t* data, std::uint32_t bytes, bool directHl);
 void vif1SetHooks(Vif1MscalFn mscal, Vif1DirectFn direct);
 
-// Consume one VIF1 payload segment (chain-tag payload or normal madr block).
-void vif1Consume(std::uint32_t segAddr, std::uint32_t qwcWords);
+// Consume one VIF1 unit as the oracle's processVIF1Data(data, sizeBytes): the DMA
+// layer concatenates a chain's TTE tag-upper code words and payload spans into one buffer.
+void vif1Consume(const std::uint8_t* data, std::uint32_t sizeBytes);
 
 // RT_VIF_HIST counters (fed by vif1Consume; printed by the DMA diag).
 bool vif1HistOn();
