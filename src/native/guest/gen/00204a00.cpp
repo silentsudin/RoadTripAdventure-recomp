@@ -23,7 +23,7 @@ uint32_t pbVar7;
       puVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x10)));
     }
     else {
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x2c))))), pbVar1);
+      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x2c))), pbVar1);  // MIPS 0x204a38/a44: lw+jalr, node in $a0 delay; Ghidra (**code**) mistranslation (cf. 0x205028)
       puVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x10)));
     }
     (*(int8_t*)rtguest::G((uint32_t)pbVar1)) = 0;
@@ -36,7 +36,7 @@ uint32_t pbVar7;
         iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
       }
       else {
-        rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x2c))))), puVar3);
+        rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x2c))), puVar3);  // MIPS 0x204a5c/a68: direct handler ptr (cf. 0x205028)
         iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
       }
       (*(uint8_t*)rtguest::G((uint32_t)puVar3)) = 0;
@@ -94,7 +94,7 @@ LAB_00204bd4:
       puVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(pbVar7 + 0x10)));
     }
     else {
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(pbVar7 + 0x2c))))), pbVar7);
+      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(pbVar7 + 0x2c))), pbVar7);  // MIPS 0x204b18/b24: direct handler ptr (cf. 0x205028)
       puVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(pbVar7 + 0x10)));
     }
     (*(int8_t*)rtguest::G((uint32_t)pbVar7)) = 0;
@@ -107,7 +107,7 @@ LAB_00204bd4:
         iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
       }
       else {
-        rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x2c))))), puVar3);
+        rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x2c))), puVar3);  // MIPS 0x204a5c/a68: direct handler ptr (cf. 0x205028)
         iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
       }
       (*(uint8_t*)rtguest::G((uint32_t)puVar3)) = 0;

@@ -14,7 +14,7 @@ uint32_t puVar1;
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x10)));
     }
     else {
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x2c))))), puVar1);
+      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x2c))), puVar1);  // MIPS 0x204d80/d8c: lw $v0,0x2c($s0); jalr — direct handler ptr, Ghidra (**code**) mistranslation (cf. 0x205028)
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x10)));
     }
     (*(uint8_t*)rtguest::G((uint32_t)puVar1)) = 0;

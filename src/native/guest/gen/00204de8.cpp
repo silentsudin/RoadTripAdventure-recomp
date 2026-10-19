@@ -14,7 +14,7 @@ uint32_t pcVar4;
     puVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10)));
   }
   else {
-    rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x2c))))), param_1); // arg-drop fix: $4 still holds param_1 at the jalr
+    rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x2c))), param_1);  // MIPS 0x204dfc/e08: direct handler ptr ($a0=param_1 live, prior arg-drop fix kept); Ghidra mistranslation (cf. 0x205028)
     puVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10)));
   }
   (*(uint8_t*)rtguest::G((uint32_t)param_1)) = 0;
@@ -24,7 +24,7 @@ uint32_t pcVar4;
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x10)));
     }
     else {
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x2c))))), puVar1);
+      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x2c))), puVar1);  // MIPS 0x204e20/e2c: lw+jalr, move $a0,$s1 in delay — direct handler ptr (cf. 0x205028)
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x10)));
     }
     (*(uint8_t*)rtguest::G((uint32_t)puVar1)) = 0;
