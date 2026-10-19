@@ -23,7 +23,7 @@ uint32_t pbVar2;
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) + 1)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = (uint32_t)bVar1;
-      gs_tasks_kill();
+      gs_tasks_kill(param_1);  // delay-slot move $4,$16 loads the arg (Ghidra elides)
       return 0;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x20))) = iVar4 * ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar2)) * 10 + 10);

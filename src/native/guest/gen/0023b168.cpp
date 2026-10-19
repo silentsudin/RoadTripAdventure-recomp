@@ -29,7 +29,7 @@ uint32_t dialogueTask(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)iVar12 + 0x28)) = uVar8;
     PlayUiSound(0x25);
   }
-  cVar2 = (*(int8_t*)rtguest::G((uint32_t)iVar12 + 0x25));
+  cVar2 = (*(uint8_t*)rtguest::G((uint32_t)iVar12 + 0x25));
   if (cVar2 == '\0') {
     uiSetTexa((*(int32_t*)rtguest::G((uint32_t)iVar12 + 8)) << 3);
     uiDrawDialogueFrameA(0x158);
@@ -42,7 +42,7 @@ uint32_t dialogueTask(uint32_t param_1, uint32_t param_2, ...) {
     uiDrawDialogueFrameB(0x158, iVar6 >> 4);
     if ((*(int32_t*)rtguest::G((uint32_t)iVar12 + 8)) == 0x10) {
       uVar7 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)iVar12 + 0x25)) + 1;
-      (*(int8_t*)rtguest::G((uint32_t)iVar12 + 0x25)) = (int8_t)uVar7;
+      (*(uint8_t*)rtguest::G((uint32_t)iVar12 + 0x25)) = (int8_t)uVar7;
       return uVar7;
     }
     return 0x10;
@@ -55,15 +55,15 @@ uint32_t dialogueTask(uint32_t param_1, uint32_t param_2, ...) {
          (*(uint32_t*)rtguest::G((*(uint32_t*)rtguest::G((uint32_t)iVar12 + 0x20)))));
     uiDrawDialogueFrameB(0x158, uVar10);
     if ((*(int32_t*)rtguest::G((uint32_t)iVar12 + 8)) == 0x10) {
-      if ((*(int8_t*)rtguest::G((uint32_t)iVar12 + 0x27)) == '\x04') {
+      if ((*(uint8_t*)rtguest::G((uint32_t)iVar12 + 0x27)) == '\x04') {
         uVar7 = (*(uint32_t*)rtguest::G((uint32_t)iVar6 + 0x28)) & 0xfffffbff;
       }
       else {
         uVar7 = (*(uint32_t*)rtguest::G((uint32_t)iVar6 + 0x28)) | 0x400;
       }
       (*(uint32_t*)rtguest::G((uint32_t)iVar6 + 0x28)) = uVar7;
-      if ((*(int8_t*)rtguest::G((uint32_t)iVar12 + 0x27)) != -1) {
-        if ((*(int8_t*)rtguest::G((uint32_t)iVar12 + 0x27)) == '\0') {
+      if ((*(uint8_t*)rtguest::G((uint32_t)iVar12 + 0x27)) != 0xff) {
+        if ((*(uint8_t*)rtguest::G((uint32_t)iVar12 + 0x27)) == '\0') {
           iVar6 = (*(int32_t*)rtguest::G((uint32_t)iVar12 + 0x18));
           uVar7 = 5;
         }
@@ -80,7 +80,7 @@ uint32_t dialogueTask(uint32_t param_1, uint32_t param_2, ...) {
     return 0x10;
   }
   if (cVar2 == '\x02') {
-    bVar5 = (uint8_t)((int32_t)(*(int8_t*)rtguest::G((uint32_t)iVar12 + 0x26)) + 2);
+    bVar5 = (uint8_t)((int32_t)(*(uint8_t*)rtguest::G((uint32_t)iVar12 + 0x26)) + 2);
     (*(uint8_t*)rtguest::G((uint32_t)iVar12 + 0x26)) = bVar5;
     if ((uint32_t)bVar5 % 0xc == 0) {
 LAB_0023b404:
@@ -148,7 +148,7 @@ LAB_0023b40c:
   uiDrawDialogueFrameB(0x158, uVar10);
   uiDrawText((uint32_t)(0x23e - (int32_t)uVar10), 0xa0,
              (*(uint32_t*)rtguest::G((*(uint32_t*)rtguest::G((uint32_t)iVar12 + 0x20)))), 0);
-  if ((*(int8_t*)rtguest::G((uint32_t)iVar12 + 0x25)) != '\x01') {
+  if ((*(uint8_t*)rtguest::G((uint32_t)iVar12 + 0x25)) != '\x01') {
     return 1;
   }
   if (lVar11 == 0) {

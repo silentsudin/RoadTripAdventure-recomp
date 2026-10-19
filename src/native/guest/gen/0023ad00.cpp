@@ -38,7 +38,7 @@ LAB_0023b140:
     lVar7 = GetFlaggedSlotCount((*(int8_t*)rtguest::G((uint32_t)param_3)),(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t))),0);
     goto LAB_0023afd4;
   case 4:
-    lVar7 = TestStampFlag((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    lVar7 = TestStampFlag((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
     if (lVar7 == 0) {
       param_3 = pbVar8 + 2;
       goto LAB_0023b13c;
@@ -70,12 +70,12 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_3));
     goto LAB_0023afe0;
   case 8:
-    lVar7 = MatchSlotPairState((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    lVar7 = MatchSlotPairState((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
     if (lVar7 != 0) {
       uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_3));
       goto LAB_0023afe0;
     }
-    lVar7 = TestFlagFcb8((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    lVar7 = TestFlagFcb8((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
     if (lVar7 != 0) {
       param_3 = pbVar8 + 3;
       goto LAB_0023b13c;
@@ -156,7 +156,7 @@ LAB_0023b140:
     bVar3 = (*(int8_t*)rtguest::G((uint32_t)pbVar8));
     goto LAB_0023b140;
   case 0x16:
-    lVar7 = TestProgressFlagForPair((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    lVar7 = TestProgressFlagForPair((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
     if (lVar7 == 0) {
       param_3 = pbVar8 + 2;
       goto LAB_0023b13c;

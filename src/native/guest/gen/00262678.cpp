@@ -57,9 +57,9 @@ uint32_t puVar18;
                (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9e78 + iVar8))),0,0);
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbf)));
     (*(uint32_t*)rtguest::G(0x177ad48)) = uVar9;
-    uVar6 = __umoddi3((*(uint64_t*)rtguest::G((uint32_t)param_2)),(*(uint32_t*)rtguest::G((uint32_t)0x2d9f1c + (uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) * 8) * 4)));
+    uVar6 = __umoddi3((*(uint64_t*)rtguest::G((uint32_t)param_2)),(*(uint32_t*)rtguest::G((uint32_t)0x2d9f1c + (uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) * 8) * 4)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbf))) = uVar6;
-    uVar6 = __umoddi3((*(uint64_t*)rtguest::G((uint32_t)param_2)) >> 8,(*(uint32_t*)rtguest::G((uint32_t)0x2d9f1c + (uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) * 8) * 4)));
+    uVar6 = __umoddi3((*(uint64_t*)rtguest::G((uint32_t)param_2)) >> 8,(*(uint32_t*)rtguest::G((uint32_t)0x2d9f1c + (uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) * 8) * 4)));
     uVar12 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbf)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0))) = uVar6;
     if (bVar1 == uVar12) {
@@ -69,17 +69,17 @@ uint32_t puVar18;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbf))) == (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0)))) {
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0))) + '\x02';
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
     }
     else {
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
     }
     if ((*(uint32_t*)rtguest::G((uint32_t)0x2d9f1c + (uint32_t)((uint32_t)bVar1 * 8) * 4)) == 0) {
       trap(7);
     }
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbf))) = (char)(uVar12 % (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x2d9f1c + (uint32_t)((uint32_t)bVar1 * 8) * 4)));
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0))) =
-         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0))) % (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x2d9f1c + (uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) * 8) * 4));
+         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0))) % (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x2d9f1c + (uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) * 8) * 4));
     uVar6 = 1;
     if (((*(uint64_t*)rtguest::G((uint32_t)param_2)) & 1) == 0) {
       uVar6 = 0xff;
@@ -96,10 +96,10 @@ LAB_002628dc:
         SetRoadData((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28))),0,1);
 LAB_00262b5c:
         (*(uint32_t*)rtguest::G((uint32_t)puVar18)) = 3;
-        uVar12 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
+        uVar12 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
       }
       else {
-        uVar12 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
+        uVar12 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
       }
     }
     else if (bVar1 < 2) {
@@ -116,7 +116,7 @@ LAB_00262b5c:
                      ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e18 + iVar8))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e10 + iVar8)))) *
                      (fVar5 - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e1c + iVar8))))) *
                      (float)(int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbc)))) {
-            if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) < 4) {
+            if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) < 4) {
               (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbd))) = 0;
             }
             else {
@@ -146,10 +146,10 @@ LAB_00262b5c:
           iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb8)));
         }
         SetTrackData((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28))),iVar8 / 0x3c,1);
-        uVar12 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
+        uVar12 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
       }
       else {
-        uVar12 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
+        uVar12 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
       }
     }
     else if (bVar1 == 2) {
@@ -157,10 +157,10 @@ LAB_00262b5c:
       (*(uint32_t*)rtguest::G(0x177ad48)) = 0x23a0;
       (*(uint32_t*)rtguest::G(0x177ad40)) = 0;
       if (((*(uint32_t*)rtguest::G(0x177ace4)) <= 80.0) || (100.0 <= (*(uint32_t*)rtguest::G(0x177ace8)))) goto LAB_00262b5c;
-      uVar12 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
+      uVar12 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
     }
     else {
-      uVar12 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
+      uVar12 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
     }
     psVar15 = (uint32_t)((*(uint32_t*)rtguest::G((uint32_t)(0x2d9f18u + (uint32_t)(uVar12 * 2) * 4))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbf))) * 4);
     sVar7 = (*(int16_t*)rtguest::G((uint32_t)psVar15 + (uint32_t)(1) * sizeof(int16_t)));
@@ -299,7 +299,7 @@ LAB_00262fcc:
         if (bVar1 == 0) {
           (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 2))) = 0;
           iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28)));
-          (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) + '\x01';
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26))) + '\x01';
           (*(uint32_t*)rtguest::G((uint32_t)puVar18)) = 1;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (uint32_t)(*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(5) * sizeof(uint64_t))) | 0x100;
         }

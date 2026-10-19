@@ -28,9 +28,9 @@ uint32_t pcVar3;
   uVar7 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x34)));
   uVar4 = uVar7 & 0x2000;
   if ((uVar7 & 0x8000) != 0) {
-    if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) < 5) {
+    if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) < 5) {
       PlayUiSound(0x1d);
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) + '\x01';
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) + '\x01';
       (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) * 10;
       uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x34))) & 0x2000;
     }
@@ -41,21 +41,21 @@ uint32_t pcVar3;
   if (uVar4 == 0) {
     uVar5 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8)));
   }
-  else if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) < 4) {
+  else if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) < 4) {
     uVar5 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8)));
   }
   else {
     PlayUiSound(0x1d);
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) + -1;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) + -1;
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) / 10;
     uVar5 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8)));
   }
   if ((uVar5 & 0x10) != 0) {
-    uiDrawIcon20((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) * -0x10 + 0x138,0xb2,2);
-    uiDrawIcon20((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) * -0x10 + 0x138,0xe2,3);
+    uiDrawIcon20((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) * -0x10 + 0x138,0xb2,2);
+    uiDrawIcon20((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) * -0x10 + 0x138,0xe2,3);
   }
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20)));
-  for (uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))); uVar5 != 0; uVar5 = uVar5 - 1) {
+  for (uVar5 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))); uVar5 != 0; uVar5 = uVar5 - 1) {
     iVar2 = iVar2 / 10;
   }
   (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x26))) = (char)(iVar2 % 10);

@@ -13,7 +13,7 @@ uint32_t confirmDialogTask(uint32_t param_1, uint32_t param_2, ...) {
   
   iVar5 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) == 0) {
-    uVar3 = uiMenuCreate();
+    uVar3 = uiMenuCreate(param_1);
     uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))),0);
     uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af0u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10);
     uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af4u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10);
@@ -26,7 +26,7 @@ uint32_t confirmDialogTask(uint32_t param_1, uint32_t param_2, ...) {
     lVar4 = uiMenuRun(iVar2);
     if (lVar4 != 0) {
       if (lVar4 == -1) {
-        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = 1;
+        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = 1;
         cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));
       }
       else {

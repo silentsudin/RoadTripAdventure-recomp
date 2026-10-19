@@ -14,7 +14,7 @@ uint32_t psVar5;
   
   iVar6 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) == 0) {
-    uVar3 = uiMenuCreate();
+    uVar3 = uiMenuCreate(param_1);
     uiMenuAddItem(uVar3,0x3292b0,0);
     uiMenuAddItem(uVar3,0x334e98,0x10);
     psVar5 = (uint32_t)uVar3;

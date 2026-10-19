@@ -5,9 +5,9 @@
 namespace guest {
 
 uint32_t dialogueCmdYesNoMenu(uint32_t param_1, ...) {
-  DisplayMenuMessage();
+  DisplayMenuMessage(param_1);  // guest jal keeps $4=task block (Ghidra elides the arg)
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) + 0xd))) = 1;
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x239260));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x239260;  // sw of func addr (code** store)
   return 0;
 }
 
