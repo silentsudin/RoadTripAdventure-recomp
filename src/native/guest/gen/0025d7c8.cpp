@@ -89,7 +89,7 @@ uint32_t puVar8;
         }
       }
       vu0SubVector(auStack_50,pfVar2,0x177ace0);
-      fVar9 = (float)vecDotProductVu0(auStack_50,auStack_50);
+      fVar9 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
       if (((SQRT(fVar9) < 2.5) && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x18))) + 0x24))) == '\0')) &&
          (((*(uint64_t*)rtguest::G((uint32_t)puVar8 + (uint32_t)(5) * sizeof(uint64_t))) & 4) != 0)) {
         PlayUiSound(0x302);
@@ -101,9 +101,9 @@ uint32_t puVar8;
       }
       TransformRectangle(auStack_60,(int)pfVar2 + 0x22);
       pfVar7 = pfVar2 + 4;
-      fVar9 = (float)sinf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)));
+      fVar9 = rtguest::fbits(sinf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c))));
       (*(float*)rtguest::G((uint32_t)pfVar2 + (uint32_t)(6) * sizeof(float))) = fVar9;
-      fVar9 = (float)cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)));
+      fVar9 = rtguest::fbits(cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c))));
       (*(float*)rtguest::G((uint32_t)pfVar2 + (uint32_t)(4) * sizeof(float))) = -fVar9;
       vecNormalizeVu0(pfVar7,pfVar7);
       vu0ScaleVector((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4bd0 + ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) & 3) * 4))),pfVar7

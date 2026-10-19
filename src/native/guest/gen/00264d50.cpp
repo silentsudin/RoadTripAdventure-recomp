@@ -42,8 +42,8 @@ uint32_t puVar5;
   fVar10 = (*(float*)rtguest::G(0x3331f4));
   (*(uint64_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(5) * sizeof(uint64_t))) = uVar7;
   fVar12 = (float)(int)param_2 * fVar10 * 3.0517578e-05;
-  fVar10 = (float)cosf(fVar12);
-  fVar12 = (float)sinf(fVar12);
+  fVar10 = rtguest::fbits(cosf(rtguest::f2bits(fVar12)));
+  fVar12 = rtguest::fbits(sinf(rtguest::f2bits(fVar12)));
   pfVar4 = afStack_80 + 1;
   iVar6 = 3;
   do {
@@ -75,8 +75,8 @@ uint32_t puVar5;
   (*(uint64_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(4) * sizeof(uint64_t))) = 0;
   (*(uint64_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(5) * sizeof(uint64_t))) = uVar7;
   fVar12 = fVar12 * 3.0517578e-05;
-  fVar10 = (float)cosf(fVar12);
-  fVar12 = (float)sinf(fVar12);
+  fVar10 = rtguest::fbits(cosf(rtguest::f2bits(fVar12)));
+  fVar12 = rtguest::fbits(sinf(rtguest::f2bits(fVar12)));
   pfVar4 = afStack_80 + 1;
   iVar6 = 3;
   do {

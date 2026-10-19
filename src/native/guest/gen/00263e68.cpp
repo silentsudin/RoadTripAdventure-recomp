@@ -81,7 +81,7 @@ uint32_t puVar9;
       }
     }
     else if (iVar7 == 2) {
-      fVar11 = (float)GetSpeedFromF15Vector(0x177ad40);
+      fVar11 = rtguest::fbits(GetSpeedFromF15Vector(0x177ad40));
       if ((int)fVar11 < 2) {
         (*(uint32_t*)rtguest::G(0x177ad40)) = 0;
         (*(uint32_t*)rtguest::G(0x177ad48)) = 0;

@@ -19,7 +19,7 @@ uint32_t ComputeWaypointTargetAngle(uint32_t param_1, uint32_t param_2, uint32_t
   }
   else {
     if (param_3 == 2) {
-      fVar2 = (float)atan2f((*(float*)rtguest::G((uint32_t)param_1)) - (*(float*)rtguest::G((uint32_t)param_2)),(*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(float))));
+      fVar2 = rtguest::fbits(atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)param_1)) - (*(float*)rtguest::G((uint32_t)param_2))),rtguest::f2bits((*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(float))))));
       (*(uint16_t*)rtguest::G((uint32_t)uStack_2e)) = (uint32_t)(int)(fVar2 * fVar4);
       fVar3 = ((*(float*)rtguest::G((uint32_t)param_1)) + (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(float)))) * 0.5 - (*(float*)rtguest::G((uint32_t)param_2));
       fVar2 = ((*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(float))) + (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(float)))) * 0.5 - (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(float)));
@@ -29,12 +29,12 @@ uint32_t ComputeWaypointTargetAngle(uint32_t param_1, uint32_t param_2, uint32_t
     fVar2 = (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(float)));
     fVar4 = (*(uint32_t*)rtguest::G(0x332fa4));
   }
-  fVar1 = (float)atan2f(fVar3,fVar2);
+  fVar1 = rtguest::fbits(atan2f(rtguest::f2bits(fVar3),rtguest::f2bits(fVar2)));
   fVar2 = (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(float)));
   fVar3 = (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)param_2));
   (*(uint16_t*)rtguest::G((uint32_t)uStack_2e)) = (uint32_t)(int)(fVar1 * fVar4);
 LAB_00250004:
-  fVar2 = (float)atan2f(fVar3,fVar2);
+  fVar2 = rtguest::fbits(atan2f(rtguest::f2bits(fVar3),rtguest::f2bits(fVar2)));
   return (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)uStack_2e)) << 0x10 |
          (long)(int)(fVar2 * fVar4) & 0xffffffff00000000U | (uint32_t)(uint32_t)(int)(fVar2 * fVar4);
 }

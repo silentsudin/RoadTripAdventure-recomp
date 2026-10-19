@@ -122,8 +122,8 @@ LAB_0021e8cc:
     }
     vu0CopyVector(afStack_60,0x0177ac60 + uVar13 * 0x4e);
     fVar18 = (float)(int)(short)(*(uint32_t*)rtguest::G((uint32_t)0x177ae24 + (uint32_t)(uVar13 * 0x138) * 4)) * (*(uint32_t*)rtguest::G(0x332c50)) * 3.0517578e-05;
-    fVar16 = (float)sinf(fVar18);
-    fVar18 = (float)cosf(fVar18);
+    fVar16 = rtguest::fbits(sinf(rtguest::f2bits(fVar18)));
+    fVar18 = rtguest::fbits(cosf(rtguest::f2bits(fVar18)));
     fVar17 = (*(float*)rtguest::G((uint32_t)fStack_58)) * fVar16;
     iVar4 = ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) & 1) * 0x10;
     (*(float*)rtguest::G((uint32_t)fStack_58)) = (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) * fVar16 + (*(float*)rtguest::G((uint32_t)fStack_58)) * fVar18;

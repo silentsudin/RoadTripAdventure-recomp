@@ -58,7 +58,7 @@ uint32_t puVar5;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x34))) = uVar2;
       }
       else {
-        fVar6 = (float)GetSpeedFromF15Vector(puVar5 + 0x1e);
+        fVar6 = rtguest::fbits(GetSpeedFromF15Vector(puVar5 + 0x1e));
         if (50.0 < fVar6) {
 LAB_00253e2c:
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x34))) = uVar2;

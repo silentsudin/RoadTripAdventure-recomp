@@ -269,11 +269,11 @@ LAB_00245b78:
                                      (int)uVar17) * 8 + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 2)))) * 0x2000) /
                                   (int)uVar17) * (*(uint32_t*)rtguest::G(0x332f3c)) * 3.0517578e-05;
       if (cVar1 == '\0') {
-        fVar27 = (float)cosf(fVar29);
+        fVar27 = rtguest::fbits(cosf(rtguest::f2bits(fVar29)));
         iVar23 = (int)(fVar27 * fVar28) + 0xc0;
-        fVar27 = (float)sinf(fVar29);
+        fVar27 = rtguest::fbits(sinf(rtguest::f2bits(fVar29)));
         iVar25 = (int)(fVar27 * 192.0) + 0x140;
-        fVar27 = (float)cosf(fVar29);
+        fVar27 = rtguest::fbits(cosf(rtguest::f2bits(fVar29)));
         iVar12 = (int)(fVar27 * fVar28) + 0x80;
         BuildCarouselQuadA(fVar29,iVar8 + 0x60,iVar26,iVar25,iVar12,iVar23);
         BuildCarouselQuadD(fVar29,iVar8 + 0xd80,iVar26,iVar25,iVar12,iVar23);

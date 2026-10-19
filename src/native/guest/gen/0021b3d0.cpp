@@ -220,10 +220,10 @@ LAB_0021b85c:
   }
   vecNormalizeVu0(auStack_a0,auStack_a0);
   if (uVar2 != 0) {
-    SteerHeadingVector(fVar14,auStack_a0,uVar2);
+    SteerHeadingVector(rtguest::f2bits(fVar14),auStack_a0,uVar2);
   }
   BuildYawTransform(param_2,auStack_a0);
-  ApplyMatrixRotation((float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1d4))) * fVar13 * 3.0517578e-05,param_2);
+  ApplyMatrixRotation(rtguest::f2bits((float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1d4))) * fVar13 * 3.0517578e-05f),param_2);
   mat4InvertAffine(iVar8 + 0xb0,param_2);
   return (int)uVar12 >> 3;
 }

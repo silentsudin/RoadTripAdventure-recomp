@@ -25,10 +25,10 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
   else {
     bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x21)));
     puVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2c0698 + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x23)))) * 4));
-    fVar6 = (float)atan2f((*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x18))) -
-                          (*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x10))),
+    fVar6 = rtguest::fbits(atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x18))) -
+                          (*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x10)))),rtguest::f2bits(
                           (*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x1c))) -
-                          (*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x14))));
+                          (*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x14))))));
     pcVar3 = (*(uint32_t*)rtguest::G(0x335710));
     fVar7 = (fVar6 * 32768.0) / (*(float*)rtguest::G(0x332b78));
     (*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x90))) =

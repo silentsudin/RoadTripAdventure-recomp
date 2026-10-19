@@ -15,7 +15,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
     (*(float*)rtguest::G((uint32_t)pfVar1 + (uint32_t)(1) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar1 + (uint32_t)(1) * sizeof(float))) + (*(uint32_t*)rtguest::G(0x332b88));
   }
   vu0UnitMatrix(auStack_70);
-  vu0RotMatrixY(-param_1,auStack_b0,auStack_70);
+  vu0RotMatrixY(rtguest::f2bits(-rtguest::fbits(param_1)),auStack_b0,auStack_70);
   if ((param_3 & 0x40) == 0) {
     if ((param_3 & 0x80) == 0) {
       (*(float*)rtguest::G((uint32_t)pfVar1)) = (*(float*)rtguest::G((uint32_t)pfVar1)) / 1.0625;

@@ -86,7 +86,7 @@ uint32_t puVar9;
       (*(int32_t*)rtguest::G((uint32_t)aiStack_150 + (uint32_t)(iVar11) * 4)) = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 2)));
       vu0SubVector(auStack_f0,0x002ac0c0 + iVar11 * 0x40,iVar11 * 0x40 + 0x2ac0d0);
       (*(uint32_t*)rtguest::G((uint32_t)uStack_ec)) = 0;
-      (*(float*)rtguest::G((uint32_t)fStack_e4)) = (float)vecDotProductVu0(auStack_f0,auStack_f0);
+      (*(float*)rtguest::G((uint32_t)fStack_e4)) = rtguest::fbits(vecDotProductVu0(auStack_f0,auStack_f0));
       (*(float*)rtguest::G((uint32_t)fStack_e4)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_e4)));
       fVar14 = 0.0;
       iVar10 = iVar11 + 1;
@@ -121,7 +121,7 @@ uint32_t puVar9;
     gs_music_play_bgm(0xa0d0201);
     vu0SubVector(auStack_d0,iVar1 + 0x8d10,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0))) * 0x40 + 0x2ac0d0);
     (*(uint32_t*)rtguest::G((uint32_t)uStack_cc)) = 0;
-    (*(float*)rtguest::G((uint32_t)fStack_c4)) = (float)vecDotProductVu0(auStack_d0,auStack_d0);
+    (*(float*)rtguest::G((uint32_t)fStack_c4)) = rtguest::fbits(vecDotProductVu0(auStack_d0,auStack_d0));
     (*(float*)rtguest::G((uint32_t)fStack_c4)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_c4)));
     if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_c4)) - (*(uint32_t*)rtguest::G(0x333034))) {
       fVar15 = ((*(float*)rtguest::G((uint32_t)fStack_c4)) - (*(uint32_t*)rtguest::G(0x333034))) / (*(uint32_t*)rtguest::G(0x333038));
@@ -218,7 +218,7 @@ LAB_0025200c:
     }
     vu0SubVector(auStack_b0,iVar1 + 0x8d10,iVar13 * 0x40 + 0x2ac0d0);
     (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = 0;
-    (*(float*)rtguest::G((uint32_t)fStack_a4)) = (float)vecDotProductVu0(auStack_b0,auStack_b0);
+    (*(float*)rtguest::G((uint32_t)fStack_a4)) = rtguest::fbits(vecDotProductVu0(auStack_b0,auStack_b0));
     (*(float*)rtguest::G((uint32_t)fStack_a4)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_a4)));
     if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_a4)) - (*(uint32_t*)rtguest::G(0x33303c))) {
       fVar15 = ((*(float*)rtguest::G((uint32_t)fStack_a4)) - (*(uint32_t*)rtguest::G(0x33303c))) / (*(uint32_t*)rtguest::G(0x333040));

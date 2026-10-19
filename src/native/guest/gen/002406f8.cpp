@@ -46,11 +46,11 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
       return 0;
     }
     vu0SubVector(auStack_70,0x2a3870,0x177ace0);
-    fVar6 = (float)vecDotProductVu0(auStack_70,auStack_70);
+    fVar6 = rtguest::fbits(vecDotProductVu0(auStack_70,auStack_70));
     if ((*(uint32_t*)rtguest::G(0x332ea8)) <= SQRT(fVar6)) {
       return 0;
     }
-    fVar6 = (float)GetSpeedFromF15Vector(0x177ad40);
+    fVar6 = rtguest::fbits(GetSpeedFromF15Vector(0x177ad40));
     if ((int)fVar6 < 10) {
       return 0;
     }
@@ -79,7 +79,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     (*(uint32_t*)rtguest::G(0x2a2bc0)) = (*(uint32_t*)rtguest::G(0x2a2bc0)) + (*(uint32_t*)rtguest::G(0x332ec8));
     (*(uint32_t*)rtguest::G(0x2a2bc4)) = ((*(float*)rtguest::G((uint32_t)fStack_54)) - 0.5) + (float)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x20))) * (*(uint32_t*)rtguest::G(0x332ec4));
     vu0SubVector(auStack_70,0x2a2bc0,0x177ace0);
-    fVar6 = (float)vecDotProductVu0(auStack_70,auStack_70);
+    fVar6 = rtguest::fbits(vecDotProductVu0(auStack_70,auStack_70));
     if (SQRT(fVar6) < 1.5) {
       PlayUiSound(0x302);
       SetFlaggedSlotBit(0xf,0x2f,0);

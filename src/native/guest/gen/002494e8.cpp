@@ -7,7 +7,7 @@ namespace guest {
 uint32_t CalculateSpeedometerDigits(uint32_t param_1, ...) {
   float fVar1;
   
-  fVar1 = (float)GetSpeedFromF15Vector(param_1 + 0xf0);
+  fVar1 = rtguest::fbits(GetSpeedFromF15Vector(param_1 + 0xf0));
   IntToPackedBCD((int)(fVar1 / (*(float*)rtguest::G(0x332f48))));
   return 0;
 }

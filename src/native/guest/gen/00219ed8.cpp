@@ -37,7 +37,7 @@ uint32_t auStack_80 = rtguest::allocFrame(64);
   uVar3 = 0;
   if (-1 < (*(int32_t*)rtguest::G((uint32_t)piVar7))) {
     vu0UnitMatrix(auStack_80);
-    vu0RotMatrixY((float)-(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x1d4))) * (*(float*)rtguest::G(0x332b94)) * 3.0517578e-05,auStack_80,
+    vu0RotMatrixY(rtguest::f2bits((float)-(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x1d4))) * (*(float*)rtguest::G(0x332b94)) * 3.0517578e-05f),auStack_80,
                   auStack_80);
     iVar2 = iVar2 * 4 + param_1;
     fVar10 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x94))) + 1.0;

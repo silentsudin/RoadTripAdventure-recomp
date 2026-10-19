@@ -52,8 +52,8 @@ uint32_t piVar10;
       iVar4 = uVar8 * 3;
       goto LAB_00253b4c;
     }
-    fVar11 = (float)atan2f((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a0 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x90))),
-                           (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a8 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x98))));
+    fVar11 = rtguest::fbits(atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a0 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x90)))),rtguest::f2bits(
+                           (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a8 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x98))))));
     uVar3 = (uint32_t)
             (int)((fVar11 / (*(float*)rtguest::G(0x333050))) * 32768.0 - (float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x1d4))));
     vu0SubVector(afStack_50,0x002ac4a0 + uVar8 * 0x40,iVar9 + 0x90);

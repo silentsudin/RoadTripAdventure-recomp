@@ -31,7 +31,7 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) != 0) goto LAB_0025a078;
   pfVar8 = (uint32_t)(pbVar1 + 0x20);
   vu0SubVector(auStack_50,pfVar8,0x177ace0);
-  fVar10 = (float)vecDotProductVu0(auStack_50,auStack_50);
+  fVar10 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
   if (SQRT(fVar10) < 1.5) {
     if (((*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(2) * sizeof(int8_t))) & 1) == 0) {
       (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(6) * sizeof(int8_t))) = 0;
@@ -47,7 +47,7 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
       }
     }
     (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(3) * sizeof(int8_t))) = bVar3;
-    fVar11 = (float)GetSpeedFromF15Vector(0x177ad40);
+    fVar11 = rtguest::fbits(GetSpeedFromF15Vector(0x177ad40));
     iVar2 = (*(int32_t*)rtguest::G(0x177ad48));
     fVar10 = (*(float*)rtguest::G(0x3330c0));
     iVar9 = (int)fVar11;
@@ -244,7 +244,7 @@ LAB_00259f6c:
   }
   if (iVar5 >> 0x18 == 0x10) {
     vu0SubVector(auStack_50,(*(uint32_t*)rtguest::G((uint32_t)(0x2c3a00u + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(1) * sizeof(int8_t)))) * 4))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x10,0x177ace0);
-    fVar10 = (float)vecDotProductVu0(auStack_50,auStack_50);
+    fVar10 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
     if (1.5 <= SQRT(fVar10)) {
       vu0CopyVector(pfVar8,(*(uint32_t*)rtguest::G((uint32_t)(0x2c3a00u + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(1) * sizeof(int8_t)))) * 4))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x10);
       (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(2) * sizeof(int8_t))) = 0;

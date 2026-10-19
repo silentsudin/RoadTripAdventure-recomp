@@ -15,7 +15,7 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
   lVar1 = GetFlaggedSlotCount(0xf,0x22,0);
   if ((lVar1 == 0) && (lVar1 = TestStateBitFc78(9), lVar1 == 0)) {
     vu0SubVector(auStack_40,0x2c41d0,0x177ace0);
-    fVar2 = (float)vecDotProductVu0(auStack_40,auStack_40);
+    fVar2 = rtguest::fbits(vecDotProductVu0(auStack_40,auStack_40));
     if (SQRT(fVar2) < 1.5) {
       PlayUiSound(0x302);
       SetFlaggedSlotBit(0xf,0x22,0);

@@ -77,7 +77,7 @@ LAB_002632d8:
     pfVar10 = (uint32_t)0x002da090;
     do {
       vu0SubVector(auStack_60,0x2da0b0,0x177ace0);
-      fVar12 = (float)vecDotProductVu0(auStack_60,auStack_60);
+      fVar12 = rtguest::fbits(vecDotProductVu0(auStack_60,auStack_60));
       if (SQRT(fVar12) < (*(float*)rtguest::G((uint32_t)pfVar10))) {
         unaff_s5 = SetIndexedValueAndSum
                              ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))),

@@ -1,4 +1,6 @@
-// guest:0x00275690 transliterated from Ghidra pseudocode — DO NOT hand-edit
+// guest:0x00275690 translated from Ghidra pseudocode (= fdlibm e_sqrtf.c):
+// pure integer digit-by-digit sqrt on the f-register bits of |x|; result
+// re-encoded into float bits. Negative x -> div.s 0/0 quiet NaN.
 #include "../guest_shim.h"
 #include "guest_decls.inc"
 
@@ -6,18 +8,18 @@ namespace guest {
 
 uint32_t __ieee754_sqrtf(uint32_t param_1, ...) {
   int iVar1;
-  uint uVar2;
+  uint32_t uVar2;
   int iVar3;
-  uint uVar4;
-  uint uVar5;
+  uint32_t uVar4;
+  uint32_t uVar5;
   int iVar6;
-  
-  if (0x7fffff < (uint32_t)ABS(param_1)) {
-    if (-1 < (int)param_1) {
-      uVar5 = ((int)param_1 >> 0x17) - 0x7f;
+
+  if (0x7fffffu < (param_1 & 0x7fffffffu)) {
+    if (-1 < (int32_t)param_1) {  // sign bit of x
+      uVar5 = ((int32_t)param_1 >> 0x17) - 0x7f;
       iVar6 = 0;
       uVar2 = 0x1000000;
-      iVar3 = (((uint32_t)param_1 & 0x7fffff | 0x800000) << (uVar5 & 1)) << 1;
+      iVar3 = (((param_1 & 0x7fffffu | 0x800000u) << (uVar5 & 1)) << 1);
       uVar4 = 0;
       do {
         iVar1 = iVar6 + uVar2;
@@ -32,9 +34,10 @@ uint32_t __ieee754_sqrtf(uint32_t param_1, ...) {
       if (iVar3 != 0) {
         uVar4 = uVar4 + (uVar4 & 1);
       }
-      return (float)(((int)uVar4 >> 1) + 0x3f000000 + ((int)uVar5 >> 1) * 0x800000);
+      // mtc1 of the re-encoded integer into f0
+      return (uint32_t)(((int32_t)uVar4 >> 1) + 0x3f000000 + ((int32_t)uVar5 >> 1) * 0x800000);
     }
-    param_1 = (param_1 - param_1) / (param_1 - param_1);
+    param_1 = rtguest::f2bits(0.0f / 0.0f);  // div.s 0/0 quiet NaN
   }
   return param_1;
 }

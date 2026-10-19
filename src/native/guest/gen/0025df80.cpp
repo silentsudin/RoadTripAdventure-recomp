@@ -66,7 +66,7 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
       }
     }
     vu0SubVector(auStack_50,puVar3,0x177ace0);
-    fVar13 = (float)vecDotProductVu0(auStack_50,auStack_50);
+    fVar13 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
     if ((*(uint32_t*)rtguest::G(0x33310c)) <= SQRT(fVar13)) {
       fVar13 = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t)));
       goto LAB_0025e178;

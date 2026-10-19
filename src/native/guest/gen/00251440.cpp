@@ -84,7 +84,7 @@ uint32_t puVar2;
     }
     goto LAB_00251920;
   }
-  fVar7 = (float)vecDotProductVu0(iVar4,iVar4);
+  fVar7 = rtguest::fbits(vecDotProductVu0(iVar4,iVar4));
   fVar7 = SQRT(fVar7);
   uVar10 = 0;
   if (fVar7 == 0.0) goto LAB_00251920;
@@ -93,9 +93,9 @@ uint32_t puVar2;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_110)) = (*(uint64_t*)rtguest::G((*(uint32_t*)rtguest::G((uint32_t)apuStack_6c))));
   (*(uint64_t*)rtguest::G((uint32_t)uStack_108)) = (*(uint64_t*)rtguest::G((*(uint32_t*)rtguest::G((uint32_t)apuStack_6c)) + sizeof(uint64_t)));
   vecNormalizeVu0(uStack_110,uStack_110);
-  fVar8 = (float)vecDotProductVu0(uStack_110,fStack_100);
+  fVar8 = rtguest::fbits(vecDotProductVu0(uStack_110,fStack_100));
   sceVu0ScaleVectorXYZ(fVar8 + fVar9,fStack_100,uStack_110);
-  fVar9 = (float)vecDotProductVu0(fStack_100,fStack_100);
+  fVar9 = rtguest::fbits(vecDotProductVu0(fStack_100,fStack_100));
   if (fVar7 < SQRT(fVar9)) {
     sceVu0ScaleVectorXYZ(fVar7,fStack_100,uStack_110,fStack_100);
   }
@@ -111,7 +111,7 @@ uint32_t puVar2;
     (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = (*(uint64_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint64_t)));
   }
   vecNormalizeVu0(uStack_90,uStack_90);
-  fVar9 = (float)vecDotProductVu0(uStack_90,auStack_a0);
+  fVar9 = rtguest::fbits(vecDotProductVu0(uStack_90,auStack_a0));
   sceVu0ScaleVectorXYZ(fVar9 + fVar9,fStack_100,uStack_90);
   vu0SubVector(fStack_100,fStack_100,auStack_a0);
   fVar9 = (*(float*)rtguest::G(0x332ff4));
@@ -147,7 +147,7 @@ LAB_0025186c:
   else {
     vu0SubVector(auStack_80,iVar6,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) * 0x40 + 0x2ac0d0);
     (*(uint32_t*)rtguest::G((uint32_t)uStack_7c)) = 0;
-    (*(float*)rtguest::G((uint32_t)fStack_74)) = (float)vecDotProductVu0(auStack_80,auStack_80);
+    (*(float*)rtguest::G((uint32_t)fStack_74)) = rtguest::fbits(vecDotProductVu0(auStack_80,auStack_80));
     (*(float*)rtguest::G((uint32_t)fStack_74)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_74)));
     if ((*(float*)rtguest::G((uint32_t)fStack_74)) < (*(float*)rtguest::G(0x332ff8))) {
       PlayUiSound(0x31b);
@@ -188,7 +188,7 @@ LAB_00251920:
   vu0ApplyMatrix(iVar5,auStack_f0,iVar5);
   vecNormalizeVu0(iVar4,iVar4);
   vecNormalizeVu0(iVar5,iVar5);
-  fVar9 = (float)vecDotProductVu0(pfVar1,pfVar1);
+  fVar9 = rtguest::fbits(vecDotProductVu0(rtguest::f2bits(pfVar1),rtguest::f2bits(pfVar1)));
   iVar4 = 0x78;
   if (SQRT(fVar9) < (*(float*)rtguest::G(0x333028))) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x94))) == 0) {

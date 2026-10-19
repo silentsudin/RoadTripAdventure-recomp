@@ -1,17 +1,63 @@
-// guest:0x0021ca90 translated from Ghidra pseudocode and VU0 disassembly.
+// guest:0x0021ca90 transliterated from Ghidra pseudocode + ELF disassembly.
+// auVar2 = _sqc2(in_vf0) is the EE sqc2 at 0x21cb08 (misassembled bbit132):
+// a 16-byte store of VU0 VF0. The reset block is inline here (0x21cb60),
+// not a tail call to ResetVehicleState 0x21c998 (jr $ra at 0x21cbb0).
 #include "../guest_vu0.h"
 #include "guest_decls.inc"
 
 namespace guest {
-uint32_t UpdateObjectPhysicsState(uint32_t param_1, uint32_t param_2, ...) {
+
+void UpdateObjectPhysicsState(uint32_t param_1, uint32_t param_2, ...) {
+  using namespace rtguest::vu0;
+  ushort uVar1;
+  int iVar3;
+  float fVar4;
+  float fVar5;
+
   SpawnCarAtDoor();
-  float x = *static_cast<float*>(rtguest::G(param_2 + 0x90)) * *static_cast<float*>(rtguest::G(0x332c28));
-  float z = *static_cast<float*>(rtguest::G(param_2 + 0x98)) * *static_cast<float*>(rtguest::G(0x332c28));
-  *static_cast<int32_t*>(rtguest::G(param_2 + 0xa4)) = static_cast<int32_t>(*static_cast<float*>(rtguest::G(param_2 + 0x94)) * *static_cast<float*>(rtguest::G(0x332c28)));
-  *static_cast<int32_t*>(rtguest::G(param_2 + 0xa0)) += static_cast<int32_t>(x);
-  *static_cast<int32_t*>(rtguest::G(param_2 + 0xa8)) += static_cast<int32_t>(z);
-  LoadCarPerformanceSpecs(param_2, param_1);
-  return ResetVehicleState(param_1, param_2);
+  iVar3 = (int)param_2;
+  fVar4 = (*(float*)rtguest::G((uint32_t)(iVar3 + 0x90))) * (*(float*)rtguest::G(0x00332c28));
+  fVar5 = (*(float*)rtguest::G((uint32_t)(iVar3 + 0x98))) * (*(float*)rtguest::G(0x00332c28));
+  (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa4))) =
+      (int32_t)((*(float*)rtguest::G((uint32_t)(iVar3 + 0x94))) * (*(float*)rtguest::G(0x00332c28)));
+  (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa0))) =
+      (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa0))) + (int32_t)fVar4;
+  (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa8))) =
+      (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa8))) + (int32_t)fVar5;
+  LoadCarPerformanceSpecs(param_2,param_1);
+  sqc2((uint32_t)(iVar3 + 0xf0),S.vf[0]);
+  (*(uint8_t*)rtguest::G((uint32_t)(iVar3 + 0x1ff))) = 1;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1c8))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1c4))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1c0))) = 0;
+  (*(uint8_t*)rtguest::G((uint32_t)(iVar3 + 0x1fe))) = 0;
+  (*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x1d0))) = 0;
+  (*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x1ce))) = 0;
+  (*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x1d2))) = 0;
+  if ((*(int16_t*)rtguest::G((uint32_t)(iVar3 + 0x20e))) != 0) {
+    uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x198)));
+    if ((*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x198)) & 3) == 0) goto LAB_0021cb60;
+    PlayUiSound((int)((short)uVar1 & 1U) + 0x8010);
+  }
+  uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x198)));
+LAB_0021cb60:
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x100))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x208))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1f0))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1ec))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1e8))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x10c))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x108))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x104))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1dc))) = 0x1000;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1e4))) = 0x1000;
+  (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1e0))) = 0x1000;
+  (*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x20e))) = 0;
+  (*(uint32_t*)rtguest::G((uint32_t)(0x00335728 + (uint32_t)(uVar1 & 1) * 4))) = 0;
+  return;
 }
+
+
 RT_GUEST_FN(0x0021ca90, guest::UpdateObjectPhysicsState)
+
 }  // namespace guest

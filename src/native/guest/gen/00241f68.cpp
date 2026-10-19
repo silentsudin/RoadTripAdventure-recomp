@@ -46,7 +46,7 @@ uint32_t pfVar6;
   pfVar6 = (uint32_t)0x177ace0;
   iVar5 = 0;
   do {
-    fVar8 = (float)GetSpeedFromF15Vector((int)0x0177ad40 + iVar5);
+    fVar8 = rtguest::fbits(GetSpeedFromF15Vector((int)0x0177ad40 + iVar5));
     if (0x3c < (int)fVar8) {
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
       if (((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a3fb8 + iVar3 * 0xc))) - 20.0 < (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0177ace8 + iVar5))))

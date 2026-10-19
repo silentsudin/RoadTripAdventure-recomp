@@ -35,7 +35,7 @@ uint32_t SetAiSteeringTarget(uint32_t param_1, uint32_t param_2, uint32_t param_
     if (iVar4 < 2) {
       if (iVar4 == 0) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x74))) = 2;
-        fVar5 = (float)GetSpeedFromF15Vector(param_1 + 0xf0);
+        fVar5 = rtguest::fbits(GetSpeedFromF15Vector(param_1 + 0xf0));
         if (fVar5 == 0.0) {
           uVar3 = 1;
           if ((param_2 < 0x4001) && (-0x4001 < param_2)) {
@@ -64,13 +64,13 @@ uint32_t SetAiSteeringTarget(uint32_t param_1, uint32_t param_2, uint32_t param_
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x74))) = uVar1;
 LAB_0025339c:
   param_1 = param_1 + 0xf0;
-  fVar5 = (float)GetSpeedFromF15Vector(param_1);
+  fVar5 = rtguest::fbits(GetSpeedFromF15Vector(param_1));
   if ((int)fVar5 < 0) {
-    fVar5 = (float)GetSpeedFromF15Vector(param_1);
+    fVar5 = rtguest::fbits(GetSpeedFromF15Vector(param_1));
     iVar4 = -(int)fVar5;
   }
   else {
-    fVar5 = (float)GetSpeedFromF15Vector(param_1);
+    fVar5 = rtguest::fbits(GetSpeedFromF15Vector(param_1));
     iVar4 = (int)fVar5;
   }
   if ((param_3 < iVar4) && (0 < param_3)) {

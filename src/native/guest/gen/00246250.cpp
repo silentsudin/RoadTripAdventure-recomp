@@ -469,13 +469,13 @@ LAB_00246c28:
       }
       else {
 LAB_00246d18:
-        fVar37 = (float)cosf(fVar38);
+        fVar37 = rtguest::fbits(cosf(rtguest::f2bits(fVar38)));
         iVar28 = (int)(fVar37 * ((float)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26))) + 32.0)) -
                  (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)));
-        fVar37 = (float)sinf(fVar38);
+        fVar37 = rtguest::fbits(sinf(rtguest::f2bits(fVar38)));
         (*(int32_t*)rtguest::G((uint32_t)iStack_74)) = (int)(fVar37 * 112.0);
         iVar29 = iVar28 + 0xa0;
-        fVar37 = (float)cosf(fVar38);
+        fVar37 = rtguest::fbits(cosf(rtguest::f2bits(fVar38)));
         iVar36 = (*(int32_t*)rtguest::G((uint32_t)iStack_74)) + 0xf0;
         iVar33 = ((int)(fVar37 * ((float)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26))) + 24.0)) -
                  (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x26)))) + 0xf0;

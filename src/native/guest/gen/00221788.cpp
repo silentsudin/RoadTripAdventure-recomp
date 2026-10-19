@@ -146,7 +146,7 @@ LAB_00221c74:
         vifCallModel((*(uint32_t*)rtguest::G(0x177eae0)) + 0x10);
         fVar14 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x88)));
         vu0UnitMatrix(auStack_170);
-        vu0RotMatrixZ(-fVar14,auStack_170,auStack_170);
+        vu0RotMatrixZ(rtguest::f2bits(-fVar14),auStack_170,auStack_170);
         (*(uint32_t*)rtguest::G((uint32_t)uStack_13c)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ed748 + iVar3)));
         (*(uint32_t*)rtguest::G((uint32_t)uStack_138)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ed74c + iVar3)));
         (*(float*)rtguest::G((uint32_t)fStack_140)) = (*(uint32_t*)rtguest::G(0x332cc8));

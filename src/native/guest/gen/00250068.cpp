@@ -142,7 +142,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(64);
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(1) * sizeof(int8_t)));
   }
   pfVar5 = (uint32_t)((uint32_t)bVar1 * 0x18 + iVar2);
-  fVar16 = (float)atan2f((*(float*)rtguest::G((uint32_t)pfVar5)) - (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(2) * sizeof(float))),(*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(1) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(3) * sizeof(float))));
+  fVar16 = rtguest::fbits(atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)pfVar5)) - (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(2) * sizeof(float)))),rtguest::f2bits((*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(1) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(3) * sizeof(float))))));
   uVar8 = (int)(fVar16 * (*(float*)rtguest::G(0x332fa8))) * 0x10000 + -0x40000000 >> 0x10;
   iVar6 = (int)((uVar8 - (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1d4)))) * 0x10000) >> 0x10;
   if (iVar6 < -0x5000) {
@@ -170,8 +170,8 @@ LAB_0025058c:
   fVar16 = (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(3) * sizeof(float)));
   fVar20 = (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(1) * sizeof(float)));
   fVar19 = ((*(float*)rtguest::G((uint32_t)pfVar5)) + (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(2) * sizeof(float)))) * 0.5 - (*(float*)rtguest::G((uint32_t)pfVar14));
-  fVar17 = (float)cosf(fVar21);
-  fVar21 = (float)sinf(fVar21);
+  fVar17 = rtguest::fbits(cosf(rtguest::f2bits(fVar21)));
+  fVar21 = rtguest::fbits(sinf(rtguest::f2bits(fVar21)));
   (*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24c))) = ((fVar20 + fVar16) * 0.5 - fVar18) * fVar17 + fVar19 * fVar21;
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xb))) != '\0') && (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x198))) & 3) == 2)) {
     ::sprintf((char *)rtguest::G((uint32_t)(auStack_a0)), (char *)rtguest::G((uint32_t)(0x328018)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 1))), uVar8 & 0xffff);

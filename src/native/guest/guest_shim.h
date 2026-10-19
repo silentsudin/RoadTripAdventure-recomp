@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstring>
 #include <cstdio>
+#include <cmath>
 
 // Ghidra pseudocode types (r5900:LE:32). long/ulong stay host-native (64-bit on
 // macOS, matching MIPS64 registers); fix from the token inventory if Ghidra emitted
@@ -49,6 +50,11 @@ uint32_t allocFrame(uint32_t bytes);
 // Guest float register bits as float, for float-typed callee params
 // (pseudocode prints raw bits; a plain int literal would value-convert).
 inline float fbits(uint32_t b) { float f; __builtin_memcpy(&f, &b, 4); return f; }
+
+// Reverse: host float value as guest float-register bits. Guest math TUs take
+// and return f-register bit patterns (register transfers never value-convert);
+// C++ float params would truncate, so callers carry bits through uint32_t.
+inline uint32_t f2bits(float f) { uint32_t b; __builtin_memcpy(&b, &f, 4); return b; }
 
 // Translate a guest address to a host pointer (cached/uncached aliases, scratchpad).
 inline void* G(uint32_t a) {
@@ -145,4 +151,13 @@ inline uint64_t rtCall(uint32_t target, uint64_t a0 = 0, uint64_t a1 = 0,
                        uint64_t a2 = 0, uint64_t a3 = 0, uint64_t a4 = 0,
                        uint64_t a5 = 0, uint64_t a6 = 0, uint64_t a7 = 0) {
     return rtguest::callGuest(target, a0, a1, a2, a3, a4, a5, a6, a7);
+}
+
+// Ghidra prints MIPS intrinsics (sqrt.s etc.) as calls; the generated decl
+// file's uint32 pass-through stubs would value-truncate float arguments, so
+// exact-match float overloads here win resolution. sqrt.s/ABS follow the
+// thread's EE float mode like the oracle's SSE ops.
+namespace guest {
+inline float SQRT(float x) { return sqrtf(x); }
+inline float ABS(float x) { return x < 0.0f ? -x : x; }
 }

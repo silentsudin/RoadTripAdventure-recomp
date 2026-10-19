@@ -15,7 +15,7 @@ uint32_t ApplyCupAttraction(uint32_t param_1, ...) {
   float fVar4;
   
   vu0SubVector(uStack_60,param_1 + 0x60,0x177ace0);
-  fVar3 = (float)vecDotProductVu0(uStack_60,uStack_60);
+  fVar3 = rtguest::fbits(vecDotProductVu0(uStack_60,uStack_60));
   if (SQRT(fVar3) < (*(float*)rtguest::G(0x332fd0))) {
     uVar2 = 0;
     if ((*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x74))) <= 0.0) {
@@ -25,26 +25,26 @@ uint32_t ApplyCupAttraction(uint32_t param_1, ...) {
       else {
         vu0CopyVector(uStack_60,param_1 + 0x70);
         (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = 0;
-        fVar3 = (float)vecDotProductVu0(uStack_60,uStack_60);
+        fVar3 = rtguest::fbits(vecDotProductVu0(uStack_60,uStack_60));
         if (SQRT(fVar3) == 0.0) {
           vu0SubVector(uStack_60,param_1 + 0x60,0x177ace0);
           (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = 0;
-          fVar3 = (float)vecDotProductVu0(uStack_60,uStack_60);
+          fVar3 = rtguest::fbits(vecDotProductVu0(uStack_60,uStack_60));
           if (SQRT(fVar3) == 0.0) {
-            fVar3 = (*(uint32_t*)rtguest::G(0x332fd8));
-            (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = sinf((float)((*(uint32_t*)rtguest::G(0x177ae24)) + 0x8000) * (*(uint32_t*)rtguest::G(0x332fd8)) * 3.0517578e-05,
+            fVar3 = (*(float*)rtguest::G(0x332fd8));
+            (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = sinf(rtguest::f2bits((float)((*(uint32_t*)rtguest::G(0x177ae24)) + 0x8000) * (*(float*)rtguest::G(0x332fd8)) * 3.0517578e-05f),
                              uStack_60);
             (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = 0;
-            (*(uint32_t*)rtguest::G((uint32_t)uStack_58)) = cosf((float)((*(uint32_t*)rtguest::G(0x177ae24)) + 0x8000) * fVar3 * 3.0517578e-05);
+            (*(uint32_t*)rtguest::G((uint32_t)uStack_58)) = cosf(rtguest::f2bits((float)((*(uint32_t*)rtguest::G(0x177ae24)) + 0x8000) * fVar3 * 3.0517578e-05f));
             (*(uint32_t*)rtguest::G((uint32_t)uStack_54)) = 0;
           }
           vecNormalizeVu0(uStack_60,uStack_60);
-          vu0ScaleVector((*(uint32_t*)rtguest::G(0x332fdc)),uStack_60,uStack_60);
+          vu0ScaleVector((*(float*)rtguest::G(0x332fdc)),uStack_60,uStack_60);
         }
         else {
-          fVar4 = (float)vecDotProductVu0(uStack_60,uStack_60);
-          fVar3 = (*(uint32_t*)rtguest::G(0x332fd4));
-          if (SQRT(fVar4) < (*(uint32_t*)rtguest::G(0x332fd4))) {
+          fVar4 = rtguest::fbits(vecDotProductVu0(uStack_60,uStack_60));
+          fVar3 = (*(float*)rtguest::G(0x332fd4));
+          if (SQRT(fVar4) < (*(float*)rtguest::G(0x332fd4))) {
             vecNormalizeVu0(uStack_60,uStack_60);
             vu0ScaleVector(fVar3,uStack_60,uStack_60);
           }

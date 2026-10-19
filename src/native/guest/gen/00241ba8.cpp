@@ -26,7 +26,7 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
     iVar3 = (int)uVar4 * 0x10;
     if ((lVar1 == 0) && ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a397c + iVar3))) == (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x54))))) {
       vu0SubVector(auStack_50,0x177ace0,0x2a3970 + iVar3);
-      fVar7 = (float)vecDotProductVu0(auStack_50,auStack_50);
+      fVar7 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
       if (SQRT(fVar7) < (*(float*)rtguest::G(0x332eec))) {
         PlayUiSound(0x29);
         uVar2 = uVar4;

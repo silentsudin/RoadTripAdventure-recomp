@@ -29,7 +29,7 @@ uint32_t pfVar1;
     }
   }
   if (iVar4 != 0x80) {
-    fVar5 = (float)GetSpeedFromF15Vector((int)param_1 + 0xf0);
+    fVar5 = rtguest::fbits(GetSpeedFromF15Vector((int)param_1 + 0xf0));
     fVar6 = fVar5 / 300.0;
     if (1.0 < fVar5 / 300.0) {
       fVar6 = 1.0;

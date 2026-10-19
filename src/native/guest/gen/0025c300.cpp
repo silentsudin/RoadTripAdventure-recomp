@@ -15,7 +15,7 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
   lVar1 = GetFlaggedSlotCount(0xf,(*(uint32_t*)rtguest::G(0x2c4190)),0);
   if ((lVar1 == 0) && (lVar1 = TestStateBitFc78(9), lVar1 == 0)) {
     vu0SubVector(auStack_40,0x2c4170,0x177ace0);
-    fVar2 = (float)vecDotProductVu0(auStack_40,auStack_40);
+    fVar2 = rtguest::fbits(vecDotProductVu0(auStack_40,auStack_40));
     if (SQRT(fVar2) < 1.5) {
       PlayUiSound(0x302);
       SetFlaggedSlotBit(0xf,(*(uint32_t*)rtguest::G(0x2c4190)),0);
@@ -28,7 +28,7 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
   lVar1 = GetFlaggedSlotCount(0xf,(*(uint32_t*)rtguest::G(0x2c4194)),0);
   if ((lVar1 == 0) && (lVar1 = TestStateBitFc78(9), lVar1 == 0)) {
     vu0SubVector(auStack_40,0x2c4180,0x177ace0);
-    fVar2 = (float)vecDotProductVu0(auStack_40,auStack_40);
+    fVar2 = rtguest::fbits(vecDotProductVu0(auStack_40,auStack_40));
     if (SQRT(fVar2) < 2.0) {
       PlayUiSound(0x302);
       SetFlaggedSlotBit(0xf,(*(uint32_t*)rtguest::G(0x2c4194)),0);

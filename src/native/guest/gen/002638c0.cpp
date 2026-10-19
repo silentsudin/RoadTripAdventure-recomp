@@ -39,7 +39,7 @@ uint32_t puVar5;
     (*(uint32_t*)rtguest::G((uint32_t)puVar5)) = 1;
   case 1:
     vu0SubVector(auStack_50,uStack_60,0x177ace0);
-    fVar6 = (float)vecDotProductVu0(auStack_50,auStack_50);
+    fVar6 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
     if (SQRT(fVar6) < 1.5) {
       GetOrSetPresidentRaceResult(2,uStack_60);
       SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x28))),0,1);
@@ -48,7 +48,7 @@ uint32_t puVar5;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8cbc))) = 1;
     }
     vu0SubVector(auStack_50,uStack_60,0x177af50);
-    fVar6 = (float)vecDotProductVu0(auStack_50,auStack_50);
+    fVar6 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
     if (1.5 <= SQRT(fVar6)) {
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8cbc)));
       goto LAB_00263ba4;

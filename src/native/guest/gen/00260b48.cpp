@@ -22,7 +22,7 @@ uint32_t auStack_60 = rtguest::allocFrame(4);
   (*(uint64_t*)rtguest::G((uint32_t)uStack_50)) = 0x43c80000;
   vu0SubVector(uStack_50,0x177ace0,uStack_50);
   (*(uint64_t*)rtguest::G((uint32_t)uStack_50)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_50)) & 0xffffffff;
-  fVar5 = (float)vecDotProductVu0(uStack_50,uStack_50);
+  fVar5 = rtguest::fbits(vecDotProductVu0(uStack_50,uStack_50));
   fVar5 = SQRT(fVar5);
   vecNormalizeVu0(uStack_50,uStack_50);
   if (fVar5 < 15.0) {
@@ -39,7 +39,7 @@ uint32_t auStack_60 = rtguest::allocFrame(4);
   }
 LAB_00260c44:
   vu0ScaleVector(fVar5,uStack_50,uStack_50);
-  fVar5 = (float)atan2f((*(uint32_t*)rtguest::G(0x177ace0)) - 400.0,(*(uint32_t*)rtguest::G(0x177ace8)) - 400.0);
+  fVar5 = rtguest::fbits(atan2f(rtguest::f2bits((*(float*)rtguest::G(0x177ace0)) - 400.0f),rtguest::f2bits((*(float*)rtguest::G(0x177ace8)) - 400.0f)));
   iVar2 = -10;
   iVar3 = (int)(((((int)(short)(int)((fVar5 / (*(uint32_t*)rtguest::G(0x333184))) * 32768.0) -
                   (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc)))) + 0x666 & 0xffff) % 0xccc + 0xf99a) * 0x10000)
