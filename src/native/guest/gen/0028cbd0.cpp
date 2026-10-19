@@ -1,0 +1,43 @@
+// guest:0x0028cbd0 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t sceSifSetIopAddr(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  uint32_t uVar1;
+  uint32_t lVar2;
+  
+  lVar2 = _lf_bind();
+  if ((int32_t)lVar2 < 0) {
+    uVar1 = 0xffff0000;
+  }
+  else {
+    *(uint32_t*)rtguest::G(0x1779e04) = param_3;  // DAT_01779e04
+    if (param_3 == 0) {
+      *(uint8_t*)rtguest::G(0x1779e08) = (uint8_t)*(uint8_t*)rtguest::G((uint32_t)param_2);  // DAT_01779e08 low byte (CONCAT31 merge)
+    }
+    else if (param_3 == 1) {
+      *(uint16_t*)rtguest::G(0x1779e08) = *(uint16_t*)rtguest::G((uint32_t)param_2);  // CONCAT22 merge
+    }
+    else {
+      if (param_3 != 2) {
+        *(uint32_t*)rtguest::G(0x1779e00) = param_1;  // DAT_01779e00
+        return 0xfffefffe;
+      }
+      *(uint32_t*)rtguest::G(0x1779e08) = *(uint32_t*)rtguest::G((uint32_t)param_2);
+    }
+    *(uint32_t*)rtguest::G(0x1779e00) = param_1;
+    lVar2 = sceSifCallRpc(0x177a000,2,0,0x1779e00,0x20,0x1779e00,0x10,0);
+    uVar1 = 0xfffeffff;
+    if ((int32_t)lVar2 >= 0) {  // pseudocode: -1 < lVar2
+      uVar1 = 0;
+    }
+  }
+  return uVar1;
+}
+
+
+RT_GUEST_FN(0x0028cbd0, guest::sceSifSetIopAddr)
+
+}  // namespace guest
