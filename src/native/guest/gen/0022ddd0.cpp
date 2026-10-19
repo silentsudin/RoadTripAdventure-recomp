@@ -48,7 +48,7 @@ LAB_0022de60:
       uVar8 = 0xa170000;
     }
     else {
-      cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22)));
+      cVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22)));
       if (cVar1 < '\x12') {
         gs_music_play_bgm((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x29f5b0 + cVar1 * 4))));
         goto LAB_0022dee4;
@@ -86,8 +86,8 @@ LAB_0022dee4:
       bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25)));
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25))) = bVar3 ^ 0x3f;
-    if (1 < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) - 0xf) {
-      if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) != 0x26) {
+    if (1 < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) - 0xf) {
+      if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) != 0x26) {
         return 0;
       }
       gs_tasks_spawn(param_1,0x263c38,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1c))));
@@ -104,7 +104,7 @@ LAB_0022dee4:
   if (0x3e < bVar3) goto LAB_0022e290;
   bVar4 = bVar3 & 1;
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28))) & 0x8000) != 0) goto LAB_0022e290;
-  cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22)));
+  cVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22)));
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28))) & 0x44) == 4) {
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x20))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x20))) + 1;
   }
@@ -209,7 +209,7 @@ LAB_0022e290:
   else {
     DrawRecordTableRows(0x1787068,
                         0x017807a0 +
-                        ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) * 0xc + (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22)))) * 8,
+                        ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) * 0xc + (int)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22)))) * 8,
                         0x177ac50,uVar2);
     iVar15 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x10)));
     bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 1)));
@@ -271,7 +271,7 @@ LAB_0022e538:
             iVar15 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x10)));
             if ('\x01' < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 2)))) {
               DrawRecordTableRows(0x1787098,
-                                  ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) * 0xc + (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22)))) *
+                                  ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) * 0xc + (int)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22)))) *
                                   8 + 0x1783be8,0x177aec0,uVar2);
               iVar15 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x10)));
               goto LAB_0022e564;
@@ -291,7 +291,7 @@ LAB_0022e568:
     uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28)));
   }
   if ((uVar6 & 0x10000) == 0) {
-    if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) != '\x1d') {
+    if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x22))) != '\x1d') {
       gs_map_draw_functions_race(param_2);
       raceMapMarkers(param_2);
       uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28)));

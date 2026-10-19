@@ -27,7 +27,7 @@ uint32_t DisplayTextDialog(uint32_t param_1, uint32_t param_2, ...) {
     lVar4 = uiMenuRun(iVar2);
     if (lVar4 != 0) {
       if (lVar4 == -1) {
-        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = 1;
+        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = 1;
         cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));
       }
       else {

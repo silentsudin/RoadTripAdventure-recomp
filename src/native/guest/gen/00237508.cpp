@@ -17,7 +17,7 @@ uint32_t pbVar7;
   
   iVar9 = (int)param_2;
   iVar8 = (int)param_1;
-  if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 10))) != '\0') || ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))) == '\x1a')) {
+  if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 10))) != '\0') || ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))) == '\x1a')) {
     uiFade(0xffffffff80000000);
     if ((*(int8_t*)rtguest::G(0x178700a)) == 0) {
       iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
@@ -38,7 +38,7 @@ uint32_t pbVar7;
   InitScreenLayout(uVar4);
   uVar3 = SumPlayerPoints((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x10))));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))) = uVar3;
-  if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))) < 0x18) {
+  if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))) < 0x18) {
     pbVar5 = 0x01780750;
     pbVar7 = 0x002bddd3;
     uVar6 = 0;
@@ -50,7 +50,7 @@ uint32_t pbVar7;
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar7));
         pbVar7 = pbVar7 + 0x10;
         if ((uint32_t)bVar1 == (long)(*(int8_t*)rtguest::G(0x177fdb1))) {
-          if (uVar6 == (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20)))) {
+          if (uVar6 == (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20)))) {
             if ((*(int8_t*)rtguest::G(0x178700a)) < 6) goto LAB_002375d8;
             bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
           }

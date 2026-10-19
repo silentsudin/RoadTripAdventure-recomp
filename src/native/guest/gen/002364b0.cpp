@@ -37,7 +37,7 @@ uint32_t puVar10;
     uiDrawPanelCells(10,0xb,0x14,0x11,0);
     uiDrawTextCell(0xb,0xc,0x2ec480,0);
     DrawLicenseList(param_2);
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
     if (bVar1 == 2) {
       uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8)));
       pcVar7 = 0x2ec4a0u;
@@ -74,8 +74,8 @@ LAB_00236688:
     return 0;
   }
   SpendTimerBudget(-(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))),0);
-  if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) != '\0') {
-    (*(int8_t*)rtguest::G(0x177fdb1)) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
+  if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) != '\0') {
+    (*(int8_t*)rtguest::G(0x177fdb1)) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
   }
   UpdateRaceRecords(param_2);
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(puVar10 + 4))) == '\x18') {
@@ -85,22 +85,22 @@ LAB_00236688:
   if ((*(uint8_t*)rtguest::G(0x178700a)) < 6) {
     lVar4 = TestStateBitFc78(0x28);
     if (lVar4 == 0) {
-      cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
+      cVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
     }
     else {
       lVar4 = gs_stamps_award_function(0x5f);
       if (lVar4 == 0) {
         SubmitMessage31((int)(*(uint64_t*)rtguest::G((uint32_t)puVar10)));
-        cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
+        cVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
       }
       else {
         AppendQueuedByte(0x1e);
-        cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
+        cVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
       }
     }
   }
   else {
-    cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
+    cVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
   }
   uVar6 = 5;
   if (cVar3 == '\0') {

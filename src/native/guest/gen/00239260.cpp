@@ -26,7 +26,7 @@ uint32_t DisplayMenuMessage(uint32_t param_1, ...) {
     lVar5 = uiMenuRun(iVar2);
     if (lVar5 != 0) {
       if (lVar5 == -1) {
-        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = 1;
+        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = 1;
       }
       if (lVar5 == -2) {
         gs_tasks_kill(param_1);

@@ -43,15 +43,15 @@ uint32_t puVar13;
   uVar8 = (uint32_t)bVar5;
   pfVar10 = (uint32_t)(0x0177e9f0 + iVar9);
   puVar13 = 0x177e6d0 + ((uVar12 * 2 + uVar8) * 8 + uVar8) * 0x10;
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)));
-  if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) == -1) {
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)));
+  if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) == -1) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x21ed90));
     CameraWaitOrCutsceneState();
   }
   else {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) == 0) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = 0xff;
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)));
     }
     uVar12 = 0;
     pfVar11 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)0x2a2a50u + ((int)((uint32_t)bVar1 << 0x18) >> 0x16))));
@@ -64,19 +64,19 @@ uint32_t puVar13;
       (*(float*)rtguest::G((uint32_t)fStack_88)) = SQRT(fVar15 + (*(float*)rtguest::G((uint32_t)fStack_ac)) * (*(float*)rtguest::G((uint32_t)fStack_ac)) + fVar14);
       if (((uint32_t)(*(float*)rtguest::G((uint32_t)pfVar11 + (uint32_t)(7) * sizeof(float))) & 0x8000) != 0) break;
       if ((*(float*)rtguest::G((uint32_t)fStack_88)) < (*(float*)rtguest::G((uint32_t)pfVar11 + (uint32_t)(3) * sizeof(float)))) {
-        bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
+        bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
         goto LAB_00238cc4;
       }
       pfVar11 = pfVar11 + 0x20;  // T* element step
       uVar12 = uVar12 + 1;
     }
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
 LAB_00238cc4:
     if (bVar1 == uVar12) {
       uVar7 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)pfVar11));
     }
     else {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (char)uVar12;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (char)uVar12;
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)pfVar10)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)pfVar11));
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177e9f8 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 2)));
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea00 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 4)));
