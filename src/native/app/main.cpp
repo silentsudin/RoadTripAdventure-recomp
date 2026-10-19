@@ -2280,10 +2280,19 @@ int main() {
             if (nativeBoot.ok) {
                 rtguest::kVblank();
                 rtguest::kPumpToIdle();
-                if (++nativeBoot.vblanks % 30 == 0)
-                    std::cout << "rt-app native-boot vblank=" << nativeBoot.vblanks
+                if (++nativeBoot.vblanks % 30 == 0) {
+                    // Scene words mirror config/game_state.toml [game]/boot_diag:
+                    // is the load machine busy, and what task handler is installed.
+                    auto rd = [](uint32_t a) { uint32_t v; std::memcpy(&v, rtguest::kRam + a, 4); return v; };
+                    std::cout << std::hex << "rt-app native-boot vblank=" << std::dec
+                              << nativeBoot.vblanks
                               << " threads=" << rtguest::kThreadCount()
-                              << " semas=" << rtguest::kSemaCount() << "\n";
+                              << " semas=" << rtguest::kSemaCount()
+                              << " scene3d=" << rd(0x3356c4)
+                              << " loading=" << rd(0x333370)
+                              << " task0=" << rd(0x177a0d0)
+                              << " taskHandler=" << rd(0x177a0dc) << "\n";
+                }
             }
             // Trigger polling intentionally lives in this fixed-step lambda:
             // split-pacing render iterations must not advance its pulse/reverse

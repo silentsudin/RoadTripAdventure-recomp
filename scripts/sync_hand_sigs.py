@@ -12,7 +12,8 @@ from gen_guest_libs import CFG, HAND, def_name, signature  # noqa: E402
 
 SRC = pathlib.Path(__file__).resolve().parents[1] / "src/native/guest"
 HAND_FILES = ["guest_libs_sif.cpp", "guest_libs_pad.cpp", "guest_libs_dma.cpp",
-              "guest_libs_cd.cpp", "guest_libs_fs.cpp", "guest_libs_gs.cpp"]
+              "guest_libs_cd.cpp", "guest_libs_fs.cpp", "guest_libs_gs.cpp",
+              "guest_libs_mc.cpp"]
 
 sigs = {}
 for line in CFG.read_text().splitlines():

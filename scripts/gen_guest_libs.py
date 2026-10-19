@@ -81,6 +81,14 @@ HAND |= {
     "sceGsSetDefDrawEnv", "sceGsSetDefClear", "sceGsPutDrawEnv",
     "sceGsSetDefDrawEnv2",
 }
+# Wave 6 (guest_libs_mc.cpp): libmc host-emulated memory card.
+HAND |= {
+    "sceMcInit", "sceMcChangeThreadPriority", "sceMcGetSlotMax", "sceMcOpen",
+    "sceMcMkdir", "sceMcClose", "sceMcSeek", "mceIntrReadFixAlign", "sceMcRead",
+    "sceMcWrite", "sceMcSync", "mceGetInfoApdx", "sceMcGetInfo", "sceMcGetDir",
+    "mceStorePwd", "sceMcChdir", "sceMcFormat", "sceMcDelete", "sceMcFlush",
+    "sceMcSetFileInfo", "sceMcRename", "sceMcUnformat", "sceMcGetEntSpace",
+}
 
 
 def def_name(addr: str) -> str:

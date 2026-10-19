@@ -111,6 +111,11 @@ bool loadImage(const uint8_t* f, size_t sz) {
 
 static uint32_t g_frameTop = RT_FRAME_BASE;
 
+// shortcut (W12): the bump arena is released wholesale per vblank instead of
+// per function return (real per-thread EE stack model is W13). Arena pointers
+// must not outlive their vblank; det pair + soak watch this.
+void resetFrameArena() { g_frameTop = RT_FRAME_BASE; }
+
 uint32_t allocFrame(uint32_t bytes) {
     bytes = (bytes + 15) & ~15u;
     uint32_t a = g_frameTop;

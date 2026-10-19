@@ -674,6 +674,7 @@ void wakeVSyncWaiters() {
 
 // ---- frame-loop driver ----
 void kVblank() {
+    resetFrameArena();  // bump arena lives one vblank (shortcut, W13 stack model)
     g_micro += kVBlankPeriodUs;
     fireDueAlarms();  // shortcut: alarm-vs-vblank tie lands on the vblank
     ++g_vsyncTick;    // boundary (oracle uses cycle deadlines; W13 audit)

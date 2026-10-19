@@ -227,6 +227,12 @@ ui_context = 0x3356CC        # 0x29AFA0 at the title/main menu: the progress blo
 game_mode = 0x33590A          # u8: 0 Adventure, 1 Quick Race, 2/3/6 2 Player, 8 attract demo (set only by the demo task
                               # 0x20A150; stays 8 at the title after a demo until a mode is picked)
 drive_flags = 0x335928       # bits: 0x04 can drive, 0x20 racing, 0x08 finished; 0x10000 hides the HUD
+boot_cd_loading = 0x333370   # u32 1 while a CD load request is active: set by loadRequestTask 0x20DC50,
+                             # cleared by loadStep completion 0x20D120 or AbortCdOperation 0x20E1B8 (confirmed W12)
+cd_load_step = 0x3356C0      # u32 load-machine step in loadStep 0x20D120; bit 0x8000 set while a CD
+                             # read is in flight (0xFFFFFFFF = final flush) (likely W12)
+gs_task_table = 0x177A0D0    # gs task nodes, stride 0x30: +0 active, +8 kind, +0xc handler,
+                             # +0x10 first child, +0x14 sibling, +0x18 parent (confirmed W12)
 
 [race.live]
 # Valid only during a race (the work area is reused by towns). Times are frames (60 per second).

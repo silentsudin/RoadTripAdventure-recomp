@@ -240,3 +240,27 @@ Bug fixed en route: host stub files masked RAM with 0x1FFFFFFF (512 MB!) —
 PS2 RAM mask is 0x01FFFFFF; DMAC reg writes at 0x1000Exxx overran kRam and
 SIGSEGV'd at sceDmaReset (kRam+0x1000E020). The gen corpus masks correctly
 via G(); only hand waves carried the typo.
+
+## Increment 5 (MC wave + post-TITLE load runs clean)
+
+Wave 6 `guest_libs_mc.cpp` (23 HAND): host-emulated formatted PS2 card per
+port at `<RT_DATA_DIR>/saves/mc0|mc1` (oracle src/main.cpp:1189 mcRoot),
+libmc async protocol mirrored exactly: every sceMc* completes immediately,
+records (cmd,result)+pending (setMcCommandResultLocked MemoryCard.cpp:377);
+sceMcSync returns 1+values once then -1 idle (games rely on it, :1220).
+GetInfo fills type=2/free=0x2000/format=1 — with the pending bodies returning
+bare 0 the game looped `sceMcGetInfo : Timeout!` retries; that tail is gone.
+Definitions must match guest_decls.inc arity EXACTLY (extra named params =
+overload, registerGuest reinterpret_cast fails); when .inc names fewer
+params than the oracle reads ($a1..), reach them via va_arg like
+sceMcChdir/sceMcMkdir do.
+
+Boot diagnostics extended: the per-30-vblank line now prints
+scene3d(0x3356C4)/loading(0x333370)/task0+taskHandler(0x177A0D0 table) —
+facts recorded in config/game_state.toml [game]. Post-TITLE the load machine
+(loadStep 0x20D120 -> loadCarPartsSet -> cdReadEntry) runs continuously:
+600-frame boot end-to-end is seconds, faults=0, no pendings. The earlier
+"post-TITLE spin" was NOT a hang: lldb-attached rt-app instances were left
+stopped (SIGTERM can't land; pkill -CONT then -9), 15 of them starved the
+machine so every measurement crawled. Recipe: `pgrep -fl rt-app` before any
+timing run.

@@ -49,6 +49,7 @@ void noteFault(uint32_t a);
 #define RT_FRAME_BASE 0x01E00000u
 #define RT_FRAME_END  0x01F80000u
 uint32_t allocFrame(uint32_t bytes);
+void resetFrameArena();
 
 // Guest float register bits as float, for float-typed callee params
 // (pseudocode prints raw bits; a plain int literal would value-convert).
