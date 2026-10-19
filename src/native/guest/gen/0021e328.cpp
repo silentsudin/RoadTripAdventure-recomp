@@ -14,13 +14,13 @@ uint32_t puVar5;
   int iVar7;
   
   if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30))) & 0x10) == 0) {
-    if ((*(uint16_t*)rtguest::G((uint32_t)0x177ade8 + (uint32_t)(((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) * 0x28 - (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)))) * 8) * 2)) != 0) {
+    if ((*(uint16_t*)rtguest::G((uint32_t)0x177ade8 + (uint32_t)(((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) * 0x28 - (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)))) * 8) * 2)) != 0) {
       return 0;
     }
-    bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25)));
+    bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25)));
   }
   else {
-    bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25)));
+    bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25)));
   }
   uVar1 = (bVar2 + 1) % 3;
   puVar5 = 0x0177ade8;
@@ -34,12 +34,12 @@ uint32_t puVar5;
     puVar5 = puVar5 + 0x270;  // T* element step
     if ((uVar3 & 0x27e) == uVar6) {
       InitializeTask((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))),0x238b18,iVar7);
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (char)iVar7;
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (char)uVar1;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (byte)iVar7;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (byte)uVar1;
       bVar4 = true;
 LAB_0021e440:
       if (!bVar4) {
-        uVar1 = ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) + 2) % 3;
+        uVar1 = ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) + 2) % 3;
         puVar5 = 0x0177ade8;
         iVar7 = 0;
         uVar6 = uVar1 * 0x10 + ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) & 1) * 0x40;
@@ -55,8 +55,8 @@ LAB_0021e440:
           uVar3 = (*(uint16_t*)rtguest::G((uint32_t)puVar5));
         }
         InitializeTask((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))),0x238b18,iVar7);
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (char)iVar7;
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (char)uVar1;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (byte)iVar7;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (byte)uVar1;
       }
       return 0;
     }
