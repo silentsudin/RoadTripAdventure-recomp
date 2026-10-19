@@ -15,7 +15,7 @@ uint32_t TransformRectangle(uint32_t param_1, uint32_t param_2, ...) {
   (*(int32_t*)rtguest::G((uint32_t)iStack_20)) = (int)(*(int16_t*)rtguest::G((uint32_t)param_2));
   (*(int32_t*)rtguest::G((uint32_t)iStack_18)) = (int)(*(int16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(int16_t)));
   vu0Itof4Vector(param_1,iStack_20);
-  vu0ScaleVector((*(uint32_t*)rtguest::G(0x332b10)),param_1,param_1);
+  vu0ScaleVector((*(float*)rtguest::G(0x332b10)),param_1,param_1);
   return 0;
 }
 

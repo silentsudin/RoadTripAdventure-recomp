@@ -23,12 +23,12 @@ uint32_t auStack_30 = rtguest::allocFrame(4);
     fVar3 = SQRT(fVar3);
     if (fVar3 < (*(float*)rtguest::G(0x332fb4))) {
       vecNormalizeVu0(auStack_30,auStack_30);
-      vu0ScaleVector(fVar3 * (*(uint32_t*)rtguest::G(0x332fb8)) + (*(uint32_t*)rtguest::G(0x332fbc)),auStack_30,auStack_30);
+      vu0ScaleVector(fVar3 * (*(float*)rtguest::G(0x332fb8)) + (*(float*)rtguest::G(0x332fbc)),auStack_30,auStack_30);
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x84))) = 0x318;
     }
     else {
       fVar3 = fVar3 - (*(float*)rtguest::G(0x332fb4));
-      vu0ScaleVector((*(uint32_t*)rtguest::G(0x332fc0)),auStack_30,auStack_30);
+      vu0ScaleVector((*(float*)rtguest::G(0x332fc0)),auStack_30,auStack_30);
       (*(float*)rtguest::G((uint32_t)fStack_2c)) = (*(uint32_t*)rtguest::G(0x332fcc));
       fVar1 = (*(uint32_t*)rtguest::G(0x332fc8));
       if ((*(uint32_t*)rtguest::G(0x332fc4)) <= fVar3) {

@@ -82,7 +82,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(48);
     gifAdPair(0x1786210,0x5fd409fe40a,8);
     gifAdPair(0x1786120,0x4fd009fe40a,8);
     PlayUiSound(0x32);
-    if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) < '\n') && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) == '\0')) {
+    if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) < '\n') && ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) == '\0')) {
       (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x00335720)), 0xff, 8));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = 0;
       gs_music_play_bgm(0xa0b0101);
@@ -130,7 +130,7 @@ LAB_0022b238:
   if ((cVar8 == '\0') && ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))) == 0x41)) {
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x1c))) & 2) == 0) {
       gs_tasks_spawn(param_1,0x23b168,
-                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) * 4 +
+                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) * 4 +
                       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 4)))))));
     }
     else {
@@ -187,7 +187,7 @@ LAB_0022b238:
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) = 1;
         (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) = 1;
         gs_tasks_spawn(param_1,0x23b168,
-                       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) * 4 +
+                       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) * 4 +
                         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 4)))))));
         cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
         goto LAB_0022b864;

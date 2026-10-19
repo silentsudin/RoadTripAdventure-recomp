@@ -13,7 +13,7 @@ uint32_t pcVar3;
   
   iVar5 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) == 0) {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) = (char)((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) >> 8);
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) = (char)((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) >> 8);
     gs_tasks_spawn(param_1,0x2282c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) & 0xff);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 1;
   }
@@ -30,7 +30,7 @@ LAB_0022927c:
       return 0;
     }
     if (iVar4 < 2) {
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26)));
       if (iVar4 == 0) {
         gs_tasks_spawn(param_1,0x227380,bVar1 + 0xc);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 2;
@@ -42,7 +42,7 @@ LAB_0022927c:
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x27))) = 1;
         goto LAB_0022927c;
       }
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26)));
     }
     iVar4 = bVar1 + 0x10;
     break;
@@ -64,17 +64,17 @@ LAB_002294cc:
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 7;
       return 0;
     }
-    iVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0xe;
+    iVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0xe;
     break;
   case 5:
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4)));
     if (iVar4 == 0) {
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x27))) == '\0') goto switchD_0022923c_caseD_9;
-      iVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0x18;
+      iVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0x18;
     }
     else {
       if (iVar4 < 1) {
-        bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26)));
+        bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26)));
         if (iVar4 == -3) {
           iVar4 = bVar1 + 0x1c;
           goto LAB_002294f4;
@@ -83,15 +83,15 @@ LAB_002294cc:
       else {
         if (iVar4 == 1) {
           if ((*(uint32_t*)rtguest::G(0x1782b98)) == (*(int64_t*)rtguest::G(0x1785fe0))) {
-            gs_tasks_spawn(param_1,0x2280d8,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) ^ 1);
+            gs_tasks_spawn(param_1,0x2280d8,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) ^ 1);
           }
           else {
-            gs_tasks_spawn(param_1,0x2280d8,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) ^ 1 | 0x200);
+            gs_tasks_spawn(param_1,0x2280d8,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) ^ 1 | 0x200);
           }
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 6;
           return 0;
         }
-        bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26)));
+        bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26)));
       }
       iVar4 = bVar1 + 0x12;
     }
@@ -108,11 +108,11 @@ LAB_002294cc:
   case 7:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) == 1) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x24))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c)));
-      gs_tasks_spawn(param_1,0x227380,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0x1e);
+      gs_tasks_spawn(param_1,0x227380,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0x1e);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 10;
       return 0;
     }
-    iVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0x14;
+    iVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0x14;
     break;
   case 8:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) == 0) goto LAB_002294c4;
@@ -125,7 +125,7 @@ LAB_002294a0:
     return 0;
   case 9:
 switchD_0022923c_caseD_9:
-    iVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0x16;
+    iVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) + 0x16;
 LAB_002294f4:
     gs_tasks_spawn(param_1,0x227380,iVar4);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 8;

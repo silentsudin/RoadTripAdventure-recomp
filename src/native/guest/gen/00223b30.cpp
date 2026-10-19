@@ -22,9 +22,9 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
   (*(uint32_t*)rtguest::G(0x29d37c)) = param_2;
   vifUploadColours(0x29d370,0x29d360);
   vu0UnitMatrix(auStack_a0);
-  sceVu0ScaleVectorXYZ(param_1,auStack_a0,auStack_e0);
-  sceVu0ScaleVectorXYZ(param_1,auStack_90,auStack_d0);
-  sceVu0ScaleVectorXYZ(param_1,auStack_80,auStack_c0);
+  sceVu0ScaleVectorXYZ(rtguest::fbits(param_1),auStack_a0,auStack_e0);
+  sceVu0ScaleVectorXYZ(rtguest::fbits(param_1),auStack_90,auStack_d0);
+  sceVu0ScaleVectorXYZ(rtguest::fbits(param_1),auStack_80,auStack_c0);
   vu0CopyVectorXYZ(auStack_70,param_5);
   vifObjectMatrix(auStack_a0);
   if (param_6 == 2) {

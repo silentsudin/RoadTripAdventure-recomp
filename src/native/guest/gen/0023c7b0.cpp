@@ -8,10 +8,10 @@ uint32_t ReleaseStampFlag(uint32_t param_1, ...) {
   char cVar1;
   uint uVar2;
   
-  if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x21))) < 0x20) {
+  if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x21))) < 0x20) {
     (*(uint32_t*)rtguest::G((uint32_t)0x1780338 + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x23)))) * 4)) =
-         (*(uint32_t*)rtguest::G((uint32_t)0x1780338 + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x23)))) * 4)) & ~(1 << ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x21))) & 0x1f));
-    if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x21))) == '\0') {
+         (*(uint32_t*)rtguest::G((uint32_t)0x1780338 + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x23)))) * 4)) & ~(1 << ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x21))) & 0x1f));
+    if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x21))) == '\0') {
       uVar2 = (uint32_t)(*(uint16_t*)rtguest::G(0x1780a3a)) & ~(1 << ((int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x23))) & 0x1fU));
       (*(uint16_t*)rtguest::G(0x1780a3a)) = (uint32_t)uVar2;
       if ((uVar2 & 0x25e) == 0) {

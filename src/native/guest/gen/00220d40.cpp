@@ -55,7 +55,7 @@ uint32_t drawSceneRace(uint32_t param_1, uint32_t param_2, ...) {
       uVar5 = (int)uVar6 >> 3;
     } while ((int)uVar6 < 0x40);
     uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28)));
-    if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x22))) - 0x19 < 2) {
+    if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x22))) - 0x19u < 2) {
       drawRaceProps(uVar4,param_2);
       uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28)));
     }

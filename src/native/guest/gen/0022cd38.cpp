@@ -49,7 +49,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar4 + 0x5f))) = 2;
     CenterRectangle(uVar4,5);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar4 + 0xe))) = 1;
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) = (*(uint32_t*)rtguest::G(0x177fdb2));
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) = (*(uint32_t*)rtguest::G(0x177fdb2));
     ReleaseStampFlag(param_2);
   }
   cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25)));
@@ -81,10 +81,10 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) == '\x02') {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) != -1) {
         cVar3 = CallFindFlaggedSlot(0xf,0);
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) = cVar3;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) = cVar3;
         if ((*(uint32_t*)rtguest::G(0x177fdb2)) != cVar3) {
           (*(uint32_t*)rtguest::G(0x177fdb2)) = cVar3;
-          gs_tasks_spawn(param_1,0x20dc50,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) | 0x30000);
+          gs_tasks_spawn(param_1,0x20dc50,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) | 0x30000);
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 5;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 0x400000;
         }

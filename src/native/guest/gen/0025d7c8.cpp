@@ -106,7 +106,7 @@ uint32_t puVar8;
       fVar9 = rtguest::fbits(cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c))));
       (*(float*)rtguest::G((uint32_t)pfVar2 + (uint32_t)(4) * sizeof(float))) = -fVar9;
       vecNormalizeVu0(pfVar7,pfVar7);
-      vu0ScaleVector((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4bd0 + ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) & 3) * 4))),pfVar7
+      vu0ScaleVector(rtguest::fbits((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4bd0 + ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) & 3) * 4)))),pfVar7
                      ,pfVar7);
       vu0AddVector(pfVar2,pfVar2,pfVar7);
       cVar5 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 8)));

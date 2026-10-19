@@ -33,7 +33,7 @@ uint32_t pfVar5;
   fVar7 = (fVar7 / fVar3) * fVar9;
   vu0SubVector(afStack_60,iVar2 + 0x40,afStack_60);
   vecNormalizeVu0(afStack_60,afStack_60);
-  vu0ScaleVector((*(uint32_t*)rtguest::G(0x33304c)),afStack_60,afStack_60);
+  vu0ScaleVector((*(float*)rtguest::G(0x33304c)),afStack_60,afStack_60);
   vu0AddVector(afStack_60,afStack_60,iVar2 + 0x40);
   pfVar5 = afStack_60 + 4;
   vu0SubVector(pfVar5,afStack_60,(uint32_t)(iVar6 + 0x90));

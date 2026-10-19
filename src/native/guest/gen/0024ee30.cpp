@@ -59,7 +59,7 @@ LAB_0024efbc:
         iVar2 = iVar2 + -1;
         pfVar1 = pfVar1 + 0x4;  // T* element step
       } while (-1 < iVar2);
-      sceVu0ScaleVectorXYZ((*(uint32_t*)rtguest::G(0x332f8c)),afStack_80,afStack_80);
+      sceVu0ScaleVectorXYZ((*(float*)rtguest::G(0x332f8c)),afStack_80,afStack_80);
       vu0RotMatrix(fStack_d0,fStack_d0,afStack_80);
       (*(float*)rtguest::G((uint32_t)fStack_cc)) = (*(float*)rtguest::G((uint32_t)fStack_cc)) * 0.5;
       (*(float*)rtguest::G((uint32_t)fStack_98)) = ((*(uint32_t*)rtguest::G(0x332f90)) - (float)((*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(8) * sizeof(int32_t))) + param_6)) * 0.0625;

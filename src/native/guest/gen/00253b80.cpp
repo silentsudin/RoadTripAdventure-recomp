@@ -42,15 +42,16 @@ uint32_t puVar5;
       vecNormalizeVu0(auStack_b0,auStack_b0);
       pfVar3 = (uint32_t)(param_1 + 0x30);
       vu0MulVector(afStack_80,pfVar3,pfVar3);
-      vu0ScaleVector(SQRT((*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_78))) * (*(uint32_t*)rtguest::G(0x333058)),afStack_80,auStack_b0);
+      vu0ScaleVector(SQRT((*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_78))) * (*(float*)rtguest::G(0x333058)),afStack_80,auStack_b0);
       vu0Itof0Vector(auStack_90,puVar5 + 0x1e);
-      vu0ScaleVector((*(uint32_t*)rtguest::G(0x33305c)),auStack_90,auStack_90);
+      vu0ScaleVector((*(float*)rtguest::G(0x33305c)),auStack_90,auStack_90);
       vu0AddVector(afStack_80,afStack_80,auStack_90);
       (*(float*)rtguest::G((uint32_t)pfVar3)) = (*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4));
       (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x38))) = (*(float*)rtguest::G((uint32_t)fStack_78));
       if (SQRT((*(float*)rtguest::G((uint32_t)fStack_a0)) + (*(float*)rtguest::G((uint32_t)fStack_98))) < 2.0) {
-        if (SQRT((*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) * (*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_78)) * (*(float*)rtguest::G((uint32_t)fStack_78))) < (*(uint32_t*)rtguest::G(0x333060))) {
-          vu0ScaleVector(afStack_80,auStack_b0);
+        if (SQRT((*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) * (*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_78)) * (*(float*)rtguest::G((uint32_t)fStack_78))) < (*(float*)rtguest::G(0x333060))) {
+          // ELF 0x253de8: f12 = DAT_00333060 (loaded 0x253dd0), $4 = afStack_80 slot (out), $5 = $sp = auStack_b0 (in)
+          vu0ScaleVector((*(float*)rtguest::G((uint32_t)0x00333060)), afStack_80, auStack_b0);
           (*(float*)rtguest::G((uint32_t)pfVar3)) = (*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4));
           (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x38))) = (*(float*)rtguest::G((uint32_t)fStack_78));
           goto LAB_00253e2c;

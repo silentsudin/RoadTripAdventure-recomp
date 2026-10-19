@@ -33,17 +33,17 @@ uint32_t puVar11;
   }
   iVar7 = (*(uint32_t*)rtguest::G(0x333284));
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x28)));
-  if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x24))) == '\0') {
+  if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x24))) == '\0') {
 LAB_00229eac:
-    bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
+    bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
   }
   else {
-    bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
+    bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
     if (bVar3 == 1) {
       iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 4)));
 LAB_00229d64:
       if (iVar8 < 0) {
-        cVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27)));
+        cVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27)));
       }
       else {
         if (iVar8 < 2) goto LAB_00229ee4;
@@ -52,7 +52,7 @@ LAB_00229d64:
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x14))) =
                (*(uint32_t*)rtguest::G((uint32_t)(0x29f0e8u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 0xd) * 4)));
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x18))) = uVar2;
-          if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) == '\x01') {
+          if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) == '\x01') {
             puVar9 = (*(uint32_t*)rtguest::G((uint32_t)(0x29f0f8u + (uint32_t)(iVar7 * 0xd) * 4)));
           }
           else {
@@ -64,7 +64,7 @@ LAB_00229d64:
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) = 0;
           goto LAB_00229eac;
         }
-        cVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27)));
+        cVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27)));
       }
       if (cVar6 == '\0') {
         puVar9 = (*(uint32_t*)rtguest::G((uint32_t)(0x29f110u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 0xd) * 4)));
@@ -82,7 +82,7 @@ LAB_00229d64:
       gs_tasks_spawn(param_1,0x22a320,0);
       cVar6 = '\x02';
 LAB_00229ea8:
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) = cVar6;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) = cVar6;
       goto LAB_00229eac;
     }
     if (bVar3 < 2) {
@@ -97,16 +97,16 @@ LAB_00229cf4:
           if (iVar7 == 2) {
             (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) = 1;
             gs_tasks_spawn(param_1,0x22a320,1);
-            cVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) + '\x01';
+            cVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) + '\x01';
             goto LAB_00229ea8;
           }
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) = 0;
         }
         gs_tasks_spawn(param_1,0x22a320,1);
-        cVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) + '\x01';
+        cVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) + '\x01';
         goto LAB_00229ea8;
       }
-      bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
+      bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
     }
     else {
       if (bVar3 == 2) {
@@ -117,7 +117,7 @@ LAB_00229cf4:
         iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 4)));
         goto LAB_00229d64;
       }
-      bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
+      bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25)));
     }
   }
   if (bVar3 < 2) {
@@ -128,7 +128,7 @@ LAB_00229cf4:
     return 0;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd))) != '\0') {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) & 1;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) & 1;
     return 0;
   }
 LAB_00229ee4:

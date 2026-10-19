@@ -155,7 +155,7 @@ uint32_t puVar20;
     } while (-1 < iVar16);
     vu0Itof4Vector(auStack_1c0,aiStack_1a0);
     iVar17 = iVar18 + 0x20;
-    vu0ScaleVector((*(uint32_t*)rtguest::G(0x332b44)),auStack_1c0,auStack_1c0);
+    vu0ScaleVector((*(float*)rtguest::G(0x332b44)),auStack_1c0,auStack_1c0);
     vifUploadAt4(0x177e6d0);
     uVar15 = 0;
     ResetShowroomLighting();
@@ -210,7 +210,7 @@ uint32_t puVar20;
     vu0UnitMatrix(auStack_f0);
     (*(int32_t*)rtguest::G((uint32_t)aiStack_70 + (uint32_t)(0) * 4)) = (int)((((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 8))) & 0x3f) - 0x20) * 0x4000000) >> 0x10;
     vu0Itof4Vector(auStack_80,aiStack_70);
-    vu0ScaleVector((*(uint32_t*)rtguest::G(0x332b48)),auStack_80,auStack_80);
+    vu0ScaleVector((*(float*)rtguest::G(0x332b48)),auStack_80,auStack_80);
     vu0RotMatrixZ((*(uint32_t*)rtguest::G((uint32_t)auStack_80 + (uint32_t)(0) * 4)),auStack_f0,auStack_f0);
     puVar7 = auStack_190;
     do {
