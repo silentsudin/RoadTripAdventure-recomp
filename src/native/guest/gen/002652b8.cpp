@@ -5,22 +5,24 @@
 namespace guest {
 
 uint32_t drawStampCard(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_74 = rtguest::allocFrame(4);
-    uint32_t uStack_78 = rtguest::allocFrame(4);
-    uint32_t uStack_7c = rtguest::allocFrame(4);
-    uint32_t uStack_80 = rtguest::allocFrame(4);
-    uint32_t uStack_84 = rtguest::allocFrame(4);
-    uint32_t uStack_88 = rtguest::allocFrame(4);
-    uint32_t uStack_8c = rtguest::allocFrame(4);
-    uint32_t uStack_90 = rtguest::allocFrame(4);
-    uint32_t uStack_d4 = rtguest::allocFrame(4);
-    uint32_t uStack_d8 = rtguest::allocFrame(4);
-    uint32_t uStack_dc = rtguest::allocFrame(4);
-    uint32_t uStack_e0 = rtguest::allocFrame(4);
-    uint32_t uStack_e4 = rtguest::allocFrame(4);
-    uint32_t uStack_e8 = rtguest::allocFrame(4);
-    uint32_t uStack_ec = rtguest::allocFrame(4);
     uint32_t uStack_f0 = rtguest::allocFrame(4);
+    uint32_t uStack_ec = rtguest::allocFrame(4);
+    uint32_t uStack_e8 = rtguest::allocFrame(4);
+    uint32_t uStack_e4 = rtguest::allocFrame(4);
+    uint32_t uStack_e0 = rtguest::allocFrame(4);
+    uint32_t uStack_dc = rtguest::allocFrame(4);
+    uint32_t uStack_d8 = rtguest::allocFrame(4);
+    uint32_t uStack_d4 = rtguest::allocFrame(4);
+uint32_t acStack_d0 = rtguest::allocFrame(64);
+    uint32_t uStack_90 = rtguest::allocFrame(4);
+    uint32_t uStack_8c = rtguest::allocFrame(4);
+    uint32_t uStack_88 = rtguest::allocFrame(4);
+    uint32_t uStack_84 = rtguest::allocFrame(4);
+    uint32_t uStack_80 = rtguest::allocFrame(4);
+    uint32_t uStack_7c = rtguest::allocFrame(4);
+    uint32_t uStack_78 = rtguest::allocFrame(4);
+    uint32_t uStack_74 = rtguest::allocFrame(4);
+uint32_t auStack_70 = rtguest::allocFrame(32);
   size_t sVar1;
   long lVar2;
   undefined8 uVar3;
@@ -31,8 +33,6 @@ uint32_t drawStampCard(uint32_t param_1, uint32_t param_2, ...) {
   int iVar8;
   int iVar9;
   int iVar10;
-uint32_t acStack_d0 = rtguest::allocFrame(64);
-uint32_t auStack_70 = rtguest::allocFrame(32);
   
   uVar7 = param_2 & 1;
   iVar9 = (int)param_2;

@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sioPutChar(uint32_t param_1, ...) {
+uint64_t sioPutChar(uint64_t param_1, ...) {
   do {
   } while ((REG_SIO_ISR & 0x8000) != 0);
   REG_SIO_TXFIFO = (char)param_1;

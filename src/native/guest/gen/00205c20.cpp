@@ -18,13 +18,13 @@ uint32_t puVar5;
     iVar3 = 0;
     puVar2 = 0x0177a0f8;
     puVar1 = (*(uint32_t*)rtguest::G(0x177a0f8));
-    while (puVar2 = puVar2 + 0xc, puVar1 != puVar5) {
+    while (puVar2 = puVar2 + (uint32_t)(0xc) * sizeof(undefined4), puVar1 != puVar5) {
       iVar3 = iVar3 + 1;
       if (0x2f < iVar3) goto LAB_00205cac;
       puVar1 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar2));
     }
     iVar4 = iVar4 + -1;
-    puVar5 = puVar5 + 0x30;
+    puVar5 = puVar5 + (uint32_t)(0x30) * sizeof(undefined2);
   } while (iVar4 != -1);
   fatal(0x2ea058);
 LAB_00205cac:
@@ -34,12 +34,12 @@ LAB_00205cac:
   (*(uint16_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(2) * sizeof(uint16_t))) = 0;
   (*(uint16_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(3) * sizeof(uint16_t))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0xb))) = 0;
-  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 8))) = 0;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + (uint32_t)(8) * sizeof(undefined2)))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x11))) = 0;
-  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 7))) = 0;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + (uint32_t)(7) * sizeof(undefined2)))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x13))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0xf))) = 0;
-  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 6))) = 0;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + (uint32_t)(6) * sizeof(undefined2)))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x5f))) = 0;
   return puVar5;
 }

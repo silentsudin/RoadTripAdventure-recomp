@@ -5,10 +5,10 @@
 namespace guest {
 
 uint32_t SelectCarAttachmentPoint(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-    uint32_t uStack_14 = rtguest::allocFrame(4);
-    uint32_t uStack_18 = rtguest::allocFrame(4);
-    uint32_t uStack_1c = rtguest::allocFrame(4);
     uint32_t uStack_20 = rtguest::allocFrame(4);
+    uint32_t uStack_1c = rtguest::allocFrame(4);
+    uint32_t uStack_18 = rtguest::allocFrame(4);
+    uint32_t uStack_14 = rtguest::allocFrame(4);
   
   (*(uint32_t*)rtguest::G((uint32_t)uStack_14)) = 0x3f800000;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_20)) = 0;

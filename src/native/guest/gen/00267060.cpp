@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t raceSummaryDrawGolfRow(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t acStack_8c = rtguest::allocFrame(44);
     uint32_t uStack_60 = rtguest::allocFrame(2);
   bool bVar1;
   int iVar2;
@@ -12,7 +13,6 @@ uint32_t raceSummaryDrawGolfRow(uint32_t param_1, uint32_t param_2, ...) {
   uint uVar4;
   uint uVar5;
 uint32_t puStack_90;
-uint32_t acStack_8c = rtguest::allocFrame(44);
 uint32_t puStack_5c;
   
   iVar2 = param_2 + 0x120;

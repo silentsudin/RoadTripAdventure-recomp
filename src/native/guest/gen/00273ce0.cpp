@@ -1,8 +1,6 @@
 // guest:0x00273ce0 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
-#define scePadGetReqState scePadGetReqState_decl
 #include "guest_decls.inc"
-#undef scePadGetReqState
 
 namespace guest {
 

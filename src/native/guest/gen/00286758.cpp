@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t fpFormatFloatSci(uint32_t param_1, ...) {
+uint32_t fpFormatFloatSci(uint64_t param_1, ...) {
   long lVar1;
   undefined8 uVar2;
   int iVar3;
@@ -13,7 +13,7 @@ uint32_t fpFormatFloatSci(uint32_t param_1, ...) {
   lVar1 = dpcmp(param_1,0);
   if (lVar1 < 0) {
     param_1 = dpsub(0,param_1);
-    rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), 0x2d);
+    rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x2d);  // PTR_ global holds the sink fn address
   }
   lVar1 = dpcmp(param_1,0x3fb999999999999a);
   if (lVar1 < 0) {

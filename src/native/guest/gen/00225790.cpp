@@ -19,7 +19,7 @@ uint32_t pcVar2;
   (*(uint32_t*)rtguest::G(0x177f730)) = 0x43000000;
   (*(uint32_t*)rtguest::G(0x177f734)) = 0x437f0000;
   (*(uint32_t*)rtguest::G(0x177f738)) = 0x3f000000;
-  (*(float*)rtguest::G(0x177f73c)) = 0x44480000;
+  (*(uint32_t*)rtguest::G(0x177f73c)) = 0x44480000;
   if (param_1 == 1) {
     puVar1 = 0x0029e950;
   }

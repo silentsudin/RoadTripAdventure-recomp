@@ -4,20 +4,26 @@
 
 namespace guest {
 
-uint32_t ApplyCollisionImpulse(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
-    uint32_t iStack_38 = rtguest::allocFrame(4);
-    uint32_t iStack_3c = rtguest::allocFrame(4);
-    uint32_t iStack_40 = rtguest::allocFrame(4);
-    uint32_t iStack_48 = rtguest::allocFrame(4);
-    uint32_t iStack_4c = rtguest::allocFrame(4);
-    uint32_t iStack_50 = rtguest::allocFrame(4);
-    uint32_t iStack_58 = rtguest::allocFrame(4);
-    uint32_t iStack_5c = rtguest::allocFrame(4);
-    uint32_t iStack_60 = rtguest::allocFrame(4);
-    uint32_t iStack_78 = rtguest::allocFrame(4);
-    uint32_t iStack_88 = rtguest::allocFrame(4);
-    uint32_t iStack_8c = rtguest::allocFrame(4);
+uint32_t ApplyCollisionImpulse(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint32_t param_4, uint32_t param_5, ...) {
     uint32_t iStack_90 = rtguest::allocFrame(4);
+    uint32_t iStack_8c = rtguest::allocFrame(4);
+    uint32_t iStack_88 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t aiStack_80 = rtguest::allocFrame(8);
+    uint32_t iStack_78 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t aiStack_70 = rtguest::allocFrame(16);
+    uint32_t iStack_60 = rtguest::allocFrame(4);
+    uint32_t iStack_5c = rtguest::allocFrame(4);
+    uint32_t iStack_58 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t iStack_50 = rtguest::allocFrame(4);
+    uint32_t iStack_4c = rtguest::allocFrame(4);
+    uint32_t iStack_48 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t iStack_40 = rtguest::allocFrame(4);
+    uint32_t iStack_3c = rtguest::allocFrame(4);
+    uint32_t iStack_38 = rtguest::allocFrame(4);
   char cVar1;
   ushort uVar2;
   uint uVar3;
@@ -25,8 +31,6 @@ uint32_t ApplyCollisionImpulse(uint32_t param_1, uint32_t param_2, uint32_t para
   undefined4 uVar5;
   int iVar6;
   int iVar7;
-uint32_t aiStack_80 = rtguest::allocFrame(8);
-uint32_t aiStack_70 = rtguest::allocFrame(16);
   
   iVar6 = (int)param_2;
   iVar7 = (int)param_1;

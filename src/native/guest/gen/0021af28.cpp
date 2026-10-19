@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UpdateWheelSuspension(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
+uint32_t aiStack_70 = rtguest::allocFrame(16);
     uint32_t iStack_60 = rtguest::allocFrame(4);
   int iVar1;
   int iVar2;
@@ -19,7 +20,6 @@ uint32_t piVar9;
   uint uVar11;
   int iVar12;
   float fVar13;
-uint32_t aiStack_70 = rtguest::allocFrame(16);
   
   iVar2 = 0xa3d7;
   uVar11 = 0;

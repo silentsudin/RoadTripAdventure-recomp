@@ -5,28 +5,28 @@
 namespace guest {
 
 uint32_t drawStampIcon(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-    uint32_t fStack_5c = rtguest::allocFrame(4);
-    uint32_t fStack_60 = rtguest::allocFrame(4);
-    uint32_t fStack_6c = rtguest::allocFrame(4);
-    uint32_t fStack_70 = rtguest::allocFrame(4);
-    uint32_t fStack_7c = rtguest::allocFrame(4);
-    uint32_t fStack_80 = rtguest::allocFrame(4);
-    uint32_t fStack_8c = rtguest::allocFrame(4);
+uint32_t aiStack_b0 = rtguest::allocFrame(32);
     uint32_t fStack_90 = rtguest::allocFrame(4);
-    uint32_t uStack_38 = rtguest::allocFrame(8);
-    uint32_t uStack_40 = rtguest::allocFrame(8);
-    uint32_t uStack_54 = rtguest::allocFrame(4);
-    uint32_t uStack_58 = rtguest::allocFrame(4);
-    uint32_t uStack_64 = rtguest::allocFrame(4);
-    uint32_t uStack_68 = rtguest::allocFrame(4);
-    uint32_t uStack_74 = rtguest::allocFrame(4);
-    uint32_t uStack_78 = rtguest::allocFrame(4);
-    uint32_t uStack_84 = rtguest::allocFrame(4);
+    uint32_t fStack_8c = rtguest::allocFrame(4);
     uint32_t uStack_88 = rtguest::allocFrame(4);
+    uint32_t uStack_84 = rtguest::allocFrame(4);
+    uint32_t fStack_80 = rtguest::allocFrame(4);
+    uint32_t fStack_7c = rtguest::allocFrame(4);
+    uint32_t uStack_78 = rtguest::allocFrame(4);
+    uint32_t uStack_74 = rtguest::allocFrame(4);
+    uint32_t fStack_70 = rtguest::allocFrame(4);
+    uint32_t fStack_6c = rtguest::allocFrame(4);
+    uint32_t uStack_68 = rtguest::allocFrame(4);
+    uint32_t uStack_64 = rtguest::allocFrame(4);
+    uint32_t fStack_60 = rtguest::allocFrame(4);
+    uint32_t fStack_5c = rtguest::allocFrame(4);
+    uint32_t uStack_58 = rtguest::allocFrame(4);
+    uint32_t uStack_54 = rtguest::allocFrame(4);
+uint32_t auStack_50 = rtguest::allocFrame(16);
+    uint32_t uStack_40 = rtguest::allocFrame(8);
+    uint32_t uStack_38 = rtguest::allocFrame(8);
   undefined4 uVar1;
   float fVar2;
-uint32_t aiStack_b0 = rtguest::allocFrame(32);
-uint32_t auStack_50 = rtguest::allocFrame(16);
   
   uVar1 = 0x3f800000;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = (long)(param_2 * 9 + 0x1fe2) | 0x19408000U | (long)(param_2 * 9 + 0x1fea) << 0x25;

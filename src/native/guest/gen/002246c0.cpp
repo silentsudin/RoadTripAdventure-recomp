@@ -5,20 +5,20 @@
 namespace guest {
 
 uint32_t SpawnCarSparks(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
-    uint32_t fStack_54 = rtguest::allocFrame(4);
+uint32_t afStack_b0 = rtguest::allocFrame(12);
+    uint32_t uStack_a4 = rtguest::allocFrame(4);
+    uint32_t uStack_a0 = rtguest::allocFrame(4);
+    uint32_t uStack_9c = rtguest::allocFrame(4);
     uint32_t fStack_98 = rtguest::allocFrame(4);
     uint32_t uStack_94 = rtguest::allocFrame(4);
-    uint32_t uStack_9c = rtguest::allocFrame(4);
-    uint32_t uStack_a0 = rtguest::allocFrame(4);
-    uint32_t uStack_a4 = rtguest::allocFrame(4);
+uint32_t auStack_90 = rtguest::allocFrame(48);
+uint32_t auStack_60 = rtguest::allocFrame(12);
+    uint32_t fStack_54 = rtguest::allocFrame(4);
 uint32_t pfVar1;
   int iVar2;
   int iVar3;
   float fVar4;
   float fVar5;
-uint32_t afStack_b0 = rtguest::allocFrame(12);
-uint32_t auStack_90 = rtguest::allocFrame(48);
-uint32_t auStack_60 = rtguest::allocFrame(12);
   
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)param_4));
   if (0x10 < iVar2) {

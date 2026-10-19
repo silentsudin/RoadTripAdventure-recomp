@@ -1,8 +1,6 @@
 // guest:0x00273e88 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
-#define scePadInfoComb scePadInfoComb_decl
 #include "guest_decls.inc"
-#undef scePadInfoComb
 
 namespace guest {
 

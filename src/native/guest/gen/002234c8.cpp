@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t drawModelParts(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t drawModelParts(uint32_t param_1, uint64_t param_2, ...) {
   int iVar1;
   int iVar2;
   int iVar3;
@@ -16,14 +16,14 @@ uint32_t drawModelParts(uint32_t param_1, uint32_t param_2, ...) {
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int32_t)));
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int32_t)));
   if (((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int32_t))) != 0) && ((param_2 & 1) != 0)) {
-    vifCallModel(param_1 + (iVar2 >> 4) * 4);
+    vifCallModel(param_1 + (uint32_t)((iVar2 >> 4) * 4) * sizeof(int32_t));
   }
   if (iVar1 != 0) {
     if (iVar3 < 0) {
       iVar3 = iVar3 + 0xf;
     }
     if ((param_2 & 2) != 0) {
-      vifCallModel(param_1 + (iVar3 >> 4) * 4);
+      vifCallModel(param_1 + (uint32_t)((iVar3 >> 4) * 4) * sizeof(int32_t));
       return 0;
     }
   }

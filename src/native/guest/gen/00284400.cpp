@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t _d2b(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+// pseudocode: undefined8 _d2b(undefined8, long, int*, int*)
+uint64_t _d2b(uint64_t param_1, uint64_t param_2, uint32_t param_3, uint32_t param_4, ...) {
     uint32_t uStack_50 = rtguest::allocFrame(4);
   uint uVar1;
   int iVar2;

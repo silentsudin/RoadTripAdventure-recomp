@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceCdDiskReady(uint32_t param_1, ...) {
+uint32_t sceCdDiskReady(uint64_t param_1, ...) {
   int iVar1;
   undefined4 uVar2;
   long lVar3;
@@ -19,7 +19,7 @@ uint32_t sceCdDiskReady(uint32_t param_1, ...) {
     lVar3 = sceCdSyncS(1);
     if (lVar3 == 0) {
       sceSifInitRpc(0);
-      if ((*(uint32_t*)rtguest::G(0x2e6f44)) < 0) {
+      if ((*(int32_t*)rtguest::G(0x2e6f44)) < 0) {
         while( true ) {
           while (lVar3 = sceSifBindRpc(0x17737d0,0xffffffff8000059a,0), lVar3 < 0) {
             if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {

@@ -5,11 +5,15 @@
 namespace guest {
 
 uint32_t shopPartDialogSingle(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t acStack_190 = rtguest::allocFrame(80);
+uint32_t acStack_140 = rtguest::allocFrame(65);
+uint32_t acStack_ff = rtguest::allocFrame(65);
+uint32_t auStack_be = rtguest::allocFrame(78);
     uint32_t iStack_70 = rtguest::allocFrame(4);
-    uint32_t uStack_60 = rtguest::allocFrame(4);
-    uint32_t uStack_64 = rtguest::allocFrame(4);
-    uint32_t uStack_68 = rtguest::allocFrame(4);
     uint32_t uStack_6c = rtguest::allocFrame(4);
+    uint32_t uStack_68 = rtguest::allocFrame(4);
+    uint32_t uStack_64 = rtguest::allocFrame(4);
+    uint32_t uStack_60 = rtguest::allocFrame(4);
   char cVar1;
   int iVar2;
   int iVar3;
@@ -25,10 +29,6 @@ uint32_t __src;
 uint32_t psVar12;
   uint uVar13;
   uint uVar14;
-uint32_t acStack_190 = rtguest::allocFrame(80);
-uint32_t acStack_140 = rtguest::allocFrame(65);
-uint32_t acStack_ff = rtguest::allocFrame(65);
-uint32_t auStack_be = rtguest::allocFrame(78);
   
   uVar13 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
   uVar14 = (int)uVar13 >> 8 & 0xff;

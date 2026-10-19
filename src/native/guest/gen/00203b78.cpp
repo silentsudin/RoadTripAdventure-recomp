@@ -1,10 +1,11 @@
 // guest:0x00203b78 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
+// param_4 is ulong in pseudocode: param_4 << 0x38 needs the full 64-bit value.
 #include "guest_decls.inc"
 
 namespace guest {
 
-uint32_t uiDrawTime(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+uint32_t uiDrawTime(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
 uint32_t puVar1;
   int iVar2;
 uint32_t auStack_30 = rtguest::allocFrame(16);

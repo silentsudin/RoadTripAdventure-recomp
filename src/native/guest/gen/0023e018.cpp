@@ -15,6 +15,8 @@ uint32_t psVar6;
   uint uVar9;
 uint32_t pcVar10;
   long lVar5;
+  int16_t lower;
+  int16_t upper;
   
   uVar3 = (*(uint16_t*)rtguest::G((uint32_t)param_1));
   uVar9 = (uint32_t)uVar3;
@@ -34,8 +36,9 @@ uint32_t pcVar10;
       (*(uint16_t*)rtguest::G((uint32_t)param_1)) = uVar3;
       goto LAB_0023e11c;
     }
-    if ((((long)iVar4 <= (long)(short)(*(uint32_t*)rtguest::G((uint32_t)0x2a36b0 + (uint32_t)(iVar7) * 4))) &&
-        ((long)(short)(*(uint32_t*)rtguest::G((uint32_t)0x2a36b2 + (uint32_t)(iVar7) * 4)) < (long)iVar4)) && ((*(int8_t*)rtguest::G(0x335708)) != 0)) break;
+    lower = (*(int16_t*)rtguest::G((uint32_t)0x2a36b0 + iVar7 * sizeof(int16_t)));
+    upper = (*(int16_t*)rtguest::G((uint32_t)0x2a36b2 + iVar7 * sizeof(int16_t)));
+    if (((long)iVar4 <= lower && upper < (long)iVar4) && ((*(int8_t*)rtguest::G(0x335708)) != 0)) break;
     pcVar10 = pcVar10 + 1;
     psVar6 = psVar6 + 1;
     iVar7 = iVar8;

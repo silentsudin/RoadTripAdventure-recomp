@@ -5,14 +5,14 @@
 namespace guest {
 
 uint32_t SoundRpcCmd25(uint32_t param_1, ...) {
-    uint32_t uStack_28 = rtguest::allocFrame(8);
-    uint32_t uStack_30 = rtguest::allocFrame(8);
-    uint32_t uStack_38 = rtguest::allocFrame(8);
-    uint32_t uStack_40 = rtguest::allocFrame(8);
-    uint32_t uStack_48 = rtguest::allocFrame(8);
-    uint32_t uStack_50 = rtguest::allocFrame(8);
-    uint32_t uStack_58 = rtguest::allocFrame(8);
     uint32_t uStack_5c = rtguest::allocFrame(4);
+    uint32_t uStack_58 = rtguest::allocFrame(8);
+    uint32_t uStack_50 = rtguest::allocFrame(8);
+    uint32_t uStack_48 = rtguest::allocFrame(8);
+    uint32_t uStack_40 = rtguest::allocFrame(8);
+    uint32_t uStack_38 = rtguest::allocFrame(8);
+    uint32_t uStack_30 = rtguest::allocFrame(8);
+    uint32_t uStack_28 = rtguest::allocFrame(8);
   
   (*(uint64_t*)rtguest::G(0x175e888)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_58));
   (*(uint64_t*)rtguest::G(0x175e880)) = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),param_1);

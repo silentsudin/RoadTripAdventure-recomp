@@ -30,9 +30,9 @@ uint32_t puVar7;
         fatal(0x2ea490);
         uVar1 = (*(uint16_t*)rtguest::G((uint32_t)puVar6));
       }
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar6 + 0x10))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar6 + 0x10)));
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar6 + 0x10 * sizeof(uint16_t)))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar6 + 0x10 * sizeof(uint16_t))));
       uVar4 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + (uint32_t)uVar1 * 0x10 + 0x13)));
-      puVar6 = puVar6 + (uint32_t)uVar1 * 8 + 8;
+      puVar6 = puVar6 + (uint32_t)uVar1 * 8 * sizeof(uint16_t) + 8 * sizeof(uint16_t);
     } while (uVar4 != 0x70);
   }
   uVar5 = sceDmaGetChan(1);

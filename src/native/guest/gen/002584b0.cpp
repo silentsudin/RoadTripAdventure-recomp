@@ -4,13 +4,13 @@
 
 namespace guest {
 
-uint32_t GsSetupFrameContext(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+uint32_t GsSetupFrameContext(uint32_t param_1, uint64_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
     uint32_t iStack_60 = rtguest::allocFrame(4);
-    uint32_t uStack_50 = rtguest::allocFrame(4);
-    uint32_t uStack_54 = rtguest::allocFrame(4);
-    uint32_t uStack_56 = rtguest::allocFrame(2);
-    uint32_t uStack_58 = rtguest::allocFrame(2);
     uint32_t uStack_5c = rtguest::allocFrame(4);
+    uint32_t uStack_58 = rtguest::allocFrame(2);
+    uint32_t uStack_56 = rtguest::allocFrame(2);
+    uint32_t uStack_54 = rtguest::allocFrame(4);
+    uint32_t uStack_50 = rtguest::allocFrame(4);
   uint uVar1;
   
   uVar1 = param_1 % 2;

@@ -16,7 +16,7 @@ uint32_t UpdateMenuConfirmTask(uint32_t param_1, ...) {
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 4))) = 0;
-    gs_tasks_kill();
+    gs_tasks_kill(param_1); // arg-drop fix: tail j with $4 still param_1
     return 0;
   }
   return 0;

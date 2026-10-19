@@ -5,12 +5,13 @@
 namespace guest {
 
 uint32_t supplement_crt0(uint32_t q0, ...) {
-    uint32_t uStack_28 = rtguest::allocFrame(4);
-    uint32_t uStack_2c = rtguest::allocFrame(4);
-    uint32_t uStack_48 = rtguest::allocFrame(4);
-    uint32_t uStack_4c = rtguest::allocFrame(4);
 uint32_t auStack_50 = rtguest::allocFrame(4);
+    uint32_t uStack_4c = rtguest::allocFrame(4);
+    uint32_t uStack_48 = rtguest::allocFrame(4);
+    rtguest::allocFrame(20);  // guest frame gap
 uint32_t auStack_30 = rtguest::allocFrame(4);
+    uint32_t uStack_2c = rtguest::allocFrame(4);
+    uint32_t uStack_28 = rtguest::allocFrame(4);
   
   (*(uint32_t*)rtguest::G((uint32_t)uStack_28)) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_4c)) = 1;

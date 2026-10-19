@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t xorHighBitPair(uint32_t param_1, ...) {
-  return param_1 ^ 0x8080;
+  return (uint16_t)param_1 ^ 0x8080;
 }
 
 

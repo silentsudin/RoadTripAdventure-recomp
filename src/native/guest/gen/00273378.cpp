@@ -1,0 +1,3 @@
+// guest:0x00273378 translated from Ghidra pseudocode and VU0 macro disassembly
+#include "../guest_vu0.h"
+namespace guest { using namespace rtguest::vu0; uint64_t sceVu0ClipAll(uint32_t mn,uint32_t mx,uint32_t m,uint32_t vs,int n) { S.vf[4]=lqc2(m);S.vf[5]=lqc2(m+16);S.vf[6]=lqc2(m+32);S.vf[7]=lqc2(m+48);S.vf[9]=lqc2(mn);S.vf[10]=lqc2(mx);do{S.vf[8]=lqc2(vs);vmulabc(15,0,4,8);vmaddabc(15,1,5,8);vmaddabc(15,2,6,8);vmaddbc(15,3,8,7,8);vmulbc(0b1110,3,11,9,8);vmulbc(0b1110,3,12,10,8);ctc2(16,0);vsub(0b1011,11,8,11);vsub(0b1011,12,12,8);vmove(0b0001,11,9);vmove(0b0001,12,10);vs+=16;--n;if(!(cfc2(16)&0xc0u))return 0;}while(n);return 1;} RT_GUEST_FN(0x00273378, guest::sceVu0ClipAll) }

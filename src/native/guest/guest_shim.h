@@ -46,6 +46,10 @@ void noteFault(uint32_t a);
 #define RT_FRAME_END  0x02000000u
 uint32_t allocFrame(uint32_t bytes);
 
+// Guest float register bits as float, for float-typed callee params
+// (pseudocode prints raw bits; a plain int literal would value-convert).
+inline float fbits(uint32_t b) { float f; __builtin_memcpy(&f, &b, 4); return f; }
+
 // Translate a guest address to a host pointer (cached/uncached aliases, scratchpad).
 inline void* G(uint32_t a) {
     if (a >= 0x80000000u) a -= 0x80000000u;      // KSEG1 uncached alias

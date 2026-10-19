@@ -5,19 +5,25 @@
 namespace guest {
 
 uint32_t drawCarsField(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t auStack_110 = rtguest::allocFrame(60);
     uint32_t fStack_d4 = rtguest::allocFrame(4);
-    uint32_t uStack_5c = rtguest::allocFrame(4);
-    uint32_t uStack_6c = rtguest::allocFrame(4);
-    uint32_t uStack_7c = rtguest::allocFrame(4);
-    uint32_t uStack_8c = rtguest::allocFrame(4);
-    uint32_t uStack_94 = rtguest::allocFrame(4);
-    uint32_t uStack_98 = rtguest::allocFrame(4);
-    uint32_t uStack_9c = rtguest::allocFrame(4);
-    uint32_t uStack_a0 = rtguest::allocFrame(4);
-    uint32_t uStack_a4 = rtguest::allocFrame(4);
-    uint32_t uStack_a8 = rtguest::allocFrame(4);
-    uint32_t uStack_ac = rtguest::allocFrame(4);
+uint32_t acStack_d0 = rtguest::allocFrame(32);
     uint32_t uStack_b0 = rtguest::allocFrame(4);
+    uint32_t uStack_ac = rtguest::allocFrame(4);
+    uint32_t uStack_a8 = rtguest::allocFrame(4);
+    uint32_t uStack_a4 = rtguest::allocFrame(4);
+    uint32_t uStack_a0 = rtguest::allocFrame(4);
+    uint32_t uStack_9c = rtguest::allocFrame(4);
+    uint32_t uStack_98 = rtguest::allocFrame(4);
+    uint32_t uStack_94 = rtguest::allocFrame(4);
+uint32_t auStack_90 = rtguest::allocFrame(4);
+    uint32_t uStack_8c = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_7c = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_6c = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_5c = rtguest::allocFrame(4);
   float fVar1;
   char cVar2;
   byte bVar3;
@@ -26,9 +32,6 @@ uint32_t pcVar5;
 uint32_t puVar6;
   int iVar7;
   float fVar8;
-uint32_t auStack_110 = rtguest::allocFrame(60);
-uint32_t acStack_d0 = rtguest::allocFrame(32);
-uint32_t auStack_90 = rtguest::allocFrame(4);
   
   iVar7 = 0x17;
   vifUploadAt4();

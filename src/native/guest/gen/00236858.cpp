@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UpdateRankingsAndAdvance(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t asStack_80 = rtguest::allocFrame(32);
     uint32_t uStack_60 = rtguest::allocFrame(4);
 uint32_t pcVar1;
 uint32_t pcVar2;
@@ -24,7 +25,6 @@ uint32_t psVar11;
   undefined8 uVar16;
   int iVar17;
 uint32_t psVar18;
-uint32_t asStack_80 = rtguest::allocFrame(32);
   
   uiDrawPanelCells(2,4,0x1c,0xe,0);
   uiDrawTextCell(3,5,0x333848,0);

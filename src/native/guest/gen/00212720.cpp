@@ -4,19 +4,19 @@
 
 namespace guest {
 
-uint32_t DrawMenuCursorAndIcons(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-    uint32_t iStack_60 = rtguest::allocFrame(4);
-    uint32_t iStack_74 = rtguest::allocFrame(4);
-    uint32_t iStack_78 = rtguest::allocFrame(4);
-    uint32_t uStack_68 = rtguest::allocFrame(8);
-    uint32_t uStack_6c = rtguest::allocFrame(4);
-    uint32_t uStack_70 = rtguest::allocFrame(4);
-    uint32_t uStack_7c = rtguest::allocFrame(4);
-    uint32_t uStack_80 = rtguest::allocFrame(4);
-    uint32_t uStack_88 = rtguest::allocFrame(8);
-    uint32_t uStack_90 = rtguest::allocFrame(8);
-    uint32_t uStack_98 = rtguest::allocFrame(8);
+void DrawMenuCursorAndIcons(uint32_t param_1, uint64_t param_2, uint32_t param_3, uint64_t param_4) {
     uint32_t uStack_a0 = rtguest::allocFrame(8);
+    uint32_t uStack_98 = rtguest::allocFrame(8);
+    uint32_t uStack_90 = rtguest::allocFrame(8);
+    uint32_t uStack_88 = rtguest::allocFrame(8);
+    uint32_t uStack_80 = rtguest::allocFrame(4);
+    uint32_t uStack_7c = rtguest::allocFrame(4);
+    uint32_t iStack_78 = rtguest::allocFrame(4);
+    uint32_t iStack_74 = rtguest::allocFrame(4);
+    uint32_t uStack_70 = rtguest::allocFrame(4);
+    uint32_t uStack_6c = rtguest::allocFrame(4);
+    uint32_t uStack_68 = rtguest::allocFrame(8);
+    uint32_t iStack_60 = rtguest::allocFrame(4);
   uint uVar1;
   int iVar2;
   
@@ -62,7 +62,7 @@ uint32_t DrawMenuCursorAndIcons(uint32_t param_1, uint32_t param_2, uint32_t par
       param_3 = param_3 + 9;
     } while (iVar2 != -1);
   }
-  return 0;
+  return;
 }
 
 

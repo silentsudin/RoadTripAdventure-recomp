@@ -6,8 +6,12 @@ namespace guest {
 
 uint32_t emailBoxTask(uint32_t param_1, uint32_t param_2, ...) {
     uint32_t iStack_3a4 = rtguest::allocFrame(4);
-    uint32_t iStack_5c = rtguest::allocFrame(4);
+uint32_t auStack_3a0 = rtguest::allocFrame(512);
+uint32_t acStack_1a0 = rtguest::allocFrame(240);
+uint32_t acStack_b0 = rtguest::allocFrame(32);
+uint32_t acStack_90 = rtguest::allocFrame(48);
     uint32_t iStack_60 = rtguest::allocFrame(4);
+    uint32_t iStack_5c = rtguest::allocFrame(4);
   byte bVar1;
   ushort uVar2;
 uint32_t puVar3;
@@ -28,10 +32,6 @@ uint32_t pcVar14;
 uint32_t puVar17;
   int iVar18;
   int iVar19;
-uint32_t auStack_3a0 = rtguest::allocFrame(512);
-uint32_t acStack_1a0 = rtguest::allocFrame(240);
-uint32_t acStack_b0 = rtguest::allocFrame(32);
-uint32_t acStack_90 = rtguest::allocFrame(48);
   
   iVar18 = (int)param_1;
   (*(int32_t*)rtguest::G((uint32_t)iStack_60)) = param_2;

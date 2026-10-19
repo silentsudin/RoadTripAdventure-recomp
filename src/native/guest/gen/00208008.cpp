@@ -12,8 +12,8 @@ uint32_t pfVar1;
   (*(float*)rtguest::G((uint32_t)pfVar1)) = (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * 4));
   (*(float*)rtguest::G((uint32_t)pfVar1 + (uint32_t)(1) * sizeof(float))) = -(*(float*)rtguest::G((uint32_t)(uint32_t)param_2));
   vecNormalizeVu0(param_1,param_1);
-  vu0CopyVector(pfVar1 + 4,param_2);
-  vecCrossProductVu0(pfVar1 + 8,param_1,pfVar1 + 4);
+  vu0CopyVector(pfVar1 + 4 * sizeof(float),param_2);
+  vecCrossProductVu0(pfVar1 + 8 * sizeof(float),param_1,pfVar1 + 4 * sizeof(float));
   return 0;
 }
 

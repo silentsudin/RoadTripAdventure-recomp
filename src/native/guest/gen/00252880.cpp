@@ -5,17 +5,19 @@
 namespace guest {
 
 uint32_t DrawGolfHoleIntro(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_100 = rtguest::allocFrame(8);
-    uint32_t uStack_110 = rtguest::allocFrame(8);
-    uint32_t uStack_118 = rtguest::allocFrame(8);
-    uint32_t uStack_120 = rtguest::allocFrame(8);
-    uint32_t uStack_128 = rtguest::allocFrame(8);
     uint32_t uStack_130 = rtguest::allocFrame(8);
-    uint32_t uStack_d8 = rtguest::allocFrame(8);
-    uint32_t uStack_e0 = rtguest::allocFrame(8);
-    uint32_t uStack_e8 = rtguest::allocFrame(8);
-    uint32_t uStack_f0 = rtguest::allocFrame(8);
+    uint32_t uStack_128 = rtguest::allocFrame(8);
+    uint32_t uStack_120 = rtguest::allocFrame(8);
+    uint32_t uStack_118 = rtguest::allocFrame(8);
+    uint32_t uStack_110 = rtguest::allocFrame(8);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_100 = rtguest::allocFrame(8);
     uint32_t uStack_f8 = rtguest::allocFrame(8);
+    uint32_t uStack_f0 = rtguest::allocFrame(8);
+    uint32_t uStack_e8 = rtguest::allocFrame(8);
+    uint32_t uStack_e0 = rtguest::allocFrame(8);
+    uint32_t uStack_d8 = rtguest::allocFrame(8);
+uint32_t auStack_d0 = rtguest::allocFrame(128);
   byte bVar1;
   int iVar2;
   int iVar3;
@@ -24,7 +26,6 @@ uint32_t DrawGolfHoleIntro(uint32_t param_1, uint32_t param_2, ...) {
   int iVar6;
   int iVar7;
   int iVar8;
-uint32_t auStack_d0 = rtguest::allocFrame(128);
   
   iVar8 = 0;
   iVar7 = (int)param_1;

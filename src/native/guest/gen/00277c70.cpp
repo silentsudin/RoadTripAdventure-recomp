@@ -4,12 +4,12 @@
 
 namespace guest {
 
-uint32_t sceCdDelayThread(uint32_t param_1, ...) {
-    uint32_t uStack_3c = rtguest::allocFrame(4);
-    uint32_t uStack_48 = rtguest::allocFrame(4);
-    uint32_t uStack_4c = rtguest::allocFrame(4);
+uint32_t sceCdDelayThread(uint16_t param_1, ...) {
   undefined8 uVar1;
-uint32_t auStack_50 = rtguest::allocFrame(4);
+  uint32_t auStack_50 = rtguest::allocFrame(0x18);
+  uint32_t uStack_4c = auStack_50 + 4;
+  uint32_t uStack_48 = auStack_50 + 8;
+  uint32_t uStack_3c = auStack_50 + 0x14;
   
   (*(uint32_t*)rtguest::G((uint32_t)uStack_4c)) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_48)) = 0;

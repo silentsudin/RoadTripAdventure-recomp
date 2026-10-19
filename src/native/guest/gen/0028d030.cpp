@@ -5,9 +5,9 @@
 namespace guest {
 
 uint32_t sceDeci2Open(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-    uint32_t uStack_18 = rtguest::allocFrame(4);
-    uint32_t uStack_1c = rtguest::allocFrame(4);
     uint32_t uStack_20 = rtguest::allocFrame(4);
+    uint32_t uStack_1c = rtguest::allocFrame(4);
+    uint32_t uStack_18 = rtguest::allocFrame(4);
 uint32_t puStack_14;
   
   (*(uint32_t*)rtguest::G((uint32_t)uStack_20)) = param_1 & 0xffff;

@@ -1,8 +1,6 @@
 // guest:0x0023db00 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
-#define GetSlotDataPtr GetSlotDataPtr_decl
 #include "guest_decls.inc"
-#undef GetSlotDataPtr
 
 namespace guest {
 

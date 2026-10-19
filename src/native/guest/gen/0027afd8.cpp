@@ -1,8 +1,6 @@
 // guest:0x0027afd8 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
-#define __umoddi3 __umoddi3_decl
 #include "guest_decls.inc"
-#undef __umoddi3
 
 namespace guest {
 

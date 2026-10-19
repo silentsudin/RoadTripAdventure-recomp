@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t _sceSifSendCmd(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
+uint32_t _sceSifSendCmd(uint32_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint32_t param_5, uint32_t param_6, uint64_t param_7, ...) {
   undefined8 uVar1;
   int iVar2;
 uint32_t puVar3;
@@ -18,13 +18,13 @@ uint32_t auStack_80 = rtguest::allocFrame(32);
   puVar3 = (uint32_t)param_3;
   if (param_7 < 1) {
     (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) = 0;
-    (*(uint32_t*)rtguest::G((uint32_t)puVar3)) = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar3));
+    (*(uint32_t*)rtguest::G((uint32_t)puVar3)) = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)puVar3));
   }
   else {
     (*(uint32_t*)rtguest::G((uint32_t)auStack_80 + (uint32_t)(2) * 4)) = (uint32_t)param_7;
     (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) = param_6;
     iVar4 = 1;
-    (*(uint32_t*)rtguest::G((uint32_t)puVar3)) = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar3)) | (*(uint32_t*)rtguest::G((uint32_t)auStack_80 + (uint32_t)(2) * 4)) << 8;
+    (*(uint32_t*)rtguest::G((uint32_t)puVar3)) = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)puVar3)) | (*(uint32_t*)rtguest::G((uint32_t)auStack_80 + (uint32_t)(2) * 4)) << 8;
     (*(uint32_t*)rtguest::G((uint32_t)auStack_80 + (uint32_t)(3) * 4)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)auStack_80 + (uint32_t)(0) * 4)) = param_5;
     (*(uint32_t*)rtguest::G((uint32_t)auStack_80 + (uint32_t)(1) * 4)) = param_6;

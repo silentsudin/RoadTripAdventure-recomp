@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t HandleCarCollisionResponse(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+uint32_t auStack_40 = rtguest::allocFrame(12);
     uint32_t fStack_34 = rtguest::allocFrame(4);
   byte bVar1;
   ushort uVar2;
@@ -13,7 +14,6 @@ uint32_t HandleCarCollisionResponse(uint32_t param_1, uint32_t param_2, uint32_t
   int iVar5;
   int iVar6;
   int iVar7;
-uint32_t auStack_40 = rtguest::allocFrame(12);
   
   iVar5 = (int)param_4;
   iVar7 = (int)param_3;

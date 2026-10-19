@@ -5,8 +5,8 @@
 namespace guest {
 
 uint32_t sceDeci2ExReqSend(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t iStack_1c = rtguest::allocFrame(4);
     uint32_t uStack_20 = rtguest::allocFrame(4);
+    uint32_t iStack_1c = rtguest::allocFrame(4);
   
   (*(int32_t*)rtguest::G((uint32_t)iStack_1c)) = (int)param_2;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_20)) = param_1;

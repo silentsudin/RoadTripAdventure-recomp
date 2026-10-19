@@ -1,8 +1,6 @@
 // guest:0x002434f0 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
-#define GetLabelEntry_ed1f8 GetLabelEntry_ed1f8_decl
 #include "guest_decls.inc"
-#undef GetLabelEntry_ed1f8
 
 namespace guest {
 

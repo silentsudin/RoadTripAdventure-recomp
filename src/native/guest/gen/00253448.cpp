@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SteerAiToDefaultWaypoint(uint32_t param_1, ...) {
+uint32_t afStack_60 = rtguest::allocFrame(24);
     uint32_t fStack_48 = rtguest::allocFrame(4);
   short sVar1;
   int iVar2;
@@ -15,7 +16,6 @@ uint32_t pfVar5;
   float fVar7;
   float fVar8;
   float fVar9;
-uint32_t afStack_60 = rtguest::allocFrame(24);
   
   fVar3 = (*(float*)rtguest::G(0x333048));
   (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) = 320.0;

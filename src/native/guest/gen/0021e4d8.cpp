@@ -24,7 +24,7 @@ uint32_t puVar4;
     iVar6 = 0;
     puVar4 = 0x0177ade8;
     uVar1 = (*(uint16_t*)rtguest::G(0x177ade8));
-    while (puVar4 = puVar4 + 0x138, (uVar1 & 0x27e) != ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) & 1) * 0x40 + 0x10)
+    while (puVar4 = puVar4 + 0x270, (uVar1 & 0x27e) != ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) & 1) * 0x40 + 0x10)
     {
       iVar6 = iVar6 + 1;
       if (0x17 < iVar6) {
@@ -40,13 +40,13 @@ uint32_t puVar4;
 LAB_0021e5d8:
     if (bVar2) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) = 0;
-      pcVar3 = (*(uint8_t*)rtguest::G(0x21ef98));
+      pcVar3 = 0x0021ef98;
     }
     else {
       iVar6 = 0;
       puVar4 = 0x0177ade8;
       uVar1 = (*(uint16_t*)rtguest::G(0x177ade8));
-      while (puVar4 = puVar4 + 0x138, (uVar1 & 0x27e) != ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) & 1) * 0x40 + 0x20
+      while (puVar4 = puVar4 + 0x270, (uVar1 & 0x27e) != ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) & 1) * 0x40 + 0x20
             ) {
         iVar6 = iVar6 + 1;
         if (0x17 < iVar6) {
@@ -64,14 +64,14 @@ LAB_0021e668:
         return 0;
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) = 0;
-      pcVar3 = (*(uint8_t*)rtguest::G(0x21ee98));
+      pcVar3 = 0x0021ee98;
     }
   }
   else {
     InitializeTask((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x10))),0x238b18,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) & 1);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 0;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x27))) = 0;
-    pcVar3 = (*(uint8_t*)rtguest::G(0x21e328));
+    pcVar3 = 0x0021e328;
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = pcVar3;
   return 0;

@@ -5,6 +5,10 @@
 namespace guest {
 
 uint32_t RunCarCameraTask(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t auStack_e0 = rtguest::allocFrame(48);
+uint32_t auStack_b0 = rtguest::allocFrame(16);
+uint32_t auStack_a0 = rtguest::allocFrame(64);
+uint32_t afStack_60 = rtguest::allocFrame(8);
     uint32_t fStack_58 = rtguest::allocFrame(4);
   short sVar1;
   uint uVar2;
@@ -24,10 +28,6 @@ uint32_t puVar14;
   float fVar16;
   float fVar17;
   float fVar18;
-uint32_t auStack_e0 = rtguest::allocFrame(48);
-uint32_t auStack_b0 = rtguest::allocFrame(16);
-uint32_t auStack_a0 = rtguest::allocFrame(64);
-uint32_t afStack_60 = rtguest::allocFrame(8);
   
   iVar5 = (int)param_1;
   uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c)));

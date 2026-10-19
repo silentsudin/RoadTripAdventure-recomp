@@ -4,13 +4,15 @@
 
 namespace guest {
 
-uint32_t textGridPrintf(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, ...) {
+uint32_t textGridPrintf(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
     uint32_t bStack_4c0 = rtguest::allocFrame(1);
-    uint32_t uStack_10 = rtguest::allocFrame(8);
-    uint32_t uStack_18 = rtguest::allocFrame(8);
-    uint32_t uStack_20 = rtguest::allocFrame(8);
-    uint32_t uStack_28 = rtguest::allocFrame(8);
+uint32_t abStack_4bf = rtguest::allocFrame(1023);
+rtguest::allocFrame(144);  // guest frame gap
     uint32_t uStack_30 = rtguest::allocFrame(8);
+    uint32_t uStack_28 = rtguest::allocFrame(8);
+    uint32_t uStack_20 = rtguest::allocFrame(8);
+    uint32_t uStack_18 = rtguest::allocFrame(8);
+    uint32_t uStack_10 = rtguest::allocFrame(8);
     uint32_t uStack_8 = rtguest::allocFrame(8);
   byte bVar1;
   ushort uVar2;
@@ -19,7 +21,6 @@ uint32_t textGridPrintf(uint32_t param_1, uint32_t param_2, uint32_t param_3, ui
 uint32_t pbVar5;
   int iVar6;
   int iVar7;
-uint32_t abStack_4bf = rtguest::allocFrame(1023);
   
   iVar7 = 0;
   iVar6 = 0;

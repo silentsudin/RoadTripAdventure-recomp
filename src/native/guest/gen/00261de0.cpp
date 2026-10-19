@@ -5,17 +5,18 @@
 namespace guest {
 
 uint32_t roulettePayoutTask(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_54 = rtguest::allocFrame(4);
-    uint32_t uStack_58 = rtguest::allocFrame(4);
-    uint32_t uStack_5c = rtguest::allocFrame(4);
-    uint32_t uStack_60 = rtguest::allocFrame(4);
-    uint32_t uStack_64 = rtguest::allocFrame(4);
-    uint32_t uStack_68 = rtguest::allocFrame(4);
-    uint32_t uStack_6c = rtguest::allocFrame(4);
-    uint32_t uStack_88 = rtguest::allocFrame(8);
-    uint32_t uStack_90 = rtguest::allocFrame(8);
-    uint32_t uStack_98 = rtguest::allocFrame(8);
     uint32_t uStack_a0 = rtguest::allocFrame(8);
+    uint32_t uStack_98 = rtguest::allocFrame(8);
+    uint32_t uStack_90 = rtguest::allocFrame(8);
+    uint32_t uStack_88 = rtguest::allocFrame(8);
+uint32_t aiStack_80 = rtguest::allocFrame(20);
+    uint32_t uStack_6c = rtguest::allocFrame(4);
+    uint32_t uStack_68 = rtguest::allocFrame(4);
+    uint32_t uStack_64 = rtguest::allocFrame(4);
+    uint32_t uStack_60 = rtguest::allocFrame(4);
+    uint32_t uStack_5c = rtguest::allocFrame(4);
+    uint32_t uStack_58 = rtguest::allocFrame(4);
+    uint32_t uStack_54 = rtguest::allocFrame(4);
   int iVar1;
   int iVar2;
   int iVar3;
@@ -30,7 +31,6 @@ uint32_t puVar11;
 uint32_t piVar12;
   int iVar13;
   int iVar14;
-uint32_t aiStack_80 = rtguest::allocFrame(20);
   
   iVar14 = (int)param_1;
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x1c)));

@@ -104,7 +104,7 @@ uint32_t ppuVar8;
     do {
       iVar9 = iVar9 + -1;
       (*(int32_t*)rtguest::G((uint32_t)piVar4)) = (int)0x00aafb80 + (*(int32_t*)rtguest::G((uint32_t)piVar4));
-      piVar4 = piVar4 + 1;
+      piVar4 = piVar4 + sizeof(int32_t);
     } while (-1 < iVar9);
     ppuVar8 = 0x29b054u;
     goto LAB_0020b9c4;

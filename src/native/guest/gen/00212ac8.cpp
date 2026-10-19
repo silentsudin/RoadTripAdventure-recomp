@@ -424,7 +424,7 @@ LAB_0021358c:
   (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t))) = 0;
   (*(int32_t*)rtguest::G((uint32_t)param_4)) = iVar3;
 LAB_002135ac:
-
+  return (*(int32_t*)rtguest::G((uint32_t)param_4));
 }
 
 

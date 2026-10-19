@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t textGridPutChar(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+void textGridPutChar(uint64_t param_1, uint32_t param_2, uint32_t param_3) {
   uint uVar1;
 uint32_t puVar2;
   
@@ -35,7 +35,7 @@ uint32_t puVar2;
     textGridScrollUp(param_1,(uVar1 - (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint32_t)))) + 1);
     (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(5) * sizeof(uint32_t))) = (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint32_t))) - 1;
   }
-  return 0;
+  return;
 }
 
 

@@ -5,12 +5,12 @@
 namespace guest {
 
 uint32_t gameMainLoop(uint32_t q0, ...) {
+uint32_t auStack_b0 = rtguest::allocFrame(16);
     uint32_t uStack_a0 = rtguest::allocFrame(8);
   undefined8 uVar1;
   long lVar2;
   ulong uVar3;
   uint uVar4;
-uint32_t auStack_b0 = rtguest::allocFrame(16);
   
   uVar3 = 0;
   uVar4 = 0;

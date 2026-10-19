@@ -21,7 +21,7 @@ uint32_t sceCdSearchFile(uint32_t param_1, uint32_t param_2, ...) {
     lVar7 = sceCdSync(1);
     if (lVar7 == 0) {
       sceSifInitRpc(0);
-      if ((*(uint32_t*)rtguest::G(0x2e6f40)) < 0) {
+      if ((*(int32_t*)rtguest::G(0x2e6f40)) < 0) {
         while( true ) {
           while (lVar7 = sceSifBindRpc(0x1773780,0xffffffff80000597,0), lVar7 < 0) {
             if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {
@@ -40,17 +40,17 @@ uint32_t sceCdSearchFile(uint32_t param_1, uint32_t param_2, ...) {
         }
         (*(uint32_t*)rtguest::G(0x2e6f40)) = 0;
       }
-      (*(uint32_t*)rtguest::G(0x1773624)) = (*(int8_t*)rtguest::G((uint32_t)param_2));
+      (*(uint8_t*)rtguest::G(0x1773624)) = (*(int8_t*)rtguest::G((uint32_t)param_2));
       iVar6 = 0;
-      if ((*(uint32_t*)rtguest::G(0x1773624)) != '\0') {
+      if ((*(int8_t*)rtguest::G(0x1773624)) != '\0') {
         for (iVar6 = 1;
             (iVar6 < 0x100 &&
-            (cVar1 = (*(int8_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(iVar6) * sizeof(int8_t))), (*(uint32_t*)rtguest::G((uint32_t)0x1773624 + (uint32_t)(iVar6) * 4)) = cVar1, cVar1 != '\0'));
+            (cVar1 = (*(int8_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(iVar6) * sizeof(int8_t))), (*(uint8_t*)rtguest::G((uint32_t)0x1773624 + (uint32_t)(iVar6) * sizeof(uint8_t))) = cVar1, cVar1 != '\0'));
             iVar6 = iVar6 + 1) {
         }
       }
       if (iVar6 == 0x100) {
-        (*(uint32_t*)rtguest::G(0x1773723)) = 0;
+        (*(uint8_t*)rtguest::G(0x1773723)) = 0;
       }
       (*(uint32_t*)rtguest::G(0x1773724)) = 0x01773600;
       if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {
@@ -58,16 +58,16 @@ uint32_t sceCdSearchFile(uint32_t param_1, uint32_t param_2, ...) {
       }
       sceSifWriteBackDCache(0x1773600,0x128);
       lVar7 = sceSifCallRpc(0x1773780,0,0,0x1773600,0x128,0x1773740,4,0);
-      uVar4 = (*(uint32_t*)rtguest::G(0x21773618));
-      uVar3 = (*(uint32_t*)rtguest::G(0x21773610));
-      uVar2 = (*(uint32_t*)rtguest::G(0x21773608));
+      uVar4 = (*(uint64_t*)rtguest::G(0x21773618));
+      uVar3 = (*(uint64_t*)rtguest::G(0x21773610));
+      uVar2 = (*(uint64_t*)rtguest::G(0x21773608));
       if (-1 < lVar7) {
-        (*(uint64_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G(0x21773600));
+        (*(uint64_t*)rtguest::G((uint32_t)param_1)) = (*(uint64_t*)rtguest::G(0x21773600));
         (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint64_t))) = uVar2;
         (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint64_t))) = uVar3;
         (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint64_t))) = uVar4;
-        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4))) = (*(uint32_t*)rtguest::G(0x21773620));
-        if (((0 < (*(uint32_t*)rtguest::G(0x002e6f10))) && (scePrintf(0x331c00,param_1 + 1), 0 < (*(uint32_t*)rtguest::G(0x002e6f10)))) &&
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(4) * sizeof(uint64_t)))) = (*(uint32_t*)rtguest::G(0x21773620));
+        if (((0 < (*(uint32_t*)rtguest::G(0x002e6f10))) && (scePrintf(0x331c00,param_1 + (uint32_t)(1) * sizeof(uint64_t)), 0 < (*(uint32_t*)rtguest::G(0x002e6f10)))) &&
            (scePrintf(0x331c10,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 4)))), 0 < (*(uint32_t*)rtguest::G(0x002e6f10)))) {
           scePrintf(0x331c20,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)param_1)));
         }

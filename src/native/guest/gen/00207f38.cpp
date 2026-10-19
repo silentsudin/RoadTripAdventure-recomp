@@ -9,11 +9,11 @@ uint32_t WrapCoordinate(uint32_t param_1, ...) {
   
   fVar1 = (*(float*)rtguest::G((uint32_t)param_1));
   if ((*(float*)rtguest::G(0x332b14)) < fVar1) {
-    (*(float*)rtguest::G((uint32_t)param_1)) = fVar1 - (*(uint32_t*)rtguest::G(0x332b18));
+    (*(float*)rtguest::G((uint32_t)param_1)) = fVar1 - (*(float*)rtguest::G(0x332b18));
     return 0;
   }
-  if (fVar1 < (*(uint32_t*)rtguest::G(0x332b1c))) {
-    (*(float*)rtguest::G((uint32_t)param_1)) = fVar1 + (*(uint32_t*)rtguest::G(0x332b20));
+  if (fVar1 < (*(float*)rtguest::G(0x332b1c))) {
+    (*(float*)rtguest::G((uint32_t)param_1)) = fVar1 + (*(float*)rtguest::G(0x332b20));
   }
   return 0;
 }

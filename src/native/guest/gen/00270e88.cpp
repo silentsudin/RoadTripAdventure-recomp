@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t textGridEmitRows(uint32_t param_1, uint32_t param_2, ...) {
+void textGridEmitRows(uint32_t param_1, uint64_t param_2) {
   uint uVar1;
   int iVar2;
   uint uVar3;
@@ -21,7 +21,7 @@ uint32_t textGridEmitRows(uint32_t param_1, uint32_t param_2, ...) {
       iVar4 = iVar4 + iVar2 * 2;
     } while (uVar3 < uVar1);
   }
-  return 0;
+  return;
 }
 
 

@@ -27,7 +27,7 @@ LAB_00286e58:
     lVar7 = 0;
     if ((*(int8_t*)rtguest::G((uint32_t)param_1)) == 0x25) break;
     param_1 = param_1 + 1;
-    rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))));
+    rtCall((*(uint32_t*)rtguest::G(0x002e98f8)));
   }
 LAB_00286910:
   pbVar2 = param_1;
@@ -117,20 +117,21 @@ LAB_00286910:
     goto switchD_0028693c_caseD_1;
   case 0x33:
     param_1 = pbVar2 + 2;
-    rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)param_2)));
-    param_2 = param_2 + 2;
+    rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)param_2)));
+    param_2 = param_2 + 8;
     goto LAB_00286e58;
   case 0x34:
     if (lVar7 == 0x6c) {
       uVar10 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)param_2));
     }
     else if (lVar7 == 0x68) {
-      uVar10 = (uint32_t)(short)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)param_2));
+      uVar10 = (uint64_t)(short)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)param_2));
     }
     else {
-      uVar10 = (uint32_t)(int)(*(float*)rtguest::G((uint32_t)param_2));
+      // MIPS reads the va_list slot with a signed lw (Ghidra typed the pointer float*)
+      uVar10 = (uint64_t)(*(int32_t*)rtguest::G((uint32_t)param_2));
     }
-    param_2 = param_2 + 2;
+    param_2 = param_2 + 8;
     pcVar8 = acStack_c0 + 0x4f;
     (*(int8_t*)rtguest::G((uint32_t)acStack_c0 + (uint32_t)(0x4f) * 1)) = 0;
     if (uVar10 == 0) {
@@ -140,7 +141,7 @@ LAB_00286910:
     else {
       if ((long)uVar10 < 0) {
         uVar10 = -uVar10;
-        rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), 0x2d);
+        rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x2d);
       }
       for (; uVar10 != 0; uVar10 = __divdi3(uVar10,10)) {
         cVar4 = __moddi3(uVar10,10);
@@ -156,7 +157,7 @@ LAB_00286910:
     if ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) == '\0') break;
     do {
       pcVar8 = pcVar8 + 1;
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), cVar4);
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), cVar4);
       cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar8));
     } while ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0');
     goto LAB_00286e58;
@@ -164,14 +165,15 @@ LAB_00286910:
   case 0x36:
     if ((*(float*)rtguest::G((uint32_t)param_2)) == 0.0) {
       param_1 = pbVar2 + 2;
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), 0x30);
-      param_2 = param_2 + 2;
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x30);
+      param_2 = param_2 + 8;
     }
     else {
       param_1 = pbVar2 + 2;
-      uVar5 = fptodp();
+      // MIPS leaves $4 = 0x286d18 (this case's jump-table target) at the jal; Ghidra dropped it
+      uVar5 = fptodp(0x286d18);
       fpFormatFloatSci(uVar5);
-      param_2 = param_2 + 2;
+      param_2 = param_2 + 8;
     }
     goto LAB_00286e58;
   case 0x38:
@@ -184,12 +186,13 @@ LAB_00286910:
       uVar10 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)param_2));
     }
     else if (lVar7 == 0x68) {
-      uVar10 = (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)param_2));
+      uVar10 = (uint64_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)param_2));
     }
     else {
-      uVar10 = (uint32_t)(uint32_t)(*(float*)rtguest::G((uint32_t)param_2));
+      // MIPS reads the va_list slot with an unsigned lwu (Ghidra typed the pointer float*)
+      uVar10 = (uint64_t)(*(uint32_t*)rtguest::G((uint32_t)param_2));
     }
-    param_2 = param_2 + 2;
+    param_2 = param_2 + 8;
     pcVar8 = acStack_c0 + 0x4f;
     (*(int8_t*)rtguest::G((uint32_t)acStack_c0 + (uint32_t)(0x4f) * 1)) = 0;
     if (uVar10 == 0) {
@@ -212,29 +215,30 @@ LAB_00286910:
     if ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) == '\0') break;
     do {
       pcVar8 = pcVar8 + 1;
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), cVar4);
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), cVar4);
       cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar8));
     } while ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0');
     goto LAB_00286e58;
   case 0x43:
-    pfVar11 = param_2 + 2;
-    pcVar9 = (uint32_t)(*(float*)rtguest::G((uint32_t)param_2));
+    pfVar11 = param_2 + 8;
+    // MIPS reads the slot with a plain lw: a guest string pointer (Ghidra typed it float*)
+    pcVar9 = (*(uint32_t*)rtguest::G((uint32_t)param_2));
     cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar9));
     param_2 = pfVar11;
     if ((*(int8_t*)rtguest::G((uint32_t)pcVar9)) == '\0') {
       param_1 = pbVar2 + 2;
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), 0x28);
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), 0x6e);
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), 0x75);
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), 0x6c);
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), 0x6c);
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), 0x29);
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x28);
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x6e);
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x75);
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x6c);
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x6c);
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x29);
     }
     else {
       param_1 = pbVar2 + 2;
       do {
         pcVar9 = pcVar9 + 1;
-        rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), cVar4);
+        rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), cVar4);
         cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar9));
       } while (cVar4 != '\0');
     }
@@ -244,12 +248,13 @@ LAB_00286910:
       uVar10 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)param_2));
     }
     else if (lVar7 == 0x68) {
-      uVar10 = (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)param_2));
+      uVar10 = (uint64_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)param_2));
     }
     else {
-      uVar10 = (uint32_t)(uint32_t)(*(float*)rtguest::G((uint32_t)param_2));
+      // MIPS reads the va_list slot with an unsigned lwu (Ghidra typed the pointer float*)
+      uVar10 = (uint64_t)(*(uint32_t*)rtguest::G((uint32_t)param_2));
     }
-    param_2 = param_2 + 2;
+    param_2 = param_2 + 8;
     pcVar8 = acStack_c0 + 0x4f;
     (*(int8_t*)rtguest::G((uint32_t)acStack_c0 + (uint32_t)(0x4f) * 1)) = 0;
     if (uVar10 == 0) {
@@ -272,7 +277,7 @@ LAB_00286910:
     if ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0') {
       do {
         pcVar8 = pcVar8 + 1;
-        rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), cVar4);
+        rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), cVar4);
         cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar8));
       } while ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0');
       goto LAB_00286e58;
@@ -283,12 +288,13 @@ LAB_00286910:
       uVar10 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)param_2));
     }
     else if (lVar7 == 0x68) {
-      uVar10 = (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)param_2));
+      uVar10 = (uint64_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)param_2));
     }
     else {
-      uVar10 = (uint32_t)(uint32_t)(*(float*)rtguest::G((uint32_t)param_2));
+      // MIPS reads the va_list slot with an unsigned lwu (Ghidra typed the pointer float*)
+      uVar10 = (uint64_t)(*(uint32_t*)rtguest::G((uint32_t)param_2));
     }
-    param_2 = param_2 + 2;
+    param_2 = param_2 + 8;
     pcVar8 = acStack_c0 + 0x4f;
     (*(int8_t*)rtguest::G((uint32_t)acStack_c0 + (uint32_t)(0x4f) * 1)) = 0;
     if (uVar10 == 0) {
@@ -315,7 +321,7 @@ LAB_00286910:
     if ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) == '\0') break;
     do {
       pcVar8 = pcVar8 + 1;
-      rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e98f8)))), cVar4);
+      rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), cVar4);
       cVar4 = (*(int8_t*)rtguest::G((uint32_t)pcVar8));
     } while ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0');
     goto LAB_00286e58;

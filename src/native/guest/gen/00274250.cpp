@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t scePadSetActAlign(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+uint32_t scePadSetActAlign(uint64_t param_1, uint64_t param_2, uint32_t param_3, ...) {
 uint32_t puVar1;
   long lVar2;
 uint32_t puVar3;

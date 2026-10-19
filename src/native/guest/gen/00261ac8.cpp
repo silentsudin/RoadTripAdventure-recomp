@@ -5,8 +5,9 @@
 namespace guest {
 
 uint32_t rouletteBetPickerTask(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_3c = rtguest::allocFrame(4);
+uint32_t auStack_50 = rtguest::allocFrame(16);
     uint32_t uStack_40 = rtguest::allocFrame(4);
+    uint32_t uStack_3c = rtguest::allocFrame(4);
   ushort uVar1;
   int iVar2;
   undefined4 uVar3;
@@ -15,7 +16,6 @@ uint32_t rouletteBetPickerTask(uint32_t param_1, uint32_t param_2, ...) {
   undefined4 uVar6;
   char cVar7;
   int iVar8;
-uint32_t auStack_50 = rtguest::allocFrame(16);
   
   iVar8 = (int)param_1;
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c)));

@@ -16,7 +16,7 @@ uint32_t auStack_90 = rtguest::allocFrame(112);
   (*(uint32_t*)rtguest::G(0x10000c)) = 0x10;
   (*(uint32_t*)rtguest::G(0x100010)) = 3;
   iVar1 = 0;
-  puVar3 = 0x00100020 + param_2 * 0xf0;
+  puVar3 = 0x00100020 + param_2 * 0xf0 * sizeof(uint64_t);
   do {
     iVar2 = iVar2 + 1;
     sceGsSetDefStoreImage(auStack_90,param_1 * 0x8c00000 >> 0x10,10,1,0,iVar1 >> 0x10,0x280,1);
@@ -24,7 +24,7 @@ uint32_t auStack_90 = rtguest::allocFrame(112);
     sceGsExecStoreImage(auStack_90,puVar3);
     sceGsSyncPath(0,0);
     iVar1 = iVar2 * 0x10000;
-    puVar3 = puVar3 + 0x1e0;
+    puVar3 = puVar3 + 0x1e0 * sizeof(uint64_t);
   } while (iVar2 < 0xe0);
   return 0x0010000c;
 }

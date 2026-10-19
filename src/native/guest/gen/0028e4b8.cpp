@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t __fixunsdfdi(uint32_t param_1, ...) {
+int64_t __fixunsdfdi(uint64_t param_1, ...) {
   long lVar1;
   long lVar2;
   undefined8 uVar3;

@@ -11,7 +11,7 @@ uint32_t vifCameraSetup(uint32_t q0, ...) {
     fatal(0x2eafa0);
   }
   if ((*(uint32_t*)rtguest::G(0x3356f4)) == 0) {
-    if ((*(uint32_t*)rtguest::G(0x3356ec)) + 8 < (uint32_t)0x17523d0) {
+    if ((*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(8) * sizeof(undefined4) < (uint32_t)0x17523d0) {
       bVar1 = false;
     }
     else {
@@ -21,7 +21,7 @@ uint32_t vifCameraSetup(uint32_t q0, ...) {
   }
   else {
     bVar1 = true;
-    if ((*(uint32_t*)rtguest::G(0x3356ec)) + 8 < (uint32_t)0x1750bd0) {
+    if ((*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(8) * sizeof(undefined4) < (uint32_t)0x1750bd0) {
       bVar1 = false;
     }
   }
@@ -34,7 +34,7 @@ uint32_t vifCameraSetup(uint32_t q0, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(1) * 4)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(6) * 4)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(7) * 4)) = 0;
-    (*(uint32_t*)rtguest::G(0x3356ec)) = (*(uint32_t*)rtguest::G(0x3356ec)) + 8;
+    ( *(uint32_t*)rtguest::G(0x3356ec)) = (*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(8) * sizeof(undefined4);
   }
   return 0;
 }

@@ -5,17 +5,20 @@
 namespace guest {
 
 uint32_t rouletteTablePoseUpdate(uint32_t param_1, ...) {
-    uint32_t fStack_7c = rtguest::allocFrame(4);
-    uint32_t uStack_88 = rtguest::allocFrame(8);
-    uint32_t uStack_90 = rtguest::allocFrame(8);
-    uint32_t uStack_98 = rtguest::allocFrame(4);
+uint32_t auStack_b0 = rtguest::allocFrame(4);
     uint32_t uStack_ac = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_a0 = rtguest::allocFrame(8);
+    uint32_t uStack_98 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_90 = rtguest::allocFrame(8);
+    uint32_t uStack_88 = rtguest::allocFrame(8);
+uint32_t auStack_80 = rtguest::allocFrame(4);
+    uint32_t fStack_7c = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_70 = rtguest::allocFrame(64);
   float fVar1;
   short sVar2;
-uint32_t auStack_b0 = rtguest::allocFrame(4);
-uint32_t auStack_a0 = rtguest::allocFrame(8);
-uint32_t auStack_80 = rtguest::allocFrame(4);
-uint32_t auStack_70 = rtguest::allocFrame(64);
   
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(auStack_b0)), 0, 0x10));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = 0x3f800000;

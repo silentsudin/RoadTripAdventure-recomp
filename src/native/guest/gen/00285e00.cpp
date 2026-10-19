@@ -5,17 +5,20 @@
 namespace guest {
 
 uint32_t InitThread(uint32_t q0, ...) {
-    uint32_t uStack_48 = rtguest::allocFrame(4);
-    uint32_t uStack_4c = rtguest::allocFrame(4);
-    uint32_t uStack_6c = rtguest::allocFrame(4);
+uint32_t auStack_80 = rtguest::allocFrame(4);
+rtguest::allocFrame(8);  // guest frame gap
     uint32_t uStack_74 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_6c = rtguest::allocFrame(4);
+    rtguest::allocFrame(24);  // guest frame gap
+uint32_t auStack_50 = rtguest::allocFrame(4);
+    uint32_t uStack_4c = rtguest::allocFrame(4);
+    uint32_t uStack_48 = rtguest::allocFrame(4);
   long lVar1;
   undefined8 uVar2;
-uint32_t auStack_80 = rtguest::allocFrame(4);
 uint32_t pcStack_7c;
 uint32_t puStack_78;
 uint32_t puStack_70;
-uint32_t auStack_50 = rtguest::allocFrame(4);
   
   if ((*(int32_t*)rtguest::G(0x2e98f0)) < 1) {
     (*(uint32_t*)rtguest::G((uint32_t)uStack_48)) = 0;

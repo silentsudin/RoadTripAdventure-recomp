@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceCdRead(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+uint32_t sceCdRead(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint32_t param_4, ...) {
   byte bVar1;
   long lVar2;
   int iVar3;
@@ -15,9 +15,9 @@ uint32_t sceCdRead(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_
   lVar2 = _sceCd_ncmd_prechk(4);
   if (lVar2 != 0) {
     (*(uint32_t*)rtguest::G(0x2e7008)) = (uint32_t)param_3;
-    (*(uint32_t*)rtguest::G(0x2e700c)) = (*(uint8_t*)rtguest::G((uint32_t)param_4));
-    (*(uint32_t*)rtguest::G(0x2e700d)) = (*(uint8_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(uint8_t)));
-    (*(uint32_t*)rtguest::G(0x2e700e)) = (*(uint8_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(uint8_t)));
+    (*(uint8_t*)rtguest::G(0x2e700c)) = (*(uint8_t*)rtguest::G((uint32_t)param_4));
+    (*(uint8_t*)rtguest::G(0x2e700d)) = (*(uint8_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(uint8_t)));
+    (*(uint8_t*)rtguest::G(0x2e700e)) = (*(uint8_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(uint8_t)));
     (*(uint32_t*)rtguest::G(0x2e7010)) = 0x002e8000;
     (*(uint32_t*)rtguest::G(0x2e7014)) = 0x002e80c0;
     bVar1 = (*(uint8_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(uint8_t)));

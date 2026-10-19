@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t DrawMenuListItems(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+void DrawMenuListItems(uint64_t param_1, uint64_t param_2, uint32_t param_3, uint64_t param_4, uint32_t param_5) {
   int iVar1;
   int iVar2;
   uint uVar3;
@@ -50,7 +50,7 @@ LAB_00212150:
       param_3 = param_3 + 5;
     } while (iVar5 != -1);
   }
-  return 0;
+  return;
 }
 
 

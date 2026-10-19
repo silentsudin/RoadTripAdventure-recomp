@@ -5,18 +5,19 @@
 namespace guest {
 
 uint32_t UpdateProximityEvent(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t fStack_54 = rtguest::allocFrame(4);
+uint32_t auStack_70 = rtguest::allocFrame(16);
+uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t fStack_5c = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t fStack_54 = rtguest::allocFrame(4);
+uint32_t auStack_50 = rtguest::allocFrame(4);
+uint32_t auStack_4c = rtguest::allocFrame(12);
   byte bVar1;
   int iVar2;
   long lVar3;
   char cVar4;
   int iVar5;
   float fVar6;
-uint32_t auStack_70 = rtguest::allocFrame(16);
-uint32_t auStack_60 = rtguest::allocFrame(4);
-uint32_t auStack_50 = rtguest::allocFrame(4);
-uint32_t auStack_4c = rtguest::allocFrame(12);
   
   iVar5 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) == 0) {

@@ -5,13 +5,24 @@
 namespace guest {
 
 uint32_t townMapTask(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t fStack_98 = rtguest::allocFrame(4);
+uint32_t afStack_110 = rtguest::allocFrame(40);
     uint32_t fStack_e8 = rtguest::allocFrame(4);
-    uint32_t uStack_88 = rtguest::allocFrame(4);
-    uint32_t uStack_90 = rtguest::allocFrame(4);
-    uint32_t uStack_c8 = rtguest::allocFrame(4);
-    uint32_t uStack_d8 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
     uint32_t uStack_e0 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_d8 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t auStack_d0 = rtguest::allocFrame(8);
+    uint32_t uStack_c8 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t afStack_c0 = rtguest::allocFrame(40);
+    uint32_t fStack_98 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_90 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_88 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t auStack_80 = rtguest::allocFrame(32);
   char cVar1;
   ushort uVar2;
   uint uVar3;
@@ -22,10 +33,6 @@ uint32_t psVar6;
   int iVar8;
   float fVar9;
   float fVar10;
-uint32_t afStack_110 = rtguest::allocFrame(40);
-uint32_t auStack_d0 = rtguest::allocFrame(8);
-uint32_t afStack_c0 = rtguest::allocFrame(40);
-uint32_t auStack_80 = rtguest::allocFrame(32);
   
   iVar5 = (int)param_2;
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))) & 0x10000) == 0) {

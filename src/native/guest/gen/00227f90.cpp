@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t DrawSaveSlotEntry(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+void DrawSaveSlotEntry(uint32_t param_1, uint64_t param_2, uint32_t param_3) {
 uint32_t pcVar1;
   int iVar2;
   
@@ -26,7 +26,7 @@ uint32_t pcVar1;
   uiDrawTextCell(0xc,iVar2 + 3,0x333610,0);
   uiDrawNumber16(0x186,iVar2 * 0xc + 0x29,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x654))),0);
   uiDrawTextCell(0x13,iVar2 + 3,param_1 + 0x63f,0);
-  return 0;
+  return;
 }
 
 

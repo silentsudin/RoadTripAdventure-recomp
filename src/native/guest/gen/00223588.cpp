@@ -5,19 +5,22 @@
 namespace guest {
 
 uint32_t drawCarShadow(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-    uint32_t uStack_2c = rtguest::allocFrame(4);
-    uint32_t uStack_3c = rtguest::allocFrame(4);
-    uint32_t uStack_4c = rtguest::allocFrame(4);
-    uint32_t uStack_5c = rtguest::allocFrame(4);
-    uint32_t uStack_64 = rtguest::allocFrame(4);
-    uint32_t uStack_68 = rtguest::allocFrame(4);
-    uint32_t uStack_6c = rtguest::allocFrame(4);
-    uint32_t uStack_70 = rtguest::allocFrame(4);
-    uint32_t uStack_74 = rtguest::allocFrame(4);
-    uint32_t uStack_78 = rtguest::allocFrame(4);
-    uint32_t uStack_7c = rtguest::allocFrame(4);
     uint32_t uStack_80 = rtguest::allocFrame(4);
+    uint32_t uStack_7c = rtguest::allocFrame(4);
+    uint32_t uStack_78 = rtguest::allocFrame(4);
+    uint32_t uStack_74 = rtguest::allocFrame(4);
+    uint32_t uStack_70 = rtguest::allocFrame(4);
+    uint32_t uStack_6c = rtguest::allocFrame(4);
+    uint32_t uStack_68 = rtguest::allocFrame(4);
+    uint32_t uStack_64 = rtguest::allocFrame(4);
 uint32_t auStack_60 = rtguest::allocFrame(4);
+    uint32_t uStack_5c = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_4c = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_3c = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_2c = rtguest::allocFrame(4);
   
   (*(uint32_t*)rtguest::G((uint32_t)uStack_64)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x34)));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_70)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4)));

@@ -5,15 +5,13 @@
 namespace guest {
 
 uint32_t __make_fp(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-    uint32_t uStack_14 = rtguest::allocFrame(4);
-    uint32_t uStack_18 = rtguest::allocFrame(4);
-    uint32_t uStack_1c = rtguest::allocFrame(4);
-    uint32_t uStack_20 = rtguest::allocFrame(4);
+    // __pack_f's in-struct is contiguous: class+0, sign+4, exp+8, frac+0xc
+    uint32_t uStack_20 = rtguest::allocFrame(0x10);
   
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_20)) = param_1;
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_1c)) = param_2;
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_18)) = param_3;
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_14)) = param_4;
+  (*(uint32_t*)rtguest::G((uint32_t)uStack_20 + (uint32_t)(0) * 4)) = param_1;
+  (*(uint32_t*)rtguest::G((uint32_t)uStack_20 + (uint32_t)(1) * 4)) = param_2;
+  (*(uint32_t*)rtguest::G((uint32_t)uStack_20 + (uint32_t)(2) * 4)) = param_3;
+  (*(uint32_t*)rtguest::G((uint32_t)uStack_20 + (uint32_t)(3) * 4)) = param_4;
   __pack_f(uStack_20);
   return 0;
 }

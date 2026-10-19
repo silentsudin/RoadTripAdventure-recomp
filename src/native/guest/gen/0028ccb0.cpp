@@ -5,9 +5,9 @@
 namespace guest {
 
 uint32_t sceSifResetIop(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_34 = rtguest::allocFrame(4);
-    uint32_t uStack_38 = rtguest::allocFrame(4);
     uint32_t uStack_3c = rtguest::allocFrame(4);
+    uint32_t uStack_38 = rtguest::allocFrame(4);
+    uint32_t uStack_34 = rtguest::allocFrame(4);
   long lVar1;
   char cVar2;
   int iVar3;

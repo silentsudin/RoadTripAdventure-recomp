@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceSifRebootIop(uint32_t param_1, ...) {
+uint64_t sceSifRebootIop(uint32_t param_1, ...) {
   byte bVar1;
   uint uVar2;
   undefined8 uVar3;
@@ -38,7 +38,7 @@ uint32_t acStack_80 = rtguest::allocFrame(80);
       pcVar4 = pcVar4 + 1;
       cVar5 = (*(int8_t*)rtguest::G((uint32_t)pcVar8));
     } while ((*(int8_t*)rtguest::G((uint32_t)pcVar8)) != '\0');
-    uVar7 = (uint32_t)bVar1;
+    uVar7 = (ulong)bVar1;
     if (uVar7 == 0) {
       (*(int8_t*)rtguest::G((uint32_t)pcVar4)) = '\0';
     }
@@ -47,7 +47,7 @@ uint32_t acStack_80 = rtguest::allocFrame(80);
         (*(int8_t*)rtguest::G((uint32_t)pcVar4)) = (char)uVar7;
         param_1 = param_1 + 1;
         pcVar4 = pcVar4 + 1;
-        uVar7 = (uint32_t)(char)(*(int8_t*)rtguest::G((uint32_t)param_1));
+        uVar7 = (ulong)(char)(*(int8_t*)rtguest::G((uint32_t)param_1));
       } while (uVar7 != 0);
       (*(int8_t*)rtguest::G((uint32_t)pcVar4)) = '\0';
     }

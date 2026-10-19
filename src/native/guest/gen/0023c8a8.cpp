@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t gs_stamps_award_function(uint32_t param_1, ...) {
+uint32_t gs_stamps_award_function(uint64_t param_1, ...) {
   byte bVar1;
   bool bVar2;
   uint uVar3;
@@ -24,7 +24,7 @@ uint32_t puVar6;
   if ((param_1 & 0xff) == 0) {
     bVar2 = false;
     if ((*(uint64_t*)rtguest::G(0x177fc78)) == -1) {
-      bVar2 = (*(uint32_t*)rtguest::G(0x177fc80)) == 0xfffffffff;
+      bVar2 = (*(uint64_t*)rtguest::G(0x177fc80)) == 0xfffffffff;
     }
   }
   else {
@@ -36,7 +36,7 @@ uint32_t puVar6;
   iVar5 = 0;
   if (0 < (*(int32_t*)rtguest::G(0x1782a60))) {
     pbVar4 = 0x01782a64;
-    bVar1 = (*(uint32_t*)rtguest::G(0x1782a64));
+    bVar1 = (*(uint8_t*)rtguest::G(0x1782a64));
     while( true ) {
       pbVar4 = pbVar4 + 1;
       if (bVar1 == param_1) {
@@ -44,11 +44,11 @@ uint32_t puVar6;
       }
       iVar5 = iVar5 + 1;
       if ((*(int32_t*)rtguest::G(0x1782a60)) <= iVar5) break;
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar4));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)pbVar4));
     }
   }
   iVar5 = (*(int32_t*)rtguest::G(0x1782a60)) + 1;
-  (*(uint32_t*)rtguest::G((uint32_t)0x1782a64 + (uint32_t)((*(int32_t*)rtguest::G(0x1782a60))) * 4)) = (char)param_1;
+  (*(uint8_t*)rtguest::G((uint32_t)0x1782a64 + (uint32_t)((*(int32_t*)rtguest::G(0x1782a60))) * 1)) = (uint32_t)param_1;
   (*(int32_t*)rtguest::G(0x1782a60)) = iVar5;
   if (param_1 == 0x1e) {
     uVar7 = 0x7d;

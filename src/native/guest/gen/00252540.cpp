@@ -5,12 +5,12 @@
 namespace guest {
 
 uint32_t NormalizeQuatAndRotate(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-    uint32_t uStack_28 = rtguest::allocFrame(8);
-    uint32_t uStack_30 = rtguest::allocFrame(8);
-  float fVar1;
 uint32_t auStack_40 = rtguest::allocFrame(16);
+    uint32_t uStack_30 = rtguest::allocFrame(8);
+    uint32_t uStack_28 = rtguest::allocFrame(8);
+  float fVar1;
   
-  sceVu0ScaleVectorXYZ(0xbf800000,auStack_40,param_3);
+  sceVu0ScaleVectorXYZ(rtguest::fbits(0xbf800000),auStack_40,param_3);
   if (param_2 == 0) {
     (*(uint64_t*)rtguest::G((uint32_t)uStack_30)) = 0x3f80000000000000;
     (*(uint64_t*)rtguest::G((uint32_t)uStack_28)) = 0;

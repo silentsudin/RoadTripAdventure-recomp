@@ -5,8 +5,9 @@
 namespace guest {
 
 uint32_t raceToPointTask(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_58 = rtguest::allocFrame(8);
     uint32_t uStack_60 = rtguest::allocFrame(8);
+    uint32_t uStack_58 = rtguest::allocFrame(8);
+uint32_t auStack_50 = rtguest::allocFrame(16);
   short sVar1;
   int iVar2;
 uint32_t __s;
@@ -14,7 +15,6 @@ uint32_t __s;
   int iVar4;
 uint32_t puVar5;
   float fVar6;
-uint32_t auStack_50 = rtguest::allocFrame(16);
   
   iVar4 = (int)param_1;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_58)) = 0x3f80000044236666;

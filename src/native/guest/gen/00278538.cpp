@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t _sceCd_ncmd_prechk(uint32_t param_1, ...) {
+uint32_t _sceCd_ncmd_prechk(uint64_t param_1, ...) {
   int iVar1;
   long lVar2;
   
@@ -16,7 +16,7 @@ uint32_t _sceCd_ncmd_prechk(uint32_t param_1, ...) {
     lVar2 = sceCdSync(1);
     if (lVar2 == 0) {
       sceSifInitRpc(0);
-      if (-1 < (*(uint32_t*)rtguest::G(0x2e6f38))) {
+      if (-1 < (*(int32_t*)rtguest::G(0x2e6f38))) {
         return 1;
       }
       while( true ) {

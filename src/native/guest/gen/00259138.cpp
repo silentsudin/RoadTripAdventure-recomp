@@ -5,9 +5,12 @@
 namespace guest {
 
 uint32_t SpawnDoorMenuEntity(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t fStack_78 = rtguest::allocFrame(4);
-    uint32_t fStack_7c = rtguest::allocFrame(4);
     uint32_t fStack_80 = rtguest::allocFrame(4);
+    uint32_t fStack_7c = rtguest::allocFrame(4);
+    uint32_t fStack_78 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t auStack_70 = rtguest::allocFrame(4);
+uint32_t auStack_6c = rtguest::allocFrame(12);
   int iVar1;
   long lVar2;
   int iVar3;
@@ -21,8 +24,6 @@ uint32_t pfVar4;
   float fVar11;
   float fVar12;
   float fVar13;
-uint32_t auStack_70 = rtguest::allocFrame(4);
-uint32_t auStack_6c = rtguest::allocFrame(12);
   
   iVar5 = (int)param_2;
   if ((((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))) & 0x400) == 0) && (uVar6 = (*(uint16_t*)rtguest::G(0x1780a3a)) & 1, uVar6 < 0x16)) {

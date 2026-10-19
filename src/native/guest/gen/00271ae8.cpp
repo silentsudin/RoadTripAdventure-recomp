@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t textGridDrawFrame(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+void textGridDrawFrame(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint32_t param_4, uint32_t param_5) {
   uint uVar1;
   uint uVar2;
   uint uVar3;
@@ -26,7 +26,7 @@ uint32_t textGridDrawFrame(uint32_t param_1, uint32_t param_2, uint32_t param_3,
     textBufferBlendPixel16(param_1,param_2,uVar1,0xf3,7);
     textBufferBlendPixel16(param_1,uVar3,uVar1,0xf3,7);
   }
-  return 0;
+  return;
 }
 
 

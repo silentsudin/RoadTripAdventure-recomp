@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t __muldi3(uint32_t param_1, uint32_t param_2, ...) {
+// pseudocode: ulong __muldi3(ulong, ulong)
+uint64_t __muldi3(uint64_t param_1, uint64_t param_2, ...) {
   ulong uVar1;
   
   uVar1 = (param_1 & 0xffffffff) * (param_2 & 0xffffffff);

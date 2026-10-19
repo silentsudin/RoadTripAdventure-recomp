@@ -5,8 +5,9 @@
 namespace guest {
 
 uint32_t drawCarouselScene(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t iStack_88 = rtguest::allocFrame(4);
     uint32_t iStack_90 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t iStack_88 = rtguest::allocFrame(4);
   char cVar1;
   byte bVar2;
   ushort uVar3;

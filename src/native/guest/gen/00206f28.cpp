@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t IntersectPointWithMesh(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, ...) {
+uint32_t IntersectPointWithMesh(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, ...) {
   uint uVar1;
 uint32_t pfVar2;
 uint32_t pfVar3;
@@ -26,12 +26,12 @@ uint32_t pfVar3;
   }
   uVar4 = (*(uint32_t*)rtguest::G((uint32_t)param_1));
   do {
-    pfVar3 = (uint32_t)(param_1 + 4);
+    pfVar3 = (uint32_t)(param_1 + (uint32_t)(4) * sizeof(uint32_t));
     uVar1 = (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint32_t)));
     uVar4 = uVar4 & 0x7fff;
     iVar5 = uVar4 - 2;
-    param_1 = param_1 + uVar4 * 8 + -4;
-    pfVar2 = pfVar3 + uVar4 * 4;
+    param_1 = param_1 + (uVar4 * 8 + -4) * (uint32_t)sizeof(uint32_t);
+    pfVar2 = pfVar3 + uVar4 * 4 * (uint32_t)sizeof(float);
     if (iVar5 != 0) {
       do {
         fVar13 = (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(2) * sizeof(float)));
@@ -97,7 +97,7 @@ uint32_t pfVar3;
               else if ((uVar1 & 0x10000000) == 0) {
                 if ((fVar9 < (*(float*)rtguest::G((uint32_t)param_6))) && ((*(float*)rtguest::G((uint32_t)param_5)) < fVar9)) {
                   (*(float*)rtguest::G((uint32_t)param_5)) = fVar9;
-                  (*(uint32_t*)rtguest::G((uint32_t)param_3)) = pfVar2 + 4;
+                  (*(uint32_t*)rtguest::G((uint32_t)param_3)) = pfVar2 + (uint32_t)(4) * sizeof(float);
                   param_8 = uVar1;
                 }
               }
@@ -108,8 +108,8 @@ uint32_t pfVar3;
           }
         }
         iVar5 = iVar5 + -2;
-        pfVar2 = pfVar2 + 8;
-        pfVar3 = pfVar3 + 8;
+        pfVar2 = pfVar2 + (uint32_t)(8) * sizeof(float);
+        pfVar3 = pfVar3 + (uint32_t)(8) * sizeof(float);
       } while (iVar5 != 0);
     }
     iVar6 = iVar6 + -1;

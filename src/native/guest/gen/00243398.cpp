@@ -5,12 +5,14 @@
 namespace guest {
 
 uint32_t raceMapPickups(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t afStack_70 = rtguest::allocFrame(40);
     uint32_t fStack_48 = rtguest::allocFrame(4);
-    uint32_t uStack_38 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
     uint32_t uStack_40 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_38 = rtguest::allocFrame(4);
 uint32_t puVar1;
   float fVar2;
-uint32_t afStack_70 = rtguest::allocFrame(40);
   
   fVar2 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a4058 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x22))) * 0x10)));
   vifUploadColours(0x2a43a0,0x2a4360);

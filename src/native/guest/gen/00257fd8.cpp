@@ -5,23 +5,24 @@
 namespace guest {
 
 uint32_t MusicRpcCmd15(uint32_t param_1, ...) {
-    uint32_t uStack_28 = rtguest::allocFrame(8);
-    uint32_t uStack_30 = rtguest::allocFrame(8);
-    uint32_t uStack_38 = rtguest::allocFrame(8);
-    uint32_t uStack_40 = rtguest::allocFrame(8);
-    uint32_t uStack_48 = rtguest::allocFrame(8);
-    uint32_t uStack_50 = rtguest::allocFrame(8);
-    uint32_t uStack_58 = rtguest::allocFrame(8);
-    uint32_t uStack_5c = rtguest::allocFrame(4);
+  uint32_t frame = rtguest::allocFrame(0x3c);
+  uint32_t uStack_5c = frame;
+  uint32_t uStack_58 = frame + 4;
+  uint32_t uStack_50 = frame + 0xc;
+  uint32_t uStack_48 = frame + 0x14;
+  uint32_t uStack_40 = frame + 0x1c;
+  uint32_t uStack_38 = frame + 0x24;
+  uint32_t uStack_30 = frame + 0x2c;
+  uint32_t uStack_28 = frame + 0x34;
   
   (*(uint64_t*)rtguest::G(0x175e888)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_58));
   (*(uint64_t*)rtguest::G(0x175e880)) = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),param_1);
   (*(uint64_t*)rtguest::G(0x175e890)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_50));
   (*(uint64_t*)rtguest::G(0x175e898)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_48));
-  (*(uint32_t*)rtguest::G(0x175e8a0)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_40));
-  (*(uint32_t*)rtguest::G(0x175e8a8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_38));
+  (*(uint64_t*)rtguest::G(0x175e8a0)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_40));
+  (*(uint64_t*)rtguest::G(0x175e8a8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_38));
   (*(uint64_t*)rtguest::G(0x175e8b0)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_30));
-  (*(uint32_t*)rtguest::G(0x175e8b8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_28));
+  (*(uint64_t*)rtguest::G(0x175e8b8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_28));
   sceSifCallRpc(0x175e840,0xf,0,0x175e880,0x40,0,0,0);
   return 0;
 }

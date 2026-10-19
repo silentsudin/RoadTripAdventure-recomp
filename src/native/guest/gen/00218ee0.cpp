@@ -5,13 +5,16 @@
 namespace guest {
 
 uint32_t AdvanceVehicleMotion(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, ...) {
-    uint32_t iStack_98 = rtguest::allocFrame(4);
-    uint32_t iStack_9c = rtguest::allocFrame(4);
-    uint32_t iStack_a0 = rtguest::allocFrame(4);
-    uint32_t iStack_a4 = rtguest::allocFrame(4);
-    uint32_t iStack_a8 = rtguest::allocFrame(4);
-    uint32_t iStack_ac = rtguest::allocFrame(4);
     uint32_t iStack_dc = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_d0 = rtguest::allocFrame(32);
+rtguest::allocFrame(4);  // guest frame gap
+    uint32_t iStack_ac = rtguest::allocFrame(4);
+    uint32_t iStack_a8 = rtguest::allocFrame(4);
+    uint32_t iStack_a4 = rtguest::allocFrame(4);
+    uint32_t iStack_a0 = rtguest::allocFrame(4);
+    uint32_t iStack_9c = rtguest::allocFrame(4);
+    uint32_t iStack_98 = rtguest::allocFrame(4);
   bool bVar1;
   char cVar2;
   short sVar3;
@@ -28,7 +31,6 @@ uint32_t AdvanceVehicleMotion(uint32_t param_1, uint32_t param_2, uint32_t param
   int iVar14;
   int iVar15;
   float fVar16;
-uint32_t auStack_d0 = rtguest::allocFrame(32);
 uint32_t piStack_b0;
   
   iVar9 = 0;

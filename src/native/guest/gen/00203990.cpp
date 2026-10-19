@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t uiSetTexa(uint32_t param_1, ...) {
+uint32_t uiSetTexa(uint64_t param_1, ...) {
 uint32_t puVar1;
   
   if ((*(uint32_t*)rtguest::G(0x335684)) < 0xa00) {

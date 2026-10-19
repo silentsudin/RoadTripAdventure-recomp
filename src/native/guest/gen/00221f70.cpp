@@ -5,12 +5,19 @@
 namespace guest {
 
 uint32_t drawCarShowroom(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+uint32_t auStack_180 = rtguest::allocFrame(52);
     uint32_t fStack_14c = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_140 = rtguest::allocFrame(48);
+uint32_t auStack_110 = rtguest::allocFrame(16);
     uint32_t uStack_100 = rtguest::allocFrame(4);
-    uint32_t uStack_70 = rtguest::allocFrame(4);
-    uint32_t uStack_f4 = rtguest::allocFrame(4);
-    uint32_t uStack_f8 = rtguest::allocFrame(4);
     uint32_t uStack_fc = rtguest::allocFrame(4);
+    uint32_t uStack_f8 = rtguest::allocFrame(4);
+    uint32_t uStack_f4 = rtguest::allocFrame(4);
+uint32_t auStack_f0 = rtguest::allocFrame(64);
+uint32_t auStack_b0 = rtguest::allocFrame(48);
+uint32_t auStack_80 = rtguest::allocFrame(16);
+    uint32_t uStack_70 = rtguest::allocFrame(4);
   ushort uVar1;
   int iVar2;
   int iVar3;
@@ -18,12 +25,6 @@ uint32_t drawCarShowroom(uint32_t param_1, uint32_t param_2, uint32_t param_3, .
 uint32_t puVar5;
   uint uVar6;
   int iVar7;
-uint32_t auStack_180 = rtguest::allocFrame(52);
-uint32_t auStack_140 = rtguest::allocFrame(48);
-uint32_t auStack_110 = rtguest::allocFrame(16);
-uint32_t auStack_f0 = rtguest::allocFrame(64);
-uint32_t auStack_b0 = rtguest::allocFrame(48);
-uint32_t auStack_80 = rtguest::allocFrame(16);
   
   iVar7 = (int)param_2;
   iVar2 = (*(uint32_t*)rtguest::G((uint32_t)0x177ea50 + (uint32_t)(param_3) * 4));

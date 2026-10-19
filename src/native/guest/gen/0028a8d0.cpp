@@ -5,14 +5,16 @@
 namespace guest {
 
 uint32_t sceDread(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_6c = rtguest::allocFrame(4);
-    uint32_t uStack_78 = rtguest::allocFrame(4);
+uint32_t auStack_80 = rtguest::allocFrame(4);
     uint32_t uStack_7c = rtguest::allocFrame(4);
+    uint32_t uStack_78 = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_6c = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_60 = rtguest::allocFrame(16);
   int iVar1;
   long lVar2;
   undefined8 uVar3;
-uint32_t auStack_80 = rtguest::allocFrame(4);
-uint32_t auStack_60 = rtguest::allocFrame(16);
   
   lVar2 = get_iob();
   _sceFsWaitS(0xb);

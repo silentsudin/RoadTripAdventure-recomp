@@ -20,13 +20,13 @@ uint32_t puVar5;
   piVar3 = (uint32_t)(0x3fbb80 + iVar6 * 0x34000);
   do {
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)piVar3));
-    piVar3 = piVar3 + 1;
+    piVar3 = piVar3 + sizeof(int32_t);
     iVar4 = iVar4 + -1;
     (*(uint32_t*)rtguest::G((uint32_t)puVar5)) = 0x3fbb80 + iVar6 * 0x34000 + iVar1;
-    puVar5 = puVar5 + 1;
+    puVar5 = puVar5 + sizeof(uint32_t);
   } while (-1 < iVar4);
   iVar4 = (int)param_1 * 0x44;
-  (*(uint32_t*)rtguest::G(0x29adb0)) = (long)(iVar4 + 0x243e) | 0x1300000000000000U |
+  (*(uint64_t*)rtguest::G(0x29adb0)) = (long)(iVar4 + 0x243e) | 0x1300000000000000U |
                  (long)(iVar6 * 0x44 + 0x243e) << 0x20 | 0x13000000U | 0x2000000020000;
   (*(uint64_t*)rtguest::G(0x29add0)) = 0x8000000080;
   (*(uint32_t*)rtguest::G(0x29adc0)) = 0;
@@ -35,7 +35,7 @@ uint32_t puVar5;
   uVar2 = sceDmaGetChan(2);
   sceDmaSync(uVar2,0,0);
   (*(uint32_t*)rtguest::G(0x29adc0)) = 0;
-  (*(uint32_t*)rtguest::G(0x29adb0)) = (long)(iVar4 + 0x247e) | (long)(iVar6 * 0x44 + 0x247e) << 0x20 | 0x1000000010000;
+  (*(uint64_t*)rtguest::G(0x29adb0)) = (long)(iVar4 + 0x247e) | (long)(iVar6 * 0x44 + 0x247e) << 0x20 | 0x1000000010000;
   (*(uint64_t*)rtguest::G(0x29add0)) = 0x1000000010;
   gifChainEndTag(0x29ad90,5);
   sendTexturePackets(0x29ad90);

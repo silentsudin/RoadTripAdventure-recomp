@@ -5,12 +5,15 @@
 namespace guest {
 
 uint32_t sceSdRemoteCallbackInit(uint32_t param_1, ...) {
-    uint32_t uStack_30 = rtguest::allocFrame(4);
-    uint32_t uStack_3c = rtguest::allocFrame(4);
+uint32_t auStack_50 = rtguest::allocFrame(4);
+rtguest::allocFrame(8);  // guest frame gap
     uint32_t uStack_44 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_3c = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_30 = rtguest::allocFrame(4);
   undefined8 uVar1;
   long lVar2;
-uint32_t auStack_50 = rtguest::allocFrame(4);
 uint32_t pcStack_4c;
 uint32_t puStack_48;
 uint32_t puStack_40;

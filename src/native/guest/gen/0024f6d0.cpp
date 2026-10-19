@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t uiArenaSetColour(uint32_t param_1, uint32_t param_2, ...) {
+void uiArenaSetColour(uint32_t param_1, uint64_t param_2) {
   int iVar1;
   int iVar2;
   
@@ -19,9 +19,9 @@ uint32_t uiArenaSetColour(uint32_t param_1, uint32_t param_2, ...) {
   }
   if (iVar1 != 0) {
     gifAdPair(iVar1,param_2,1);
-    return 0;
+    return;
   }
-  return 0;
+  return;
 }
 
 

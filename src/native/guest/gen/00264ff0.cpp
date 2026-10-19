@@ -4,15 +4,15 @@
 
 namespace guest {
 
-uint32_t drawBoardSpriteGrid(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t iStack_44 = rtguest::allocFrame(4);
-    uint32_t uStack_34 = rtguest::allocFrame(4);
-    uint32_t uStack_38 = rtguest::allocFrame(4);
-    uint32_t uStack_3c = rtguest::allocFrame(4);
-    uint32_t uStack_40 = rtguest::allocFrame(4);
-    uint32_t uStack_48 = rtguest::allocFrame(4);
-    uint32_t uStack_4c = rtguest::allocFrame(4);
+void drawBoardSpriteGrid(uint64_t param_1, uint32_t param_2) {
     uint32_t uStack_50 = rtguest::allocFrame(4);
+    uint32_t uStack_4c = rtguest::allocFrame(4);
+    uint32_t uStack_48 = rtguest::allocFrame(4);
+    uint32_t iStack_44 = rtguest::allocFrame(4);
+    uint32_t uStack_40 = rtguest::allocFrame(4);
+    uint32_t uStack_3c = rtguest::allocFrame(4);
+    uint32_t uStack_38 = rtguest::allocFrame(4);
+    uint32_t uStack_34 = rtguest::allocFrame(4);
   uint uVar1;
   int iVar2;
   int iVar3;
@@ -45,7 +45,7 @@ uint32_t drawBoardSpriteGrid(uint32_t param_1, uint32_t param_2, ...) {
     if (3 < (int)uVar5) break;
     uVar1 = uVar5 >> 0x1f;
   }
-  return 0;
+  return;
 }
 
 

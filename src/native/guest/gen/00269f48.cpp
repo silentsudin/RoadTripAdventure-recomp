@@ -5,9 +5,14 @@
 namespace guest {
 
 uint32_t resultsScene(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t iStack_58 = rtguest::allocFrame(4);
-    uint32_t iStack_5c = rtguest::allocFrame(4);
+uint32_t auStack_110 = rtguest::allocFrame(32);
+uint32_t auStack_f0 = rtguest::allocFrame(20);
+uint32_t aiStack_dc = rtguest::allocFrame(92);
+uint32_t abStack_80 = rtguest::allocFrame(16);
+uint32_t abStack_70 = rtguest::allocFrame(16);
     uint32_t iStack_60 = rtguest::allocFrame(4);
+    uint32_t iStack_5c = rtguest::allocFrame(4);
+    uint32_t iStack_58 = rtguest::allocFrame(4);
   undefined1 uVar1;
   ushort uVar2;
   char cVar3;
@@ -28,11 +33,6 @@ uint32_t pbVar13;
 uint32_t puVar18;
   int iVar19;
 uint32_t puVar20;
-uint32_t auStack_110 = rtguest::allocFrame(32);
-uint32_t auStack_f0 = rtguest::allocFrame(20);
-uint32_t aiStack_dc = rtguest::allocFrame(92);
-uint32_t abStack_80 = rtguest::allocFrame(16);
-uint32_t abStack_70 = rtguest::allocFrame(16);
   
   iVar17 = 0;
   pbVar13 = abStack_80;

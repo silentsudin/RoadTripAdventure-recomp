@@ -5,18 +5,20 @@
 namespace guest {
 
 uint32_t raceStandingsMenuTask(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t iStack_60 = rtguest::allocFrame(4);
     uint32_t uStack_100 = rtguest::allocFrame(8);
-    uint32_t uStack_a8 = rtguest::allocFrame(8);
-    uint32_t uStack_b0 = rtguest::allocFrame(8);
-    uint32_t uStack_b8 = rtguest::allocFrame(8);
-    uint32_t uStack_c0 = rtguest::allocFrame(8);
-    uint32_t uStack_c8 = rtguest::allocFrame(8);
-    uint32_t uStack_d0 = rtguest::allocFrame(8);
-    uint32_t uStack_e0 = rtguest::allocFrame(8);
-    uint32_t uStack_e8 = rtguest::allocFrame(8);
-    uint32_t uStack_f0 = rtguest::allocFrame(8);
     uint32_t uStack_f8 = rtguest::allocFrame(8);
+    uint32_t uStack_f0 = rtguest::allocFrame(8);
+    uint32_t uStack_e8 = rtguest::allocFrame(8);
+    uint32_t uStack_e0 = rtguest::allocFrame(8);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_d0 = rtguest::allocFrame(8);
+    uint32_t uStack_c8 = rtguest::allocFrame(8);
+    uint32_t uStack_c0 = rtguest::allocFrame(8);
+    uint32_t uStack_b8 = rtguest::allocFrame(8);
+    uint32_t uStack_b0 = rtguest::allocFrame(8);
+    uint32_t uStack_a8 = rtguest::allocFrame(8);
+uint32_t acStack_a0 = rtguest::allocFrame(64);
+    uint32_t iStack_60 = rtguest::allocFrame(4);
   undefined1 uVar1;
   byte bVar2;
   undefined4 uVar3;
@@ -33,7 +35,6 @@ uint32_t puVar12;
   int iVar13;
   int iVar14;
 uint32_t puVar15;
-uint32_t acStack_a0 = rtguest::allocFrame(64);
   
   iVar14 = (int)param_1;
   iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x1c)));

@@ -5,10 +5,10 @@
 namespace guest {
 
 uint32_t _sceFsSemInit(uint32_t q0, ...) {
-    uint32_t uStack_2c = rtguest::allocFrame(4);
-    uint32_t uStack_38 = rtguest::allocFrame(4);
-    uint32_t uStack_3c = rtguest::allocFrame(4);
-uint32_t auStack_40 = rtguest::allocFrame(4);
+  uint32_t auStack_40 = rtguest::allocFrame(0x18);
+  uint32_t uStack_3c = auStack_40 + 4;
+  uint32_t uStack_38 = auStack_40 + 8;
+  uint32_t uStack_2c = auStack_40 + 0x14;
   
   if ((*(int32_t*)rtguest::G(0x2e998c)) == -1) {
     (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) = 0;

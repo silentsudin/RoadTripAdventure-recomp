@@ -5,20 +5,24 @@
 namespace guest {
 
 uint32_t uiArenaRotQuads2(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
-    uint32_t fStack_98 = rtguest::allocFrame(4);
-    uint32_t fStack_9c = rtguest::allocFrame(4);
-    uint32_t fStack_a0 = rtguest::allocFrame(4);
-    uint32_t fStack_ac = rtguest::allocFrame(4);
-    uint32_t fStack_bc = rtguest::allocFrame(4);
-    uint32_t fStack_cc = rtguest::allocFrame(4);
     uint32_t fStack_d0 = rtguest::allocFrame(4);
+    uint32_t fStack_cc = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t fStack_bc = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t fStack_ac = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t fStack_a0 = rtguest::allocFrame(4);
+    uint32_t fStack_9c = rtguest::allocFrame(4);
+    uint32_t fStack_98 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t auStack_90 = rtguest::allocFrame(16);
+uint32_t afStack_80 = rtguest::allocFrame(16);
     uint32_t iStack_70 = rtguest::allocFrame(4);
 uint32_t pfVar1;
   int iVar2;
   int iVar3;
   float fVar4;
-uint32_t auStack_90 = rtguest::allocFrame(16);
-uint32_t afStack_80 = rtguest::allocFrame(16);
   
   if (0 < param_3) {
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int32_t)));

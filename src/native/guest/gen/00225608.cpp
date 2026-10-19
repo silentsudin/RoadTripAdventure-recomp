@@ -5,9 +5,9 @@
 namespace guest {
 
 uint32_t drawSkyDome(uint32_t param_1, ...) {
-    uint32_t uStack_2c = rtguest::allocFrame(4);
 uint32_t auStack_60 = rtguest::allocFrame(48);
 uint32_t auStack_30 = rtguest::allocFrame(4);
+    uint32_t uStack_2c = rtguest::allocFrame(4);
   
   SetDrawSkyColours(0x29d490);
   (*(uint32_t*)rtguest::G(0x29d49c)) = (*(uint32_t*)rtguest::G(0x332da4));

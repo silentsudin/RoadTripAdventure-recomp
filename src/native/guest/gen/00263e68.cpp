@@ -5,7 +5,11 @@
 namespace guest {
 
 uint32_t distanceGoalRaceTask(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t fStack_5c = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_50 = rtguest::allocFrame(4);
+uint32_t auStack_4c = rtguest::allocFrame(12);
   int iVar1;
   undefined4 uVar2;
   bool bVar3;
@@ -17,9 +21,6 @@ uint32_t pvVar4;
 uint32_t puVar9;
   int iVar10;
   float fVar11;
-uint32_t auStack_60 = rtguest::allocFrame(4);
-uint32_t auStack_50 = rtguest::allocFrame(4);
-uint32_t auStack_4c = rtguest::allocFrame(12);
   
   iVar8 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) == 0) {

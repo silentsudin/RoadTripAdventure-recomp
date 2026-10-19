@@ -5,8 +5,8 @@
 namespace guest {
 
 uint32_t cos(uint32_t __x, ...) {
-    uint32_t uStack_18 = rtguest::allocFrame(8);
     uint32_t uStack_20 = rtguest::allocFrame(8);
+    uint32_t uStack_18 = rtguest::allocFrame(8);
   double dVar1;
   undefined8 uVar2;
   ulong uVar3;

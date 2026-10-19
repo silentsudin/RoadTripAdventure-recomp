@@ -5,9 +5,9 @@
 namespace guest {
 
 uint32_t TestQuadLateralMask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
-    uint32_t fStack_68 = rtguest::allocFrame(4);
-    uint32_t fStack_6c = rtguest::allocFrame(4);
     uint32_t fStack_70 = rtguest::allocFrame(4);
+    uint32_t fStack_6c = rtguest::allocFrame(4);
+    uint32_t fStack_68 = rtguest::allocFrame(4);
     uint32_t uStack_64 = rtguest::allocFrame(4);
 uint32_t pfVar1;
 uint32_t pfVar2;

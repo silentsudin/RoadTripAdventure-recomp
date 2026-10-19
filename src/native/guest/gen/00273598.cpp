@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t scePadInit(uint32_t param_1, ...) {
+uint32_t scePadInit(uint64_t param_1, ...) {
   ulong uVar1;
   undefined8 uVar2;
   int iVar3;

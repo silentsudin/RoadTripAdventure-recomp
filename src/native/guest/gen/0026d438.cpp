@@ -32,7 +32,7 @@ uint32_t puVar1;
   }
   gs_tasks_spawn(param_1,0x20dc50,0x000a0000 + (*(uint8_t*)rtguest::G((uint32_t)0x0177f778 + 2)));
   puVar1 = (*(uint32_t*)rtguest::G(0x002c22e8));
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x26d550));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = 0x0026d550;
   (*(uint32_t*)rtguest::G(0x177ea50)) = puVar1 + 0x80;
   return 0;
 }

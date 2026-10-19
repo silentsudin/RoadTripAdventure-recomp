@@ -5,9 +5,12 @@
 namespace guest {
 
 uint32_t UpdateControllerInput(uint32_t param_1, ...) {
-    uint32_t bStack_5d = rtguest::allocFrame(1);
-    uint32_t bStack_5e = rtguest::allocFrame(1);
     uint32_t uStack_70 = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+uint32_t auStack_60 = rtguest::allocFrame(2);
+    uint32_t bStack_5e = rtguest::allocFrame(1);
+    uint32_t bStack_5d = rtguest::allocFrame(1);
+uint32_t abStack_5c = rtguest::allocFrame(28);
   byte bVar1;
   char cVar2;
   uint uVar3;
@@ -23,8 +26,6 @@ uint32_t puVar12;
   int iVar13;
 uint32_t pbVar14;
   int iVar15;
-uint32_t auStack_60 = rtguest::allocFrame(2);
-uint32_t abStack_5c = rtguest::allocFrame(28);
   
   pbVar14 = (uint32_t)uStack_70;
   iVar11 = (int)param_1;

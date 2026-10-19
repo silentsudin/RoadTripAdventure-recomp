@@ -5,15 +5,17 @@
 namespace guest {
 
 uint32_t raceResultPanelTask(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_100 = rtguest::allocFrame(8);
-    uint32_t uStack_108 = rtguest::allocFrame(8);
     uint32_t uStack_110 = rtguest::allocFrame(8);
-    uint32_t uStack_d0 = rtguest::allocFrame(8);
-    uint32_t uStack_d8 = rtguest::allocFrame(8);
-    uint32_t uStack_e0 = rtguest::allocFrame(8);
-    uint32_t uStack_e8 = rtguest::allocFrame(8);
-    uint32_t uStack_f0 = rtguest::allocFrame(8);
+    uint32_t uStack_108 = rtguest::allocFrame(8);
+    uint32_t uStack_100 = rtguest::allocFrame(8);
     uint32_t uStack_f8 = rtguest::allocFrame(8);
+    uint32_t uStack_f0 = rtguest::allocFrame(8);
+    uint32_t uStack_e8 = rtguest::allocFrame(8);
+    uint32_t uStack_e0 = rtguest::allocFrame(8);
+    uint32_t uStack_d8 = rtguest::allocFrame(8);
+    uint32_t uStack_d0 = rtguest::allocFrame(8);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_c0 = rtguest::allocFrame(128);
   byte bVar1;
   int iVar2;
   int iVar3;
@@ -22,7 +24,6 @@ uint32_t raceResultPanelTask(uint32_t param_1, uint32_t param_2, ...) {
 uint32_t piVar6;
   int iVar7;
   int iVar8;
-uint32_t auStack_c0 = rtguest::allocFrame(128);
   
   iVar7 = (int)param_1;
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x1c)));

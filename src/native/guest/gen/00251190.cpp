@@ -5,10 +5,10 @@
 namespace guest {
 
 uint32_t ApplyCupAttraction(uint32_t param_1, ...) {
-    uint32_t uStack_54 = rtguest::allocFrame(4);
-    uint32_t uStack_58 = rtguest::allocFrame(4);
-    uint32_t uStack_5c = rtguest::allocFrame(4);
     uint32_t uStack_60 = rtguest::allocFrame(4);
+    uint32_t uStack_5c = rtguest::allocFrame(4);
+    uint32_t uStack_58 = rtguest::allocFrame(4);
+    uint32_t uStack_54 = rtguest::allocFrame(4);
   undefined4 uVar1;
   undefined4 uVar2;
   float fVar3;

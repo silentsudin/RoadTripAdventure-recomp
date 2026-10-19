@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t DrawTextListRows(uint32_t param_1, uint32_t param_2, ...) {
+void DrawTextListRows(uint64_t param_1, uint64_t param_2) {
   long lVar1;
   int iVar2;
   int iVar3;
@@ -18,7 +18,7 @@ uint32_t DrawTextListRows(uint32_t param_1, uint32_t param_2, ...) {
     iVar3 = iVar3 + 1;
     uiDrawTextCell(0x12,iVar2,lVar1,10);
   }
-  return 0;
+  return;
 }
 
 

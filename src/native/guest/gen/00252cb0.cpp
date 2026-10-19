@@ -5,17 +5,24 @@
 namespace guest {
 
 uint32_t DrawGolfScorecard(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t iStack_5c = rtguest::allocFrame(4);
-    uint32_t iStack_60 = rtguest::allocFrame(4);
-    uint32_t uStack_100 = rtguest::allocFrame(8);
-    uint32_t uStack_108 = rtguest::allocFrame(8);
-    uint32_t uStack_110 = rtguest::allocFrame(8);
-    uint32_t uStack_118 = rtguest::allocFrame(8);
-    uint32_t uStack_120 = rtguest::allocFrame(8);
-    uint32_t uStack_128 = rtguest::allocFrame(8);
     uint32_t uStack_130 = rtguest::allocFrame(8);
-    uint32_t uStack_f0 = rtguest::allocFrame(8);
+    uint32_t uStack_128 = rtguest::allocFrame(8);
+    uint32_t uStack_120 = rtguest::allocFrame(8);
+    uint32_t uStack_118 = rtguest::allocFrame(8);
+    uint32_t uStack_110 = rtguest::allocFrame(8);
+    uint32_t uStack_108 = rtguest::allocFrame(8);
+    uint32_t uStack_100 = rtguest::allocFrame(8);
     uint32_t uStack_f8 = rtguest::allocFrame(8);
+    uint32_t uStack_f0 = rtguest::allocFrame(8);
+    rtguest::allocFrame(24);  // guest frame gap
+uint32_t acStack_d0 = rtguest::allocFrame(16);
+uint32_t apuStack_c0 = rtguest::allocFrame(32);
+uint32_t apuStack_a0 = rtguest::allocFrame(16);
+uint32_t auStack_90 = rtguest::allocFrame(16);
+uint32_t apuStack_80 = rtguest::allocFrame(16);
+uint32_t auStack_70 = rtguest::allocFrame(16);
+    uint32_t iStack_60 = rtguest::allocFrame(4);
+    uint32_t iStack_5c = rtguest::allocFrame(4);
   byte bVar1;
 uint32_t puVar2;
 uint32_t puVar3;
@@ -33,12 +40,6 @@ uint32_t piVar13;
   uint uVar15;
 uint32_t piVar16;
   int iVar17;
-uint32_t acStack_d0 = rtguest::allocFrame(16);
-uint32_t apuStack_c0 = rtguest::allocFrame(32);
-uint32_t apuStack_a0 = rtguest::allocFrame(16);
-uint32_t auStack_90 = rtguest::allocFrame(16);
-uint32_t apuStack_80 = rtguest::allocFrame(16);
-uint32_t auStack_70 = rtguest::allocFrame(16);
   
   iVar17 = (int)param_1;
   iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x1c)));

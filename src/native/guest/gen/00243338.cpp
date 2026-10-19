@@ -5,10 +5,12 @@
 namespace guest {
 
 uint32_t mapDot(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_28 = rtguest::allocFrame(4);
-    uint32_t uStack_30 = rtguest::allocFrame(4);
-    uint32_t uStack_38 = rtguest::allocFrame(4);
 uint32_t auStack_60 = rtguest::allocFrame(40);
+    uint32_t uStack_38 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_30 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_28 = rtguest::allocFrame(4);
   
   vu0UnitMatrix(auStack_60);
   (*(uint32_t*)rtguest::G((uint32_t)uStack_28)) = (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint32_t)));

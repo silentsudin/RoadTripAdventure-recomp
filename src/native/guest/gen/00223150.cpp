@@ -5,14 +5,14 @@
 namespace guest {
 
 uint32_t UploadPackedColors(uint32_t param_1, ...) {
-    uint32_t uStack_14 = rtguest::allocFrame(4);
-    uint32_t uStack_18 = rtguest::allocFrame(4);
-    uint32_t uStack_1c = rtguest::allocFrame(4);
-    uint32_t uStack_20 = rtguest::allocFrame(4);
-    uint32_t uStack_24 = rtguest::allocFrame(4);
-    uint32_t uStack_28 = rtguest::allocFrame(4);
-    uint32_t uStack_2c = rtguest::allocFrame(4);
     uint32_t uStack_30 = rtguest::allocFrame(4);
+    uint32_t uStack_2c = rtguest::allocFrame(4);
+    uint32_t uStack_28 = rtguest::allocFrame(4);
+    uint32_t uStack_24 = rtguest::allocFrame(4);
+    uint32_t uStack_20 = rtguest::allocFrame(4);
+    uint32_t uStack_1c = rtguest::allocFrame(4);
+    uint32_t uStack_18 = rtguest::allocFrame(4);
+    uint32_t uStack_14 = rtguest::allocFrame(4);
   uint uVar1;
   
   uVar1 = (*(uint32_t*)rtguest::G((uint32_t)param_1));

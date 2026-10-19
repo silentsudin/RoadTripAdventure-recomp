@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceSifRpcLoop(uint32_t param_1, ...) {
+uint32_t sceSifRpcLoop(uint64_t param_1, ...) {
   long lVar1;
   
   do {

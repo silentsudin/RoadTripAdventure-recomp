@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t gifBeginSpriteBatch(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t gifBeginSpriteBatch(uint32_t param_1, uint64_t param_2, ...) {
   undefined8 uVar1;
   
   (*(uint64_t*)rtguest::G((uint32_t)param_1)) = (*(uint64_t*)rtguest::G(0x29cc70));

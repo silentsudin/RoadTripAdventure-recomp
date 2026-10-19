@@ -5,16 +5,17 @@
 namespace guest {
 
 uint32_t HandleControllerConfigMenuInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-    uint32_t iStack_50 = rtguest::allocFrame(4);
-    uint32_t iStack_80 = rtguest::allocFrame(4);
-    uint32_t uStack_58 = rtguest::allocFrame(8);
-    uint32_t uStack_60 = rtguest::allocFrame(8);
-    uint32_t uStack_68 = rtguest::allocFrame(8);
-    uint32_t uStack_70 = rtguest::allocFrame(8);
-    uint32_t uStack_88 = rtguest::allocFrame(8);
-    uint32_t uStack_90 = rtguest::allocFrame(8);
-    uint32_t uStack_98 = rtguest::allocFrame(8);
     uint32_t uStack_a0 = rtguest::allocFrame(8);
+    uint32_t uStack_98 = rtguest::allocFrame(8);
+    uint32_t uStack_90 = rtguest::allocFrame(8);
+    uint32_t uStack_88 = rtguest::allocFrame(8);
+    uint32_t iStack_80 = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_70 = rtguest::allocFrame(8);
+    uint32_t uStack_68 = rtguest::allocFrame(8);
+    uint32_t uStack_60 = rtguest::allocFrame(8);
+    uint32_t uStack_58 = rtguest::allocFrame(8);
+    uint32_t iStack_50 = rtguest::allocFrame(4);
   ushort uVar1;
   bool bVar2;
   int iVar3;

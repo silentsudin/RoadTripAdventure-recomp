@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceCdSyncS(uint32_t param_1, ...) {
+uint64_t sceCdSyncS(uint64_t param_1, ...) {
   long lVar1;
   undefined8 uVar2;
   

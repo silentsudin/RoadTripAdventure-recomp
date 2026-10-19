@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t uiArenaBeginBatch(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+void uiArenaBeginBatch(uint32_t param_1, uint64_t param_2, uint32_t param_3) {
   int iVar1;
   int iVar2;
   
@@ -20,12 +20,12 @@ uint32_t uiArenaBeginBatch(uint32_t param_1, uint32_t param_2, uint32_t param_3,
   if (iVar1 != 0) {
     if (param_2 != 0) {
       gifBeginSpriteBatch(iVar1,(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_3 * 0x10 + (int)param_2 + 8))));
-      return 0;
+      return;
     }
     gifBeginSpriteBatch(iVar1,0);
-    return 0;
+    return;
   }
-  return 0;
+  return;
 }
 
 

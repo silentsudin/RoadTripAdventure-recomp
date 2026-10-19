@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t DispatchByIndex16(uint32_t param_1, ...) {
+uint64_t DispatchByIndex16(uint64_t param_1, ...) {
   undefined8 uVar1;
   
   if (param_1 < 0x10) {

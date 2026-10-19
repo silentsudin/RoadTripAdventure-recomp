@@ -4,26 +4,28 @@
 
 namespace guest {
 
-uint32_t _dtoa_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
-    uint32_t iStack_60 = rtguest::allocFrame(4);
-    uint32_t iStack_64 = rtguest::allocFrame(4);
-    uint32_t iStack_68 = rtguest::allocFrame(4);
-    uint32_t iStack_70 = rtguest::allocFrame(4);
-    uint32_t iStack_78 = rtguest::allocFrame(4);
-    uint32_t iStack_7c = rtguest::allocFrame(4);
-    uint32_t iStack_80 = rtguest::allocFrame(4);
-    uint32_t iStack_94 = rtguest::allocFrame(4);
-    uint32_t iStack_98 = rtguest::allocFrame(4);
-    uint32_t iStack_ac = rtguest::allocFrame(4);
+// pseudocode: char *_dtoa_r(undefined8, ulong, uint, uint, int*, undefined4*, undefined4*)
+uint32_t _dtoa_r(uint64_t param_1, uint64_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
     uint32_t iStack_b0 = rtguest::allocFrame(4);
-    uint32_t uStack_6c = rtguest::allocFrame(4);
-    uint32_t uStack_74 = rtguest::allocFrame(4);
-    uint32_t uStack_84 = rtguest::allocFrame(4);
-    uint32_t uStack_88 = rtguest::allocFrame(4);
-    uint32_t uStack_8c = rtguest::allocFrame(4);
-    uint32_t uStack_90 = rtguest::allocFrame(4);
-    uint32_t uStack_a4 = rtguest::allocFrame(4);
+    uint32_t iStack_ac = rtguest::allocFrame(4);
     uint32_t uStack_a8 = rtguest::allocFrame(4);
+    uint32_t uStack_a4 = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t iStack_98 = rtguest::allocFrame(4);
+    uint32_t iStack_94 = rtguest::allocFrame(4);
+    uint32_t uStack_90 = rtguest::allocFrame(4);
+    uint32_t uStack_8c = rtguest::allocFrame(4);
+    uint32_t uStack_88 = rtguest::allocFrame(4);
+    uint32_t uStack_84 = rtguest::allocFrame(4);
+    uint32_t iStack_80 = rtguest::allocFrame(4);
+    uint32_t iStack_7c = rtguest::allocFrame(4);
+    uint32_t iStack_78 = rtguest::allocFrame(4);
+    uint32_t uStack_74 = rtguest::allocFrame(4);
+    uint32_t iStack_70 = rtguest::allocFrame(4);
+    uint32_t uStack_6c = rtguest::allocFrame(4);
+    uint32_t iStack_68 = rtguest::allocFrame(4);
+    uint32_t iStack_64 = rtguest::allocFrame(4);
+    uint32_t iStack_60 = rtguest::allocFrame(4);
   bool bVar1;
   bool bVar2;
   undefined4 uVar3;

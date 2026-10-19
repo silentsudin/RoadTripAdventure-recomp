@@ -5,18 +5,19 @@
 namespace guest {
 
 uint32_t UpdatePauseConfirmDialogTask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-    uint32_t iStack_74 = rtguest::allocFrame(4);
-    uint32_t iStack_7c = rtguest::allocFrame(4);
-    uint32_t uStack_64 = rtguest::allocFrame(4);
-    uint32_t uStack_68 = rtguest::allocFrame(4);
-    uint32_t uStack_6c = rtguest::allocFrame(4);
-    uint32_t uStack_70 = rtguest::allocFrame(4);
-    uint32_t uStack_78 = rtguest::allocFrame(4);
-    uint32_t uStack_80 = rtguest::allocFrame(4);
-    uint32_t uStack_88 = rtguest::allocFrame(8);
-    uint32_t uStack_90 = rtguest::allocFrame(8);
-    uint32_t uStack_98 = rtguest::allocFrame(8);
     uint32_t uStack_a0 = rtguest::allocFrame(8);
+    uint32_t uStack_98 = rtguest::allocFrame(8);
+    uint32_t uStack_90 = rtguest::allocFrame(8);
+    uint32_t uStack_88 = rtguest::allocFrame(8);
+    uint32_t uStack_80 = rtguest::allocFrame(4);
+    uint32_t iStack_7c = rtguest::allocFrame(4);
+    uint32_t uStack_78 = rtguest::allocFrame(4);
+    uint32_t iStack_74 = rtguest::allocFrame(4);
+    uint32_t uStack_70 = rtguest::allocFrame(4);
+    uint32_t uStack_6c = rtguest::allocFrame(4);
+    uint32_t uStack_68 = rtguest::allocFrame(4);
+    uint32_t uStack_64 = rtguest::allocFrame(4);
+uint32_t auStack_60 = rtguest::allocFrame(16);
   long lVar1;
   int iVar2;
   int iVar3;
@@ -24,7 +25,6 @@ uint32_t UpdatePauseConfirmDialogTask(uint32_t param_1, uint32_t param_2, uint32
   int iVar5;
   int iVar6;
 uint32_t puVar7;
-uint32_t auStack_60 = rtguest::allocFrame(16);
   
   iVar2 = (int)param_3;
   puVar7 = (uint32_t)param_4;

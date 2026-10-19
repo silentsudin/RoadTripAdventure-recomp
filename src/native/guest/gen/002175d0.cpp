@@ -5,10 +5,10 @@
 namespace guest {
 
 uint32_t TestCarCollisionBox(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t afStack_30 = rtguest::allocFrame(8);
     uint32_t fStack_28 = rtguest::allocFrame(4);
   undefined4 uVar1;
   int iVar2;
-uint32_t afStack_30 = rtguest::allocFrame(8);
   
   iVar2 = param_2 + 0x90;
   param_2 = param_2 + 0xb0;

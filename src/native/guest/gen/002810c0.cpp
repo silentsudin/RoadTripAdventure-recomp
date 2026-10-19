@@ -5,11 +5,13 @@
 namespace guest {
 
 uint32_t _vsprintf_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-    uint32_t uStack_1c = rtguest::allocFrame(4);
-    uint32_t uStack_5c = rtguest::allocFrame(4);
-    uint32_t uStack_64 = rtguest::allocFrame(2);
-    uint32_t uStack_68 = rtguest::allocFrame(4);
 uint32_t apuStack_70 = rtguest::allocFrame(8);
+    uint32_t uStack_68 = rtguest::allocFrame(4);
+    uint32_t uStack_64 = rtguest::allocFrame(2);
+    rtguest::allocFrame(6);  // guest frame gap
+    uint32_t uStack_5c = rtguest::allocFrame(4);
+    rtguest::allocFrame(60);  // guest frame gap
+    uint32_t uStack_1c = rtguest::allocFrame(4);
 uint32_t puStack_60;
   
   (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = 0x7fffffff;

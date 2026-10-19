@@ -17,8 +17,8 @@ uint32_t RunConfirmDialogTask(uint32_t param_1, uint32_t param_2, ...) {
     if ('\x03' < (*(int8_t*)rtguest::G(0x17831f9))) {
       (*(int8_t*)rtguest::G(0x17831f9)) = '\x03';
     }
-    if ('\x03' < (*(uint32_t*)rtguest::G(0x1786641))) {
-      (*(uint32_t*)rtguest::G(0x1786641)) = '\x03';
+    if ('\x03' < (*(int8_t*)rtguest::G(0x1786641))) {
+      (*(int8_t*)rtguest::G(0x1786641)) = '\x03';
     }
   }
   else {

@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceMcGetDir(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+int64_t sceMcGetDir(uint32_t param_1, uint32_t param_2, int64_t param_3, uint32_t param_4, int64_t param_5, uint64_t param_6, ...) {
   long lVar1;
   
   lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));
@@ -26,7 +26,7 @@ uint32_t sceMcGetDir(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint3
     (*(uint32_t*)rtguest::G(0x1774bf8)) = param_4;
     (*(uint32_t*)rtguest::G(0x1774bfc)) = (int)param_5;
     (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)(0x01774c04)), (char *)rtguest::G((uint32_t)((uint32_t)param_3)), 0x3ff));
-    (*(uint32_t*)rtguest::G(0x1775003)) = 0;
+    (*(uint8_t*)rtguest::G(0x1775003)) = 0;
     if (-1 < param_5) {
       sceSifWriteBackDCache(param_6,(int)param_5 << 6);
     }

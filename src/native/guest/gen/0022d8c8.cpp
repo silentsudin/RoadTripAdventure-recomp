@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t DrawRecordTableRows(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+void DrawRecordTableRows(uint32_t param_1, uint64_t param_2, uint32_t param_3, uint64_t param_4) {
   char cVar1;
   char cVar2;
   undefined8 uVar3;
@@ -31,7 +31,7 @@ uint32_t DrawRecordTableRows(uint32_t param_1, uint32_t param_2, uint32_t param_
         uVar3 = 2;
       }
       SetStageConfig(param_4,uVar6,0,cVar1 + -1,iVar4,uVar3);
-      iVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (cVar1 < '\x03' ^ 1)) + (uint32_t)(1) * 4));
+      iVar4 = (*(uint32_t*)rtguest::G(param_1 + (uint32_t)((cVar1 < '\x03') ^ 1) * sizeof(int32_t) + sizeof(int32_t)));
       uVar3 = 0;
       if (iVar4 != (*(int32_t*)rtguest::G(0x335700))) {
         uVar3 = 2;
@@ -45,7 +45,7 @@ uint32_t DrawRecordTableRows(uint32_t param_1, uint32_t param_2, uint32_t param_
       iVar4 = iVar5;
     }
     SetStageConfig(param_4,uVar6,iVar4,iVar5 + 1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x260))),1);
-    return 0;
+    return;
   }
   iVar4 = 0;
   cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x19b)));
@@ -73,7 +73,7 @@ uint32_t DrawRecordTableRows(uint32_t param_1, uint32_t param_2, uint32_t param_
     uVar3 = 0;
   }
   SetStageConfig(param_4,uVar6,iVar5,cVar1,(*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(iVar5) * sizeof(int32_t))),uVar3);
-  return 0;
+  return;
 }
 
 

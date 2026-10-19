@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t textGridFillRectBlank(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+void textGridFillRectBlank(uint64_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5) {
   int iVar1;
   uint uVar2;
   uint uVar3;
@@ -24,7 +24,7 @@ uint32_t textGridFillRectBlank(uint32_t param_1, uint32_t param_2, uint32_t para
       uVar2 = uVar2 + 1;
     } while (uVar2 < param_5);
   }
-  return 0;
+  return;
 }
 
 

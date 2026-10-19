@@ -5,11 +5,11 @@
 namespace guest {
 
 uint32_t raceHudElementH(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-    uint32_t iStack_60 = rtguest::allocFrame(4);
-    uint32_t uStack_68 = rtguest::allocFrame(8);
-    uint32_t uStack_70 = rtguest::allocFrame(8);
-    uint32_t uStack_78 = rtguest::allocFrame(8);
     uint32_t uStack_80 = rtguest::allocFrame(8);
+    uint32_t uStack_78 = rtguest::allocFrame(8);
+    uint32_t uStack_70 = rtguest::allocFrame(8);
+    uint32_t uStack_68 = rtguest::allocFrame(8);
+    uint32_t iStack_60 = rtguest::allocFrame(4);
   undefined4 uVar1;
   uint uVar2;
   int iVar3;

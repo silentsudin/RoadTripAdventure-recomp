@@ -14,7 +14,7 @@ uint32_t cdReadEntryPart(uint32_t param_1, uint32_t param_2, uint32_t param_3, u
   iVar3 = (param_3 & 0xfffff800) + 0x7ff;
   uVar4 = (param_3 & 0x7ff) + param_4 + 0x7ff & 0xfffff800;
   iVar2 = uVar4 + 0x7ff;
-  (*(uint32_t*)rtguest::G((uint32_t)0x01727b80 + 4)) = (int)((uint32_t)(*(uint64_t*)rtguest::G((uint32_t)param_1)) >> 0x20);
+  (*(uint32_t*)rtguest::G((uint32_t)0x01727b80 + 4)) = (int)((*(uint64_t*)rtguest::G((uint32_t)param_1)) >> 0x20);
   if (iVar3 < 0) {
     iVar3 = (param_3 & 0xfffff800) + 0xffe;
   }

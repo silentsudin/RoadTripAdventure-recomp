@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t enableIntc(uint32_t param_1, ...) {
+uint64_t enableIntc(uint64_t param_1, ...) {
   undefined8 uVar1;
   uint uVar2;
   

@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t int64ToDouble(uint32_t param_1, ...) {
+uint64_t int64ToDouble(int64_t param_1, ...) {
   undefined8 uVar1;
   undefined8 uVar2;
   
@@ -15,8 +15,8 @@ uint32_t int64ToDouble(uint32_t param_1, ...) {
   if ((int)param_1 < 0) {
     uVar2 = dpadd(uVar2,0x41f0000000000000);
   }
-  dpadd(uVar1,uVar2);
-  return 0;
+  // epilogue is jr $ra after the last dpadd, so $2 (dpadd's double bits) is the return
+  return dpadd(uVar1,uVar2);
 }
 
 

@@ -7,8 +7,8 @@ namespace guest {
 uint32_t UpdateCarouselConfirmDialog(uint32_t param_1, uint32_t param_2, ...) {
   int iVar1;
   bool bVar2;
-  undefined8 uVar3;
-  long lVar4;
+  uint64_t uVar3;
+  uint64_t lVar4;
   char cVar5;
   int iVar6;
   int iVar7;

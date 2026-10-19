@@ -5,9 +5,9 @@
 namespace guest {
 
 uint32_t ApplyAdjusterOffsets(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-    uint32_t uStack_18 = rtguest::allocFrame(4);
-    uint32_t uStack_1c = rtguest::allocFrame(4);
     uint32_t uStack_20 = rtguest::allocFrame(4);
+    uint32_t uStack_1c = rtguest::allocFrame(4);
+    uint32_t uStack_18 = rtguest::allocFrame(4);
   ushort uVar1;
   int iVar2;
   int iVar3;
@@ -24,7 +24,7 @@ uint32_t ApplyAdjusterOffsets(uint32_t param_1, uint32_t param_2, uint32_t param
     (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x98))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x98))) + (*(float*)rtguest::G(0x333204));
   }
   if ((uVar1 & 0x40) != 0) {
-    (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x98))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x98))) - (*(uint32_t*)rtguest::G(0x333208));
+    (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x98))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x98))) - (*(float*)rtguest::G(0x333208));
   }
   if ((uVar1 & 0x1000) != 0) {
     (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x94))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x94))) + 0.25;

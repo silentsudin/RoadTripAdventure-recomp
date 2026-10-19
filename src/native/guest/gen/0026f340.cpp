@@ -9,7 +9,7 @@ uint32_t uiEnvCenterPos(uint32_t param_1, uint32_t param_2, uint32_t param_3, ui
   long lVar2;
   
   lVar2 = (long)param_3 -
-          ((uint32_t)(long)(int)(((uint32_t)((uint32_t)(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x30))) >> 0x30) & 0x7ff) + 1
+          ((uint32_t)(long)(int)(((uint32_t)((uint64_t)(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x30))) >> 0x30) & 0x7ff) + 1
                              ) >> 1);
   if (param_4 == 0) {
     uVar1 = lVar2 << 0x24;

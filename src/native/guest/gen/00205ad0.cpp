@@ -17,7 +17,7 @@ uint32_t CenterRectangle(uint32_t param_1, uint32_t param_2, ...) {
   else {
     if (uVar3 < 2) {
       if (uVar3 == 0) {
-        (*(int16_t*)rtguest::G((uint32_t)param_1)) = 0x140 - (short)((int)((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) + (uint32_t)((uint32_t)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) >> 0xf)) >> 1);
+        (*(int16_t*)rtguest::G((uint32_t)param_1)) = 0x140 - (short)((int)((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) + (uint32_t)((uint32_t)(uint16_t)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) >> 0xf)) >> 1);
       }
       goto LAB_00205b50;
     }
@@ -33,7 +33,7 @@ LAB_00205b50:
   }
   if (param_2 < 5) {
     if (param_2 == 0) {
-      (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) = 0x70 - (short)((int)((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t))) + (uint32_t)((uint32_t)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t))) >> 0xf)) >> 1);
+      (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) = 0x70 - (short)((int)((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t))) + (uint32_t)((uint32_t)(uint16_t)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t))) >> 0xf)) >> 1);
       return 0;
     }
   }

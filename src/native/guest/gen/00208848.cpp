@@ -33,7 +33,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
     vu0UnitMatrix(auStack_70);
     sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2)));
     if (sVar2 < 0x41) {
-      (*(uint32_t*)rtguest::G(0x29abe0)) = (float)(0x40 - sVar2) * (*(uint32_t*)rtguest::G(0x332b2c)) + (*(uint32_t*)rtguest::G(0x332b30));
+      (*(float*)rtguest::G(0x29abe0)) = (float)(0x40 - sVar2) * (*(float*)rtguest::G(0x332b2c)) + (*(float*)rtguest::G(0x332b30));
     }
     else if (sVar2 < 0x81) {
       (*(uint32_t*)rtguest::G(0x29abe4)) = (0x80 - sVar2) * 0x70;

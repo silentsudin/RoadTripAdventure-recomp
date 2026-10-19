@@ -1,8 +1,6 @@
 // guest:0x00274490 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
-#define scePadInfoPressMode scePadInfoPressMode_decl
 #include "guest_decls.inc"
-#undef scePadInfoPressMode
 
 namespace guest {
 

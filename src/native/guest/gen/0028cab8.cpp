@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceSifLoadElf(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t sceSifLoadElf(uint64_t param_1, uint64_t param_2, ...) {
   _sceSifLoadElfPart(param_1,0x3327b8,param_2,1);
   return 0;
 }

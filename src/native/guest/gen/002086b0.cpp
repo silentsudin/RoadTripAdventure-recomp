@@ -8,21 +8,21 @@ uint32_t InitializeMenuPanelTask(uint32_t param_1, uint32_t param_2, ...) {
   short sVar1;
   char cVar2;
 uint32_t pcVar3;
-  undefined8 uVar4;
+  uint64_t uVar4;
   int iVar5;
   
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x50))) = 0x80000000;
   iVar5 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) == 0) {
     uVar4 = 0x320000;
-    pcVar3 = (*(uint8_t*)rtguest::G(0x20dc50));
+    pcVar3 = 0x20dc50;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x400000;
   }
   else {
     cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
     if ((cVar2 != '\0') || ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xf))) != '\0')) goto LAB_00208738;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 1;
-    pcVar3 = (*(uint8_t*)rtguest::G(0x208270));
+    pcVar3 = 0x208270;
     uVar4 = 1;
   }
   gs_tasks_spawn(param_1,pcVar3,uVar4);

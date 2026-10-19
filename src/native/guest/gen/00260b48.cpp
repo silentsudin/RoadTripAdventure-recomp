@@ -5,17 +5,18 @@
 namespace guest {
 
 uint32_t roulettePlaceBallOnWheel(uint32_t param_1, ...) {
+uint32_t auStack_a0 = rtguest::allocFrame(64);
+uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t fStack_5c = rtguest::allocFrame(4);
-    uint32_t uStack_48 = rtguest::allocFrame(8);
+    rtguest::allocFrame(8);  // guest frame gap
     uint32_t uStack_50 = rtguest::allocFrame(8);
+    uint32_t uStack_48 = rtguest::allocFrame(8);
   bool bVar1;
   int iVar2;
   int iVar3;
   int iVar4;
   float fVar5;
   float fVar6;
-uint32_t auStack_a0 = rtguest::allocFrame(64);
-uint32_t auStack_60 = rtguest::allocFrame(4);
   
   (*(uint64_t*)rtguest::G((uint32_t)uStack_48)) = 0x43c80000;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_50)) = 0x43c80000;

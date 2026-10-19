@@ -13,12 +13,16 @@ uint32_t puVar4;
   int iVar6;
   undefined1 uVar7;
   uint uVar8;
+  int iParam2;
+  int iParam3;
   
-  if (param_2 == 0) {
+  iParam2 = (int)param_2;
+  iParam3 = (int)param_3;
+  if (iParam2 == 0) {
     trap(7);
   }
   iVar5 = 0;
-  uVar8 = param_3 % param_2 + param_1;
+  uVar8 = iParam3 % iParam2 + param_1;
   do {
     uVar7 = (uint32_t)uVar8;
     iVar6 = 0;
@@ -40,11 +44,11 @@ LAB_0023c71c:
     }
     if (!bVar2) goto LAB_0023c750;
     iVar5 = iVar5 + 1;
-    if (param_2 == 0) {
+    if (iParam2 == 0) {
       trap(7);
     }
-    uVar8 = (param_3 + iVar5) % param_2 + param_1;
-  } while (iVar5 != param_2);
+    uVar8 = (iParam3 + iVar5) % iParam2 + param_1;
+  } while (iVar5 != iParam2);
   uVar7 = (uint32_t)uVar8;
 LAB_0023c750:
   if ((*(int32_t*)rtguest::G(0x177fd88)) == 0x80) {
@@ -54,7 +58,7 @@ LAB_0023c750:
       iVar5 = iVar5 + 1;
       (*(uint8_t*)rtguest::G((uint32_t)puVar4)) = (*(uint8_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint8_t)));
       puVar4 = puVar4 + 1;
-      (*(uint32_t*)rtguest::G(0x177fd87)) = uVar7;
+      (*(uint8_t*)rtguest::G(0x177fd87)) = uVar7;
     } while (iVar5 < 0x7f);
   }
   else {

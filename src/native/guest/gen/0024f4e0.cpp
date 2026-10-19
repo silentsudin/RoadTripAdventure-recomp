@@ -6,9 +6,11 @@ namespace guest {
 
 uint32_t CountDecimalDigits(uint32_t param_1, ...) {
   int iVar1;
+  int iVar2;
   
   iVar1 = 1;
-  while (param_1 = param_1 / 10, param_1 != 0) {
+  iVar2 = (int)param_1;
+  while (iVar2 = iVar2 / 10, iVar2 != 0) {
     iVar1 = iVar1 + 1;
   }
   return iVar1;

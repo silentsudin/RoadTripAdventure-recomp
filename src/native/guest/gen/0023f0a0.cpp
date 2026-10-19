@@ -24,7 +24,7 @@ uint32_t puVar6;
     }
   }
   lVar5 = TestFlagBitFc98(0x5a);
-  fVar4 = (*(uint32_t*)rtguest::G(0x332e74));
+  fVar4 = (*(float*)rtguest::G(0x332e74));
   fVar8 = (*(float*)rtguest::G(0x332e70));
   if (lVar5 == 0) {
     puVar6 = 0x0177acf0;
@@ -57,7 +57,7 @@ uint32_t puVar6;
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) + 1;
     (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
   }
-  fVar8 = (*(uint32_t*)rtguest::G(0x332e78));
+  fVar8 = (*(float*)rtguest::G(0x332e78));
   vu0UnitMatrix(0x177eb10);
   vu0RotMatrixY(((float)((0x2d0 - (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2)))) % 0x5a0 + -0x2d0) * fVar8) / 720.0,
                 0x177eb10,0x177eb10);

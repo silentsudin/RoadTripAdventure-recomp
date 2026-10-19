@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t NavigateGridSelection(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+uint32_t NavigateGridSelection(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint32_t param_4, uint64_t param_5, uint64_t param_6, ...) {
 uint32_t puVar1;
   int iVar2;
   ushort uVar3;
@@ -12,7 +12,7 @@ uint32_t puVar1;
   int iVar5;
   
   iVar2 = (int)param_3;
-  if (param_5 < 0) {
+  if ((long)param_5 < 0) {
 LAB_00206d9c:
     uVar4 = 0;
     uVar3 = 0;

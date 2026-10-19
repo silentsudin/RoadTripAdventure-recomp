@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t _malloc_trim_r(uint32_t param_1, uint32_t param_2, ...) {
+// pseudocode: undefined4 _malloc_trim_r(undefined8, ulong)
+uint32_t _malloc_trim_r(uint32_t param_1, uint64_t param_2, ...) {
   uint uVar1;
 uint32_t puVar2;
   int iVar3;
@@ -16,7 +17,7 @@ uint32_t puVar2;
   lVar5 = (((uint32_t)uVar1 - (param_2 & 0xffffffff)) + 0xfef >> 0xc) - 1;
   if ((0xfff < lVar5 * 0x1000) &&
      (puVar2 = (uint32_t)_sbrk_r(param_1,0), puVar2 == (*(uint32_t*)rtguest::G(0x002e8cd0)) + uVar1)) {
-    iVar3 = (int)((uint32_t)(lVar5 << 0x2c) >> 0x20);
+    iVar3 = (int)((uint64_t)(lVar5 << 0x2c) >> 0x20);  // pseudocode: (ulong)(lVar5 << 0x2c) >> 0x20
     lVar4 = _sbrk_r(param_1,-iVar3);
     if (lVar4 != -1) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G(0x002e8cd0)) + 4))) = uVar1 + (int)lVar5 * -0x1000 | 1;

@@ -1,10 +1,13 @@
 // guest:0x002846c8 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
+#define isinf isinf_decl
 #include "guest_decls.inc"
+#undef isinf
 
 namespace guest {
 
-uint32_t isinf(uint32_t param_1, ...) {
+// pseudocode: int isinf(undefined8)
+int isinf(uint64_t param_1, ...) {
   uint uVar1;
   
   uVar1 = 0x7ff00000 -

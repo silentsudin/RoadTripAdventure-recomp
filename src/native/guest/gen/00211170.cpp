@@ -34,12 +34,13 @@ uint32_t UpdateQuickRaceMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x25))) == '\x05') {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) == -1) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 8))) = 0;
-        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x211948));
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x00211948;
       }
       else {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4)));
         DestroyTaskRecord(param_1);
-        (*(uint8_t*)rtguest::G((uint32_t)0x177f760 + 4)) = (*(uint32_t*)rtguest::G((uint32_t)0x29c028 + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26)))) * 4));
+        (*(uint8_t*)rtguest::G((uint32_t)0x177f760 + 4)) =
+            (*(uint8_t*)rtguest::G(0x29c028 + (*(uint8_t*)rtguest::G((uint32_t)(iVar2 + 0x26)))));
         (*(uint32_t*)rtguest::G(0x177ea50)) = 0x177f760;
         (*(uint32_t*)rtguest::G((uint32_t)0x177f760 + 0)) =
              (*(uint32_t*)rtguest::G((uint32_t)0x17804d0 + (uint32_t)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x0029c028u + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26)))) * 4))) * 4));

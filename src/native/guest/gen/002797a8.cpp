@@ -5,12 +5,13 @@
 namespace guest {
 
 uint32_t sceMcInit(uint32_t q0, ...) {
-    uint32_t uStack_8c = rtguest::allocFrame(4);
-    uint32_t uStack_98 = rtguest::allocFrame(4);
+uint32_t auStack_a0 = rtguest::allocFrame(4);
     uint32_t uStack_9c = rtguest::allocFrame(4);
+    uint32_t uStack_98 = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_8c = rtguest::allocFrame(4);
   int iVar1;
   long lVar2;
-uint32_t auStack_a0 = rtguest::allocFrame(4);
   
   if ((*(int32_t*)rtguest::G(0x2e89bc)) < 0) {
     (*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) = 0;

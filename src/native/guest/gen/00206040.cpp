@@ -38,15 +38,15 @@ uint32_t uiSpriteWriteWrap(uint32_t param_1, uint32_t param_2, uint32_t param_3,
   }
   if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x22))) = (short)((int)param_3 << 3) + 0x7900;
-    (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4))) = (short)(iVar3 << 4) + 0x6c00;
+    (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(uint64_t))) = (short)(iVar3 << 4) + 0x6c00;
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x42))) = (param_3 + (short)lVar7) * 8 + 0x7900;
-    (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (param_2 + (short)iVar5) * 0x10 + 0x6c00;
+    (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(8) * sizeof(uint64_t))) = (param_2 + (short)iVar5) * 0x10 + 0x6c00;
   }
   else {
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x22))) = (short)((int)param_3 << 3) + 0x7800;
-    (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4))) = (short)((iVar3 << 6) / 5) + 0x7000;
+    (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(uint64_t))) = (short)((iVar3 << 6) / 5) + 0x7000;
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x42))) = (param_3 + (short)lVar7) * 8 + 0x7800;
-    (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = (short)(((iVar3 + iVar5) * 0x40) / 5) + 0x7000;
+    (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(8) * sizeof(uint64_t))) = (short)(((iVar3 + iVar5) * 0x40) / 5) + 0x7000;
   }
   if (iVar5 == iVar4) {
     (*(uint64_t*)rtguest::G((uint32_t)param_1)) = (*(uint64_t*)rtguest::G((uint32_t)param_1)) & 0xffffffffff00000c | 2 | ((long)param_4 & 0x3ffU) << 4 |

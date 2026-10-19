@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t scePadSetMainMode(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+uint32_t scePadSetMainMode(uint64_t param_1, uint64_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   int iVar1;
   long lVar2;
   

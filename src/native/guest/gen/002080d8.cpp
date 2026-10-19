@@ -4,12 +4,12 @@
 
 namespace guest {
 
-uint32_t SelectMeshIntersectionRoutine(uint32_t param_1, ...) {
+uint32_t SelectMeshIntersectionRoutine(uint64_t param_1, ...) {
   if (param_1 == 0) {
-    (*(uint32_t*)rtguest::G(0x335710)) = (*(uint8_t*)rtguest::G(0x207280));
+    (*(uint32_t*)rtguest::G(0x335710)) = 0x207280u;
   }
   else {
-    (*(uint32_t*)rtguest::G(0x335710)) = (*(uint8_t*)rtguest::G(0x2084d0));
+    (*(uint32_t*)rtguest::G(0x335710)) = 0x2084d0u;
   }
   return 0;
 }

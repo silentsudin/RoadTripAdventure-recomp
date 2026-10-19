@@ -5,15 +5,15 @@
 namespace guest {
 
 uint32_t townMapBezel(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_40 = rtguest::allocFrame(8);
-    uint32_t uStack_48 = rtguest::allocFrame(8);
-    uint32_t uStack_50 = rtguest::allocFrame(8);
-    uint32_t uStack_58 = rtguest::allocFrame(8);
-    uint32_t uStack_60 = rtguest::allocFrame(8);
-    uint32_t uStack_68 = rtguest::allocFrame(8);
-    uint32_t uStack_70 = rtguest::allocFrame(8);
-    uint32_t uStack_78 = rtguest::allocFrame(8);
     uint32_t uStack_80 = rtguest::allocFrame(8);
+    uint32_t uStack_78 = rtguest::allocFrame(8);
+    uint32_t uStack_70 = rtguest::allocFrame(8);
+    uint32_t uStack_68 = rtguest::allocFrame(8);
+    uint32_t uStack_60 = rtguest::allocFrame(8);
+    uint32_t uStack_58 = rtguest::allocFrame(8);
+    uint32_t uStack_50 = rtguest::allocFrame(8);
+    uint32_t uStack_48 = rtguest::allocFrame(8);
+    uint32_t uStack_40 = rtguest::allocFrame(8);
   long lVar1;
   uint uVar2;
   uint uVar3;

@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t ToggleInputFlagWrapper(uint32_t param_1, ...) {
+uint32_t ToggleInputFlagWrapper(uint64_t param_1, ...) {
   debugScreenRead(param_1 ^ 1);
   return 0;
 }

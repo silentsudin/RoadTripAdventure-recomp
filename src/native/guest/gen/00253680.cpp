@@ -5,10 +5,17 @@
 namespace guest {
 
 uint32_t UpdateAiCourseSteering(uint32_t param_1, ...) {
-    uint32_t fStack_38 = rtguest::allocFrame(4);
-    uint32_t fStack_48 = rtguest::allocFrame(4);
-    uint32_t fStack_58 = rtguest::allocFrame(4);
+uint32_t afStack_70 = rtguest::allocFrame(8);
     uint32_t fStack_68 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t afStack_60 = rtguest::allocFrame(8);
+    uint32_t fStack_58 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t afStack_50 = rtguest::allocFrame(8);
+    uint32_t fStack_48 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t afStack_40 = rtguest::allocFrame(8);
+    uint32_t fStack_38 = rtguest::allocFrame(4);
   byte bVar1;
   bool bVar2;
   undefined2 uVar3;
@@ -20,10 +27,6 @@ uint32_t UpdateAiCourseSteering(uint32_t param_1, ...) {
   int iVar9;
 uint32_t piVar10;
   float fVar11;
-uint32_t afStack_70 = rtguest::allocFrame(8);
-uint32_t afStack_60 = rtguest::allocFrame(8);
-uint32_t afStack_50 = rtguest::allocFrame(8);
-uint32_t afStack_40 = rtguest::allocFrame(8);
   
   iVar9 = (int)param_1;
   bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a)));

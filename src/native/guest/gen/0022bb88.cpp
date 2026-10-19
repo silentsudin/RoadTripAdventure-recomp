@@ -87,10 +87,10 @@ uint32_t puVar13;
       if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x2ed336u + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0177f770 + iVar8))) * 7))) == 0) {
         trap(7);
       }
-      ::printf((char *)rtguest::G((uint32_t)(0x2ebc90u)), (((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ecedc + (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x177f76e + (uint32_t)(iVar8) * 4)) * 0x18))) << 7) /
+      ::printf((char *)rtguest::G((uint32_t)(0x2ebc90u)), (((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ecedc + (uint32_t)(uint8_t)(*(uint8_t*)rtguest::G((uint32_t)0x177f76e + iVar8)) * 0x18))) << 7) /
              (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x2ed336u + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0177f770 + iVar8))) * 7)))) /
-             (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ed204 + (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x177f76f + (uint32_t)(iVar8) * 4)) * 0x10))));
-      iVar7 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x2eca7cu + (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x177f76d + (uint32_t)(iVar8) * 4)) * 7))) * 0x59;
+              (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ed204 + (uint32_t)(uint8_t)(*(uint8_t*)rtguest::G((uint32_t)0x177f76f + iVar8)) * 0x10))));
+      iVar7 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x2eca7cu + (uint32_t)(uint8_t)(*(uint8_t*)rtguest::G((uint32_t)0x177f76d + iVar8)) * 7))) * 0x59;
       if (iVar7 < 0) {
         iVar7 = iVar7 + 0xff;
       }
@@ -131,7 +131,7 @@ LAB_0022bed4:
       uVar6 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x177f760 + iVar8 + 4))) << 8 | uVar15 << 0x14;
     }
     else {
-      uVar6 = uVar11 | (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar13 + uVar11 + 0xc))) << 8 |
+      uVar6 = uVar11 | (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(puVar13 + (uVar11 + 0xc) * sizeof(uint32_t)))) << 8 |
               (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x1c))) << 0x10;
     }
     uVar4 = gs_tasks_spawn(param_1,0x246250,uVar6);

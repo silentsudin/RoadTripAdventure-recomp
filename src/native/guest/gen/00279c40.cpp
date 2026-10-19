@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceMcMkdir(uint32_t q0, ...) {
+int64_t sceMcMkdir(uint32_t q0, ...) {
   long lVar1;
   
   lVar1 = sceMcOpen();

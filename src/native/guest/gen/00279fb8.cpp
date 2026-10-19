@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceMcWrite(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+uint64_t sceMcWrite(uint32_t param_1, uint32_t param_2, uint64_t param_3, ...) {
 uint32_t puVar1;
   long lVar2;
   uint uVar3;
@@ -35,7 +35,7 @@ uint32_t puVar1;
     if ((*(uint32_t*)rtguest::G(0x1774bd4)) != 0) {
       do {
         uVar4 = uVar3 + 1;
-        (*(uint32_t*)rtguest::G((uint32_t)0x1774be0 + (uint32_t)(uVar3) * 4)) = (*(uint8_t*)rtguest::G((uint32_t)puVar1));
+        (*(uint8_t*)rtguest::G((uint32_t)0x1774be0 + (uint32_t)(uVar3) * sizeof(uint8_t))) = (*(uint8_t*)rtguest::G((uint32_t)puVar1));
         puVar1 = param_2 + uVar4;
         uVar3 = uVar4;
       } while (uVar4 < (*(uint32_t*)rtguest::G(0x1774bd4)));

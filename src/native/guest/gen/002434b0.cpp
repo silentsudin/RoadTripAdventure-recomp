@@ -1,8 +1,6 @@
 // guest:0x002434b0 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
-#define GetLabelEntry_eca70 GetLabelEntry_eca70_decl
 #include "guest_decls.inc"
-#undef GetLabelEntry_eca70
 
 namespace guest {
 

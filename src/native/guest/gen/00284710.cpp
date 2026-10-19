@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t isnan(uint32_t param_1, ...) {
+// pseudocode: uint isnan(undefined8)
+uint32_t isnan(uint64_t param_1, ...) {
   return 0x7ff00000 -
          ((uint32_t)(param_1 >> 0x20) & 0x7fffffff | ((uint32_t)param_1 | -(uint32_t)param_1) >> 0x1f) >>
          0x1f;

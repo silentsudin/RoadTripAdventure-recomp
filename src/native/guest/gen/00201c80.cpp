@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t uiDrawTextRight(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+uint32_t uiDrawTextRight(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
   byte bVar1;
 uint32_t pbVar2;
   int iVar3;

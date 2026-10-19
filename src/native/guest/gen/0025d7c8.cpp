@@ -5,7 +5,12 @@
 namespace guest {
 
 uint32_t collectionNpcUpdate(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t uStack_5c = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_50 = rtguest::allocFrame(16);
+uint32_t auStack_40 = rtguest::allocFrame(4);
+uint32_t auStack_3c = rtguest::allocFrame(12);
   short sVar1;
 uint32_t pfVar2;
   int iVar3;
@@ -16,10 +21,6 @@ uint32_t pfVar7;
 uint32_t puVar8;
   float fVar9;
   float fVar10;
-uint32_t auStack_60 = rtguest::allocFrame(4);
-uint32_t auStack_50 = rtguest::allocFrame(16);
-uint32_t auStack_40 = rtguest::allocFrame(4);
-uint32_t auStack_3c = rtguest::allocFrame(12);
   
   pfVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
   uVar6 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 9))) - (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x2a)));

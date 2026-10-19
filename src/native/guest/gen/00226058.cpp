@@ -5,15 +5,15 @@
 namespace guest {
 
 uint32_t ScaleCarLightMatrix(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t fStack_28 = rtguest::allocFrame(4);
-    uint32_t fStack_2c = rtguest::allocFrame(4);
-    uint32_t fStack_30 = rtguest::allocFrame(4);
-    uint32_t uStack_34 = rtguest::allocFrame(4);
-  int iVar1;
 uint32_t auStack_70 = rtguest::allocFrame(16);
 uint32_t auStack_60 = rtguest::allocFrame(16);
 uint32_t auStack_50 = rtguest::allocFrame(16);
 uint32_t auStack_40 = rtguest::allocFrame(12);
+    uint32_t uStack_34 = rtguest::allocFrame(4);
+    uint32_t fStack_30 = rtguest::allocFrame(4);
+    uint32_t fStack_2c = rtguest::allocFrame(4);
+    uint32_t fStack_28 = rtguest::allocFrame(4);
+  int iVar1;
   
   if (-2.0 < param_1) {
     param_1 = 0.0;

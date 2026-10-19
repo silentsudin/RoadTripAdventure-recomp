@@ -9,7 +9,7 @@ uint32_t _lf_bind(uint32_t q0, ...) {
   int iVar2;
   long lVar3;
   
-  if ((*(uint32_t*)rtguest::G(0x2e99a0)) < 0) {
+  if ((*(int32_t*)rtguest::G(0x2e99a0)) < 0) {
     while (lVar3 = sceSifBindRpc(0x177a000,0xffffffff80000006,0), -1 < lVar3) {
       if ((*(uint32_t*)rtguest::G(0x177a024)) != 0) {
         (*(uint32_t*)rtguest::G(0x2e99a0)) = 0;

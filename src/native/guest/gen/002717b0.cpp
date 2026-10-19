@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t textGridMoveRect(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
+void textGridMoveRect(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint32_t param_6, uint32_t param_7) {
   undefined8 uVar1;
   int iVar2;
   uint uVar3;
@@ -32,7 +32,7 @@ uint32_t textGridMoveRect(uint32_t param_1, uint32_t param_2, uint32_t param_3, 
       uVar4 = uVar4 + 1;
     } while (uVar4 < param_7);
   }
-  return 0;
+  return;
 }
 
 

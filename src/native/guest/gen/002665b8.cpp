@@ -5,10 +5,10 @@
 namespace guest {
 
 uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_38 = rtguest::allocFrame(8);
-    uint32_t uStack_40 = rtguest::allocFrame(8);
-    uint32_t uStack_48 = rtguest::allocFrame(8);
     uint32_t uStack_50 = rtguest::allocFrame(8);
+    uint32_t uStack_48 = rtguest::allocFrame(8);
+    uint32_t uStack_40 = rtguest::allocFrame(8);
+    uint32_t uStack_38 = rtguest::allocFrame(8);
   uint uVar1;
   short sVar2;
   byte bVar3;

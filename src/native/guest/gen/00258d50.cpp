@@ -21,8 +21,8 @@ uint32_t puVar4;
       (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint64_t))) = uVar1;
       (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint64_t))) = uVar2;
       (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint64_t))) = uVar3;
-      puVar4 = puVar4 + 4;
-      param_1 = param_1 + 4;
+      puVar4 = puVar4 + (uint32_t)(4) * sizeof(uint64_t);
+      param_1 = param_1 + (uint32_t)(4) * sizeof(uint64_t);
     } while (puVar4 != (uint32_t)0x0175fb80);
   }
   else {
@@ -34,8 +34,8 @@ uint32_t puVar4;
       (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint64_t))) = uVar1;
       (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint64_t))) = uVar2;
       (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint64_t))) = uVar3;
-      puVar4 = puVar4 + 4;
-      param_1 = param_1 + 4;
+      puVar4 = puVar4 + (uint32_t)(4) * sizeof(uint64_t);
+      param_1 = param_1 + (uint32_t)(4) * sizeof(uint64_t);
     } while (puVar4 != (uint32_t)0x0175fb80);
   }
   return 0;

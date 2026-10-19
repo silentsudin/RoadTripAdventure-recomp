@@ -5,12 +5,14 @@
 namespace guest {
 
 uint32_t gsSyncVSetFlagIntc(uint32_t q0, ...) {
-    uint32_t uStack_18 = rtguest::allocFrame(4);
 uint32_t auStack_20 = rtguest::allocFrame(8);
+    uint32_t uStack_18 = rtguest::allocFrame(4);
   
   (*(uint32_t*)rtguest::G((uint32_t)auStack_20 + (uint32_t)(0) * 4)) = 0;
   SetVSyncFlag(auStack_20,(uint32_t)auStack_20 | 8);
   REG_INTC_STAT = 4;
+  // pseudocode: return uStack_18 (uninitialized local -> arena-zero 0, deterministic)
+  return (*(uint32_t*)rtguest::G((uint32_t)uStack_18));
 }
 
 

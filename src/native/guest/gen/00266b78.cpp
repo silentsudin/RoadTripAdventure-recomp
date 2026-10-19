@@ -5,8 +5,8 @@
 namespace guest {
 
 uint32_t raceSummaryDrawRallyRow(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_bc = rtguest::allocFrame(2);
     uint32_t uStack_c0 = rtguest::allocFrame(4);
+    uint32_t uStack_bc = rtguest::allocFrame(2);
   size_t sVar1;
   
   if (((*(uint32_t*)rtguest::G(0x178035c)) & 0x100000) == 0) {

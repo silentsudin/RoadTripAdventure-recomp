@@ -5,14 +5,27 @@
 namespace guest {
 
 uint32_t UpdateGolfMiniGame(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t fStack_a4 = rtguest::allocFrame(4);
-    uint32_t fStack_c4 = rtguest::allocFrame(4);
-    uint32_t fStack_e4 = rtguest::allocFrame(4);
-    uint32_t uStack_88 = rtguest::allocFrame(8);
-    uint32_t uStack_90 = rtguest::allocFrame(8);
-    uint32_t uStack_ac = rtguest::allocFrame(4);
-    uint32_t uStack_cc = rtguest::allocFrame(4);
+uint32_t aiStack_150 = rtguest::allocFrame(48);
+uint32_t aiStack_120 = rtguest::allocFrame(48);
+uint32_t auStack_f0 = rtguest::allocFrame(4);
     uint32_t uStack_ec = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t fStack_e4 = rtguest::allocFrame(4);
+    rtguest::allocFrame(16);  // guest frame gap
+uint32_t auStack_d0 = rtguest::allocFrame(4);
+    uint32_t uStack_cc = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t fStack_c4 = rtguest::allocFrame(4);
+    rtguest::allocFrame(16);  // guest frame gap
+uint32_t auStack_b0 = rtguest::allocFrame(4);
+    uint32_t uStack_ac = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t fStack_a4 = rtguest::allocFrame(4);
+uint32_t auStack_a0 = rtguest::allocFrame(16);
+    uint32_t uStack_90 = rtguest::allocFrame(8);
+    uint32_t uStack_88 = rtguest::allocFrame(8);
+uint32_t auStack_80 = rtguest::allocFrame(4);
+uint32_t apuStack_7c = rtguest::allocFrame(12);
   int iVar1;
   float fVar2;
 uint32_t pvVar3;
@@ -29,14 +42,6 @@ uint32_t puVar9;
   float fVar14;
   float fVar15;
   float fVar16;
-uint32_t aiStack_150 = rtguest::allocFrame(48);
-uint32_t aiStack_120 = rtguest::allocFrame(48);
-uint32_t auStack_f0 = rtguest::allocFrame(4);
-uint32_t auStack_d0 = rtguest::allocFrame(4);
-uint32_t auStack_b0 = rtguest::allocFrame(4);
-uint32_t auStack_a0 = rtguest::allocFrame(16);
-uint32_t auStack_80 = rtguest::allocFrame(4);
-uint32_t apuStack_7c = rtguest::allocFrame(12);
   
   iVar7 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8))) == 0) {

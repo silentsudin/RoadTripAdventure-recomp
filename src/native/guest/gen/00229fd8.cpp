@@ -18,10 +18,10 @@ uint32_t puVar4;
   ppuVar3 = 0x2ed724u;
   do {
     puVar1 = (*(uint32_t*)rtguest::G((uint32_t)ppuVar3));
-    ppuVar3 = ppuVar3 + 0x11;
+    ppuVar3 = ppuVar3 + 0x44;
     iVar2 = iVar2 + -1;
     (*(uint32_t*)rtguest::G((uint32_t)puVar4)) = puVar1;
-    puVar4 = puVar4 + 1;
+    puVar4 = puVar4 + sizeof(uint32_t);
   } while (-1 < iVar2);
   (*(uint32_t*)rtguest::G((uint32_t)0x177f760 + 0)) = 0x00f30f30;
   return 0;

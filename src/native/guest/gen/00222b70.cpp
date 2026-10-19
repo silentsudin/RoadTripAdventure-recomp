@@ -5,22 +5,31 @@
 namespace guest {
 
 uint32_t drawCarsAction(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t auStack_190 = rtguest::allocFrame(60);
     uint32_t fStack_154 = rtguest::allocFrame(4);
-    uint32_t fStack_78 = rtguest::allocFrame(4);
-    uint32_t fStack_7c = rtguest::allocFrame(4);
-    uint32_t fStack_80 = rtguest::allocFrame(4);
-    uint32_t uStack_10c = rtguest::allocFrame(4);
-    uint32_t uStack_114 = rtguest::allocFrame(4);
-    uint32_t uStack_118 = rtguest::allocFrame(4);
-    uint32_t uStack_11c = rtguest::allocFrame(4);
-    uint32_t uStack_120 = rtguest::allocFrame(4);
-    uint32_t uStack_124 = rtguest::allocFrame(4);
-    uint32_t uStack_128 = rtguest::allocFrame(4);
-    uint32_t uStack_12c = rtguest::allocFrame(4);
+uint32_t acStack_150 = rtguest::allocFrame(32);
     uint32_t uStack_130 = rtguest::allocFrame(4);
-    uint32_t uStack_dc = rtguest::allocFrame(4);
-    uint32_t uStack_ec = rtguest::allocFrame(4);
+    uint32_t uStack_12c = rtguest::allocFrame(4);
+    uint32_t uStack_128 = rtguest::allocFrame(4);
+    uint32_t uStack_124 = rtguest::allocFrame(4);
+    uint32_t uStack_120 = rtguest::allocFrame(4);
+    uint32_t uStack_11c = rtguest::allocFrame(4);
+    uint32_t uStack_118 = rtguest::allocFrame(4);
+    uint32_t uStack_114 = rtguest::allocFrame(4);
+uint32_t auStack_110 = rtguest::allocFrame(4);
+    uint32_t uStack_10c = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
     uint32_t uStack_fc = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_ec = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_dc = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_d0 = rtguest::allocFrame(64);
+uint32_t auStack_90 = rtguest::allocFrame(16);
+    uint32_t fStack_80 = rtguest::allocFrame(4);
+    uint32_t fStack_7c = rtguest::allocFrame(4);
+    uint32_t fStack_78 = rtguest::allocFrame(4);
   char cVar1;
   byte bVar2;
   int iVar3;
@@ -28,11 +37,6 @@ uint32_t pcVar4;
 uint32_t puVar5;
   int iVar6;
   float fVar7;
-uint32_t auStack_190 = rtguest::allocFrame(60);
-uint32_t acStack_150 = rtguest::allocFrame(32);
-uint32_t auStack_110 = rtguest::allocFrame(4);
-uint32_t auStack_d0 = rtguest::allocFrame(64);
-uint32_t auStack_90 = rtguest::allocFrame(16);
   
   iVar6 = 0x17;
   vifUploadAt4();

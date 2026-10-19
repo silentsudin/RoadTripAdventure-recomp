@@ -9,7 +9,7 @@ uint32_t AdvanceDayCycleStep(uint32_t param_1, uint32_t param_2, ...) {
   int iVar2;
   char cVar3;
   undefined4 uVar4;
-  long lVar5;
+  uint64_t lVar5;
   int iVar6;
   
   iVar6 = (int)param_1;

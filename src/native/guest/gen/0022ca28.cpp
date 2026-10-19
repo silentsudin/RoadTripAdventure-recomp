@@ -47,7 +47,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(96);
       iVar4 = FindNthSetBit((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))),iVar4);
       uVar9 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
       (*(uint32_t*)rtguest::G((uint32_t)puVar12)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be398 + (uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2be018 + (uint32_t)(iVar4 * 0x10) * 1))) * 4));
-      puVar12 = puVar12 + 1;
+      puVar12 = puVar12 + sizeof(uint32_t);
       iVar4 = iVar10;
     } while (iVar10 < (int)uVar9);
   }

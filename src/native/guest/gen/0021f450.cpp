@@ -5,12 +5,17 @@
 namespace guest {
 
 uint32_t BuildCameraViewMatrices(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
-    uint32_t fStack_78 = rtguest::allocFrame(4);
-    uint32_t fStack_7c = rtguest::allocFrame(4);
-    uint32_t fStack_80 = rtguest::allocFrame(4);
-    uint32_t fStack_88 = rtguest::allocFrame(4);
-    uint32_t fStack_8c = rtguest::allocFrame(4);
+uint32_t auStack_d0 = rtguest::allocFrame(16);
+uint32_t auStack_c0 = rtguest::allocFrame(16);
+uint32_t auStack_b0 = rtguest::allocFrame(16);
+uint32_t auStack_a0 = rtguest::allocFrame(16);
     uint32_t fStack_90 = rtguest::allocFrame(4);
+    uint32_t fStack_8c = rtguest::allocFrame(4);
+    uint32_t fStack_88 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t fStack_80 = rtguest::allocFrame(4);
+    uint32_t fStack_7c = rtguest::allocFrame(4);
+    uint32_t fStack_78 = rtguest::allocFrame(4);
     uint32_t uStack_74 = rtguest::allocFrame(4);
 uint32_t pfVar1;
   float fVar2;
@@ -20,17 +25,15 @@ uint32_t pfVar4;
   int iVar6;
   undefined4 uVar7;
   float fVar8;
-uint32_t auStack_d0 = rtguest::allocFrame(16);
-uint32_t auStack_c0 = rtguest::allocFrame(16);
-uint32_t auStack_b0 = rtguest::allocFrame(16);
-uint32_t auStack_a0 = rtguest::allocFrame(16);
   
   vu0UnitMatrix(auStack_c0);
   vecCrossProductVu0(auStack_d0,param_6,param_5);
   vecNormalizeVu0(auStack_c0,auStack_d0);
   vecNormalizeVu0(auStack_a0,param_5);
   vecCrossProductVu0(auStack_b0,auStack_a0,auStack_c0);
-  fVar2 = (*(uint32_t*)rtguest::G(0x332c80));
+  float fParam1;
+  __builtin_memcpy(&fParam1, &param_1, sizeof(fParam1));
+  fVar2 = (*(float*)rtguest::G(0x332c80));
   if (param_7 != 0) {
     iVar6 = 0;
     (*(float*)rtguest::G((uint32_t)fStack_8c)) = (*(float*)rtguest::G((uint32_t)fStack_8c)) + (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(float)));
@@ -43,10 +46,10 @@ uint32_t auStack_a0 = rtguest::allocFrame(16);
     (*(float*)rtguest::G((uint32_t)fStack_88)) = (*(float*)rtguest::G((uint32_t)fStack_88)) + (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(float)));
     do {
       if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
-        (*(float*)rtguest::G((uint32_t)fStack_80)) = ((*(float*)rtguest::G((uint32_t)pfVar4)) * (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)))) / param_1;
+        (*(float*)rtguest::G((uint32_t)fStack_80)) = ((*(float*)rtguest::G((uint32_t)pfVar4)) * (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)))) / fParam1;
       }
       else {
-        (*(float*)rtguest::G((uint32_t)fStack_80)) = ((*(float*)rtguest::G((uint32_t)pfVar4)) * (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)))) / (param_1 * fVar8);
+        (*(float*)rtguest::G((uint32_t)fStack_80)) = ((*(float*)rtguest::G((uint32_t)pfVar4)) * (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)))) / (fParam1 * fVar8);
       }
       (*(float*)rtguest::G((uint32_t)fStack_78)) = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)));
       pfVar1 = pfVar4 + 1;

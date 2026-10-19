@@ -22,7 +22,7 @@ uint32_t puVar6;
     puVar6 = param_2;
     iVar7 = param_4;
     while( true ) {
-      puVar6 = puVar6 + 1;
+      puVar6 = puVar6 + (uint32_t)(1) * sizeof(uint32_t);
       iVar7 = iVar7 + -1;
       uiMenuAddItem(param_1,uVar3,0x10);
       iVar4 = param_4;
@@ -33,11 +33,11 @@ uint32_t puVar6;
   psVar5 = (uint32_t)param_1;
   if (iVar4 < param_3) {
     param_3 = param_3 - iVar4;
-    param_2 = param_2 + iVar4;
+    param_2 = param_2 + iVar4 * (uint32_t)sizeof(uint32_t);
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)psVar5 + 0x11)));
     while( true ) {
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)param_2));
-      param_2 = param_2 + 1;
+      param_2 = param_2 + (uint32_t)(1) * sizeof(uint32_t);
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)psVar5 + 0x11))) = cVar1 + '\x01';
       iVar7 = uiTextWidth(uVar3);
       sVar2 = (*(int16_t*)rtguest::G((uint32_t)psVar5 + (uint32_t)(2) * sizeof(int16_t)));
@@ -59,7 +59,7 @@ uint32_t puVar6;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)psVar5 + 0x11)));
     }
   }
-  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(psVar5 + 6))) = 4;
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(psVar5 + (uint32_t)(6) * sizeof(int16_t)))) = 4;
   return 0;
 }
 

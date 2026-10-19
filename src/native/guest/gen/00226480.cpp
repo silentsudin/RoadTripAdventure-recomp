@@ -11,7 +11,7 @@ uint32_t vifUploadSceneParams(uint32_t param_1, ...) {
     fatal(0x2eafa0);
   }
   if ((*(uint32_t*)rtguest::G(0x3356f4)) == 0) {
-    if ((*(uint32_t*)rtguest::G(0x3356ec)) + 4 < (uint32_t)0x17523d0) {
+    if ((*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(4) * sizeof(undefined4) < (uint32_t)0x17523d0) {
       bVar1 = false;
     }
     else {
@@ -21,7 +21,7 @@ uint32_t vifUploadSceneParams(uint32_t param_1, ...) {
   }
   else {
     bVar1 = true;
-    if ((*(uint32_t*)rtguest::G(0x3356ec)) + 4 < (uint32_t)0x1750bd0) {
+    if ((*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(4) * sizeof(undefined4) < (uint32_t)0x1750bd0) {
       bVar1 = false;
     }
   }
@@ -30,7 +30,7 @@ uint32_t vifUploadSceneParams(uint32_t param_1, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(1) * 4)) = param_1;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(2) * 4)) = 0x10000000;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(3) * 4)) = 0x6c030013;
-    (*(uint32_t*)rtguest::G(0x3356ec)) = (*(uint32_t*)rtguest::G(0x3356ec)) + 4;
+    ( *(uint32_t*)rtguest::G(0x3356ec)) = (*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(4) * sizeof(undefined4);
   }
   return 0;
 }

@@ -5,13 +5,13 @@
 namespace guest {
 
 uint32_t SoundRpcRegisterFiles(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-    uint32_t uStack_48 = rtguest::allocFrame(8);
-    uint32_t uStack_50 = rtguest::allocFrame(8);
-    uint32_t uStack_58 = rtguest::allocFrame(8);
-    uint32_t uStack_60 = rtguest::allocFrame(8);
-    uint32_t uStack_68 = rtguest::allocFrame(8);
-    uint32_t uStack_70 = rtguest::allocFrame(8);
     uint32_t uStack_74 = rtguest::allocFrame(4);
+    uint32_t uStack_70 = rtguest::allocFrame(8);
+    uint32_t uStack_68 = rtguest::allocFrame(8);
+    uint32_t uStack_60 = rtguest::allocFrame(8);
+    uint32_t uStack_58 = rtguest::allocFrame(8);
+    uint32_t uStack_50 = rtguest::allocFrame(8);
+    uint32_t uStack_48 = rtguest::allocFrame(8);
   undefined4 uVar1;
   undefined4 uVar2;
   

@@ -5,8 +5,13 @@
 namespace guest {
 
 uint32_t __kernel_rem_pio2f(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
-    uint32_t iStack_68 = rtguest::allocFrame(4);
+uint32_t auStack_1b4 = rtguest::allocFrame(84);
+uint32_t afStack_160 = rtguest::allocFrame(76);
+uint32_t afStack_114 = rtguest::allocFrame(84);
+uint32_t afStack_c0 = rtguest::allocFrame(80);
+rtguest::allocFrame(4);  // guest frame gap
     uint32_t iStack_6c = rtguest::allocFrame(4);
+    uint32_t iStack_68 = rtguest::allocFrame(4);
   uint uVar1;
 uint32_t piVar2;
 uint32_t pfVar3;
@@ -29,10 +34,6 @@ uint32_t puVar9;
   float fVar20;
   uint uVar21;
   float fVar22;
-uint32_t auStack_1b4 = rtguest::allocFrame(84);
-uint32_t afStack_160 = rtguest::allocFrame(76);
-uint32_t afStack_114 = rtguest::allocFrame(84);
-uint32_t afStack_c0 = rtguest::allocFrame(80);
 uint32_t pfStack_70;
   
   iVar18 = param_3 + -3;

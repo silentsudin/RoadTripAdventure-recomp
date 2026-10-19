@@ -5,8 +5,12 @@
 namespace guest {
 
 uint32_t textGridDraw(uint32_t param_1, ...) {
-    uint32_t uStack_b4 = rtguest::allocFrame(4);
+uint32_t auStack_e0 = rtguest::allocFrame(4);
+uint32_t auStack_dc = rtguest::allocFrame(12);
+uint32_t auStack_d0 = rtguest::allocFrame(16);
+rtguest::allocFrame(8);  // guest frame gap
     uint32_t uStack_b8 = rtguest::allocFrame(4);
+    uint32_t uStack_b4 = rtguest::allocFrame(4);
   uint uVar1;
   uint uVar2;
   uint uVar3;
@@ -15,9 +19,6 @@ uint32_t puVar4;
   uint uVar6;
   uint uVar7;
   uint uVar8;
-uint32_t auStack_e0 = rtguest::allocFrame(4);
-uint32_t auStack_dc = rtguest::allocFrame(12);
-uint32_t auStack_d0 = rtguest::allocFrame(16);
 uint32_t puStack_c0;
 uint32_t puStack_bc;
 uint32_t puStack_b0;

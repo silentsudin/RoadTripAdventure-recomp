@@ -5,16 +5,16 @@
 namespace guest {
 
 uint32_t SendRpcCmd9Value(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_28 = rtguest::allocFrame(8);
-    uint32_t uStack_30 = rtguest::allocFrame(8);
-    uint32_t uStack_38 = rtguest::allocFrame(8);
-    uint32_t uStack_40 = rtguest::allocFrame(8);
-    uint32_t uStack_48 = rtguest::allocFrame(8);
-    uint32_t uStack_50 = rtguest::allocFrame(8);
     uint32_t uStack_54 = rtguest::allocFrame(4);
+    uint32_t uStack_50 = rtguest::allocFrame(8);
+    uint32_t uStack_48 = rtguest::allocFrame(8);
+    uint32_t uStack_40 = rtguest::allocFrame(8);
+    uint32_t uStack_38 = rtguest::allocFrame(8);
+    uint32_t uStack_30 = rtguest::allocFrame(8);
+    uint32_t uStack_28 = rtguest::allocFrame(8);
   
   (*(uint64_t*)rtguest::G(0x175e888)) = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_54)),param_2);
-  (*(int64_t*)rtguest::G(0x175e880)) = ((uint32_t)param_1 & 0xfff) << 0x20;
+  (*(int64_t*)rtguest::G(0x175e880)) = (uint64_t)(param_1 & 0xfff) << 0x20;
   (*(uint64_t*)rtguest::G(0x175e890)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_50));
   (*(uint64_t*)rtguest::G(0x175e898)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_48));
   (*(uint32_t*)rtguest::G(0x175e8a0)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_40));

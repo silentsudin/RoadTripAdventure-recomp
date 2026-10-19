@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t textGridReadCellAdvance(uint32_t param_1, ...) {
+uint64_t textGridReadCellAdvance(uint64_t param_1) {
   uint uVar1;
   undefined8 uVar2;
 uint32_t puVar3;

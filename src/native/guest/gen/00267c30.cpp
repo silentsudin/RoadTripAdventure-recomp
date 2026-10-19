@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t applySlotMaskDefaults(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t applySlotMaskDefaults(uint32_t param_1, uint64_t param_2, ...) {
   uint uVar1;
   bool bVar2;
 uint32_t puVar3;
@@ -32,15 +32,15 @@ uint32_t puVar9;
         do {
           uVar6 = uVar6 + 1;
           uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puVar5));
-          puVar5 = puVar5 + 1;
+          puVar5 = puVar5 + sizeof(uint32_t);
           (*(uint32_t*)rtguest::G((uint32_t)puVar4)) = (*(uint32_t*)rtguest::G((uint32_t)puVar4)) | uVar1;
-          puVar4 = puVar4 + 1;
+          puVar4 = puVar4 + sizeof(uint32_t);
         } while (uVar6 < 5);
       }
       iVar7 = iVar7 + 1;
       iVar8 = iVar8 + 4;
-      puVar9 = puVar9 + 1;
-      puVar3 = puVar3 + 2;
+      puVar9 = puVar9 + sizeof(uint32_t);
+      puVar3 = puVar3 + 2 * sizeof(uint32_t);
     } while (iVar7 < 9);
   }
   else {
@@ -58,8 +58,8 @@ uint32_t puVar9;
       }
       iVar7 = iVar7 + 1;
       iVar8 = iVar8 + 0x10;
-      puVar9 = puVar9 + 1;
-      puVar3 = puVar3 + 2;
+      puVar9 = puVar9 + sizeof(uint32_t);
+      puVar3 = puVar3 + 2 * sizeof(uint32_t);
     } while (iVar7 < 9);
   }
   if (0xe < param_2) {
@@ -67,7 +67,7 @@ uint32_t puVar9;
   }
                     /* WARNING: Could not recover jumptable at 0x00267da8. Too many branches */
                     /* WARNING: Treating indirect jump as call */
-  rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(0x32f2b0u + (uint32_t)((int)param_2) * 4))))));
+  rtCall((*(uint32_t*)rtguest::G((uint32_t)(0x32f2b0u + (uint32_t)((int)param_2) * sizeof(uint32_t)))));
   return 0;
 }
 

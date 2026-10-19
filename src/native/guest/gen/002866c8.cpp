@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t fpDoubleToInt(uint32_t param_1, ...) {
+uint32_t fpDoubleToInt(uint64_t param_1, ...) {
   int iVar1;
   ulong uVar2;
   long lVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawPaintEditorDigits(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+uint32_t abStack_70 = rtguest::allocFrame(16);
     uint32_t iStack_60 = rtguest::allocFrame(4);
   byte bVar1;
   int iVar2;
@@ -20,7 +21,6 @@ uint32_t puVar11;
 uint32_t puVar12;
 uint32_t puVar13;
 uint32_t puVar14;
-uint32_t abStack_70 = rtguest::allocFrame(16);
   
   (*(int32_t*)rtguest::G((uint32_t)iStack_60)) = param_1;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) == '\0') {

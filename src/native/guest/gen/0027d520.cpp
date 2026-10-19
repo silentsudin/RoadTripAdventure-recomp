@@ -5,7 +5,11 @@
 namespace guest {
 
 uint32_t __frame_state_for(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t apcStack_4f0 = rtguest::allocFrame(32);
+uint32_t auStack_4d0 = rtguest::allocFrame(1120);
+uint32_t auStack_70 = rtguest::allocFrame(32);
     uint32_t iStack_50 = rtguest::allocFrame(4);
+uint32_t auStack_4c = rtguest::allocFrame(12);
 uint32_t puVar1;
   uint uVar2;
   int iVar3;
@@ -18,10 +22,6 @@ uint32_t puVar8;
   undefined8 uVar10;
   undefined8 uVar11;
 uint32_t piVar12;
-uint32_t apcStack_4f0 = rtguest::allocFrame(32);
-uint32_t auStack_4d0 = rtguest::allocFrame(1120);
-uint32_t auStack_70 = rtguest::allocFrame(32);
-uint32_t auStack_4c = rtguest::allocFrame(12);
   
   lVar6 = find_fde();
   puVar5 = (uint32_t)0x0;

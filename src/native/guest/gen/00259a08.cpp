@@ -5,9 +5,11 @@
 namespace guest {
 
 uint32_t UpdateNpcTailCarTransform(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_58 = rtguest::allocFrame(4);
-    uint32_t uStack_5c = rtguest::allocFrame(4);
+    // alloc order = guest stack layout: &uStack_60 spans _60,_5c,_58 ascending
+    // (TransformRectangle writes float3), auStack_50 adjacent above.
     uint32_t uStack_60 = rtguest::allocFrame(4);
+    uint32_t uStack_5c = rtguest::allocFrame(4);
+    uint32_t uStack_58 = rtguest::allocFrame(4);
 uint32_t pbVar1;
   int iVar2;
   byte bVar3;
@@ -36,21 +38,21 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
       (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(7) * sizeof(int8_t))) = 0;
     }
     bVar3 = 0;
-    if (((*(float*)rtguest::G((uint32_t)pfVar8)) - (*(float*)rtguest::G(0x3330b8)) <= (*(uint32_t*)rtguest::G(0x177ace0))) &&
-       (bVar3 = 1, (*(uint32_t*)rtguest::G(0x177ace0)) <= (*(float*)rtguest::G((uint32_t)pfVar8)) + (*(float*)rtguest::G(0x3330b8)))) {
+    if (((*(float*)rtguest::G((uint32_t)pfVar8)) - (*(float*)rtguest::G(0x3330b8)) <= (*(float*)rtguest::G(0x177ace0))) &&
+       (bVar3 = 1, (*(float*)rtguest::G(0x177ace0)) <= (*(float*)rtguest::G((uint32_t)pfVar8)) + (*(float*)rtguest::G(0x3330b8)))) {
       bVar3 = 2;
-      if (((*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x28))) - (*(float*)rtguest::G(0x3330b8)) <= (*(uint32_t*)rtguest::G(0x177ace8))) &&
-         (bVar3 = 3, (*(uint32_t*)rtguest::G(0x177ace8)) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x28))) + (*(float*)rtguest::G(0x3330b8)))) {
+      if (((*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x28))) - (*(float*)rtguest::G(0x3330b8)) <= (*(float*)rtguest::G(0x177ace8))) &&
+         (bVar3 = 3, (*(float*)rtguest::G(0x177ace8)) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x28))) + (*(float*)rtguest::G(0x3330b8)))) {
         bVar3 = 0;
       }
     }
     (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(3) * sizeof(int8_t))) = bVar3;
     fVar11 = (float)GetSpeedFromF15Vector(0x177ad40);
-    iVar2 = (*(uint32_t*)rtguest::G(0x177ad48));
-    fVar10 = (*(uint32_t*)rtguest::G(0x3330c0));
+    iVar2 = (*(int32_t*)rtguest::G(0x177ad48));
+    fVar10 = (*(float*)rtguest::G(0x3330c0));
     iVar9 = (int)fVar11;
-    iVar5 = (*(uint32_t*)rtguest::G(0x177ad40)) / 0x98;
-    fVar11 = (float)iVar9 * (*(uint32_t*)rtguest::G(0x3330bc));
+    iVar5 = (*(int32_t*)rtguest::G(0x177ad40)) / 0x98;
+    fVar11 = (float)iVar9 * (*(float*)rtguest::G(0x3330bc));
     (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x18))) = fVar11;
     (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0xc))) = fVar11;
     fVar11 = (float)iVar5 * fVar10;
@@ -162,7 +164,7 @@ LAB_00259d18:
   bVar4 = bVar7 & 8;
   if ((bVar3 & 4) != 0) {
     fVar10 = (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x24))) + (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0xc)));
-    fVar11 = (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0xc))) - (*(uint32_t*)rtguest::G(0x3330c4));
+    fVar11 = (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0xc))) - (*(float*)rtguest::G(0x3330c4));
     (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x24))) = fVar10;
     (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0xc))) = fVar11;
     if (fVar10 <= 1.5) {
@@ -189,9 +191,9 @@ LAB_00259d18:
     fVar14 = (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x14)));
     fVar15 = (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x1c)));
     fVar13 = (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 8)));
-    fVar10 = fVar15 * (*(uint32_t*)rtguest::G(0x3330c8));
+    fVar10 = fVar15 * (*(float*)rtguest::G(0x3330c8));
     fVar11 = (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x10)));
-    fVar12 = fVar13 + fVar14 * (*(uint32_t*)rtguest::G(0x3330c8));
+    fVar12 = fVar13 + fVar14 * (*(float*)rtguest::G(0x3330c8));
     (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 8))) = fVar12;
     (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x10))) = fVar11 + fVar10;
     (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x20))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(pbVar1 + 0x20))) + fVar13;

@@ -16,7 +16,7 @@ uint32_t puVar2;
   do {
     uVar1 = uVar1 + 1;
     (*(uint32_t*)rtguest::G((uint32_t)puVar2)) = 0xffffffff;
-    puVar2 = puVar2 + 1;
+    puVar2 = puVar2 + (uint32_t)(1) * sizeof(uint32_t);
   } while (uVar1 < 4);
   return 0;
 }

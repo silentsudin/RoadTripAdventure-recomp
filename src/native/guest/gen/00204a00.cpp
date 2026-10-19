@@ -42,7 +42,7 @@ uint32_t pbVar7;
       (*(uint8_t*)rtguest::G((uint32_t)puVar3)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x28))) = 0;
       if (iVar4 != 0) {
-        DestroyTaskTree();
+        DestroyTaskTree(iVar4); // arg-drop fix: $4=iVar4 at the jal
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) = 0;
       }
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x14))) == 0) {
@@ -52,7 +52,7 @@ uint32_t pbVar7;
         (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(0x13) * sizeof(int8_t))) = 0;
       }
       else {
-        DestroyTaskTree();
+        DestroyTaskTree((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x14)))); // arg-drop fix: $4=*(puVar3+0x14) at the jal
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x14))) = 0;
         (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(0x10) * sizeof(int8_t))) = 0;
         (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(0x11) * sizeof(int8_t))) = 0;
@@ -113,7 +113,7 @@ LAB_00204bd4:
       (*(uint8_t*)rtguest::G((uint32_t)puVar3)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x28))) = 0;
       if (iVar4 != 0) {
-        DestroyTaskTree();
+        DestroyTaskTree(iVar4); // arg-drop fix: $4=iVar4 at the jal
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) = 0;
       }
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x14))) == 0) {
@@ -123,7 +123,7 @@ LAB_00204bd4:
         (*(int8_t*)rtguest::G((uint32_t)pbVar7 + (uint32_t)(0x13) * sizeof(int8_t))) = 0;
       }
       else {
-        DestroyTaskTree();
+        DestroyTaskTree((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x14)))); // arg-drop fix: $4=*(puVar3+0x14) at the jal
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x14))) = 0;
         (*(int8_t*)rtguest::G((uint32_t)pbVar7 + (uint32_t)(0x10) * sizeof(int8_t))) = 0;
         (*(int8_t*)rtguest::G((uint32_t)pbVar7 + (uint32_t)(0x11) * sizeof(int8_t))) = 0;

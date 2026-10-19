@@ -5,14 +5,14 @@
 namespace guest {
 
 uint32_t drawRaceProps(uint32_t q0, ...) {
+uint32_t auStack_d0 = rtguest::allocFrame(64);
+uint32_t auStack_90 = rtguest::allocFrame(52);
     uint32_t fStack_5c = rtguest::allocFrame(4);
 uint32_t puVar1;
   undefined8 uVar2;
 uint32_t pfVar3;
   uint uVar4;
   float fVar5;
-uint32_t auStack_d0 = rtguest::allocFrame(64);
-uint32_t auStack_90 = rtguest::allocFrame(52);
   
   uVar4 = 0;
   vifUploadAt4();

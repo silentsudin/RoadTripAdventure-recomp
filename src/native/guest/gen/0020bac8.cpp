@@ -84,7 +84,7 @@ LAB_0020bcdc:
     do {
       iVar13 = iVar13 + -1;
       (*(int32_t*)rtguest::G((uint32_t)piVar10)) = (int)((*(int32_t*)rtguest::G((uint32_t)piVar10)) + (int)piVar5);
-      piVar10 = piVar10 + 1;
+      piVar10 = piVar10 + sizeof(int32_t);
     } while (-1 < iVar13);
     iVar6 = iVar15 * 0x3a8000 + ((*(uint32_t*)rtguest::G(0x100008)) - (*(uint32_t*)rtguest::G(0x100004)));
     piVar10 = (uint32_t)(0x707b80 + iVar6);
@@ -107,7 +107,7 @@ LAB_0020bcdc:
     do {
       iVar13 = iVar13 + -1;
       (*(int32_t*)rtguest::G((uint32_t)piVar5)) = (*(int32_t*)rtguest::G((uint32_t)piVar5)) + (int)piVar10;
-      piVar5 = piVar5 + 1;
+      piVar5 = piVar5 + sizeof(int32_t);
     } while (-1 < iVar13);
     iVar12 = (iVar15 * 0x3a8000 + (*(uint32_t*)rtguest::G(0x100010))) - (*(uint32_t*)rtguest::G(0x100004));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x177ab70 + (uint32_t)(iVar15) * 4)) = 0x707b80 + ((iVar15 * 0x3a8000 + (*(uint32_t*)rtguest::G(0x10000c))) - (*(uint32_t*)rtguest::G(0x100004)))
@@ -125,13 +125,13 @@ LAB_0020bcdc:
           do {
             iVar6 = iVar6 + -1;
             (*(int32_t*)rtguest::G((uint32_t)piVar5)) = (int)((*(int32_t*)rtguest::G((uint32_t)piVar5)) + (int)piVar10);
-            piVar5 = piVar5 + 1;
+            piVar5 = piVar5 + sizeof(int32_t);
           } while (-1 < iVar6);
           piVar5 = (uint32_t)((int)0x00100014 + iVar12);
           iVar13 = iVar13 + 1;
           piVar9 = (uint32_t)((int)0x00100010 + iVar12);
           iVar12 = iVar12 + 4;
-          puVar11 = puVar11 + 1;
+          puVar11 = puVar11 + sizeof(uint32_t);
           piVar10 = (uint32_t)((int)piVar10 + ((*(int32_t*)rtguest::G((uint32_t)piVar5)) - (*(int32_t*)rtguest::G((uint32_t)piVar9))));
         } while (iVar13 < 0x34);
         piVar10 = (uint32_t)(param_2 + 0x80);
@@ -158,10 +158,10 @@ LAB_0020bcdc:
           do {
             iVar6 = iVar6 + -1;
             (*(int32_t*)rtguest::G((uint32_t)piVar9)) = (*(int32_t*)rtguest::G((uint32_t)piVar9)) + (int)piVar5;
-            piVar9 = piVar9 + 1;
+            piVar9 = piVar9 + sizeof(int32_t);
           } while (-1 < iVar6);
           iVar13 = iVar13 + 1;
-          piVar10 = piVar10 + 1;
+          piVar10 = piVar10 + sizeof(int32_t);
           iVar12 = iVar12 + 4;
         } while (iVar13 < 0x1a);
         piVar10 = (uint32_t)(0x707b80 +
@@ -189,7 +189,7 @@ LAB_0020bcdc:
           iVar13 = iVar13 + 4;
           (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)0x177f580 + iVar3))) = iVar6 + (int)piVar10;
           iVar12 = iVar12 + 1;
-          piVar5 = piVar5 + 1;
+          piVar5 = piVar5 + sizeof(int32_t);
         } while (iVar7 != 0);
         piVar5 = (uint32_t)(iVar13 + (int)piVar10);
       }

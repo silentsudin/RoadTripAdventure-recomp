@@ -5,20 +5,20 @@
 namespace guest {
 
 uint32_t SpawnCarEmitterEntry(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+uint32_t auStack_b0 = rtguest::allocFrame(48);
+uint32_t auStack_80 = rtguest::allocFrame(12);
     uint32_t fStack_74 = rtguest::allocFrame(4);
-    uint32_t uStack_64 = rtguest::allocFrame(4);
-    uint32_t uStack_68 = rtguest::allocFrame(4);
-    uint32_t uStack_6c = rtguest::allocFrame(4);
     uint32_t uStack_70 = rtguest::allocFrame(4);
+    uint32_t uStack_6c = rtguest::allocFrame(4);
+    uint32_t uStack_68 = rtguest::allocFrame(4);
+    uint32_t uStack_64 = rtguest::allocFrame(4);
+uint32_t auStack_60 = rtguest::allocFrame(16);
 uint32_t pfVar1;
   int iVar2;
   int iVar3;
   int iVar4;
   float fVar5;
   float fVar6;
-uint32_t auStack_b0 = rtguest::allocFrame(48);
-uint32_t auStack_80 = rtguest::allocFrame(12);
-uint32_t auStack_60 = rtguest::allocFrame(16);
   
   iVar4 = 0;
   pfVar1 = 0x0172ff7c;

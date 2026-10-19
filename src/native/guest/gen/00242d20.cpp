@@ -5,27 +5,38 @@
 namespace guest {
 
 uint32_t raceMapMarkers(uint32_t param_1, ...) {
-    uint32_t fStack_108 = rtguest::allocFrame(4);
+uint32_t afStack_170 = rtguest::allocFrame(40);
     uint32_t fStack_148 = rtguest::allocFrame(4);
-    uint32_t fStack_88 = rtguest::allocFrame(4);
-    uint32_t fStack_c8 = rtguest::allocFrame(4);
-    uint32_t uStack_100 = rtguest::allocFrame(4);
-    uint32_t uStack_138 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
     uint32_t uStack_140 = rtguest::allocFrame(4);
-    uint32_t uStack_78 = rtguest::allocFrame(4);
-    uint32_t uStack_80 = rtguest::allocFrame(4);
-    uint32_t uStack_b8 = rtguest::allocFrame(4);
-    uint32_t uStack_c0 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_138 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t afStack_130 = rtguest::allocFrame(40);
+    uint32_t fStack_108 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_100 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
     uint32_t uStack_f8 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t afStack_f0 = rtguest::allocFrame(40);
+    uint32_t fStack_c8 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_c0 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_b8 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+uint32_t afStack_b0 = rtguest::allocFrame(40);
+    uint32_t fStack_88 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_80 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_78 = rtguest::allocFrame(4);
 uint32_t puVar1;
   uint uVar2;
   int iVar3;
   float fVar4;
   float fVar5;
-uint32_t afStack_170 = rtguest::allocFrame(40);
-uint32_t afStack_130 = rtguest::allocFrame(40);
-uint32_t afStack_f0 = rtguest::allocFrame(40);
-uint32_t afStack_b0 = rtguest::allocFrame(40);
   
   uVar2 = 1;
   fVar4 = 50.0 / (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a4058 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x22))) * 0x10)));

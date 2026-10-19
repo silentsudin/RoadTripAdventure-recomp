@@ -5,11 +5,11 @@
 namespace guest {
 
 uint32_t UpdateWorldMapMenuTask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-    uint32_t uStack_3c = rtguest::allocFrame(4);
+uint32_t auStack_50 = rtguest::allocFrame(16);
     uint32_t uStack_40 = rtguest::allocFrame(4);
+    uint32_t uStack_3c = rtguest::allocFrame(4);
   ushort uVar1;
   int iVar2;
-uint32_t auStack_50 = rtguest::allocFrame(16);
   
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 8))) == 0) {
     (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0;

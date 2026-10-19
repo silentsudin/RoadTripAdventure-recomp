@@ -9,17 +9,19 @@ uint32_t pbVar1;
   uint uVar2;
   int iVar3;
   int iVar4;
+  int iParam2;
   
   iVar3 = 0;
   iVar4 = 0;
   pbVar1 = param_1;
-  if (0 < param_2) {
+  iParam2 = (int)param_2;
+  if (0 < iParam2) {
     while( true ) {
-      for (uVar2 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)); uVar2 != 0; uVar2 = uVar2 >> 1) {
+      for (uVar2 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)pbVar1)); uVar2 != 0; uVar2 = uVar2 >> 1) {
         iVar4 = iVar4 + (uVar2 & 1);
       }
       iVar3 = iVar3 + 1;
-      if (param_2 <= iVar3) break;
+      if (iParam2 <= iVar3) break;
       pbVar1 = param_1 + iVar3;
     }
   }

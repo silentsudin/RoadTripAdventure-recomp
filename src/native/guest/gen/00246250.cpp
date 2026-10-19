@@ -5,19 +5,22 @@
 namespace guest {
 
 uint32_t shopMenuScene(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t iStack_64 = rtguest::allocFrame(4);
-    uint32_t iStack_68 = rtguest::allocFrame(4);
-    uint32_t iStack_74 = rtguest::allocFrame(4);
-    uint32_t iStack_7c = rtguest::allocFrame(4);
-    uint32_t iStack_84 = rtguest::allocFrame(4);
-    uint32_t iStack_8c = rtguest::allocFrame(4);
-    uint32_t iStack_90 = rtguest::allocFrame(4);
-    uint32_t uStack_70 = rtguest::allocFrame(8);
-    uint32_t uStack_88 = rtguest::allocFrame(4);
-    uint32_t uStack_98 = rtguest::allocFrame(8);
-    uint32_t uStack_a0 = rtguest::allocFrame(8);
-    uint32_t uStack_a8 = rtguest::allocFrame(8);
+uint32_t auStack_f0 = rtguest::allocFrame(64);
     uint32_t uStack_b0 = rtguest::allocFrame(8);
+    uint32_t uStack_a8 = rtguest::allocFrame(8);
+    uint32_t uStack_a0 = rtguest::allocFrame(8);
+    uint32_t uStack_98 = rtguest::allocFrame(8);
+    uint32_t iStack_90 = rtguest::allocFrame(4);
+    uint32_t iStack_8c = rtguest::allocFrame(4);
+    uint32_t uStack_88 = rtguest::allocFrame(4);
+    uint32_t iStack_84 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t iStack_7c = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t iStack_74 = rtguest::allocFrame(4);
+    uint32_t uStack_70 = rtguest::allocFrame(8);
+    uint32_t iStack_68 = rtguest::allocFrame(4);
+    uint32_t iStack_64 = rtguest::allocFrame(4);
   char cVar1;
   uint uVar2;
   undefined1 uVar3;
@@ -56,7 +59,6 @@ uint32_t psVar35;
   int iVar36;
   float fVar37;
   float fVar38;
-uint32_t auStack_f0 = rtguest::allocFrame(64);
 uint32_t puStack_80;
 uint32_t puStack_78;
   
@@ -669,7 +671,7 @@ LAB_002471f0:
     DrawAltScoreAndRemaining(iVar28,(*(int32_t*)rtguest::G((uint32_t)iStack_90)));
     uVar19 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x27)));
   }
-  DrawTextListRows((*(uint32_t*)rtguest::G(0x1757b80)),(*(uint32_t*)rtguest::G((uint32_t)0x1757ba0 + (uint32_t)(uVar19) * 4)),0);
+  DrawTextListRows((*(uint32_t*)rtguest::G(0x1757b80)),(*(uint32_t*)rtguest::G((uint32_t)0x1757ba0 + (uint32_t)(uVar19) * 4)));  // pseudocode arity 2; ABI 3rd arg unused by callee
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 8))) == 0) {
     return 0;
   }

@@ -30,7 +30,7 @@ uint32_t psVar8;
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x198))) & 0x30) != 0) {
       (*(int16_t*)rtguest::G((uint32_t)psVar8)) = sVar2 + (short)(iVar5 >> 4);
     }
-    psVar8 = psVar8 + 1;
+    psVar8 = psVar8 + sizeof(int16_t);
   } while (iVar9 < 6);
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x244))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x214))) =
@@ -63,10 +63,10 @@ uint32_t psVar8;
   puVar6 = (uint32_t)(0x002ed334 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) * 0x1c);
   do {
     uVar3 = (*(uint16_t*)rtguest::G((uint32_t)puVar6));
-    puVar6 = puVar6 + 1;
+    puVar6 = puVar6 + sizeof(uint16_t);
     iVar9 = iVar9 + -1;
     (*(uint16_t*)rtguest::G((uint32_t)puVar7)) = uVar3;
-    puVar7 = puVar7 + 1;
+    puVar7 = puVar7 + sizeof(uint16_t);
   } while (-1 < iVar9);
   return 0;
 }

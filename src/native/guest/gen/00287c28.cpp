@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sifRpcBindRequest(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t sifRpcBindRequest(uint32_t param_1, uint64_t param_2, ...) {
   undefined4 uVar1;
   undefined8 uVar2;
   long lVar3;

@@ -5,12 +5,12 @@
 namespace guest {
 
 uint32_t printf(uint32_t __format, ...) {
-    uint32_t uStack_10 = rtguest::allocFrame(8);
-    uint32_t uStack_18 = rtguest::allocFrame(8);
-    uint32_t uStack_20 = rtguest::allocFrame(8);
-    uint32_t uStack_28 = rtguest::allocFrame(8);
-    uint32_t uStack_30 = rtguest::allocFrame(8);
     uint32_t uStack_38 = rtguest::allocFrame(8);
+    uint32_t uStack_30 = rtguest::allocFrame(8);
+    uint32_t uStack_28 = rtguest::allocFrame(8);
+    uint32_t uStack_20 = rtguest::allocFrame(8);
+    uint32_t uStack_18 = rtguest::allocFrame(8);
+    uint32_t uStack_10 = rtguest::allocFrame(8);
     uint32_t uStack_8 = rtguest::allocFrame(8);
 uint32_t puVar1;
   int iVar2;

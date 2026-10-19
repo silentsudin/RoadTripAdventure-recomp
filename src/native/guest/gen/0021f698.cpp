@@ -5,33 +5,37 @@
 namespace guest {
 
 uint32_t buildCamera(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-    uint32_t fStack_12c = rtguest::allocFrame(4);
-    uint32_t fStack_16c = rtguest::allocFrame(4);
-    uint32_t uStack_104 = rtguest::allocFrame(4);
-    uint32_t uStack_108 = rtguest::allocFrame(4);
-    uint32_t uStack_114 = rtguest::allocFrame(4);
-    uint32_t uStack_118 = rtguest::allocFrame(4);
-    uint32_t uStack_11c = rtguest::allocFrame(4);
-    uint32_t uStack_120 = rtguest::allocFrame(4);
-    uint32_t uStack_144 = rtguest::allocFrame(4);
-    uint32_t uStack_148 = rtguest::allocFrame(4);
-    uint32_t uStack_154 = rtguest::allocFrame(4);
-    uint32_t uStack_158 = rtguest::allocFrame(4);
-  undefined4 uVar1;
-  undefined4 uVar2;
-  undefined4 uVar3;
-  int iVar4;
-  undefined4 uVar5;
-  float fVar6;
 uint32_t auStack_1d0 = rtguest::allocFrame(16);
 uint32_t auStack_1c0 = rtguest::allocFrame(16);
 uint32_t auStack_1b0 = rtguest::allocFrame(16);
 uint32_t auStack_1a0 = rtguest::allocFrame(16);
 uint32_t auStack_190 = rtguest::allocFrame(16);
 uint32_t afStack_180 = rtguest::allocFrame(20);
+    uint32_t fStack_16c = rtguest::allocFrame(4);
+    rtguest::allocFrame(16);  // guest frame gap
+    uint32_t uStack_158 = rtguest::allocFrame(4);
+    uint32_t uStack_154 = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_148 = rtguest::allocFrame(4);
+    uint32_t uStack_144 = rtguest::allocFrame(4);
 uint32_t afStack_140 = rtguest::allocFrame(20);
+    uint32_t fStack_12c = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_120 = rtguest::allocFrame(4);
+    uint32_t uStack_11c = rtguest::allocFrame(4);
+    uint32_t uStack_118 = rtguest::allocFrame(4);
+    uint32_t uStack_114 = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_108 = rtguest::allocFrame(4);
+    uint32_t uStack_104 = rtguest::allocFrame(4);
 uint32_t auStack_100 = rtguest::allocFrame(64);
 uint32_t auStack_c0 = rtguest::allocFrame(64);
+  undefined4 uVar1;
+  undefined4 uVar2;
+  undefined4 uVar3;
+  int iVar4;
+  undefined4 uVar5;
+  float fVar6;
   
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1c))) & 0x1000) == 0) {
     ComposeCameraMatrix(auStack_1d0);
@@ -50,7 +54,7 @@ uint32_t auStack_c0 = rtguest::allocFrame(64);
             ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))),auStack_100,auStack_c0,auStack_1d0,auStack_1b0,
              auStack_1c0,iVar4 + 0x100);
   uVar3 = (*(uint32_t*)rtguest::G(0x3356e4));
-  (*(float*)rtguest::G((uint32_t)fStack_12c)) = (*(uint32_t*)rtguest::G(0x332c88));
+  (*(float*)rtguest::G((uint32_t)fStack_12c)) = (*(float*)rtguest::G(0x332c88));
   (*(float*)rtguest::G((uint32_t)afStack_180 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10)));
   if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
     fVar6 = 1.0;

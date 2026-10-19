@@ -32,7 +32,7 @@ uint32_t AdvanceAnimationPhaseState(uint32_t param_1, ...) {
       vu0UnitMatrix(0x17525d0);
       vu0RotMatrixY((*(uint32_t*)rtguest::G(0x29f34c)),0x17525d0,0x17525d0);
       vu0CopyVectorXYZ(0x1752600,0x29f340);
-      (*(uint8_t*)rtguest::G(0x175265c)) = (*(uint32_t*)rtguest::G(0x333688));
+      (*(uint32_t*)rtguest::G(0x175265c)) = (*(uint32_t*)rtguest::G(0x333688));
       (*(uint32_t*)rtguest::G(0x1752650)) = 0;
       (*(uint32_t*)rtguest::G(0x1752658)) = 0;
       (*(uint32_t*)rtguest::G(0x1752654)) = 0;

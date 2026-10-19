@@ -5,15 +5,22 @@
 namespace guest {
 
 uint32_t __kernel_rem_pio2(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
-    uint32_t iStack_70 = rtguest::allocFrame(4);
-    uint32_t iStack_78 = rtguest::allocFrame(4);
-    uint32_t iStack_7c = rtguest::allocFrame(4);
-    uint32_t iStack_80 = rtguest::allocFrame(4);
-    uint32_t iStack_84 = rtguest::allocFrame(4);
+uint32_t auStack_2c4 = rtguest::allocFrame(84);
+uint32_t auStack_270 = rtguest::allocFrame(152);
+uint32_t auStack_1d8 = rtguest::allocFrame(16);
+uint32_t auStack_1c8 = rtguest::allocFrame(152);
+uint32_t auStack_130 = rtguest::allocFrame(160);
+rtguest::allocFrame(8);  // guest frame gap
     uint32_t iStack_88 = rtguest::allocFrame(4);
-    uint32_t uStack_5c = rtguest::allocFrame(4);
-    uint32_t uStack_60 = rtguest::allocFrame(4);
+    uint32_t iStack_84 = rtguest::allocFrame(4);
+    uint32_t iStack_80 = rtguest::allocFrame(4);
+    uint32_t iStack_7c = rtguest::allocFrame(4);
+    uint32_t iStack_78 = rtguest::allocFrame(4);
     uint32_t uStack_74 = rtguest::allocFrame(4);
+    uint32_t iStack_70 = rtguest::allocFrame(4);
+    rtguest::allocFrame(12);  // guest frame gap
+    uint32_t uStack_60 = rtguest::allocFrame(4);
+    uint32_t uStack_5c = rtguest::allocFrame(4);
   uint uVar1;
   bool bVar2;
   undefined4 uVar3;
@@ -35,11 +42,6 @@ uint32_t puVar18;
   int iVar19;
 uint32_t puVar20;
   undefined8 uVar21;
-uint32_t auStack_2c4 = rtguest::allocFrame(84);
-uint32_t auStack_270 = rtguest::allocFrame(152);
-uint32_t auStack_1d8 = rtguest::allocFrame(16);
-uint32_t auStack_1c8 = rtguest::allocFrame(152);
-uint32_t auStack_130 = rtguest::allocFrame(160);
 uint32_t puStack_90;
 uint32_t puStack_8c;
   

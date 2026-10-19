@@ -1,8 +1,6 @@
 // guest:0x00243490 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
-#define GetTableEntry_ed720 GetTableEntry_ed720_decl
 #include "guest_decls.inc"
-#undef GetTableEntry_ed720
 
 namespace guest {
 

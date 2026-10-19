@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceMcRead(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+uint64_t sceMcRead(uint32_t param_1, uint64_t param_2, uint64_t param_3, ...) {
   long lVar1;
   
   lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));

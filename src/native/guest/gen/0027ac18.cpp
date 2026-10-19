@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sceMcRename(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+int64_t sceMcRename(uint32_t param_1, uint32_t param_2, int64_t param_3, int64_t param_4, ...) {
   long lVar1;
   
   lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));
@@ -24,7 +24,7 @@ uint32_t sceMcRename(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint3
     (*(uint32_t*)rtguest::G(0x1774bf0)) = param_1;
     (*(uint32_t*)rtguest::G(0x1774bf4)) = param_2;
     (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)(0x01774c04)), (char *)rtguest::G((uint32_t)((uint32_t)param_3)), 0x3ff));
-    (*(uint32_t*)rtguest::G(0x1775003)) = 0;
+    (*(uint8_t*)rtguest::G(0x1775003)) = 0;
     (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)((uint32_t)0x01774ba0)), (char *)rtguest::G((uint32_t)((uint32_t)param_4)), 0x20));
     (*(uint32_t*)rtguest::G(0x1774c00)) = 0x01774b80;
     (*(uint8_t*)rtguest::G((uint32_t)0x01774bb8 + 7)) = 0;

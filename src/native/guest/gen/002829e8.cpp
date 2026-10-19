@@ -1,8 +1,6 @@
 // guest:0x002829e8 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
-#define __sinit __sinit_decl
 #include "guest_decls.inc"
-#undef __sinit
 
 namespace guest {
 

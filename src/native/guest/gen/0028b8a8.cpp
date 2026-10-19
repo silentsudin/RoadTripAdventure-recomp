@@ -5,15 +5,17 @@
 namespace guest {
 
 uint32_t sceSymlink(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_9c = rtguest::allocFrame(4);
-    uint32_t uStack_a8 = rtguest::allocFrame(4);
+uint32_t auStack_b0 = rtguest::allocFrame(4);
     uint32_t uStack_ac = rtguest::allocFrame(4);
+    uint32_t uStack_a8 = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_9c = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_90 = rtguest::allocFrame(16);
   char cVar1;
   undefined8 uVar2;
   long lVar3;
   int iVar4;
-uint32_t auStack_b0 = rtguest::allocFrame(4);
-uint32_t auStack_90 = rtguest::allocFrame(16);
   
   _sceFsWaitS(0x11);
   if ((*(int32_t*)rtguest::G(0x2e9988)) == 0) {

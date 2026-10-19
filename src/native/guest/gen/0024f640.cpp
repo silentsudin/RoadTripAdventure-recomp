@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t uiArenaSetTexture(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+uint32_t uiArenaSetTexture(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
 uint32_t plVar1;
   int iVar2;
   int iVar3;

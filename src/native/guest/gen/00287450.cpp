@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t sifSendRpcReply(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+uint32_t sifSendRpcReply(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, ...) {
   _sceSifSendCmd(param_1,1,param_2,param_3,param_4,param_5,param_6);
   return 0;
 }

@@ -12,7 +12,7 @@ uint32_t puVar2;
     fatal(0x2eafa0);
   }
   if ((*(uint32_t*)rtguest::G(0x3356f4)) == 0) {
-    if ((*(uint32_t*)rtguest::G(0x3356ec)) + 0x18 < (uint32_t)0x17523d0) {
+    if ((*(uint32_t*)rtguest::G(0x3356ec)) + 0x18 * sizeof(uint32_t) < (uint32_t)0x17523d0) {
       bVar1 = false;
     }
     else {
@@ -22,13 +22,13 @@ uint32_t puVar2;
   }
   else {
     bVar1 = true;
-    if ((*(uint32_t*)rtguest::G(0x3356ec)) + 0x18 < (uint32_t)0x1750bd0) {
+    if ((*(uint32_t*)rtguest::G(0x3356ec)) + 0x18 * sizeof(uint32_t) < (uint32_t)0x1750bd0) {
       bVar1 = false;
     }
   }
   if (!bVar1) {
-    puVar2 = (*(uint32_t*)rtguest::G(0x3356ec)) + 4;
-    (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(0) * 4)))) = 0x10000005;
+    puVar2 = (*(uint32_t*)rtguest::G(0x3356ec)) + 4 * sizeof(uint32_t);
+    (*(uint32_t*)rtguest::G((*(uint32_t*)rtguest::G(0x3356ec)))) = 0x10000005;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(3) * 4)) = 0x6c040000;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(1) * 4)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(2) * 4)) = 0x10000000;
@@ -38,7 +38,7 @@ uint32_t puVar2;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(0x10) * 4)) = 0x10000000;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(0x11) * 4)) = 0x1500000e;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(0x12) * 4)) = 0x300008d;
-    (*(uint32_t*)rtguest::G(0x3356ec)) = (*(uint32_t*)rtguest::G(0x3356ec)) + 0x14;
+    (*(uint32_t*)rtguest::G(0x3356ec)) = (*(uint32_t*)rtguest::G(0x3356ec)) + 0x14 * sizeof(uint32_t);
   }
   return 0;
 }

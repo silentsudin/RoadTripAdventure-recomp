@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t textGridScrollUp(uint32_t param_1, uint32_t param_2, ...) {
+void textGridScrollUp(uint64_t param_1, uint32_t param_2) {
   uint uVar1;
   undefined4 uVar2;
   int iVar3;
@@ -15,10 +15,10 @@ uint32_t textGridScrollUp(uint32_t param_1, uint32_t param_2, ...) {
     iVar3 = uVar1 - param_2;
     textGridMoveRect(param_1,0,0,0,param_2,uVar2,iVar3);
     textGridFillRectBlank(param_1,0,iVar3,uVar2,param_2);
-    return 0;
+    return;
   }
   textGridFillRectBlank(param_1,0,0,uVar2);
-  return 0;
+  return;
 }
 
 

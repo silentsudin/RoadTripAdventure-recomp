@@ -5,10 +5,11 @@
 namespace guest {
 
 uint32_t fsFdSemInit(uint32_t q0, ...) {
-    uint32_t uStack_2c = rtguest::allocFrame(4);
-    uint32_t uStack_38 = rtguest::allocFrame(4);
-    uint32_t uStack_3c = rtguest::allocFrame(4);
 uint32_t auStack_40 = rtguest::allocFrame(4);
+    uint32_t uStack_3c = rtguest::allocFrame(4);
+    uint32_t uStack_38 = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+    uint32_t uStack_2c = rtguest::allocFrame(4);
   
   if ((*(int32_t*)rtguest::G(0x2e9990)) == -1) {
     (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) = 0;

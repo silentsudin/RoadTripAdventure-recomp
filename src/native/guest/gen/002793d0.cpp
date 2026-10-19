@@ -4,13 +4,13 @@
 
 namespace guest {
 
-uint32_t sceSdRemote(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, ...) {
-    uint32_t uStack_10 = rtguest::allocFrame(8);
-    uint32_t uStack_18 = rtguest::allocFrame(8);
-    uint32_t uStack_20 = rtguest::allocFrame(8);
-    uint32_t uStack_28 = rtguest::allocFrame(8);
-    uint32_t uStack_30 = rtguest::allocFrame(8);
-    uint32_t uStack_8 = rtguest::allocFrame(8);
+uint32_t sceSdRemote(uint64_t param_1, uint32_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
+  uint32_t uStack_30 = rtguest::allocFrame(0x38);
+  uint32_t uStack_28 = uStack_30 + 8;
+  uint32_t uStack_20 = uStack_30 + 0x10;
+  uint32_t uStack_18 = uStack_30 + 0x18;
+  uint32_t uStack_10 = uStack_30 + 0x20;
+  uint32_t uStack_8 = uStack_30 + 0x28;
   bool bVar1;
 uint32_t puVar2;
   int iVar3;

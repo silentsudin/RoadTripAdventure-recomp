@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t uiDrawText(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+uint64_t uiDrawText(uint64_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
   byte bVar1;
   int iVar2;
 uint32_t puVar3;

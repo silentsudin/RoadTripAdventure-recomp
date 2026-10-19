@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t __udivdi3(uint32_t param_1, uint32_t param_2, ...) {
+// pseudocode: ulong __udivdi3(long, long)
+uint64_t __udivdi3(uint64_t param_1, uint64_t param_2, ...) {
   long lVar1;
   uint uVar2;
   uint uVar3;

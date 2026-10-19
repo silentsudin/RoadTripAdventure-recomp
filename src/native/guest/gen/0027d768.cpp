@@ -12,7 +12,7 @@ uint32_t __pack_d(uint32_t param_1, ...) {
   
   uVar1 = (*(uint32_t*)rtguest::G((uint32_t)param_1));
   uVar4 = 0;
-  uVar2 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4)));
+  uVar2 = (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(uint32_t)));  // pseudocode: uint* +4 = +16B (frac slot per __make_dp frame)
   if (uVar1 < 2) {
     uVar4 = 0x7ff;
     uVar3 = uVar2 | 0x8000000000000;

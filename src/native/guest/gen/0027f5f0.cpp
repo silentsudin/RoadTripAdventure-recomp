@@ -12,7 +12,8 @@ uint32_t __sprint_r(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) = 0;
   }
   else {
-    uVar1 = __sfvwrite_r();
+    // arg-drop fix: a0/a1 never written after entry, live at jal 0x27f618 (disasm)
+    uVar1 = __sfvwrite_r(param_1, param_2);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 8))) = 0;
   }

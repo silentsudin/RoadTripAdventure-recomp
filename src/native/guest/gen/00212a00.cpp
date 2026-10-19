@@ -29,8 +29,8 @@ uint32_t puVar3;
     uVar5 = 0x50;
     uVar4 = 0x2e4;
     do {
-      param_3 = param_3 + 1;
-      puVar3 = param_2 + 9;
+      param_3 = param_3 + (uint32_t)(1) * sizeof(uint32_t);
+      puVar3 = param_2 + (uint32_t)(9) * sizeof(uint32_t);
       bVar1 = param_5 == iVar6;
       (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(10) * sizeof(uint32_t))) = uVar4;
       (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(0xb) * sizeof(uint32_t))) = uVar5;

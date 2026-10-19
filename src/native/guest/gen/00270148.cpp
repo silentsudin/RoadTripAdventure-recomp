@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t memclr(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t memclr(uint32_t param_1, uint64_t param_2, ...) {
   int iVar1;
   
   iVar1 = (int)param_2 + -1;

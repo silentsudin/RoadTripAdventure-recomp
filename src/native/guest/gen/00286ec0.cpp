@@ -4,25 +4,21 @@
 
 namespace guest {
 
-uint32_t scePrintf(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, ...) {
-    uint32_t uStack_10 = rtguest::allocFrame(8);
-    uint32_t uStack_18 = rtguest::allocFrame(8);
-    uint32_t uStack_20 = rtguest::allocFrame(8);
-    uint32_t uStack_28 = rtguest::allocFrame(8);
-    uint32_t uStack_30 = rtguest::allocFrame(8);
-    uint32_t uStack_38 = rtguest::allocFrame(8);
-    uint32_t uStack_8 = rtguest::allocFrame(8);
+uint32_t scePrintf(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
+    // spill area must be one contiguous block: _printf walks it 8 bytes per arg
+    uint32_t uStack_38 = rtguest::allocFrame(0x38);
 uint32_t puVar1;
   
   puVar1 = (*(uint32_t*)rtguest::G(0x002e98f8));
-  (*(uint32_t*)rtguest::G(0x002e98f8)) = (*(uint8_t*)rtguest::G(0x2865e0));
+  // stores the guest address of scePrintfPutChar (0x2865e0) into the sink slot
+  (*(uint32_t*)rtguest::G(0x002e98f8)) = 0x002865e0;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = param_2;
-  (*(uint64_t*)rtguest::G((uint32_t)uStack_30)) = param_3;
-  (*(uint64_t*)rtguest::G((uint32_t)uStack_28)) = param_4;
-  (*(uint64_t*)rtguest::G((uint32_t)uStack_20)) = param_5;
-  (*(uint64_t*)rtguest::G((uint32_t)uStack_18)) = param_6;
-  (*(uint64_t*)rtguest::G((uint32_t)uStack_10)) = param_7;
-  (*(uint64_t*)rtguest::G((uint32_t)uStack_8)) = param_8;
+  (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(1) * 8)) = param_3;
+  (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(2) * 8)) = param_4;
+  (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(3) * 8)) = param_5;
+  (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(4) * 8)) = param_6;
+  (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(5) * 8)) = param_7;
+  (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(6) * 8)) = param_8;
   _printf(param_1,uStack_38);
   (*(uint32_t*)rtguest::G(0x002e98f8)) = puVar1;
   return 0;

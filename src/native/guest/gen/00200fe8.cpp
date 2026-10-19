@@ -18,22 +18,22 @@ uint32_t uiKanaGlyphUV(uint32_t param_1, uint32_t param_2, uint32_t param_3, uin
   default:
     if (param_3 < 0x8754) {
       if (0x833f < param_3) {
-        (*(int16_t*)rtguest::G((uint32_t)param_1)) = ((uint32_t)(param_3 + 0x7cc8) % 0x19) * 0x14;
-        (*(int16_t*)rtguest::G((uint32_t)param_2)) = (*(int16_t*)rtguest::G((uint32_t)param_2)) + ((uint32_t)(param_3 + 0x7cc8) / 0x19) * 0x14 + 0x3c;
+        (*(int16_t*)rtguest::G((uint32_t)param_1)) = ((uint16_t)(param_3 + 0x7cc8) % 0x19) * 0x14;
+        (*(int16_t*)rtguest::G((uint32_t)param_2)) = (*(int16_t*)rtguest::G((uint32_t)param_2)) + ((uint16_t)(param_3 + 0x7cc8) / 0x19) * 0x14 + 0x3c;
         return 0;
       }
       if (0x829e < param_3) {
-        (*(int16_t*)rtguest::G((uint32_t)param_1)) = ((uint32_t)(param_3 + 0x7d61) % 0x19) * 0x14;
-        (*(int16_t*)rtguest::G((uint32_t)param_2)) = (*(int16_t*)rtguest::G((uint32_t)param_2)) + ((uint32_t)(param_3 + 0x7d61) / 0x19) * 0x14;
+        (*(int16_t*)rtguest::G((uint32_t)param_1)) = ((uint16_t)(param_3 + 0x7d61) % 0x19) * 0x14;
+        (*(int16_t*)rtguest::G((uint32_t)param_2)) = (*(int16_t*)rtguest::G((uint32_t)param_2)) + ((uint16_t)(param_3 + 0x7d61) / 0x19) * 0x14;
         return 0;
       }
       if (0x825f < param_3) {
-        (*(int16_t*)rtguest::G((uint32_t)param_1)) = ((uint32_t)(param_3 + 0x7da4) % 0x19) * 0x14;
-        (*(int16_t*)rtguest::G((uint32_t)param_2)) = (*(int16_t*)rtguest::G((uint32_t)param_2)) + ((uint32_t)(param_3 + 0x7da4) / 0x19) * 0x14 + 0x8c;
+        (*(int16_t*)rtguest::G((uint32_t)param_1)) = ((uint16_t)(param_3 + 0x7da4) % 0x19) * 0x14;
+        (*(int16_t*)rtguest::G((uint32_t)param_2)) = (*(int16_t*)rtguest::G((uint32_t)param_2)) + ((uint16_t)(param_3 + 0x7da4) / 0x19) * 0x14 + 0x8c;
         return 0;
       }
-      (*(int16_t*)rtguest::G((uint32_t)param_1)) = ((uint32_t)(param_3 + 0x7dc4) % 0x19) * 0x14;
-      sVar1 = (*(int16_t*)rtguest::G((uint32_t)param_2)) + ((uint32_t)(param_3 + 0x7dc4) / 0x19) * 0x14;
+      (*(int16_t*)rtguest::G((uint32_t)param_1)) = ((uint16_t)(param_3 + 0x7dc4) % 0x19) * 0x14;
+      sVar1 = (*(int16_t*)rtguest::G((uint32_t)param_2)) + ((uint16_t)(param_3 + 0x7dc4) / 0x19) * 0x14;
       goto LAB_002012e8;
     }
     sVar1 = (param_3 + 0x78ac) * 0x14 + 0x78;

@@ -4,21 +4,21 @@
 
 namespace guest {
 
-uint32_t textBufferBlendPixel16(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
-  byte bVar1;
+void textBufferBlendPixel16(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint16_t param_4, int16_t param_5) {
+  uint8_t bVar1;
 uint32_t puVar2;
   
   param_4 = param_4 & 0xff;
   if ((((-1 < (int)param_2) && (param_2 < (*(uint32_t*)rtguest::G((uint32_t)param_1)))) && (-1 < (int)param_3)) &&
      (param_3 < (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint32_t))))) {
     puVar2 = (uint32_t)((param_3 * (*(uint32_t*)rtguest::G((uint32_t)param_1)) + param_2) * 2 + (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint32_t))));
-    bVar1 = (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar2));
+    bVar1 = (uint8_t)(*(uint16_t*)rtguest::G((uint32_t)puVar2));
     if (0xf0 < bVar1) {
       param_4 = bVar1 | param_4;
     }
     (*(uint16_t*)rtguest::G((uint32_t)puVar2)) = param_4 | param_5 << 8;
   }
-  return 0;
+  return;
 }
 
 

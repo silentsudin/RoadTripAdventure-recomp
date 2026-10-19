@@ -17,7 +17,7 @@ uint32_t InitDefaultSpawnPhase(uint32_t param_1, uint32_t param_2, ...) {
   uVar1 = (*(uint8_t*)rtguest::G(0x1780a3c));
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x21))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) = uVar1;
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x211808));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = 0x00211808;  // &StartTownExplorationTask
   return 0;
 }
 

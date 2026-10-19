@@ -4,14 +4,14 @@
 
 namespace guest {
 
-uint32_t fatal(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+uint32_t fatal(uint64_t param_1, uint64_t param_2, uint64_t param_3, ...) {
 uint32_t puVar1;
   char cVar2;
   undefined8 uVar3;
   long lVar4;
   
   (*(uint64_t*)rtguest::G(0x335f70)) = 0x3f80000080a01010;
-  (*(uint32_t*)rtguest::G(0x335e00)) = 0x3f80000080a01010;
+  (*(uint64_t*)rtguest::G(0x335e00)) = 0x3f80000080a01010;
   FlushCache(0);
   textGridFreeAllSlots();
   uVar3 = textGridCreate(0x6d00,0x7a00,0x4b,8);

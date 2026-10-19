@@ -5,15 +5,16 @@
 namespace guest {
 
 uint32_t FindWorldMeshIntersection(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
-    uint32_t fStack_64 = rtguest::allocFrame(4);
-    uint32_t fStack_68 = rtguest::allocFrame(4);
-    uint32_t fStack_70 = rtguest::allocFrame(4);
-    uint32_t fStack_74 = rtguest::allocFrame(4);
-    uint32_t fStack_78 = rtguest::allocFrame(4);
-    uint32_t fStack_7c = rtguest::allocFrame(4);
     uint32_t fStack_80 = rtguest::allocFrame(4);
-    uint32_t uStack_60 = rtguest::allocFrame(4);
+    uint32_t fStack_7c = rtguest::allocFrame(4);
+    uint32_t fStack_78 = rtguest::allocFrame(4);
+    uint32_t fStack_74 = rtguest::allocFrame(4);
+    uint32_t fStack_70 = rtguest::allocFrame(4);
     uint32_t uStack_6c = rtguest::allocFrame(4);
+    uint32_t fStack_68 = rtguest::allocFrame(4);
+    uint32_t fStack_64 = rtguest::allocFrame(4);
+    uint32_t uStack_60 = rtguest::allocFrame(4);
+uint32_t afStack_5c = rtguest::allocFrame(12);
   long lVar1;
   long lVar2;
   int iVar3;
@@ -22,7 +23,6 @@ uint32_t FindWorldMeshIntersection(uint32_t param_1, uint32_t param_2, uint32_t 
 uint32_t piVar6;
 uint32_t pfVar7;
   float fVar8;
-uint32_t afStack_5c = rtguest::allocFrame(12);
   
   vu0CopyVector(fStack_80,param_1);
   pfVar7 = (uint32_t)param_1;

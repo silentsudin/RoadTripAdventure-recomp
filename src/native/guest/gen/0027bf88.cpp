@@ -4,11 +4,13 @@
 
 namespace guest {
 
-uint32_t litodp(uint32_t param_1, ...) {
-    uint32_t iStack_28 = rtguest::allocFrame(4);
-    uint32_t iStack_2c = rtguest::allocFrame(4);
-    uint32_t uStack_20 = rtguest::allocFrame(8);
+// pseudocode: undefined8 litodp(ulong)
+uint64_t litodp(uint64_t param_1, ...) {
     uint32_t uStack_30 = rtguest::allocFrame(4);
+    uint32_t iStack_2c = rtguest::allocFrame(4);
+    uint32_t iStack_28 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_20 = rtguest::allocFrame(8);
   undefined8 uVar1;
   
   (*(int32_t*)rtguest::G((uint32_t)iStack_2c)) = -((int)param_1 >> 0x1f);

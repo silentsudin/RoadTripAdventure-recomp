@@ -12,10 +12,10 @@ uint32_t auStack_30 = rtguest::allocFrame(16);
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) == '\x16') {
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8)));
     if (iVar1 == 0) {
-      (*(uint32_t*)rtguest::G(0x29ccd0)) = (*(float*)rtguest::G(0x332c54));
+      (*(float*)rtguest::G(0x29ccd0)) = (*(float*)rtguest::G(0x332c54));
     }
-    if (500.0 < (*(uint32_t*)rtguest::G(0x29ccd0))) {
-      (*(uint32_t*)rtguest::G(0x29ccd0)) = (*(uint32_t*)rtguest::G(0x29ccd0)) / (*(uint32_t*)rtguest::G(0x332c58));
+    if (500.0 < (*(float*)rtguest::G(0x29ccd0))) {
+      (*(float*)rtguest::G(0x29ccd0)) = (*(float*)rtguest::G(0x29ccd0)) / (*(float*)rtguest::G(0x332c58));
     }
     if (iVar1 < 0x101) {
       (*(uint32_t*)rtguest::G(0x29ccd4)) = (short)iVar1 * 5 + 0x380;

@@ -14,7 +14,7 @@ uint32_t sceSifSearchModuleByName(uint32_t param_1, ...) {
     lVar2 = lfVersionCheck();
     if (lVar2 == 0) {
       (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)((uint32_t)0x01779e08)), (char *)rtguest::G((uint32_t)(param_1)), 0xfc));
-      (*(uint32_t*)rtguest::G(0x1779f03)) = 0;
+      (*(uint8_t*)rtguest::G(0x1779f03)) = 0;
       lVar2 = sceSifCallRpc(0x177a000,9,0,0x1779e00,0x200,0x1779e00,4,0);
       uVar1 = (*(uint32_t*)rtguest::G(0x1779e00));
       if (lVar2 < 0) {

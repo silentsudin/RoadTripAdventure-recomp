@@ -5,10 +5,16 @@
 namespace guest {
 
 uint32_t shopScene(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t uStack_68 = rtguest::allocFrame(4);
-    uint32_t uStack_70 = rtguest::allocFrame(4);
-    uint32_t uStack_cc = rtguest::allocFrame(4);
+uint32_t auStack_110 = rtguest::allocFrame(64);
     uint32_t uStack_d0 = rtguest::allocFrame(4);
+    uint32_t uStack_cc = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap
+uint32_t auStack_c0 = rtguest::allocFrame(16);
+uint32_t auStack_b0 = rtguest::allocFrame(16);
+uint32_t auStack_a0 = rtguest::allocFrame(48);
+    uint32_t uStack_70 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_68 = rtguest::allocFrame(4);
   int iVar1;
   uint uVar2;
   undefined4 uVar3;
@@ -20,10 +26,6 @@ uint32_t shopScene(uint32_t param_1, uint32_t param_2, ...) {
   int iVar9;
   int iVar10;
   undefined4 uVar11;
-uint32_t auStack_110 = rtguest::allocFrame(64);
-uint32_t auStack_c0 = rtguest::allocFrame(16);
-uint32_t auStack_b0 = rtguest::allocFrame(16);
-uint32_t auStack_a0 = rtguest::allocFrame(48);
   
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(uStack_d0)), 0, 8));
   UpdateSceneLightsAndFog(1,0);

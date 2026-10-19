@@ -5,18 +5,21 @@
 namespace guest {
 
 uint32_t SelectAndBuildCamera(uint32_t param_1, uint32_t param_2, ...) {
-    uint32_t fStack_88 = rtguest::allocFrame(4);
-    uint32_t fStack_8c = rtguest::allocFrame(4);
-    uint32_t fStack_90 = rtguest::allocFrame(4);
-    uint32_t fStack_a8 = rtguest::allocFrame(4);
-    uint32_t fStack_ac = rtguest::allocFrame(4);
-    uint32_t fStack_b0 = rtguest::allocFrame(4);
-    uint32_t uStack_98 = rtguest::allocFrame(4);
-    uint32_t uStack_9c = rtguest::allocFrame(4);
-    uint32_t uStack_a0 = rtguest::allocFrame(4);
-    uint32_t uStack_b8 = rtguest::allocFrame(4);
-    uint32_t uStack_bc = rtguest::allocFrame(4);
     uint32_t uStack_c0 = rtguest::allocFrame(4);
+    uint32_t uStack_bc = rtguest::allocFrame(4);
+    uint32_t uStack_b8 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t fStack_b0 = rtguest::allocFrame(4);
+    uint32_t fStack_ac = rtguest::allocFrame(4);
+    uint32_t fStack_a8 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t uStack_a0 = rtguest::allocFrame(4);
+    uint32_t uStack_9c = rtguest::allocFrame(4);
+    uint32_t uStack_98 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap
+    uint32_t fStack_90 = rtguest::allocFrame(4);
+    uint32_t fStack_8c = rtguest::allocFrame(4);
+    uint32_t fStack_88 = rtguest::allocFrame(4);
   byte bVar1;
   short sVar2;
   short sVar3;

@@ -5,15 +5,15 @@
 namespace guest {
 
 uint32_t ComposeCameraMatrix(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-    uint32_t uStack_c4 = rtguest::allocFrame(4);
-  int iVar1;
 uint32_t auStack_d0 = rtguest::allocFrame(12);
+    uint32_t uStack_c4 = rtguest::allocFrame(4);
 uint32_t auStack_c0 = rtguest::allocFrame(16);
 uint32_t auStack_b0 = rtguest::allocFrame(16);
 uint32_t auStack_a0 = rtguest::allocFrame(32);
 uint32_t auStack_80 = rtguest::allocFrame(16);
 uint32_t auStack_70 = rtguest::allocFrame(16);
 uint32_t auStack_60 = rtguest::allocFrame(32);
+  int iVar1;
   
   TransformRectangle(auStack_d0,(int)param_2 + 0x14);
   vu0UnitMatrix(auStack_c0);
