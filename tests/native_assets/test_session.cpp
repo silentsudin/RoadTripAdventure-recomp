@@ -37,7 +37,9 @@ void testAdventureLoopAwardsFinishAndReturnsToExplore() {
     CHECK(session.state() == SessionState::RACE);
     CHECK(session.lastSnapshot().frame == 0);
 
-    for (int i = 0; i < 130 && session.state() == SessionState::RACE; ++i)
+    // 130 + 240: the ROM countdown hold (RunCountdownTimerTask 0x22DAE8, GO at
+    // tick 0xF0) parks the AI first; budget as in test_game_loop.cpp.
+    for (int i = 0; i < 130 + 240 && session.state() == SessionState::RACE; ++i)
         session.update({});
 
     CHECK(session.state() == SessionState::RESULTS);
@@ -61,7 +63,7 @@ void testConfirmDrivesExploreAndResultsTransitions() {
     session.update({.confirm = true});
     CHECK(session.state() == SessionState::RACE);
 
-    for (int i = 0; i < 130 && session.state() == SessionState::RACE; ++i)
+    for (int i = 0; i < 130 + 240 && session.state() == SessionState::RACE; ++i)
         session.update({});
     CHECK(session.state() == SessionState::RESULTS);
 
@@ -74,7 +76,7 @@ void testProgressSaveLoadRoundTrip() {
     MemoryCard card(temp.path);
     GameSession saved(1);
     saved.startRace();
-    for (int i = 0; i < 130 && saved.state() == SessionState::RACE; ++i)
+    for (int i = 0; i < 130 + 240 && saved.state() == SessionState::RACE; ++i)
         saved.update({});
     CHECK(saved.state() == SessionState::RESULTS);
     CHECK(saved.save(card, 0));

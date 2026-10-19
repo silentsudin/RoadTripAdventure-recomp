@@ -73,6 +73,7 @@ void GameSession::update(const MenuInput& input, const CarInput* driveInput) {
 void GameSession::startRace() {
     if (state_ != SessionState::EXPLORE) return;
     gameLoop_.reset();
+    gameLoop_.beginRace();
     raceTracker_ = RaceTracker(0);
     raceTracker_.loadFromSave(progress_);
     recordedLaps_ = 0;

@@ -10,6 +10,7 @@
 #include "gameplay/ai.h"
 #include "gameplay/camera.h"
 #include "gameplay/car_state.h"
+#include "gameplay/guest_vehicle.h"
 #include "gameplay/daynight.h"
 #include "gameplay/menu.h"
 #include "gameplay/race.h"
@@ -123,6 +124,11 @@ public:
 
     void reset();
 
+    // The race countdown hold only applies once a race has actually started:
+    // town free-drives share this loop (GameSession EXPLORE) and must not be
+    // blanked or burn the countdown while parked in town.
+    void beginRace();
+
     // One fixed-step simulation frame. dt is accepted for the frame-pipeline
     // interface but the step is fixed (determinism); menuInput is reserved for
     // the menu/pause layer and does not steer the self-driving car.
@@ -156,6 +162,7 @@ private:
     World world_;
     CarState car_;
     DrivelineState driveline_;
+    GuestCarBlock guest_{};  // race-mode translated driveline (guest_vehicle)
     AiState ai_;
     CameraState camera_;
     WaypointPath path_;
@@ -166,6 +173,7 @@ private:
     std::uint32_t clock_ = 0;
     DayNightOutput lighting_;
     bool raceFinished_ = false;
+    bool raceStarted_ = false;  // countdown hold armed by beginRace()
     std::uint32_t pipelineTicks_ = 0;  // bumped by the spawned frame task
 
     void integrateCar(const CarInput& input);

@@ -356,6 +356,7 @@ void runSpeed(Results& r) {
     p.raceMode = true;
     rt::native::gameplay::GameLoop g(p);
     g.reset();
+    g.beginRace();  // oracle frames include the countdown hold
     rt::native::gameplay::MenuInput mi{};
     float sp2446 = 0, sp3177 = 0;
     for (int f = 1; f <= 3177; ++f) {

@@ -161,6 +161,7 @@ static void testRaceModeTracksLapsAndFinish() {
     raceParams.raceMode = true;
     raceParams.totalLaps = 1;
     GameLoop race(raceParams);
+    race.beginRace();  // countdown hold applies to an actual started race
     FrameSnapshot raceSnapshot;
     // +240: the countdown hold (see above) parks the car for 4 s of frames.
     for (int i = 0; i < 130 + 240; ++i) raceSnapshot = race.tick(1.f / 60.f, mi);
@@ -177,6 +178,7 @@ static void testRaceModeTracksLapsAndFinish() {
     // RunCountdownTimerTask (0x22DAE8) raises the race word's GO bit at tick
     // 0xF0 (SetVehicleMode 2->6); before that a held gas must not move the car.
     GameLoop countdown(raceParams);
+    countdown.beginRace();
     const CarInput gas{.steer = 0, .gas = true};
     FrameSnapshot held;
     for (int i = 0; i < 240; ++i) held = countdown.tickPlayer(1.f / 60.f, mi, gas);

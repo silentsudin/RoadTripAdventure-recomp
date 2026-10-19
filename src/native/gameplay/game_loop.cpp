@@ -40,6 +40,23 @@ int projectedRpm(std::int32_t motion, int gear) {
         motion, gauge_rpm::kGearRatioTable[kGearboxRow][gear]);
 }
 
+// Oracle race-car static config, identical in all 600 capture blanks
+// (build/scratch/w9/oracle_step600.csv): accel 1800, response 25, grip and
+// gear-row words at car+0x21C/0x22C, damp words at 0x1DC..0x1E4. Gear starts
+// 1 like the oracle's byte at +0x1FF (race cars are in gear before GO).
+GuestCarBlock makeRaceGuestBlock() {
+    GuestCarBlock c{};
+    static const int16_t kGrip[8] = {196, 168, 128, 168, 96, 64, 0, 0};
+    static const int16_t kGear[8] = {-95, 116, 162, 227, 318, 446, 0, 0};
+    for (int i = 0; i < 8; ++i) { c.tireGrip[i] = kGrip[i]; c.gearRow[i] = kGear[i]; }
+    c.tireIdx = 0x2000;  // asphalt slot 0 (grip 196)
+    c.gear = 1;
+    c.damp1DC = c.damp1E0 = c.damp1E4 = 0x1000;
+    c.accel = 1800;
+    c.response = 25;
+    return c;
+}
+
 }  // namespace
 
 void advanceDriveline(DrivelineState& state, std::int32_t speedWord, const CarInput& input) {
@@ -79,6 +96,7 @@ void GameLoop::reset() {
     groundY_ = 0.f;  // race course starts at datum; anchors re-set it
     car_ = CarState();
     driveline_ = DrivelineState();
+    guest_ = makeRaceGuestBlock();
     camera_ = CameraState();
     raceTracker_ = RaceTracker(0);
     lapCount_ = 0;
@@ -87,6 +105,7 @@ void GameLoop::reset() {
     clock_ = params_.initialClock;
     lighting_ = DayNightOutput();
     raceFinished_ = false;
+    raceStarted_ = false;
     pipelineTicks_ = 0;
 
     path_ = world_.roadWaypoints;
@@ -118,7 +137,24 @@ float GameLoop::roadDistance(Vec2 p) const {
 
 void GameLoop::integrateCar(const CarInput& input) {
     tickCar(car_, input, world_.surfaceMaterialAt(ai_.position.x, ai_.position.z));
-    advanceDriveline(driveline_, car_.speed, input);
+    if (params_.raceMode) {
+        // Translated guest longitudinal model (0x21A310/0x218EE0, gear policy
+        // A; proven 600/600 oracle blanks in w26_guest_vehicle_test).
+        // shortcut: motion is fed from the placeholder speed integrator and
+        // tireIdx from static asphalt; both upgrade when the physics task
+        // (0x21BA70) velocity/contact chain port lands.
+        const uint32_t pad = (input.gas ? 1u : 0u) | (input.brake ? 2u : 0u) |
+                             (input.reverse ? 4u : 0u);
+        const int motion = car_.speed < 0 ? 0 : car_.speed;
+        int outMotion = 0;
+        gsCarUpdateMotion(guest_, gearPolicyA, pad, motion, 0, true, &outMotion);
+        driveline_.longitudinalMotion = motion;
+        driveline_.gear = guest_.gear;
+        driveline_.rpm = guest_.rpm;
+        driveline_.boostTargetRpm = 0;
+    } else {
+        advanceDriveline(driveline_, car_.speed, input);
+    }
     // Legacy CarState fields remain a coherent presentation mirror. Neither
     // field feeds the existing physics integration, so this cannot perturb it.
     car_.gear = driveline_.gear;
@@ -198,6 +234,8 @@ void GameLoop::completeLap() {
     }
 }
 
+void GameLoop::beginRace() { raceStarted_ = true; }
+
 FrameSnapshot GameLoop::tick(float /*dt*/, const MenuInput& /*menuInput*/) {
     AiParams aiParams;
     aiParams.arrivalRadius = params_.arrivalRadius;
@@ -213,7 +251,8 @@ FrameSnapshot GameLoop::tick(float /*dt*/, const MenuInput& /*menuInput*/) {
     // (tick/0x3c + 2), so even the attract-demo AI is held before GO.
     // shortcut: input blanked for 240 race frames; upgrade when the READY/GO
     // banner state machine (hud_layout RaceStart*) lands and can gate on it.
-    const bool held = params_.raceMode && raceTracker_.elapsedFrames() <= 240;
+    const bool held =
+        params_.raceMode && raceStarted_ && raceTracker_.elapsedFrames() <= 240;
 
     for (int k = 0; k < params_.physicsTicksPerFrame; ++k) {
         const int before = ai_.waypointIndex;
@@ -240,7 +279,8 @@ FrameSnapshot GameLoop::tickPlayer(float /*dt*/, const MenuInput& /*menuInput*/,
     // (tick/0x3c + 2).  Blank the driver until then; the car holds at speed 0.
     // shortcut: input blanked for 240 race frames; upgrade when the READY/GO
     // banner state machine (hud_layout RaceStart*) lands and can gate on it.
-    const bool held = params_.raceMode && raceTracker_.elapsedFrames() <= 240;
+    const bool held =
+        params_.raceMode && raceStarted_ && raceTracker_.elapsedFrames() <= 240;
     for (int k = 0; k < params_.physicsTicksPerFrame; ++k)
         integrateCar(held ? CarInput{} : input);
     return makeSnapshot();
