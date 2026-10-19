@@ -15,7 +15,7 @@ uint32_t puVar4;
   if (param_2 < 0x20) {
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1d4)));
     if (iVar5 == 0) {
-      lVar3 = _init_signal_r();
+      lVar3 = _init_signal_r(param_1);  // 27ecf0: $4 intact since 27ece0 entry
       if (lVar3 != 0) {
         return 0xffffffff;
       }

@@ -23,7 +23,7 @@ uint32_t puVar8;
   undefined8 uVar11;
 uint32_t piVar12;
   
-  lVar6 = find_fde();
+  lVar6 = find_fde(param_1);  // 27d544: $4 intact since 27d52c entry; pc lookup
   puVar5 = (uint32_t)0x0;
   if (lVar6 != 0) {
     uVar2 = extract_cie_info(lVar6,apcStack_4f0);

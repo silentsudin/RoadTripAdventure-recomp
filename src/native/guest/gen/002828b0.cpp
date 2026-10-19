@@ -13,7 +13,7 @@ uint32_t puVar4;
   puVar4 = (uint32_t)param_1;
   puVar2 = puVar4 + 0x76;
   if ((*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(0xe) * sizeof(uint32_t))) == 0) {
-    __sinit();
+    __sinit(param_1);  // 2828d4: $4 intact 2828b8 entry
   }
   do {
     do {

@@ -13,7 +13,7 @@ uint32_t puVar4;
   if (param_2 < 0x20) {
     iVar2 = (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x75) * sizeof(uint32_t)));
     if (iVar2 == 0) {
-      lVar3 = _init_signal_r();
+      lVar3 = _init_signal_r(param_1);  // 27ebac: $4 intact 27eb8c entry; newlib signal->_init_signal_r(reent)
       if (lVar3 != 0) {
         return 0xffffffff;
       }
