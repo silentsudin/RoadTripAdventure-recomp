@@ -497,6 +497,12 @@ const std::vector<EnhancementSpec>& registryTable() {
           "code:src/native/app/main.cpp|docs/native-reference/w12-kernel-design.md",
           RetentionStatus::Wired,
           "W12: per-vblank memcmp of guest .rodata vs the staged image; exit(3) + task-handler dump on divergence"},
+         {"fault_bt", "-",
+          "RT_FAULT_BT", "", "off", "diagnostic (W12)",
+          "src/native/guest/guest_mem.cpp|src/native/guest/guest_kernel.cpp",
+          "code:src/native/guest/guest_mem.cpp|docs/native-reference/w12-kernel-design.md",
+          RetentionStatus::Wired,
+          "W12: symbolized host backtrace on a fault key's first occurrence (slide+offset via nm); also logs setSyscall/getSyscall override traffic and unresolved override dispatches"},
      };
     return kRegistry;
 }

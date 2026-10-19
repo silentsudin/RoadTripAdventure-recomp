@@ -284,6 +284,8 @@ void dispatchIrq(bool dmac, uint32_t cause) {
 
 // ---- alarms ----
 int setAlarm(uint32_t ticks, uint32_t handler, uint32_t argument, uint32_t gp) {
+    if (handler != 0 && !fnEntry(handler) && std::getenv("RT_FAULT_BT"))
+        std::fprintf(stderr, "[kerr] setAlarm handler=0x%x rejected\n", handler);
     if (handler == 0 || !fnEntry(handler)) return KE_ERROR;
     const int id = allocatePositiveId(g_nextAlarmId, g_alarm);
     if (id == 0) return KE_ERROR;
@@ -799,6 +801,12 @@ int32_t syscall(uint64_t num, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3
     auto ov = g_syscallOverride.find(key);
     if (ov != g_syscallOverride.end()) {
         const uint32_t pc = resolveOverridePc(ov->second);
+        if (!pc && std::getenv("RT_FAULT_BT")) {
+            static std::unordered_map<uint32_t,int> shown;
+            if (++shown[key] <= 2)
+                std::fprintf(stderr, "[ovr] syscall key=0x%x override=0x%x unresolved\n",
+                             key, ov->second);
+        }
         if (!pc) { noteFault(ov->second); return KE_ERROR; }
         return (int32_t)rtCall(pc, a0, a1, a2, a3, a4, a5, a6, a7);
     }
@@ -896,9 +904,13 @@ int32_t syscall(uint64_t num, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3
     case 0x5b: {  // GetEntryAddress
         uint32_t v = 0;
         if (a0 < 0x80000u / 4) std::memcpy(&v, G(kSyscallMirrorPhys + a0 * 4u), 4);
+        if (std::getenv("RT_FAULT_BT"))
+            std::fprintf(stderr, "[ovr] getSyscall num=0x%x -> 0x%x\n", a0, v);
         return (int32_t)v;
     }
     case 0x74:  // SetSyscall(num, handler): store + mirror word
+        if (std::getenv("RT_FAULT_BT"))
+            std::fprintf(stderr, "[ovr] setSyscall num=0x%x handler=0x%x\n", a0, a1);
         g_syscallOverride[a0] = a1;
         if (a0 < 0x80000u / 4) {
             const uint32_t phys = kSyscallMirrorPhys + a0 * 4u;

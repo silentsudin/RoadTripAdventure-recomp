@@ -886,5 +886,17 @@
     "docs": ["code:src/native/app/main.cpp", "docs/native-reference/w12-kernel-design.md"],
     "status": "wired",
     "notes": "W12: per-vblank memcmp of guest .rodata vs the staged image; exit(3) + task-handler dump on divergence"
+  },
+  {
+    "id": "fault_bt",
+    "ledger": "-",
+    "env_vars": ["RT_FAULT_BT"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/guest/guest_mem.cpp", "src/native/guest/guest_kernel.cpp"],
+    "docs": ["code:src/native/guest/guest_mem.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: symbolized host backtrace on a fault key's first occurrence (slide+offset via nm); also logs setSyscall/getSyscall override traffic and unresolved override dispatches"
   }
 ]

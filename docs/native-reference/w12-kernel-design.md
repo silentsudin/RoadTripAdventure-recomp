@@ -263,4 +263,7 @@ facts recorded in config/game_state.toml [game]. Post-TITLE the load machine
 "post-TITLE spin" was NOT a hang: lldb-attached rt-app instances were left
 stopped (SIGTERM can't land; pkill -CONT then -9), 15 of them starved the
 machine so every measurement crawled. Recipe: `pgrep -fl rt-app` before any
-timing run.
+timing run. Diagnostic envs: RT_CD_TRACE / RT_CD_TRACE_BT (per-sceCdRead log,
+symbolized backtrace), RT_BOOT_TRACE_WIN=lo,hi (per-vblank load-machine trace),
+RT_RAM_CANARY (.rodata memcmp per vblank), RT_BOOT_START (pad Start injection),
+RT_FAULT_BT (backtrace on first hit of each fault key).

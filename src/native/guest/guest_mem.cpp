@@ -9,6 +9,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include <dlfcn.h>   // RT_FAULT_BT symbolization (same as cd_trace_bt)
+#include <execinfo.h>
+
 namespace rtguest {
 
 uint8_t kRam[RT_GUEST_RAM_SIZE] = {};
@@ -105,7 +108,28 @@ static std::unordered_map<uint32_t, uint32_t>& faultMap() {  // Meyers: RT_GUEST
     static std::unordered_map<uint32_t, uint32_t> m;
     return m;
 }
-void noteFault(uint32_t a) { ++faultMap()[a]; }
+void noteFault(uint32_t a) {
+    uint32_t& c = ++faultMap()[a];
+    if (c == 1 && std::getenv("RT_FAULT_BT")) {
+        std::fprintf(stderr, "[faultbt] key=0x%x\n", a);
+        void* frames[14];
+        const int nFr = backtrace(frames, 14);
+        static uintptr_t slide = 0;
+        if (!slide) {
+            Dl_info self;
+            if (dladdr((void*)&noteFault, &self)) {
+                slide = (uintptr_t)self.dli_fbase;
+                std::fprintf(stderr, "    slide=%p\n", (void*)slide);
+            }
+        }
+        for (int i = 1; i < nFr; ++i) {
+            Dl_info di;
+            const char* nm = (dladdr(frames[i], &di) && di.dli_sname) ? di.dli_sname : "?";
+            std::fprintf(stderr, "    #%d %s off=%#lx\n", i, nm,
+                         (unsigned long)((uintptr_t)frames[i] - slide));
+        }
+    }
+}
 const Fault* faults(size_t* n) {
     static std::vector<Fault> out;
     out.clear();

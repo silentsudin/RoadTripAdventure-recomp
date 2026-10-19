@@ -413,6 +413,10 @@
 0x21CCB8 = { name = "RestoreControlStateFromReplay", note = "Prints replay buffer sizes, restores control-state table from replay scratch memory and rewinds stream pointers [inferred]" }
 0x21CE08 = { name = "SelectScene3dHandler", note = "Installs one of two scene-3D handler entry points (0x21ce48 or 0x21cf80) into gs_game_scene3d_handler based on a flag" }
 0x21CE28 = { name = "SetAICarController", note = "Installs AI car-control fn ptr DAT_003356dc (used by vehicle input dispatch 0x21a990); defaults to 0x21d0b8 when passed null" }
+0x21CE48 = { name = "Scene3dDriveHandler", note = "scene-3D handler entry installed by SelectScene3dHandler(flag!=0) (race/drive scenes, incl attract); Ghidra missed the carve (pointer-target only); invoked via gs_game_scene3d_handler from the vehicle update chain" }
+0x21CF80 = { name = "Scene3dTownHandler", note = "scene-3D handler entry installed by SelectScene3dHandler(flag==0); Ghidra missed the carve (pointer-target only)" }
+0x21D0B8 = { name = "AiCarControlDefault", note = "default AI car-control fn for DAT_003356dc (SetAICarController); Ghidra missed the carve (pointer-target only)" }
+0x21CBB8 = { name = "KillHookClear198", note = "task-node kill hook (node+0x2c): zeroes u16 at G(node+0x28)+0x198 (detach back-ref) via the jr delay slot; Ghidra missed the carve (pointer-target only)" }
 0x21D0C0 = { name = "TestSegmentInBoxWindow", note = "Clips a segment between two 3D pts to a +/-110 X window, tests clipped Z span against +/-110 of param_2; returns visibility [inferred]" }
 0x21D2D8 = { name = "TransformVecByF15Matrix", note = "VU0: transforms f15 fixed-point vector by 4x4 f15 matrix rows 0-2 (no translation), writes fixed-point result [inferred]" }
 0x21D310 = { name = "VecSubtractAndLength", note = "Subtracts two f15 fixed-point vectors and stores 3D Euclidean length of the difference in result vector's w component [inferred]" }
