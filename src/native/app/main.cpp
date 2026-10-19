@@ -2280,6 +2280,30 @@ int main() {
             // semantics: alarms/vsync flag/intc fire) + green-thread pump per
             // 60 Hz logic step. Flag-gated: the default loop is untouched.
             if (nativeBoot.ok) {
+                static FILE* hashLog = [] {
+                    const char* p = std::getenv("RT_STATE_HASH");
+                    return p ? std::fopen(p, "w") : nullptr;
+                }();
+                static const uint64_t hashInterval = [] {
+                    const char* e = std::getenv("RT_STATE_HASH_INTERVAL");
+                    return e && *e ? (uint64_t)std::strtoull(e, nullptr, 10) : 60ull;
+                }();
+                // RT_RAM_DUMP="vb:path,vb:path": raw 32MB kRam slices at those
+                // vblanks, for byte diffing against the oracle's EERM chunk.
+                static const std::vector<std::pair<uint64_t, std::string>> ramDumps = [] {
+                    std::vector<std::pair<uint64_t, std::string>> v;
+                    const char* e = std::getenv("RT_RAM_DUMP");
+                    for (const char* p = e; p && *p;) {
+                        const uint64_t vb = std::strtoull(p, nullptr, 10);
+                        p = strchr(p, ':');
+                        if (!p) break;
+                        ++p;
+                        const char* q = strchr(p, ',');
+                        v.emplace_back(vb, q ? std::string(p, q) : std::string(p));
+                        p = q;
+                    }
+                    return v;
+                }();
                 // RT_BOOT_START=N: scripted pad script (temporary probe:
                 // Up@N, Cross@N+120, Start@N+240 — each held 3 vblanks).
                 static const long bootStart = [] {
@@ -2296,6 +2320,29 @@ int main() {
                 guest::g_bootButtons = btn;
                 rtguest::kVblank();
                 rtguest::kPumpToIdle();
+                if (hashLog && nativeBoot.vblanks % hashInterval == 0) {
+                    // RT_STATE_HASH: mirror of the oracle's ps2_test_harness
+                    // hash (FNV-1a 64 over 8-byte words of EE RAM), emitted
+                    // at the same vblank%interval point. Only `ee=` is real:
+                    // the native port has no scratchpad/VU1/IOP RAM model.
+                    uint64_t h = 0xcbf29ce484222325ull;
+                    for (size_t i = 0; i + 8 <= RT_GUEST_RAM_SIZE; i += 8) {
+                        uint64_t w;
+                        std::memcpy(&w, rtguest::kRam + i, 8);
+                        h = (h ^ w) * 0x100000001b3ull;
+                    }
+                    std::fprintf(hashLog, "%llu ee=%016llx\n",
+                                 (unsigned long long)nativeBoot.vblanks,
+                                 (unsigned long long)h);
+                    std::fflush(hashLog);
+                }
+                for (const auto& [vb, path] : ramDumps) {
+                    if (nativeBoot.vblanks != vb) continue;
+                    if (FILE* f = std::fopen(path.c_str(), "wb")) {
+                        std::fwrite(rtguest::kRam, 1, RT_GUEST_RAM_SIZE, f);
+                        std::fclose(f);
+                    }
+                }
                 if (std::getenv("RT_BOOT_TRACE_WIN")) {
                     // Per-vblank load-machine trace in [lo,hi] (comma pair).
                     static const long lo = [] {
@@ -2310,6 +2357,17 @@ int main() {
                     const long v = nativeBoot.vblanks;
                     if (v >= lo && v <= hi) {
                         auto rd = [](uint32_t a) { uint32_t x; std::memcpy(&x, rtguest::kRam + a, 4); return x; };
+                        if (v == hi) {
+                            // Window end: one-shot table of live task nodes.
+                            for (int n = 0; n < 48; ++n) {
+                                const uint32_t node = 0x177a0d0u + n * 0x30u;
+                                if ((rd(node) & 0xFFu) == 0) continue;
+                                std::cout << std::hex << "[tasks] n=" << n << " act=" << rd(node)
+                                          << " hnd=" << rd(node + 0xc) << " req=" << rd(node + 0x1c)
+                                          << " f24=" << rd(node + 0x24) << " w28=" << rd(node + 0x28)
+                                          << " hook=" << rd(node + 0x2c) << "\n";
+                            }
+                        }
                         std::cout << std::hex << "[tw] vb=" << std::dec << v
                                   << " step=" << rd(0x3356c0) << " loading=" << rd(0x333370)
                                   << " req=" << rd(0x333374) << " ldr1c=" << rd(0x177a11c)

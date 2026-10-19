@@ -898,5 +898,41 @@
     "docs": ["code:src/native/guest/guest_mem.cpp", "docs/native-reference/w12-kernel-design.md"],
     "status": "wired",
     "notes": "W12: symbolized host backtrace on a fault key's first occurrence (slide+offset via nm); also logs setSyscall/getSyscall override traffic and unresolved override dispatches"
+  },
+  {
+    "id": "state_hash",
+    "ledger": "-",
+    "env_vars": ["RT_STATE_HASH"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/app/main.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: per-vblank FNV-1a 64 hash of guest RAM (ee= line), mirror of the oracle ps2_test_harness hash; W12 parity-debug substrate (ee-only: no scratchpad/VU1/IOP model)"
+  },
+  {
+    "id": "state_hash_interval",
+    "ledger": "-",
+    "env_vars": ["RT_STATE_HASH_INTERVAL"],
+    "persisted_keys": ["60"],
+    "default": "60",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/app/main.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: vblank stride of the RT_STATE_HASH ee= lines (same knob as the oracle harness)"
+  },
+  {
+    "id": "ram_dump",
+    "ledger": "-",
+    "env_vars": ["RT_RAM_DUMP"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/app/main.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: raw 32MB kRam slices at vblank list \"vb:path,...\"; diffed against oracle socket state_dump EERM chunks (parity localization)"
   }
 ]

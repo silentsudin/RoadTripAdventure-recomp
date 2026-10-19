@@ -264,6 +264,10 @@ facts recorded in config/game_state.toml [game]. Post-TITLE the load machine
 stopped (SIGTERM can't land; pkill -CONT then -9), 15 of them starved the
 machine so every measurement crawled. Recipe: `pgrep -fl rt-app` before any
 timing run. Diagnostic envs: RT_CD_TRACE / RT_CD_TRACE_BT (per-sceCdRead log,
-symbolized backtrace), RT_BOOT_TRACE_WIN=lo,hi (per-vblank load-machine trace),
-RT_RAM_CANARY (.rodata memcmp per vblank), RT_BOOT_START (pad Start injection),
-RT_FAULT_BT (backtrace on first hit of each fault key).
+symbolized backtrace), RT_BOOT_TRACE_WIN=lo,hi (per-vblank load-machine trace;
+window end also dumps the live task-node table), RT_RAM_CANARY (.rodata memcmp
+per vblank), RT_BOOT_START (pad Start injection), RT_FAULT_BT (backtrace on
+first hit of each fault key), RT_STATE_HASH=<file> + RT_STATE_HASH_INTERVAL
+(ee= FNV-1a RAM hashes per vblank, mirroring the oracle ps2_test_harness) and
+RT_RAM_DUMP="vb:path,..." (raw 32MB kRam slices for byte diffing against
+oracle socket state_dump EERM chunks; pair native vb+1 with oracle vb).
