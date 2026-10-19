@@ -60,6 +60,47 @@ int rtPrintf(const char* fmt, ...) {
     return total;
 }
 
+// vsprintf variant where the args are u64 slots in a guest block at gargs.
+// shortcut: same directive coverage as rtPrintf (game uses %d %02d %X %s %c);
+// upgrade to a full parser if a caller needs %*$/wide chars.
+int rtSprintfGargs(char* dst, const char* fmt, uint32_t gargs) {
+    char* out = dst;
+    int nargs = 0;
+    for (const char* p = fmt; *p;) {
+        const char* pct = static_cast<const char*>(memchr(p, '%', strlen(p)));
+        if (!pct) { strcpy(out, p); out += strlen(p); break; }
+        memcpy(out, p, (size_t)(pct - p));
+        out += pct - p;
+        const char* spec = pct + 1;
+        if (*spec == '%') { *out++ = '%'; p = spec + 1; continue; }
+        while (*spec && (strchr("-+ #0123456789.", *spec))) ++spec;
+        while (*spec == 'l' || *spec == 'h') ++spec;  // host gets 32-bit values anyway
+        const char* flagsEnd = spec;  // end of flags/width, before conv char
+        const char specCh = *spec ? *spec++ : 0;
+        std::string piece(pct, flagsEnd);
+        piece += specCh;
+        uint64_t a = 0;
+        std::memcpy(&a, G(gargs + (uint32_t)nargs * 8), 8);
+        ++nargs;
+        int n = -1;
+        switch (specCh) {
+        case 's': n = sprintf(out, piece.c_str(), (const char*)G((uint32_t)a)); break;
+        case 'd': case 'i': n = sprintf(out, piece.c_str(), (int32_t)a); break;
+        case 'u': case 'x': case 'X': case 'o': n = sprintf(out, piece.c_str(), (uint32_t)a); break;
+        case 'c': n = sprintf(out, piece.c_str(), (int)(a & 0xFF)); break;
+        case 'f': case 'F': case 'g': case 'G': case 'e': case 'E':
+            n = sprintf(out, piece.c_str(), (double)a); break;  // guest never fp here; slot read as int64
+        case 0: break;
+        default: n = sprintf(out, "%%%c", specCh); break;  // echo, no guest slot consumed below
+        }
+        if (n < 0) n = 0;
+        out += n;
+        p = spec;
+    }
+    *out = 0;
+    return (int)(out - dst);
+}
+
 static std::unordered_map<uint32_t, uint32_t>& faultMap() {  // Meyers: RT_GUEST_FN ctors may run first
     static std::unordered_map<uint32_t, uint32_t> m;
     return m;

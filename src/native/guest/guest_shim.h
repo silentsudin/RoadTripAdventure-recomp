@@ -81,6 +81,9 @@ bool loadImage(const uint8_t* elfFile, size_t size);
 // G(). shortcut: covers the conversion set the game's debug strings use
 // (diuxXoclpsf with l modifiers); revisit if a scene prints exotic specs.
 int rtPrintf(const char* fmt, ...);
+// sprintf whose varargs live in a guest u64-slot block (Ghida's spilled
+// vararg area; see gen/00271310 textGridPrintf). dst/fmt are host pointers.
+int rtSprintfGargs(char* dst, const char* fmt, uint32_t gargs);
 
 // Indirect-call registry: OUR table of translated functions (plan doc, decision 2).
 // Entries stored as void* (dlsym pattern): signatures vary per function as ports

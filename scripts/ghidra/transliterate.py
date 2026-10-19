@@ -15,7 +15,7 @@ REPORTED for the package agent's fix pass — never silently mangled.
 See docs/native-reference/compiled-game-plan.md.
 """
 from __future__ import annotations
-import argparse, ast, json, re, sys
+import argparse, ast, itertools, json, re, sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -1022,10 +1022,41 @@ def main() -> None:
 
     if a.decls:
         decls: dict[str, str] = {}
+        # Declares must match the defining TU's signature (else the
+        # RT_GUEST_FN reinterpret_cast sees an overload): host stub TUs and
+        # gen TUs own their names; Ghidra signatures only cover the rest.
+        host = set()
+        def_sig: dict[str, str] = {}
+        sig_re = re.compile(r"^([A-Za-z_][\w:]*[\s\*&]+(?:guest::)?([A-Za-z_]\w*)"
+                            r"\s*\([^;{]*\))\s*\{", re.M)
+        def defaulted(sig: str) -> str:
+            """Ghidra call sites omit trailing args: give the scraped
+            signature default args in the decl only."""
+            i = sig.index("(")
+            params = sig[i + 1:sig.rindex(")")]
+            if params.strip() in ("", "void", "..."):
+                return sig + ";"
+            ps = [p.strip() + ("" if "=" in p or "..." in p else " = 0")
+                  for p in params.split(",")]
+            return sig[:i + 1] + ", ".join(ps) + ");"
+        for p in itertools.chain((ROOT / "src/native/guest").glob("guest_*.cpp"),
+                                 (ROOT / "src/native/guest/gen").glob("*.cpp")):
+            txt = p.read_text()
+            host |= {m.group(1) for m in
+                     re.finditer(r"RT_(?:GUEST|STUB)_FN\([^,]+,\s*(?:guest::)?(\w+)\)", txt)}
+            for m in sig_re.finditer(txt):
+                def_sig.setdefault(m.group(2), m.group(1))
         for f in all_files:
             d = res[f.stem][2] or synth_decl(f)
             if d and f.stem not in aliased:
-                decls.setdefault(decl_name(d), d)
+                nm = decl_name(d)
+                if nm in def_sig:
+                    decls.setdefault(nm, defaulted(def_sig[nm]))
+                    continue
+                if nm in host:
+                    report.setdefault("decl_host_nosig", []).append(nm)
+                    continue
+                decls.setdefault(nm, d)
         regs = sorted(set(report["ee_reg"]))
         sym_names = set()
         for ln in (ROOT / "build/decomp/symbols.tsv").read_text().splitlines():

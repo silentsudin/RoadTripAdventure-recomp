@@ -30,7 +30,12 @@ uint32_t pbVar5;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_18)) = param_6;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_10)) = param_7;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_8)) = param_8;
-  ::vsprintf((char *)rtguest::G((uint32_t)((uint32_t)bStack_4c0)), (char *)rtguest::G((uint32_t)(param_2)), (va_list)(uintptr_t)(uStack_30));
+  // MIPS 0x271350: jal 0x281068 (in-image vsprintf), $a0=sp (dst), $a1=fmt,
+  // $a2=sp+0x490 = varargs spilled via sd (u64 slots, 0x271318..0x271354).
+  // The transliterator's ::vsprintf((va_list)(uintptr_t)block) handed the host
+  // libc a guest address as va_list (SIGBUS); routed to the guest vsprintf
+  // host mirror, which reads the block through G().
+  vsprintf(bStack_4c0,param_2,uStack_30);
   uVar4 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)bStack_4c0));
   pbVar5 = abStack_4bf;
   if (uVar4 != 0) {

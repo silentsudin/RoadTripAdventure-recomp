@@ -13,14 +13,14 @@ uint32_t fadeOutTask(uint32_t param_1, ...) {
       uiFade((0x40 - iVar1) * 0x2000000);
       return 0;
     }
-    gs_tasks_kill();
+    gs_tasks_kill(param_1); // arg-drop fix: j 0x204de8 @0x2082a8/0x2082d0 keeps $a0=node (capstone)
     return 0;
   }
   if (iVar1 < 0x20) {
     uiFade((0x20 - iVar1) * 0x4000000);
     return 0;
   }
-  gs_tasks_kill();
+  gs_tasks_kill(param_1); // arg-drop fix: j 0x204de8 @0x2082a8/0x2082d0 keeps $a0=node (capstone)
   return 0;
 }
 

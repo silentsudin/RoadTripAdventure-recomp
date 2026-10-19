@@ -17,6 +17,8 @@
 // REPORT.md "Completion mechanism".
 #include <cstdio>
 #include <cstring>
+#include <dlfcn.h>
+#include <execinfo.h>
 #include <fstream>
 #include <map>
 #include <string>
@@ -27,6 +29,9 @@
 #include "guest_decls.inc"
 
 namespace guest {
+
+// boot-diag counters (printed by the native-boot progress line in main.cpp).
+uint64_t g_diagCdReads = 0, g_diagCdSectors = 0;
 
 // Unique-per-file registration (RT_GUEST_FN's struct name would collide).
 #define RT_STUB_FN(addr, name)                                       \
@@ -259,6 +264,19 @@ RT_STUB_FN(0x00278E98, guest::sceCdMmode)
 // SYNCHRONOUSLY into guest RAM and returns 1; 0 on an unresolved LBN.
 uint32_t sceCdRead(uint32_t q0, uint32_t q1, uint64_t q2, uint32_t q3, ...) {
     const uint32_t lbn = q0, sectors = q1, buf = (uint32_t)q2;
+    ++g_diagCdReads; g_diagCdSectors += sectors;
+    if (std::getenv("RT_CD_TRACE")) {
+        std::fprintf(stderr, "[cdread] lbn=%u n=%u buf=0x%x\n", lbn, sectors, buf);
+        if (std::getenv("RT_CD_TRACE_BT")) {
+            void* frames[14];
+            const int nFr = backtrace(frames, 14);
+            for (int i = 2; i < nFr; ++i) {
+                Dl_info di;
+                if (dladdr(frames[i], &di) && di.dli_sname)
+                    std::fprintf(stderr, "    #%d %s\n", i, di.dli_sname);
+            }
+        }
+    }
     // oracle clampReadBytes (CD.cpp:240): bytes = sectors*2048 clamped to RAM.
     const uint64_t requested = (uint64_t)sectors * kCdSectorSize;
     const uint32_t offset = buf & 0x01FFFFFFu;

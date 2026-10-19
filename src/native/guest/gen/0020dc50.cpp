@@ -13,7 +13,7 @@ uint32_t loadRequestTask(uint32_t param_1, uint32_t param_2, ...) {
     if (((*(uint32_t*)rtguest::G(0x333374)) & 0x100000) == 0) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x400000;
     }
-    gs_tasks_kill();
+    gs_tasks_kill(param_1); // arg-drop fix: j 0x204de8 at 0x20dc9c, $a0=node unmodified (capstone)
     return 0;
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) & 0x100000) == 0) {

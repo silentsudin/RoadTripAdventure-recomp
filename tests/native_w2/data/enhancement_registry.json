@@ -816,6 +816,30 @@
     "notes": "W12: host libdma logs each DMAC submission (channel, chcr, chain walk, words) — payloads walk-discarded until the gs-sink lands"
   },
   {
+    "id": "boot_start",
+    "ledger": "-",
+    "env_vars": ["RT_BOOT_START"],
+    "persisted_keys": [],
+    "default": "unset",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/app/main.cpp", "src/native/guest/guest_libs_pad.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: native-boot diag holds Start on port 0 for 3 vblanks at the given vblank (title->menu probes)"
+  },
+  {
+    "id": "cd_trace",
+    "ledger": "-",
+    "env_vars": ["RT_CD_TRACE"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/guest/guest_libs_cd.cpp"],
+    "docs": ["code:src/native/guest/guest_libs_cd.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: host libcd logs each sceCdRead (lbn, sectors, buffer) — watch reload loops during loading"
+  },
+  {
     "id": "cd_image",
     "ledger": "-",
     "env_vars": ["RT_IMAGE"],
@@ -826,5 +850,41 @@
     "docs": ["code:src/native/guest/guest_libs_cd.cpp", "docs/native-reference/w12-kernel-design.md"],
     "status": "wired",
     "notes": "W12: raw 2048-byte-sector disc image for CD reads outside the extracted-tree .lbn_map manifest"
+  },
+  {
+    "id": "cd_trace_bt",
+    "ledger": "-",
+    "env_vars": ["RT_CD_TRACE_BT"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/guest/guest_libs_cd.cpp"],
+    "docs": ["code:src/native/guest/guest_libs_cd.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: with cd_trace, symbolized host backtrace per sceCdRead — names the task arming each load"
+  },
+  {
+    "id": "boot_trace_win",
+    "ledger": "-",
+    "env_vars": ["RT_BOOT_TRACE_WIN"],
+    "persisted_keys": [],
+    "default": "unset",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/app/main.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: native-boot per-vblank load-machine trace inside vblank window lo,hi (step/loading/req/loader+0x1c/handler/b26/b27)"
+  },
+  {
+    "id": "ram_canary",
+    "ledger": "-",
+    "env_vars": ["RT_RAM_CANARY"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/app/main.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: per-vblank memcmp of guest .rodata vs the staged image; exit(3) + task-handler dump on divergence"
   }
 ]

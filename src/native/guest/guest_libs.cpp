@@ -76,7 +76,11 @@ RT_STUB_FN(0x0027E9D0, guest::_printf_r)
 uint32_t printf(uint32_t q0, ...) { rtPending("printf"); return 0; }
 RT_STUB_FN(0x0027EA30, guest::printf)
 
-uint32_t vsprintf(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("vsprintf"); return 0; }
+uint32_t vsprintf(uint32_t q0, uint32_t q1, uint32_t q2, ...) {
+    // Host-mirror of the in-image newlib vsprintf: dst/fmt are guest vaddrs,
+    // q2 is the caller's spilled vararg block (u64 slots, as our corpus spills).
+    return (uint32_t)rtguest::rtSprintfGargs((char*)rtguest::G(q0), (const char*)rtguest::G(q1), q2);
+}
 RT_STUB_FN(0x00281068, guest::vsprintf)
 
 uint32_t fflush(uint32_t q0, ...) { rtPending("fflush"); return 0; }

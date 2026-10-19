@@ -214,6 +214,10 @@ uint32_t scePadPortOpen(uint64_t port, uint64_t slot, uint32_t dmaAddr, ...) {
 }
 RT_STUB_FN(0x002737F8, guest::scePadPortOpen)
 
+// Boot-input injection (RT_BOOT_START wiring in main.cpp's native-boot diag):
+// active-low button word the native-boot diagnostic drives; 0xFFFF = neutral.
+uint16_t g_bootButtons = 0xFFFF;
+
 uint32_t scePadRead(uint32_t port, uint32_t slot, uint32_t dataAddr, ...) {
     uint8_t* data = (uint8_t*)mem(dataAddr);
     if (!data) return 0;
@@ -222,7 +226,10 @@ uint32_t scePadRead(uint32_t port, uint32_t slot, uint32_t dataAddr, ...) {
         data[0] = 0xFF;  // libpad's "missing pad" marker
         return 0;
     }
-    PadInputState state;  // shortcut: neutral (see file header)
+    PadInputState state;  // shortcut: neutral + boot injection (see file header)
+    state.buttons = g_bootButtons;
+    if (padTrace() && g_bootButtons != 0xFFFFu)
+        std::fprintf(stderr, "[pad] port %u read buttons=%04x\n", port, state.buttons);
     fillPadStatus(data, state, *p);
     return 1;
 }

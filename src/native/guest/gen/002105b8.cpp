@@ -30,7 +30,7 @@ uint32_t puVar12;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) = 0;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))) = 1;
-    gs_tasks_kill();
+    gs_tasks_kill(param_1); // arg-drop fix: jal 0x204de8 @0x2105fc, $a0=param_1 ($s2=$a0, no writes; capstone)
     return 0;
   }
   if (cVar1 == '\x03') {

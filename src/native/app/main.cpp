@@ -35,6 +35,8 @@
 #include "app/Autopilot.h"
 #include "guest/guest_kernel.h"
 #include "guest/guest_shim.h"
+
+namespace guest { extern uint64_t g_diagCdReads, g_diagCdSectors; extern uint16_t g_bootButtons; }
 #include "preview/car_mesh.h"
 #include "preview/preview.h"
 #include "preview/race_hud.h"
@@ -2278,8 +2280,68 @@ int main() {
             // semantics: alarms/vsync flag/intc fire) + green-thread pump per
             // 60 Hz logic step. Flag-gated: the default loop is untouched.
             if (nativeBoot.ok) {
+                // RT_BOOT_START=N: scripted pad script (temporary probe:
+                // Up@N, Cross@N+120, Start@N+240 — each held 3 vblanks).
+                static const long bootStart = [] {
+                    const char* e = std::getenv("RT_BOOT_START");
+                    return e ? std::atol(e) : -1L;
+                }();
+                auto inWin = [v = nativeBoot.vblanks](long at) {
+                    return at >= 0 && v >= at && v <= at + 2;
+                };
+                uint16_t btn = 0xFFFFu;
+                if (inWin(bootStart)) btn = (uint16_t)(~0x0010u);          // Up
+                else if (inWin(bootStart + 120)) btn = (uint16_t)(~0x4000u); // Cross
+                else if (inWin(bootStart + 240)) btn = (uint16_t)(~0x0008u); // Start
+                guest::g_bootButtons = btn;
                 rtguest::kVblank();
                 rtguest::kPumpToIdle();
+                if (std::getenv("RT_BOOT_TRACE_WIN")) {
+                    // Per-vblank load-machine trace in [lo,hi] (comma pair).
+                    static const long lo = [] {
+                        const char* e = std::getenv("RT_BOOT_TRACE_WIN");
+                        return std::atol(e);
+                    }();
+                    static const long hi = [] {
+                        const char* e = std::getenv("RT_BOOT_TRACE_WIN");
+                        const char* c = strchr(e, ',');
+                        return c ? std::atol(c + 1) : 0L;
+                    }();
+                    const long v = nativeBoot.vblanks;
+                    if (v >= lo && v <= hi) {
+                        auto rd = [](uint32_t a) { uint32_t x; std::memcpy(&x, rtguest::kRam + a, 4); return x; };
+                        std::cout << std::hex << "[tw] vb=" << std::dec << v
+                                  << " step=" << rd(0x3356c0) << " loading=" << rd(0x333370)
+                                  << " req=" << rd(0x333374) << " ldr1c=" << rd(0x177a11c)
+                                  << " hnd=" << rd(0x177a10c)
+                                  << " b26=" << (rd(0x177a124) >> 16) % 256
+                                  << " b27=" << (rd(0x177a124) >> 24) % 256 << "\n";
+                    }
+                }
+                if (std::getenv("RT_RAM_CANARY")) {
+                    // .rodata must never be written after staging. First
+                    // mismatch pins the vblank; active task handlers name the
+                    // suspect task.
+                    static const std::vector<uint8_t> golden(
+                        rtguest::kRam + 0x2e9a00, rtguest::kRam + 0x332b00);
+                    size_t off = 0;
+                    while (off < golden.size() && rtguest::kRam[0x2e9a00 + off] == golden[off]) ++off;
+                    if (off != golden.size()) {
+                        std::cout << "rt-app RAM-CANARY vblank=" << nativeBoot.vblanks
+                                  << " first-off=0x" << std::hex << (0x2e9a00 + off)
+                                  << " want=" << int(golden[off])
+                                  << " got=" << int(rtguest::kRam[0x2e9a00 + off]) << "\n";
+                        for (int n = 0; n < 48; ++n) {
+                            const uint8_t* node = rtguest::kRam + 0x177a0d0 + n * 0x30;
+                            uint32_t hnd;
+                            std::memcpy(&hnd, node + 0xc, 4);
+                            if (node[0]) std::cout << "  node" << n << " act=" << int(node[0])
+                                                   << " hnd=0x" << hnd << "\n";
+                        }
+                        std::cout << std::dec;
+                        std::exit(3);
+                    }
+                }
                 if (++nativeBoot.vblanks % 30 == 0) {
                     // Scene words mirror config/game_state.toml [game]/boot_diag:
                     // is the load machine busy, and what task handler is installed.
@@ -2288,10 +2350,30 @@ int main() {
                               << nativeBoot.vblanks
                               << " threads=" << rtguest::kThreadCount()
                               << " semas=" << rtguest::kSemaCount()
+                              << " cdreads=" << guest::g_diagCdReads
+                              << " sectors=" << guest::g_diagCdSectors
                               << " scene3d=" << rd(0x3356c4)
+                              << " uiCtx=" << rd(0x3356cc)
+                              << " mode=" << (rd(0x33590a) & 0xFF)
+                              << " step=" << rd(0x3356c0)
                               << " loading=" << rd(0x333370)
                               << " task0=" << rd(0x177a0d0)
-                              << " taskHandler=" << rd(0x177a0dc) << "\n";
+                              << " flow=" << (rd(0x177a0d4) & 0xFF) << ":"
+                              << ((rd(0x177a0f4) >> ((0x24 % 4) * 8)) & 0xFF) << ":"
+                              << ((rd(0x177a0f4) >> ((0x25 % 4) * 8)) & 0xFF)
+                              << " taskHandler=" << rd(0x177a0dc)
+                              // Loader node (0x177a100): adopted request + cycle
+                              // bytes; car-pointer table; attract car block model id.
+                              << " ldr1c=" << rd(0x177a11c)
+                              << " b26=" << (rd(0x177a124) >> 16) % 256
+                              << " b27=" << (rd(0x177a124) >> 24) % 256
+                              << " cars=" << rd(0x177ea50) << ":" << rd(0x177ea54)
+                              << ":" << rd(0x177ea58) << ":" << rd(0x177ea5c) << ":" << rd(0x177ea60)
+                              << " car0id=" << (rd(0x177f764) & 0xFF)
+                              // .rodata integrity + game heap header (arena at
+                              // 0x2dce74; string at 0x2ea638 = fatal fmt).
+                              << " ro638=" << rd(0x2ea638) << " heap0=" << rd(0x2dce70)
+                              << "\n";
                 }
             }
             // Trigger polling intentionally lives in this fixed-step lambda:
