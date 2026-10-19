@@ -1,0 +1,41 @@
+// guest:0x0021f340 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t ComposeCameraMatrix(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+    uint32_t uStack_c4 = rtguest::allocFrame(4);
+  int iVar1;
+uint32_t auStack_d0 = rtguest::allocFrame(12);
+uint32_t auStack_c0 = rtguest::allocFrame(16);
+uint32_t auStack_b0 = rtguest::allocFrame(16);
+uint32_t auStack_a0 = rtguest::allocFrame(32);
+uint32_t auStack_80 = rtguest::allocFrame(16);
+uint32_t auStack_70 = rtguest::allocFrame(16);
+uint32_t auStack_60 = rtguest::allocFrame(32);
+  
+  TransformRectangle(auStack_d0,(int)param_2 + 0x14);
+  vu0UnitMatrix(auStack_c0);
+  vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)auStack_d0 + (uint32_t)(0) * 4)),auStack_80,auStack_c0);
+  vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)uStack_c4)),auStack_c0,auStack_80);
+  if (param_3 == 0) {
+    vu0CopyVector(param_1,param_2,auStack_c0);
+  }
+  else {
+    vu0MulMatrix(auStack_c0,param_3);
+    vu0MulMatrix(auStack_80,param_4,auStack_80);
+    vu0ApplyMatrix(param_1,auStack_c0,param_2);
+  }
+  iVar1 = (int)param_1;
+  vu0CopyVector(iVar1 + 0x10,auStack_b0);
+  vu0CopyVector(iVar1 + 0x20,auStack_a0);
+  vu0CopyVector(iVar1 + 0x30,auStack_70);
+  vu0CopyVector(iVar1 + 0x40,auStack_60);
+  return 0;
+}
+
+
+RT_GUEST_FN(0x0021f340, guest::ComposeCameraMatrix)
+
+}  // namespace guest

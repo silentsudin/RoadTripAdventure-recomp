@@ -1,0 +1,86 @@
+// guest:0x0028c118 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t _sceSifLoadModuleBuffer(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  undefined4 uVar1;
+uint32_t puVar2;
+  long lVar3;
+uint32_t puVar4;
+  undefined8 uVar5;
+  undefined8 uVar6;
+  undefined8 uVar7;
+  
+  lVar3 = _lf_bind();
+  uVar1 = 0xffff0000;
+  if (-1 < lVar3) {
+    lVar3 = lfVersionCheck();
+    if (lVar3 == 0) {
+      (*(uint32_t*)rtguest::G(0x1779e00)) = param_1;
+      if (param_3 == (uint32_t)0x0) {
+        (*(uint32_t*)rtguest::G(0x1779e04)) = 0;
+      }
+      else if ((long)param_2 < 0xfd) {
+        (uint32_t)(uintptr_t)(::memcpy((char *)rtguest::G((uint32_t)(0x01779f04)), (char *)rtguest::G((uint32_t)(param_3)), param_2));
+        (*(uint32_t*)rtguest::G(0x1779e04)) = (uint32_t)param_2;
+      }
+      else {
+        puVar4 = (uint32_t)0x01779f04;
+        if ((((uint32_t)param_3 | 0x1779f04) & 7) == 0) {
+          puVar2 = param_3 + 0x1c;
+          do {
+            uVar5 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(1) * sizeof(uint64_t)));
+            uVar6 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint64_t)));
+            uVar7 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(3) * sizeof(uint64_t)));
+            (*(uint64_t*)rtguest::G((uint32_t)puVar4)) = (*(uint64_t*)rtguest::G((uint32_t)param_3));
+            (*(uint64_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint64_t))) = uVar5;
+            (*(uint64_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(2) * sizeof(uint64_t))) = uVar6;
+            (*(uint64_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(3) * sizeof(uint64_t))) = uVar7;
+            param_3 = param_3 + 4;
+            puVar4 = puVar4 + 4;
+          } while (param_3 != puVar2);
+        }
+        else {
+          puVar2 = param_3 + 0x1c;
+          do {
+            uVar5 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(1) * sizeof(uint64_t)));
+            uVar6 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint64_t)));
+            uVar7 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(3) * sizeof(uint64_t)));
+            (*(uint64_t*)rtguest::G((uint32_t)puVar4)) = (*(uint64_t*)rtguest::G((uint32_t)param_3));
+            (*(uint64_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint64_t))) = uVar5;
+            (*(uint64_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(2) * sizeof(uint64_t))) = uVar6;
+            (*(uint64_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(3) * sizeof(uint64_t))) = uVar7;
+            param_3 = param_3 + 4;
+            puVar4 = puVar4 + 4;
+          } while (param_3 != puVar2);
+        }
+        uVar6 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(1) * sizeof(uint64_t)));
+        uVar5 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint64_t)));
+        uVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 3)));
+        (*(uint64_t*)rtguest::G((uint32_t)puVar4)) = (*(uint64_t*)rtguest::G((uint32_t)param_3));
+        (*(uint64_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint64_t))) = uVar6;
+        (*(uint64_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(2) * sizeof(uint64_t))) = uVar5;
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar4 + 3))) = uVar1;
+        (*(uint32_t*)rtguest::G(0x1779e04)) = 0xfc;
+      }
+      lVar3 = sceSifCallRpc(0x177a000,6,0,0x1779e00,0x200,0x1779e00,8,0);
+      uVar1 = (*(uint32_t*)rtguest::G(0x1779e00));
+      if (lVar3 < 0) {
+        uVar1 = 0xfffeffff;
+      }
+      else {
+        (*(uint32_t*)rtguest::G((uint32_t)param_4)) = (*(uint32_t*)rtguest::G(0x1779e04));
+      }
+    }
+    else {
+      uVar1 = 0xfffefffc;
+    }
+  }
+}
+
+
+RT_GUEST_FN(0x0028c118, guest::_sceSifLoadModuleBuffer)
+
+}  // namespace guest

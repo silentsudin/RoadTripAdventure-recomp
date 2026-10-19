@@ -1,0 +1,29 @@
+// guest:0x0022eac8 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t RunFadeOutExitTask(uint32_t param_1, uint32_t param_2, ...) {
+  int iVar1;
+  
+  iVar1 = (int)param_1;
+  uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 2))) << 0x19);
+  if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 2))) < 0x40) {
+    (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 2))) + 1;
+    return 0;
+  }
+  (*(uint8_t*)rtguest::G(0x177ae97)) = 0xff;
+  (*(uint16_t*)rtguest::G(0x177ade8)) = 0;
+  iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x18)));
+  (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x24))) = 1;
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 4))) = 0xffffffff;
+  gs_tasks_kill(param_1);
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x50))) = 0x80000000;
+  uiFade(0xffffffff80000000);
+}
+
+
+RT_GUEST_FN(0x0022eac8, guest::RunFadeOutExitTask)
+
+}  // namespace guest

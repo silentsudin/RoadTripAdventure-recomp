@@ -1,0 +1,48 @@
+// guest:0x002609d0 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t rouletteTablePoseUpdate(uint32_t param_1, ...) {
+    uint32_t fStack_7c = rtguest::allocFrame(4);
+    uint32_t uStack_88 = rtguest::allocFrame(8);
+    uint32_t uStack_90 = rtguest::allocFrame(8);
+    uint32_t uStack_98 = rtguest::allocFrame(4);
+    uint32_t uStack_ac = rtguest::allocFrame(4);
+  float fVar1;
+  short sVar2;
+uint32_t auStack_b0 = rtguest::allocFrame(4);
+uint32_t auStack_a0 = rtguest::allocFrame(8);
+uint32_t auStack_80 = rtguest::allocFrame(4);
+uint32_t auStack_70 = rtguest::allocFrame(64);
+  
+  (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(auStack_b0)), 0, 0x10));
+  (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = 0x3f800000;
+  (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(auStack_a0)), 0, 0x10));
+  (*(uint32_t*)rtguest::G((uint32_t)uStack_98)) = 0x3f800000;
+  (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = 0x43c80000;
+  (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = 0x43c80000;
+  vu0ScaleVector(0,auStack_80,auStack_80);
+  fVar1 = (*(uint32_t*)rtguest::G(0x333178));
+  sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe)));
+  (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = sVar2;
+  (*(float*)rtguest::G((uint32_t)fStack_7c)) = (float)(int)sVar2 * fVar1 * 3.0517578e-05;
+  vu0UnitMatrix(auStack_70);
+  vu0RotMatrix(auStack_70,auStack_70,auStack_80);
+  vu0ApplyMatrix(auStack_a0,auStack_70,auStack_a0);
+  vu0ApplyMatrix(auStack_b0,auStack_70,auStack_b0);
+  vecNormalizeVu0(auStack_a0,auStack_a0);
+  vecNormalizeVu0(auStack_b0,auStack_b0);
+  BuildTransformMatrix(0x177eb10,auStack_b0,auStack_a0);
+  vu0CopyVectorXYZ(0x177eb40,uStack_90);
+  vu0CopyMatrix(0x177eb50,0x177eb10);
+  vu0CopyMatrix(0x177eb90,0x177eb10);
+  vu0CopyMatrix(0x177ebd0,0x177eb10);
+  return 0;
+}
+
+
+RT_GUEST_FN(0x002609d0, guest::rouletteTablePoseUpdate)
+
+}  // namespace guest

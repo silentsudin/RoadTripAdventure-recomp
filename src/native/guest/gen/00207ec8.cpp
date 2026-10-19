@@ -1,0 +1,25 @@
+// guest:0x00207ec8 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t TransformRectangle(uint32_t param_1, uint32_t param_2, ...) {
+    uint32_t iStack_14 = rtguest::allocFrame(4);
+    uint32_t iStack_18 = rtguest::allocFrame(4);
+    uint32_t iStack_1c = rtguest::allocFrame(4);
+    uint32_t iStack_20 = rtguest::allocFrame(4);
+  
+  (*(int32_t*)rtguest::G((uint32_t)iStack_1c)) = (int)(*(int16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(int16_t)));
+  (*(int32_t*)rtguest::G((uint32_t)iStack_14)) = (int)(((uint32_t)(uint32_t)(*(int16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(int16_t))) + (uint32_t)(uint32_t)(*(int16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(3) * sizeof(int16_t)))) * 0x10000) >> 0x10;
+  (*(int32_t*)rtguest::G((uint32_t)iStack_20)) = (int)(*(int16_t*)rtguest::G((uint32_t)param_2));
+  (*(int32_t*)rtguest::G((uint32_t)iStack_18)) = (int)(*(int16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(int16_t)));
+  vu0Itof4Vector(param_1,iStack_20);
+  vu0ScaleVector((*(uint32_t*)rtguest::G(0x332b10)),param_1,param_1);
+  return 0;
+}
+
+
+RT_GUEST_FN(0x00207ec8, guest::TransformRectangle)
+
+}  // namespace guest

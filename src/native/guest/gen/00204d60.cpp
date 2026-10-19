@@ -1,0 +1,38 @@
+// guest:0x00204d60 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t DestroyTaskRecord(uint32_t param_1, ...) {
+uint32_t puVar1;
+  int iVar2;
+  
+  puVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10)));
+  if (puVar1 != (uint32_t)0x0) {
+    if ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x2c))) == (uint32_t)0x0) {
+      iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x10)));
+    }
+    else {
+      rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x2c))))), puVar1);
+      iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x10)));
+    }
+    (*(uint8_t*)rtguest::G((uint32_t)puVar1)) = 0;
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x28))) = 0;
+    if (iVar2 != 0) {
+      DestroyTaskTree(iVar2);
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x10))) = 0;
+    }
+    if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x14))) != 0) {
+      DestroyTaskTree((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x14))));
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 0x14))) = 0;
+    }
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) = 0;
+  }
+  return 0;
+}
+
+
+RT_GUEST_FN(0x00204d60, guest::DestroyTaskRecord)
+
+}  // namespace guest

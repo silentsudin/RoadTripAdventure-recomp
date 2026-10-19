@@ -1,0 +1,67 @@
+// guest:0x00283440 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t __smakebuf(uint32_t param_1, ...) {
+    uint32_t uStack_8c = rtguest::allocFrame(4);
+  bool bVar1;
+  long lVar2;
+  ushort uVar3;
+uint32_t auStack_90 = rtguest::allocFrame(4);
+  
+  uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3)));
+  if ((uVar3 & 2) != 0) {
+    (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(5) * sizeof(int32_t))) = 1;
+    (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int32_t))) = (int)param_1 + 0x43;
+    (*(int32_t*)rtguest::G((uint32_t)param_1)) = (int)param_1 + 0x43;
+    return 0;
+  }
+  if (-1 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xe)))) {
+    lVar2 = _fstat_r((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(int32_t))),(*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xe))),auStack_90);
+    if (-1 < lVar2) {
+      bVar1 = ((*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) & 0xf000) == 0x2000;
+      if (((*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) & 0xf000) == 0x8000) {
+        uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3)));
+        if ((uint32_t)(*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(10) * sizeof(int32_t))) != (*(uint8_t*)rtguest::G(0x284838))) goto LAB_002834f4;
+        (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x13) * sizeof(int32_t))) = 0x400;
+        uVar3 = uVar3 | 0x400;
+      }
+      else {
+        uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3)));
+LAB_002834f4:
+        uVar3 = uVar3 | 0x800;
+      }
+      (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3))) = uVar3;
+      goto LAB_002834fc;
+    }
+    uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3)));
+  }
+  bVar1 = false;
+  (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3))) = uVar3 | 0x800;
+LAB_002834fc:
+  lVar2 = _malloc_r((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(int32_t))),0x400);
+  uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3)));
+  if (lVar2 == 0) {
+    (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int32_t))) = (int)param_1 + 0x43;
+    (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(5) * sizeof(int32_t))) = 1;
+    (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3))) = uVar3 | 2;
+    (*(int32_t*)rtguest::G((uint32_t)param_1)) = (int)param_1 + 0x43;
+  }
+  else {
+    (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int32_t))) = (int)lVar2;
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(int32_t))) + 0x3c))) = (*(uint8_t*)rtguest::G(0x2829a8));
+    (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3))) = uVar3 | 0x80;
+    (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(5) * sizeof(int32_t))) = 0x400;
+    (*(int32_t*)rtguest::G((uint32_t)param_1)) = (int)lVar2;
+    if ((bVar1) && (lVar2 = sysIsatty((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xe)))), lVar2 != 0)) {
+      (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3))) | 1;
+    }
+  }
+}
+
+
+RT_GUEST_FN(0x00283440, guest::__smakebuf)
+
+}  // namespace guest

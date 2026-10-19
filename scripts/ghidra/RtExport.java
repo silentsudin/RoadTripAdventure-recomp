@@ -14,6 +14,8 @@ import ghidra.app.decompiler.*;
 import ghidra.app.script.GhidraScript;
 import ghidra.program.model.address.*;
 import ghidra.program.model.listing.*;
+import ghidra.program.model.pcode.*;
+import ghidra.program.model.symbol.Symbol;
 
 public class RtExport extends GhidraScript {
 
@@ -52,6 +54,8 @@ public class RtExport extends GhidraScript {
         if (!dec.openProgram(currentProgram)) throw new RuntimeException("decompiler: " + dec.getLastMessage());
 
         FunctionManager fm = currentProgram.getFunctionManager();
+        Path globalsPath = out.resolve("globals.tsv");
+        BufferedWriter globals = new BufferedWriter(Files.newBufferedWriter(globalsPath, StandardCharsets.UTF_8));
         StringBuilder graph = new StringBuilder("{\n");
         int n = 0, failed = 0;
         boolean first = true;
@@ -65,6 +69,22 @@ public class RtExport extends GhidraScript {
                 String code;
                 if (r != null && r.decompileCompleted() && r.getDecompiledFunction() != null) {
                     code = r.getDecompiledFunction().getC();
+                    // What type the decompiler used for each global in THIS function:
+                    // fnaddr  symaddr  name  type  size. The transliterator types each
+                    // bare DAT_/named global site by this, not by a global guess.
+                    try {
+                        java.util.Iterator<HighSymbol> gs = r.getHighFunction().getGlobalSymbolMap().getSymbols();
+                        while (gs.hasNext()) {
+                            HighSymbol hs = gs.next();
+                            Symbol s = hs.getSymbol();
+                            if (s == null || hs.getDataType() == null) continue;
+                            globals.write(hex(ep) + "\t" + hex(s.getAddress()) + "\t"
+                                    + hs.getName() + "\t" + hs.getDataType().getName() + "\t" + hs.getSize());
+                            globals.newLine();
+                        }
+                    } catch (Exception ge) {
+                        println("RtExport: globals skipped at 0x" + hex(ep) + ": " + ge);
+                    }
                 } else {
                     code = "/* decompilation failed: " + (r == null ? "?" : r.getErrorMessage()) + " */\n";
                     failed++;

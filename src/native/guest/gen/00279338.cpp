@@ -1,0 +1,32 @@
+// guest:0x00279338 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t sceSdTransToIOP(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  long lVar1;
+  long lVar2;
+  
+  if (param_4 != 0) {
+    (*(uint32_t*)rtguest::G(0x177384c)) = 0;
+    (*(uint32_t*)rtguest::G(0x1773840)) = param_1;
+    (*(uint32_t*)rtguest::G(0x1773844)) = param_2;
+    (*(uint32_t*)rtguest::G(0x1773848)) = param_3;
+    lVar1 = sceSifSetDma(0x1773840,1);
+    if (lVar1 != 0) {
+      if (param_4 != 1) {
+        return 0;
+      }
+      do {
+        lVar2 = sceSifDmaStat(lVar1);
+      } while (-1 < lVar2);
+    }
+  }
+  return 0xffffffff;
+}
+
+
+RT_GUEST_FN(0x00279338, guest::sceSdTransToIOP)
+
+}  // namespace guest

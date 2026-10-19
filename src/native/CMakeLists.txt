@@ -125,6 +125,19 @@ target_compile_options(rt_native_assets PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
 # W9-02: player-car mesh/livery asset and chase-scene submission.
 add_library(rt_native_car_render STATIC preview/car_render.cpp)
+
+# W10: the translated guest corpus (scripts/ghidra/transliterate.py output in
+# guest/gen + shim). Built as a static library so the 0-error gate compiles
+# every TU; it links into the app subsystem by subsystem at W12. Needs the
+# generated decls table: python3 scripts/ghidra/transliterate.py --decls.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp/guest_decls.inc")
+    add_library(rt_guest STATIC guest/guest_mem.cpp)
+    file(GLOB RT_GUEST_GEN CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/guest/gen/*.cpp")
+    target_sources(rt_guest PRIVATE ${RT_GUEST_GEN})
+    target_include_directories(rt_guest PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp")
+    target_compile_features(rt_guest PRIVATE cxx_std_17)
+endif()
 target_link_libraries(rt_native_car_render PUBLIC rt_native_assets)
 target_include_directories(rt_native_car_render PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_features(rt_native_car_render PUBLIC cxx_std_20)

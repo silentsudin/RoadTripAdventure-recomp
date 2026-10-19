@@ -1,0 +1,354 @@
+// guest:0x0020d120 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t loadStep(uint32_t param_1, uint32_t param_2, ...) {
+  char cVar1;
+  ushort uVar2;
+uint32_t puVar3;
+  uint uVar4;
+  long lVar5;
+  ulong uVar6;
+  undefined8 uVar7;
+uint32_t puVar8;
+  long lVar9;
+  int iVar10;
+  int iVar11;
+  
+  lVar9 = 0;
+  iVar11 = (int)param_1;
+  iVar10 = (int)param_2;
+  if (((*(uint32_t*)rtguest::G(0x3356c0)) & 0x8000) != 0) {
+    lVar5 = cdReadPoll();
+    if (lVar5 != 0) {
+      uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x1c))) & 0x100000;
+      goto LAB_0020dbd8;
+    }
+    (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) & 0xffff7fff;
+  }
+  uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x1c)));
+  puVar8 = (uint32_t)(uVar4 & 0xf0000);
+  if (puVar8 == (uint32_t)0x60000) {
+    if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
+      puVar3 = 0x00100000;
+      cVar1 = (*(int8_t*)rtguest::G(0x100003));
+      while (cVar1 != 'p') {
+        if (cVar1 == '\x10') {
+          uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        }
+        else {
+          fatal(0x2ea490);
+          uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        }
+        (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+             uVar6 & 0xffffc000ffffffff |
+             ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x237a) & 0x3fffU) << 0x20;
+        cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
+        puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+      }
+      goto LAB_0020db38;
+    }
+    if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
+    lVar9 = 0;
+    if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
+      cdReadEntryPart(0x29b084,0x100000,(uVar4 & 0xff) * 0xc000,0xc000);
+      (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+      goto switchD_0020d2bc_caseD_2;
+    }
+  }
+  else if (puVar8 < (uint32_t)0x60001) {
+    if (puVar8 == (uint32_t)0x20000) {
+      if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
+        (*(uint32_t*)rtguest::G(0x177f310)) = 0x707b80;
+        cdReadEntry(0x29b174,0x100000);
+        (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+switchD_0020d2bc_caseD_2:
+        lVar9 = 0;
+      }
+      else if ((int)(*(uint32_t*)rtguest::G(0x3356c0)) < 2) {
+        lVar9 = 0;
+        if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
+          cdReadEntry(0x29b15c,0x707b80);
+          (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+        }
+      }
+      else {
+        if ((*(uint32_t*)rtguest::G(0x3356c0)) == 2) {
+          puVar3 = 0x00100000;
+          cVar1 = (*(int8_t*)rtguest::G(0x100003));
+          while (cVar1 != 'p') {
+            if (cVar1 == '\x10') {
+              uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+            }
+            else {
+              fatal(0x2ea490);
+              uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+            }
+            (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+                 uVar6 & 0xffffc000ffffffff |
+                 ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x1d8e) & 0x3fffU) << 0x20;
+            cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
+            puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+          }
+        }
+        lVar9 = 0;
+        if ((*(uint32_t*)rtguest::G(0x3356c0)) == 3) {
+LAB_0020db60:
+          (*(uint32_t*)rtguest::G(0x3356c0)) = 0xffffffff;
+        }
+      }
+    }
+    else if (puVar8 < (uint32_t)0x20001) {
+      if (puVar8 == (uint32_t)0x0) {
+        switch(uVar4 & 0xf) {
+        case 0:
+          lVar9 = loadCarPartsSet(param_1,param_2);
+          break;
+        case 1:
+          lVar9 = loadPoseSet(param_1,param_2);
+          break;
+        case 2:
+        case 3:
+          if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
+            puVar3 = 0x00100000;
+            cVar1 = (*(int8_t*)rtguest::G(0x100003));
+            while (cVar1 != 'p') {
+              if (cVar1 == '\x10') {
+                uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+              }
+              else {
+                fatal(0x2ea490);
+                uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+              }
+              (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+                   uVar6 & 0xffffc000ffffffff |
+                   ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x237a) & 0x3fffU) << 0x20;
+              cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
+              puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+            }
+LAB_0020db38:
+            uVar7 = sceDmaGetChan(1);
+            sceDmaSync(uVar7,0,0);
+            sendTexturePackets(0x100000);
+            lVar9 = 0;
+          }
+          else if ((int)(*(uint32_t*)rtguest::G(0x3356c0)) < 2) {
+            lVar9 = 0;
+            if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
+              cdReadEntry(0x29b410,0x100000);
+              (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+            }
+          }
+          else {
+LAB_0020da68:
+            lVar9 = 0;
+            if ((*(uint32_t*)rtguest::G(0x3356c0)) == 2) goto LAB_0020db60;
+          }
+          break;
+        case 4:
+        case 5:
+          lVar9 = loadShopSet(param_1,param_2);
+          break;
+        case 6:
+          if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
+            puVar3 = 0x00100000;
+            cVar1 = (*(int8_t*)rtguest::G(0x100003));
+            while (cVar1 != 'p') {
+              if (cVar1 == '\x10') {
+                uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+              }
+              else {
+                fatal(0x2ea490);
+                uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+              }
+              (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+                   uVar6 & 0xffffc000ffffffff |
+                   ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x285e) & 0x3fffU) << 0x20;
+              cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
+              puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+            }
+          }
+          if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
+          lVar9 = 0;
+          if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
+            cdReadEntry(0x29b054,0x100000);
+            (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+          }
+        }
+      }
+      else if (puVar8 == (uint32_t)0x10000) {
+        if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
+          puVar3 = 0x00100000;
+          cVar1 = (*(int8_t*)rtguest::G(0x100003));
+          while (cVar1 != 'p') {
+            if (cVar1 == '\x10') {
+              uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+            }
+            else {
+              fatal(0x2ea490);
+              uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+            }
+            (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+                 uVar6 & 0xffffc000ffffffff |
+                 ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x1d8e) & 0x3fffU) << 0x20;
+            cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
+            puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+          }
+        }
+        if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
+        lVar9 = 0;
+        if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
+          cdReadEntry(0x29afa0,0x100000);
+          (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+        }
+      }
+    }
+    else if (puVar8 == (uint32_t)0x40000) {
+      if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
+        puVar3 = 0x00100000;
+        cVar1 = (*(int8_t*)rtguest::G(0x100003));
+        while (cVar1 != 'p') {
+          if (cVar1 == '\x10') {
+            uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar3));
+          }
+          else {
+            fatal(0x2ea490);
+            uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar3));
+          }
+          (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+          cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)uVar2 * 0x10 + 0x13)));
+          puVar3 = puVar3 + (uint32_t)uVar2 * 8 + 8;
+        }
+      }
+      if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
+      lVar9 = 0;
+      if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
+        cdReadEntry(0x29af58 + (uVar4 & 0xff) * 3,0x100000);
+        (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+      }
+    }
+    else if (puVar8 < (uint32_t)0x40001) {
+      if (puVar8 == (uint32_t)0x30000) {
+        lVar9 = DispatchInputMapping(param_1,param_2);
+      }
+    }
+    else if (puVar8 == (uint32_t)0x50000) {
+      lVar9 = loadCourseTile(param_1,param_2,0x29be50 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x22))) * 0xc,
+                             (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x22))),2);
+    }
+  }
+  else if (puVar8 == 0x000a0000) {
+    if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
+      puVar3 = 0x00100000;
+      cVar1 = (*(int8_t*)rtguest::G(0x100003));
+      while (cVar1 != 'p') {
+        if (cVar1 == '\x10') {
+          uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        }
+        else {
+          fatal(0x2ea490);
+          uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        }
+        (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+             uVar6 & 0xffffc000ffffffff |
+             ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x237a) & 0x3fffU) << 0x20;
+        cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
+        puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+      }
+    }
+    if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
+    lVar9 = 0;
+    if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
+      cdReadEntry((uVar4 & 0xff) * 0xc + 0x29b398,0x100000);
+      (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+    }
+  }
+  else if (0x000a0000 < puVar8) {
+    if (puVar8 == (uint32_t)0xc0000) {
+      lVar9 = loadCarModelAt(param_1,param_2);
+    }
+    else if (puVar8 < (uint32_t)0xc0001) {
+      if (puVar8 == (uint32_t)0xb0000) {
+        lVar9 = CheckInputMapping(param_1,param_2);
+      }
+    }
+    else if (puVar8 == (uint32_t)0xd0000) {
+      if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
+        cdReadEntry(0x29b168,0x100000);
+        (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+      }
+      lVar9 = 0;
+      if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) goto LAB_0020db60;
+    }
+  }
+  else if (puVar8 == (uint32_t)0x80000) {
+    if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
+      puVar3 = 0x00100000;
+      cVar1 = (*(int8_t*)rtguest::G(0x100003));
+      while (cVar1 != 'p') {
+        if (cVar1 == '\x10') {
+          uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        }
+        else {
+          fatal(0x2ea490);
+          uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10)));
+        }
+        (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x10))) =
+             uVar6 & 0xffffc000ffffffff |
+             ((long)(int)(((uint32_t)(uVar6 >> 0x20) & 0x3fff) + 0x2c7e) & 0x3fffU) << 0x20;
+        cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
+        puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 8 + 8;
+      }
+    }
+    if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
+    lVar9 = 0;
+    if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
+      if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x22))) == -1) {
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x68))) = 0xffffffff;
+      }
+      cdReadEntry(0x29b150,0x100000);
+      (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
+    }
+  }
+  else if (puVar8 < (uint32_t)0x80001) {
+    if (puVar8 == (uint32_t)0x70000) {
+      lVar9 = UpdateInputMapping(param_1,param_2);
+    }
+  }
+  else if (puVar8 == (uint32_t)0x90000) {
+    lVar9 = loadFieldTile(param_1,param_2,0x29bb50 + (uVar4 & 0xff) * 0xc,uVar4 & 0xff,
+                          uVar4 & 3);
+  }
+  if (lVar9 == 0) {
+    if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0xffffffff) {
+      if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x1c))) & 0x400000) != 0) {
+        ClearTaskPoolFlag();
+      }
+      (*(uint32_t*)rtguest::G(0x333370)) = 0;
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0xc))) = (*(uint8_t*)rtguest::G(0x20df98));
+      return 0;
+    }
+    (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) + 1;
+    uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x1c))) & 0x100000;
+  }
+  else {
+    (*(uint32_t*)rtguest::G(0x3356c0)) = 0;
+    uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x1c))) & 0x100000;
+  }
+LAB_0020dbd8:
+  if (uVar4 == 0) {
+    if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 8))) < 0x40) {
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) | 0x400000;
+      uiFade(0x6000000);
+    }
+    uiDrawTextCell(0xc,10,0x2ea6b0,0);
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x50))) = 0x80000000;
+  }
+}
+
+
+RT_GUEST_FN(0x0020d120, guest::loadStep)
+
+}  // namespace guest

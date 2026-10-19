@@ -1,0 +1,104 @@
+// guest:0x002477a8 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t DrawCarouselStatText(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t puVar1;
+  int iVar2;
+  byte bVar3;
+  undefined8 uVar4;
+uint32_t ppuVar5;
+  
+  uiDrawPanelCells(0xf,2,0x1d,9,0);
+  bVar3 = (*(int8_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int8_t)));
+  if ((bVar3 & 1) != 0) {
+    uiDrawTextCell(0x10,3,0x334460,0);
+    iVar2 = uiDrawNumberFixed(0x212,0x54,(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x002a8f30 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_1)) * 2))) % 1000,
+                              0,3);
+    uiDrawText(iVar2 + -10,0x29,0x334468,0);
+    uiDrawNumber16(iVar2 + -10,0x29,(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x002a8f30 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_1)) * 2))) / 1000,0);
+    uiDrawTextCell(0x1a,3,0x334470,0);
+    bVar3 = (*(int8_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int8_t)));
+  }
+  if ((bVar3 & 2) != 0) {
+    uiDrawNumber16(0x212,0x35,(*(int8_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int8_t))),0);
+    uiDrawTextCell(0x1a,4,0x334478,0);
+  }
+  if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 10))) == '\x01') {
+    uiDrawTextCell(0x10,5,0x334480,0);
+    uiDrawNumber16(0x212,0x41,(*(int8_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int8_t))),0);
+    uiDrawTextCell(0x1a,5,0x334488,0);
+    bVar3 = (*(int8_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int8_t)));
+  }
+  else {
+    bVar3 = (*(int8_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int8_t)));
+  }
+  if ((bVar3 & 8) != 0) {
+    if ((*(int8_t*)rtguest::G(0x177fdd6)) == '\0') {
+      bVar3 = (*(int8_t*)rtguest::G((uint32_t)param_1));
+      goto LAB_0024799c;
+    }
+    if ((*(uint32_t*)rtguest::G(0x178321e)) == '\0') {
+      bVar3 = (*(int8_t*)rtguest::G((uint32_t)param_1));
+    }
+    uVar4 = 6;
+    if (((*(uint64_t*)rtguest::G((uint32_t)param_2)) & 0x10) != 0) {
+      uVar4 = 0;
+    }
+    uiDrawTextCell(0x13,6,0x327688,uVar4);
+  }
+  bVar3 = (*(int8_t*)rtguest::G((uint32_t)param_1));
+LAB_0024799c:
+  if (bVar3 == 0x1a) {
+    iVar2 = 0;
+    ppuVar5 = 0x2a8f84u;
+    puVar1 = (*(uint32_t*)rtguest::G(0x002a8f84));
+    while( true ) {
+      ppuVar5 = ppuVar5 + 1;
+      if (puVar1 != (uint32_t)0x0) {
+        uiDrawTextCell(0x10,iVar2 + 4,puVar1,5);
+      }
+      iVar2 = iVar2 + 1;
+      if (4 < iVar2) break;
+      puVar1 = (*(uint32_t*)rtguest::G((uint32_t)ppuVar5));
+    }
+  }
+  else if (bVar3 < 0x1b) {
+    if (bVar3 == 0x13) {
+      iVar2 = 0;
+      ppuVar5 = 0x2a8f70u;
+      puVar1 = (*(uint32_t*)rtguest::G(0x002a8f70));
+      while( true ) {
+        ppuVar5 = ppuVar5 + 1;
+        if (puVar1 != (uint32_t)0x0) {
+          uiDrawTextCell(0x10,iVar2 + 4,puVar1,5);
+        }
+        iVar2 = iVar2 + 1;
+        if (4 < iVar2) break;
+        puVar1 = (*(uint32_t*)rtguest::G((uint32_t)ppuVar5));
+      }
+    }
+  }
+  else if (bVar3 == 0x1d) {
+    iVar2 = 0;
+    ppuVar5 = 0x2a8f98u;
+    puVar1 = (*(uint32_t*)rtguest::G(0x002a8f98));
+    while( true ) {
+      ppuVar5 = ppuVar5 + 1;
+      if (puVar1 != (uint32_t)0x0) {
+        uiDrawTextCell(0x10,iVar2 + 4,puVar1,5);
+      }
+      iVar2 = iVar2 + 1;
+      if (4 < iVar2) break;
+      puVar1 = (*(uint32_t*)rtguest::G((uint32_t)ppuVar5));
+    }
+  }
+  return 0;
+}
+
+
+RT_GUEST_FN(0x002477a8, guest::DrawCarouselStatText)
+
+}  // namespace guest

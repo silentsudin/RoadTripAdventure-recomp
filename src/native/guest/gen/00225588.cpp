@@ -1,0 +1,18 @@
+// guest:0x00225588 transliterated from Ghidra pseudocode — DO NOT hand-edit
+#include "../guest_shim.h"
+#include "guest_decls.inc"
+
+namespace guest {
+
+uint32_t ResetCarEffectSlots(uint32_t q0, ...) {
+uint32_t pvVar1;
+  
+  (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x0172ff70)), 0, 0x800));
+  (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x01730770)), 0, 0x80));
+  pvVar1 = (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x017307f0)), 0, 0x400));
+}
+
+
+RT_GUEST_FN(0x00225588, guest::ResetCarEffectSlots)
+
+}  // namespace guest
