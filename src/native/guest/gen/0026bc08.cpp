@@ -13,7 +13,7 @@ uint32_t pauseMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   iVar4 = (int)param_1;
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x28)));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) == 0) {
-    uVar2 = uiMenuCreate();
+    uVar2 = uiMenuCreate(param_1);  // $4 untouched 26bc18->26bc30
     uiMenuAddItem(uVar2,0x32f9f0,0x10);
     uiMenuAddItem(uVar2,0x335608,0x10);
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) == '\0') {

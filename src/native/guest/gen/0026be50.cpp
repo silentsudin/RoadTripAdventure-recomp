@@ -33,10 +33,10 @@ uint32_t auStack_140 = rtguest::allocFrame(256);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25))) = 1;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x21))) = 0;
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1c))) != 0) {
-        SpawnTownDialogueTasks();
+        SpawnTownDialogueTasks(param_1,param_2);  // $4/$5 intact since entry (no writes 26be60..26bea8)
         return 0;
       }
-      StartTownExplorationTask();
+      StartTownExplorationTask(param_1,param_2);  // beqz path, $4/$5 intact; 26c428 reloads prove clobber AFTER spawn
       return 0;
     }
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = 0;
@@ -49,13 +49,13 @@ uint32_t auStack_140 = rtguest::allocFrame(256);
       if ((*(int32_t*)rtguest::G((uint32_t)piVar7)) != 0) {
         do {
           piVar7 = piVar7 + 0x4;  // T* element step
-          (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) + '\x01';
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) + '\x01';
         } while ((*(int32_t*)rtguest::G((uint32_t)piVar7)) != 0);
-        bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
+        bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
         goto LAB_0026bf48;
       }
     }
-    bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
+    bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
 LAB_0026bf48:
     uVar9 = (uint32_t)bVar1;
     if (uVar9 != 0) {
@@ -97,16 +97,16 @@ LAB_0026bfd4:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1c))) == 0) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 8) * 1));
 LAB_0026c0ac:
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
     }
     else {
       piVar7 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 4)));
       if ((*(int32_t*)rtguest::G((uint32_t)piVar7)) == 0) goto LAB_0026c0ac;
       do {
         piVar7 = piVar7 + 0x4;  // T* element step
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) + '\x01';
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) + '\x01';
       } while ((*(int32_t*)rtguest::G((uint32_t)piVar7)) != 0);
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
     }
     uVar9 = (uint32_t)bVar1;
     if (uVar9 != 0) {
@@ -147,16 +147,16 @@ LAB_0026c230:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1c))) == 0) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 8) * 1));
 LAB_0026c18c:
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
     }
     else {
       piVar7 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 4)));
       if ((*(int32_t*)rtguest::G((uint32_t)piVar7)) == 0) goto LAB_0026c18c;
       do {
         piVar7 = piVar7 + 0x4;  // T* element step
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) + '\x01';
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) + '\x01';
       } while ((*(int32_t*)rtguest::G((uint32_t)piVar7)) != 0);
-      bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
+      bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
     }
     uVar9 = (uint32_t)bVar1;
     if (uVar9 != 0) {
@@ -176,7 +176,7 @@ LAB_0026c234:
   if (cVar3 != '\0') {
     return 0;
   }
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
   if (bVar1 != 0) {
     iVar14 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 4)));
     iVar12 = 0;
@@ -187,17 +187,17 @@ LAB_0026c234:
     } while (iVar13 < (int)(uint32_t)bVar1);
   }
   iVar14 = 0;
-  if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) != '\0') {
+  if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) != '\0') {
     puVar11 = (uint32_t)(iVar2 + 0x50);
     do {
-      lVar5 = TestStampFlag((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))),iVar14 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))));
+      lVar5 = TestStampFlag((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))),iVar14 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))));
       uVar6 = 0x10;
       if (lVar5 == 0) {
         uVar6 = 0x12;
       }
       (*(uint8_t*)rtguest::G((uint32_t)puVar11)) = uVar6;
       lVar5 = CheckUnlockCondition
-                        ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))),iVar14 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))),
+                        ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))),iVar14 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x10))),
                          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x14))));
       if (lVar5 != 0) {
         (*(uint8_t*)rtguest::G((uint32_t)puVar11)) = 0x11;
@@ -207,10 +207,10 @@ LAB_0026c234:
         if (lVar5 == 0) {
           (*(uint8_t*)rtguest::G((uint32_t)puVar11)) = 0x11;
         }
-        bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb)));
+        bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb)));
       }
       else {
-        bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb)));
+        bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb)));
       }
       iVar14 = iVar14 + 1;
       puVar11 = puVar11 + 1;

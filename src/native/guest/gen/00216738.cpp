@@ -76,19 +76,19 @@ uint32_t puVar20;
     uiDrawPanel9(0x28,0x2c,0x104,0x9c,2);
     uiDrawPanel9(0x154,0x8c,0x104,0x3c,0);
     piVar6 = 0x0029c618;
-    piVar13 = puVar20 + 0xd;
+    piVar13 = puVar20 + 0x34;  // int*[0xd]: +0x34 bytes (addiu 216898)
     DrawOptionSlider((*(uint32_t*)rtguest::G((uint32_t)0x29c618 + (uint32_t)((*(uint32_t*)rtguest::G((uint32_t)puVar20 + (uint32_t)(2) * sizeof(uint32_t))) * 0xf) * 4)) + 0x28,
                      (*(uint32_t*)rtguest::G((uint32_t)0x29c61c + (uint32_t)((*(uint32_t*)rtguest::G((uint32_t)puVar20 + (uint32_t)(2) * sizeof(uint32_t))) * 0xf) * 4)) + 0x58,0x104,(*(uint32_t*)rtguest::G((uint32_t)puVar20 + (uint32_t)(3) * sizeof(uint32_t))));
     iVar16 = (*(int32_t*)rtguest::G((uint32_t)piVar13));
     while( true ) {
       piVar13 = piVar13 + 0x4;  // T* element step
       iVar14 = (*(int32_t*)rtguest::G((uint32_t)piVar6));
-      piVar1 = piVar6 + 1;
+      piVar1 = piVar6 + 4;  // int* +1 = +4B
       uVar9 = 0;
       if (iVar16 != 0) {
         uVar9 = 6;
       }
-      piVar2 = piVar6 + 0xe;
+      piVar2 = piVar6 + 0x38;  // lw 2168bc 0x38
       piVar6 = piVar6 + 0x3c;  // T* element step
       uVar15 = uVar15 + 1;
       DrawTextHalfY(iVar14 + 0x3c,(*(int32_t*)rtguest::G((uint32_t)piVar1)) + 0x5a,(*(int32_t*)rtguest::G((uint32_t)piVar2)),uVar9);
@@ -100,7 +100,7 @@ uint32_t puVar20;
       iVar16 = (*(int32_t*)rtguest::G((uint32_t)piVar6));
       iVar14 = 0x124;
       while( true ) {
-        piVar13 = piVar6 + 1;
+        piVar13 = piVar6 + 4;  // int* +1 = +4B
         piVar6 = piVar6 + 0x8;  // T* element step
         DrawTextHalfY(0x168,iVar14,iVar16,(*(int32_t*)rtguest::G((uint32_t)piVar13)));
         if ((*(int32_t*)rtguest::G((uint32_t)piVar6)) == 0) break;
