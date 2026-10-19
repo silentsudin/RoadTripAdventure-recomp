@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map>
 #include <unordered_map>
 #include "guest_kernel.h"
 #include "guest_shim.h"
@@ -99,6 +100,59 @@ uint32_t normalizeQwcFromArg(uint32_t value) {      // Support.h:1254
 // (future) native GS/VIF consumer. Shortcut: walk-and-count only (see header).
 void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
                     uint32_t qwc, uint32_t tadr) {
+    // W3 step 1 (docs/native-reference/w13-gs-sink-design.md): survey the VIF1
+    // code subset the game actually streams. Encoding mirrors the oracle's
+    // ps2_vif1_interpreter.cpp (opcode=(w>>24)&0x7F, imm=w&0xFFFF,
+    // num=(w>>16)&0xFF); opcode table cited there. VIF1 only (0x10009000):
+    // the GIF channel payload is GIF packets, counted at segment level.
+    static const bool vifHist = std::getenv("RT_VIF_HIST") != nullptr;
+    static std::map<uint32_t, uint64_t> ops;     // VIF1 opcodes seen (key: opcode | entry<<8)
+    static std::map<uint32_t, uint64_t> gifSegs; // GIF chain segs by tag upper bits[61:58]
+    static uint64_t vsegs = 0, gsegs = 0, gqw = 0;
+    auto hist = [&](uint32_t chan, uint32_t addr, uint32_t qw) {
+        if (!vifHist || chan != 0x10009000u) return;
+        const uint8_t* p = rtguest::kRam + (addr & 0x01FFFFFFu);
+        const uint32_t bytes = qw * 16u;
+        uint32_t pos = 0;
+        while (pos + 4 <= bytes) {
+            uint32_t w;
+            std::memcpy(&w, p + pos, 4);
+            const uint32_t op = (w >> 24) & 0x7Fu;
+            const uint32_t imm = w & 0xFFFFu;
+            const uint32_t num = (w >> 16) & 0xFFu;
+            uint32_t advance = 4;
+            uint32_t key = op;
+            if (op == 0x14u || op == 0x15u) {
+                key = op | ((imm & 0x3FFu) << 8);   // MSCAL/MSCALF: record entry PC
+            } else if (op == 0x20u || op == 0x30u || op == 0x31u) {
+                advance = 20;                        // +4 data words
+            } else if (op == 0x4Au) {
+                advance = 4 + (num == 0u ? 256u : num) * 8u;
+            } else if (op == 0x50u || op == 0x51u) {
+                uint32_t q = imm == 0u ? 65536u : imm;
+                if (4u + q * 16u > bytes - pos) q = (bytes - pos - 4u) / 16u;
+                advance = 4 + q * 16u;
+            } else if ((op & 0x60u) == 0x60u) {
+                const uint32_t vecBytes = (op & 0x3u) == 0u ? 2u
+                    : (op & 0x3u) == 1u ? 4u : (op & 0x3u) == 2u ? 8u : 16u;
+                key = op;                            // (vn,vl) in low 6 bits already
+                advance = 4 + (num == 0u ? 256u : num) * vecBytes;
+            }
+            ++ops[key];
+            if (pos + advance > bytes) break;        // desync guard: stop, don't wander
+            pos += advance;
+        }
+        if (++vsegs % 2000u == 0u) {
+            std::fprintf(stderr, "[vifhist] segs=%llu\n", (unsigned long long)vsegs);
+            for (auto& [k, c] : ops)
+                if (k > 0xFFu)
+                    std::fprintf(stderr, "  op=%#x mscal_pc=%#x count=%llu\n",
+                                 k & 0xFFu, (k >> 8) * 8u, (unsigned long long)c);
+                else
+                    std::fprintf(stderr, "  op=%#x count=%llu\n", k,
+                                 (unsigned long long)c);
+        }
+    };
     uint64_t words = 0;
     uint32_t links = 0;
     if ((chcr & 0x4u) != 0u) {  // MODE=1 chain
@@ -110,6 +164,18 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
             const uint32_t id = static_cast<uint32_t>((tag[0] >> 28) & 0x7u);
             const uint32_t next = static_cast<uint32_t>((tag[0] >> 32) & 0x7FFFFFFFu);
             words += 1u + tq;
+            hist(channelBase, addr + 16u, tq);
+            if (vifHist && channelBase == 0x1000A000u) {  // GIF tags: path/NPIX field
+                ++gifSegs[static_cast<uint32_t>((tag[1] >> 58) & 0x3Fu)];
+                if (++gsegs % 500u == 0u) {
+                    std::fprintf(stderr, "[gifhist] segs=%llu qw=%llu\n",
+                                 (unsigned long long)gsegs, (unsigned long long)gqw);
+                    for (auto& [k, c] : gifSegs)
+                        std::fprintf(stderr, "  taghi=%#x segs=%llu\n", k,
+                                     (unsigned long long)c);
+                }
+                gqw += tq;
+            }
             ++links;
             if (id == 1u || id == 3u) addr = next;       // CALL / END use addr
             else if (id == 0u) addr = next;              // REFE: ref-end, link
@@ -118,7 +184,8 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
         }
     } else {
         words = 1u + qwc;                                // normal: madr count (qwc words)
-        (void)madr;
+        if ((chcr & 0x40u) != 0u) hist(channelBase, tadr + 16u, qwc);  // TTE: tag heads block
+        else hist(channelBase, madr, qwc);
     }
     if (dmaTrace())
         std::fprintf(stderr, "[dma] ch=0x%x chcr=0x%x madr=0x%x qwc=0x%x tadr=0x%x "
@@ -194,6 +261,28 @@ int32_t submitSync(uint32_t chanArg, uint32_t mode) {  // Support.h:1440
 }
 
 }  // namespace
+
+// CHCR write trap for the typed MMIO staging slots (guest_shim.h MmioReg):
+// a guest store to CHCR with STR set is a DMA kick — the oracle's recompiled
+// sendTexturePackets (0x207b50) and vifKick (0x2271f0) hit PS2Memory's DMAC
+// device with these stores; our transliterated bodies write the Ghidra-named
+// reg globals, so the device effect belongs here (docs/native-reference/
+// w12-kernel-design.md, MMIO staging). Payload args come from the channel's
+// own staging regs, exactly as the kickers wrote them a moment earlier.
+void eeDmaChcrTrap(uint32_t regAddr, uint32_t x) {
+    constexpr uint32_t kVif1Chcr = 0x10009000u, kGifChcr = 0x1000A000u;
+    if (regAddr != kVif1Chcr && regAddr != kGifChcr) return;
+    const bool gif = regAddr == kGifChcr;
+    const uint32_t madr = toDmaPhys(gif ? REG_DMAC_2_GIF_MADR : REG_DMAC_1_VIF1_MADR);
+    const uint32_t qwc = (gif ? REG_DMAC_2_GIF_QWC : REG_DMAC_1_VIF1_QWC) & 0xFFFFu;
+    const uint32_t tadr = toDmaPhys(gif ? REG_DMAC_2_GIF_TADR : REG_DMAC_1_VIF1_TADR);
+    if ((x & 0x1u) != 0u) {  // STR: walk + complete (synchronous data plane)
+        consumeChannel(regAddr, x, madr, qwc, tadr);
+        g_dmaPendingPolls[regAddr] = 1;
+        rtguest::kFireDmacCause(gif ? 2u : 1u);
+    }
+    dmaWrite(regAddr, x & ~0x101u);  // completion visible in the reg file
+}
 
 uint32_t sceDmaGetChan(uint32_t chanArg, ...) {
     return resolveDmaChannelBase(chanArg);
@@ -283,3 +372,10 @@ uint32_t sceDmaSync(uint32_t chanArg, uint32_t mode, uint32_t param_3, ...) {
 RT_STUB_FN(0x00270A20, guest::sceDmaSync)
 
 }  // namespace guest
+
+rtguest::MmioReg& rtguest::MmioReg::operator=(uint32_t x) {
+    value = x;
+    guest::eeDmaChcrTrap(addr, x);
+    value &= ~0x101u;  // STR/tag-int auto-clear on completion: unblocks guest poll loops
+    return *this;
+}

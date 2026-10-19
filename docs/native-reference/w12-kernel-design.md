@@ -142,8 +142,12 @@ Documented deviations from the oracle (all shortcut-commented in code):
   the ring consumer thread may never exist on either side — our kernel mirrors the
   rejection exactly; probe the oracle to confirm which threads it really creates.)
 
-Still pending in W12: MMIO staging (VIF1 block + DMAC-GIF), port 0x00207b50, oracle
-interleaving probe.
+Still pending in W12: oracle interleaving probe. (MMIO staging + the
+0x00207b50 model landed as increment 8: DMAC CHCR staging regs are typed
+`rtguest::MmioReg` write traps — a guest CHCR.STR store from the ported
+sendTexturePackets/vifKick bodies walks the chain (consumeChannel), marks
+pending polls, fires the channel cause and auto-clears STR/tag-int, mirroring
+the oracle's PS2Memory DMAC device; the transliterated kickers stay as-is.)
 
 ## Stub mirror layer (increments 2+3)
 
@@ -208,8 +212,9 @@ Boot diagnostic now reaches `state=TITLE` (`Initialize Start...` →
   Support.h:1338/1440; chains/normal transfers are WALKED and walk-discarded
   — `consumeChannel()` is the seam for the future native GS sink. Completion
   fires `kFireDmacCause` (kernel dmac chain + EnableDmacHandler mask).
-  `submitSync` also completes direct-MMIO kicks (guest wrote CHCR.STR itself,
-  e.g. sendTexturePackets@00207b50 writes 0x105): STR/busy cleared + cause.
+  Direct-MMIO kicks (sendTexturePackets@00207b50 CHCR 0x105, vifKick@002271f0
+  CHCR 0x145) complete via the MmioReg CHCR write trap (inc-8); the earlier
+  `submitSync`-side completion covers the HLE-libsdma path.
 - Wave 4 `guest_libs_cd.cpp` (13) + `guest_libs_fs.cpp` (9): sceCdRead =
   synchronous sector copy → return 1 (oracle CD.cpp:226); disc substrate =
   extracted tree + `.lbn_map.tsv` sidecar (path→ISO LBA; the game's CD LSN
@@ -270,4 +275,6 @@ per vblank), RT_BOOT_START (pad Start injection), RT_FAULT_BT (backtrace on
 first hit of each fault key), RT_STATE_HASH=<file> + RT_STATE_HASH_INTERVAL
 (ee= FNV-1a RAM hashes per vblank, mirroring the oracle ps2_test_harness) and
 RT_RAM_DUMP="vb:path,..." (raw 32MB kRam slices for byte diffing against
-oracle socket state_dump EERM chunks; pair native vb+1 with oracle vb).
+oracle socket state_dump EERM chunks; pair native vb+1 with oracle vb), and
+RT_VIF_HIST (W3 step 1: histogram VIF1 opcodes/MSCAL entries + GIF chain
+segments during the walk; stderr [vifhist]/[gifhist]).

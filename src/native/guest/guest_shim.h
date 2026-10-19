@@ -96,7 +96,24 @@ uint64_t callGuest(uint32_t addr, uint64_t a0 = 0, uint64_t a1 = 0,
                    uint64_t a5 = 0, uint64_t a6 = 0, uint64_t a7 = 0);
 uint64_t fnEntry(uint32_t addr);  // lookup only, 0 if absent
 
+// W12 MMIO staging (docs/native-reference/w12-kernel-design.md): a DMAC CHCR
+// slot with a write trap, so the guest's own kick stores (sendTexturePackets
+// 0x207b50, vifKick 0x2271f0 writing CHCR.STR through the Ghidra-named reg
+// globals) complete the transfer — the oracle sees those stores in
+// PS2Memory's DMAC device model. Completion auto-clears STR, which is what
+// unblocks the guest wait-loops polling CHCR & 0x100. Body in
+// guest_libs_dma.cpp; the rest of the register file stays plain uint32_t
+// staging slots.
+struct MmioReg {
+    uint32_t addr;
+    uint32_t value = 0;
+    operator uint32_t() const { return value; }
+    MmioReg& operator=(uint32_t x);
+};
+
 }  // namespace rtguest
+
+namespace guest { void eeDmaChcrTrap(uint32_t regAddr, uint32_t x); }
 
 // Transliterator-emitted registration.
 #define RT_GUEST_FN(addr, name)                                        \

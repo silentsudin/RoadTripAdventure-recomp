@@ -521,6 +521,12 @@ const std::vector<EnhancementSpec>& registryTable() {
           "code:src/native/app/main.cpp|docs/native-reference/w12-kernel-design.md",
           RetentionStatus::Wired,
           "W12: raw 32MB kRam slices at vblank list \"vb:path,...\"; diffed against oracle socket state_dump EERM chunks (parity localization)"},
+         {"vif_hist", "-",
+          "RT_VIF_HIST", "", "off", "diagnostic (W3)",
+          "src/native/guest/guest_libs_dma.cpp",
+          "code:src/native/guest/guest_libs_dma.cpp|docs/native-reference/w13-gs-sink-design.md",
+          RetentionStatus::Wired,
+          "W3 step 1: histogram the VIF1 code subset (opcodes, MSCAL entries) and GIF chain segments (tag path fields) while consumeChannel walks; stderr [vifhist]/[gifhist]"},
      };
     return kRegistry;
 }

@@ -1075,11 +1075,19 @@ def main() -> None:
                 report["stage_collision"].append(n)
                 continue
             staged.append(f"    inline uint32_t {n} = 0;\n")
+        mmio_trap = {"REG_DMAC_1_VIF1_CHCR": "0x10009000",
+                     "REG_DMAC_2_GIF_CHCR": "0x1000A000"}
+
+        def reg_decl(r):
+            if r in mmio_trap:
+                return (f"    inline rtguest::MmioReg {r}{{{mmio_trap[r]}u}};"
+                        "  // MMIO write trap (W12): STR stores kick the channel\n")
+            return f"    inline uint32_t {r}{{}};  // EE MMIO staging (W12)\n"
+
         out = ROOT / "build/decomp/guest_decls.inc"
         out.write_text("#pragma once\nnamespace guest {\n"
                        + "\n".join(sorted(decls.values())) + "\n"
-                       + "".join(f"    inline uint32_t {r}{{}};  // EE MMIO staging (W12)\n"
-                                 for r in regs)
+                       + "".join(reg_decl(r) for r in regs)
                        + "".join(staged)
                        + "}\n")
         print(f"decls: {len(decls)} -> {out}, dup_def {len(aliased)}, ee_regs {len(regs)}, "
