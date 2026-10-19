@@ -189,7 +189,7 @@ LAB_0022e290:
       iVar18 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x18)));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 4))) = 0xffffffff;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar18 + 0x24))) = 1;
-      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0xc))) = (*(uint8_t*)rtguest::G(0x22ecb8));
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0xc))) = 0x22ecb8;
     }
     bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x27)));
   }

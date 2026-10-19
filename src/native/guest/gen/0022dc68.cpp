@@ -37,7 +37,7 @@ LAB_0022dd94:
               iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));
               uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
               (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2))) = 0;
-              (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = (*(uint8_t*)rtguest::G(0x22eac8));
+              (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 0x22eac8;
               (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = uVar2 & 0xfffffeff | 0x10000;
               gs_tasks_kill(param_1);
               iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10)));

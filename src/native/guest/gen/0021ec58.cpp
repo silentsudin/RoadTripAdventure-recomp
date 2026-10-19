@@ -28,7 +28,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
   }
   else {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffffbff;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x21e690));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x21e690;
   }
   ComputeChaseCameraBasis
             (auStack_b0,auStack_70,0x0177e9f0 + iVar3,0x177ac50 + uVar2 * 0x4e);

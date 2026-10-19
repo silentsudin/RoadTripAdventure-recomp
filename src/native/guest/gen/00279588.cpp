@@ -28,7 +28,7 @@ uint32_t puStack_40;
   (*(uint32_t*)rtguest::G(0x2e89a0)) = 0;
   (*(uint32_t*)rtguest::G(0x2e89a4)) = 0;
   sceSdRemote(1,0xe620);
-  pcStack_4c = (*(uint8_t*)rtguest::G(0x279660));
+  pcStack_4c = 0x279660;
   puStack_48 = 0x01773a00;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_44)) = 0x1000;
   puStack_40 = 0x33aaf0;

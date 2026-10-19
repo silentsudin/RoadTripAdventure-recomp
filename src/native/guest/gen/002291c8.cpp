@@ -58,7 +58,7 @@ LAB_0022927c:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) == 0) {
 LAB_002294c4:
       uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c)));
-      pcVar3 = (*(uint8_t*)rtguest::G(0x228708));
+      pcVar3 = 0x228708;
 LAB_002294cc:
       gs_tasks_spawn(param_1,pcVar3,uVar2);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 7;
@@ -103,7 +103,7 @@ LAB_002294cc:
       goto LAB_002294a0;
     }
     uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c)));
-    pcVar3 = (*(uint8_t*)rtguest::G(0x22a168));
+    pcVar3 = 0x22a168;
     goto LAB_002294cc;
   case 7:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) == 1) {

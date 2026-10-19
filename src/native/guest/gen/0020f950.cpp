@@ -250,7 +250,7 @@ LAB_002100fc:
   if (bVar12 != 8) {
     gs_tasks_spawn(param_1,0x22c4a8,0);
   }
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0xc))) = (*(uint8_t*)rtguest::G(0x20f3b8));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0xc))) = 0x20f3b8;
   return 0;
 }
 

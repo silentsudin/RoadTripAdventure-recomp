@@ -16,7 +16,7 @@ uint32_t puVar2;
   iVar6 = (int)param_1;
   iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) == 0) {
-    uVar3 = uiMenuCreate();
+    uVar3 = uiMenuCreate(param_1);
     uiMenuAddItem(uVar3,0x32f8d0,0x10);
     uiMenuAddItem(uVar3,0x32f8e0,0x10);
     uiMenuAddItem(uVar3,0x32f8f0,0x10);
@@ -40,7 +40,7 @@ uint32_t puVar2;
     lVar4 = uiMenuRun(iVar5,param_2);
     if (lVar4 != 0) {
       if (lVar4 == -1) {
-        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd))) = 0;
+        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd))) = 0;
       }
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd)));
       if (cVar1 == '\x01') {

@@ -38,10 +38,10 @@ uint32_t puVar6;
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 0xffffffff;
-      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = (*(uint8_t*)rtguest::G(0x2568d8));
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 0x2568d8;
     }
     else {
-      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = (*(uint8_t*)rtguest::G(0x256640));
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 0x256640;
       PlayUiSound(0x1b);
     }
   }

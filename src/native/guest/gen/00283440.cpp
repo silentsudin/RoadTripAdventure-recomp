@@ -24,7 +24,7 @@ uint32_t auStack_90 = rtguest::allocFrame(4);
       bVar1 = ((*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) & 0xf000) == 0x2000;
       if (((*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) & 0xf000) == 0x8000) {
         uVar3 = (*(uint16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint32_t)));
-        if ((uint32_t)(*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(10) * sizeof(int32_t))) != (*(uint8_t*)rtguest::G(0x284838))) goto LAB_002834f4;
+        if ((uint32_t)(*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(10) * sizeof(int32_t))) != 0x284838) goto LAB_002834f4;
         (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x13) * sizeof(int32_t))) = 0x400;
         uVar3 = uVar3 | 0x400;
       }
@@ -51,7 +51,7 @@ LAB_002834fc:
   }
   else {
     (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int32_t))) = (int)lVar2;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(int32_t))) + 0x3c))) = (*(uint8_t*)rtguest::G(0x2829a8));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(int32_t))) + 0x3c))) = 0x2829a8;
     (*(uint16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint32_t))) = uVar3 | 0x80;
     (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(5) * sizeof(int32_t))) = 0x400;
     (*(int32_t*)rtguest::G((uint32_t)param_1)) = (int)lVar2;

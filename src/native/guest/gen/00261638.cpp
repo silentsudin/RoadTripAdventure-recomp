@@ -46,7 +46,7 @@ uint32_t puVar11;
       iVar4 = 10000;
     }
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8014))) = iVar4;
-    iVar4 = CountDecimalDigits();
+    iVar4 = CountDecimalDigits(iVar4);  // 2616bc movz loads clamped value into $4
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x801c))) = 0;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8018))) = iVar4 + -1;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) = 1;

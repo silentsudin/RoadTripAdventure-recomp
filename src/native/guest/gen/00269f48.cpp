@@ -192,7 +192,7 @@ uint32_t puVar20;
       uiDrawTime(0x1a4,0xa5,(int)((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x017801ac + iVar15))) << 8) >> 8,0);
     }
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_60)) + 0x30))) & 0x10) == 0) {
-      cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
+      cVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
       goto LAB_0026a8dc;
     }
 LAB_0026a8cc:
@@ -240,12 +240,12 @@ LAB_0026a2a4:
     iVar17 = uiTextWidth(auStack_110);
     uiDrawText(600 - iVar17,(iVar15 * 0x1d) / 2 + 0x21,auStack_110,0);
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_60)) + 0x30))) & 0x10) == 0) {
-      cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
+      cVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
       goto LAB_0026a8dc;
     }
     goto LAB_0026a8cc;
   default:
-    cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
+    cVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
     goto LAB_0026a8dc;
   }
   iVar15 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x28)));
@@ -277,13 +277,13 @@ LAB_0026a2a4:
     }
   }
   if ((uVar2 & 0x10) == 0) {
-    cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
+    cVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
   }
   else {
     PlayUiSound(0x1b);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26))) = 1;
 LAB_0026a8d8:
-    cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
+    cVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x26)));
   }
 LAB_0026a8dc:
   if (cVar3 != '\0') {

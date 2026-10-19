@@ -21,7 +21,7 @@ uint32_t MemoryCardOpenWriteTask(uint32_t param_1, ...) {
     gs_tasks_kill(param_1);
     return 0;
   }
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x228708));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x228708;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x25))) = 7;
   return 0;
 }

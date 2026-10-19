@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t knockCollectMaskThunk(uint32_t q0, ...) {
-  KnockCollectMaskGates();
+  KnockCollectMaskGates(q0);  // tail j 267f14
   return 0;
 }
 

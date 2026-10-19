@@ -40,7 +40,7 @@ LAB_002569e8:
   else if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x18))) + 0x27))) == '\x04') {
 LAB_00256a3c:
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) = 0xffc8;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = (*(uint8_t*)rtguest::G(0x256a78));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 0x256a78;
     SlideInPaintEditorWindow(param_1,param_2);
     return 0;
   }

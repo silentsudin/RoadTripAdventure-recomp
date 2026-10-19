@@ -5,9 +5,9 @@
 namespace guest {
 
 uint32_t enterShopPartsSellMenu(uint32_t param_1, ...) {
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x268e40));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x268e40;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) | 2;
-  shopPartsSellMenuTask();
+  shopPartsSellMenuTask(param_1);  // jalr $3, $4 kept from entry (269e54 move $6,$4)
   return 0;
 }
 

@@ -12,7 +12,7 @@ uint32_t pcVar1;
   lVar2 = ClassifyObjectContext(param_2);
   iVar3 = (int)param_1;
   if (lVar2 == 2) {
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = (*(uint8_t*)rtguest::G(0x269900));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 0x269900;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) = 0;
   }
   else {
@@ -22,7 +22,7 @@ uint32_t pcVar1;
         goto LAB_00269f28;
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) = 0;
-      pcVar1 = (*(uint8_t*)rtguest::G(0x269568));
+      pcVar1 = 0x269568;
     }
     else {
       if (lVar2 != 4) {
@@ -30,7 +30,7 @@ uint32_t pcVar1;
         goto LAB_00269f28;
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) = 0;
-      pcVar1 = (*(uint8_t*)rtguest::G(0x268e40));
+      pcVar1 = 0x268e40;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = pcVar1;
   }

@@ -133,7 +133,7 @@ LAB_00229cf4:
   }
 LAB_00229ee4:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 8))) = 0;
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0xc))) = (*(uint8_t*)rtguest::G(0x22a2f8));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0xc))) = 0x22a2f8;
   return 0;
 }
 

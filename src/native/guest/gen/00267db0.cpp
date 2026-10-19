@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t hintCollectMaskThunk(uint32_t q0, ...) {
-  HintCollectMaskGates();
+  HintCollectMaskGates(q0);  // tail j 267dbc, $4 passthrough
   return 0;
 }
 

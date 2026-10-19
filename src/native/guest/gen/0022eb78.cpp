@@ -49,7 +49,7 @@ LAB_0022ec64:
     uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28)));
   }
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 2))) = 0;
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xc))) = (*(uint8_t*)rtguest::G(0x22ee00));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xc))) = 0x22ee00;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = uVar4 | 8;
   PlayBgmSlot5();
   uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));

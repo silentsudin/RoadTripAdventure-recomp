@@ -38,11 +38,11 @@ uint32_t DispatchCourseEffect(uint32_t param_1, uint32_t param_2, ...) {
     gs_tasks_kill(param_1);
     return 0;
   case 2:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23e140));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23e140;
     EmptyStub2(param_1);
     return 0;
   case 3:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x241688));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x241688;
     InitializeEffectPackets();
     iVar2 = 0;
     do {
@@ -52,35 +52,35 @@ uint32_t DispatchCourseEffect(uint32_t param_1, uint32_t param_2, ...) {
     } while (iVar1 < 6);
     break;
   case 4:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x241760));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x241760;
     EmptyStub2(param_1);
     return 0;
   case 5:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23e508));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23e508;
     EmptyStub2(param_1);
     return 0;
   case 7:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x241838));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x241838;
     EmptyStub2(param_1);
     return 0;
   case 10:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23e7e0));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23e7e0;
     EmptyStub2(param_1);
     return 0;
   case 0xc:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23e8d0));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23e8d0;
     EmptyStub2(param_1);
     return 0;
   case 0xd:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23e9c0));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23e9c0;
     EmptyStub2(param_1);
     return 0;
   case 0xe:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23eca0));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23eca0;
     EmptyStub2(param_1);
     return 0;
   case 0x13:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x241ba0));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x241ba0;
     InitializeEffectPackets();
     iVar2 = 6;
     do {
@@ -90,27 +90,27 @@ uint32_t DispatchCourseEffect(uint32_t param_1, uint32_t param_2, ...) {
     } while (iVar1 < 0xd);
     break;
   case 0x14:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x241840));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x241840;
     EmptyStub2(param_1);
     return 0;
   case 0x1d:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23ee70));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23ee70;
     EmptyStub2(param_1);
     return 0;
   case 0x1f:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23efb0));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23efb0;
     EmptyStub2(param_1);
     return 0;
   case 0x22:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23f0a0));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23f0a0;
     EmptyStub2(param_1);
     return 0;
   case 0x25:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x23f398));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x23f398;
     EmptyStub2(param_1);
     return 0;
   case 0xff:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x2412e0));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x2412e0;
     EmptyStub2();
     return 0;
   }

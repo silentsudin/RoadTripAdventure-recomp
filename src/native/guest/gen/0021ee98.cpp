@@ -36,13 +36,13 @@ LAB_0021ef70:
       return 0;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = 0;
-    pcVar3 = (*(uint8_t*)rtguest::G(0x21ef98));
+    pcVar3 = 0x21ef98;
   }
   else {
     InitializeTask((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))),0x238b18,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) & 1);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = 0;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = 0;
-    pcVar3 = (*(uint8_t*)rtguest::G(0x21e328));
+    pcVar3 = 0x21e328;
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = pcVar3;
   return 0;

@@ -57,7 +57,7 @@ uint32_t piVar6;
         return 0;
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) = 0;
-      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xc))) = (*(uint8_t*)rtguest::G(0x239748));
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xc))) = 0x239748;
       ShowSequencedMessages(param_1,param_2);
       PlayUiSound(0x1b);
       return 0;

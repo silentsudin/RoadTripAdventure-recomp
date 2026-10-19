@@ -11,7 +11,7 @@ uint32_t FlagIndexBitsUpTo(uint32_t param_1, uint32_t param_2, uint32_t param_3,
   uint uVar4;
   
   if (param_3 == 0xffffffff) {
-    iVar1 = CountSetBitsInByteArray();
+    iVar1 = CountSetBitsInByteArray(param_1,param_2);  // tail j 0x24f3b8, $4/$5 passthrough
     return iVar1;
   }
   if (param_3 < param_2 << 5) {

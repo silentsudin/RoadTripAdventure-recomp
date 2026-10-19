@@ -343,7 +343,7 @@ LAB_0020da68:
         ClearTaskPoolFlag();
       }
       (*(uint32_t*)rtguest::G(0x333370)) = 0;
-      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0xc))) = (*(uint8_t*)rtguest::G(0x20df98));
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0xc))) = 0x20df98;
       return 0;
     }
     (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) + 1;

@@ -40,7 +40,7 @@ uint32_t puVar2;
                                 CONCAT13((*(int8_t*)rtguest::G((uint32_t)__dest + (uint32_t)(4) * sizeof(int8_t))),(uint32_t)(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)param_2))));
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) = 0;
-      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = (*(uint8_t*)rtguest::G(0x25be30));
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 0x25be30;
     }
   }
   drawTextEntryGrid(param_1);

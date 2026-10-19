@@ -45,7 +45,7 @@ uint32_t puVar13;
   puVar13 = 0x177e6d0 + ((uVar12 * 2 + uVar8) * 8 + uVar8) * 0x10;
   bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)));
   if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) == -1) {
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x21ed90));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x21ed90;
     CameraWaitOrCutsceneState();
   }
   else {

@@ -15,7 +15,7 @@ uint32_t pbVar5;
   iVar6 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) == 0) {
     iVar6 = 0x1c;
-    uVar3 = uiMenuCreate();
+    uVar3 = uiMenuCreate(param_1);
     pbVar5 = 0x002bdf90;
     bVar1 = (*(uint8_t*)rtguest::G(0x2bdf90));
     while( true ) {
@@ -38,7 +38,7 @@ uint32_t pbVar5;
     else if (lVar4 == -1) {
       PlayUiSound(0x1b);
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));
-      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) = 1;
+      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) = 1;
       gs_tasks_kill(param_1);
       return 0;

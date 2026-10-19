@@ -39,14 +39,14 @@ uint32_t aiStack_40 = rtguest::allocFrame(16);
   }
   if ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x20))) == (*(uint32_t*)rtguest::G((uint32_t)puVar7))) {
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));
-    pcVar2 = (*(uint8_t*)rtguest::G(0x2568d8));
+    pcVar2 = 0x2568d8;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 0xffffffff;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
   }
   else {
     PlayUiSound(0x1a);
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) == '\0') {
-      pcVar2 = (*(uint8_t*)rtguest::G(0x23bb88));
+      pcVar2 = 0x23bb88;
       pcVar5 = 0x334530u;
 LAB_00256820:
       gs_tasks_spawn(param_1,pcVar2,pcVar5);
@@ -62,13 +62,13 @@ LAB_00256820:
       }
       if ((*(uint32_t*)rtguest::G(0x177fdb4)) < iVar4) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 0;
-        pcVar2 = (*(uint8_t*)rtguest::G(0x23bb00));
+        pcVar2 = 0x23bb00;
         pcVar5 = 0x328448u;
         goto LAB_00256820;
       }
       gs_tasks_spawn(param_1,0x23bb88,0x334538);
     }
-    pcVar2 = (*(uint8_t*)rtguest::G(0x2564e8));
+    pcVar2 = 0x2564e8;
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xc))) = pcVar2;
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 2))) = 0;

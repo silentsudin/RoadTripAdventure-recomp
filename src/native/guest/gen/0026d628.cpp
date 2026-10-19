@@ -9,7 +9,7 @@ uint32_t ApplyRacePlayerMode(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x21))) = 9;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) = 8;
     SpawnTownDialogueTasks();
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x26d678));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x26d678;
   }
   return 0;
 }

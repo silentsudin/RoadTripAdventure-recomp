@@ -25,8 +25,8 @@ uint32_t StartCourseEventTask(uint32_t param_1, uint32_t param_2, ...) {
   if (lVar1 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) | 2;
   }
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x2c))) = (*(uint8_t*)rtguest::G(0x22c630));
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = (*(uint8_t*)rtguest::G(0x22aeb0));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x2c))) = 0x22c630;
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 0x22aeb0;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) = 0;
   shopScene(param_1,param_2);
   gs_tasks_spawn(param_1,0x208270,0);

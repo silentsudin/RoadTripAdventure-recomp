@@ -73,7 +73,7 @@ uint32_t pauseMenuTask(uint32_t param_1, uint32_t param_2, ...) {
           (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) ^ 0x80;
           break;
         case 6:
-          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xc))) = (*(uint8_t*)rtguest::G(0x26d020));
+          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xc))) = 0x26d020;
         }
       }
     }

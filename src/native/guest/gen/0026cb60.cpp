@@ -40,7 +40,7 @@ uint32_t StartAreaIntroDayCycle(uint32_t param_1, uint32_t param_2, ...) {
     if (sVar1 != 0x34c) {
       if ((cVar3 == '\x02') && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xf))) == '\0')) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) = 0;
-        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = (*(uint8_t*)rtguest::G(0x26d1c0));
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 0x26d1c0;
         gs_tasks_spawn(param_1,0x26a928,0);
         PlayBgmSlot1();
         cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));

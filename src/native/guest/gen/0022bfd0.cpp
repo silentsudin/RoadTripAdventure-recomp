@@ -55,7 +55,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
       }
       else {
         gs_tasks_spawn(param_1,0x20dc50,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x0177f778 + 2)) | 0xa0000);
-        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x22c5f0));
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x22c5f0;
       }
     }
   }

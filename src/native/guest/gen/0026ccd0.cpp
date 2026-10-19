@@ -51,14 +51,14 @@ uint32_t pcVar5;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 1;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));
       if (cVar1 == '\n') {
-        pcVar5 = (*(uint8_t*)rtguest::G(0x26cb60));
+        pcVar5 = 0x26cb60;
       }
       else {
         if (cVar1 != '\v') {
           gs_tasks_spawn(param_1,0x26ca48);
           return 0;
         }
-        pcVar5 = (*(uint8_t*)rtguest::G(0x26d2c0));
+        pcVar5 = 0x26d2c0;
       }
       gs_tasks_spawn(param_1,pcVar5,0);
     }

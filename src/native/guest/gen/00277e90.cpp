@@ -17,7 +17,7 @@ uint32_t sceCdInitEeCB(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...
     (*(uint32_t*)rtguest::G(0x1773590)) = (uint32_t)uVar2;
     ReferThreadStatus(uVar2,0x1773598);
     (*(uint32_t*)rtguest::G(0x17735d8)) = 0x33aaf0;
-    (*(uint32_t*)rtguest::G(0x17735cc)) = (*(uint8_t*)rtguest::G(0x277dd0));
+    (*(uint32_t*)rtguest::G(0x17735cc)) = 0x277dd0;
     (*(uint32_t*)rtguest::G(0x17735dc)) = (uint32_t)param_1;
     (*(uint32_t*)rtguest::G(0x17735d0)) = param_2;
     (*(uint32_t*)rtguest::G(0x17735d4)) = param_3;

@@ -51,7 +51,7 @@ uint32_t auStack_30 = rtguest::allocFrame(16);
       lVar2 = sceMcRead((*(int32_t*)rtguest::G((uint32_t)piVar4)),0x177f760 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x27))) * 0x689,
                         0x3448);
       if (lVar2 == 0) {
-        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = (*(uint8_t*)rtguest::G(0x2283e0));
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 0x2283e0;
       }
       else {
         ::printf((char *)rtguest::G((uint32_t)(0x2eb5f8u)), lVar2);

@@ -26,7 +26,7 @@ uint32_t puStack_70;
     lVar1 = CreateSema(auStack_50);
     (*(uint32_t*)rtguest::G(0x1776570)) = (uint32_t)lVar1;
     if (-1 < lVar1) {
-      pcStack_7c = (*(uint8_t*)rtguest::G(0x285d28));
+      pcStack_7c = 0x285d28;
       puStack_78 = 0x01776170;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_74)) = 0x400;
       puStack_70 = 0x33aaf0;

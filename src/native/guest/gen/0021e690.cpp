@@ -90,13 +90,13 @@ LAB_0021e8cc:
   }
   if ((((*(uint16_t*)rtguest::G((uint32_t)0x177ade8 + (uint32_t)(uVar13 * 0x138) * 2)) & 0x200) != 0) && (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 10))) & 2) == 0)) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) = 0;
-    pcVar3 = (*(uint8_t*)rtguest::G(0x21e4d8));
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = (*(uint8_t*)rtguest::G(0x21e4d8));
+    pcVar3 = 0x21e4d8;
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 0x21e4d8;
     goto LAB_0021e8cc;
   }
   if ((uVar2 & 0x400) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) = 0;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = (*(uint8_t*)rtguest::G(0x21ec58));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 0x21ec58;
     RunCameraZoomTransition(param_1,param_2);
     return 0;
   }

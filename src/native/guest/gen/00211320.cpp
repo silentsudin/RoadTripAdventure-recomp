@@ -32,7 +32,7 @@ uint32_t UpdateTwoPlayerMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     if (cVar1 == '\x05') {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) == -1) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 8))) = 0;
-        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = (*(uint8_t*)rtguest::G(0x211948));
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x211948;
       }
       else {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4)));

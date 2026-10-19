@@ -54,7 +54,7 @@ uint32_t puVar5;
   }
   iVar6 = (*(uint32_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(1) * sizeof(uint32_t)));
   (*(uint32_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(1) * sizeof(uint32_t))) = iVar6 + 1;
-  (*(uint32_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(iVar6 + 2) * sizeof(uint32_t))) = (*(uint8_t*)rtguest::G(0x27b628));
+  (*(uint32_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(iVar6 + 2) * sizeof(uint32_t))) = 0x27b628;
   return 0;
 }
 

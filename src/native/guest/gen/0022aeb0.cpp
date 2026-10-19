@@ -227,7 +227,7 @@ LAB_0022b238:
     if ((cVar8 != '\x04') || ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) == '\0')) goto LAB_0022b864;
     PlayBgmSlot5();
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) | 0x400000;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xc))) = (*(uint8_t*)rtguest::G(0x22c418));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xc))) = 0x22c418;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))) = 0;
     ReleaseStampFlag(param_2);
     goto switchD_0022b654_caseD_7;
@@ -275,7 +275,7 @@ switchD_0022b654_caseD_7:
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x18)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) | 0x400000;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))) = 0;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xc))) = (*(uint8_t*)rtguest::G(0x22c418));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xc))) = 0x22c418;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
     goto switchD_0022b654_caseD_7;
@@ -383,7 +383,7 @@ LAB_0022b864:
     vifKick(uVar7);
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) == '\v') {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) | 0x400000;
-      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xc))) = (*(uint8_t*)rtguest::G(0x22c418));
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xc))) = 0x22c418;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))) = 0;
       if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x1c))) & 2) == 0) {
         ReleaseStampFlag(param_2);

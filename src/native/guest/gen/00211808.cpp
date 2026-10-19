@@ -26,7 +26,7 @@ uint32_t StartTownExplorationTask(uint32_t param_1, uint32_t param_2, ...) {
   iVar1 = (*(uint32_t*)rtguest::G(0x177fdb8)) / 6000;
   iVar3 = (int)param_1;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 4;
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = (*(uint8_t*)rtguest::G(0x2105b8));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 0x2105b8;
   (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2))) = (short)iVar1;
   return 0;
 }

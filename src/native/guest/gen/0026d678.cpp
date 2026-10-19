@@ -12,7 +12,7 @@ uint32_t FinishBootPhase(uint32_t param_1, uint32_t param_2, ...) {
     gs_tasks_spawn(param_1,0x20dc50,0x70001);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) = 1;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x21))) = 0;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = (*(uint8_t*)rtguest::G(0x211808));
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = 0x211808;
   }
   return 0;
 }

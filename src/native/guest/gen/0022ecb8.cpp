@@ -39,7 +39,7 @@ uint32_t pbVar4;
     }
     bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
   }
-  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = (*(uint8_t*)rtguest::G(0x22eb78));
+  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 0x22eb78;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = bVar1 ^ 0x3f;
   UpdateZoneCheckFrame(param_1,param_2);
   return 0;

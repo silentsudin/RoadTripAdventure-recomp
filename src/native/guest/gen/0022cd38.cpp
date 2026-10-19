@@ -121,7 +121,7 @@ LAB_0022d0a8:
         iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 10;
-        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xc))) = (*(uint8_t*)rtguest::G(0x22c418));
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xc))) = 0x22c418;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 0x400000;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) = 0;
         PlayBgmSlot5();
