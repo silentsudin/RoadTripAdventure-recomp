@@ -167,8 +167,8 @@ LAB_00250c24:
       uVar7 = (uint32_t)(iVar9 < 1);
     }
   }
-  if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x246))) != '\0') {
-    iVar9 = ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1b8))) * 0xd8) / 0x14000 - (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x246)));
+  if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x246))) != '\0') {
+    iVar9 = ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1b8))) * 0xd8) / 0x14000 - (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x246)));
     if (0 < iVar9) {
       uVar7 = 0;
     }

@@ -42,13 +42,13 @@ uint32_t puVar8;
     break;
   case 2:
     GetOrSetPresidentRaceResult((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))));
-    if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) == 0) {
+    if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) == 0) {
       uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
     }
     else {
-      GetOrSetPresidentRaceResult((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) ^ 3);
+      GetOrSetPresidentRaceResult((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) ^ 3);
       if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) == 0) {
-        if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1) != 0) {
+        if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1) != 0) {
           SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),0,1);
         }
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) & 0x1000200) == 0x200) {
@@ -58,10 +58,10 @@ uint32_t puVar8;
         uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
       }
       else {
-        SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) >> 1,1);
-        if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) & ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) ^ 3)) == 0) {
-          SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1,1);
-          uVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1;
+        SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) >> 1,1);
+        if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) & ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) ^ 3)) == 0) {
+          SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1,1);
+          uVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1;
           (*(uint16_t*)rtguest::G((uint32_t)0x177ade8 + (uint32_t)(uVar4 * 0x138) * 2)) = (*(uint16_t*)rtguest::G((uint32_t)0x177ade8 + (uint32_t)(uVar4 * 0x138) * 2)) | 0x800;
 LAB_00259934:
           uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
@@ -97,7 +97,7 @@ LAB_002599a8:
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4)));
     goto LAB_002599ac;
   }
-  if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) == '\0') {
+  if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) == '\0') {
     bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
     if ((bVar6 & 1) == 0) {
       CheckCarArrivedAtZone(param_1,0);
@@ -105,10 +105,10 @@ LAB_002599a8:
     }
     if ((bVar6 & 2) == 0) {
       CheckCarArrivedAtZone(param_1,1);
-      cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
+      cVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
     }
     else {
-      cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
+      cVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
     }
     if (cVar1 != '\0') goto LAB_00259788;
     bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10)));

@@ -23,7 +23,7 @@ uint32_t shopPartsBuyMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   iVar12 = (int)param_1;
   uVar14 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x1c))) & 1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 8))) == 0) {
-    uVar8 = uiMenuCreate();
+    uVar8 = uiMenuCreate(param_1);
     LayoutTextItems(uVar8,0x2dc8e0,0xe,6);
     CenterRectangle(uVar8,5);
     iVar13 = (int)uVar8;
@@ -39,7 +39,7 @@ uint32_t shopPartsBuyMenuTask(uint32_t param_1, uint32_t param_2, ...) {
     if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x24))) != '\0') && (iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 4))), iVar3 != -1)) {
       iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dc8a8 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xd))) * 4)));
       iVar7 = DispatchByIndex15(iVar4,iVar3);
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) | 0x80;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) | 0x80;
       DestroyTaskRecord(param_1);
       uVar6 = countFlaggedSlotsAlt((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x23))),iVar4,iVar3);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) = uVar6;
@@ -61,7 +61,7 @@ uint32_t shopPartsBuyMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   }
   else if (bVar2 < 2) {
     if (bVar2 == 0) {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) & 0x7f;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) & 0x7f;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x25))) = 1;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x26))) = 1;
     }
@@ -96,7 +96,7 @@ LAB_00269804:
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) = 0;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x26))) = 1;
     }
-    if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) == '\0') && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x26))) != '\0')) {
+    if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) == '\0') && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x26))) != '\0')) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x26))) = 0;
       DestroyTaskRecord(param_1);
       gs_tasks_spawn(param_1,0x246250,

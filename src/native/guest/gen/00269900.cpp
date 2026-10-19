@@ -21,7 +21,7 @@ uint32_t shopBodySellMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   iVar10 = (int)param_1;
   uVar11 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x1c))) & 1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 8))) == 0) {
-    uiMenuCreate();
+    uiMenuCreate(param_1);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) = 0;
     return 0;
   }
@@ -84,14 +84,14 @@ uint32_t shopBodySellMenuTask(uint32_t param_1, uint32_t param_2, ...) {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 4))) == 0) {
         SetFlaggedSlotBit(0,uVar6,uVar11);
         SpendTimerBudget(uVar7,uVar11);
-        if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) != '\0') {
-          lVar8 = findFlaggedSlotIndexAlt((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x23))),0,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))))
+        if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) != '\0') {
+          lVar8 = findFlaggedSlotIndexAlt((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x23))),0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))))
           ;
           if (lVar8 != -1) {
             (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 0;
             goto LAB_00269b3c;
           }
-          (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) + -1;
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) + -1;
         }
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 0;
       }
@@ -113,7 +113,7 @@ LAB_00269b48:
       gs_tasks_spawn(param_1,0x269d50,0);
     }
     else {
-      gs_tasks_spawn(param_1,0x246250,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) << 8 | uVar11 << 0x14);
+      gs_tasks_spawn(param_1,0x246250,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x27))) << 8 | uVar11 << 0x14);
     }
   }
   return 0;

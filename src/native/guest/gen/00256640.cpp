@@ -21,8 +21,8 @@ uint32_t aiStack_40 = rtguest::allocFrame(16);
   (*(int32_t*)rtguest::G((uint32_t)aiStack_40 + (uint32_t)(2) * 4)) = 0;
   (*(int32_t*)rtguest::G((uint32_t)aiStack_40 + (uint32_t)(1) * 4)) = 0;
   (*(int32_t*)rtguest::G((uint32_t)aiStack_40 + (uint32_t)(0) * 4)) = 0;
-  if ((uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) - 1U) < 6) {
-    (*(int32_t*)rtguest::G((uint32_t)aiStack_40 + (uint32_t)((int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) - 1) % 3) * 4)) = 0xff;
+  if ((uint32_t)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) - 1U) < 6) {
+    (*(int32_t*)rtguest::G((uint32_t)aiStack_40 + (uint32_t)((int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) - 1) % 3) * 4)) = 0xff;
   }
   (*(uint64_t*)rtguest::G(0x175e6b8)) = (long)(*(int32_t*)rtguest::G((uint32_t)aiStack_40 + (uint32_t)(0) * 4)) | (long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 2))) << 0x1a |
                  (long)(*(int32_t*)rtguest::G((uint32_t)aiStack_40 + (uint32_t)(2) * 4)) << 0x10 | (long)(*(int32_t*)rtguest::G((uint32_t)aiStack_40 + (uint32_t)(1) * 4)) << 8;
@@ -32,7 +32,7 @@ uint32_t aiStack_40 = rtguest::allocFrame(16);
   uiSetQuadXY(0x175e6c0,((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) & 0x1f) << 2,0,0x80,0x80);
   DrawPaintCursorSprites(param_1,0x175b570);
   uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x30)));
-  if ((((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) != '\b') || ((uVar1 & 0x40) == 0)) && ((uVar1 & 0x10) == 0))
+  if ((((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) != '\b') || ((uVar1 & 0x40) == 0)) && ((uVar1 & 0x10) == 0))
   goto LAB_00256870;
   if ((uVar1 & 0x10) != 0) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 0;

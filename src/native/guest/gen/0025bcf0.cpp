@@ -10,13 +10,15 @@ uint32_t __dest;
 uint32_t __src;
 uint32_t puVar2;
   int iVar3;
+  uint32_t uVar4;
   
   iVar3 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) < 0x10) {
     uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) << 3);
   }
   else {
-    textEntryMoveCursor();
+    uVar4 = (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) << 3);  // 25bd24 sll $4,$3,3
+    textEntryMoveCursor(uVar4);
     lVar1 = textEntrySelectInput(param_1,param_2);
     if (lVar1 != 0) {
       __dest = (*(uint32_t*)rtguest::G((uint32_t)(0x2c40d4u + (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) * 3) * 4)));

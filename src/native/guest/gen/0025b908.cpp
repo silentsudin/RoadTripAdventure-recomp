@@ -14,7 +14,7 @@ uint32_t textEntryMoveCursor(uint32_t param_1, uint32_t param_2, ...) {
   ulong uVar6;
   ushort uVar7;
   
-  bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
+  bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
   uVar7 = (uint32_t)bVar2;
   uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x2c3b14u + (uint32_t)bVar2 * 4)));
   (*(uint16_t*)rtguest::G((uint32_t)uStack_20 + 0)) = (uint32_t)uVar6;
@@ -77,7 +77,7 @@ LAB_0025ba2c:
     uVar4 = uVar5 & 0x7fff;
   }
   if (uVar7 != uVar4) {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (char)uVar4;
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (char)uVar4;
     PlayUiSound(0x1d);
   }
   return 0;

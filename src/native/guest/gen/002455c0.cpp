@@ -172,8 +172,8 @@ LAB_00245a24:
       uVar15 = (uint32_t)(short)uVar14;
       if (uVar15 == 0) {
         if ((uVar4 & 0x2000) != 0) {
-          bVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) + 1;
-          (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) = bVar6;
+          bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) + 1;
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) = bVar6;
           if (bVar6 == bVar2) {
             (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) = 0;
           }
@@ -184,11 +184,11 @@ LAB_00245a14:
           goto LAB_00245a20;
         }
         if ((uVar4 & 0x8000) != 0) {
-          bVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
-          if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) == 0) {
+          bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
+          if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) == 0) {
             bVar6 = bVar2;
           }
-          (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) = bVar6 - 1;
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) = bVar6 - 1;
           (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 2))) = 0xfff8;
           goto LAB_00245a14;
         }
@@ -217,7 +217,7 @@ LAB_00245a14:
     else if (iVar24 == 1) {
       uVar17 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x20)));
       iVar24 = 0;
-      uVar13 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
+      uVar13 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
       while (uVar17 != 0) {
         uVar10 = uVar17 & 1;
         uVar17 = uVar17 >> 1;
@@ -265,7 +265,7 @@ LAB_00245b78:
         trap(7);
       }
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x25)));
-      fVar29 = (float)(int)(short)(((((int)((iVar24 + uVar17) - (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)))) %
+      fVar29 = (float)(int)(short)(((((int)((iVar24 + uVar17) - (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)))) %
                                      (int)uVar17) * 8 + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 2)))) * 0x2000) /
                                   (int)uVar17) * (*(uint32_t*)rtguest::G(0x332f3c)) * 3.0517578e-05;
       if (cVar1 == '\0') {
@@ -385,7 +385,7 @@ LAB_00245ee4:
     vifDirect(0x2a8b20,3);
     bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
     uVar17 = (uint32_t)(bVar2 >> 1);
-    bVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
+    bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
     do {
       if (bVar2 == 0) {
         trap(7);
@@ -406,7 +406,7 @@ LAB_00245ee4:
       iVar18 = -1;
 LAB_00245fa8:
       drawCarouselCells((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x28))),iVar18,param_2);
-      iVar24 = (int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) + uVar17) % (int)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
+      iVar24 = (int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) + uVar17) % (int)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
       if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26))) == 0) {
         trap(7);
       }
@@ -429,7 +429,7 @@ LAB_00246018:
       uVar17 = uVar17 - 1;
       if ((int)uVar17 < 0) goto LAB_002460ac;
       bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
-      bVar6 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
+      bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
     } while( true );
   }
   vifDirect(0x2a8b20,3);
@@ -439,7 +439,7 @@ LAB_00246018:
     trap(7);
   }
   uVar13 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x20)));
-  uVar17 = ((uint32_t)bVar2 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)))) % (uint32_t)bVar2;
+  uVar17 = ((uint32_t)bVar2 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)))) % (uint32_t)bVar2;
   iVar24 = -1;
   if (uVar13 != 0) {
     do {
@@ -464,7 +464,7 @@ LAB_002460ac:
     return 0;
   }
   uVar17 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x20)));
-  uVar13 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
+  uVar13 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
   while (uVar17 != 0) {
     uVar10 = uVar17 & 1;
     uVar17 = uVar17 >> 1;

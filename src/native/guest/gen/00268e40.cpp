@@ -24,7 +24,7 @@ uint32_t puVar10;
   uVar12 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x1c))) & 1;
   uVar14 = (int)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x1c))) >> 1 & 1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 8))) == 0) {
-    uVar8 = uiMenuCreate();
+    uVar8 = uiMenuCreate(param_1);
     LayoutTextItems(uVar8,0x2dc870,0xe,6);
     CenterRectangle(uVar8,5);
     iVar13 = (int)uVar8;
@@ -45,7 +45,7 @@ uint32_t puVar10;
   if (bVar2 == 1) {
     if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x24))) != '\0') && (iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 4))), iVar6 != -1)) {
       iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dc838 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xd))) * 4)));
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) | 0x80;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) | 0x80;
       DestroyTaskRecord(param_1,param_2);
       uVar4 = CountFlaggedSlots(iVar7,iVar6,uVar12,0xf);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27))) = uVar4;
@@ -103,7 +103,7 @@ uint32_t puVar10;
   }
   else if (bVar2 < 2) {
     if (bVar2 == 0) {
-      (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) & 0x7f;
+      (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) & 0x7f;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x25))) = 1;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x26))) = 1;
     }
@@ -125,7 +125,7 @@ uint32_t puVar10;
         ClearFlaggedSlotBit(uVar3,uVar8,uVar12);
         iVar6 = DispatchByIndex15(uVar3,uVar8);
         SpendTimerBudget(-iVar6 / 2,uVar12);
-        cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27)));
+        cVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27)));
       }
       else {
         uVar14 = uVar12 ^ 1;
@@ -135,10 +135,10 @@ uint32_t puVar10;
         SetFlaggedSlotBit(uVar3,uVar8,uVar14);
         uVar8 = ComputeScaledPartValue(uVar3,uVar8,uVar14,0);
         SpendTimerBudget(uVar8,uVar14);
-        cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27)));
+        cVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27)));
       }
       if ((cVar1 != '\0') && (lVar9 = FindFlaggedSlotIndex(uVar3,uVar12,cVar1,0xf), lVar9 == -1)) {
-        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27))) + -1;
+        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27))) + -1;
       }
     }
     else if (uVar14 == 0) {
@@ -180,12 +180,12 @@ LAB_00269460:
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27))) = 0;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x26))) = 1;
     }
-    if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) == '\0') && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x26))) != '\0')) {
+    if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xe))) == '\0') && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x26))) != '\0')) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x26))) = 0;
       DestroyTaskRecord(param_1);
       gs_tasks_spawn(param_1,0x246250,
                      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dc838 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xd))) * 4))) |
-                     (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27))) << 8 | uVar12 << 0x14);
+                     (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27))) << 8 | uVar12 << 0x14);
     }
     return 0;
   }
