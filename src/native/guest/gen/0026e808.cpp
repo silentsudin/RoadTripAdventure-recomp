@@ -62,7 +62,7 @@ uint32_t sceGsSetDefLoadImage(uint32_t param_1, uint32_t param_2, uint32_t param
     uVar1 = 6;
   }
   else {
-    ::printf((char *)rtguest::G((uint32_t)(0x32fde0u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fde0u)));
     uVar1 = 0;
   }
   return uVar1;

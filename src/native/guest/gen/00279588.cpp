@@ -37,7 +37,7 @@ uint32_t puStack_40;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_30)) = (uint32_t)uVar1;
   lVar2 = StartThread(uVar1,0);
   if (lVar2 < 0) {
-    ::printf((char *)rtguest::G((uint32_t)(0x331da0u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331da0u)));
     (*(uint32_t*)rtguest::G((uint32_t)uStack_30)) = 0xffffffff;
   }
   return (*(uint32_t*)rtguest::G((uint32_t)uStack_30));;

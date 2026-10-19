@@ -7,9 +7,9 @@ namespace guest {
 uint32_t Ps2InitSystem(uint32_t q0, ...) {
   long lVar1;
   
-  ::printf((char *)rtguest::G((uint32_t)(0x2e9a18u)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2e9a18u)));
   sceSifInitRpc(0);
-  ::printf((char *)rtguest::G((uint32_t)(0x2e9a38u)), 0x2e9a48);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2e9a38u)), 0x2e9a48);
   sceCdInit(0);
   do {
     lVar1 = sceSifRebootIop(0x2e9a58);
@@ -44,14 +44,14 @@ uint32_t Ps2InitSystem(uint32_t q0, ...) {
   do {
     lVar1 = sceSifLoadModule(0x2e9b00,0,0);
   } while (lVar1 < 0);
-  ::printf((char *)rtguest::G((uint32_t)(0x2e9b18u)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2e9b18u)));
   sceDmaReset(1);
   lVar1 = sceMcInit();
   if (lVar1 != 0) {
-    ::printf((char *)rtguest::G((uint32_t)(0x2e9b30u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2e9b30u)));
   }
   while (lVar1 = scePadInit(0), lVar1 != 1) {
-    ::printf((char *)rtguest::G((uint32_t)(0x2e9b40u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2e9b40u)));
   }
   scePadPortOpen(0,0,0x335a80);
   scePadPortOpen(1,0,0x335b80);

@@ -10,7 +10,7 @@ uint32_t debugScreenSave(uint32_t param_1, uint64_t param_2, uint32_t param_3, .
   long lVar3;
   long lVar4;
   
-  ::printf((char *)rtguest::G((uint32_t)(0x2ea6e0u)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea6e0u)));
   uVar2 = debugScreenRead(param_2 ^ 1,param_3);
   lVar3 = sceOpen(param_1,0x202);
   if (lVar3 == -1) {
@@ -18,10 +18,10 @@ uint32_t debugScreenSave(uint32_t param_1, uint64_t param_2, uint32_t param_3, .
   }
   lVar4 = sceWrite(lVar3,uVar2,0xd2014);
   if (lVar4 == -1) {
-    ::printf((char *)rtguest::G((uint32_t)(0x2ea710u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea710u)));
   }
   sceClose(lVar3);
-  iVar1 = ::printf((char *)rtguest::G((uint32_t)(0x333390u)));
+  iVar1 = rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x333390u)));
   return iVar1;
 }
 

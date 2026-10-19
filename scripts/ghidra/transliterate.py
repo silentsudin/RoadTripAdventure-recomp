@@ -389,7 +389,8 @@ def libc_wrap(body: str) -> str:
             i = ms + len(call_txt)       # never re-wrap the same call
     # printf/sprintf: newlib stubs in the ELF would shadow host libc inside namespace guest
     body = re.sub(r"(?<![:\w.])v?(?:printf|sprintf|snprintf|vsprintf|puts|fputs)\(",
-                  lambda m: "::" + m.group(0), body)
+                  lambda m: ("rtguest::rtPrintf(" if m.group(0) == "printf("
+                             else "::" + m.group(0)), body)
     return body
 
 DAT_RE = re.compile(r"&(FUN|DAT|UNK|EXT)_([0-9a-fA-F]{6,8})(?:_[0-9]+)?")

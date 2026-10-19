@@ -18,7 +18,7 @@ uint32_t auStack_2c = rtguest::allocFrame(12);
     if (lVar2 == 0) {
       return 0;
     }
-    uVar1 = ::printf((char *)rtguest::G((uint32_t)(0x2eb530u)), lVar2);
+    uVar1 = rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb530u)), lVar2);
     return uVar1;
   }
   lVar2 = sceMcSync(1,auStack_30,auStack_2c);
@@ -27,7 +27,7 @@ uint32_t auStack_2c = rtguest::allocFrame(12);
     if (uVar1 != 0) {
       return uVar1;
     }
-    ::printf((char *)rtguest::G((uint32_t)(0x2eb558u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb558u)));
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) = 0xfffffffe;

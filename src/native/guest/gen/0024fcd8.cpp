@@ -24,12 +24,12 @@ uint32_t puVar4;
   if ((lVar7 == -1) || (lVar7 == 0x22)) {
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x80000) == 0) {
       if (param_3 != 0) {
-        ::printf((char *)rtguest::G((uint32_t)(0x327ff0u)), param_4, param_3);
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x327ff0u)), param_4, param_3);
         lVar8 = carAiPathLookup(param_4,(int)param_3 + -1);
       }
     }
     else {
-      ::printf((char *)rtguest::G((uint32_t)(0x327ff0u)), param_4, param_3);
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x327ff0u)), param_4, param_3);
       lVar8 = carAiPathLookup(param_4,param_3);
     }
     if (lVar8 != 0) {

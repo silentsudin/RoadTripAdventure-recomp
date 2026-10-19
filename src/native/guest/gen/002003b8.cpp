@@ -33,7 +33,7 @@ uint32_t auStack_b0 = rtguest::allocFrame(16);
     sceGsSyncPath(0,0);
   } while (uVar4 < 0x15);
   gsInitDisplay((*(uint32_t*)rtguest::G(0x333288)));
-  ::printf((char *)rtguest::G((uint32_t)(0x2e9b58u)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2e9b58u)));
   ClearTaskPool(0x335900);
   gs_tasks_spawn(0,0x2052d0,0);
   (*(uint8_t*)rtguest::G(0x335908)) = 0;

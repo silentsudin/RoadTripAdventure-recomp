@@ -36,7 +36,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(48);
   iVar9 = (int)param_1;
   iVar10 = (int)param_2;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))) == 0) {
-    ::printf((char *)rtguest::G((uint32_t)(0x2ebbe0u)), 0x37);
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ebbe0u)), 0x37);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))) = 0x1785ff0;
     vu0UnitMatrix(0x17524b0);
     vu0RotMatrixY((*(uint32_t*)rtguest::G(0x29f32c)),0x17524b0,0x17524b0);

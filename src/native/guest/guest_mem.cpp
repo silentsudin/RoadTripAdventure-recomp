@@ -1,8 +1,11 @@
 // Guest-image memory + indirect-call registry (see guest_shim.h).
 #include "guest_shim.h"
 
+#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -10,6 +13,52 @@ namespace rtguest {
 
 uint8_t kRam[RT_GUEST_RAM_SIZE] = {};
 uint8_t kScratch[RT_SCRATCH_SIZE] = {};
+
+// printf shim for the corpus (see guest_shim.h): %s args are guest addresses.
+int rtPrintf(const char* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    int total = 0;
+    for (const char* p = fmt; *p;) {
+        const char* pct = static_cast<const char*>(memchr(p, '%', strlen(p)));
+        if (!pct) { fputs(p, stdout); total += (int)strlen(p); break; }
+        fwrite(p, 1, (size_t)(pct - p), stdout);
+        total += (int)(pct - p);
+        const char* spec = pct + 1;
+        if (*spec == '%') { fputc('%', stdout); ++total; p = spec + 1; continue; }
+        while (*spec && (strchr("-+ #0123456789.*", *spec))) ++spec;
+        bool lng = false;
+        while (*spec == 'l' || *spec == 'h') { lng = *spec == 'l' ? true : lng; ++spec; }
+        const char specCh = *spec ? *spec++ : 0;
+        std::string piece(pct, spec);  // "%...spec"
+        char buf[640];
+        int n = -1;
+        switch (specCh) {
+        case 's': {
+            const uint32_t a = (uint32_t)(uintptr_t)va_arg(ap, void*);
+            n = snprintf(buf, sizeof buf, piece.c_str(), (const char*)G(a));
+            break;
+        }
+        case 'd': case 'i': case 'u': case 'x': case 'X': case 'o': {
+            if (lng) n = snprintf(buf, sizeof buf, piece.c_str(), va_arg(ap, long long));
+            else n = snprintf(buf, sizeof buf, piece.c_str(), va_arg(ap, int));
+            break;
+        }
+        case 'c': n = snprintf(buf, sizeof buf, piece.c_str(), va_arg(ap, int)); break;
+        case 'f': case 'F': case 'g': case 'G': case 'e': case 'E':
+            n = snprintf(buf, sizeof buf, piece.c_str(), va_arg(ap, double)); break;
+        case 'p': n = snprintf(buf, sizeof buf, piece.c_str(), va_arg(ap, void*)); break;
+        case 'n': (void)va_arg(ap, int*); break;  // not printed; guest won't use it
+        case 0: break;
+        default:  // unknown: echo literally, no arg consumed
+            piece.assign(pct, 2); n = snprintf(buf, sizeof buf, "%%%c", specCh); break;
+        }
+        if (n > 0) { fwrite(buf, 1, (size_t)n, stdout); total += n; }
+        p = spec;
+    }
+    va_end(ap);
+    return total;
+}
 
 static std::unordered_map<uint32_t, uint32_t>& faultMap() {  // Meyers: RT_GUEST_FN ctors may run first
     static std::unordered_map<uint32_t, uint32_t> m;

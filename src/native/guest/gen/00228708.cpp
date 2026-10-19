@@ -18,11 +18,11 @@ uint32_t aiStack_2c = rtguest::allocFrame(12);
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) == 0) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x27))) = (char)((uint32_t)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) >> 8);
-    ::printf((char *)rtguest::G((uint32_t)(0x2eb670u)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) + 1, ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) >> 8 & 0xffU) + 1);
-    ::printf((char *)rtguest::G((uint32_t)(0x333630u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb670u)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) + 1, ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) >> 8 & 0xffU) + 1);
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x333630u)));
     lVar2 = sceMcMkdir((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))),0,0x2eb690);
     if (lVar2 != 0) {
-      ::printf((char *)rtguest::G((uint32_t)(0x2eb53eu)), lVar2);
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb53eu)), lVar2);
     }
     gs_tasks_spawn(param_1,0x20dc50,0x3d0000);
     cVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25)));
@@ -37,11 +37,11 @@ uint32_t aiStack_2c = rtguest::allocFrame(12);
   if (lVar2 != 1) {
     return 0;
   }
-  ::printf((char *)rtguest::G((uint32_t)(0x2eb6a0u)), (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))), (*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb6a0u)), (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))), (*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4)));
   switch((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25)))) {
   case 0:
     if (((*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4)) == 0) || ((*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4)) == -4)) {
-      ::printf((char *)rtguest::G((uint32_t)(0x2eb6b8u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb6b8u)));
       lVar2 = sceMcOpen((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))),0,0x2eb6d0,0x200);
       if (lVar2 == 0) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 1;
@@ -55,7 +55,7 @@ uint32_t aiStack_2c = rtguest::allocFrame(12);
   case 1:
     if (-1 < (*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4))) {
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))) = (*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4));
-      ::printf((char *)rtguest::G((uint32_t)(0x2eb708u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb708u)));
       lVar2 = sceMcWrite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))),0x29ed20,0x3c4);
       if (lVar2 == 0) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 2;
@@ -64,7 +64,7 @@ uint32_t aiStack_2c = rtguest::allocFrame(12);
 LAB_00228a48:
       __format = 0x2eb718u;
 LAB_00228a50:
-      ::printf((char *)rtguest::G((uint32_t)(__format)), lVar2);
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(__format)), lVar2);
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 0xffffffff;
@@ -84,7 +84,7 @@ LAB_00228a50:
     break;
   case 3:
     if ((*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4)) == 0) {
-      ::printf((char *)rtguest::G((uint32_t)(0x2eb738u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb738u)));
       lVar2 = sceMcOpen((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))),0,0x2eb750,0x200);
       if (lVar2 == 0) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 4;
@@ -98,7 +98,7 @@ LAB_00228a50:
   case 4:
     if (-1 < (*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4))) {
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))) = (*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4));
-      ::printf((char *)rtguest::G((uint32_t)(0x2eb708u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb708u)));
       lVar2 = sceMcWrite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))),0x100000,0x8158);
       if (lVar2 == 0) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 5;
@@ -109,7 +109,7 @@ LAB_00228a50:
     goto LAB_00228a88;
   case 6:
     if ((*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4)) == 0) {
-      ::printf((char *)rtguest::G((uint32_t)(0x2eb770u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb770u)));
       lVar2 = sceMcOpen((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))),0,0x2eb5b0,0x200);
       if (lVar2 == 0) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 7;
@@ -123,7 +123,7 @@ LAB_00228a50:
   case 7:
     if (-1 < (*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4))) {
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))) = (*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4));
-      ::printf((char *)rtguest::G((uint32_t)(0x2eb708u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb708u)));
       lVar2 = sceMcWrite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))),
                          0x177f760 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x27))) * 0x689,0x3448);
       if (lVar2 == 0) {

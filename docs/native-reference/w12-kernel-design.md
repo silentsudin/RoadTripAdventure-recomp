@@ -142,6 +142,57 @@ Documented deviations from the oracle (all shortcut-commented in code):
   the ring consumer thread may never exist on either side — our kernel mirrors the
   rejection exactly; probe the oracle to confirm which threads it really creates.)
 
-Still pending in W12: MMIO staging (VIF1 block + DMAC-GIF), port 0x00207b50, rt-app
-frame-loop wiring (kBootMainThread/kVblank/kPumpToIdle), boot to title, oracle
-interleaving probe, and the `_print` undefined reference.
+Still pending in W12: MMIO staging (VIF1 block + DMAC-GIF), port 0x00207b50, oracle
+interleaving probe.
+
+## Stub mirror layer (increments 2+3)
+
+The oracle recompiler replaces 192 guest library functions (`[general].stubs` in
+`config/roadtrip.toml`: libgraph/dma/vpu/pad/cdvd/sd/mc/newlib/sif/rpc/fs/load/
+deci2) with host implementations — the guest's libsd/libpad/libfs copies never
+run there. The native build mirrors that split: `config/native_host_stubs.txt`
+(192 addr+name) drives CMake, which excludes those gen TUs from the `rt_guest`
+compile (they stay on disk; coverage denominator stays 1542), while host bodies
+in `src/native/guest/guest_libs*.cpp` define the same symbols and re-register
+`rtguest::registerGuest(addr, ...)` so indirect guest calls reach them.
+
+Canonical name+signature per stub: the gen TU's `RT_GUEST_FN` line names the
+symbol; the exact `guest_decls.inc` line (what every caller compiles against —
+it flattens some Ghidra u64 folds to positional u32) is the signature, falling
+back to the gen def for disambiguated names (e.g. `sceSifWriteBackDCache__
+002875b8`) which the .inc never declares. `scripts/gen_guest_libs.py` regenerates
+`guest_libs.cpp` (pending bodies = log-once + return 0: a PORT gap, not an
+oracle TODO_NAMED) and `scripts/sync_hand_sigs.py` retypes hand defs to the .inc.
+Increment-1's iWakeupThread ring pin (test §4) is re-pinned to the new truth:
+with iWakeupThread host-served, the game's ring copy stays dead (poison word
+untouched), mirroring the oracle where it also never runs.
+
+Wave 1 `guest_libs_sif.cpp` (46): SIF cmd handlers (SendCmd copies EE→IOP
+payload and returns 1 — deviation: no IOP delivery yet), RPC semantics per
+RPC.cpp (BindRpc always 0 + dummy server via kHeapAlloc once a module table
+exists; CallRpc synchronous: EE-registered server funcs dispatch via rtCall,
+else copy-send/zero-recv fallback, end_function called synchronously; no IOP
+CPU ever runs — real answers come from the (sid,fno) host-service checklist),
+IOP heap bump-alloc over a fake 2 MB IOP-RAM buffer (shortcut: unpinned base,
+pin in W13), libload (`sceSifLoadModule` itself is NOT stubbed — the guest TU
+runs and calls the host `_sceSifLoadModule`), libkernel helpers (InitThread→1,
+InitAlarm→0, iWakeupThread/iRotateThreadReadyQueue via the syscall dispatcher),
+newlib mem/str + __divdi3.
+
+Wave 2 `guest_libs_pad.cpp` (28): libpad state machine, InfoMode table and
+status-block layout verbatim from the oracle's Pad.cpp; input source is neutral
+(shortcut: W13 wires rt::input). `scePadInit` returns 1 — gen 002001b8 spins
+`while (PadInit != 1)` forever otherwise.
+
+`rtguest::rtPrintf` (guest_mem.cpp + transliterate.py, 121 sites in 56 gen TUs
+sed-renamed): corpus `::printf` passthrough fed guest-RAM `%s` args to host
+libc → boot SIGSEGV; rtPrintf walks the format and maps each `%s` through G().
+sprintf/snprintf stay `::`-routed (index-wrapped pointer args; `%s`-arg hazard
+tracked for W13 if it surfaces).
+
+Boot diagnostic (RT_APP_NATIVE_BOOT=1) now passes InitRpc/CdInit/RebootIop/
+McInit/PadInit/PortOpen and sits in the CD-read wait: `sceCdRead` + `sceCdSyncS`
+polling + a WaitSema nothing signals. Next wave: CD/FileIO host bodies
+(oracle Stubs/CD.cpp, FileIO.cpp) so SYSTEM.CNF/BOOT2 load. Scheduling note: a
+pure guest spin (no syscalls) never yields to the pump — the game's CD wait
+parks on a sema, so CD services close it; timer preemption stays a W13 risk.

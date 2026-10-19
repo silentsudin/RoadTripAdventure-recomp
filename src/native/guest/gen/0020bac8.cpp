@@ -63,8 +63,8 @@ uint32_t puVar14;
       }
     }
     iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0xffffc))) - (*(uint32_t*)rtguest::G(0x100004));
-    ::printf((char *)rtguest::G((uint32_t)(0x2ea5d0u)), (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))));
-    ::printf((char *)rtguest::G((uint32_t)(0x2ea528u)), iVar12);
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea5d0u)), (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea528u)), iVar12);
     if (param_5 == 3) {
       if (0x528000 < iVar12) {
 LAB_0020bcdc:
@@ -91,7 +91,7 @@ LAB_0020bcdc:
     iVar13 = (*(int32_t*)rtguest::G((uint32_t)piVar10));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + param_2 + 0x70))) = piVar10;
     if (iVar13 == 0x600) {
-      ::printf((char *)rtguest::G((uint32_t)(0x2ea5a0u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea5a0u)));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + param_2 + 0xe8))) = 0;
     }
     else if (iVar13 == 0x608) {
@@ -143,7 +143,7 @@ LAB_0020bcdc:
           iVar6 = (*(int32_t*)rtguest::G((uint32_t)piVar5));
           (*(int32_t*)rtguest::G((uint32_t)piVar10)) = (int)piVar5;
           if (iVar6 == 0x600) {
-            ::printf((char *)rtguest::G((uint32_t)(0x2ea5a0u)));
+            rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea5a0u)));
             (*(int32_t*)rtguest::G((uint32_t)piVar10 + (uint32_t)(0x1e) * sizeof(int32_t))) = 0;
           }
           else if (iVar6 == 0x608) {

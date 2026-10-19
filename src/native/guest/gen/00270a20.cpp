@@ -18,7 +18,7 @@ uint32_t sceDmaSync(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
     while ((uVar1 & 0x100) != 0) {
       param_3 = param_3 + -1;
       if (param_3 < 0) {
-        ::printf((char *)rtguest::G((uint32_t)(0x330178u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x330178u)));
         if (((*(uint32_t*)rtguest::G((uint32_t)param_1)) >> 8 & 1) != 0) {
           (*(uint32_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G((uint32_t)param_1)) & 0xfffffeff;
         }

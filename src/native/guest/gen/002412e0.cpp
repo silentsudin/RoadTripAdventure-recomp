@@ -24,7 +24,7 @@ uint32_t puVar7;
     if (((int)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) >> (uVar5 & 0x1f) & 1U) == 0) {
       lVar2 = tileSlotLoaded(param_2,(*(uint32_t*)rtguest::G((uint32_t)puVar7)));
       if (lVar2 != 0) {
-        ::printf((char *)rtguest::G((uint32_t)((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x2a3960))))));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x2a3960))))));
         gs_tasks_spawn(param_1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x2a3930))),0);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) | (uint32_t)(1 << (uVar5 & 0x1f));
       }

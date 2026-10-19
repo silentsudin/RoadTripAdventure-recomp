@@ -92,7 +92,7 @@ uint32_t piVar13;
     if (cVar8 == '\x02') {
       lVar5 = tileSlotLoaded(param_2,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8))));
       if (lVar5 == 0) {
-        ::printf((char *)rtguest::G((uint32_t)(0x2ea770u)), (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8))));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea770u)), (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8))));
         DestroyTaskRecord(param_1);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x26))) = 0;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25))) = 0;
@@ -109,7 +109,7 @@ uint32_t piVar13;
       do {
         if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)ppuVar11 + 7))) != '\0') &&
            (lVar5 = tileSlotLoaded(param_2,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(ppuVar11 + (uint32_t)(1) * sizeof(uint32_t))))), lVar5 != 0)) {
-          ::printf((char *)rtguest::G((uint32_t)(0x2ea780u)), (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(ppuVar11 + (uint32_t)(1) * sizeof(uint32_t)))));
+          rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea780u)), (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(ppuVar11 + (uint32_t)(1) * sizeof(uint32_t)))));
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)ppuVar11 + 7)));
           if (uVar9 != (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27)))) {
             (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) = (char)uVar9;

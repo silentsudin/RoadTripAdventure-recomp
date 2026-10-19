@@ -80,7 +80,7 @@ uint32_t puVar8;
         GetOrSetPresidentRaceResult(1);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x21))) = 0xd;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x90b4))) = 2;
-        ::printf((char *)rtguest::G((uint32_t)(0x334e88u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x334e88u)));
         iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28)));
       }
       else {
@@ -92,7 +92,7 @@ uint32_t puVar8;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) & 0xfffffffb;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = 0;
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) = 0;
-          ::printf((char *)rtguest::G((uint32_t)(0x334e90u)));
+          rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x334e90u)));
         }
         raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))));
         iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28)));

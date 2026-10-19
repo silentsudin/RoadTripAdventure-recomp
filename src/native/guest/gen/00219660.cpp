@@ -141,7 +141,7 @@ LAB_00219960:
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x247))) = 0xff;
       }
       else {
-        ::printf((char *)rtguest::G((uint32_t)(0x333590u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x333590u)));
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 0x200;
       }
     }

@@ -111,7 +111,7 @@ uint32_t puVar6;
     } while (iVar8 < 0xc);
   }
   else if ((*(int8_t*)rtguest::G(0x335739)) == 3) {
-    ::printf((char *)rtguest::G((uint32_t)(0x2ec938u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec938u)));
     gs_tasks_kill(param_1);
   }
   lVar4 = TestStateBitFc78(0x11);

@@ -11,9 +11,9 @@ uint32_t puVar2;
   undefined8 uVar4;
   undefined8 uVar5;
   
-  ::printf((char *)rtguest::G((uint32_t)(0x2eae90u)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x44))) + -0x100000);
-  ::printf((char *)rtguest::G((uint32_t)(0x2eaea8u)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x48))) + -0x100000);
-  ::printf((char *)rtguest::G((uint32_t)(0x2eaec0u)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x4c))) + -0x100000);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eae90u)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x44))) + -0x100000);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eaea8u)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x48))) + -0x100000);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eaec0u)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x4c))) + -0x100000);
   puVar1 = 0x177ac50;
   puVar2 = (uint32_t)0x00100000;
   do {

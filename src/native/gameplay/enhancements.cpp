@@ -437,7 +437,25 @@ const std::vector<EnhancementSpec>& registryTable() {
          "code:src/native/media/dashcam_source.cpp|plan",
          RetentionStatus::DocOnly,
          "W4-05: ffprobe override for clip metadata (size/fps)"},
-    };
+         {"native_boot", "-",
+          "RT_APP_NATIVE_BOOT", "", "off (host app flow)", "diagnostic (W12)",
+          "src/native/app/main.cpp|src/native/guest/guest_kernel.cpp",
+          "code:src/native/app/main.cpp|docs/native-reference/w12-kernel-design.md",
+          RetentionStatus::Wired,
+          "W12: boots the translated guest ELF on the native green-thread libkernel (entry 0x200008) instead of the host app flow; boot diagnostic — gates run the default path"},
+         {"ktrace", "-",
+          "RT_KTRACE", "", "off", "diagnostic (W12)",
+          "src/native/guest/guest_kernel.cpp",
+          "code:src/native/guest/guest_kernel.cpp|docs/native-reference/w12-kernel-design.md",
+          RetentionStatus::Wired,
+          "W12: logs every guest libkernel syscall (tid, number, a0..a3) from the host dispatcher"},
+         {"pad_trace", "-",
+          "RT_PAD_TRACE", "", "off", "diagnostic (W12)",
+          "src/native/guest/guest_libs_pad.cpp",
+          "code:src/native/guest/guest_libs_pad.cpp|docs/native-reference/w12-kernel-design.md",
+          RetentionStatus::Wired,
+          "W12: host libpad traces motor/mode changes (SetActDirect, SetMainMode, SetActAlign)"},
+     };
     return kRegistry;
 }
 

@@ -15,19 +15,19 @@ uint32_t auStack_2c = rtguest::allocFrame(12);
     iVar2 = (int)param_1;
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x25))) == '\0') {
       if ((int)(*(uint32_t*)rtguest::G((uint32_t)auStack_2c + (uint32_t)(0) * 4)) < 0) {
-        ::printf((char *)rtguest::G((uint32_t)(0x2eb578u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb578u)));
         iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x18)));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = (*(uint32_t*)rtguest::G((uint32_t)auStack_2c + (uint32_t)(0) * 4));
         gs_tasks_kill(param_1);
       }
       else if ((*(uint32_t*)rtguest::G((uint32_t)auStack_2c + (uint32_t)(0) * 4)) < 0x3448) {
-        ::printf((char *)rtguest::G((uint32_t)(0x2eb588u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb588u)));
         sceMcClose((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x20))));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x25))) = 2;
       }
       else {
-        ::printf((char *)rtguest::G((uint32_t)(0x333628u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x333628u)));
         sceMcClose((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x20))));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x25))) = 1;
       }
@@ -35,7 +35,7 @@ uint32_t auStack_2c = rtguest::allocFrame(12);
     else {
       if ((*(uint32_t*)rtguest::G((uint32_t)auStack_2c + (uint32_t)(0) * 4)) == 0) {
         if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x25))) == '\x01') {
-          ::printf((char *)rtguest::G((uint32_t)(0x333618u)));
+          rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x333618u)));
           iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x18)));
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 1;
@@ -47,7 +47,7 @@ uint32_t auStack_2c = rtguest::allocFrame(12);
         }
       }
       else {
-        ::printf((char *)rtguest::G((uint32_t)(0x333620u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x333620u)));
         iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x18)));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 0xffffffff;

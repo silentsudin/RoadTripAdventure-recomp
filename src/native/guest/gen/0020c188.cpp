@@ -67,7 +67,7 @@ uint32_t puVar13;
       iVar12 = iVar12 + 4;
     }
     iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0xffffc))) - (*(uint32_t*)rtguest::G(0x100004));
-    ::printf((char *)rtguest::G((uint32_t)(0x2ea528u)), iVar12);
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea528u)), iVar12);
     if (0x750000 < iVar12) {
       fatal(0x2ea5e0,iVar12);
     }
@@ -90,7 +90,7 @@ uint32_t puVar13;
     iVar14 = (*(int32_t*)rtguest::G((uint32_t)piVar11));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + param_2 + 0x70))) = piVar11;
     if (iVar14 == 0x600) {
-      ::printf((char *)rtguest::G((uint32_t)(0x2ea5a0u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea5a0u)));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + param_2 + 0xe8))) = 0;
     }
     else if (iVar14 == 0x608) {

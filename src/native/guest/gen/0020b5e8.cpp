@@ -90,7 +90,7 @@ uint32_t ppuVar8;
       ppuVar8 = 0x29b048u;
     }
     lVar5 = cdReadEntry(ppuVar8,0xaafb80);
-    ::printf((char *)rtguest::G((uint32_t)(0x2ea528u)), lVar5);
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea528u)), lVar5);
     if (0xaf8000 < lVar5) {
       fatal(0x2ea540,lVar5,0xaf800);
     }

@@ -88,7 +88,7 @@ uint32_t sceGsExecStoreImage(uint32_t param_1, ...) {
     uVar7 = uVar7 + 1;
   } while (bVar1);
 LAB_0026f058:
-  ::printf((char *)rtguest::G((uint32_t)(0x32ff40u)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32ff40u)));
   return 0xffffffff;
 }
 

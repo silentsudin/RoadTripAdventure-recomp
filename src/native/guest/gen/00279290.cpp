@@ -13,7 +13,7 @@ uint32_t sceSdRemoteInit(uint32_t q0, ...) {
     lVar2 = sceSifBindRpc(0x17739c0,0xffffffff80000701,0);
     iVar1 = 10000;
     if (lVar2 < 0) {
-      ::printf((char *)rtguest::G((uint32_t)(0x331d78u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331d78u)));
       return 0xffffffff;
     }
     do {

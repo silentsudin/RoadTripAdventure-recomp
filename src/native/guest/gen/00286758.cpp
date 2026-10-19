@@ -34,12 +34,12 @@ uint32_t fpFormatFloatSci(uint64_t param_1, ...) {
   uVar2 = dpmul(param_1,0x412e848000000000);
   uVar2 = __fixunsdfdi(uVar2);
   uVar2 = fpDoubleToInt(uVar2);
-  ::printf((char *)rtguest::G((uint32_t)(0x3325e0)), uVar2);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x3325e0)), uVar2);
   if (iVar3 < 0) {
-    ::printf((char *)rtguest::G((uint32_t)(0x3325f0)), iVar3);
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x3325f0)), iVar3);
     return 0;
   }
-  ::printf((char *)rtguest::G((uint32_t)(0x3325e8)), iVar3);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x3325e8)), iVar3);
   return 0;
 }
 

@@ -355,11 +355,11 @@ uint32_t pbVar25;
     }
     if (uVar21 == 6) {
       if ((*(uint8_t*)rtguest::G(0x178700a)) < (*(uint32_t*)rtguest::G(0x178700e))) {
-        ::printf((char *)rtguest::G((uint32_t)(0x2ec560u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec560u)));
         pcVar13 = 0x0177fdfa + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) * 0x30;
       }
       else {
-        ::printf((char *)rtguest::G((uint32_t)(0x2ec570u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec570u)));
         pcVar13 = 0x01783242 + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1e))) * 0x30;
       }
       if ((*(int8_t*)rtguest::G((uint32_t)pcVar13)) != -1) {
@@ -369,14 +369,14 @@ uint32_t pbVar25;
     else {
       lVar6 = GetOrSetPresidentRaceResult(0xffffffffffffffff);
       if (lVar6 == 1) {
-        ::printf((char *)rtguest::G((uint32_t)(0x2ec570u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec570u)));
         pcVar13 = 0x0178323c + uVar21 + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1e))) * 0x30;
       }
       else {
         if (lVar6 != 2) {
           return 0;
         }
-        ::printf((char *)rtguest::G((uint32_t)(0x2ec560u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec560u)));
         pcVar13 = 0x0177fdf4 + uVar21 + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) * 0x30;
       }
       if ((*(int8_t*)rtguest::G((uint32_t)pcVar13)) != -1) {

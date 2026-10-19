@@ -16,7 +16,7 @@ uint32_t auStack_2c = rtguest::allocFrame(12);
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 8))) == 0) {
     lVar1 = sceMcFormat((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c))),0);
     if (lVar1 != 0) {
-      ::printf((char *)rtguest::G((uint32_t)(0x2eb7e0u)), lVar1);
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb7e0u)), lVar1);
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = (int)lVar1;

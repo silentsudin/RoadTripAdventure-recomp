@@ -20,7 +20,7 @@ uint32_t puVar11;
   
   iVar9 = (*(int32_t*)rtguest::G(0x100004));
   if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
-    ::printf((char *)rtguest::G((uint32_t)(0x2ea650u)), (*(int32_t*)rtguest::G(0x100004)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea650u)), (*(int32_t*)rtguest::G(0x100004)));
     if (iVar9 < 0x34001) {
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
     }

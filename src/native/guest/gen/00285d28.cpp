@@ -26,7 +26,7 @@ uint32_t puVar3;
       }
       else {
 LAB_00285df0:
-        ::printf((char *)rtguest::G((uint32_t)(0x332548)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x332548)));
       }
     }
     if (bVar1 != 2) goto LAB_00285df0;

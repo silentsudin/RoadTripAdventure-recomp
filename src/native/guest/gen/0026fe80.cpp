@@ -24,7 +24,7 @@ uint32_t sceGsPutDrawEnv(uint32_t param_1, ...) {
     bVar1 = uVar2 < 0x1000001;
     uVar2 = uVar2 + 1;
   } while (bVar1);
-  ::printf((char *)rtguest::G((uint32_t)(0x330148u)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x330148u)));
   return 0xffffffff;
 }
 

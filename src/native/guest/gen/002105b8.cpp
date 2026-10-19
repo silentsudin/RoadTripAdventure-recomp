@@ -342,7 +342,7 @@ LAB_002107f4:
       else {
         uVar8 = SubmitMessage2B((int)(*(uint64_t*)rtguest::G((uint32_t)puVar12)));
         PlayUiSound(0x31e);
-        ::printf((char *)rtguest::G((uint32_t)(0x2ea790u)), uVar8);
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea790u)), uVar8);
         sVar3 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 2)));
       }
       (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 2))) = sVar3 + 1;

@@ -30,14 +30,14 @@ uint32_t puStack_170;
     (*(int32_t*)rtguest::G((uint32_t)iStack_16c)) = iVar5 + (uVar2 + 1 & 1) * 0x20;
     lVar4 = sceSifSetDma(rtguest::allocFrame(0x20),1);
     if ((lVar4 == 0) && ((*(int32_t*)rtguest::G(0x2e6ec4)) != 0)) {
-      ::printf((char *)rtguest::G((uint32_t)(0x3311a0u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x3311a0u)));
     }
     iVar5 = param_2 * 0x1c + param_1 * 0x70;
     puVar3 = 0x01773210 + iVar5;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177321c + iVar5))) = (int)lVar4;
   }
   else if ((*(int32_t*)rtguest::G(0x2e6ec4)) != 0) {
-    puVar3 = (uint32_t)::printf((char *)rtguest::G((uint32_t)(0x3311a0u)));
+    puVar3 = (uint32_t)rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x3311a0u)));
   }
   return puVar3;
 }

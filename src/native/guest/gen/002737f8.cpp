@@ -18,7 +18,7 @@ uint32_t __s;
     iVar5 = (int)param_2;
     if ((*(uint32_t*)rtguest::G((uint32_t)0x1773220 + (uint32_t)(iVar6 * 0x1c + iVar5 * 7) * 4)) == 1) {
       if ((*(int32_t*)rtguest::G(0x2e6ec4)) != 0) {
-        ::printf((char *)rtguest::G((uint32_t)(0x331268u)), param_1, param_2);
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331268u)), param_1, param_2);
         return 0;
       }
     }
@@ -55,7 +55,7 @@ uint32_t __s;
     }
   }
   else if ((*(int32_t*)rtguest::G(0x2e6ec4)) != 0) {
-    ::printf((char *)rtguest::G((uint32_t)(0x331238u)), param_3);
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331238u)), param_3);
     return 0;
   }
   return 0;

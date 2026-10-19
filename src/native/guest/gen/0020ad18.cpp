@@ -13,7 +13,7 @@ uint32_t puVar5;
   int iVar6;
   
   iVar6 = (int)param_2;
-  ::printf((char *)rtguest::G((uint32_t)(0x2ea470u)), param_1, param_2);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea470u)), param_1, param_2);
   (uint32_t)(uintptr_t)(::memmove((char *)rtguest::G((uint32_t)(0x3fbb80 + iVar6 * 0x34000)), (char *)rtguest::G((uint32_t)(0x3fbb80 + (int)param_1 * 0x34000)), 0x34000));
   puVar5 = 0x177f310 + iVar6 * 6;
   iVar4 = 5;

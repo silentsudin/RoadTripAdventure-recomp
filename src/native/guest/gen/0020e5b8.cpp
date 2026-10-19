@@ -18,11 +18,11 @@ uint32_t auStack_f0 = rtguest::allocFrame(32);
 uint32_t auStack_d0 = rtguest::allocFrame(128);
   
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_f0)), (char *)rtguest::G((uint32_t)(0x2ea720)), param_1);
-  ::printf((char *)rtguest::G((uint32_t)(0x2ea730u)), auStack_f0);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea730u)), auStack_f0);
   lVar4 = sceOpen(auStack_f0,0x602);
   pcVar7 = param_2 + 0xff;
   if (lVar4 == -1) {
-    iVar2 = ::printf((char *)rtguest::G((uint32_t)(0x2ea740u)));
+    iVar2 = rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea740u)));
   }
   else {
     iVar2 = 0x100;
@@ -40,14 +40,14 @@ uint32_t auStack_d0 = rtguest::allocFrame(128);
         uVar5 = ::sprintf((char *)rtguest::G((uint32_t)(auStack_d0)), (char *)rtguest::G((uint32_t)(0x2ea758)), (*(uint8_t*)rtguest::G((uint32_t)puVar3)), iVar8);
         lVar6 = sceWrite(lVar4,auStack_d0,uVar5);
         if (lVar6 == -1) {
-          ::printf((char *)rtguest::G((uint32_t)(0x2ea710u)));
+          rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea710u)));
         }
         puVar3 = param_2 + iVar9;
         iVar8 = iVar9;
       } while (iVar9 < iVar2);
     }
     sceClose(lVar4);
-    iVar2 = ::printf((char *)rtguest::G((uint32_t)(0x333390u)));
+    iVar2 = rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x333390u)));
   }
   return iVar2;
 }

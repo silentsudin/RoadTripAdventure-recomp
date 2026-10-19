@@ -4,8 +4,9 @@
 
 namespace guest {
 
-// Pseudocode passes the destination explicitly; guest_decls only models its three-argument form.
-void sceVu0ScaleVectorXYZ(float, uint32_t, uint32_t, uint32_t);
+// Leaf 0x2732b8 reads dest=a0/src=a1/scale=f12 only (symbols.tsv disasm); the
+// pseudocode's 4th arg at the 0x251440 site is a dead leftover register.
+void sceVu0ScaleVectorXYZ(float, uint32_t, uint32_t);
 
 uint32_t UpdateBallPhysics(uint32_t param_1, uint32_t param_2, ...) {
 uint32_t auStack_120 = rtguest::allocFrame(4);
@@ -97,7 +98,7 @@ uint32_t puVar2;
   sceVu0ScaleVectorXYZ(fVar8 + fVar9,fStack_100,uStack_110);
   fVar9 = rtguest::fbits(vecDotProductVu0(fStack_100,fStack_100));
   if (fVar7 < SQRT(fVar9)) {
-    sceVu0ScaleVectorXYZ(fVar7,fStack_100,uStack_110,fStack_100);
+    sceVu0ScaleVectorXYZ(fVar7,fStack_100,uStack_110);  // dead 4th arg dropped (see decl note)
   }
   vu0AddVector(iVar6,iVar6,fStack_100);
   puVar2 = (*(uint32_t*)rtguest::G((uint32_t)apuStack_6c + (uint32_t)(0) * 4));

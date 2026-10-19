@@ -33,6 +33,8 @@
 #include "gameplay/tile_streamer.h"
 #include "gameplay/world_layout.h"
 #include "app/Autopilot.h"
+#include "guest/guest_kernel.h"
+#include "guest/guest_shim.h"
 #include "preview/car_mesh.h"
 #include "preview/preview.h"
 #include "preview/race_hud.h"
@@ -344,6 +346,42 @@ std::filesystem::path discRootPath() {
     if (const char* home = std::getenv("HOME"))
         return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp/disc";
     return {};
+}
+
+// W12 native-boot diagnostic (RT_APP_NATIVE_BOOT=1, default off — every
+// shipped/determinism path stays on the authored layer until boot reaches
+// title; docs/native-reference/w12-kernel-design.md). Stages the boot ELF
+// into guest RAM, runs the compiled guest corpus under the host libkernel
+// (green threads, vblank pump); rendering stays the preview layer — this
+// measures how far decompiled init walks, not a scene yet.
+struct NativeBoot {
+    bool ok = false;
+    int64_t vblanks = 0;
+};
+
+NativeBoot nativeBootFromEnv() {
+    NativeBoot nb;
+    if (!(std::getenv("RT_APP_NATIVE_BOOT") && *std::getenv("RT_APP_NATIVE_BOOT"))) return nb;
+    const std::filesystem::path elf = std::getenv("RT_ELF") && *std::getenv("RT_ELF")
+        ? std::filesystem::path(std::getenv("RT_ELF"))
+        : discRootPath() / "SLUS_203.98";
+    std::ifstream in(elf, std::ios::binary);
+    if (!in) {
+        std::fprintf(stderr, "[native-boot] no boot ELF at %s\n", elf.string().c_str());
+        return nb;
+    }
+    std::vector<char> img((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    if (!rtguest::loadImage(reinterpret_cast<const std::uint8_t*>(img.data()), img.size())) {
+        std::fprintf(stderr, "[native-boot] ELF section staging failed: %s\n", elf.string().c_str());
+        return nb;
+    }
+    std::uint32_t entry = 0;
+    std::memcpy(&entry, img.data() + 0x18, 4);  // ELF32 e_off 0x18 = e_entry
+    rtguest::kBootMainThread(entry);
+    std::cout << "rt-app native-boot: entry=0x" << std::hex << entry << std::dec
+              << " image=" << elf.string() << "\n";
+    nb.ok = true;
+    return nb;
 }
 
 // setup_wizard.cpp layout under the assets root: cars/CAR0/Q00.BIN,
@@ -1942,6 +1980,7 @@ int main() {
     rt::native::gameplay::ControllerConfig controllerConfig;
     bool playerDriven = false, running = true; int frames = 0;
     std::uint64_t simulationFrame = 0;
+    NativeBoot nativeBoot = nativeBootFromEnv();
     AppState state = initialAppState();
     // RT_APP_MODE=race: straight to SessionState::RACE at startup (desktop
     // race-HUD capture for the shipped dial; the menu path needs interaction
@@ -2235,6 +2274,17 @@ int main() {
         // identical to the pre-interp one; split pacing (RT_APP_INTERP=1)
         // drains it from the accumulator below.
         const auto stepLogic = [&] {
+            // W12 native-boot diagnostic: one virtual vblank (VBlankStart
+            // semantics: alarms/vsync flag/intc fire) + green-thread pump per
+            // 60 Hz logic step. Flag-gated: the default loop is untouched.
+            if (nativeBoot.ok) {
+                rtguest::kVblank();
+                rtguest::kPumpToIdle();
+                if (++nativeBoot.vblanks % 30 == 0)
+                    std::cout << "rt-app native-boot vblank=" << nativeBoot.vblanks
+                              << " threads=" << rtguest::kThreadCount()
+                              << " semas=" << rtguest::kSemaCount() << "\n";
+            }
             // Trigger polling intentionally lives in this fixed-step lambda:
             // split-pacing render iterations must not advance its pulse/reverse
             // state or make controller drive depend on presentation cadence.
@@ -3190,6 +3240,16 @@ int main() {
         if (!interpEnabled || testSocket.lockstep()) ++frames;
     }
     std::cout << "rt-app frames=" << frames << " simulation_frame=" << simulationFrame << "\n";
+    if (nativeBoot.ok) {  // where decompiled boot stopped: kernel-object census + quarantined faults
+        std::size_t nf = 0;
+        const rtguest::Fault* fs = rtguest::faults(&nf);
+        std::cout << "rt-app native-boot end: vblanks=" << nativeBoot.vblanks
+                  << " threads=" << rtguest::kThreadCount() << " semas=" << rtguest::kSemaCount()
+                  << " faults=" << nf << "\n";
+        for (std::size_t i = 0; i < nf && i < 24; ++i)
+            std::cout << "  fault 0x" << std::hex << fs[i].addr << std::dec
+                      << " x" << fs[i].count << "\n";
+    }
     if (interpEnabled)
         std::cout << "rt-app interp: steps=" << interpClock.stepsTaken()
                   << " renders=" << interpRenders << "\n";

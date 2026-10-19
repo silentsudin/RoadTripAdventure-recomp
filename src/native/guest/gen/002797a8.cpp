@@ -25,7 +25,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(4);
   while( true ) {
     lVar2 = sceSifBindRpc(0x1774b40,0xffffffff80000400,0);
     if (lVar2 < 0) {
-      ::printf((char *)rtguest::G((uint32_t)(0x331e08u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331e08u)));
       do {
                     /* WARNING: Do nothing block with infinite loop */
       } while( true );
@@ -43,14 +43,14 @@ uint32_t auStack_a0 = rtguest::allocFrame(4);
     iVar1 = (int)lVar2 + -100;
   }
   else if ((*(uint32_t*)rtguest::G(0x1776104)) < 0x20a) {
-    ::printf((char *)rtguest::G((uint32_t)(0x331e20u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331e20u)));
     (*(uint32_t*)rtguest::G(0x1774b64)) = 0;
     iVar1 = -0x78;
   }
   else {
     iVar1 = (*(uint32_t*)rtguest::G(0x1776100));
     if ((*(uint32_t*)rtguest::G(0x1776108)) < 0x20e) {
-      ::printf((char *)rtguest::G((uint32_t)(0x331e48u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331e48u)));
       (*(uint32_t*)rtguest::G(0x1774b64)) = 0;
       iVar1 = -0x79;
     }

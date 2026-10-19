@@ -19,7 +19,7 @@ uint32_t sceDmaWatch(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint3
     while (uVar1 < param_2) {
       param_4 = param_4 + -1;
       if (param_4 < 0) {
-        ::printf((char *)rtguest::G((uint32_t)(0x330178u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x330178u)));
         if (((*(uint32_t*)rtguest::G((uint32_t)param_1)) >> 8 & 1) != 0) {
           (*(uint32_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G((uint32_t)param_1)) & 0xfffffeff;
         }

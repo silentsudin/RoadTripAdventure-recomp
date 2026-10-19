@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t switchD_00240314_cameraTransitionUfoDetach(uint32_t q0, ...) {
-  ::printf((char *)rtguest::G((uint32_t)(0x2ec8e0u)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec8e0u)));
   gs_tasks_kill();
   return 0;
 }

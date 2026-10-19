@@ -33,8 +33,8 @@ uint32_t scePadInit(uint64_t param_1, ...) {
   }
   else {
     if ((*(int32_t*)rtguest::G(0x2e6ec4)) != 0) {
-      ::printf((char *)rtguest::G((uint32_t)(0x3311e8u)));
-      ::printf((char *)rtguest::G((uint32_t)(0x331210u)), 4, 0, iVar3, uVar1 & 0xff);
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x3311e8u)));
+      rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331210u)), 4, 0, iVar3, uVar1 & 0xff);
     }
     uVar2 = 0;
   }

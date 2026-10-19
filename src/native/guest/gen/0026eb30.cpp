@@ -27,7 +27,7 @@ uint32_t sceGsExecLoadImage(uint32_t param_1, ...) {
     uVar2 = uVar2 + 1;
   } while (bVar1);
 LAB_0026ec64:
-  ::printf((char *)rtguest::G((uint32_t)(0x32ff00u)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32ff00u)));
   return 0xffffffff;
 }
 

@@ -131,8 +131,29 @@ add_library(rt_native_car_render STATIC preview/car_render.cpp)
 # every TU; it links into the app subsystem by subsystem at W12. Needs the
 # generated decls table: python3 scripts/ghidra/transliterate.py --decls.
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp/guest_decls.inc")
-    add_library(rt_guest STATIC guest/guest_mem.cpp guest/guest_kernel.cpp)
+    # OBJECT (not STATIC): every gen TU's RT_GUEST_FN ctor must be linked into
+    # consumers — a static archive would drop unreferenced TUs and empty the
+    # call registry (fault 0xF0200008: entry never registered).
+    add_library(rt_guest OBJECT guest/guest_mem.cpp guest/guest_kernel.cpp guest/guest_libs.cpp guest/guest_libs_sif.cpp guest/guest_libs_pad.cpp)
     file(GLOB RT_GUEST_GEN CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/guest/gen/*.cpp")
+    # W12: the oracle recompiler replaces these 192 guest library functions with host
+    # implementations (config/roadtrip.toml stubs list); native mirrors that split —
+    # gen TU stays on disk (coverage), host body in guest/guest_libs*.cpp serves it.
+    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/../../config/native_host_stubs.txt" RT_STUB_LINES
+         REGEX "^[0-9a-f]+ ")
+    set(RT_STUB_RE "")
+    foreach(line ${RT_STUB_LINES})
+        string(REGEX MATCH "^[0-9a-f]+" stub_addr "${line}")
+        string(APPEND RT_STUB_RE "/${stub_addr}\\.cpp|")
+    endforeach()
+    if(RT_STUB_RE)
+        string(LENGTH "${RT_STUB_RE}" _re_len)
+        MATH(EXPR _re_len "${_re_len}-1")
+        string(SUBSTRING "${RT_STUB_RE}" 0 ${_re_len} RT_STUB_RE)
+        list(FILTER RT_GUEST_GEN EXCLUDE REGEX "(${RT_STUB_RE})$")
+        list(LENGTH RT_GUEST_GEN _gen_after)
+        message(STATUS "rt_guest: ${_gen_after} gen TUs (192 host-stubbed excluded)")
+    endif()
     target_sources(rt_guest PRIVATE ${RT_GUEST_GEN})
     target_include_directories(rt_guest PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp")
@@ -275,7 +296,7 @@ if(Vulkan_FOUND)
     # and copied to an SDL3 Vulkan swapchain for presentation.
     if(SDL3_FOUND)
         add_executable(rt-app app/main.cpp app/Autopilot.cpp preview/preview.cpp)
-        target_link_libraries(rt-app PRIVATE rt_native_assets Vulkan::Vulkan SDL3::SDL3)
+        target_link_libraries(rt-app PRIVATE rt_native_assets rt_guest Vulkan::Vulkan SDL3::SDL3)
         target_compile_features(rt-app PRIVATE cxx_std_20)
         target_compile_options(rt-app PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
     endif()

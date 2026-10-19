@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <csignal>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <deque>
 #include <map>
@@ -112,6 +113,7 @@ uint32_t g_heapBase = 0, g_heapLimit = 0, g_heapBump = 0;
 uint32_t g_gsImr = 0, g_gsCrt[5] = {};
 uint64_t g_sifTransferId = 1;
 std::map<uint32_t, uint32_t> g_sifRegs;
+std::map<uint32_t, std::pair<uint32_t, uint32_t>> g_sifCmdHandlers;  // cid -> {fn, arg} (oracle g_sifCmdHandlers)
 std::map<uint32_t, uint32_t> g_syscallOverride;  // num -> guest handler pc
 
 struct Install { uint32_t dst, src, len; };  // Copy-tracked code blobs
@@ -699,6 +701,7 @@ uint32_t kThreadCount() { return (uint32_t)g_threads.size(); }
 uint32_t kSemaCount() { return (uint32_t)g_sem.size(); }
 
 void kBootMainThread(uint32_t entry) {
+    kResetKernel();  // boot starts from a fresh kernel incl. the SIF boot-reg seed
     g_threads.erase(kMainThreadId);
     KThread t{};
     t.id = kMainThreadId; t.entry = entry;
@@ -716,10 +719,20 @@ void kBootMainThread(uint32_t entry) {
     enqueueReady(m);
 }
 
+void seedSifRegs() {
+    // Oracle Stubs/SIF.cpp reset(): boot-status reg (0x4) comes up ready;
+    // the game's loader spins on sceSifGetReg(4) & 0x20000 until this is set.
+    g_sifRegs[0x4] = 0x00020000;  // kSifBootReadyMask
+    g_sifRegs[0x80000000] = 0;    // main addr
+    g_sifRegs[0x80000001] = 0;    // sub addr
+    g_sifRegs[0x80000002] = 0;    // ms-com
+}
+
 void kResetKernel() {
     g_threads.clear(); g_retired.clear(); g_sem.clear(); g_alarm.clear();
     g_intc.clear(); g_dmac.clear(); g_invoc.clear(); g_installs.clear();
-    g_sifRegs.clear(); g_syscallOverride.clear();
+    g_sifRegs.clear(); g_syscallOverride.clear(); g_sifCmdHandlers.clear();
+    seedSifRegs();
     for (auto& q : g_ready) q.clear();
     g_cur = 0; g_nextTid = kFirstThreadId; g_nextSemaId = 1; g_nextAlarmId = 1;
     g_nextIrqId = 1; g_intcHead = 0; g_intcTail = 1000; g_dmacHead = 0;
@@ -728,6 +741,17 @@ void kResetKernel() {
     g_vsyncTickAddr = 0; g_heapBase = 0; g_heapLimit = 0; g_heapBump = 0;
     g_gsImr = 0; g_sifTransferId = 1;
 }
+
+// Host library services (guest_libs*) — mirrors how the oracle's
+// ps2_stubs/ps2_syscalls reach EeScheduler ops (Kernel/Stubs/SIF.cpp,
+// Syscalls/RPC.cpp).
+int32_t kSignalSema(int id, bool intr) { return opSignalSema(id, intr); }
+uint32_t kHeapAlloc(uint32_t bytes) { return heapAlloc(bytes); }
+void kResetSifRegs() { seedSifRegs(); }
+void kSetCmdHandler(uint32_t cid, uint32_t fn, uint32_t arg) {
+    g_sifCmdHandlers[cid] = {fn, arg};
+}
+void kEraseCmdHandler(uint32_t cid) { g_sifCmdHandlers.erase(cid); }
 
 }  // namespace rtguest
 
@@ -741,6 +765,11 @@ int32_t syscall(uint64_t num, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3
                 uint32_t a4, uint32_t a5, uint32_t a6, uint32_t a7) {
     const uint32_t key = (uint32_t)num;
     const bool intr = (key & 0x80000000u) != 0;  // sign-extended = i-variant
+    // Boot-bisection telemetry (order is deterministic: the pump is).
+    static const bool ktrace = std::getenv("RT_KTRACE") != nullptr;
+    if (ktrace)
+        std::fprintf(stderr, "[ktrace] t=%d num=0x%x a0=0x%x a1=0x%x a2=0x%x a3=0x%x\n",
+                     kCurrentThreadId(), key, a0, a1, a2, a3);
 
     // setSyscall override first, like the oracle dispatchSyscallOverride.
     auto ov = g_syscallOverride.find(key);

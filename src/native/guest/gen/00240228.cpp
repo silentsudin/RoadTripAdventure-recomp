@@ -140,7 +140,7 @@ LAB_00240454:
     }
     break;
   case 7:
-    ::printf((char *)rtguest::G((uint32_t)(0x2ec8e0u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec8e0u)));
     gs_tasks_kill(param_1);
     return 0;
   }

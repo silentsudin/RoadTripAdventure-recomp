@@ -766,5 +766,41 @@
     "docs": ["code:src/native/media/dashcam_source.cpp", "plan"],
     "status": "doc-only",
     "notes": "W4-05: ffprobe override for clip metadata (size/fps)"
+  },
+  {
+    "id": "native_boot",
+    "ledger": "-",
+    "env_vars": ["RT_APP_NATIVE_BOOT"],
+    "persisted_keys": [],
+    "default": "off (host app flow)",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/app/main.cpp", "src/native/guest/guest_kernel.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: boots the translated guest ELF on the native green-thread libkernel (entry 0x200008) instead of the host app flow; boot diagnostic — gates run the default path"
+  },
+  {
+    "id": "ktrace",
+    "ledger": "-",
+    "env_vars": ["RT_KTRACE"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/guest/guest_kernel.cpp"],
+    "docs": ["code:src/native/guest/guest_kernel.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: logs every guest libkernel syscall (tid, number, a0..a3) from the host dispatcher"
+  },
+  {
+    "id": "pad_trace",
+    "ledger": "-",
+    "env_vars": ["RT_PAD_TRACE"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W12)",
+    "owners": ["src/native/guest/guest_libs_pad.cpp"],
+    "docs": ["code:src/native/guest/guest_libs_pad.cpp", "docs/native-reference/w12-kernel-design.md"],
+    "status": "wired",
+    "notes": "W12: host libpad traces motor/mode changes (SetActDirect, SetMainMode, SetActAlign)"
   }
 ]

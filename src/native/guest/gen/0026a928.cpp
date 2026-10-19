@@ -49,7 +49,7 @@ uint32_t pfVar9;
         iVar5 = iVar5 + 0x14;
       } while (iVar4 < 0x18);
       if (iVar4 == 0x18) {
-        ::printf((char *)rtguest::G((uint32_t)(0x32f890u)));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32f890u)));
         goto LAB_0026a9e4;
       }
       pcVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar8 + 2)));
@@ -77,8 +77,8 @@ LAB_0026aba4:
       cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
       if (200.0 <= (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0177248c + iVar4)))) goto LAB_0026aae0;
       if (cVar3 == '\0') {
-        ::printf((char *)rtguest::G((uint32_t)(0x335468u)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) / 0x3c);
-        ::printf((char *)rtguest::G((uint32_t)(0x32f8b0u)), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))));
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x335468u)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) / 0x3c);
+        rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32f8b0u)), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))));
       }
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = 1;
     }

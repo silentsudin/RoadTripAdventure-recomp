@@ -13,21 +13,40 @@ from pathlib import Path
 GEN = Path(sys.argv[1] if len(sys.argv) > 1 else "src/native/guest/gen")
 INC = Path(sys.argv[2] if len(sys.argv) > 2 else "build/decomp/guest_decls.inc")
 
-sig_re = re.compile(
-    r"^(uint\d+_t|int\d+_t|void) ([A-Za-z_]\w*)\((.*?)\) \{$")
+# Line-start anchored; `\) ?\{` (no $ anchor) so packed hand-port TUs whose
+# whole body rides on the def line are still tracked. Line start keeps call
+# sites safe (gen TU statements are indented).
+line_start_re = re.compile(
+    r"^(uint\d+_t|int\d+_t|void) ([A-Za-z_]\w*)\((.*?)\) ?\{")
+# Hand-written VU0 TUs pack defs mid-line after "namespace guest {".
+# shortcut: only this exact prefix is scanned mid-line; widen the prefix
+# match when a future hand-port TU uses another layout.
+nsprefix_re = re.compile(r"^namespace guest \{ ")
+mid_re = re.compile(
+    r"\b(uint\d+_t|int\d+_t|void) ([A-Za-z_]\w*)\(([^)]*)\) ?\{")
 
 defs = {}
 for f in sorted(GEN.glob("*.cpp")):
     for line in f.read_text().splitlines():
-        m = sig_re.match(line)
+        m = line_start_re.match(line)
         if m:
-            ret, name, params = m.groups()
-            plist = params.split(",")
-            vari = any(p.strip() == "..." for p in plist)
-            types = [p.strip().rsplit(" ", 1)[0] for p in plist
-                     if p.strip() and p.strip() != "..."]
-            defs.setdefault(name, (ret, types, vari))
+            for g in [m]:
+                ret, name, params = g.groups()
+                plist = params.split(",")
+                vari = any(p.strip() == "..." for p in plist)
+                types = [p.strip().rsplit(" ", 1)[0] for p in plist
+                         if p.strip() and p.strip() != "..."]
+                defs.setdefault(name, (ret, types, vari))
             break
+        if nsprefix_re.match(line):
+            for mm in mid_re.finditer(line):
+                ret, name, params = mm.groups()
+                plist = params.split(",")
+                vari = any(p.strip() == "..." for p in plist)
+                types = [p.strip().rsplit(" ", 1)[0] for p in plist
+                         if p.strip() and p.strip() != "..."]
+                defs.setdefault(name, (ret, types, vari))
+            continue
 
 lines = INC.read_text().splitlines(keepends=True)
 decl_re = re.compile(r"^(\s*)(?:inline\s+)?(uint\d+_t|int\d+_t|void) ([A-Za-z_]\w*)\(.*\;(?:\s*)$")

@@ -83,12 +83,12 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
     goto LAB_0023afe0;
   default:
-    ::printf((char *)rtguest::G((uint32_t)(0x2ec718u)), (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x22))), (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec718u)), (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x22))), (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
     if ((*(int8_t*)rtguest::G((uint32_t)param_3)) < 0x20) {
       for (param_3 = pbVar8 + 2; (*(int8_t*)rtguest::G((uint32_t)param_3)) < 0x20; param_3 = param_3 + 1) {
       }
     }
-    ::printf((char *)rtguest::G((uint32_t)((uint32_t)0x333928u)), param_3);
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)((uint32_t)0x333928u)), param_3);
     goto LAB_0023b13c;
   case 0xb:
     uVar6 = GetOrSetPresidentRaceResult(0xffffffffffffffff);

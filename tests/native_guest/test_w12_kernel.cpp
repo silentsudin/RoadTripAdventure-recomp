@@ -163,7 +163,11 @@ int main() {
     kPumpToIdle();
     CHECK(rd32(0x400320 + 4) < rd32(0x400310 + 4));  // prio 3 ran before prio 5
 
-    // 4) libkernel ring path: iWakeupThread(self) with the game's gate+sema
+    // 4) iWakeupThread is host-served now (stub mirror): its body routes
+    //    through the syscall dispatcher to the kernel's direct ready-queue
+    //    wake (oracle Kernel/Syscalls/Thread.cpp). The game's ring-copy gen
+    //    TU is excluded from compilation, so the ring RAM must stay
+    //    untouched — mirroring the oracle, where the ring copy never runs.
     kResetKernel();
     std::memset(kRam, 0, 0x500000);
     wr32(0x2e98f0, 1);                        // libkernel-init gate != 0
@@ -171,17 +175,16 @@ int main() {
     const int32_t semaR = guest::CreateSema(0x400130);
     wr32(0x1776570, (uint32_t)semaR);
     wr32(0x177657c, 0);
+    wr32(0x1776580, 0x5a5a5a5au);             // poison: host path must not write it
     registerGuest(0x0F000120, (void*)&t_ring_body);
     makeTh(0x400110, 0x0F000120, 0x400, 2);
     CHECK(guest::CreateThread(0x400110) == 2);
     CHECK(guest::StartThread(2, 0) == 0);
     kPumpToIdle();
-    // ring slot: op word zeroed then tid byte written at +1 (overlapping —
-    // literal widths from the pseudocode; read the op as a byte)
-    CHECK(*(uint8_t*)G(0x1776580) == 0);      // ring op 0 = wake
-    CHECK(*(uint8_t*)G(0x1776581) == 2);      // byte = caller tid (in_v0 model)
-    CHECK(rd32(0x177657c) == 1);              // ring index advanced
-    CHECK(guest::PollSema((uint32_t)semaR) == semaR);  // iSignalSema fired
+    CHECK(rd32(0x1776580) == 0x5a5a5a5au);    // ring slot untouched (copy excluded)
+    CHECK(rd32(0x177657c) == 0);              // ring index never advanced
+    CHECK(guest::PollSema((uint32_t)semaR) < 0);  // KE_SEMA_ZERO: no ring signal
+    CHECK(kThreadCount() == 0);               // body ran + ExitDeleteThread
 
     // 5) ReferThreadStatus snapshot of a sleeping thread
     kResetKernel();

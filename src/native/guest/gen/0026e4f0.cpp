@@ -71,17 +71,17 @@ joined_r0x0026e59c:
   }
   __format = 0x32fd58u;
 LAB_0026e684:
-  ::printf((char *)rtguest::G((uint32_t)(__format)));
-  ::printf((char *)rtguest::G((uint32_t)(0x32fc78u)), REG_DMAC_1_VIF1_CHCR);
-  ::printf((char *)rtguest::G((uint32_t)(0x32fc88u)), REG_DMAC_1_VIF1_TADR);
-  ::printf((char *)rtguest::G((uint32_t)(0x32fc98u)), REG_DMAC_1_VIF1_MADR);
-  ::printf((char *)rtguest::G((uint32_t)(0x32fca8u)), REG_DMAC_1_VIF1_QWC);
-  ::printf((char *)rtguest::G((uint32_t)(0x32fcb8u)), REG_DMAC_2_GIF_CHCR);
-  ::printf((char *)rtguest::G((uint32_t)(0x32fcc8u)), REG_DMAC_2_GIF_TADR);
-  ::printf((char *)rtguest::G((uint32_t)(0x32fcd8u)), REG_DMAC_2_GIF_MADR);
-  ::printf((char *)rtguest::G((uint32_t)(0x32fce8u)), REG_DMAC_2_GIF_QWC);
-  ::printf((char *)rtguest::G((uint32_t)(0x32fcf8u)), REG_VIF1_STAT);
-  ::printf((char *)rtguest::G((uint32_t)(0x32fd10u)), REG_GIF_STAT);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(__format)));
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fc78u)), REG_DMAC_1_VIF1_CHCR);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fc88u)), REG_DMAC_1_VIF1_TADR);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fc98u)), REG_DMAC_1_VIF1_MADR);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fca8u)), REG_DMAC_1_VIF1_QWC);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fcb8u)), REG_DMAC_2_GIF_CHCR);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fcc8u)), REG_DMAC_2_GIF_TADR);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fcd8u)), REG_DMAC_2_GIF_MADR);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fce8u)), REG_DMAC_2_GIF_QWC);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fcf8u)), REG_VIF1_STAT);
+  rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x32fd10u)), REG_GIF_STAT);
   return 0xffffffff;
 }
 

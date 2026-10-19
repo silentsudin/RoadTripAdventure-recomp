@@ -140,7 +140,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     (*(uint8_t*)rtguest::G(0x33573a)) = 0;
     break;
   case 5:
-    ::printf((char *)rtguest::G((uint32_t)(0x2ec910u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec910u)));
     gs_tasks_kill(param_1);
     break;
   default:

@@ -17,7 +17,7 @@ uint32_t puVar6;
     return 0;
   }
   if ((*(int32_t*)rtguest::G(0x1782a60)) == 8) {
-    ::printf((char *)rtguest::G((uint32_t)(0x2ec880u)));
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec880u)));
     return 0;
   }
   uVar3 = (int)(param_1 & 0xff) + 0xff;

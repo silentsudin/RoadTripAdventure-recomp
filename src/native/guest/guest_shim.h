@@ -43,8 +43,11 @@ void noteFault(uint32_t a);
 // Bump arena inside guest RAM for transliterated stack arrays (auStack_* locals get
 // guest addresses so they can be passed to other guest fns).
 // shortcut: never freed or unwound; replace with the real EE stack model at W12 boot.
+// shortcut: end moved below the ELF entry's SetupThread stack region
+// [0x1F80000,0x2000000) so the arena never collides with the declared EE stack;
+// re-derive when the real EE stack model lands (W13 hash chase).
 #define RT_FRAME_BASE 0x01E00000u
-#define RT_FRAME_END  0x02000000u
+#define RT_FRAME_END  0x01F80000u
 uint32_t allocFrame(uint32_t bytes);
 
 // Guest float register bits as float, for float-typed callee params
@@ -71,6 +74,12 @@ inline void* G(uint32_t a) {
 
 // Load the boot ELF's sections into the image (user's own file; never committed).
 bool loadImage(const uint8_t* elfFile, size_t size);
+
+// Host printf for guest debug strings: fmt is host-mapped already; each %s
+// argument is a GUEST address (the corpus passes u32/u64 values), mapped via
+// G(). shortcut: covers the conversion set the game's debug strings use
+// (diuxXoclpsf with l modifiers); revisit if a scene prints exotic specs.
+int rtPrintf(const char* fmt, ...);
 
 // Indirect-call registry: OUR table of translated functions (plan doc, decision 2).
 // Entries stored as void* (dlsym pattern): signatures vary per function as ports

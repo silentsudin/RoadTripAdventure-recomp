@@ -71,7 +71,7 @@ LAB_0026f95c:
   }
   else {
     if ((*(int16_t*)rtguest::G((uint32_t)psVar3 + (uint32_t)(1) * sizeof(int16_t))) != 3) {
-      iVar11 = ::printf((char *)rtguest::G((uint32_t)(0x330110u)));
+      iVar11 = rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x330110u)));
       uVar8 = (uint32_t)iVar11;
       goto LAB_0026f9e0;
     }

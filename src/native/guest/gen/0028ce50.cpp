@@ -54,7 +54,7 @@ uint32_t acStack_80 = rtguest::allocFrame(80);
     uVar3 = sceSifResetIop(acStack_80,0);
   }
   else {
-    ::printf((char *)rtguest::G((uint32_t)(0x3327d0u)), param_1);
+    rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x3327d0u)), param_1);
     uVar3 = 0;
   }
   return uVar3;
