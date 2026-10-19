@@ -22,7 +22,7 @@ uint32_t scePrintfPutChar(uint32_t param_1, ...) {
   (*(int32_t*)rtguest::G(0x2e98f4)) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)0x1776d40 + (uint32_t)(iVar1) * 4)) = 10;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x1776d41))) = 0;
-  kputs();
+  kputs(0x1776d40);  // merge path of jal 286618; $4=base (lui/addiu 286608)
   return 0;
 }
 

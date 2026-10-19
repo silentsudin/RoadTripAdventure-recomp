@@ -10,7 +10,7 @@ uint32_t iWakeupThread(uint32_t param_1, ...) {
   int iVar2;
   
   uVar1 = (*(uint32_t*)rtguest::G(0x1776570));
-  syscall(0xffffffffffffffd1);
+  in_v0 = syscall(0xffffffffffffffd1);  // v0 capture; real v0 = caller tid at W12 syscall model
   if (in_v0 == param_1) {
     if ((in_v0 < 0x100) && ((*(int32_t*)rtguest::G(0x2e98f0)) != 0)) {
       iVar2 = ((*(uint32_t*)rtguest::G(0x177657c)) & 0x1ff) * 2;

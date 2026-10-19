@@ -4,10 +4,10 @@
 
 namespace guest {
 
-uint32_t floor(uint32_t __x, ...) {
+uint64_t floor(uint64_t __x, ...) {
   undefined8 uVar1;
   long lVar2;
-  double dVar3;
+  uint64_t dVar3;  // double bits through uint64 (shim convention)
   int iVar4;
   ulong uVar5;
   uint uVar6;
@@ -19,7 +19,7 @@ uint32_t floor(uint32_t __x, ...) {
   uVar7 = SUB84(__x,0);
   uVar8 = (uint32_t)(int)uVar7;
   uVar5 = (long)__x >> 0x20;
-  iVar4 = (int)((uint32_t)__x >> 0x20);
+  iVar4 = (int)((uint64_t)__x >> 0x20);
   uVar9 = iVar4 >> 0x14 & 0x7ff;
   uVar6 = uVar9 - 0x3ff;
   if ((int)uVar6 < 0x14) {
@@ -60,7 +60,7 @@ uint32_t floor(uint32_t __x, ...) {
       if (uVar6 != 0x400) {
         return __x;
       }
-      dVar3 = (double)dpadd(__x,__x);
+      dVar3 = dpadd(__x,__x);
       return dVar3;
     }
     uVar9 = 0xffffffff >> (uVar9 - 0x413 & 0x1f);
@@ -84,7 +84,7 @@ uint32_t floor(uint32_t __x, ...) {
       uVar8 = uVar10 & ~(long)(int)uVar9;
     }
   }
-  return (double)(uVar5 << 0x20 | uVar8 & 0xffffffff);
+  return uVar5 << 0x20 | (uVar8 & 0xffffffff);
 }
 
 

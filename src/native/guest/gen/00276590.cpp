@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t __kernel_sin(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+uint64_t __kernel_sin(uint64_t param_1, uint64_t param_2, uint64_t param_3, ...) {
   long lVar1;
   undefined8 uVar2;
   undefined8 uVar3;

@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t dpmul(uint64_t param_1, uint64_t param_2, ...) {
+uint64_t dpmul(uint64_t param_1, uint64_t param_2, ...) {
     uint32_t uStack_b0 = rtguest::allocFrame(4);
     uint32_t uStack_ac = rtguest::allocFrame(4);
     uint32_t iStack_a8 = rtguest::allocFrame(4);
@@ -103,8 +103,7 @@ LAB_0027bbac:
     puVar4 = uStack_90;
   }
 LAB_0027bd8c:
-  __pack_d(puVar4);
-  return 0;
+  return __pack_d(puVar4);  // v0 passthrough (dpadd/dpsub twin)
 }
 
 

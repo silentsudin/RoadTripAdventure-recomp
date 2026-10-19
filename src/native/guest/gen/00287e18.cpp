@@ -28,7 +28,7 @@ uint32_t piVar2;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x30))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x30)));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x34))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10)));
   if ((-1 < (*(int32_t*)rtguest::G((uint32_t)piVar2))) && ((*(int32_t*)rtguest::G((uint32_t)piVar2 + (uint32_t)(1) * sizeof(int32_t))) == 0)) {
-    iWakeupThread();
+    iWakeupThread((*(int32_t*)rtguest::G((uint32_t)piVar2)));  // 287e7c lw $4,0x0($6) feeds the jal
     return 0;
   }
   return 0;

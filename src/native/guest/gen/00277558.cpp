@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t scalbn(uint32_t param_1, uint32_t param_2, ...) {
+uint64_t scalbn(uint64_t param_1, uint32_t param_2, ...) {
   undefined8 uVar1;
   int iVar2;
   int iVar3;

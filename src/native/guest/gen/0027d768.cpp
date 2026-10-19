@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t __pack_d(uint32_t param_1, ...) {
+uint64_t __pack_d(uint32_t param_1, ...) {
   uint uVar1;
   ulong uVar2;
   ulong uVar3;
