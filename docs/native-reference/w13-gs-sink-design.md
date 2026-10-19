@@ -139,3 +139,31 @@ build/vu1hle-caps/*.vu1cap (extracted to build/scratch/w3-step2/code.bin,
 same hash), dumps in oneshots1.dis. Transliterate these for the full attract
 scanout in step 2b; disassembler branch-offset display has a cosmetic imm11
 bug (shows +16344 for a loop-back) — semantics from .inl unchanged.
+Correction: the display is simply the raw imm*8 without the interpreter's
+pc+8 base (branches are pc-relative: `.inl` 2155
+`target=(pc+8+imm*8)&pcMask`) — e.g. the WorldStrip slot at 0x40 reads
+`B 0x38` but really targets 0x80.
+
+## Step 2c done (2026-10-19 late): clipped family — slot table complete
+
+ObjectStrip (pc 0x30, body 0x03e8), WorldStrip (pc 0x40, body 0x0080),
+SkyStrip (pc 0x60, body 0x1aa0) and SetupClipped (pc 0x70, body 0x1318) are
+now ported too: `runColourSetStrip(object)` (one loop for 3/4, colour sets
+A/B/C blended by VF9, fog set VF10/VF11 by tag.y bit 1), the six-plane
+Sutherland-Hodgman clipper (triangle state in VU61/101 ping-pong, polygon
+packets built at VU30 and kicked per triangle, empty EOP tag at VU29 between
+them, batch header with the first), and SkyStrip (per-vertex weight cycle
+along VU6, tint VU24, winding cull by the cross product's exact sign —
+dis6 1bf8/1c18-1c20). Verified byte-exact on all captures including the
+clipper paths: qr0_rare 6000/6000 (ObjectStrip 2840, SkyStrip 720,
+SetupClipped 40, OffsetStrip 2400) and qr0_world 8000/8000 (WorldStrip);
+field_lit unchanged 6000/6000. Boot census unchanged (slots 3/4/6/7 never
+fire before attract; races are the first users), RAM@1800 still byte-identical.
+
+Init fidelity fix found reading the body (0x1268-0x1308): VF9..11 load from
+VU19..21 (kFogLit), not VU20..22 — the capture set starts mid-scene so Init
+was never compared there; vi14 = IADDIU -1024 (only low 10 bits reach
+save-stack addressing; 1024 kept as the canonical base).
+
+Remaining unported at boot: only the 828 direct-PC one-shot invocations
+(step 2b scope above).

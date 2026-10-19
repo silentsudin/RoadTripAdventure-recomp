@@ -91,13 +91,9 @@ int main() {
             expPk.push_back(std::move(pk));
         }
 
-        // Records for programs not transliterated yet (clipped family, direct-PC
-        // programs): consumed, not compared.
+        // Records for programs not transliterated yet (direct-PC programs): consumed,
+        // not compared.
         if (startPC >= 0x80 || (startPC & 0xFu) != 0u) {
-            ++skipped;
-            continue;
-        }
-        if (startPC != 0x00 && startPC != 0x10 && startPC != 0x20 && startPC != 0x50) {
             ++skipped;
             continue;
         }

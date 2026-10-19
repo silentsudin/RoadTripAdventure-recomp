@@ -27,8 +27,9 @@ using Vu1KickFn = void (*)(const std::uint8_t* packet, std::uint32_t bytes);
 void vu1SetKick(Vu1KickFn fn);
 
 // MSCAL/MSCALF seam (guest_vif1): runs the programs ported at the slot PCs
-// (Init 0x00, SetupLit 0x10, LitStrip 0x20, OffsetStrip 0x50); other entry PCs
-// are counted as unported until transliterated.
+// (all eight: Init 0x00, SetupLit 0x10, LitStrip 0x20, ObjectStrip 0x30,
+// WorldStrip 0x40, OffsetStrip 0x50, SkyStrip 0x60, SetupClipped 0x70);
+// other entry PCs are counted as unported until transliterated.
 void vu1OnMscal(std::uint32_t pc, std::uint32_t top, std::uint32_t itop);
 std::uint64_t vu1Runs();
 std::uint64_t vu1Unported();
