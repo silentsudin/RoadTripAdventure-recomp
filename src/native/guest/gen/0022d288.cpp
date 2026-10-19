@@ -14,7 +14,7 @@ uint32_t puVar2;
   do {
     iVar3 = iVar3 + -1;
     (*(uint32_t*)rtguest::G((uint32_t)puVar2)) = 0x7fffffff;
-    puVar2 = puVar2 + 1;
+    puVar2 = puVar2 + 0x4;  // T* element step
   } while (-1 < iVar3);
   bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 10)));
   if ((bVar1 == 0) && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x20))) < 0x20)) {
@@ -37,7 +37,7 @@ uint32_t puVar2;
   do {
     iVar3 = iVar3 + -1;
     (*(uint32_t*)rtguest::G((uint32_t)puVar2)) = 0x7fffffff;
-    puVar2 = puVar2 + 1;
+    puVar2 = puVar2 + 0x4;  // T* element step
   } while (-1 < iVar3);
   return 0;
 }

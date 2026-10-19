@@ -46,7 +46,7 @@ uint32_t puVar6;
       if (fVar4 <= (float)(*(uint32_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(-4) * sizeof(uint32_t)))) {
         (*(uint32_t*)rtguest::G((uint32_t)puVar6)) = (*(uint32_t*)rtguest::G((uint32_t)puVar6)) - 16000 & 0xfffffff;
       }
-      puVar6 = puVar6 + 0x9c;
+      puVar6 = puVar6 + 0x270;  // T* element step
     } while (-1 < iVar7);
   }
   lVar5 = TestFlagBitFc98(0x5a);

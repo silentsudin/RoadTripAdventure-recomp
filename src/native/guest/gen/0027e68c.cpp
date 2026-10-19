@@ -35,13 +35,13 @@ uint32_t puVar6;
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x14))) = (int)((uint32_t)uVar2 >> 0x20);
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar6 + 3))) = uVar3;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x1c))) = uVar4;
-      puVar6 = puVar6 + 4;
+      puVar6 = puVar6 + 0x20;  // T* element step
     } while (0x1f < __n);
     for (; 7 < __n; __n = (size_t)((int)__n + -8)) {
       uVar2 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)__src));
       __src = (uint32_t)((int)__src + 8);
       (*(uint64_t*)rtguest::G((uint32_t)puVar6)) = uVar2;
-      puVar6 = puVar6 + 1;
+      puVar6 = puVar6 + 0x8;  // T* element step
     }
   }
   iVar5 = (int)__n;

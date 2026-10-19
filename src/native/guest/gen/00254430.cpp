@@ -61,7 +61,7 @@ uint32_t puVar9;
                  (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x2ac498))),uVar4,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002ac480 + iVar3))));
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x24a))) = (char)uVar6;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x4b))) = puVar9;
-      puVar5 = puVar5 + 0x4e;
+      puVar5 = puVar5 + 0x270;  // T* element step
       uVar4 = uVar8;
     } while ((int)uVar8 < 6);
     (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)((uint32_t)(iVar2 + 0x8cd0))), 0, 0x50));
@@ -75,7 +75,7 @@ uint32_t puVar9;
     do {
       iVar3 = iVar3 + -1;
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) | 0x800;
-      puVar5 = puVar5 + 0x4e;
+      puVar5 = puVar5 + 0x270;  // T* element step
     } while (-1 < iVar3);
     ResetMode1A(iVar2,uVar11);
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 1;
@@ -119,7 +119,7 @@ LAB_00254740:
             do {
               iVar3 = iVar3 + -1;
               (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) & 0xf7ff;
-              puVar5 = puVar5 + 0x4e;
+              puVar5 = puVar5 + 0x270;  // T* element step
             } while (-1 < iVar3);
             SetHudState2(iVar2,0);
             if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8cc4))) + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8cc8))) == 0) {
@@ -193,7 +193,7 @@ LAB_00254994:
         do {
           iVar3 = iVar3 + -1;
           (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) | 0x800;
-          puVar5 = puVar5 + 0x4e;
+          puVar5 = puVar5 + 0x270;  // T* element step
         } while (-1 < iVar3);
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8cb4))) = 0;
         (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 8;
@@ -231,7 +231,7 @@ LAB_00254994:
       do {
         iVar3 = iVar3 + -1;
         (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) | 0x800;
-        puVar5 = puVar5 + 0x4e;
+        puVar5 = puVar5 + 0x270;  // T* element step
       } while (-1 < iVar3);
       PlayBgmSlot5();
       (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 10;

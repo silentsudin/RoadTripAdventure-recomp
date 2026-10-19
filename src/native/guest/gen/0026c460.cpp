@@ -23,7 +23,7 @@ uint32_t auStack_80 = rtguest::allocFrame(96);
     ppuVar7 = ppuVar7 + 2;
     iVar5 = iVar5 + -1;
     (*(uint32_t*)rtguest::G((uint32_t)puVar6)) = puVar2;
-    puVar6 = puVar6 + 1;
+    puVar6 = puVar6 + 0x4;  // T* element step
   } while (-1 < iVar5);
   iVar8 = (int)param_1;
   iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));

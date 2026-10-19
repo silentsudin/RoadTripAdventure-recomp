@@ -153,12 +153,12 @@ LAB_0027c800:
       piVar8 = piVar11;
       do {
         iVar16 = (*(int32_t*)rtguest::G((uint32_t)piVar8));
-        piVar8 = piVar8 + 1;
+        piVar8 = piVar8 + 0x4;  // T* element step
         piVar6 = (uint32_t)lVar24;
         if (iVar16 == 0) {
           uVar14 = (uint32_t)((int)uVar14 + 1);
           (*(int32_t*)rtguest::G((uint32_t)piVar11)) = (*(int32_t*)rtguest::G((uint32_t)piVar6));
-          piVar11 = piVar11 + 1;
+          piVar11 = piVar11 + 0x4;  // T* element step
         }
         else {
           iVar15 = iVar15 + 1;

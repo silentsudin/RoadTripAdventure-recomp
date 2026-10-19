@@ -60,7 +60,7 @@ uint32_t puVar10;
         puVar10 = puVar9 + uVar11;
         uVar7 = (*(uint32_t*)rtguest::G((uint32_t)puVar10));
         while( true ) {
-          puVar10 = puVar10 + 1;
+          puVar10 = puVar10 + 0x4;  // T* element step
           iVar3 = iVar2;
           if ((((uVar7 & 1 << (uVar12 & 0x1f)) != 0) &&
               (((param_4 & 8) == 0 || (lVar8 = DispatchByIndex15(param_1,uVar12), lVar8 != 0)))) &&

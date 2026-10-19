@@ -53,7 +53,7 @@ uint32_t pfVar4;
       }
       (*(float*)rtguest::G((uint32_t)fStack_78)) = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)));
       pfVar1 = pfVar4 + 1;
-      pfVar4 = pfVar4 + 4;
+      pfVar4 = pfVar4 + 0x10;  // T* element step
       iVar3 = (int)param_7 + iVar6;
       iVar6 = iVar6 + 0x10;
       iVar5 = iVar5 + -1;

@@ -90,7 +90,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
       uiArenaSprites(iVar10,(*(uint32_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)(5) * sizeof(uint32_t))) * 0x20 + 0x29c300,1,(*(uint32_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)(1) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)(2) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)(3) * sizeof(uint32_t))));
     }
     iVar3 = iVar3 + -1;
-    puVar9 = puVar9 + 6;
+    puVar9 = puVar9 + 0x18;  // T* element step
   } while (iVar3 != -1);
   DrawMenuCursorAndIcons(param_3,iVar10,iVar13 + 0x820c,0xb);
   uiArenaSubmit(iVar10);
@@ -151,7 +151,7 @@ LAB_00216674:
       }
     }
     uVar11 = uVar11 + 1;
-    piVar14 = piVar14 + 1;
+    piVar14 = piVar14 + 0x4;  // T* element step
     ppuVar15 = ppuVar15 + 1;
     if (5 < uVar11) {
       return 0;

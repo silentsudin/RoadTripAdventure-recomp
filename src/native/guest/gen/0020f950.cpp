@@ -147,7 +147,7 @@ uint32_t puVar16;
               pcVar1 = pcVar8 + 1;
               pcVar8 = pcVar8 + 2;
               (*(int32_t*)rtguest::G((uint32_t)piVar9)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + cVar2 * 4))) + (*(int8_t*)rtguest::G((uint32_t)pcVar1)) * 0x10;
-              piVar9 = piVar9 + 1;
+              piVar9 = piVar9 + 0x4;  // T* element step
             } while (iVar13 < (int)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1));
             uVar7 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1;
           }
@@ -198,7 +198,7 @@ uint32_t puVar16;
               pcVar8 = pcVar8 + 2;
               (*(int32_t*)rtguest::G((uint32_t)piVar9)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + cVar2 * 4))) + (*(int8_t*)rtguest::G((uint32_t)pcVar1)) * 0x10;
               bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1)));
-              piVar9 = piVar9 + 1;
+              piVar9 = piVar9 + 0x4;  // T* element step
             } while (iVar13 < (int)(bVar12 - 1));
           }
           gs_tasks_spawn(param_1,0x20dc50,bVar12 - 1 | 0x70300);

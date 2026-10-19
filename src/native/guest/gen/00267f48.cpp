@@ -56,7 +56,7 @@ uint32_t puVar8;
             uVar7 = (int)(*(uint32_t*)rtguest::G((uint32_t)puVar8)) >> (uVar6 & 0x1f);
           } while (uVar6 < 0x20);
           uVar4 = uVar4 + 1;
-          puVar8 = puVar8 + 1;
+          puVar8 = puVar8 + 0x4;  // T* element step
         } while (uVar4 < 5);
         uVar1 = 0xffffffff;
       }

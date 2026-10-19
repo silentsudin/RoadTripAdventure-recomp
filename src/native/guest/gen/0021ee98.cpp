@@ -18,7 +18,7 @@ uint32_t puVar4;
     iVar5 = 0;
     puVar4 = 0x0177ade8;
     uVar1 = (*(uint16_t*)rtguest::G(0x177ade8));
-    while (puVar4 = puVar4 + 0x138, (uVar1 & 0x27e) != ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) & 1) * 0x40 + 0x10
+    while (puVar4 = puVar4 + 0x270, (uVar1 & 0x27e) != ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) & 1) * 0x40 + 0x10
           ) {
       iVar5 = iVar5 + 1;
       if (0x17 < iVar5) {

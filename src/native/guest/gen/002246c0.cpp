@@ -64,7 +64,7 @@ uint32_t pfVar1;
       iVar2 = 0;
       if (0.0 < (*(uint32_t*)rtguest::G(0x172ff7c))) {
         iVar2 = 2;
-        while ((pfVar1 = pfVar1 + 8, iVar2 < 0x80 && (0.0 < (*(float*)rtguest::G((uint32_t)pfVar1))))) {
+        while ((pfVar1 = pfVar1 + 0x20, iVar2 < 0x80 && (0.0 < (*(float*)rtguest::G((uint32_t)pfVar1))))) {
           iVar2 = iVar2 + 2;
         }
       }

@@ -57,7 +57,7 @@ LAB_0020abdc:
       } while (iVar9 < 4);
     }
     iVar13 = iVar13 + 1;
-    puVar12 = puVar12 + 1;
+    puVar12 = puVar12 + 0x4;  // T* element step
     pbVar14 = pbVar14 + 2;
     iVar15 = iVar15 + 4;
     if (1 < iVar13) {

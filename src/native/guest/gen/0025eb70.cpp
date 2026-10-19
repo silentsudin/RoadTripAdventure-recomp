@@ -351,7 +351,7 @@ LAB_0025f558:
         (*(uint32_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)(-1) * sizeof(uint32_t))) = (*(uint32_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)(-1) * sizeof(uint32_t))) - (int)((*(uint32_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)(0x13) * sizeof(uint32_t))) << 5) / 0x19;
       }
       iVar6 = iVar6 + -1;
-      puVar9 = puVar9 + 0x9c;
+      puVar9 = puVar9 + 0x270;  // T* element step
     } while (-1 < iVar6);
   }
   raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x28))));

@@ -93,7 +93,7 @@ uint32_t puVar8;
       uVar5 = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(2) * sizeof(uint32_t)));
     }
     uVar9 = uVar9 + 1;
-    piVar6 = piVar6 + 1;
+    piVar6 = piVar6 + 0x4;  // T* element step
   } while ((int)uVar9 < 2);
   lVar10 = 0;
   do {

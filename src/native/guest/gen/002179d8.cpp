@@ -65,7 +65,7 @@ uint32_t puVar6;
           puVar2 = puVar5;
         }
       }
-      puVar6 = puVar6 + 0x4e;
+      puVar6 = puVar6 + 0x270;  // T* element step
     } while (iVar7 < 0x17);
   }
   return 0;

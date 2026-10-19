@@ -80,7 +80,7 @@ uint32_t piVar12;
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(pfVar9 + 9))) = uVar3;
       gs_tasks_spawn(param_1,0x25d7c8,pfVar9);
       lVar13 = lVar13 + 1;
-      pfVar9 = pfVar9 + 0xc;
+      pfVar9 = pfVar9 + 0x30;  // T* element step
     } while ((int)uVar14 < 0x1e);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x9254))) = 1;
   case 1:

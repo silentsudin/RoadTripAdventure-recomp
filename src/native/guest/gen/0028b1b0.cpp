@@ -92,7 +92,7 @@ uint32_t puVar5;
     _sceFsSigSema();
     (*(uint32_t*)rtguest::G((uint32_t)auStack_b0 + (uint32_t)(0) * 4)) = 0xfffffff9;
   }
-
+  return (*(uint32_t*)rtguest::G((uint32_t)auStack_b0 + (uint32_t)(0) * 4));;
 }
 
 

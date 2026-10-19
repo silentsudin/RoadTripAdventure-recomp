@@ -39,7 +39,7 @@ uint32_t puVar7;
         }
         iVar5 = iVar5 + 1;
         puVar7 = puVar7 + 0x1010;
-        piVar4 = piVar4 + 0x9c;
+        piVar4 = piVar4 + 0x270;  // T* element step
         pbVar6 = pbVar6 + 0x3448;
       } while (iVar5 < (int)(bVar2 + 1));
     }

@@ -31,7 +31,7 @@ uint32_t puVar5;
     uVar6 = uVar6 | 2;
   }
   do {
-    puVar5 = puVar5 + 0x138;
+    puVar5 = puVar5 + 0x270;  // T* element step
     if ((uVar3 & 0x27e) == uVar6) {
       InitializeTask((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))),0x238b18,iVar7);
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (char)iVar7;
@@ -47,7 +47,7 @@ LAB_0021e440:
         if (uVar1 == 0) {
           uVar6 = uVar6 | 2;
         }
-        while (puVar5 = puVar5 + 0x138, (uVar3 & 0x27e) != uVar6) {
+        while (puVar5 = puVar5 + 0x270, (uVar3 & 0x27e) != uVar6) {
           iVar7 = iVar7 + 1;
           if (0x17 < iVar7) {
             return 0;

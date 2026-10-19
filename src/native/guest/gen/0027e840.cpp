@@ -57,7 +57,7 @@ uint32_t memset(uint32_t __s, uint32_t __c, uint32_t __n, ...) {
   iVar4 = (int)__n;
   while (iVar4 = iVar4 + -1, iVar4 != -1) {
     (*(int8_t*)rtguest::G(puVar2)) = (int8_t)__c;
-    puVar2 = puVar2 + 1;
+    puVar2 = puVar2 + 0x8;  // T* element step
   }
   return __s;
 }

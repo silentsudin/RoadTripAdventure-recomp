@@ -51,7 +51,7 @@ uint32_t puVar5;
         puVar5 = 0x01780390 + iVar7 * 5 + param_2 * 0xd12 + uVar6;
         uVar3 = (*(uint32_t*)rtguest::G((uint32_t)puVar5));
         while( true ) {
-          puVar5 = puVar5 + 1;
+          puVar5 = puVar5 + 0x4;  // T* element step
           if (((uVar3 & 1 << (uVar8 & 0x1f)) != 0) &&
              (((param_4 & 8) == 0 || (lVar4 = DispatchByIndex15(param_1,uVar8), lVar4 != 0)))) {
             if (param_3 == 0) {

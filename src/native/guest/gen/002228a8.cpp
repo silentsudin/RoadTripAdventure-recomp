@@ -64,7 +64,7 @@ uint32_t puVar6;
       vifCallModel(0x290570);
     }
     iVar7 = iVar7 + -1;
-    puVar6 = puVar6 + 0x4e;
+    puVar6 = puVar6 + 0x270;  // T* element step
   } while (-1 < iVar7);
   vifDirect(0x29d240,5);
   vifUploadLightAt16(0x177f5e0);
@@ -86,7 +86,7 @@ uint32_t puVar6;
         (*(int8_t*)rtguest::G((uint32_t)pcVar5)) = cVar2;
       }
     }
-    puVar6 = puVar6 + 0x4e;
+    puVar6 = puVar6 + 0x270;  // T* element step
   } while (iVar7 < 0x18);
   vifUploadColours(0x29d2d0,0x29d2e0);
   puVar6 = 0x177ac50;
@@ -103,7 +103,7 @@ uint32_t puVar6;
       drawCarExtraParts(puVar6,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x194))),
                         bVar3 | (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar6 + 0x1fc))) != '\0',(*(int8_t*)rtguest::G((uint32_t)pcVar5)));
     }
-    puVar6 = puVar6 + 0x4e;
+    puVar6 = puVar6 + 0x270;  // T* element step
   } while (iVar7 < 0x18);
   return 0;
 }

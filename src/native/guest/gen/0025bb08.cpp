@@ -43,7 +43,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
         (*(uint16_t*)rtguest::G((uint32_t)auStack_60 + (uint32_t)(0) * 2)) = uVar3;
         uVar6 = 0;
       }
-      puVar9 = puVar9 + 1;
+      puVar9 = puVar9 + 0x4;  // T* element step
       iVar5 = uiTextWidth(auStack_60);
       iVar5 = iVar7 - iVar5 / 2;
       iVar7 = iVar7 + 0x12;

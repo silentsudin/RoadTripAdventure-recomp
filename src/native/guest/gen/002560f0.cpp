@@ -24,8 +24,8 @@ uint32_t HandlePaintEditorInput(uint32_t param_1, uint32_t param_2, uint32_t par
   if ((uVar4 & 0x4000) == 0) {
     uVar9 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
   }
-  else if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) < 8) {
-    (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) + 1;
+  else if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) < 8) {  // pseudo byte = unsigned
+    (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) + 1;
     PlayUiSound(0x1d);
     uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x34)));
     uVar9 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
@@ -141,7 +141,7 @@ LAB_002561f4:
     uVar6 = (uVar6 & 0xf) << 0x14;
     break;
   case 7:
-    uVar3 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 5))) + iVar7;
+    uVar3 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 5))) + iVar7;  // pseudo (uint)*(byte*)
     if (0xb < uVar3) {
       cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
       goto LAB_00256470;

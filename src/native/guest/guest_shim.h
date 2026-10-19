@@ -53,6 +53,9 @@ inline float fbits(uint32_t b) { float f; __builtin_memcpy(&f, &b, 4); return f;
 // Translate a guest address to a host pointer (cached/uncached aliases, scratchpad).
 inline void* G(uint32_t a) {
     if (a >= 0x80000000u) a -= 0x80000000u;      // KSEG1 uncached alias
+    // R5900 uncached-low alias: 0x2000_0000-0x3FFF_FFFF is physical & 0x1FFF_FFFF
+    // (0x2177xxxx = FS RPC bufs; 0x3F80xxxx = DMAC regs → same kRam holes).
+    if (a >= 0x20000000u && a < 0x40000000u) a &= 0x1FFFFFFFu;
     if (a < RT_GUEST_RAM_SIZE) return kRam + a;
     if (a >= 0x70000000u && a < 0x70000000u + RT_SCRATCH_SIZE)
         return kScratch + (a - 0x70000000u);

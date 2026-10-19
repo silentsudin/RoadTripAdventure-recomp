@@ -32,7 +32,7 @@ uint32_t pfVar6;
       (*(float*)rtguest::G((uint32_t)pfVar6)) = -(fVar8 / (*(float*)rtguest::G(0x2c43b0)));
       (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(1) * sizeof(float))) = -(fVar8 / (*(uint32_t*)rtguest::G(0x2c43b4)));
       (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(2) * sizeof(float))) = -(fVar8 / (*(uint32_t*)rtguest::G(0x2c43b8)));
-      pfVar6 = pfVar6 + 3;
+      pfVar6 = pfVar6 + 0xc;  // T* element step
     } while ((int)uVar5 < 0x6b);
     pfVar6 = (uint32_t)0x01760dd8;
     uVar5 = 0;
@@ -50,7 +50,7 @@ uint32_t pfVar6;
       (*(float*)rtguest::G((uint32_t)pfVar6)) = -(fVar8 / (*(float*)rtguest::G(0x2c43b0)));
       (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(1) * sizeof(float))) = -(fVar8 / (*(uint32_t*)rtguest::G(0x2c43b4)));
       (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(2) * sizeof(float))) = -(fVar8 / (*(uint32_t*)rtguest::G(0x2c43b8)));
-      pfVar6 = pfVar6 + 3;
+      pfVar6 = pfVar6 + 0xc;  // T* element step
     } while ((int)uVar5 < 6);
   }
   else if (1 < iVar7) {
@@ -62,7 +62,7 @@ uint32_t pfVar6;
         rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t))))), param_1, param_2);
       }
       iVar7 = iVar7 + -1;
-      puVar4 = puVar4 + 2;
+      puVar4 = puVar4 + 0x8;  // T* element step
     } while (-1 < iVar7);
   }
   return 0;

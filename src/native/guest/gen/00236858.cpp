@@ -69,7 +69,7 @@ uint32_t psVar18;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)psVar11)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)psVar18));
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)psVar18)) = (*(uint32_t*)rtguest::G((uint32_t)uStack_60));
         }
-        psVar18 = psVar18 + 2;
+        psVar18 = psVar18 + 0x4;  // T* element step
       } while (iVar13 < 8);
     }
     iVar13 = iVar12 + 1;
@@ -93,7 +93,7 @@ uint32_t psVar18;
       uiDrawNumber10(0x212,iVar15 << 1,(*(int16_t*)rtguest::G((uint32_t)asStack_80 + (uint32_t)(iVar13 * 2) * 2)),uVar16);
       uVar7 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 8)));
     }
-    psVar18 = psVar18 + 2;
+    psVar18 = psVar18 + 0x4;  // T* element step
     iVar15 = iVar15 + 0xc;
     iVar13 = iVar17;
   } while (iVar17 < 8);
@@ -109,7 +109,7 @@ uint32_t psVar18;
     iVar15 = 0;
     if ((*(int16_t*)rtguest::G((uint32_t)asStack_80 + (uint32_t)(1) * 2)) != 0) {
       iVar15 = 1;
-      while ((psVar8 = psVar8 + 2, iVar15 < 8 && ((*(int16_t*)rtguest::G((uint32_t)psVar8)) != 0))) {
+      while ((psVar8 = psVar8 + 0x4, iVar15 < 8 && ((*(int16_t*)rtguest::G((uint32_t)psVar8)) != 0))) {
         iVar15 = iVar15 + 1;
       }
     }

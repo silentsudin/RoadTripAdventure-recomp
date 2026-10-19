@@ -86,7 +86,7 @@ LAB_002632d8:
         break;
       }
       iVar2 = iVar2 + 1;
-      pfVar10 = pfVar10 + 1;
+      pfVar10 = pfVar10 + 0x4;  // T* element step
     } while (iVar2 < 4);
     if (iVar2 == 4) {
       unaff_s5 = SetIndexedValueAndSum

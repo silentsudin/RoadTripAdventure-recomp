@@ -35,12 +35,12 @@ uint32_t puVar11;
     }
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)piVar10 + (uint32_t)(5) * sizeof(int32_t)));
     iVar8 = (*(int32_t*)rtguest::G((uint32_t)piVar10 + (uint32_t)(4) * sizeof(int32_t)));
-    piVar10 = piVar10 + 8;
+    piVar10 = piVar10 + 0x20;  // T* element step
     (*(uint64_t*)rtguest::G((uint32_t)puVar11 + (uint32_t)(2) * sizeof(uint64_t))) = ((long)(iVar9 >> 4) & (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar1))) << 0x10;
     (*(uint64_t*)rtguest::G((uint32_t)puVar11)) = (long)iVar6 | (long)iVar3 << 0x38 | (long)iVar4 << 0x20 | (long)iVar3 << 0x18 |
                (long)iVar5 << 0x10 | (long)iVar5 << 0x30;
     (*(uint64_t*)rtguest::G((uint32_t)puVar11 + (uint32_t)(4) * sizeof(uint64_t))) = (long)iVar8 | (long)iVar7 << 0x20;
-    puVar11 = puVar11 + 8;
+    puVar11 = puVar11 + 0x40;  // T* element step
   } while (-1 < iVar12);
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 0x14;
   gifChainEndTag(0x2a3490,0x15);

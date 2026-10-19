@@ -94,8 +94,8 @@ LAB_0027d1f4:
       (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(1) * sizeof(uint64_t))) = uVar4;
       (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(2) * sizeof(uint64_t))) = uVar8;
       (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(3) * sizeof(uint64_t))) = uVar9;
-      puVar5 = puVar5 + 4;
-      puVar6 = puVar6 + 4;
+      puVar5 = puVar5 + 0x20;  // T* element step
+      puVar6 = puVar6 + 0x20;  // T* element step
     } while (puVar5 != param_2 + 0x90);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x8f))) = puVar3;
     puVar10 = (uint32_t)switchD_0027d18c_executeCfaInsnEpilogue();
@@ -111,7 +111,7 @@ LAB_0027d1f4:
       (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint64_t))) = uVar4;
       (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint64_t))) = uVar8;
       (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(3) * sizeof(uint64_t))) = uVar9;
-      puVar5 = puVar5 + 4;
+      puVar5 = puVar5 + 0x20;  // T* element step
       param_2 = param_2 + 4;
     } while (puVar5 != puVar6 + 0x90);
     free(puVar6);

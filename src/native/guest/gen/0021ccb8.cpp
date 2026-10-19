@@ -24,8 +24,8 @@ uint32_t puVar2;
     (*(uint64_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(1) * sizeof(uint64_t))) = uVar3;
     (*(uint64_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(2) * sizeof(uint64_t))) = uVar4;
     (*(uint64_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(3) * sizeof(uint64_t))) = uVar5;
-    puVar2 = puVar2 + 4;
-    puVar1 = puVar1 + 4;
+    puVar2 = puVar2 + 0x20;  // T* element step
+    puVar1 = puVar1 + 0x20;  // T* element step
   } while (puVar2 != (uint32_t)0x00103a80);
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x14))) = (*(uint32_t*)rtguest::G(0x103a80));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x4c))) = 0x00103a8c;

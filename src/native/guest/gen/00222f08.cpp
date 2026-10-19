@@ -34,7 +34,7 @@ uint32_t pfVar3;
       vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x177f580 + (uint32_t)((uVar4 & 3) * 6) * 4)) + 0x10);
     }
     uVar4 = uVar4 + 1;
-    pfVar3 = pfVar3 + 0x10;
+    pfVar3 = pfVar3 + 0x40;  // T* element step
     puVar1 = puVar1 + 0x40;
   } while ((int)uVar4 < 0x20);
   return 0;

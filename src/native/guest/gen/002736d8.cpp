@@ -20,7 +20,7 @@ uint32_t puVar1;
     (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(-1) * sizeof(uint32_t))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(1) * sizeof(uint32_t))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)puVar1)) = 0;
-    puVar1 = puVar1 + 7;
+    puVar1 = puVar1 + 0x1c;  // T* element step
   } while (-1 < iVar4);
   (*(uint32_t*)rtguest::G(0x1773500)) = 0x10;
   (*(uint32_t*)rtguest::G(0x1773510)) = 0;

@@ -112,7 +112,7 @@ LAB_00259274:
               }
             }
             lVar7 = (long)((int)lVar7 + 1);
-            pfVar4 = pfVar4 + 8;
+            pfVar4 = pfVar4 + 0x20;  // T* element step
           } while (lVar7 < lVar2);
         }
       }

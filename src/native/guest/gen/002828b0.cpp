@@ -37,7 +37,7 @@ uint32_t puVar4;
           (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 3))) = 1;
           return puVar2;
         }
-        puVar2 = puVar2 + 0x16;
+        puVar2 = puVar2 + 0x58;  // T* element step
       }
       puVar2 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar3));
     } while ((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar3)) != (uint32_t)0x0);

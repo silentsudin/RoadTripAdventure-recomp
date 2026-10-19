@@ -48,7 +48,7 @@ uint32_t puVar3;
     (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(-5) * sizeof(uint32_t))) = 0x1f;
     (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(5) * sizeof(uint32_t))) = 0xf;
     (*(uint32_t*)rtguest::G((uint32_t)puVar3)) = 0x3f;
-    puVar3 = puVar3 + 1;
+    puVar3 = puVar3 + 0x4;  // T* element step
   } while (-1 < iVar4);
   (*(uint32_t*)rtguest::G(0x1780408)) = 0xf;
   (*(uint32_t*)rtguest::G(0x1780494)) = 0x7fff;

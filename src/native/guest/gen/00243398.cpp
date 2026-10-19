@@ -23,7 +23,7 @@ uint32_t puVar1;
       vu0UnitMatrix(afStack_70);
       (*(uint32_t*)rtguest::G((uint32_t)uStack_40)) = (*(uint32_t*)rtguest::G((uint32_t)puVar1));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_38)) = (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(2) * sizeof(uint32_t)));
-      puVar1 = puVar1 + 0x10;
+      puVar1 = puVar1 + 0x40;  // T* element step
       (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) = 50.0 / fVar2;
       (*(float*)rtguest::G((uint32_t)fStack_48)) = 50.0 / fVar2;
       vifObjectMatrix(afStack_70);

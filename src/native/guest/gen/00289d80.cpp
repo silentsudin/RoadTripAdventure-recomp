@@ -44,9 +44,9 @@ uint32_t auStack_a0 = rtguest::allocFrame(16);
       sceSifWriteBackDCache(0x17788c0,0x420);
       lVar2 = sceSifCallRpc(0x1779b80,0x1a,0,0x17788c0,0x420,0x1779500,4,0);
       iVar1 = (*(uint32_t*)rtguest::G(0x21779500));
-      if (lVar2 < 0) {
-        DeleteSema(uVar3);
-        _sceFsSigSema();
+      if (lVar2 < 0) {DeleteSema(uVar3);
+        return (*(uint32_t*)rtguest::G((uint32_t)auStack_a0 + (uint32_t)(0) * 4));
+_sceFsSigSema();
         return 0xfffffff5;
       }
       _sceFsSigSema();

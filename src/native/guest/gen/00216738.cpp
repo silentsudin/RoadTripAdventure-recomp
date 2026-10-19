@@ -81,7 +81,7 @@ uint32_t puVar20;
                      (*(uint32_t*)rtguest::G((uint32_t)0x29c61c + (uint32_t)((*(uint32_t*)rtguest::G((uint32_t)puVar20 + (uint32_t)(2) * sizeof(uint32_t))) * 0xf) * 4)) + 0x58,0x104,(*(uint32_t*)rtguest::G((uint32_t)puVar20 + (uint32_t)(3) * sizeof(uint32_t))));
     iVar16 = (*(int32_t*)rtguest::G((uint32_t)piVar13));
     while( true ) {
-      piVar13 = piVar13 + 1;
+      piVar13 = piVar13 + 0x4;  // T* element step
       iVar14 = (*(int32_t*)rtguest::G((uint32_t)piVar6));
       piVar1 = piVar6 + 1;
       uVar9 = 0;
@@ -89,7 +89,7 @@ uint32_t puVar20;
         uVar9 = 6;
       }
       piVar2 = piVar6 + 0xe;
-      piVar6 = piVar6 + 0xf;
+      piVar6 = piVar6 + 0x3c;  // T* element step
       uVar15 = uVar15 + 1;
       DrawTextHalfY(iVar14 + 0x3c,(*(int32_t*)rtguest::G((uint32_t)piVar1)) + 0x5a,(*(int32_t*)rtguest::G((uint32_t)piVar2)),uVar9);
       if (0xb < uVar15) break;
@@ -101,7 +101,7 @@ uint32_t puVar20;
       iVar14 = 0x124;
       while( true ) {
         piVar13 = piVar6 + 1;
-        piVar6 = piVar6 + 2;
+        piVar6 = piVar6 + 0x8;  // T* element step
         DrawTextHalfY(0x168,iVar14,iVar16,(*(int32_t*)rtguest::G((uint32_t)piVar13)));
         if ((*(int32_t*)rtguest::G((uint32_t)piVar6)) == 0) break;
         iVar16 = (*(int32_t*)rtguest::G((uint32_t)piVar6));
@@ -133,7 +133,7 @@ uint32_t puVar20;
     psVar10 = sStack_1b0;
     do {
       sVar3 = (*(int16_t*)rtguest::G((uint32_t)psVar10));
-      psVar10 = psVar10 + 1;
+      psVar10 = psVar10 + 0x2;  // T* element step
       if ((*(int16_t*)rtguest::G((uint32_t)psVar8)) < sVar3) {
         (*(int16_t*)rtguest::G((uint32_t)psVar8)) = (*(int16_t*)rtguest::G((uint32_t)psVar8)) + 0x200;
       }
@@ -141,17 +141,17 @@ uint32_t puVar20;
         (*(int16_t*)rtguest::G((uint32_t)psVar8)) = (*(int16_t*)rtguest::G((uint32_t)psVar8)) + -0x200;
       }
       iVar16 = iVar16 + 1;
-      psVar8 = psVar8 + 1;
+      psVar8 = psVar8 + 0x2;  // T* element step
     } while (iVar16 < 3);
     piVar6 = aiStack_1a0;
     psVar8 = (uint32_t)(puVar20 + 0x19);
     iVar16 = 3;
     do {
       sVar3 = (*(int16_t*)rtguest::G((uint32_t)psVar8));
-      psVar8 = psVar8 + 1;
+      psVar8 = psVar8 + 0x2;  // T* element step
       iVar16 = iVar16 + -1;
       (*(int32_t*)rtguest::G((uint32_t)piVar6)) = (int)sVar3;
-      piVar6 = piVar6 + 1;
+      piVar6 = piVar6 + 0x4;  // T* element step
     } while (-1 < iVar16);
     vu0Itof4Vector(auStack_1c0,aiStack_1a0);
     iVar17 = iVar18 + 0x20;
@@ -176,7 +176,7 @@ uint32_t puVar20;
     iVar16 = (*(int32_t*)rtguest::G((uint32_t)piVar6));
     iVar14 = 0x5a;
     while( true ) {
-      piVar6 = piVar6 + 1;
+      piVar6 = piVar6 + 0x4;  // T* element step
       iVar16 = iVar19 + iVar16;
       iVar19 = iVar19 + 0xf;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_230)) = 0;
@@ -204,7 +204,7 @@ uint32_t puVar20;
       (*(uint64_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(2) * sizeof(uint64_t))) = uVar11;
       (*(uint64_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(3) * sizeof(uint64_t))) = uVar12;
       ppuVar4 = ppuVar4 + 8;
-      puVar7 = puVar7 + 4;
+      puVar7 = puVar7 + 0x20;  // T* element step
     } while (ppuVar4 != 0x2ead60);
     uVar15 = 0;
     vu0UnitMatrix(auStack_f0);
@@ -218,7 +218,7 @@ uint32_t puVar20;
       vu0ApplyMatrix(auStack_b0,auStack_f0,auStack_b0);
       uVar15 = uVar15 + 1;
       vu0Ftoi0Vector(puVar7,auStack_b0);
-      puVar7 = puVar7 + 4;
+      puVar7 = puVar7 + 0x20;  // T* element step
     } while (uVar15 < 5);
     uVar15 = (*(uint32_t*)rtguest::G((uint32_t)puVar20 + (uint32_t)(2) * sizeof(uint32_t)));
     if (uVar15 < 9) {

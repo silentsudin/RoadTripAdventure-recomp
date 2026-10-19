@@ -64,8 +64,8 @@ uint32_t pfStack_70;
         (*(float*)rtguest::G((uint32_t)pfVar6)) = (float)(*(int32_t*)rtguest::G((uint32_t)piVar2));
       }
       iVar13 = iVar13 + -1;
-      pfVar6 = pfVar6 + 1;
-      piVar2 = piVar2 + 1;
+      pfVar6 = pfVar6 + 0x4;  // T* element step
+      piVar2 = piVar2 + 0x4;  // T* element step
       iVar11 = iVar11 + 1;
     } while (iVar13 != 0);
   }
@@ -82,7 +82,7 @@ uint32_t pfStack_70;
         iVar12 = param_4;
         do {
           fVar19 = (*(float*)rtguest::G((uint32_t)pfVar7));
-          pfVar7 = pfVar7 + 1;
+          pfVar7 = pfVar7 + 0x4;  // T* element step
           fVar20 = (*(float*)rtguest::G((uint32_t)pfVar3));
           pfVar3 = pfVar3 + -1;
           iVar12 = iVar12 + -1;
@@ -92,7 +92,7 @@ uint32_t pfStack_70;
       iVar13 = iVar13 + 1;
       (*(float*)rtguest::G((uint32_t)pfVar6)) = fVar22;
       iVar10 = iVar10 + 1;
-      pfVar6 = pfVar6 + 1;
+      pfVar6 = pfVar6 + 0x4;  // T* element step
     } while (iVar13 <= iVar14);
   }
   do {
@@ -104,7 +104,7 @@ uint32_t pfStack_70;
       fVar20 = fVar22 - (float)(int)(fVar22 * 0.00390625) * 256.0;
       fVar22 = (*(float*)rtguest::G((uint32_t)pfVar6)) + (float)(int)(fVar22 * 0.00390625);
       (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = (int)fVar20;
-      puVar9 = puVar9 + 1;
+      puVar9 = puVar9 + 0x4;  // T* element step
     }
     fVar22 = (float)scalbnf(fVar22,iVar16);
     iVar13 = 0;
@@ -149,7 +149,7 @@ LAB_00276bec:
             }
           }
           iVar10 = iVar10 + -1;
-          puVar9 = puVar9 + 1;
+          puVar9 = puVar9 + 0x4;  // T* element step
         } while (iVar10 != 0);
       }
       if (0 < iVar16) {
@@ -217,9 +217,9 @@ LAB_00276dd8:
               fVar20 = 1.5703125;
               pfVar6 = (uint32_t)0x00331aa0;
               while( true ) {
-                pfVar6 = pfVar6 + 1;
+                pfVar6 = pfVar6 + 0x4;  // T* element step
                 fVar19 = (*(float*)rtguest::G((uint32_t)pfVar7));
-                pfVar7 = pfVar7 + 1;
+                pfVar7 = pfVar7 + 0x4;  // T* element step
                 iVar16 = iVar16 + 1;
                 fVar22 = fVar22 + fVar20 * fVar19;
                 if (iVar14 < iVar16) break;
@@ -277,7 +277,7 @@ LAB_00276f90:
             pfVar6 = afStack_114 + 2;
             do {
               fVar22 = (*(float*)rtguest::G((uint32_t)pfVar6));
-              pfVar6 = pfVar6 + 1;
+              pfVar6 = pfVar6 + 0x4;  // T* element step
               iVar18 = iVar18 + -1;
               (*(float*)rtguest::G((uint32_t)afStack_114 + (uint32_t)(1) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_114 + (uint32_t)(1) * 4)) + fVar22;
             } while (iVar18 != 0);
@@ -369,7 +369,7 @@ LAB_00276f90:
           iVar12 = param_4;
           do {
             fVar19 = (*(float*)rtguest::G((uint32_t)pfVar3));
-            pfVar3 = pfVar3 + 1;
+            pfVar3 = pfVar3 + 0x4;  // T* element step
             fVar20 = (*(float*)rtguest::G((uint32_t)pfVar5));
             pfVar5 = pfVar5 + -1;
             iVar12 = iVar12 + -1;
@@ -378,9 +378,9 @@ LAB_00276f90:
         }
         iVar10 = iVar10 + 1;
         (*(float*)rtguest::G((uint32_t)pfVar6)) = fVar22;
-        pfVar7 = pfVar7 + 1;
-        pfVar6 = pfVar6 + 1;
-        piVar2 = piVar2 + 1;
+        pfVar7 = pfVar7 + 0x4;  // T* element step
+        pfVar6 = pfVar6 + 0x4;  // T* element step
+        piVar2 = piVar2 + 0x4;  // T* element step
       } while (iVar10 <= iVar13);
     }
   } while( true );

@@ -76,7 +76,7 @@ uint32_t psVar6;
           vifCallModel(0x290940);
         }
         iVar7 = iVar7 + -1;
-        psVar6 = psVar6 + 0x138;
+        psVar6 = psVar6 + 0x270;  // T* element step
         iVar8 = iVar8 + 0x270;
       } while (-1 < iVar7);
       lVar4 = GetFlaggedSlotCount(0xf,0x2d,0);

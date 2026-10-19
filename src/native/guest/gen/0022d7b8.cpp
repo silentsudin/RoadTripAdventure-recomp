@@ -49,7 +49,7 @@ uint32_t puVar10;
       }
     }
     iVar8 = iVar8 + -1;
-    puVar6 = puVar6 + 0x4e;
+    puVar6 = puVar6 + 0x270;  // T* element step
     puVar9 = puVar10;
   } while (-1 < iVar8);
   for (; puVar10 != (uint32_t)0x0; puVar10 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar10 + 0x264)))) {

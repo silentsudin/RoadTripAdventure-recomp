@@ -27,7 +27,7 @@ uint32_t puVar3;
       iVar4 = iVar4 + -1;
       vu0CopyVector(iVar1,puVar2);
       (*(uint32_t*)rtguest::G((uint32_t)puVar3)) = 0xff0;
-      puVar3 = puVar3 + 0xc;
+      puVar3 = puVar3 + 0x30;  // T* element step
       puVar2 = puVar2 + 0x10;
     } while (-1 < iVar4);
     iVar5 = iVar5 + 1;

@@ -55,7 +55,7 @@ uint32_t ppuVar10;
     puVar1 = puVar6 + 9;
     uVar12 = (*(uint32_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(10) * sizeof(uint32_t)));
     uVar11 = (*(uint32_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(0xb) * sizeof(uint32_t)));
-    puVar6 = puVar6 + 3;
+    puVar6 = puVar6 + 0xc;  // T* element step
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x130))) = (*(uint32_t*)rtguest::G((uint32_t)puVar1));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x134))) = uVar12;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x138))) = uVar11;
@@ -72,8 +72,8 @@ uint32_t ppuVar10;
       fVar13 = (*(float*)rtguest::G((uint32_t)pfVar8)) - (*(float*)rtguest::G((uint32_t)pfVar9));
     }
     (*(float*)rtguest::G((uint32_t)pfVar8)) = fVar13;
-    pfVar9 = pfVar9 + 1;
-    pfVar8 = pfVar8 + 1;
+    pfVar9 = pfVar9 + 0x4;  // T* element step
+    pfVar8 = pfVar8 + 0x4;  // T* element step
   } while (iVar7 < 3);
   iVar7 = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) * (int)(*(uint32_t*)rtguest::G(0x2a2e0a));
   if (iVar7 < 0) {

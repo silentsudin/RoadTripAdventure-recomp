@@ -25,7 +25,7 @@ uint32_t piVar5;
         pcVar4 = pcVar4 + 2;
         (*(int32_t*)rtguest::G((uint32_t)piVar5)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + cVar2 * 4))) + (*(int8_t*)rtguest::G((uint32_t)pcVar1)) * 0x10;
         bVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 1)));
-        piVar5 = piVar5 + 1;
+        piVar5 = piVar5 + 0x4;  // T* element step
       } while (iVar6 < (int)(bVar3 - 1));
     }
     gs_tasks_spawn(param_1,0x20dc50,bVar3 - 1 | param_3 | 0x70300);

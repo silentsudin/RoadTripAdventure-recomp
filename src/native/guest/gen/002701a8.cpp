@@ -28,7 +28,7 @@ uint32_t auStack_50 = rtguest::allocFrame(32);
     }
     ppuVar2 = ppuVar2 + 1;
     iVar3 = iVar3 + -1;
-    piVar4 = piVar4 + 1;
+    piVar4 = piVar4 + 0x4;  // T* element step
   } while (-1 < iVar3);
   REG_DMAC_STAT = 0;
   memclr(auStack_50,0x14);

@@ -34,7 +34,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(16);
     }
   }
   if (iVar4 == 0x400) {
-    (*(uint32_t*)rtguest::G(0x1778ccb)) = 0;
+    (*(uint8_t*)rtguest::G(0x1778ccb)) = 0;  // MIPS sb 0x40b($18): byte store
     iVar4 = 0x3ff;
   }
   (*(uint32_t*)rtguest::G((uint32_t)uStack_b8)) = 0;
@@ -62,7 +62,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(16);
       DeleteSema(uVar2);
     }
   }
-
+  return (*(uint32_t*)rtguest::G((uint32_t)auStack_a0 + (uint32_t)(0) * 4));
 }
 
 

@@ -20,7 +20,7 @@ uint32_t puVar2;
     (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(2) * sizeof(uint32_t))) = in_zero_udw;
     (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(3) * sizeof(uint32_t))) = in_register_0000000c;
     bVar1 = puVar2 < 0x017874e0;
-    puVar2 = puVar2 + 4;
+    puVar2 = puVar2 + 0x10;  // T* element step
   } while (bVar1);
   syscall(0x3c);
   syscall(0x3d);

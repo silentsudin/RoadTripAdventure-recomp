@@ -87,7 +87,7 @@ uint32_t piVar6;
             uVar1 = 0x50e800;
           }
           uiArenaSetColour(param_1,(*(int32_t*)rtguest::G((uint32_t)piVar3)) << 0x18 | uVar1);
-          piVar3 = piVar3 + 1;
+          piVar3 = piVar3 + 0x4;  // T* element step
           uiArenaDataTag(param_1,1);
           iVar4 = iVar5;
           if (iVar5 < 0) {
@@ -95,7 +95,7 @@ uint32_t piVar6;
           }
           iVar2 = iVar5 + (iVar4 >> 2) * -4;
           iVar5 = iVar5 + 1;
-          piVar6 = piVar6 + 1;
+          piVar6 = piVar6 + 0x4;  // T* element step
           (*(uint64_t*)rtguest::G((uint32_t)uStack_80)) = CONCAT44((iVar4 >> 2) * 0x24 + 1,iVar2 * 0x28 + 2);
           (*(uint64_t*)rtguest::G((uint32_t)uStack_78)) = 0;
           (*(uint64_t*)rtguest::G((uint32_t)uStack_70)) = 0x3200000032;

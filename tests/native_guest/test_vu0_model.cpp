@@ -11,7 +11,7 @@
 using namespace rtguest;
 using namespace rtguest::vu0;
 
-static float fbits(uint32_t b) { float f; std::memcpy(&f, &b, 4); return f; }
+static float fbit_(uint32_t b) { float f; std::memcpy(&f, &b, 4); return f; }
 
 int main() {
     std::memset(kRam, 0, RT_GUEST_RAM_SIZE);
@@ -113,7 +113,7 @@ int main() {
     // vmtir/vmfir round-trip through vi (oracle memcpy tricks).
     {
         S.vf[1] = Vu4{{0.f, 0.f, 0.f, 0.f}};
-        float s = fbits(0x40001234u);                 // some float whose low16 = 0x1234
+        float s = fbit_(0x40001234u);                 // some float whose low16 = 0x1234
         S.vf[1].v[1] = s;
         vmtir(5, 0b01, 1);                            // vi5 = low16 bits of vf1.y
         assert(S.vi[5] == 0x1234);

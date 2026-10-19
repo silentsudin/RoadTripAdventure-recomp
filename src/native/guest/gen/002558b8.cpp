@@ -104,7 +104,7 @@ uint32_t puVar14;
       puVar8 = puVar8 + 0x60;
       puVar11 = puVar11 + 0x60;
       puVar12 = puVar12 + 0x60;
-      puVar14 = puVar14 + 0xc;
+      puVar14 = puVar14 + 0x60;  // T* element step
     } while ((int)uVar10 < 0x10);
     iVar6 = iVar6 + 1;
     iVar9 = iVar9 + 2;

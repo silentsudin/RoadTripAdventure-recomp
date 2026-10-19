@@ -75,11 +75,11 @@ LAB_00214894:
     }
     if (lVar4 == 9) {
       if ((uVar1 & 0x40) == 0) {
-
+        return (*(int32_t*)rtguest::G((uint32_t)__s));  // dropped *__s return
       }
       PlayUiSound(0x1a);
       ResetControllerConfigDefaults(puVar14,param_4);
-
+      return (*(int32_t*)rtguest::G((uint32_t)__s));  // dropped *__s return
     }
     if (lVar4 < 9) {
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(2) * sizeof(int32_t)));
@@ -109,15 +109,15 @@ LAB_00214894:
                   break;
                 }
                 uVar7 = uVar7 + 1;
-                piVar5 = piVar5 + 1;
+                piVar5 = piVar5 + 0x4;  // T* element step
                 iVar6 = iVar6 + 0xf;
               } while (uVar7 < 9);
             }
             uVar9 = uVar9 + 1;
-            piVar11 = piVar11 + 1;
+            piVar11 = piVar11 + 0x4;  // T* element step
             iVar3 = iVar3 + 0xf;
-            piVar8 = piVar8 + 1;
-            piVar10 = piVar10 + 1;
+            piVar8 = piVar8 + 0x4;  // T* element step
+            piVar10 = piVar10 + 0x4;  // T* element step
           } while (uVar9 < 0xc);
           if (!bVar2) goto LAB_00214aa0;
           iVar3 = (*(int32_t*)rtguest::G((uint32_t)__s));
@@ -127,11 +127,11 @@ LAB_00214894:
       }
       if (lVar4 == 0xb) {
         if ((uVar1 & 0x40) == 0) {
-
+          return (*(int32_t*)rtguest::G((uint32_t)__s));  // dropped *__s return
         }
         if ((*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(0x18) * sizeof(int32_t))) != 0) {
           PlayUiSound(0x1e);
-
+          return (*(int32_t*)rtguest::G((uint32_t)__s));  // dropped *__s return
         }
         PlayUiSound(0x1a);
         SetControllerButtonConfig(puVar14,param_4);
@@ -144,7 +144,7 @@ LAB_00214894:
     if ((*(uint32_t*)rtguest::G((uint32_t)0x29c620 + (uint32_t)(iVar3 * 0xf) * 4)) != -1) {
       piVar10 = 0x0029c620 + iVar3 * 0xf;
       do {
-        piVar10 = piVar10 + 1;
+        piVar10 = piVar10 + 0x4;  // T* element step
         iVar6 = iVar6 + 1;
       } while ((*(int32_t*)rtguest::G((uint32_t)piVar10)) != -1);
     }
@@ -170,15 +170,15 @@ LAB_00214894:
             break;
           }
           uVar7 = uVar7 + 1;
-          piVar5 = piVar5 + 1;
+          piVar5 = piVar5 + 0x4;  // T* element step
           iVar3 = iVar3 + 0xf;
         } while (uVar7 < 9);
       }
       uVar9 = uVar9 + 1;
-      piVar11 = piVar11 + 1;
+      piVar11 = piVar11 + 0x4;  // T* element step
       iVar12 = iVar12 + 0xf;
-      piVar8 = piVar8 + 1;
-      piVar10 = piVar10 + 1;
+      piVar8 = piVar8 + 0x4;  // T* element step
+      piVar10 = piVar10 + 0x4;  // T* element step
     } while (uVar9 < 0xc);
     if (bVar2) {
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)__s));
@@ -265,7 +265,7 @@ LAB_00214a3c:
     return 100;
   }
 LAB_00214aa0:
-
+  return (*(int32_t*)rtguest::G((uint32_t)__s));  // dropped *__s return
 }
 
 

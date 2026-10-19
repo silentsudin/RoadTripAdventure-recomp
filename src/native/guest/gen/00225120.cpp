@@ -77,7 +77,7 @@ uint32_t puVar4;
       }
     }
     iVar6 = iVar6 + 1;
-    puVar3 = puVar3 + 0x4e;
+    puVar3 = puVar3 + 0x270;  // T* element step
     param_2 = param_2 + 6;
   } while (iVar6 < 0x18);
   UpdateCarEffectSlots(param_2,param_3,iVar5);

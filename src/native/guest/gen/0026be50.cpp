@@ -48,7 +48,7 @@ uint32_t auStack_140 = rtguest::allocFrame(256);
       piVar7 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 4)));
       if ((*(int32_t*)rtguest::G((uint32_t)piVar7)) != 0) {
         do {
-          piVar7 = piVar7 + 1;
+          piVar7 = piVar7 + 0x4;  // T* element step
           (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) + '\x01';
         } while ((*(int32_t*)rtguest::G((uint32_t)piVar7)) != 0);
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
@@ -103,7 +103,7 @@ LAB_0026c0ac:
       piVar7 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 4)));
       if ((*(int32_t*)rtguest::G((uint32_t)piVar7)) == 0) goto LAB_0026c0ac;
       do {
-        piVar7 = piVar7 + 1;
+        piVar7 = piVar7 + 0x4;  // T* element step
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) + '\x01';
       } while ((*(int32_t*)rtguest::G((uint32_t)piVar7)) != 0);
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));
@@ -153,7 +153,7 @@ LAB_0026c18c:
       piVar7 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a7ed0 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x23))) * 4)));
       if ((*(int32_t*)rtguest::G((uint32_t)piVar7)) == 0) goto LAB_0026c18c;
       do {
-        piVar7 = piVar7 + 1;
+        piVar7 = piVar7 + 0x4;  // T* element step
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26))) + '\x01';
       } while ((*(int32_t*)rtguest::G((uint32_t)piVar7)) != 0);
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x26)));

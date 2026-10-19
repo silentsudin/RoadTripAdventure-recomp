@@ -22,7 +22,7 @@ uint32_t pfVar1;
   pfVar1 = 0x0172ff7c;
   if (0.0 < (*(uint32_t*)rtguest::G(0x172ff7c))) {
     iVar3 = 2;
-    while ((pfVar1 = pfVar1 + 8, iVar3 < 0x80 && (0.0 < (*(float*)rtguest::G((uint32_t)pfVar1))))) {
+    while ((pfVar1 = pfVar1 + 0x20, iVar3 < 0x80 && (0.0 < (*(float*)rtguest::G((uint32_t)pfVar1))))) {
       iVar3 = iVar3 + 2;
     }
   }

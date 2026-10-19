@@ -80,7 +80,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
       uVar1 = dptoli(uVar10);
       uVar1 = litodp(uVar1);
       (*(uint64_t*)rtguest::G((uint32_t)puVar12)) = uVar1;
-      puVar12 = puVar12 + 1;
+      puVar12 = puVar12 + 0x8;  // T* element step
       uVar1 = dpsub(uVar10,uVar1);
       uVar10 = dpmul(uVar1,0x4170000000000000);
     } while (-1 < iVar8);

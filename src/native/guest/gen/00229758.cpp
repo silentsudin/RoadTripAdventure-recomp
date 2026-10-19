@@ -26,8 +26,8 @@ uint32_t puVar3;
         (*(uint64_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint64_t))) = uVar4;
         (*(uint64_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint64_t))) = uVar5;
         (*(uint64_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(3) * sizeof(uint64_t))) = uVar6;
-        puVar2 = puVar2 + 4;
-        puVar3 = puVar3 + 4;
+        puVar2 = puVar2 + 0x20;  // T* element step
+        puVar3 = puVar3 + 0x20;  // T* element step
       } while (puVar2 != (uint32_t)0x1785fe8);
       (*(uint64_t*)rtguest::G((uint32_t)puVar3)) = (*(uint8_t*)rtguest::G(0x01785fe8));
     }
@@ -42,8 +42,8 @@ uint32_t puVar3;
         (*(uint64_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint64_t))) = uVar4;
         (*(uint64_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint64_t))) = uVar5;
         (*(uint64_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(3) * sizeof(uint64_t))) = uVar6;
-        puVar2 = puVar2 + 4;
-        puVar3 = puVar3 + 4;
+        puVar2 = puVar2 + 0x20;  // T* element step
+        puVar3 = puVar3 + 0x20;  // T* element step
       } while (puVar2 != (uint32_t)0x1782ba0);
       (*(uint64_t*)rtguest::G((uint32_t)puVar3)) = (*(uint8_t*)rtguest::G(0x01782ba0));
     }
@@ -65,8 +65,8 @@ uint32_t puVar3;
         (*(uint64_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint64_t))) = uVar6;
         (*(uint64_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(2) * sizeof(uint64_t))) = uVar4;
         (*(uint64_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(3) * sizeof(uint64_t))) = uVar5;
-        puVar3 = puVar3 + 4;
-        puVar2 = puVar2 + 4;
+        puVar3 = puVar3 + 0x20;  // T* element step
+        puVar2 = puVar2 + 0x20;  // T* element step
       } while (puVar3 != (uint32_t)0x113440);
       (*(uint64_t*)rtguest::G((uint32_t)puVar2)) = (*(uint8_t*)rtguest::G(0x00113440));
     }
@@ -81,8 +81,8 @@ uint32_t puVar3;
         (*(uint64_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint64_t))) = uVar5;
         (*(uint64_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(2) * sizeof(uint64_t))) = uVar6;
         (*(uint64_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(3) * sizeof(uint64_t))) = uVar4;
-        puVar3 = puVar3 + 4;
-        puVar2 = puVar2 + 4;
+        puVar3 = puVar3 + 0x20;  // T* element step
+        puVar2 = puVar2 + 0x20;  // T* element step
       } while (puVar3 != (uint32_t)0x113440);
       (*(uint64_t*)rtguest::G((uint32_t)puVar2)) = (*(uint8_t*)rtguest::G(0x00113440));
     }

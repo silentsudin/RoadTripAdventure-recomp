@@ -61,7 +61,7 @@ uint32_t afStack_3c = rtguest::allocFrame(28);
     do {
       iVar3 = iVar3 + -1;
       (*(float*)rtguest::G((uint32_t)pfVar2)) = (float)(int)(*(float*)rtguest::G((uint32_t)afStack_3c + (uint32_t)(1) * 4));
-      pfVar2 = pfVar2 + 1;
+      pfVar2 = pfVar2 + 0x4;  // T* element step
       (*(float*)rtguest::G((uint32_t)afStack_3c + (uint32_t)(1) * 4)) = ((*(float*)rtguest::G((uint32_t)afStack_3c + (uint32_t)(1) * 4)) - (float)(int)(*(float*)rtguest::G((uint32_t)afStack_3c + (uint32_t)(1) * 4))) * 256.0;
     } while (-1 < iVar3);
     iVar3 = 3;

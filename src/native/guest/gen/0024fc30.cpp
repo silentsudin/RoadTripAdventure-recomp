@@ -17,7 +17,7 @@ uint32_t aiStack_20 = rtguest::allocFrame(16);
     param_2 = param_2 + 1;
     iVar2 = iVar2 + -1;
     (*(int32_t*)rtguest::G((uint32_t)piVar3)) = (int)sVar1;
-    piVar3 = piVar3 + 1;
+    piVar3 = piVar3 + 0x4;  // T* element step
   } while (-1 < iVar2);
   vu0Itof4Vector(param_1,aiStack_20);
   vu0ScaleVector((*(uint32_t*)rtguest::G(0x332f94)),param_1,param_1);

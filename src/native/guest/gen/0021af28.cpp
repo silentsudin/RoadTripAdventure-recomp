@@ -75,10 +75,10 @@ uint32_t piVar9;
     }
     param_4 = param_4 + 1;
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)piVar7));
-    piVar7 = piVar7 + 1;
+    piVar7 = piVar7 + 0x4;  // T* element step
     uVar10 = uVar10 + 1;
-    puVar6 = puVar6 + 1;
-    pfVar5 = pfVar5 + 4;
+    puVar6 = puVar6 + 0x4;  // T* element step
+    pfVar5 = pfVar5 + 0x10;  // T* element step
     if ((int)(fVar13 * 32768.0) < iVar3 + iVar2 + 0x8000) {
       uVar11 = uVar11 | 0x100;
     }
@@ -190,11 +190,11 @@ LAB_0021b310:
       (*(int32_t*)rtguest::G((uint32_t)piVar8)) = 0;
     }
     uVar10 = uVar10 + 1;
-    piVar8 = piVar8 + 1;
-    piVar7 = piVar7 + 1;
-    piVar9 = piVar9 + 1;
+    piVar8 = piVar8 + 0x4;  // T* element step
+    piVar7 = piVar7 + 0x4;  // T* element step
+    piVar9 = piVar9 + 0x4;  // T* element step
     param_3 = param_3 + 1;
-    pfVar5 = pfVar5 + 4;
+    pfVar5 = pfVar5 + 0x10;  // T* element step
     if (2 < (int)uVar10) {
       return uVar11;
     }

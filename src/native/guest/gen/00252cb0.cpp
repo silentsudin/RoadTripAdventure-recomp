@@ -82,7 +82,7 @@ uint32_t piVar16;
   uVar8 = 9;
   do {
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)piVar13));
-    piVar13 = piVar13 + 1;
+    piVar13 = piVar13 + 0x4;  // T* element step
     iVar11 = uVar15 + (uVar8 == 0);
     uVar15 = uVar15 + 1;
     if (iVar7 == 0x7f) {
@@ -102,12 +102,12 @@ uint32_t piVar16;
   piVar13 = (uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_5c)) + 0x80a0);
   iVar9 = (*(int32_t*)rtguest::G((uint32_t)piVar13));
   do {
-    piVar13 = piVar13 + 1;
+    piVar13 = piVar13 + 0x4;  // T* element step
     if ((iVar9 == 0) || (uVar14 = 6, ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 8))) & 0x20) == 0)) {
       uVar14 = 0;
     }
     iVar9 = (*(int32_t*)rtguest::G((uint32_t)piVar16));
-    piVar16 = piVar16 + 1;
+    piVar16 = piVar16 + 0x4;  // T* element step
     iVar11 = iVar7 + (uint32_t)(iVar7 == 9);
     iVar7 = iVar7 + 1;
     iVar11 = iVar11 * 0x18 + 0x88;
@@ -189,7 +189,7 @@ LAB_00253120:
       return 0;
     }
     iVar9 = (*(int32_t*)rtguest::G((uint32_t)piVar13 + (uint32_t)(0x15) * sizeof(int32_t)));
-    piVar13 = piVar13 + 1;
+    piVar13 = piVar13 + 0x4;  // T* element step
   } while( true );
 }
 

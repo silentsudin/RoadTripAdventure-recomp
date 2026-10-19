@@ -27,7 +27,7 @@ uint32_t pfVar2;
       }
     }
     uVar3 = uVar3 + 1;
-    pfVar2 = pfVar2 + 0x10;
+    pfVar2 = pfVar2 + 0x40;  // T* element step
     puVar1 = puVar1 + 0x40;
   } while ((int)uVar3 < 0x20);
   return 0;

@@ -96,7 +96,7 @@ LAB_0021aa98:
       (*(uint32_t*)rtguest::G((uint32_t)puVar7)) = uVar5 + 1;
       uVar13 = 0;
       if ((*(uint16_t*)rtguest::G((uint32_t)puVar6)) == uVar5) {
-        puVar6 = puVar6 + 6;
+        puVar6 = puVar6 + 0xc;  // T* element step
         (*(uint32_t*)rtguest::G((uint32_t)puVar7)) = 1;
         (*(uint32_t*)rtguest::G((uint32_t)puVar10)) = puVar6;
       }

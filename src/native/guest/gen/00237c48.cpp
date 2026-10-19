@@ -84,14 +84,14 @@ uint32_t pbVar25;
       }
       iVar19 = iVar19 + 1;
       if ((*(int8_t*)rtguest::G((uint32_t)0x177fdd4 + (uint32_t)(iVar15) * 1)) == '\0') break;
-      puVar17 = puVar17 + 4;
+      puVar17 = puVar17 + 0x10;  // T* element step
       pbVar16 = pbVar16 + 4;
       uVar12 = uVar12 + 0x1a;
       pbVar25 = pbVar25 + 0x1a;
-      puVar14 = puVar14 + 0x1a;
-      puVar20 = puVar20 + 1;
+      puVar14 = puVar14 + 0x68;  // T* element step
+      puVar20 = puVar20 + 0x4;  // T* element step
       iVar23 = iVar23 + 4;
-      puVar24 = puVar24 + 0x1a;
+      puVar24 = puVar24 + 0x68;  // T* element step
       iVar9 = iVar9 + 0x68;
       pcVar13 = pcVar13 + 2;
       pcVar18 = pcVar18 + 2;

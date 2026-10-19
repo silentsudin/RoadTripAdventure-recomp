@@ -26,7 +26,7 @@ uint32_t puVar2;
         puVar2 = 0x01760880;
         __src = (*(uint32_t*)rtguest::G(0x1760880));
         while( true ) {
-          puVar2 = puVar2 + 1;
+          puVar2 = puVar2 + 0x4;  // T* element step
           lVar1 = (long)((int)lVar1 + 1);
           (uint32_t)(uintptr_t)(::strcat((char *)rtguest::G((uint32_t)(__dest)), (char *)rtguest::G((uint32_t)(__src))));
           if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2))) <= lVar1) break;

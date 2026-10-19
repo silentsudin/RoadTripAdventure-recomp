@@ -18,7 +18,7 @@ uint32_t piVar1;
       (*(int32_t*)rtguest::G((uint32_t)piVar1)) = 0;
     }
     iVar2 = iVar2 + -1;
-    piVar1 = piVar1 + 1;
+    piVar1 = piVar1 + 0x4;  // T* element step
   } while (-1 < iVar2);
   return 0;
 }

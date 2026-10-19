@@ -43,7 +43,7 @@ uint32_t piVar2;
       raceHudElementD(param_1,iVar3 + 0x84fc,3);
       iVar1 = iVar3 + 0x8538;
       iVar3 = iVar3 + 0x408;
-      piVar2 = piVar2 + 0x102;
+      piVar2 = piVar2 + 0x408;  // T* element step
       raceHudElementA(param_1,iVar1,0x14);
       if (iVar4 < 0) break;
       iVar1 = (*(int32_t*)rtguest::G((uint32_t)piVar2));

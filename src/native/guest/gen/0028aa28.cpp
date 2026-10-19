@@ -65,7 +65,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(16);
       DeleteSema(uVar3);
     }
   }
-
+  return (*(uint32_t*)rtguest::G((uint32_t)auStack_a0 + (uint32_t)(0) * 4));;
 }
 
 

@@ -84,7 +84,7 @@ uint32_t pfVar11;
       uVar12 = uVar12 | 1 << uVar2;
     }
     puVar10 = puVar10 + 0x10;
-    pfVar7 = pfVar7 + 4;
+    pfVar7 = pfVar7 + 0x10;  // T* element step
   } while ((int)uVar9 < 7);
   iVar6 = (*(int32_t*)rtguest::G((uint32_t)iStack_84));
   if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x184))) + 8))) & 8) == 0) {

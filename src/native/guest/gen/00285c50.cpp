@@ -24,7 +24,7 @@ uint32_t puVar3;
       uVar4 = uVar4 + 1;
       uVar2 = getSyscall(uVar1);
       uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puVar3));
-      puVar3 = puVar3 + 2;
+      puVar3 = puVar3 + 0x8;  // T* element step
       setSyscall(uVar1,uVar2);
       if (7 < uVar4) break;
       uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puVar3));

@@ -87,7 +87,7 @@ LAB_00207404:
                              (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 2 + (*(int32_t*)rtguest::G((uint32_t)piVar6)) + 0x400))),fStack_70,uStack_6c,
                              fStack_68,lVar1);
         }
-        piVar6 = piVar6 + 1;
+        piVar6 = piVar6 + 0x4;  // T* element step
         iVar4 = iVar5;
       } while (iVar5 < 0x1a);
       (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (*(uint32_t*)rtguest::G((uint32_t)uStack_6c));

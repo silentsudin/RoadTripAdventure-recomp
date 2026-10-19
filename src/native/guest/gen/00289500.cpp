@@ -68,9 +68,9 @@ LAB_00289658:
         sceSifWriteBackDCache(0x17788c0,0x20);
         lVar3 = sceSifCallRpc(0x1779b80,2,0,0x17788c0,0x20,0x1779500,4,0);
         iVar6 = (*(uint32_t*)rtguest::G(0x21779500));
-        if (lVar3 < 0) {
-          DeleteSema(uVar4);
-          _sceFsSigSema();
+        if (lVar3 < 0) {DeleteSema(uVar4);
+          return (*(uint32_t*)rtguest::G((uint32_t)auStack_b0 + (uint32_t)(0) * 4));
+_sceFsSigSema();
           return 0xfffffff5;
         }
         _sceFsSigSema();

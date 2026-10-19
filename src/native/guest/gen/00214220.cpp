@@ -57,15 +57,15 @@ uint32_t piVar21;
           break;
         }
         uVar12 = uVar12 + 1;
-        piVar8 = piVar8 + 1;
+        piVar8 = piVar8 + 0x4;  // T* element step
         iVar9 = iVar9 + 0xf;
       } while (uVar12 < 9);
     }
     uVar15 = uVar15 + 1;
-    piVar18 = piVar18 + 1;
+    piVar18 = piVar18 + 0x4;  // T* element step
     iVar19 = iVar19 + 0xf;
-    puVar17 = puVar17 + 1;
-    puVar16 = puVar16 + 1;
+    puVar17 = puVar17 + 0x4;  // T* element step
+    puVar16 = puVar16 + 0x4;  // T* element step
     if (0xb < uVar15) {
       if (bVar3) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x60))) = 1;

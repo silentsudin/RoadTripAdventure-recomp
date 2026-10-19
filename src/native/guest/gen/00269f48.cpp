@@ -92,7 +92,7 @@ uint32_t puVar20;
     do {
       iVar15 = iVar15 + -1;
       (*(int32_t*)rtguest::G((uint32_t)piVar10)) = (int)puVar5;
-      piVar10 = piVar10 + 1;
+      piVar10 = piVar10 + 0x4;  // T* element step
       puVar5 = puVar5 + 0x30;
     } while (iVar15 != 0);
     uVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x25)));
@@ -147,7 +147,7 @@ uint32_t puVar20;
       }
       iVar17 = iVar17 + -1;
       pbVar13 = pbVar13 + 1;
-      puVar18 = puVar18 + 1;
+      puVar18 = puVar18 + 0x4;  // T* element step
     } while (-1 < iVar17);
     if (((*(uint32_t*)rtguest::G((uint32_t)puVar20)) & 0xffffff) != 0) {
       uiDrawTime(0x8c,0x79,(int)((*(uint32_t*)rtguest::G((uint32_t)puVar20)) << 8) >> 8,0);

@@ -40,6 +40,7 @@ uint32_t puStack_40;
     ::printf((char *)rtguest::G((uint32_t)(0x331da0u)));
     (*(uint32_t*)rtguest::G((uint32_t)uStack_30)) = 0xffffffff;
   }
+  return (*(uint32_t*)rtguest::G((uint32_t)uStack_30));;
 }
 
 

@@ -47,8 +47,8 @@ uint32_t puVar5;
       (*(uint64_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(4) * sizeof(uint64_t))) = (long)iVar3 | (long)iVar2 << 0x20;
     }
     iVar7 = iVar7 + 1;
-    puVar5 = puVar5 + 8;
-    piVar4 = piVar4 + 8;
+    puVar5 = puVar5 + 0x40;  // T* element step
+    piVar4 = piVar4 + 0x20;  // T* element step
   } while (iVar7 < 8);
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 0x20;
   gifChainEndTag(0x2a3490,0x21);

@@ -59,7 +59,7 @@ LAB_00289ba8:
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(2) * sizeof(uint64_t))) = uVar7;
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(3) * sizeof(uint64_t))) = uVar8;
             param_3 = param_3 + 4;
-            puVar6 = puVar6 + 4;
+            puVar6 = puVar6 + 0x20;  // T* element step
           } while (param_3 != puVar1);
         }
         else {
@@ -73,7 +73,7 @@ LAB_00289ba8:
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(2) * sizeof(uint64_t))) = uVar7;
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(3) * sizeof(uint64_t))) = uVar8;
             param_3 = param_3 + 4;
-            puVar6 = puVar6 + 4;
+            puVar6 = puVar6 + 0x20;  // T* element step
           } while (param_3 != puVar1);
         }
       }
@@ -87,9 +87,9 @@ LAB_00289ba8:
       sceSifWriteBackDCache(0x17788c0,0x420);
       lVar2 = sceSifCallRpc(0x1779b80,5,0,0x17788c0,0x420,0x1779500,4,0);
       iVar5 = (*(uint32_t*)rtguest::G(0x21779500));
-      if (lVar2 < 0) {
-        DeleteSema(uVar3);
-        _sceFsSigSema();
+      if (lVar2 < 0) {DeleteSema(uVar3);
+        return (*(uint32_t*)rtguest::G((uint32_t)auStack_90 + (uint32_t)(0) * 4));
+_sceFsSigSema();
         return 0xfffffff5;
       }
       _sceFsSigSema();
@@ -106,7 +106,7 @@ LAB_00289ba8:
     if ((*(uint32_t*)rtguest::G(0x2e9908)) == -1) {
       piVar4 = 0x002e9908;
       iVar5 = 1;
-      while ((piVar4 = piVar4 + 1, iVar5 < 0x20 && ((*(int32_t*)rtguest::G((uint32_t)piVar4)) == -1))) {
+      while ((piVar4 = piVar4 + 0x4, iVar5 < 0x20 && ((*(int32_t*)rtguest::G((uint32_t)piVar4)) == -1))) {
         iVar5 = iVar5 + 1;
       }
     }

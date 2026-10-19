@@ -83,7 +83,7 @@ uint32_t puVar5;
   else {
     (*(uint32_t*)rtguest::G((uint32_t)auStack_b0 + (uint32_t)(0) * 4)) = 0xffffffea;
   }
-
+  return (*(uint32_t*)rtguest::G((uint32_t)auStack_b0 + (uint32_t)(0) * 4));;
 }
 
 

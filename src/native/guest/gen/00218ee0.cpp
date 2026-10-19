@@ -274,6 +274,7 @@ LAB_0021931c:
     ::sprintf((char *)rtguest::G((uint32_t)(auStack_d0)), (char *)rtguest::G((uint32_t)(0x2eadd0)), (*(uint32_t*)rtguest::G((uint32_t)iStack_9c)));
     uiDebugText8(300,0x98,auStack_d0,0xf);
   }
+  return (*(uint32_t*)rtguest::G((uint32_t)iStack_9c));;
 }
 
 

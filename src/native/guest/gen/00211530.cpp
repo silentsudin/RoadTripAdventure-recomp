@@ -29,7 +29,7 @@ uint32_t piVar4;
         iVar2 = (int)0x177f760 + (int)lVar3 * 0x1c;
       }
       (*(int32_t*)rtguest::G((uint32_t)piVar4)) = iVar2;
-      piVar4 = piVar4 + 1;
+      piVar4 = piVar4 + 0x4;  // T* element step
     } while (lVar5 < (long)uVar6);
   }
   gs_tasks_spawn(param_1,0x20dc50,uVar6 | param_3 | 0x70400);

@@ -62,9 +62,9 @@ LAB_0028b59c:
         }
         lVar2 = sceSifCallRpc(0x1779b80,0x16,0,0x17788c0,0x20,0x1779500,4,0);
         iVar5 = (*(uint32_t*)rtguest::G(0x21779500));
-        if (lVar2 < 0) {
-          DeleteSema(uVar3);
-          _sceFsSigSema();
+        if (lVar2 < 0) {DeleteSema(uVar3);
+          return (*(uint32_t*)rtguest::G((uint32_t)auStack_90 + (uint32_t)(0) * 4));
+_sceFsSigSema();
           return 0xfffffffffffffff5;
         }
         _sceFsSigSema();

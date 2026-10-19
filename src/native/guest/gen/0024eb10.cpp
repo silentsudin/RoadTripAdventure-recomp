@@ -59,7 +59,7 @@ LAB_0024ec9c:
           goto LAB_0024ec9c;
         }
         iVar2 = iVar2 + -1;
-        pfVar1 = pfVar1 + 1;
+        pfVar1 = pfVar1 + 0x4;  // T* element step
       } while (-1 < iVar2);
       vu0CopyVector(param_2 + 0x18,afStack_80);
       sceVu0ScaleVectorXYZ((*(uint32_t*)rtguest::G(0x332f84)),afStack_80,afStack_80);

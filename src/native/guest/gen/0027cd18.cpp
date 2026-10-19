@@ -66,7 +66,7 @@ uint32_t piVar8;
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)piVar8));
       do {
         iVar1 = search_fdes(iVar3,param_1);
-        piVar8 = piVar8 + 1;
+        piVar8 = piVar8 + 0x4;  // T* element step
         if (iVar1 != 0) break;
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)piVar8));
       } while (iVar3 != 0);

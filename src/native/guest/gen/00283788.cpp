@@ -23,7 +23,7 @@ uint32_t puVar5;
     uVar3 = ((*(uint32_t*)rtguest::G((uint32_t)puVar5)) >> 0x10) * param_3 + (uVar4 >> 0x10);
     param_4 = uVar3 >> 0x10;
     (*(uint32_t*)rtguest::G((uint32_t)puVar5)) = uVar3 * 0x10000 + (uVar4 & 0xffff);
-    puVar5 = puVar5 + 1;
+    puVar5 = puVar5 + 0x4;  // T* element step
   } while (iVar6 < iVar1);
   if (param_4 != 0) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8))) <= iVar1) {

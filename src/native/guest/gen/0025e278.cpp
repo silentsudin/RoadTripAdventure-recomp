@@ -70,7 +70,7 @@ uint32_t puVar8;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar8 + 0x19))) = 0;
         gs_tasks_spawn(param_1,0x25df80,puVar8);
         uVar5 = uVar10 & 0xf;
-        puVar8 = puVar8 + 8;
+        puVar8 = puVar8 + 0x20;  // T* element step
       } while ((int)uVar10 < 0x20);
       SelectMeshIntersectionRoutine(1);
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x90b4))) = 1;

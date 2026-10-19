@@ -11,7 +11,7 @@ uint32_t aiStack_20 = rtguest::allocFrame(16);
   (*(int32_t*)rtguest::G((uint32_t)aiStack_20 + (uint32_t)(0) * 4)) = (int)param_1;
   vu0Itof4Vector(auStack_30,aiStack_20);
   vu0ScaleVector((*(uint32_t*)rtguest::G(0x332f98)),auStack_30,auStack_30);
-
+  return (*(uint32_t*)rtguest::G((uint32_t)auStack_30 + (uint32_t)(0) * 4));;
 }
 
 

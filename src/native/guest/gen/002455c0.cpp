@@ -70,7 +70,7 @@ uint32_t puVar20;
         vu0CopyVector(iVar12,puVar20);
         iVar21 = iVar21 + -1;
         (*(uint32_t*)rtguest::G((uint32_t)puVar19)) = 0xff0;
-        puVar19 = puVar19 + 0xc;
+        puVar19 = puVar19 + 0x30;  // T* element step
         puVar20 = puVar20 + 0x10;
       } while (-1 < iVar21);
       iVar25 = iVar25 + 0xd0;
@@ -96,7 +96,7 @@ uint32_t puVar20;
       (*(uint32_t*)rtguest::G((uint32_t)puVar19 + (uint32_t)(6) * sizeof(uint32_t))) = 0x3f000000;
       (*(uint32_t*)rtguest::G((uint32_t)puVar19 + (uint32_t)(0xb) * sizeof(uint32_t))) = 0x44480000;
       (*(uint32_t*)rtguest::G((uint32_t)puVar19 + (uint32_t)(7) * sizeof(uint32_t))) = 0x44480000;
-      puVar19 = puVar19 + 0x78;
+      puVar19 = puVar19 + 0x1e0;  // T* element step
     } while (-1 < iVar24);
     SetupCarouselSlotTransforms(iVar8 + 0x3d60);
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 10)));
@@ -151,7 +151,7 @@ LAB_0024585c:
       iVar23 = iVar23 + 200;
       uiSpriteWrite(iVar12,iVar16 * 0x10000 >> 0x10,(iVar25 << 0x11) >> 0x10,0,0,200,0x96);
       (*(uint32_t*)rtguest::G((uint32_t)puVar19)) = 1;
-      puVar19 = puVar19 + 0x14;
+      puVar19 = puVar19 + 0x50;  // T* element step
       iVar12 = iVar12 + 0x50;
     } while (-1 < iVar21);
     iVar26 = iVar26 + 1;

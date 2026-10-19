@@ -69,7 +69,7 @@ LAB_00253e2c:
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x44))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x44))) & ~(1 << (uVar4 & 0x1f));
     }
     uVar4 = uVar4 + 1;
-    puVar5 = puVar5 + 0x4e;
+    puVar5 = puVar5 + 0x270;  // T* element step
     if (5 < (int)uVar4) {
       return 0;
     }

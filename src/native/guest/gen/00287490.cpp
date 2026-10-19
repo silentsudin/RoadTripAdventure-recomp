@@ -31,7 +31,7 @@ uint32_t pbVar8;
       (*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t))) = (int32_t)(uVar3 >> 0x20);
       (*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(2) * sizeof(uint32_t))) = uVar5;
       (*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(3) * sizeof(uint32_t))) = uVar6;
-      puVar4 = puVar4 + 4;
+      puVar4 = puVar4 + 0x10;  // T* element step
     }
     isceSifSetDChain();
     if ((int)(*(uint32_t*)rtguest::G((uint32_t)uStack_88)) < 0) {

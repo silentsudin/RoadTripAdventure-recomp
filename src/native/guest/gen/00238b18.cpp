@@ -67,7 +67,7 @@ uint32_t puVar13;
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
         goto LAB_00238cc4;
       }
-      pfVar11 = pfVar11 + 8;
+      pfVar11 = pfVar11 + 0x20;  // T* element step
       uVar12 = uVar12 + 1;
     }
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));

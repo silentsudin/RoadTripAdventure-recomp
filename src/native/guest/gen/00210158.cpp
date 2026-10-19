@@ -53,7 +53,7 @@ uint32_t puVar7;
           puVar4 = (uint32_t)((int)0x177f760 + (int)lVar5 * 0x1c);
         }
         (*(uint32_t*)rtguest::G((uint32_t)puVar7)) = puVar4;
-        puVar7 = puVar7 + 1;
+        puVar7 = puVar7 + 0x4;  // T* element step
       } while (lVar8 < (long)uVar9);
     }
     gs_tasks_spawn(param_3,0x20dc50,uVar9 | 0x370400);
@@ -76,7 +76,7 @@ uint32_t puVar7;
             iVar3 = (int)0x177f760 + (int)lVar5 * 0x1c;
           }
           (*(int32_t*)rtguest::G((uint32_t)piVar6)) = iVar3;
-          piVar6 = piVar6 + 1;
+          piVar6 = piVar6 + 0x4;  // T* element step
         } while (lVar8 < (long)uVar9);
       }
       gs_tasks_spawn(param_3,0x20dc50,uVar9 | 0x370400);

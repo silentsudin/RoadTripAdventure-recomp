@@ -32,7 +32,7 @@ uint32_t puVar3;
     (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(-2) * sizeof(uint32_t))) = iVar2;
     (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(-3) * sizeof(uint32_t))) = iVar2;
     (*(uint32_t*)rtguest::G((uint32_t)puVar3)) = 0x80;
-    puVar3 = puVar3 + 0xc;
+    puVar3 = puVar3 + 0x30;  // T* element step
   } while (-1 < iVar7);
   iVar2 = param_5 * 0x6e;
   iVar8 = param_5 * 0x32;

@@ -57,7 +57,7 @@ LAB_0024efbc:
           goto LAB_0024efbc;
         }
         iVar2 = iVar2 + -1;
-        pfVar1 = pfVar1 + 1;
+        pfVar1 = pfVar1 + 0x4;  // T* element step
       } while (-1 < iVar2);
       sceVu0ScaleVectorXYZ((*(uint32_t*)rtguest::G(0x332f8c)),afStack_80,afStack_80);
       vu0RotMatrix(fStack_d0,fStack_d0,afStack_80);

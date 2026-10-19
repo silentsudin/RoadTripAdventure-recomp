@@ -65,7 +65,7 @@ uint32_t puVar6;
                (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar6 + 0x15))) + ((iVar2 << 5) / 0x19) * -2 & 0xfffffff;
         }
         iVar7 = iVar7 + -1;
-        puVar6 = puVar6 + 0x4e;
+        puVar6 = puVar6 + 0x270;  // T* element step
       } while (-1 < iVar7);
       lVar4 = TestStateBitFc78(0x11);
       if (((lVar4 != 0) || ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14))) - 54000U < 0x23280)) &&

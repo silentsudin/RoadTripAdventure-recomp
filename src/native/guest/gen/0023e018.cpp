@@ -40,7 +40,7 @@ uint32_t pcVar10;
     upper = (*(int16_t*)rtguest::G((uint32_t)0x2a36b2 + iVar7 * sizeof(int16_t)));
     if (((long)iVar4 <= lower && upper < (long)iVar4) && ((*(int8_t*)rtguest::G(0x335708)) != 0)) break;
     pcVar10 = pcVar10 + 1;
-    psVar6 = psVar6 + 1;
+    psVar6 = psVar6 + 0x2;  // T* element step
     iVar7 = iVar8;
     if (9 < iVar8) {
 LAB_0023e11c:

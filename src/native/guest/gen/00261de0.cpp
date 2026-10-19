@@ -63,7 +63,7 @@ uint32_t piVar12;
       iVar5 = (*(int32_t*)rtguest::G((uint32_t)piVar12));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9978 + iVar5 * 0x30)));
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)piVar12));
-      piVar12 = piVar12 + 1;
+      piVar12 = piVar12 + 0x4;  // T* element step
       (*(uint32_t*)rtguest::G((uint32_t)uStack_58)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_54)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d997c + iVar6 * 0x30)));

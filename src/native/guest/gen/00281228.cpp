@@ -42,7 +42,7 @@ uint32_t puVar14;
       puVar8 = puVar12;
       do {
         uVar6 = (*(uint32_t*)rtguest::G((uint32_t)puVar10));
-        puVar10 = puVar10 + 1;
+        puVar10 = puVar10 + 0x4;  // T* element step
         uVar2 = (*(uint32_t*)rtguest::G((uint32_t)puVar8));
         uVar3 = (uVar6 & 0xffff) * iVar13 + uVar3;
         uVar6 = (uVar6 >> 0x10) * iVar13 + (uVar3 >> 0x10);
@@ -51,7 +51,7 @@ uint32_t puVar14;
         iVar5 = ((uVar2 >> 0x10) - (uVar6 & 0xffff)) + (iVar5 >> 0x10);
         uVar3 = uVar6 >> 0x10;
         (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar8 + 2))) = (short)iVar5;
-        puVar8 = puVar8 + 1;
+        puVar8 = puVar8 + 0x4;  // T* element step
         iVar5 = iVar5 >> 0x10;
       } while (puVar10 <= puVar14);
       if (uVar1 == 0) {
@@ -73,13 +73,13 @@ LAB_0028135c:
       puVar7 = puVar12;
       do {
         uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puVar9));
-        puVar9 = puVar9 + 1;
+        puVar9 = puVar9 + 0x4;  // T* element step
         uVar3 = (*(uint32_t*)rtguest::G((uint32_t)puVar7));
         iVar5 = ((uVar3 & 0xffff) - (uVar1 & 0xffff)) + iVar5;
         (*(int16_t*)rtguest::G((uint32_t)(uint32_t)puVar7)) = (short)iVar5;
         iVar5 = ((uVar3 >> 0x10) - (uVar1 >> 0x10)) + (iVar5 >> 0x10);
         (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar7 + 2))) = (short)iVar5;
-        puVar7 = puVar7 + 1;
+        puVar7 = puVar7 + 0x4;  // T* element step
         iVar5 = iVar5 >> 0x10;
       } while (puVar9 <= puVar14);
       puVar7 = puVar12 + iVar11;

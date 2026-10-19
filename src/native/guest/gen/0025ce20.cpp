@@ -53,13 +53,13 @@ LAB_0025cf68:
     vu0UnitMatrix(auStack_a0);
     fVar11 = (*(float*)rtguest::G((uint32_t)pfVar4));
     pbVar5 = pbVar5 + 1;
-    pfVar6 = pfVar6 + 1;
-    pfVar4 = pfVar4 + 1;
+    pfVar6 = pfVar6 + 0x4;  // T* element step
+    pfVar4 = pfVar4 + 0x4;  // T* element step
     vu0RotMatrixX((fVar11 * (*(float*)rtguest::G(0x3330d8))) / 180.0,auStack_a0,auStack_a0);
     tileSlotOrigin(auStack_70,iVar8 * 0x10 + 0x2c4a70,2);
     vifObjectMatrix(auStack_a0);
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)piVar7));
-    piVar7 = piVar7 + 1;
+    piVar7 = piVar7 + 0x4;  // T* element step
     vifCallModel(iVar1 + 0x10);
     if (2 < iVar9) break;
     uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));

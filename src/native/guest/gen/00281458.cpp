@@ -519,7 +519,7 @@ LAB_002822c0:
               iVar13 = iVar13 + 1;
               uVar11 = dpmul((*(uint64_t*)rtguest::G((uint32_t)puVar15)),uVar11);
             }
-            puVar15 = puVar15 + 1;
+            puVar15 = puVar15 + 0x8;  // T* element step
           } while (uVar22 != 0);
         }
       }
@@ -542,7 +542,7 @@ LAB_002822c0:
             iVar13 = iVar13 + 1;
             uVar5 = dpmul(uVar5,(*(uint64_t*)rtguest::G((uint32_t)puVar15)));
           }
-          puVar15 = puVar15 + 1;
+          puVar15 = puVar15 + 0x8;  // T* element step
         } while (uVar17 != 0);
       }
       uVar11 = dpdiv(uVar11,uVar5);

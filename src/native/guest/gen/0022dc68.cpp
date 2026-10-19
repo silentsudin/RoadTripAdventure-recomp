@@ -55,7 +55,7 @@ LAB_0022dd94:
           uVar2 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 1)));
         }
         iVar5 = iVar5 + 1;
-        puVar4 = puVar4 + 0x4e;
+        puVar4 = puVar4 + 0x270;  // T* element step
       } while (iVar5 < (int)uVar2);
     }
   }

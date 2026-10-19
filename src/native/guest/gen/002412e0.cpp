@@ -45,7 +45,7 @@ LAB_002413d4:
       }
     }
     uVar5 = uVar5 + 1;
-    puVar7 = puVar7 + 1;
+    puVar7 = puVar7 + 0x4;  // T* element step
     iVar6 = iVar6 + 4;
     if (2 < (int)uVar5) {
       iVar6 = 0xd;
@@ -57,7 +57,7 @@ LAB_002413d4:
           rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(1) * sizeof(uint32_t))))), param_1, param_2);
         }
         iVar6 = iVar6 + -1;
-        puVar7 = puVar7 + 2;
+        puVar7 = puVar7 + 0x8;  // T* element step
       } while (-1 < iVar6);
       return 0;
     }

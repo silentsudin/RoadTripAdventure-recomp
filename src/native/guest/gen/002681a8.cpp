@@ -55,7 +55,7 @@ uint32_t piVar9;
           uVar2 = uVar8 * 0x20 + uVar7;
         } while (uVar7 < 0x20);
         uVar8 = uVar8 + 1;
-        piVar9 = piVar9 + 1;
+        piVar9 = piVar9 + 0x4;  // T* element step
         if (4 < uVar8) {
           return -1;
         }

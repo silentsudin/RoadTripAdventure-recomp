@@ -55,7 +55,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
       }
     }
   }
-
+  return (*(uint32_t*)rtguest::G((uint32_t)auStack_60 + (uint32_t)(0) * 4));;
 }
 
 

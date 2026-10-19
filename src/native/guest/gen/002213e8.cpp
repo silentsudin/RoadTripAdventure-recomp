@@ -33,7 +33,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
     vu0MulMatrix(auStack_d0,param_1,auStack_90);
     vifObjectMatrix(auStack_d0);
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)piVar4));
-    piVar4 = piVar4 + 1;
+    piVar4 = piVar4 + 0x4;  // T* element step
     vifCallModel(iVar1 + 0x10);
     puVar5 = puVar5 + 0x10;
   } while (iVar3 < 3);

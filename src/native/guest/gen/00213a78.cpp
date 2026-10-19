@@ -15,6 +15,7 @@ uint32_t HandleToggleMenuInput(uint32_t param_1, uint32_t param_2, uint32_t para
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30)));
 LAB_00213b94:
     if ((uVar1 & 0x10) == 0) {
+      return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
     }
     PlayUiSound(0x1b);
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) + 0xe))) | 0x80;
@@ -82,7 +83,7 @@ LAB_00213c10:
     return 100;
   }
 LAB_00213c20:
-
+  return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
 }
 
 

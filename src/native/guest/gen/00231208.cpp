@@ -140,7 +140,7 @@ uint32_t piVar15;
           }
           uVar3 = uVar3 + 1;
           iVar4 = iVar4 + 0x24;
-          piVar15 = piVar15 + 1;
+          piVar15 = piVar15 + 0x4;  // T* element step
         } while (uVar3 < 4);
         puVar1 = uStack_f0;
         puVar2 = 0x002ebf60;

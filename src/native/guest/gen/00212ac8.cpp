@@ -57,14 +57,15 @@ uint32_t piVar6;
           (*(int32_t*)rtguest::G((uint32_t)piVar6 + (uint32_t)(-1) * sizeof(int32_t))) = (*(int32_t*)rtguest::G((uint32_t)piVar6 + (uint32_t)(-1) * sizeof(int32_t))) + -5;
           (*(int32_t*)rtguest::G((uint32_t)piVar6)) = (*(int32_t*)rtguest::G((uint32_t)piVar6)) + -0xe;
         }
-        piVar6 = piVar6 + 9;
+        piVar6 = piVar6 + 0x24;  // T* element step
       } while (uVar8 < 0xb);
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t)));
     }
     if (iVar3 != 0) {
+      return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
     }
     if ((*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(3) * sizeof(int32_t))) != 0) {
-
+      return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
     }
     (*(int32_t*)rtguest::G((uint32_t)param_4)) = 100;
     goto LAB_002135ac;
@@ -292,11 +293,13 @@ LAB_00213014:
             (*(int32_t*)rtguest::G((uint32_t)piVar6 + (uint32_t)(-1) * sizeof(int32_t))) = (*(int32_t*)rtguest::G((uint32_t)piVar6 + (uint32_t)(-1) * sizeof(int32_t))) + -5;
             (*(int32_t*)rtguest::G((uint32_t)piVar6)) = (*(int32_t*)rtguest::G((uint32_t)piVar6)) + -0xe;
           }
-          piVar6 = piVar6 + 9;
+          piVar6 = piVar6 + 0x24;  // T* element step
         } while (uVar8 < 0xb);
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(3) * sizeof(int32_t)));
       }
       if (iVar3 != 0) {
+
+        return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
 
       }
       iVar3 = 10;

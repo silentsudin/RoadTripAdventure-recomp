@@ -55,8 +55,8 @@ uint32_t auStack_80 = rtguest::allocFrame(64);
                                       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)piVar7)) + 0x604))));
           uVar3 = uVar3 | uVar5;
         }
-        piVar7 = piVar7 + 1;
-        puVar8 = puVar8 + 1;
+        piVar7 = piVar7 + 0x4;  // T* element step
+        puVar8 = puVar8 + 0x4;  // T* element step
         iVar9 = iVar2;
       } while (iVar2 < 0x1a);
     }

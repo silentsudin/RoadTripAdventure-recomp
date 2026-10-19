@@ -117,7 +117,7 @@ LAB_0022dee4:
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar14 + 0x4c))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar14 + 0x4c))) + 1;
     }
     iVar18 = iVar18 + -1;
-    puVar14 = puVar14 + 0x4e;
+    puVar14 = puVar14 + 0x270;  // T* element step
   } while (-1 < iVar18);
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x25))) & 9) == 9) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28))) | 8;

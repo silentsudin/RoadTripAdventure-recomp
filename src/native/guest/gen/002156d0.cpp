@@ -111,7 +111,7 @@ uint32_t puStack_6c;
       uiArenaSprites(iVar20,(*(uint32_t*)rtguest::G((uint32_t)puVar14 + (uint32_t)(5) * sizeof(uint32_t))) * 0x20 + 0x29c300,1,(*(uint32_t*)rtguest::G((uint32_t)puVar14 + (uint32_t)(1) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar14 + (uint32_t)(2) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar14 + (uint32_t)(3) * sizeof(uint32_t))));
     }
     iVar16 = iVar16 + -1;
-    puVar14 = puVar14 + 6;
+    puVar14 = puVar14 + 0x18;  // T* element step
   } while (iVar16 != -1);
   DrawMenuCursorAndIcons(param_3,iVar20,iVar18 + 0x820c,0xb);
   uiArenaSetTexture(iVar20,0x29c030,3,0);

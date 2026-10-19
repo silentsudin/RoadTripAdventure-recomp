@@ -18,7 +18,7 @@ uint32_t LoadSaveSlotTask(uint32_t param_1, uint32_t param_2, ...) {
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) == '\0') {
     return 0;
   }
-  bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25)));
+  bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25)));  // pseudo byte
   if (bVar1 == 3) {
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24))) = 1;

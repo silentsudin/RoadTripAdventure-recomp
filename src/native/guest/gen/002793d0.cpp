@@ -32,8 +32,8 @@ uint32_t puVar5;
   do {
     iVar3 = iVar3 + -1;
     (*(uint32_t*)rtguest::G((uint32_t)puVar4)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)puVar2));
-    puVar4 = puVar4 + 1;
-    puVar2 = puVar2 + 1;
+    puVar4 = puVar4 + 0x4;  // T* element step
+    puVar2 = puVar2 + 0x8;  // T* element step
   } while (-1 < iVar3);
   bVar1 = param_1 == 0;
   uVar7 = 0;

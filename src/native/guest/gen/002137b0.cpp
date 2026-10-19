@@ -93,13 +93,14 @@ LAB_00213a40:
       if ((*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(3) * sizeof(int32_t))) != 0) {
         SoundRpcCmd33PlaySe((*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(3) * sizeof(int32_t))) + -1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14))));
         SoundRpcCmd34();
+        return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
       }
 LAB_00213a30:
       SoundRpcCmd35();
-
+      return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
     }
 LAB_00213a50:
-
+  return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
   }
   if ((uVar1 & 0x10) != 0) {
     PlayUiSound(0x1b);
@@ -130,7 +131,7 @@ LAB_0021398c:
     iVar4 = iVar4 + 0x7f;
   }
   SoundRpcCmd31(iVar4 >> 7,iVar4 >> 7);
-
+  return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
 }
 
 

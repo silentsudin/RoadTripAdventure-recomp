@@ -112,7 +112,7 @@ uint32_t puVar12;
     uiArenaSprites(param_1,uStack_120,1,uVar1,(*(uint32_t*)rtguest::G((uint32_t)puVar12)),2);
     if (iVar16 < 0) break;
     uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puVar12 + (uint32_t)(2) * sizeof(uint32_t)));
-    puVar12 = puVar12 + 3;
+    puVar12 = puVar12 + 0xc;  // T* element step
   }
   iVar15 = 0;
   (*(int32_t*)rtguest::G((uint32_t)iStack_58)) = (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) << 2;

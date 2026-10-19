@@ -29,7 +29,7 @@ uint32_t puVar5;
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x4c))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x4c))) + 1;
     }
     iVar8 = iVar8 + -1;
-    puVar5 = puVar5 + 0x4e;
+    puVar5 = puVar5 + 0x270;  // T* element step
   } while (-1 < iVar8);
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) & 9) == 9) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 8;

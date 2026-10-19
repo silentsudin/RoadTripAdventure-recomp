@@ -76,7 +76,7 @@ uint32_t puVar15;
   uVar3 = (*(uint32_t*)rtguest::G((uint32_t)puVar12));
   iVar11 = 0x2c;
   while( true ) {
-    puVar12 = puVar12 + 1;
+    puVar12 = puVar12 + 0x4;  // T* element step
     iVar13 = iVar13 + -1;
     uiDrawTime(500,iVar11,uVar3,0);
     if (iVar13 < 0) break;

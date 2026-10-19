@@ -87,7 +87,7 @@ LAB_002150dc:
       uiArenaSprites(iVar2,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(5) * sizeof(uint32_t))) * 0x20 + 0x29c300,1,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(2) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(3) * sizeof(uint32_t))));
     }
     iVar6 = iVar6 + -1;
-    puVar4 = puVar4 + 6;
+    puVar4 = puVar4 + 0x18;  // T* element step
   } while (iVar6 != -1);
   DrawMenuCursorAndIcons(param_3,iVar2,iVar5 + 0x820c,0xb);
   uiArenaSubmit(iVar2);

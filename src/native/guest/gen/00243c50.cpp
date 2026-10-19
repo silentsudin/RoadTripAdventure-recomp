@@ -102,12 +102,12 @@ LAB_00243f70:
       iVar8 = iVar8 + -1;
       vu0CopyVector(iVar6,puVar9);
       (*(uint32_t*)rtguest::G((uint32_t)puVar7)) = 0xff0;
-      puVar7 = puVar7 + 0xc;
+      puVar7 = puVar7 + 0x30;  // T* element step
       puVar9 = puVar9 + 0x10;
     } while (-1 < iVar8);
     iVar10 = iVar10 + 0xf0;
     lVar13 = (long)(iVar12 + 1);
-    puVar2 = puVar2 + 5;
+    puVar2 = puVar2 + 0x14;  // T* element step
   } while( true );
 }
 

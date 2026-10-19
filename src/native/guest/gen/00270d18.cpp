@@ -13,7 +13,7 @@ uint32_t puVar1;
   do {
     (*(uint32_t*)rtguest::G((uint32_t)puVar1)) = 0;
     uVar2 = uVar2 + 1;
-    puVar1 = puVar1 + 0x16;
+    puVar1 = puVar1 + 0x58;  // T* element step
   } while (uVar2 < 4);
   return 0;
 }

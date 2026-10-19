@@ -88,7 +88,7 @@ uint32_t puStack_78;
         vu0CopyVector(puVar14,puVar25);
         iVar28 = iVar28 + -1;
         (*(uint32_t*)rtguest::G((uint32_t)puVar26)) = 0xff0;
-        puVar26 = puVar26 + 0xc;
+        puVar26 = puVar26 + 0x30;  // T* element step
         puVar25 = puVar25 + 0x10;
       } while (-1 < iVar28);
       puVar31 = puVar31 + 0xd0;
@@ -137,7 +137,7 @@ uint32_t puStack_78;
           iVar28 = iVar28 + 1;
           sVar5 = FindFlaggedSlotIndex(uVar19,uVar17,uVar22,uVar15);
           (*(int16_t*)rtguest::G((uint32_t)psVar35)) = sVar5;
-          psVar35 = psVar35 + 1;
+          psVar35 = psVar35 + 0x2;  // T* element step
           if (sVar5 == -1) goto LAB_00246708;
           uVar22 = iVar28 + uVar2;
         } while (iVar28 < 0x10);
@@ -197,7 +197,7 @@ LAB_00247758:
           iVar28 = iVar28 + 1;
           sVar5 = findFlaggedSlotIndexAlt(uVar3,uVar19,uVar21);
           (*(int16_t*)rtguest::G((uint32_t)psVar35)) = sVar5;
-          psVar35 = psVar35 + 1;
+          psVar35 = psVar35 + 0x2;  // T* element step
           if (sVar5 == -1) goto LAB_00246708;
           uVar21 = iVar28 + uVar15;
         } while (iVar28 < 0x10);
@@ -336,7 +336,7 @@ LAB_00246870:
           iVar28 = iVar28 + 1;
           sVar5 = FindFlaggedSlotIndex(uVar19,uVar17,uVar22,uVar15);
           (*(int16_t*)rtguest::G((uint32_t)psVar35)) = sVar5;
-          psVar35 = psVar35 + 1;
+          psVar35 = psVar35 + 0x2;  // T* element step
           if (sVar5 == -1) goto LAB_00246b4c;
           uVar22 = iVar28 + uVar2;
         } while (iVar28 < 0x10);
@@ -379,7 +379,7 @@ LAB_00246b4c:
           iVar28 = iVar28 + 1;
           sVar5 = findFlaggedSlotIndexAlt(uVar3,uVar19,uVar17);
           (*(int16_t*)rtguest::G((uint32_t)psVar35)) = sVar5;
-          psVar35 = psVar35 + 1;
+          psVar35 = psVar35 + 0x2;  // T* element step
           if (sVar5 == -1) goto LAB_00246b4c;
           uVar17 = iVar28 + uVar2;
         } while (iVar28 < 0x10);
