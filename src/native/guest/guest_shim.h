@@ -160,4 +160,13 @@ inline uint64_t rtCall(uint32_t target, uint64_t a0 = 0, uint64_t a1 = 0,
 namespace guest {
 inline float SQRT(float x) { return sqrtf(x); }
 inline float ABS(float x) { return x < 0.0f ? -x : x; }
+
+// W12 EE libkernel: the syscall stub TUs forward their register args (a0..a7
+// = $4..$7) to the host dispatcher; num is the raw li-v0 value from the stub
+// (negative render = sign-extended = interruptSafe "i*" variant). Implemented
+// in guest_kernel.cpp, semantics mirrored from the oracle ps2xRuntime
+// EeScheduler + Syscalls (oracle = reference only, never linked here).
+int32_t syscall(uint64_t num, uint32_t a0 = 0, uint32_t a1 = 0, uint32_t a2 = 0,
+                uint32_t a3 = 0, uint32_t a4 = 0, uint32_t a5 = 0,
+                uint32_t a6 = 0, uint32_t a7 = 0);
 }

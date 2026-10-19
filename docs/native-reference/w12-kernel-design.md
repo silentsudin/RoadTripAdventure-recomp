@@ -101,3 +101,47 @@ Server names in the table below are inferred (fno ranges), not yet pinned to mod
 - Exact interleaving the oracle produces at vblank (probe with oracle thread dump
   `RT_THREAD_DUMP=5` on title/town/race before pinning scheduler order).
 - The bare `_print` undefined reference (origin TU unknown; likely a newlib debug call).
+
+## Increment 1 landed (kernel core + stub wiring)
+
+`src/native/guest/guest_kernel.{h,cpp}` implements the host libkernel: ucontext green
+threads on host stacks, per-priority ready queues, semas/event-free alarms/intc+dmac
+chains, SetVSyncFlag one-shot, heap model, Copy with blob tracking, SIF-DMA applied
+immediately, setSyscall override dispatch resolved through installed blobs. All 48
+stub TUs (21 rewired + 27 new from kernel_stubs.json) forward their $4..$ args to
+`guest::syscall(num, a0..a7)`; the fallback `syscall` is gone from transliterate.py.
+ELF entry 0x200008 now forwards the disasm-recovered SetupThread($4=0x33AAF0 gp,
+$5=0x1F80000, $6=0x80000) and SetupHeap($4=0x17874E0, $5=-1) args (its bss-loop
+`in_zero_*` locals were uninitialized — fixed to 0). Pins: `test_w12_kernel`
+(return-id sema results incl. KE codes, caller-tid GetThreadId proven through the
+game ring path at 00285ed8, priority order, alarm invocation args $4=id $5=ticks
+$6=argument, intc cause gate, ReferThreadStatus layout, boot thread id 1). The two
+bare-call $4-forwarding sites (00285ed8/00285ff0 → `_iWakeupThread`/`_iSuspendThread`)
+are FIXED; the retnarrow ledger's other sites stay W12-gated.
+
+Documented deviations from the oracle (all shortcut-commented in code):
+- Host green-thread stacks (max(stackSize,0x10000)) instead of the declared guest
+  RAM stack region; the EE stack itself is not modelled yet (frame arena RT_FRAME_END
+  stays 0x2000000 — move to 0x1F80000 at w12-boot so SetupThread's [0x1F80000,
+  0x2000000) stack region is reserved).
+- Alarms/vblank fire at vblank-tick granularity (`kVblank` advances virtual EE time
+  16667 us; alarm deadline = ticks x 64 us); sub-field alarm-vs-vblank tie ordering
+  deferred to the W13 hash-parity chase.
+- Handler invocations run on the pump stack with the would-be-next ready thread as
+  "current" (owner tid makes the game's iWakeupThread ring path work); blocking
+  syscalls in handler context return KE_ERROR (guest UB).
+- `entry`'s SetupThread $t0 root_func (0x2000C0 = Ps2InitGsDoubleBuffer) is ignored,
+  as the oracle never invokes it.
+- InitAlarm's syscall-override blob (Copy 0x2e9148→0x76000 + setSyscall) is stored
+  and resolved through the Copy install table; the blob's own code (no Ghidra
+  function at 0x2e9148) is NOT ported yet — if the boot path dispatches through that
+  override, w12-boot must manually port the blob. (Note: disasm 0x285e70 shows
+  InitThread's CreateThread passes initial_priority 0; the oracle's createThread
+  rejects priority <1, so the oracle likely returns KE_ILLEGAL_PRIORITY -403 there,
+  DAT_2e98f0 stays -1 (non-zero → the ring gate in the i* wrappers stays open), and
+  the ring consumer thread may never exist on either side — our kernel mirrors the
+  rejection exactly; probe the oracle to confirm which threads it really creates.)
+
+Still pending in W12: MMIO staging (VIF1 block + DMAC-GIF), port 0x00207b50, rt-app
+frame-loop wiring (kBootMainThread/kVblank/kPumpToIdle), boot to title, oracle
+interleaving probe, and the `_print` undefined reference.

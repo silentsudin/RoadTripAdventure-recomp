@@ -131,7 +131,7 @@ add_library(rt_native_car_render STATIC preview/car_render.cpp)
 # every TU; it links into the app subsystem by subsystem at W12. Needs the
 # generated decls table: python3 scripts/ghidra/transliterate.py --decls.
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp/guest_decls.inc")
-    add_library(rt_guest STATIC guest/guest_mem.cpp)
+    add_library(rt_guest STATIC guest/guest_mem.cpp guest/guest_kernel.cpp)
     file(GLOB RT_GUEST_GEN CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/guest/gen/*.cpp")
     target_sources(rt_guest PRIVATE ${RT_GUEST_GEN})
     target_include_directories(rt_guest PRIVATE

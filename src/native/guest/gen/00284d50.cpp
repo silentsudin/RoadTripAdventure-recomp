@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t _iDisableIntc(uint32_t q0, ...) {
-  syscall(0xffffffffffffffe5);
-  return 0;
+int32_t _iDisableIntc(uint32_t q0) {
+  // W12: iDisableIntc($4 cause); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0xffffffffffffffe5, q0);
 }
 
 

@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t StartThread(uint32_t q0, ...) {
-  syscall(0x22);
-  return 0;
+int32_t StartThread(uint32_t q0, uint32_t q1) {
+  // W12: StartThread($4 id, $5 arg); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0x22, q0, q1);
 }
 
 

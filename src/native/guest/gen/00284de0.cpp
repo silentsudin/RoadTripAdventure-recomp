@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t ExitDeleteThread(uint32_t q0, ...) {
-  syscall(0x24);
-  return 0;
+int32_t ExitDeleteThread() {
+  // W12: ExitDeleteThread(no args); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0x24);
 }
 
 

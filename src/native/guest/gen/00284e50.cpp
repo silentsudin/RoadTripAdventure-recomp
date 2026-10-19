@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t RotateThreadReadyQueue(uint32_t q0, ...) {
-  syscall(0x2b);
-  return 0;
+int32_t RotateThreadReadyQueue(uint32_t q0) {
+  // W12: RotateThreadReadyQueue($4 prio); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0x2b, q0);
 }
 
 

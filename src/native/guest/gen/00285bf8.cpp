@@ -4,10 +4,10 @@
 
 namespace guest {
 
-uint32_t syscallMemInstall(uint32_t q0, ...) {
-  // syscall(0x5a) body is kernel-side; args pass through in a0-a2 untouched.
-  syscall(0x5a);
-  return 0;
+int32_t syscallMemInstall(uint32_t q0, uint32_t q1, uint32_t q2) {
+  // W12: Copy($4 dst, $5 src, $6 len); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0x5a, q0, q1, q2);
 }
 
 

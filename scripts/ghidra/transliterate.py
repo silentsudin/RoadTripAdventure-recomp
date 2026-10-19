@@ -980,7 +980,9 @@ def synth_decl(path: Path) -> str:
 # Ghidra emits R5900 intrinsics and COP0 register reads as undeclared identifiers;
 # stage them as inert host stubs in the decl header (real semantics land with the
 # W11 port worker; trap/syscall must never execute on the host — W12 quarantines).
-INTRINSIC = ["trap", "syscall", "SQRT", "SYNC", "cacheOp", "_pcpyld", "ABS", "_pcpyud",
+# syscall is NOT staged since W12: the shim declares the real dispatcher
+# (guest_shim.h) and guest_kernel.cpp implements the host libkernel.
+INTRINSIC = ["trap", "SQRT", "SYNC", "cacheOp", "_pcpyld", "ABS", "_pcpyud",
              "_psubb", "_pand", "_pxor", "_pextuw", "_pextlw", "_pcpyh", "_psubw",
              "EI", "DI", "_cfc2", "_ctc2", "_mips_gp0_value", "int3"]
 COP0_VALUE = ["Status", "TagLo"]

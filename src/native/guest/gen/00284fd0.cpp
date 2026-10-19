@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t iSignalSema(uint32_t q0, ...) {
-  syscall(0xffffffffffffffbd);
-  return 0;
+int32_t iSignalSema(uint32_t q0) {
+  // W12: iSignalSema($4 id); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0xffffffffffffffbd, q0);
 }
 
 

@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t _iWakeupThread(uint32_t q0, ...) {
-  syscall(0xffffffffffffffcc);
-  return 0;
+int32_t _iWakeupThread(uint32_t q0) {
+  // W12: iWakeupThread($4 id); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0xffffffffffffffcc, q0);
 }
 
 

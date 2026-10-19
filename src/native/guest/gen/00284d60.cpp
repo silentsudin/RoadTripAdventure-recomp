@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t _iEnableDmac(uint32_t q0, ...) {
-  syscall(0xffffffffffffffe4);
-  return 0;
+int32_t _iEnableDmac(uint32_t q0) {
+  // W12: iEnableDmac($4 cause); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0xffffffffffffffe4, q0);
 }
 
 

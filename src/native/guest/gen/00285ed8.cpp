@@ -21,7 +21,7 @@ uint32_t iWakeupThread(uint32_t param_1, ...) {
     }
   }
   else {
-    _iWakeupThread();
+    _iWakeupThread(param_1);  // W12: tail-call forwarded $4 (ledger bare-call fix)
   }
   return 0;
 }

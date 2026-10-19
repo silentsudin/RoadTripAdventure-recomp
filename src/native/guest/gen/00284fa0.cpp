@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t CreateSema(uint32_t q0, ...) {
-  syscall(0x40);
-  return 0;
+int32_t CreateSema(uint32_t q0) {
+  // W12: CreateSema($4 ee_sema_t*); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0x40, q0);
 }
 
 

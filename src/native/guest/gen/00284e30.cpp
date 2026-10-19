@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t ChangeThreadPriority(uint32_t q0, ...) {
-  syscall(0x29);
-  return 0;
+int32_t ChangeThreadPriority(uint32_t q0, uint32_t q1) {
+  // W12: ChangeThreadPriority($4 id, $5 prio); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0x29, q0, q1);
 }
 
 

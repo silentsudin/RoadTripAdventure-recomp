@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t SetVSyncFlag(uint32_t q0, ...) {
-  syscall(0x73);
-  return 0;
+int32_t SetVSyncFlag(uint32_t q0, uint32_t q1) {
+  // W12: SetVSyncFlag($4 flag, $5 tick); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0x73, q0, q1);
 }
 
 

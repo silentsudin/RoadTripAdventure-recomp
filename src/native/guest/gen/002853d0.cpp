@@ -4,9 +4,10 @@
 
 namespace guest {
 
-uint32_t Deci2Call(uint32_t q0, ...) {
-  syscall(0x7c);
-  return 0;
+int32_t Deci2Call(uint32_t q0, uint32_t q1) {
+  // W12: Deci2Call($4 code, $5 args*); the raw li-v0 number travels to the host
+  // dispatcher (guest_kernel.cpp), which models the kernel side.
+  return syscall(0x7c, q0, q1);
 }
 
 
