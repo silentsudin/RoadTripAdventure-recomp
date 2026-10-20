@@ -63,6 +63,10 @@ Model choice — live quota ONLY via `execute -> tools.quota_status()`; never
 reuse numbers from this file or memory, and a single transient 429 on one
 provider is not exhaustion:
 
+- Frontier tier (user directive 2026-10-20): GPT 6 Sol, DeepSeek V4 Pro, Grok 4.7.
+  Catalog ids: GPT 6 Sol = `openai/gpt-6.1-sol`, DeepSeek = `opencode-go/deepseek-v4-pro`
+  (variants high|max), Grok = `xai/grok-4.7` (also `opencode-go/grok-4.7`).
+
 - Workhorse RE/analysis: `openai/gpt-5.6-terra`. Strong alternates when its
   window is closed: `synthetic/hf:moonshotai/Kimi-K3`,
   `synthetic/hf:zai-org/GLM-5.3` (dispatch with `#high`).
