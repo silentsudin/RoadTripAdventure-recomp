@@ -4,7 +4,11 @@
 
 namespace guest {
 
-uint32_t buildCamera(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+// Machine-level fix (disasm 0x21f748 + delay slot): jal ComposeCameraMatrix's
+// delay slot move $4,$sp sets the callee's $a0 to the caller slot, but $a1..$a3
+// carry param_2/3/4 live — Ghidra's 1-arg call site dropped them. Same clobber
+// at jal 0x21f6f4: vu0CopyVector #1 copies param_2 -> auStack_1d0.
+uint32_t buildCamera(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
 uint32_t auStack_1d0 = rtguest::allocFrame(16);
 uint32_t auStack_1c0 = rtguest::allocFrame(16);
 uint32_t auStack_1b0 = rtguest::allocFrame(16);
@@ -38,10 +42,10 @@ uint32_t auStack_c0 = rtguest::allocFrame(64);
   float fVar6;
   
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1c))) & 0x1000) == 0) {
-    ComposeCameraMatrix(auStack_1d0);
+    ComposeCameraMatrix(auStack_1d0,param_2,param_3,param_4);
   }
   else {
-    vu0CopyVector(auStack_1d0);
+    vu0CopyVector(auStack_1d0,param_2);
     vu0CopyVector(auStack_1c0,param_3);
     iVar4 = (int)param_3;
     vu0CopyVector(auStack_1b0,iVar4 + 0x10);

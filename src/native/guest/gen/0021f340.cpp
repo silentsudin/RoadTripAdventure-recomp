@@ -23,8 +23,11 @@ uint32_t auStack_60 = rtguest::allocFrame(32);
     vu0CopyVector(param_1,param_2,auStack_c0);
   }
   else {
-    vu0MulMatrix(auStack_c0,param_3);
-    vu0MulMatrix(auStack_80,param_4,auStack_80);
+    // Machine args (disasm 0x21f3bc/0x21f3c8 + delay slots): jal #1 carries
+    // $4=$17 (param_1), $5=$16 (param_3), delay $6=auStack_c0; jal #2's $5 is
+    // still $16 (param_3, not param_4). Ghidra dropped the register state.
+    vu0MulMatrix(param_1,param_3,auStack_c0);
+    vu0MulMatrix(auStack_80,param_3,auStack_80);
     vu0ApplyMatrix(param_1,auStack_c0,param_2);
   }
   iVar1 = (int)param_1;
