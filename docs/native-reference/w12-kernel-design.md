@@ -278,3 +278,19 @@ RT_RAM_DUMP="vb:path,..." (raw 32MB kRam slices for byte diffing against
 oracle socket state_dump EERM chunks; pair native vb+1 with oracle vb), and
 RT_VIF_HIST (W3 step 1: histogram VIF1 opcodes/MSCAL entries + GIF chain
 segments during the walk; stderr [vifhist]/[gifhist]).
+
+## Sema boot fix + trustworthy multi-slice dumps (2026-10-20)
+
+supplement_crt0 (0x28cfc0) hand-fix (982d4ca): the transliterator mis-slotted
+the ee_sema_t writes from Ghidra pseudocode; real disasm sets +4/+8=1 and
++0x28=1 (struct2.init), struct2.max = sema1 id (jal1 delay slot). Native now
+creates both boot semaphores (semas=2); 0x2e99a8 pair byte-identical (oracle
+probe: DATs fill [1,2] at park 8 — each DAT pairs with its own call).
+Multi-slice RT_RAM_DUMP (parseVbPaths fix, a4aff83) onset map @60/300/600:
+most residuals born early (by vb60); 0x1770000 block jumps 11->325 by vb300
+then settles 265; scratch 84->468 by vb300.
+Corrected residual ledger @1800 (1183 B): 0x1e00000 495 (frame-arena scratch
+leftovers), 0x1fff000 291 (game stack frames), 0x177e000 228 + 0x177f000 26,
+0x1787000 49, 0x1f10000 27, env page 0x335000 20 (0x335690/0x335900/
+0x33592c/0x33593c), 0x175e000 15, exception pages 0x0 7 + 0x9000/0xa000 5+5,
+0x1773000 7.
