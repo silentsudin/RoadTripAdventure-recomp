@@ -476,6 +476,12 @@ add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test assert
     target_compile_features(native_assets_iso_extract_test PRIVATE cxx_std_20)
     target_compile_options(native_assets_iso_extract_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
+    add_executable(native_assets_disc_intake_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_disc_intake.cpp")
+    target_link_libraries(native_assets_disc_intake_test PRIVATE rt_native_assets)
+    target_compile_features(native_assets_disc_intake_test PRIVATE cxx_std_20)
+    target_compile_options(native_assets_disc_intake_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
     add_executable(native_assets_field_tile_index_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_field_tile_index.cpp")
     target_link_libraries(native_assets_field_tile_index_test PRIVATE rt_native_assets)

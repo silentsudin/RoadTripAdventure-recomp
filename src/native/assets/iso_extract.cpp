@@ -829,8 +829,8 @@ bool FirstRunExtraction::run(const std::filesystem::path& imagePath, const std::
     if (!volume.has_value()) {
         if (volume.error() == IsoError::NotReadable && looksLikeChd(imagePath)) {
             fail(IsoError::NotReadable,
-                 "CHD images are not supported yet; extract the disc to a .bin/.iso first "
-                 "(docs/native-reference/first-run-extraction.md)");
+                 "CHD not supported yet - convert with `chdman extractcd -i disc.chd -o disc.cue` "
+                 "and point RT_DISC at the .cue/.bin (docs/native-reference/first-run-extraction.md)");
             return false;
         }
         switch (volume.error()) {

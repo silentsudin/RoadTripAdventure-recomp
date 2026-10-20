@@ -1,5 +1,7 @@
 #include "setup_wizard.h"
 
+#include "iso_extract.h"
+
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -151,7 +153,15 @@ bool RunFirstRunSetupIfRequired() {
     // via RT_APP_SETUP_VERIFY=full.
     const char* verify = std::getenv("RT_APP_SETUP_VERIFY");
     if (checkManifestFiles(assets, verify && std::string(verify) == "full")) { log("assets: ready"); return true; }
-    const auto disc = findDisc();
+    std::filesystem::path disc;
+    if (const char* image = std::getenv("RT_DISC"); image && *image && std::filesystem::is_regular_file(image)) {
+        // RT_DISC names an .iso/.bin/.cue file: extract the needed tree (gated on the boot-ELF CRC inside
+        // iso_extract) into <data>/disc, then continue exactly as for a pre-extracted directory.
+        disc = dataRoot() / "disc";
+        FirstRunExtraction flow;
+        if (!flow.run(image, disc)) { log("rom: " + flow.snapshot().message); return false; }
+        setenv("RT_DISC", disc.c_str(), 1);  // every later disc reader expects the extracted directory
+    } else disc = findDisc();
     if (disc.empty() || !hasExpectedBootElfCrc(disc / "SLUS_203.98")) { log("rom: invalid"); return false; }
 
     std::vector<std::pair<std::filesystem::path, std::filesystem::path>> files;
