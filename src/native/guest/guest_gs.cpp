@@ -324,7 +324,7 @@ PrimBits decodePrim(uint64_t value) {
 }
 
 struct GsCtx {  // gs_frontend GSDrawContext fields we model
-    uint32_t fbp = 0, fbw = 0; uint8_t fpsm = 0;
+    uint32_t fbp = 0, fbw = 0; uint8_t fpsm = 0; uint32_t fbmsk = 0;
     uint32_t zbp = 0; uint8_t zpsm = 0;
     uint32_t tbp0 = 0, cbp = 0;
     uint8_t tbw = 0, tpsm = 0, tw = 0, th = 0, tcc = 0, tfx = 0;
@@ -381,7 +381,7 @@ inline uint64_t le64(const uint8_t* p) {
 GsDrawState snapshotState() {
     const GsCtx& c = g_ctx[g_prim.ctxt ? 1 : 0];
     GsDrawState s;
-    s.fbp = c.fbp; s.fbw = c.fbw; s.fpsm = c.fpsm;
+    s.fbp = c.fbp; s.fbw = c.fbw; s.fpsm = c.fpsm; s.fbmsk = c.fbmsk;
     s.zbp = c.zbp; s.zpsm = c.zpsm;
     s.tbp0 = c.tbp0; s.cbp = c.cbp; s.tbw = c.tbw; s.tpsm = c.tpsm;
     s.tw = c.tw; s.th = c.th; s.tcc = c.tcc; s.tfx = c.tfx;
@@ -561,6 +561,66 @@ void gsSetDisplayEnv(const uint8_t* five) {
     }
 }
 const uint64_t* gsDisplayEnv() { return g_dispEnv; }
+
+// GSCpuBackend::ReadVramUnlocked analogue (packed read, for the fbmsk path).
+uint32_t gsReadVramPsm(uint8_t psm, uint32_t base, uint32_t bw, uint32_t x,
+                       uint32_t y) {
+    const int gi = geomIndex(psm);
+    if (gi < 0) return 0;
+    const PsmGeom& g = kGeoms[gi];
+    const uint32_t addr = pixelAddress(g, base, bw, x, y);
+    const uint64_t bits = uint64_t(addr) * g.unpackBits + g.bitOffset;
+    const uint32_t byte = uint32_t(bits / 8) & (kVramSize - g.packedBytes);
+    uint32_t v = 0;
+    std::memcpy(&v, g_vram + byte, g.packedBytes);
+    return v >> uint32_t(bits % 8);
+}
+
+// GS::clearFramebufferContext + GSCpuBackend::ClearFramebuffer
+// (gs_cpu_backend.cpp:1757): fill the scissor box over the frame buffer,
+// FBMSK merge, FBA-up forces alpha opaque except CT24. fbp/zbp go through
+// framePageBaseToBlock (ps2_gs_common.h:42: fbp << 5) exactly as the oracle.
+uint64_t g_clears = 0;
+void gsClearFramebuffer(uint32_t ctxIdx, uint32_t rgba) {
+    const GsCtx& c = g_ctx[ctxIdx != 0u ? 1u : 0u];
+    if (c.fbw == 0u) return;
+    const uint32_t x0 = c.sc0x, x1 = x0 < c.sc1x ? c.sc1x : x0;
+    const uint32_t y0 = c.sc0y, y1 = y0 < c.sc1y ? c.sc1y : y0;
+    const uint8_t r = uint8_t(rgba), g8 = uint8_t(rgba >> 8),
+                  b = uint8_t(rgba >> 16), a0 = uint8_t(rgba >> 24);
+    const uint8_t a = ((c.fba & 1ull) != 0ull && c.fpsm != kPsmC24)
+                          ? uint8_t(a0 | 0x80u) : a0;
+    const uint32_t fbp = c.fbp << 5u, fbw = c.fbw ? c.fbw : 1u;
+    if (c.fpsm == kPsmC32 || c.fpsm == kPsmC24) {
+        const uint32_t source = uint32_t(r) | (uint32_t(g8) << 8) |
+                                (uint32_t(b) << 16) | (uint32_t(a) << 24);
+        for (uint32_t y = y0; y <= y1; ++y)
+            for (uint32_t x = x0; x <= x1; ++x) {
+                uint32_t pixel = source;
+                if (c.fbmsk != 0u) {
+                    const uint32_t old = gsReadVramPsm(c.fpsm, fbp, fbw, x, y);
+                    pixel = (pixel & ~c.fbmsk) | (old & c.fbmsk);
+                }
+                writeVram(c.fpsm, fbp, fbw, x, y, pixel);
+            }
+    } else if (c.fpsm == kPsmC16 || c.fpsm == kPsmC16S) {
+        // encodeFramePixelPSMCT16 (oracle gs_cpu_backend.cpp)
+        const uint16_t source = uint16_t(((r >> 3) & 0x1Fu) |
+                                         (((g8 >> 3) & 0x1Fu) << 5) |
+                                         (((b >> 3) & 0x1Fu) << 10) |
+                                         ((a >= 0x40u) ? 0x8000u : 0u));
+        const uint16_t mask = uint16_t(c.fbmsk);
+        for (uint32_t y = y0; y <= y1; ++y)
+            for (uint32_t x = x0; x <= x1; ++x) {
+                uint16_t pixel = source;
+                if (mask != 0u)
+                    pixel = uint16_t((pixel & ~mask) |
+                                     (uint16_t(gsReadVramPsm(c.fpsm, fbp, fbw, x, y)) & mask));
+                writeVram(c.fpsm, fbp, fbw, x, y, pixel);
+            }
+    }
+    ++g_clears;
+}
 const std::vector<GsStreamVertex>& gsStream() { return g_stream; }
 uint64_t gsBatchCount() { return g_batches.size(); }
 bool gsCensusOn() { return vif1HistOn(); }
@@ -723,6 +783,7 @@ void gsWriteRegister(uint8_t regAddr, uint64_t value) {
         c.fbp = uint32_t(value & 0x1FF);
         c.fbw = uint32_t((value >> 16) & 0x3F);
         c.fpsm = uint8_t((value >> 24) & 0x3F);
+        c.fbmsk = uint32_t((value >> 32) & 0xFFFFFFFF);  // gs_frontend.cpp:1613
         break;
     }
     case 0x4E:   // ZBUF_1
@@ -884,13 +945,14 @@ void gsImageTransfer(const uint8_t* data, uint32_t sizeBytes) {
 void gsCensusDump() {
     std::fprintf(stderr,
                  "[gscensus] batches=%llu batchesTotal=%llu streamTotal=%llu "
-                 "vertsQueued=%llu vramWrites=%llu uploadPx=%llu uploads=%llu\n",
+                 "vertsQueued=%llu vramWrites=%llu uploadPx=%llu uploads=%llu clears=%llu\n",
                  (unsigned long long)g_batches.size(),
                  (unsigned long long)g_batchesTotal, (unsigned long long)g_streamTotal,
                  (unsigned long long)g_vtxIndex,
                  (unsigned long long)g_vramWrites,
                  (unsigned long long)g_uploadPixels,
-                 (unsigned long long)g_uploads);
+                 (unsigned long long)g_uploads,
+                 (unsigned long long)g_clears);
     for (auto& [d, c] : g_trxDir)
         std::fprintf(stderr, "  trxdir=%u n=%llu\n", d, (unsigned long long)c);
     for (auto& [k, c] : g_kickProbe) {

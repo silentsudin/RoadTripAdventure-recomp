@@ -22,7 +22,7 @@ struct GsVertex {
 
 // Draw-relevant state snapshot at batch time (buildDrawBatch analogue).
 struct GsDrawState {
-    uint32_t fbp, fbw; uint8_t fpsm;
+    uint32_t fbp, fbw; uint8_t fpsm; uint32_t fbmsk;
     uint32_t zbp; uint8_t zpsm;
     uint32_t tbp0, cbp; uint8_t tbw, tpsm, tw, th, tcc, tfx, cpsm, csa, cld;
     uint64_t clamp, alpha, test, tex1;
@@ -56,6 +56,12 @@ void gsImageTransfer(const uint8_t* data, uint32_t sizeBytes);  // processImageD
 // u64 x5 — scanout config, not the draw register file.
 void gsSetDisplayEnv(const uint8_t* five);
 const uint64_t* gsDisplayEnv();
+
+// GS::clearFramebufferContext + GSCpuBackend::ClearFramebuffer (gs_cpu_backend
+// .cpp:1757): fill the context's scissor box over its frame buffer.
+void gsClearFramebuffer(uint32_t ctxIdx, uint32_t rgba);
+uint32_t gsReadVramPsm(uint8_t psm, uint32_t base, uint32_t bw, uint32_t x,
+                       uint32_t y);  // ReadVramUnlocked analogue
 
 uint64_t gsReg(uint8_t addr);              // raw register file
 const uint8_t* gsVram(); uint32_t gsVramSize();

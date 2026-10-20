@@ -289,3 +289,45 @@ Next (3b-2/3c): transliterate the game's env-seed chain (0x26f450 +
 0x26f798/0x26fb90/0x26ff68/0x26fd78/0x26fac8 + sceGsGetEnv) so SwapDBuffDc
 carries real FRAME/ZBUF/DISPFB per vblank, then feed gsStream+regs+VRAM to
 the W2 preview renderer and start the scanout goldens.
+
+## 3b-2 landed: env seed chain + FB clear (2026-10-20)
+
+sceGsSetDefDBuffDc's native stub now seeds the whole 0x330 struct, and
+sceGsSwapDBuffDc applies it fully. Decision realized: the SHIPPED stub
+bodies mirror the oracle HLE seeders (Kernel/Stubs/GS.cpp:916-989 Dc seed,
+1182-1240 swap chain, Helpers/Support.h:1597-1684 encoders + seedGsDrawEnv
+1/2 at 1911/1930, seedGsClearPacket GS.cpp:36, hasSeededGsClearPacket GS.
+cpp:63, applyGsClearPacket GS.cpp:155), not the game's own pseudocode chain
+(build/decomp/fn/0026f450.c et al. write pmode=0x66 — the oracle HLE
+intercepted those calls, so the goldens' ground truth is the oracle seed:
+pmode 0x8007, smode2 from GParam, display=makeLibgraphDisplay(636,32,w,h)).
+The game's own chain pseudocode stays the reference for the W14 re-align
+question (host stub vs compiled game libgs).
+
+Ground truth decoded from the oracle dump @0x335fb0: game called ResetGraph
+(0, interlace=1, omode=2, ffmode=1) and SetDefDBuffDc(0x335fb0, CT32, 640,
+224, ztest=2, zpsm=1, clear=on). ZBUF zbp=140 = sceGszbufaddr's v0 product
+(10x7 blocks) x2 under the scratch GParam test (GS.cpp:1398 reads scratch
++0x100 as u64: GParam bytes 01 02 01 12 != 1 under the 0xFFFF0000FFFF mask);
+native ResetGraph now writes those 4 GParam bytes to scratchpad 0x100
+(writeGsGParamToScratch mirror). FRAME fbp goes through framePageBaseToBlock
+(<< 5, ps2_gs_common.h:42) exactly as the oracle's ClearFramebuffer
+(gs_cpu_backend.cpp:1757): scissor-box fill per PSM (CT32/CT24 u32, CT16/
+CT16S 5-5-5|A>=0x40), FBMSK read-merge via gsReadVramPsm, FBA-up forces
+alpha |0x80. applyGsClearPacket's markFrameStart is the model's frame
+boundary (gsClearFrameData moved there).
+
+Boot census after 3b-2: swapDc=1799 all apply draw pairs (wreg 0x4c/0x4e/
+0x18/0x40 x3598, ctx2 0x48 x3597), clears=1799, one sprite batch per swap
+(batchesTotal 4535, stream 294520 = +3598 XYZ2), vramWrites 258.9M.
+RAM@1800 vs oracle: 1453 -> 1187 diff bytes; the 0x335fb0 struct is now
+byte-identical (0x330000 residual 286 -> 20, the rest are game-state vars
+0x335690/0x335900/0x33592c/0x33593c). gs_test pins the seed bytes
+(pmode/dispfb/display/zbuf/giftag/clear-packet) and the FB clear fills
+incl. FBMSK merge + page-base frame 2.
+
+Remaining W12 residual @1800: scratchpad 491 B (scattered game-lib scratch
+writes, oracle zeroes at @1800), tail 0x1ff0000 291 B, 0x1770000 265 B
+(0x177e6d0-7xx block oracle-nonzero), 0x1780000 49, game vars above,
+0x1f10000 27, 0x2e99a8 8 (-1 sentinel vs oracle 01..02), 0x29a844 3
+(oracle holds pointer 0x33aaf0), 0x1750000 15, exception page 18.
