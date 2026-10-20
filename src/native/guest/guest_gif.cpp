@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstring>
 #include <map>
+#include <vector>
 
 namespace rtguest {
 namespace {
@@ -63,15 +64,21 @@ void countReg(uint8_t reg, uint64_t lo, uint64_t hi, bool adk) {
 
 bool gifCensusOn() { return vif1HistOn(); }
 
-void gifSink(const uint8_t* data, uint32_t sizeBytes) {
+uint32_t gifSinkConsume(const uint8_t* data, uint32_t sizeBytes) {
     uint32_t off = 0;
     while (off + 16u <= sizeBytes) {
+        const uint32_t tagStart = off;
         const uint64_t lo = le64(data + off), hi = le64(data + off + 8);
         off += 16u;
         const uint32_t nloop = static_cast<uint32_t>(lo & 0x7FFFu);
         const uint32_t flg = static_cast<uint32_t>((lo >> 58) & 3u);
         uint32_t nreg = static_cast<uint32_t>((lo >> 60) & 0xFu);
         if (nreg == 0u) nreg = 16u;
+        const uint64_t payload = flg == 0u ? static_cast<uint64_t>(nloop) * nreg * 16u
+                           : flg == 1u ? ((static_cast<uint64_t>(nloop) * nreg * 8u + 15u) & ~15ull)
+                           : flg == 2u ? static_cast<uint64_t>(nloop) * 16u : 0u;
+        if (flg == 3u) { ++g_tags[flg]; return sizeBytes; }  // FLG 3 (reserved): the oracle drops the stream
+        if (off + payload > sizeBytes) return tagStart;  // partial packet: carried, reparsed
         ++g_tags[flg];
         if (((lo >> 46) & 1u) != 0u) {  // PRE: prim carried in the tag
             ++g_pre;
@@ -83,8 +90,7 @@ void gifSink(const uint8_t* data, uint32_t sizeBytes) {
         for (uint32_t i = 0; i < nreg; ++i)
             regs[i] = static_cast<uint8_t>((hi >> (i * 4)) & 0xFu);
         if (flg == 0u) {  // PACKED
-            const uint64_t bytes = static_cast<uint64_t>(nloop) * nreg * 16u;
-            if (off + bytes > sizeBytes) return;  // truncated: oracle stops too
+            const uint64_t bytes = payload;
             for (uint64_t i = 0; i < bytes; i += 16u) {
                 const uint64_t rlo = le64(data + off + i),
                                rhi = le64(data + off + i + 8);
@@ -95,23 +101,38 @@ void gifSink(const uint8_t* data, uint32_t sizeBytes) {
             off += static_cast<uint32_t>(bytes);
         } else if (flg == 1u) {  // REGLIST
             const uint64_t n = static_cast<uint64_t>(nloop) * nreg;
-            if (off + n * 8u > sizeBytes) return;
             for (uint64_t i = 0; i < n; ++i) {
                 const uint64_t v = le64(data + off + i * 8u);
                 countReg(regs[i % nreg], v, 0u, ((v >> 47) & 1u) != 0u);
                 gsWriteRegister(regs[i % nreg], v);
             }
-            off += static_cast<uint32_t>((n + 1u) / 2u * 16u);  // odd n pads 8
-        } else if (flg == 2u) {  // IMAGE
-            uint32_t bytes = nloop * 16u;
-            if (off + bytes > sizeBytes) bytes = sizeBytes - off;
-            g_imageBytes += bytes;
-            gsImageTransfer(data + off, bytes);
-            off += bytes;
-        } else {
-            return;  // FLG 3 (reserved): the oracle drops the stream
+            off += static_cast<uint32_t>(payload);  // odd n pads 8
+        } else {  // IMAGE
+            g_imageBytes += payload;
+            gsImageTransfer(data + off, static_cast<uint32_t>(payload));
+            off += static_cast<uint32_t>(payload);
         }
     }
+    return off;
+}
+
+void gifSink(const uint8_t* data, uint32_t sizeBytes) { (void)gifSinkConsume(data, sizeBytes); }
+
+// VIF1 DIRECT/DIRECTHL payload = GIF PATH2 stream (oracle
+// ps2_vif1_interpreter.cpp:652-686 forwards it whole, hl flag bookkeeping only).
+// Packets may split across DIRECT commands: keep the partial tail and reparse it
+// with the next chunk (the oracle re-tags split IMAGE uploads; same VRAM result).
+void gifPath2Direct(const uint8_t* data, uint32_t sizeBytes, bool) {
+    static std::vector<uint8_t> carry;
+    if (carry.empty()) {
+        const uint32_t used = gifSinkConsume(data, sizeBytes);
+        if (used < sizeBytes) carry.assign(data + used, data + sizeBytes);
+        return;
+    }
+    carry.insert(carry.end(), data, data + sizeBytes);
+    const uint32_t used = gifSinkConsume(carry.data(), static_cast<uint32_t>(carry.size()));
+    carry.erase(carry.begin(), carry.begin() + used);
+    if (carry.size() > 65536u) carry.clear();  // shortcut: desync guard; real packets are <2 KB
 }
 
 uint64_t gifTagCount(uint32_t flg) { return flg < 4u ? g_tags[flg] : 0u; }

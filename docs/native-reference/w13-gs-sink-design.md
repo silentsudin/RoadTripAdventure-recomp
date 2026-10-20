@@ -355,3 +355,45 @@ scanout composites both buffer fields (top=FB0 black, bot=FB1+game draws)
 — graders must compare per-field. vb1700/1798 attract: frac>16 0.994,
 native = clear fills only (expected pre-rasterizer gap). Next 3c steps:
 sprite rasterization (boot logos), then the PATH1 strip feed.
+
+## Step 3c-2 (2026-10-20): sprite rasterizer + pixel writes + TRX — content parity
+
+GSCpuBackend transliterated into guest_gs.cpp with citations: writePixel
+(TEST/Z/alpha-blend/fog/fbwrite as gs_cpu_backend.cpp:913), sampleTexture/
+samplePoint + wrap/CLD dedup/lookupClut (:1062-1230), TRX model
+beginTransfer/uploadImage/completeTransfer (:1533-1660 — DIR=0 at BITBLTBUF
+activates Host->Local, TRXREG rrw/rrh, TRXPOS dsax/dsay). Loader burst
+carrier: VIF1 DIRECT -> gifPath2Direct -> GIF Path2 (guest_gif carry:
+partial packets are not consumed; guest_libs_dma hook wiring).
+
+Root cause of loader content divergence (found by otap/ntap tap probes at
+(170-175,166-171) of tbp=7566, olut/nlut at lookup, oclut-dump/nclut-dump
+at every cbp=8142 load): the oracle rasterizes a completed primitive
+SYNCHRONOUSLY at its last vertex kick; native queued batches and drew them
+at the vblank drain, so a LATER TEX0 write in the same burst reloaded
+g_clut under an earlier draw (CLD=1 every bg swap) — every loader draw
+after the first in a burst sampled the last-loaded CLUT. Fix: draw sprite
+batches inline at the kick (drawSpriteNative at vertexKick; gsRenderBatches
+skips them). Verified: taps byte-identical (u,v,index,entry), CLUT loads
+identical at every vblank, TRX arms/completions identical (CLUT 256 px and
+P8 image 147456 px both done at vb16-17 on both sides — the earlier
+"upload lag ~10-25 vb" reading was a stale dump-file-name artifact, void).
+
+Grading (native scanout RGBS vs oracle test-socket `frame` raw RGBA —
+field-accurate, same DISPLAY FB; the 1280x896 pgs composite interleaves
+both fields so its halves are not single-field refs): bit-identical
+(0 px >16) at N in {580,590,640,650} for native vb=N vs oracle park N-1;
+vb300-era VRAM fb diffs decayed 28508 -> 21819 -> 3933 -> 0 windows as the
+pre-fix history flushed through the fade-blend contraction.
+
+Residual (deferred, W13 remainder): a game-state phase drift starts around
+vb~550 — oracle processes 9 CLEARs fewer than native by vb650 (both count
+per-CLEAR-packet: native g_clears 649/650 vs oracle g_wpSeq 641/650) —
+scanout shows a 1436-2221 px band (x210-454 y136-148, attract title-text
+fade) at N in {570,600,610,620,630} and 0 at {580,590,640,650}. Not a GS
+defect: the guest itself emits different per-vblank content (candidate:
+the W12 RAM residual blocks 0x177e6d0-7xx / memory-card HLE answers). Also
+open: the 21 boot DIR=0 chains (DBP=4 C32 640x32) native misses.
+Next: 3c-3 PATH1 triangle/strip/line feed (oracle DrawTriangle :1325,
+DrawLine :1443; ~49830 kickprim-4 targets; XGKICK qword Z/fog hi-words
+diverge natively at the sink).

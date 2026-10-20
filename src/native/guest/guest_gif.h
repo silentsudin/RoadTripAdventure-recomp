@@ -10,7 +10,11 @@ namespace rtguest {
 // (vu1SetKick) and the GIF DMA channel payload. Slice 3a decodes and
 // censuses; GS register state and the renderer feed land with the W2
 // preview chain.
+// gifSink decodes a GIF packet stream (tag + payload qwords) into GS register
+// writes; gifPath2Direct forwards VIF1 DIRECT payloads (PATH2, splitting kept).
 void gifSink(const uint8_t* data, uint32_t sizeBytes);
+uint32_t gifSinkConsume(const uint8_t* data, uint32_t sizeBytes);
+void gifPath2Direct(const uint8_t* data, uint32_t sizeBytes, bool directHl);
 bool gifCensusOn();
 void gifCensusDump();
 // census counters (test-visible)

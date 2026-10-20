@@ -111,7 +111,8 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
     // W3 step 2: the MSCAL/MSCALF seam runs the transliterated VU1 programs
     // (guest_vu1.cpp); step 3a: their XGKICK output and the GIF channel payload
     // decode in the GIF front end (guest_gif.cpp).
-    static const bool streamsWired = (rtguest::vif1SetHooks(&rtguest::vu1OnMscal, nullptr),
+    static const bool streamsWired = (rtguest::vif1SetHooks(&rtguest::vu1OnMscal,
+                                                           &rtguest::gifPath2Direct),
                                       rtguest::vu1SetKick(&rtguest::gifSink), true);
     (void)streamsWired;
     static std::map<uint32_t, uint64_t> gifSegs; // GIF chain segs by tag upper bits[61:58]

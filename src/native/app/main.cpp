@@ -2326,6 +2326,7 @@ int main() {
                 guest::g_bootButtons = btn;
                 rtguest::kVblank();
                 rtguest::kPumpToIdle();
+                rtguest::gsRenderBatches();  // W3 3c-2: draws land in GS VRAM
                 if (hashLog && nativeBoot.vblanks % hashInterval == 0) {
                     // RT_STATE_HASH: mirror of the oracle's ps2_test_harness
                     // hash (FNV-1a 64 over 8-byte words of EE RAM), emitted
@@ -2356,9 +2357,24 @@ int main() {
                     parseVbPaths(std::getenv("RT_NATIVE_GS_DUMP"));
                 for (const auto& [vb, path] : gsDumps) {
                     if (uint64_t(nativeBoot.vblanks) != vb) continue;
+                    if (path.rfind("VRAM:", 0) == 0) {  // raw 4 MiB GS local memory
+                        if (FILE* f = std::fopen(path.substr(5).c_str(), "wb")) {
+                            std::fwrite(rtguest::gsVram(), 1, rtguest::gsVramSize(), f);
+                            std::fclose(f);
+                        }
+                        std::fprintf(stderr, "[scanout] vb=%llu vram=%s\n",
+                                     (unsigned long long)vb, path.c_str());
+                        continue;
+                    }
+                    if (path.rfind("STATE:", 0) == 0) {  // GS text dump seam
+                        rtguest::gsDebugDumpState(path.substr(6).c_str());
+                        std::fprintf(stderr, "[scanout] vb=%llu state=%s\n",
+                                     (unsigned long long)vb, path.c_str());
+                        continue;
+                    }
                     std::vector<uint8_t> img;
                     uint32_t w = 0, h = 0;
-                    if (!rtguest::gsScanoutRgba(img, &w, &h)) continue;
+                    if (!rtguest::gsScanoutRgba(img, &w, &h, -1)) continue;
                     if (FILE* f = std::fopen(path.c_str(), "wb")) {
                         std::fwrite("RGBS", 1, 4, f);
                         std::fwrite(&w, 4, 1, f);
@@ -2366,10 +2382,15 @@ int main() {
                         std::fwrite(img.data(), 1, img.size(), f);
                         std::fclose(f);
                     }
-                    std::fprintf(stderr, "[scanout] vb=%llu w=%u h=%u fbp=0x%x psm=0x%x\n",
+                    std::fprintf(stderr, "[scanout] vb=%llu w=%u h=%u fbp=0x%x psm=0x%x "
+                                 "dispfb=%llx display=%llx pmode=%llx smode2=%llx\n",
                                  (unsigned long long)vb, w, h,
                                  unsigned(rtguest::gsDisplayEnv()[2] & 0x1FFull),
-                                 unsigned((rtguest::gsDisplayEnv()[2] >> 15) & 0x1F));
+                                 unsigned((rtguest::gsDisplayEnv()[2] >> 15) & 0x1F),
+                                 (unsigned long long)rtguest::gsDisplayEnv()[2],
+                                 (unsigned long long)rtguest::gsDisplayEnv()[3],
+                                 (unsigned long long)rtguest::gsDisplayEnv()[0],
+                                 (unsigned long long)rtguest::gsDisplayEnv()[1]);
                 }
                 if (std::getenv("RT_BOOT_TRACE_WIN")) {
                     // Per-vblank load-machine trace in [lo,hi] (comma pair).

@@ -28,6 +28,13 @@ struct GsDrawState {
     uint64_t clamp, alpha, test, tex1;
     uint16_t ofx, ofy;
     uint16_t sc0x, sc1x, sc0y, sc1y;
+    // 3c-2 rasterizer fields (gs_frontend buildDrawBatch: prim flags, TEXA,
+    // FBA, ZMSK, CSM, fog colour, texture size and filter derived here).
+    bool iip, tme, fst, fge, abe, pabe, linear;
+    uint8_t zmask, csm;
+    uint8_t fogR, fogG, fogB;
+    uint64_t texa, fba;
+    uint16_t texW, texH;
 };
 
 struct GsBatch {
@@ -67,10 +74,12 @@ uint32_t gsReadVramPsm(uint8_t psm, uint32_t base, uint32_t bw, uint32_t x,
 // (DISPFB base/dbx/dby + DISPLAY (dw+1)/(magh+1) x (dh+1)/(magv+1)) to RGBA8
 // rows. Oracle scanout geometry (gs_pgs_backend + framePageBaseToBlock);
 // compositing/bgcolor stay with the golden grader.
-bool gsScanoutRgba(std::vector<uint8_t>& out, uint32_t* w, uint32_t* h);
+bool gsScanoutRgba(std::vector<uint8_t>& out, uint32_t* w, uint32_t* h,
+                   int fbpOverride = -1);
 
 uint64_t gsReg(uint8_t addr);              // raw register file
 const uint8_t* gsVram(); uint32_t gsVramSize();
+void gsDebugDumpState(const char* path);  // GS text dump seam
 const std::vector<GsBatch>& gsBatches();
 const std::vector<GsStreamVertex>& gsStream();
 void gsClearFrameData();  // after a frame's batches+stream were consumed
@@ -78,6 +87,11 @@ void gsClearFrameData();  // after a frame's batches+stream were consumed
 bool gsCensusOn();
 void gsCensusDump();
 uint64_t gsBatchCount();
+
+// W3 3c-2: rasterize the frame's batches into VRAM (GSCpuBackend DrawSprite
+// subset: SPRITE prims; other prim types counted as skipped until 3c-3).
+void gsRenderBatches();
+void drawSpriteNative(const GsBatch& b);  // inline kick draw (3c-2)
 
 }  // namespace rtguest
 #endif
