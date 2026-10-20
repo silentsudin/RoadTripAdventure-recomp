@@ -181,6 +181,9 @@ namespace rt::input
     {
         SetExitKey(KEY_NULL); // Escape is a game key now; Cmd+Q or the close button quit.
         g_config = loadConfig(paths::dataRoot() / "input.toml");
+        // RT_BACKGROUND_INPUT=1: read controllers with the window unfocused (test runs drive a virtual one).
+        if (const char *bg = std::getenv("RT_BACKGROUND_INPUT"); bg && *bg == '1')
+            g_config.backgroundInput = true;
         const auto db = paths::dataRoot() / "gamecontrollerdb.txt";
         std::error_code ec;
         g_ready = g_devices.initialize(g_config.backgroundInput);

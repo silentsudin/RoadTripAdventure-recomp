@@ -91,18 +91,6 @@ class AndroidGame(Game):
         reply = self._call("frame", path="-")
         return Frame(reply["width"], reply["height"], base64.b64decode(reply["data"]))
 
-    def sdl(self, *buttons: str, type: str | None = None, hold: float = 0.15):
-        """Holds buttons on a virtual SDL gamepad (type xbox, ps or switch) for `hold` seconds,
-        then releases them: input through SDL, as from a real controller (the app's menus,
-        rebinding, button icons). Names: a b x y back guide start lb rb lt rt l3 r3 up down left right."""
-        args = {"buttons": ",".join(buttons)}
-        if type:
-            args["type"] = type
-        self._call("sdlpad", **args)
-        time.sleep(hold)
-        self._call("sdlpad", buttons="")
-        time.sleep(0.1)
-
     def screencap(self, path: Path | str) -> Path:
         """The device's screen as it is (the game and the app's UI), as PNG."""
         png = subprocess.run(["adb", "exec-out", "screencap", "-p"], check=True, capture_output=True).stdout

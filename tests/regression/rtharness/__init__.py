@@ -340,6 +340,31 @@ class Game:
     def release(self, port: int | None = None):
         self.pad(port=port)
 
+    def release_to_sdl(self, port: int | None = None):
+        """Hands the pad port(s) back from the test socket to live input (SDL / keyboard): after
+        pad/press/step the socket holds the pads and `sdl` would otherwise have no effect."""
+        args = {} if port is None else {"port": int(port)}
+        self._call("release_pad", **args)
+
+    def sdl(self, *buttons: str, type: str | None = None, hold: float = 0.15, lt: float | None = None,
+            rt: float | None = None, lx: float = 0.0, ly: float = 0.0, rx: float = 0.0, ry: float = 0.0):
+        """Holds buttons on a virtual SDL gamepad (type xbox, ps or switch) for `hold` seconds,
+        then releases them: input through SDL, as from a real controller (the app's menus,
+        rebinding, button icons). Names: a b x y back guide start lb rb lt rt l3 r3 up down left right.
+        lt/rt 0..1 and lx/ly/rx/ry -1..1 (ly +1 = down) set analogue amounts. Real time only
+        (live mode); call release_to_sdl() first if pad/press/step was used."""
+        args = {"buttons": ",".join(buttons), "lx": lx, "ly": ly, "rx": rx, "ry": ry}
+        if type:
+            args["type"] = type
+        if lt is not None:
+            args["lt"] = lt
+        if rt is not None:
+            args["rt"] = rt
+        self._call("sdlpad", **args)
+        time.sleep(hold)
+        self._call("sdlpad", buttons="", lx=0, ly=0, rx=0, ry=0, lt=0, rt=0)
+        time.sleep(0.1)
+
     def actuators(self) -> list[dict]:
         """Vibration per pad port: {"small": 0/1, "large": 0..255, "changes": n}."""
         return self._call("actuators")["ports"]
