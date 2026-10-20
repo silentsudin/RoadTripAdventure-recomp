@@ -42,6 +42,9 @@
 namespace guest { extern uint64_t g_diagCdReads, g_diagCdSectors; extern uint16_t g_bootButtons; void gsEnvCensusDump(); }
 #include "preview/car_mesh.h"
 #include "preview/preview.h"
+#include "preview/present_gl.h"
+#include "preview/preview_backend.h"
+#include "preview/renderer_select.h"
 #include "preview/race_hud.h"
 #include "preview/rot_quad.h"
 #include "preview/title_ui.h"
@@ -590,6 +593,7 @@ bool makeSwapchain(Presenter& p, SDL_Window* window, std::string& error) {
 }
 
 bool init(Presenter& p, SDL_Window* window, std::string& error) {
+    if (const char* f = std::getenv("RT_APP_TEST_VKFAIL"); f && *f == '1') { error = "RT_APP_TEST_VKFAIL: forced Vulkan presenter init failure"; return false; }  // W16.7 test hook
     std::uint32_t extensionCount = 0;
     const char* const* sdlExtensions = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
     if (!sdlExtensions) { error = SDL_GetError(); return false; }
@@ -1507,7 +1511,11 @@ int main() {
     // pacing is time-based) — unblocks pixel verification in sandboxes/CI
     // that lost GUI access.
     const bool headlessApp = std::getenv("RT_APP_HEADLESS") != nullptr;
-    if (headlessApp) SDL_SetHint("SDL_VIDEO_DRIVER", "dummy");  // SDL3: no macro
+    // W16.5: headless + RT_APP_RENDERER=gl keeps a real (hidden) video driver: the dummy driver cannot make a GL
+    // context.  The scene renders into the renderer's FBO and is read back as in windowed GL; nothing is presented.
+    const bool headlessGl = headlessApp && rt::native::preview::parseRendererMode(std::getenv("RT_APP_RENDERER")) ==
+                                               rt::native::preview::RendererMode::Gl;
+    if (headlessApp && !headlessGl) SDL_SetHint("SDL_VIDEO_DRIVER", "dummy");  // SDL3: no macro
     bootstrapSettings();
     (void)rt::native::assets::RunFirstRunSetupIfRequired();
     // W3-06 enhancement registry (RT_ENHANCE_*): parsed once at startup; every
@@ -1547,25 +1555,57 @@ int main() {
     }();
     std::cout << "rt-app output: " << windowWidth << "x" << windowHeight
               << (startFullscreen ? " fullscreen" : " windowed") << " progressive\n";
-    SDL_Window* window = SDL_CreateWindow(
-        "Road Trip Adventure", windowWidth, windowHeight,
-        (headlessApp ? SDL_WINDOW_RESIZABLE
-                     : SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE)
-            | (startFullscreen && !headlessApp ? SDL_WINDOW_FULLSCREEN : 0));
+    // W16.2: presenter backend (RT_APP_RENDERER=gl -> GL presenter; auto retries GL if Vulkan init fails).
+    // Unset/vulkan keeps the exact legacy SDL_WINDOW_VULKAN path.
+    const rt::native::preview::RendererMode rendererMode =
+        rt::native::preview::parseRendererMode(std::getenv("RT_APP_RENDERER"));
+    bool useGlPresenter = (!headlessApp || headlessGl) &&
+        rt::native::preview::selectBackend(rendererMode, true, true) == rt::native::preview::Backend::Gl;
+    const auto createWindow = [&](bool gl) {
+        if (gl) rt::native::preview::glPresenterSetWindowAttributes();
+        return SDL_CreateWindow(
+            "Road Trip Adventure", windowWidth, windowHeight,
+            (headlessGl ? SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN
+                : headlessApp ? SDL_WINDOW_RESIZABLE
+                         : (gl ? SDL_WINDOW_OPENGL : SDL_WINDOW_VULKAN) | SDL_WINDOW_RESIZABLE)
+                | (startFullscreen && !headlessApp ? SDL_WINDOW_FULLSCREEN : 0));
+    };
+    SDL_Window* window = createWindow(useGlPresenter);
     if (!rt::native::app::progressiveContractSatisfied({})) {
         std::cout << "rt-app output: PROGRESSIVE CONTRACT VIOLATION\n";
     }
     if (!window) { std::cerr << "SDL_CreateWindow: " << SDL_GetError() << "\n"; SDL_Quit(); return 1; }
-    Presenter presenter; std::string error;
+    Presenter presenter; std::string error; rt::native::preview::GlPresenter* glPresenter = nullptr;
     if (headlessApp) {
         presenter.extent.width = static_cast<std::uint32_t>(windowWidth);
         presenter.extent.height = static_cast<std::uint32_t>(windowHeight);
-        std::cout << "rt-app headless: dummy video, null presenter "
+        std::cout << "rt-app headless: " << (headlessGl ? "hidden GL window" : "dummy video") << ", null presenter "
                   << windowWidth << "x" << windowHeight << "\n";
-    } else if (!init(presenter, window, error)) { std::cerr << "Vulkan init: " << error << "\n"; destroy(presenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
+        if (headlessGl) {
+            glPresenter = rt::native::preview::glPresenterCreate(window, error);
+            if (!glPresenter) { std::cerr << "headless GL init: " << error << "\n"; SDL_DestroyWindow(window); SDL_Quit(); return 1; }
+        }
+    } else if (useGlPresenter) {
+        glPresenter = rt::native::preview::glPresenterCreate(window, error);
+        if (!glPresenter) { std::cerr << "GL init: " << error << "\n"; SDL_DestroyWindow(window); SDL_Quit(); return 1; }
+        rt::native::preview::glPresenterResize(glPresenter, presenter.extent.width, presenter.extent.height);
+    } else if (!init(presenter, window, error)) {
+        destroy(presenter);
+        if (rendererMode == rt::native::preview::RendererMode::Auto) {  // auto: GL only when Vulkan init failed
+            std::cerr << "Vulkan init: " << error << " -- retrying with GL presenter\n";
+            SDL_DestroyWindow(window); window = createWindow(true);
+            error.clear();
+            (void)setenv("RT_APP_RENDERER", "gl", 1);  // Vulkan is unusable: the scene renderer must be GL too, not a second Vulkan attempt
+            glPresenter = window ? rt::native::preview::glPresenterCreate(window, error) : nullptr;
+            if (!glPresenter) { std::cerr << "GL init: " << (window ? error : SDL_GetError()) << "\n"; if (window) SDL_DestroyWindow(window); SDL_Quit(); return 1; }
+            rt::native::preview::glPresenterResize(glPresenter, presenter.extent.width, presenter.extent.height);
+        } else { std::cerr << "Vulkan init: " << error << "\n"; SDL_DestroyWindow(window); SDL_Quit(); return 1; }
+    }
     int width = static_cast<int>(presenter.extent.width), height = static_cast<int>(presenter.extent.height);
+    // W16.3: the GL scene backend shares the presenter context, so it exists only when that context does.
+    if (glPresenter) rt::native::preview::registerGlBackend(rt::native::preview::glBackendOps());
     rt::native::preview::Renderer* renderer = rt::native::preview::previewInit(width, height, error, nullptr);
-    if (!renderer) { std::cerr << "scene renderer init: " << error << "\n"; destroy(presenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
+    if (!renderer) { std::cerr << "scene renderer init: " << error << "\n"; destroy(presenter); rt::native::preview::glPresenterDestroy(glPresenter); SDL_DestroyWindow(window); SDL_Quit(); return 1; }
     const bool noRender = std::getenv("RT_APP_NORENDER") != nullptr; const int maxFrames = envFrames();
     const bool triggersEnabled = [] {
         const char* value = std::getenv("RT_APP_TRIGGERS");
@@ -1758,7 +1798,8 @@ int main() {
         if (headlessApp) return true;  // no surface exists to rebuild
         int newW = 0, newH = 0; SDL_GetWindowSizeInPixels(window, &newW, &newH);
         if (newW <= 0 || newH <= 0) return true;
-        if (!makeSwapchain(presenter, window, error)) { std::cerr << "swapchain recreate: " << error << "\n"; return false; }
+        if (glPresenter) rt::native::preview::glPresenterResize(glPresenter, presenter.extent.width, presenter.extent.height);
+        else if (!makeSwapchain(presenter, window, error)) { std::cerr << "swapchain recreate: " << error << "\n"; return false; }
         rt::native::preview::previewDestroy(renderer);
         renderer = rt::native::preview::previewInit(presenter.extent.width, presenter.extent.height, error, nullptr);
         if (!renderer) { std::cerr << "scene resize: " << error << "\n"; return false; }
@@ -2170,6 +2211,9 @@ int main() {
                       << " valueKnown=" << (ev.valueKnown ? 1 : 0) << "\n";
         },
     };
+    // W16.7: RT_APP_TEST_RESIZE=<W>x<H>@<frame> resizes the window once (windowed only).
+    int testResizeW = 0, testResizeH = 0; long testResizeFrame = -1;
+    if (const char* r = std::getenv("RT_APP_TEST_RESIZE"); r && std::sscanf(r, "%dx%d@%ld", &testResizeW, &testResizeH, &testResizeFrame) != 3) testResizeFrame = -1;
     while (running && (!maxFrames || frames < maxFrames)) {
         if (testSocket.lockstep() && !testSocket.takeStep()) {
             // A socket-attached run is a fixed 60-Hz logic clock.  Never let
@@ -2183,6 +2227,9 @@ int main() {
             if (elapsed < minimumFrame)
                 std::this_thread::sleep_for(minimumFrame - elapsed);
             lastPresent = std::chrono::steady_clock::now();
+        }
+        if (testResizeFrame >= 0 && static_cast<long>(frames) == testResizeFrame && !headlessApp) {  // W16.7 test hook
+            testResizeFrame = -1; SDL_SetWindowSize(window, testResizeW, testResizeH);
         }
         SDL_Event event; bool resize = false;
         rt::native::gameplay::MenuInput menuInput;
@@ -3426,7 +3473,7 @@ int main() {
                             renderer, fallback, menuClear, pixels, error);
                     }
                 }
-                if (!rendered || !present(presenter, pixels, retry, error)) {
+                if (!rendered || !((glPresenter && !headlessApp) ? rt::native::preview::glPresent(glPresenter, pixels, error) : present(presenter, pixels, retry, error))) {
                     std::cerr << "render: " << error << "\n"; running = false; break;
                 }
                 perf.notePresent();
@@ -3516,6 +3563,6 @@ int main() {
         else
             std::cout << "[save] save slot " << *slot << " failed: " << error << "\n";
     }
-    rt::native::preview::previewDestroy(renderer); destroy(presenter); SDL_DestroyWindow(window); SDL_Quit();
+    rt::native::preview::previewDestroy(renderer); destroy(presenter); rt::native::preview::glPresenterDestroy(glPresenter); SDL_DestroyWindow(window); SDL_Quit();
     return 0;
 }

@@ -1,12 +1,17 @@
 #include "preview.h"
+#include "preview_backend.h"
+#include "gl_route.h"
 #include "lighting.h"
 #include "preview_hud_shaders.h"
 #include "preview_shaders.h"
+#include "renderer_select.h"
 
 #include <vulkan/vulkan.h>
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <unordered_map>
@@ -223,6 +228,8 @@ struct Renderer {
     // atlas, title backdrop and the race dial share it, so re-upload when
     // the buffer identity changes.  The bare bool previously let a stale
     // binding persist (backdrop art sampled through glyph UVs).
+    // W16.3/W16.4: GL backend state (null on the Vulkan path). A GL-backed Renderer has no Vulkan device at all.
+    void* gl = nullptr;
     const std::uint8_t* hudAtlasPtr = nullptr;
     std::uint32_t hudAtlasW = 0;
     std::uint32_t hudAtlasH = 0;
@@ -266,8 +273,22 @@ static bool makeImage(Renderer& R, std::string& error, VkFormat fmt, VkImageUsag
     return true;
 }
 
+// W16.4: a GL-backed Renderer must never coexist with a Vulkan device. g_glRenderers counts live GL renderers;
+// initImpl refuses (and counts the refusal) while one exists, g_vkDevices counts VkDevices actually created.
+static int g_glRenderers = 0;
+static int g_vkDevices = 0;
+int previewVulkanDevicesCreated() { return g_vkDevices; }
+
+static const GlBackendOps* g_glOps = nullptr;
+void registerGlBackend(const GlBackendOps* ops) { g_glOps = ops; }
+
 void previewDestroy(Renderer* R) {
     if (!R) return;
+    if (R->gl && g_glOps) {
+        g_glOps->destroy(R->gl);
+        --g_glRenderers;
+        std::fprintf(stderr, "[preview-gl] renderer destroyed; Vulkan devices created this process: %d\n", g_vkDevices);
+    }
     if (R->dev) {
         vkDeviceWaitIdle(R->dev);
         if (R->pool) vkDestroyCommandPool(R->dev, R->pool, nullptr);  // frees cmd
@@ -324,6 +345,11 @@ void previewDestroy(Renderer* R) {
 }
 
 static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string& error) {
+    if (g_glRenderers > 0) {
+        error = "Vulkan device requested while the GL renderer is active (W16.4: GL mode creates no VkDevice)";
+        std::fprintf(stderr, "[preview-gl] ASSERT: %s\n", error.c_str());
+        return false;
+    }
     R.W = W; R.H = H;
     // only the instance/device are destroyed on the success path.
     
@@ -348,6 +374,11 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     std::vector<VkPhysicalDevice> pds(n);
     vkEnumeratePhysicalDevices(R.inst, &n, pds.data());
     VkPhysicalDevice pd = R.pd = pds[0];
+    // Prefer a real GPU over pds[0] order (llvmpipe/CPU devices sort first on some Linux).
+    VkPhysicalDeviceProperties probe;
+    for (auto want : {VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU, VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU})
+        for (auto p : pds)
+            if (vkGetPhysicalDeviceProperties(p, &probe), probe.deviceType == want) { pd = R.pd = p; break; }
     VkPhysicalDeviceProperties props;
     vkGetPhysicalDeviceProperties(pd, &props);
     R.deviceName = props.deviceName;
@@ -374,6 +405,7 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     dci.enabledExtensionCount = static_cast<std::uint32_t>(dexts.size());
     dci.ppEnabledExtensionNames = dexts.data();
     VK_TRY(vkCreateDevice(pd, &dci, nullptr, &R.dev), "vkCreateDevice");
+    ++g_vkDevices;
     R.qfi = qfi;
     vkGetDeviceQueue(R.dev, qfi, 0, &R.queue);
     VkDevice dev = R.dev;
@@ -567,6 +599,27 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
 
 Renderer* previewInit(std::uint32_t W, std::uint32_t H, std::string& error, std::string* deviceName) {
     if (!W || !H) { error = "zero-sized target"; return nullptr; }
+    // W16.1 seam: backend chosen once per init. W16.3: the GL backend exists only when rt-app registered it
+    // (after the GL context exists); tools never do, so for them GL requests stay Vulkan.
+    const char* modeEnv = std::getenv("RT_APP_RENDERER");
+    const RendererMode mode = parseRendererMode(modeEnv);
+    const Backend chosen = selectBackend(mode, true, g_glOps != nullptr);
+    if (chosen == Backend::None) { error = "no usable renderer backend"; return nullptr; }
+    if (chosen == Backend::Gl) {
+        std::string glError;
+        void* gl = g_glOps->create(W, H, glError);
+        if (gl) {
+            auto* R = new Renderer();
+            R->W = W; R->H = H; R->gl = gl;
+            ++g_glRenderers;
+            if (deviceName) *deviceName = "opengl";
+            std::fprintf(stderr, "[preview] renderer=gl: all draw classes on GL, no Vulkan device (W16.4)\n");
+            return R;
+        }
+        std::fprintf(stderr, "[preview] GL renderer init failed (%s), using Vulkan\n", glError.c_str());
+    } else if (modeEnv && *modeEnv) {
+        std::fprintf(stderr, "[preview] renderer=vulkan (RT_APP_RENDERER=%s)\n", modeEnv);
+    }
     auto* R = new Renderer();
     if (!initImpl(*R, W, H, error)) { previewDestroy(R); return nullptr; }
     if (deviceName) *deviceName = R->deviceName;
@@ -628,6 +681,41 @@ bool drawSkyBands(Renderer& R, VkCommandBuffer cmd, std::string& error, const st
 } // namespace
 
 struct SceneVertex { float x, y, z, r, g, b; };
+namespace {
+struct TexturedVertex { float x, y, z, r, g, b, s, t; };
+struct DrawRange { Renderer::TexEntry* entry; std::uint32_t first = 0, count = 0; const PreviewTexture* tex = nullptr; };
+}
+
+// GL scene twin of renderGeometry/renderGeometryTextured; `ranges` (textured path) carry the page images.
+static bool glDrawScene(Renderer& R, const std::vector<SceneVertex>& flatV, const std::vector<std::uint32_t>& flatI,
+                        const std::vector<TexturedVertex>* texV, const std::vector<std::uint32_t>* texI,
+                        const std::vector<DrawRange>* ranges, const float pc[36], const float clear[4],
+                        const std::vector<SceneVertex>* overlayV, const std::vector<std::uint32_t>* overlayI,
+                        const std::vector<SkyBand>* skyBands, std::vector<std::uint8_t>& rgbaOut, std::string& error) {
+    GlSceneDraw d;
+    d.flatV = reinterpret_cast<const float*>(flatV.data()); d.nFlatV = flatV.size(); d.flatI = flatI.data(); d.nFlatI = flatI.size();
+    std::vector<GlSceneRange> glRanges;
+    if (texV && texI && ranges && !texV->empty()) {
+        d.texV = reinterpret_cast<const float*>(texV->data()); d.nTexV = texV->size(); d.texI = texI->data(); d.nTexI = texI->size();
+        for (const DrawRange& r : *ranges) glRanges.push_back({r.tex, r.first, r.count});
+        d.ranges = glRanges.data(); d.nRanges = glRanges.size();
+    }
+    if (overlayV && overlayI && !overlayV->empty() && !overlayI->empty()) {
+        d.overlayV = reinterpret_cast<const float*>(overlayV->data()); d.nOverlayV = overlayV->size(); d.overlayI = overlayI->data(); d.nOverlayI = overlayI->size();
+    }
+    std::vector<float> sky;
+    if (skyBands) {
+        for (const SkyBand& b : *skyBands) {
+            SkyBandGl g{b.y0, b.y1, {}, {}};
+            std::copy(b.c0.begin(), b.c0.end(), g.c0); std::copy(b.c1.begin(), b.c1.end(), g.c1);
+            skyBandVertices(sky, g);
+        }
+        d.skyVerts = sky.data(); d.nSkyVerts = sky.size() / 6;
+    }
+    d.pc36 = pc;
+    std::copy(clear, clear + 4, d.clear);
+    return g_glOps->renderScene(R.gl, d, rgbaOut, error);
+}
 
 static bool renderGeometry(Renderer* Rp, const std::vector<SceneVertex>& vertices,
                            const std::vector<std::uint32_t>& indices, const float* viewIn, const float* projIn,
@@ -635,20 +723,12 @@ static bool renderGeometry(Renderer* Rp, const std::vector<SceneVertex>& vertice
                            std::string& error,
                            const std::vector<SceneVertex>* overlayV = nullptr,
                            const std::vector<std::uint32_t>* overlayI = nullptr,
-                           const std::vector<SkyBand>* skyBands = nullptr) {
+                           const std::vector<SkyBand>* skyBands = nullptr, bool allowGl = false) {
     if (!Rp) { error = "null renderer"; return false; }
     Renderer& R = *Rp;
     const std::uint32_t W = R.W, H = R.H;
     VkDevice dev = R.dev;
     if (indices.empty() || vertices.empty()) { error = "empty geometry"; return false; }
-    const VkDeviceSize vbSize = vertices.size() * sizeof(SceneVertex);
-    const VkDeviceSize ibSize = indices.size() * sizeof(std::uint32_t);
-    if (!growBuffer(R, error, vbSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, R.vb, R.vbm, R.vbCap)) return false;
-    if (!growBuffer(R, error, ibSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, R.ib, R.ibm, R.ibCap)) return false;
-    void* p;
-    VK_TRY(vkMapMemory(dev, R.vbm, 0, vbSize, 0, &p), "vkMapMemory"); std::memcpy(p, vertices.data(), vbSize); vkUnmapMemory(dev, R.vbm);
-    VK_TRY(vkMapMemory(dev, R.ibm, 0, ibSize, 0, &p), "vkMapMemory"); std::memcpy(p, indices.data(), ibSize); vkUnmapMemory(dev, R.ibm);
-
     Mat view, proj{};
     if (viewIn && projIn) {
         std::memcpy(view.data(), viewIn, 64);
@@ -681,6 +761,17 @@ static bool renderGeometry(Renderer* Rp, const std::vector<SceneVertex>& vertice
     float pc[36];
     std::memcpy(pc, mvp.data(), 64); std::memcpy(pc + 16, view.data(), 64);
     std::memcpy(pc + 32, fog, 16);
+
+    if (allowGl && R.gl)
+        return g_glOps->renderLit(R.gl, &vertices[0].x, vertices.size(), indices.data(), indices.size(), pc, clear, rgbaOut, error);
+    if (R.gl) return glDrawScene(R, vertices, indices, nullptr, nullptr, nullptr, pc, clear, overlayV, overlayI, skyBands, rgbaOut, error);
+    const VkDeviceSize vbSize = vertices.size() * sizeof(SceneVertex);
+    const VkDeviceSize ibSize = indices.size() * sizeof(std::uint32_t);
+    if (!growBuffer(R, error, vbSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, R.vb, R.vbm, R.vbCap)) return false;
+    if (!growBuffer(R, error, ibSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, R.ib, R.ibm, R.ibCap)) return false;
+    void* p;
+    VK_TRY(vkMapMemory(dev, R.vbm, 0, vbSize, 0, &p), "vkMapMemory"); std::memcpy(p, vertices.data(), vbSize); vkUnmapMemory(dev, R.vbm);
+    VK_TRY(vkMapMemory(dev, R.ibm, 0, ibSize, 0, &p), "vkMapMemory"); std::memcpy(p, indices.data(), ibSize); vkUnmapMemory(dev, R.ibm);
 
     const VkDeviceSize rbSize = static_cast<VkDeviceSize>(W) * H * 4;
     VkCommandBuffer cmd = R.cmd;
@@ -746,14 +837,11 @@ bool previewRender(Renderer* r, const assets::NativeModel& model, const float* v
     }
     const float clear[4] = {.08f, .09f, .12f, 1.f};
     const float fog[4] = {0.f, 0.f, 0.f, 1e30f};
-    return renderGeometry(r, vertices, model.indices, view, proj, clear, fog, rgbaOut, error);
+    return renderGeometry(r, vertices, model.indices, view, proj, clear, fog, rgbaOut, error, nullptr, nullptr, nullptr, true);
 }
 
 // ------------------------------------------------------------- textured terrain
 namespace {
-struct TexturedVertex { float x, y, z, r, g, b, s, t; };
-struct DrawRange { Renderer::TexEntry* entry; std::uint32_t first = 0, count = 0; };
-
 std::uint64_t hashTexture(const PreviewTexture& tex) {
     std::uint64_t h = 1469598103934665603ull;
     const auto mix = [&h](const std::uint8_t* b, std::size_t n) {
@@ -872,6 +960,14 @@ bool renderGeometryTextured(Renderer* Rp, const std::vector<SceneVertex>& flatV,
     VkDevice dev = R.dev;
     if (!viewIn || !projIn) { error = "textured scene requires explicit camera"; return false; }
     if (ranges.empty() && flatI.empty()) { error = "empty geometry"; return false; }
+    if (R.gl) {
+        Mat view, proj;
+        std::memcpy(view.data(), viewIn, 64); std::memcpy(proj.data(), projIn, 64);
+        const Mat mvp = mul(proj, view);
+        float pc[36];
+        std::memcpy(pc, mvp.data(), 64); std::memcpy(pc + 16, view.data(), 64); std::memcpy(pc + 32, fog, 16);
+        return glDrawScene(R, flatV, flatI, &texV, &texI, &ranges, pc, clear, overlayV, overlayI, skyBands, rgbaOut, error);
+    }
     const VkDeviceSize vbSize = flatV.size() * sizeof(SceneVertex);
     const VkDeviceSize ibSize = flatI.size() * sizeof(std::uint32_t);
     const VkDeviceSize tvbSize = texV.size() * sizeof(TexturedVertex);
@@ -1203,9 +1299,8 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     // Bucket triangles by page slot (triangleTexture + 1; -1 -> slot 0).
     std::vector<std::vector<std::uint32_t>> buckets(terrain->textures.size() + 1);
     for (std::size_t t = 0; t < terrain->indices.size() / 3; ++t) {
-        std::int32_t page = t < terrain->triangleTexture.size() ? terrain->triangleTexture[t] : -1;
-        if (page < -1 || static_cast<std::size_t>(page) >= terrain->textures.size()) page = -1;
-        buckets[static_cast<std::size_t>(page + 1)].push_back(static_cast<std::uint32_t>(t));
+        const std::int32_t page = t < terrain->triangleTexture.size() ? terrain->triangleTexture[t] : -1;
+        buckets[pageSlot(page, terrain->textures.size())].push_back(static_cast<std::uint32_t>(t));
     }
     const PreviewTexture white{1, 1, {0xFF, 0xFF, 0xFF, 0xFF}};
     std::vector<std::uint32_t> texI;
@@ -1218,9 +1313,9 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     for (std::size_t slot = 0; slot < buckets.size(); ++slot) {
         if (buckets[slot].empty()) continue;
         const PreviewTexture& tex = slot == 0 ? white : terrain->textures[slot - 1];
-        if (!ensurePageTexture(*r, error, tex, slotEntries[slot])) return false;
+        if (!r->gl && !ensurePageTexture(*r, error, tex, slotEntries[slot])) return false;
         const DrawRange range{&slotEntries[slot], static_cast<std::uint32_t>(texI.size()),
-                             static_cast<std::uint32_t>(buckets[slot].size())};
+                             static_cast<std::uint32_t>(buckets[slot].size()), &tex};
         for (std::uint32_t t : buckets[slot]) {
             texI.push_back(terrain->indices[static_cast<std::size_t>(t) * 3 + 0]);
             texI.push_back(terrain->indices[static_cast<std::size_t>(t) * 3 + 1]);
@@ -1238,12 +1333,12 @@ bool previewRenderScene(Renderer* r, const assets::NativeModel& car, const gamep
     if (carLivery && carLivery->width && !carTexV.empty()) {
         slotEntries.emplace_back();
         Renderer::TexEntry& livery = slotEntries.back();
-        if (ensurePageTexture(*r, error, *carLivery, livery)) {
+        if (r->gl || ensurePageTexture(*r, error, *carLivery, livery)) {
             const std::uint32_t vbase = static_cast<std::uint32_t>(texV.size());
             const std::uint32_t first = static_cast<std::uint32_t>(texI.size());
             texV.insert(texV.end(), carTexV.begin(), carTexV.end());
             for (std::uint32_t i : car.indices) texI.push_back(vbase + i);
-            ranges.push_back(DrawRange{&livery, first, static_cast<std::uint32_t>(car.indices.size())});
+            ranges.push_back(DrawRange{&livery, first, static_cast<std::uint32_t>(car.indices.size()), carLivery});
             flatI.resize(flatI.size() - car.indices.size());  // car was appended last
         } else {
             slotEntries.pop_back();
@@ -1262,6 +1357,7 @@ bool previewRender2D(Renderer* Rp, const std::vector<ScreenQuad>& quads,
                      std::vector<std::uint8_t>& rgbaOut, std::string& error) {
     if (!Rp) { error = "null renderer"; return false; }
     Renderer& R = *Rp;
+    if (R.gl) return g_glOps->render2D(R.gl, quads, clearColor, rgbaOut, error);
     std::vector<UiVertex> vertices;
     vertices.reserve(quads.size() * 6);
     const auto ndcX = [&](float x) { return x * 2.0f / static_cast<float>(R.W) - 1.0f; };
@@ -1319,6 +1415,7 @@ struct HudVertex { float x, y, u, v, r, g, b, a; };
 bool previewUploadFontAtlas(Renderer* Rp, const PreviewTexture& atlas, std::string& error) {
     if (!Rp) { error = "null renderer"; return false; }
     Renderer& R = *Rp;
+    if (R.gl) return g_glOps->uploadAtlas(R.gl, atlas, error);
     if (R.hudAtlasReady && R.hudAtlasPtr == atlas.rgba.data() &&
         R.hudAtlasW == atlas.width && R.hudAtlasH == atlas.height)
         return true;
@@ -1335,6 +1432,7 @@ bool previewRender2DTextured(Renderer* Rp, const std::vector<HudQuad>& quads,
                              std::vector<std::uint8_t>& rgbaOut, std::string& error) {
     if (!Rp) { error = "null renderer"; return false; }
     Renderer& R = *Rp;
+    if (R.gl) return g_glOps->render2DTextured(R.gl, quads, clearColor, rgbaOut, error);
     if (!R.hudAtlasReady) { error = "font atlas not uploaded"; return false; }
     std::vector<HudVertex> vertices;
     vertices.reserve(quads.size() * 6);

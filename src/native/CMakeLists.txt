@@ -168,6 +168,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp/guest_decls.inc")
         target_link_libraries(${short}_test PRIVATE rt_guest)
         target_include_directories(${short}_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
         target_compile_features(${short}_test PRIVATE cxx_std_17)
+        target_compile_options(${short}_test PRIVATE -UNDEBUG)  # W13: keep asserts in Release sweeps
     endforeach()
 endif()
 target_link_libraries(rt_native_car_render PUBLIC rt_native_assets)
@@ -192,9 +193,13 @@ if(ANDROID)
 
     find_library(RT_ANDROID_VULKAN_LIB vulkan REQUIRED)
     find_library(RT_ANDROID_LOG_LIB log REQUIRED)
-    add_library(main SHARED app/main.cpp app/Autopilot.cpp preview/preview.cpp)
+    find_library(RT_ANDROID_GLES_LIB GLESv3 REQUIRED)
+    find_library(RT_ANDROID_EGL_LIB EGL REQUIRED)
+    add_library(main SHARED app/main.cpp app/Autopilot.cpp preview/preview_vk.cpp
+        preview/present_gl.cpp preview/preview_gl.cpp)
     target_link_libraries(main PRIVATE rt_native_assets SDL3::SDL3
-        ${RT_ANDROID_VULKAN_LIB} ${RT_ANDROID_LOG_LIB})
+        ${RT_ANDROID_VULKAN_LIB} ${RT_ANDROID_LOG_LIB}
+        ${RT_ANDROID_GLES_LIB} ${RT_ANDROID_EGL_LIB})
     target_compile_features(main PRIVATE cxx_std_20)
     target_compile_options(main PRIVATE ${RT_NATIVE_WARN_OPTIONS}
         -Wno-missing-field-initializers)
@@ -262,40 +267,40 @@ endforeach()
 
 # Optional offscreen Vulkan/MoltenVK preview (only when Vulkan is found).
 if(Vulkan_FOUND)
-    add_executable(rt-asset-preview tools/preview_main.cpp preview/preview.cpp)
+    add_executable(rt-asset-preview tools/preview_main.cpp preview/preview_vk.cpp)
     target_link_libraries(rt-asset-preview PRIVATE rt_native_assets Vulkan::Vulkan)
     target_compile_features(rt-asset-preview PRIVATE cxx_std_20)
     target_compile_options(rt-asset-preview PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
 
-    add_executable(rt-asset-animate tools/animate_main.cpp preview/preview.cpp)
+    add_executable(rt-asset-animate tools/animate_main.cpp preview/preview_vk.cpp)
     target_link_libraries(rt-asset-animate PRIVATE rt_native_assets Vulkan::Vulkan)
     target_compile_features(rt-asset-animate PRIVATE cxx_std_20)
     target_compile_options(rt-asset-animate PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
 
-    add_executable(rt-asset-drive tools/drive_main.cpp preview/preview.cpp)
+    add_executable(rt-asset-drive tools/drive_main.cpp preview/preview_vk.cpp)
     target_link_libraries(rt-asset-drive PRIVATE rt_native_assets Vulkan::Vulkan)
     target_compile_features(rt-asset-drive PRIVATE cxx_std_20)
     target_compile_options(rt-asset-drive PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
 
-    add_executable(rt-asset-scene tools/scene_main.cpp preview/preview.cpp)
+    add_executable(rt-asset-scene tools/scene_main.cpp preview/preview_vk.cpp)
     target_link_libraries(rt-asset-scene PRIVATE rt_native_assets Vulkan::Vulkan)
     target_compile_features(rt-asset-scene PRIVATE cxx_std_20)
     target_compile_options(rt-asset-scene PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
 
-    add_executable(rt-asset-menu tools/menu_main.cpp preview/preview.cpp)
+    add_executable(rt-asset-menu tools/menu_main.cpp preview/preview_vk.cpp)
     target_link_libraries(rt-asset-menu PRIVATE rt_native_assets Vulkan::Vulkan)
     target_compile_features(rt-asset-menu PRIVATE cxx_std_20)
     target_compile_options(rt-asset-menu PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
 
-    add_executable(rt-w25-car-preview "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w25/car_preview_main.cpp" preview/preview.cpp)
+    add_executable(rt-w25-car-preview "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w25/car_preview_main.cpp" preview/preview_vk.cpp)
     target_link_libraries(rt-w25-car-preview PRIVATE rt_native_car_render Vulkan::Vulkan)
     target_compile_features(rt-w25-car-preview PRIVATE cxx_std_20)
     target_compile_options(rt-w25-car-preview PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
 
-    # First interactive host increment: the scene is authored by preview.cpp
+    # First interactive host increment: the scene is authored by preview_vk.cpp
     # and copied to an SDL3 Vulkan swapchain for presentation.
     if(SDL3_FOUND)
-        add_executable(rt-app app/main.cpp app/Autopilot.cpp preview/preview.cpp)
+        add_executable(rt-app app/main.cpp app/Autopilot.cpp preview/preview_vk.cpp preview/present_gl.cpp preview/preview_gl.cpp)
         target_link_libraries(rt-app PRIVATE rt_native_assets rt_guest Vulkan::Vulkan SDL3::SDL3)
         target_compile_features(rt-app PRIVATE cxx_std_20)
         target_compile_options(rt-app PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
@@ -306,9 +311,18 @@ endif()
 option(RT_NATIVE_ASSETS_BUILD_TESTS
        "Build the synthetic native-asset contract tests as executables (not run)" OFF)
 if(RT_NATIVE_ASSETS_BUILD_TESTS)
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
     if(Vulkan_FOUND)
+        # W16 integration pin: previewInit dispatches a registered GL backend without a VkDevice.
+        add_executable(w16_gl_backend_seam_test
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w16/gl_backend_seam_test.cpp"
+            preview/preview_vk.cpp)
+        target_link_libraries(w16_gl_backend_seam_test PRIVATE Vulkan::Vulkan)
+        target_include_directories(w16_gl_backend_seam_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+        target_compile_features(w16_gl_backend_seam_test PRIVATE cxx_std_20)
+        target_compile_options(w16_gl_backend_seam_test PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
         add_executable(w25_car_render_test
-            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w25/car_render_test.cpp" preview/preview.cpp)
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w25/car_render_test.cpp" preview/preview_vk.cpp)
         target_link_libraries(w25_car_render_test PRIVATE rt_native_car_render Vulkan::Vulkan)
         target_compile_features(w25_car_render_test PRIVATE cxx_std_20)
         target_compile_options(w25_car_render_test PRIVATE ${RT_NATIVE_WARN_OPTIONS} -Wno-missing-field-initializers)
@@ -829,6 +843,7 @@ if(RT_NATIVE_ASSETS_COVERAGE)
     set(RT_NATIVE_COVERAGE_FLAGS -fprofile-instr-generate -fcoverage-mapping)
     set(RT_NATIVE_COVERAGE_TARGETS rt_native_assets)
     if(RT_NATIVE_ASSETS_BUILD_TESTS)
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
         list(APPEND RT_NATIVE_COVERAGE_TARGETS
             native_assets_container_test
             native_assets_loader_test
@@ -888,6 +903,7 @@ endif()
 # W3-05: one isolated registration block; no changes to other workers' targets.
 target_sources(rt_native_assets PRIVATE gameplay/event_bridge.cpp)
 if(RT_NATIVE_ASSETS_BUILD_TESTS)
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
     add_executable(w3_script_bridge_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_w2/event_bridge_test.cpp")
     target_link_libraries(w3_script_bridge_test PRIVATE rt_native_assets)

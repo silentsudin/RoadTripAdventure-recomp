@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # W6-02: title save/load UI state machine.
 add_executable(w16_title_ui_test
     title_ui_test.cpp
