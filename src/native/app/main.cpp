@@ -2293,6 +2293,9 @@ int main() {
                 }();
                 // RT_RAM_DUMP="vb:path,vb:path": raw 32MB kRam slices at those
                 // vblanks, for byte diffing against the oracle's EERM chunk.
+                // shortcut: dumps before a scene transition deterministically
+                // derail that transition (HANDOFF5 landmine); dump at the
+                // final vblank only until the loader-gate cause is found.
                 static const std::vector<std::pair<uint64_t, std::string>> ramDumps = [] {
                     std::vector<std::pair<uint64_t, std::string>> v;
                     const char* e = std::getenv("RT_RAM_DUMP");
