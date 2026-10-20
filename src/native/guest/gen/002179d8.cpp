@@ -35,7 +35,7 @@ uint32_t puVar6;
       puVar2 = puVar6;
       if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar6 + 0x33))) & 0x7fff) != 0) {
         for (; iVar1 < 0x18; iVar1 = iVar1 + 1) {
-          puVar5 = puVar2 + 0x4e;
+          puVar5 = puVar2 + 0x4e * sizeof(uint64_t);  // fn:34 undefined8* elem step (cf. :73 0x270)
           if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 0x81))) & 0x7fff) != 0) {
             fVar9 = 0.0;
             RT_CALLRA(0x217a78, guest::VecSubtractAndLength(fStack_70,puVar2 + 0x62,puVar6 + 0x14));

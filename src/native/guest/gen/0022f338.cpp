@@ -53,8 +53,8 @@ uint32_t piVar6;
           (*(uint64_t*)rtguest::G((uint32_t)uStack_80)) = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_80 + 4)),(int)(*(uint64_t*)rtguest::G((uint32_t)uStack_80)) + (int)(*(uint64_t*)rtguest::G((uint32_t)uStack_70)));
         } while (-1 < iVar4);
         iVar5 = 0;
-        piVar3 = param_2 + 0x13;
-        piVar6 = param_2 + 3;
+        piVar3 = param_2 + 0x13 * sizeof(int32_t);  // fn:51 int* elem step
+        piVar6 = param_2 + 3 * sizeof(int32_t);  // int* elem step
         iVar4 = (*(int32_t*)rtguest::G((uint32_t)piVar6));
         while( true ) {
           RT_CALLRA(0x22f51c, guest::uiArenaSetTexture(param_1,0x29f5f8,0,iVar4));
@@ -110,7 +110,7 @@ uint32_t piVar6;
           iVar4 = (*(int32_t*)rtguest::G((uint32_t)piVar6));
         }
       }
-      param_2 = param_2 + 0x1b;
+      param_2 = param_2 + 0x1b * sizeof(int32_t);  // int* elem step
       (*(int32_t*)rtguest::G((uint32_t)iStack_60)) = (*(int32_t*)rtguest::G((uint32_t)iStack_60)) + -1;
     } while ((*(int32_t*)rtguest::G((uint32_t)iStack_60)) != -1);
   }

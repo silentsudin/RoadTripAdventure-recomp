@@ -67,7 +67,7 @@ uint32_t puVar8;
         uVar13 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4bf0 + iVar4 * 4)));
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(puVar8 + 6))) = (char)uVar10;
         uVar10 = uVar10 + 1;
-        (*(uint32_t*)rtguest::G((uint32_t)puVar8 + (uint32_t)(2) * sizeof(uint32_t))) = (float)iVar12;
+        (*(uint32_t*)rtguest::G((uint32_t)puVar8 + (uint32_t)(2) * sizeof(uint32_t))) = rtguest::f2bits((float)iVar12);  // swc1 of cvt.s.w result (disasm 0x25e3e4-0x25e41c; fn:68) — bits, not value
         (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = uVar13;
         iVar12 = iVar12 + 0x13;
         (*(uint32_t*)rtguest::G((uint32_t)puVar8 + (uint32_t)(1) * sizeof(uint32_t))) = uVar14;

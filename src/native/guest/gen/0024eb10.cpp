@@ -84,7 +84,7 @@ LAB_0024ec9c:
       RT_CALLRA(0x24edb4, guest::vu0ApplyMatrix(auStack_90,auStack_d0,param_2 + 0x10));
       RT_CALLRA(0x24edc0, guest::vu0Ftoi4Vector(iVar3 + 0x70,auStack_90));
       RT_CALLRA(0x24edd0, guest::vu0ApplyMatrix(auStack_90,auStack_d0,param_2 + 0x14));
-      param_2 = param_2 + 0x1c;
+      param_2 = param_2 + 0x1c * sizeof(int32_t);  // fn:76 int* elem step
       RT_CALLRA(0x24ede0, guest::vu0Ftoi4Vector(iVar3 + 0x90,auStack_90));
       if (param_3 < 5) {
         return 0;

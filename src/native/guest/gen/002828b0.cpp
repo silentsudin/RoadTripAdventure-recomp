@@ -16,7 +16,7 @@ uint32_t puVar3;
 uint32_t puVar4;
   
   puVar4 = (uint32_t)param_1;
-  puVar2 = puVar4 + 0x76;
+  puVar2 = puVar4 + 0x76 * sizeof(uint32_t);  // fn:15 undefined4* elem step
   if ((*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(0xe) * sizeof(uint32_t))) == 0) {
     RT_CALLRA(0x2828d4, guest::__sinit(param_1));  // 2828d4: $4 intact 2828b8 entry
   }

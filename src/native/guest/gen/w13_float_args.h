@@ -21,8 +21,12 @@ template <class A> inline uint32_t AdvanceCarEmitterStep(A a, W13F_U b = 0, W13F
 template <class A> inline uint32_t updateTimeOfDayLight(A a, W13F_U b = 0, W13F_U c = 0) { return ::guest::updateTimeOfDayLight(w13f::fb(a), b, c); }
 template <class A> inline uint32_t ScaleCarLightMatrix(A a, W13F_U b = 0) { return ::guest::ScaleCarLightMatrix(w13f::fb(a), b); }
 template <class A> inline uint32_t BuildCarouselQuadA(A a, W13F_U b = 0, W13F_U c = 0, W13F_U d = 0, W13F_U e = 0, W13F_U f = 0) { return ::guest::BuildCarouselQuadA(w13f::fb(a), b, c, d, e, f); }
-template <class A> inline uint32_t BuildCarouselQuadB(A a, W13F_U b = 0, W13F_U c = 0, W13F_U d = 0, W13F_U e = 0, W13F_U f = 0) { return ::guest::BuildCarouselQuadB(w13f::fb(a), b, c, d, e, f); }
-template <class A> inline uint32_t BuildCarouselQuadC(A a, W13F_U b = 0, W13F_U c = 0, W13F_U d = 0, W13F_U e = 0, W13F_U f = 0) { return ::guest::BuildCarouselQuadC(w13f::fb(a), b, c, d, e, f); }
+// QuadB reads only f12+a0..a3 (disasm 0x244538: no $t0 use); callers' 6th arg (t0) is dead. Forwarding it
+// would pick this template over the 5-named+ellipsis decl -> self-recursion UB (clang brk in drawCarouselScene).
+template <class A> inline uint32_t BuildCarouselQuadB(A a, W13F_U b = 0, W13F_U c = 0, W13F_U d = 0, W13F_U e = 0, W13F_U = 0) { return ::guest::BuildCarouselQuadB(w13f::fb(a), b, c, d, e); }
+// QuadC reads only f12+a0..a3 (disasm 0x2446a8: no $t0 use); callers' 6th arg (t0) is dead. Forwarding it
+// would pick this template over the 5-named+ellipsis decl -> self-recursion UB (clang brk in drawCarouselScene).
+template <class A> inline uint32_t BuildCarouselQuadC(A a, W13F_U b = 0, W13F_U c = 0, W13F_U d = 0, W13F_U e = 0, W13F_U = 0) { return ::guest::BuildCarouselQuadC(w13f::fb(a), b, c, d, e); }
 template <class A> inline uint32_t BuildCarouselQuadD(A a, W13F_U b = 0, W13F_U c = 0, W13F_U d = 0, W13F_U e = 0, W13F_U f = 0) { return ::guest::BuildCarouselQuadD(w13f::fb(a), b, c, d, e, f); }
 template <class A> inline uint32_t BuildCarouselDrawPacket(A a, W13F_U b = 0, W13F_U c = 0, W13F_U d = 0, W13F_U e = 0, W13F_U f = 0) { return ::guest::BuildCarouselDrawPacket(w13f::fb(a), b, c, d, e, f); }
 template <class A> inline void vu0RotMatrixX(A a, W13F_U o = 0, W13F_U i = 0) { ::guest::vu0RotMatrixX(w13f::fb(a), o, i); }

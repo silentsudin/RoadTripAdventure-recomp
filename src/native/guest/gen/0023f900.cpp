@@ -56,7 +56,8 @@ uint32_t puVar7;
     piVar6 = piVar6 + 0x20;  // T* element step
   } while (iVar9 < 5);
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 0x14;
-  (*(uint32_t*)rtguest::G(0x2a2be0)) = (float)(int)sVar2 * (*(uint32_t*)rtguest::G(0x332e7c)) + (*(uint32_t*)rtguest::G(0x332e80));
+  // disasm 0x23fa60-0x23fab0: mtc1+cvt.s.w (int->float real), lwc1 DAT 0x332e7c/0x332e80 (float bits), swc1 0x2be0(a2); fn:55
+  (*(float*)rtguest::G(0x2a2be0)) = (float)(int)sVar2 * rtguest::fbits(*(uint32_t*)rtguest::G(0x332e7c)) + rtguest::fbits(*(uint32_t*)rtguest::G(0x332e80));
   RT_CALLRA(0x23faac, guest::gifChainEndTag(0x2a3490,0x15));
   sendTexturePackets(0x2a3490);
   return 0;

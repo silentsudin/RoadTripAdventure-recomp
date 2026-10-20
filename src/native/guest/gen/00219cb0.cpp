@@ -31,10 +31,10 @@ uint32_t pfVar3;
       fVar5 = (*(uint32_t*)rtguest::G(0x332b90));
       fVar6 = (*(float*)rtguest::G(0x332b8c));
       while( true ) {
-        pfVar1 = param_2 + 1;
-        pfVar2 = param_2 + 2;
-        pfVar3 = param_2 + 3;
-        param_2 = param_2 + 4;
+        pfVar1 = param_2 + 1 * sizeof(float);  // fn:29 float* elem steps (sig :29)
+        pfVar2 = param_2 + 2 * sizeof(float);  // float* elem step
+        pfVar3 = param_2 + 3 * sizeof(float);  // float* elem step
+        param_2 = param_2 + 4 * sizeof(float);  // float* elem step
         (*(float*)rtguest::G((uint32_t)fStack_70)) = (*(float*)rtguest::G((uint32_t)fStack_70)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x90)));
         (*(float*)rtguest::G((uint32_t)fStack_6c)) = (*(float*)rtguest::G((uint32_t)pfVar1)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x94)));
         (*(float*)rtguest::G((uint32_t)fStack_68)) = (*(float*)rtguest::G((uint32_t)pfVar2)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x98)));

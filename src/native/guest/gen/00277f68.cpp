@@ -35,7 +35,7 @@ LAB_00277fc4:
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)piVar6 + (uint32_t)(3) * sizeof(int32_t)));
     iVar5 = 0;
     if (0 < iVar2) {
-      piVar1 = piVar6 + 0x14;
+      piVar1 = piVar6 + 0x14 * sizeof(int32_t);  // fn:40 int* elem step
       do {
         puVar3 = (uint32_t)(iVar4 + iVar5);
         iVar5 = iVar5 + 1;

@@ -49,7 +49,7 @@ uint32_t pbVar10;
     uVar3 = 0;
     puVar1 = (uint32_t)(param_1 + iVar8);
     do {
-      puVar2 = puVar1 + 0xc;
+      puVar2 = puVar1 + 0xc * sizeof(uint32_t);  // undefined4* +0xc = 48B stride (fn/00244078.c:48; disasm 0x244148 addiu $a1,$a1,0x30)
       if ((uVar3 & 1) == 0) {
         (*(uint32_t*)rtguest::G((uint32_t)puVar2)) = 0;
       }
@@ -59,7 +59,7 @@ uint32_t pbVar10;
       (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(0xe) * sizeof(uint32_t))) = 0x3f800000;
       uVar4 = uVar3 + 1;
       (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(0x17) * sizeof(uint32_t))) = 0xff0;
-      (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(0xd) * sizeof(uint32_t))) = (float)(int)((uVar5 + (int)uVar3 / 2) * 0x1c) * 0.0009765625;
+      (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(0xd) * sizeof(uint32_t))) = rtguest::f2bits((float)(int)((uVar5 + (int)uVar3 / 2) * 0x1c) * 0.0009765625f);  // float store: swc1 bits, not value-convert (disasm 0x2441a4 swc1 after mul.s f0,f0,f2; fn:58)
       uVar3 = uVar4;
       puVar1 = puVar2;
     } while ((int)uVar4 < 4);

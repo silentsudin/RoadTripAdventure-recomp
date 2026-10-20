@@ -126,7 +126,7 @@ LAB_0021e8cc:
       RT_CALLRA(0x21e9b0, guest::LoadCameraPreset(puVar14,uVar2));
     }
     RT_CALLRA(0x21e9bc, guest::vu0CopyVector(afStack_60,0x0177ac60 + uVar13 * 0x4e));
-    fVar18 = (float)(int)(short)(*(uint32_t*)rtguest::G((uint32_t)0x177ae24 + (uint32_t)(uVar13 * 0x138) * 4)) * (*(uint32_t*)rtguest::G(0x332c50)) * 3.0517578e-05;
+    fVar18 = (float)(int)(short)(*(uint32_t*)rtguest::G((uint32_t)0x177ae24 + (uint32_t)(uVar13 * 0x138) * 4)) * rtguest::fbits(*(uint32_t*)rtguest::G(0x332c50)) * 3.0517578e-05f;  // DAT_00332c50 float const (lwc1 -0x7ea4(gp), disasm 0x21e840); f suffix = mul.s not double
     fVar16 = rtguest::fbits(RT_CALLRA(0x21e9ec, guest::sinf(rtguest::f2bits(fVar18))));
     fVar18 = rtguest::fbits(RT_CALLRA(0x21e9f8, guest::cosf(rtguest::f2bits(fVar18))));
     fVar17 = (*(float*)rtguest::G((uint32_t)fStack_58)) * fVar16;

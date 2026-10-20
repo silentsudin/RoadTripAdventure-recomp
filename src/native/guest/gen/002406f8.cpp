@@ -61,10 +61,11 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     }
     RT_CALLRA(0x240884, guest::PlayUiSound(0x14));
     (*(uint8_t*)rtguest::G(0x33573a)) = 1;
-    (*(uint32_t*)rtguest::G(0x2a2bc8)) = (float)(*(uint32_t*)rtguest::G(0x332eb8));
-    (*(uint32_t*)rtguest::G(0x33570c)) = (float)(*(uint32_t*)rtguest::G(0x332eac));
-    (*(uint32_t*)rtguest::G(0x2a2bc0)) = (float)(*(uint32_t*)rtguest::G(0x332eb0));
-    (*(uint32_t*)rtguest::G(0x2a2bc4)) = (float)(*(uint32_t*)rtguest::G(0x332eb4));
+    // lwc1->swc1 bit copies (disasm 0x240850-0x2408b8: lwc1 -0x7c44/-0x7c40/-0x7c3c/-0x7c38(gp), swc1 ($v0)/+4/+8($v0)+gp -0x53e4; fn:61-64) — no cvt.
+    (*(float*)rtguest::G(0x2a2bc8)) = (*(float*)rtguest::G(0x332eb8));
+    (*(float*)rtguest::G(0x33570c)) = (*(float*)rtguest::G(0x332eac));
+    (*(float*)rtguest::G(0x2a2bc0)) = (*(float*)rtguest::G(0x332eb0));
+    (*(float*)rtguest::G(0x2a2bc4)) = (*(float*)rtguest::G(0x332eb4));
     switchD_002407e4_proximityEventNoOpCase();
     return 0;
   case 1:

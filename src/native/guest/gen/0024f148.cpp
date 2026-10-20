@@ -54,13 +54,13 @@ uint32_t puVar6;
           }
           uVar7 = (*(uint16_t*)rtguest::G((uint32_t)param_2));
           iVar10 = iVar10 + 1;
-          puVar1 = param_2 + 2;
-          puVar2 = param_2 + 4;
-          puVar3 = param_2 + 8;
-          puVar4 = param_2 + 10;
-          puVar5 = param_2 + 0xc;
-          puVar6 = param_2 + 0xe;
-          param_2 = param_2 + 0x10;
+          puVar1 = param_2 + 2 * sizeof(uint16_t);  // fn:54 ushort* elem steps (sig :7)
+          puVar2 = param_2 + 4 * sizeof(uint16_t);  // ushort* elem step
+          puVar3 = param_2 + 8 * sizeof(uint16_t);  // ushort* elem step
+          puVar4 = param_2 + 10 * sizeof(uint16_t);  // ushort* elem step
+          puVar5 = param_2 + 0xc * sizeof(uint16_t);  // ushort* elem step
+          puVar6 = param_2 + 0xe * sizeof(uint16_t);  // ushort* elem step
+          param_2 = param_2 + 0x10 * sizeof(uint16_t);  // ushort* elem step
           RT_CALLRA(0x24f288, guest::uiFlatVertexWrite(iVar9,(int)(((uint32_t)uVar7 + param_4) * 0x10000) >> 0x10,
                             (int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar1)) + param_5) * 0x10000) >> 0x10,
                             (int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar2)) + param_6) * 0x10000) >> 0x10,(*(uint16_t*)rtguest::G((uint32_t)puVar3)),(*(uint16_t*)rtguest::G((uint32_t)puVar4)),

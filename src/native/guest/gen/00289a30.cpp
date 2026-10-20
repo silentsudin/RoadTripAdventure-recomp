@@ -54,7 +54,7 @@ LAB_00289ba8:
         puVar6 = (uint32_t)0x017788d4;
         (*(uint32_t*)rtguest::G(0x1778cdc)) = 0x400;
         if ((((uint32_t)param_3 | 0x17788d4) & 7) == 0) {
-          puVar1 = param_3 + 0x80;
+          puVar1 = param_3 + 0x80 * sizeof(uint64_t);  // fn:50 undefined8* elem step
           do {
             uVar3 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(1) * sizeof(uint64_t)));
             uVar7 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint64_t)));
@@ -63,12 +63,12 @@ LAB_00289ba8:
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(1) * sizeof(uint64_t))) = uVar3;
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(2) * sizeof(uint64_t))) = uVar7;
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(3) * sizeof(uint64_t))) = uVar8;
-            param_3 = param_3 + 4;
+            param_3 = param_3 + 4 * sizeof(uint64_t);  // undefined8* elem step
             puVar6 = puVar6 + 0x20;  // T* element step
           } while (param_3 != puVar1);
         }
         else {
-          puVar1 = param_3 + 0x80;
+          puVar1 = param_3 + 0x80 * sizeof(uint64_t);  // undefined8* elem step
           do {
             uVar3 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(1) * sizeof(uint64_t)));
             uVar7 = (*(uint64_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint64_t)));
@@ -77,7 +77,7 @@ LAB_00289ba8:
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(1) * sizeof(uint64_t))) = uVar3;
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(2) * sizeof(uint64_t))) = uVar7;
             (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(3) * sizeof(uint64_t))) = uVar8;
-            param_3 = param_3 + 4;
+            param_3 = param_3 + 4 * sizeof(uint64_t);  // undefined8* elem step
             puVar6 = puVar6 + 0x20;  // T* element step
           } while (param_3 != puVar1);
         }

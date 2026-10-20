@@ -158,6 +158,10 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp/guest_decls.inc")
     target_include_directories(rt_guest PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp")
     target_compile_features(rt_guest PRIVATE cxx_std_17)
+    # R5900 FPU and VU0 have no FMA: mul and add always round separately. Left on
+    # (default fast), clang contracts shim expressions like vmaddbc's a+s*b into one
+    # fmla and drifts 1-4 ulp from the oracle (W13 census 0x15a9 page).
+    target_compile_options(rt_guest PRIVATE -ffp-contract=off)
     # W11 package pins (G2): worker-computed expected values from pseudocode.
     # Any tests/native_guest/test_*.cpp becomes <stem-without-test-__test at configure.
     file(GLOB RT_GUEST_TESTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_guest/test_*.cpp")

@@ -46,8 +46,8 @@ uint32_t puVar1;
       RT_CALLRA(0x24f8d0, guest::uiSpriteWrite(iVar5,(int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)param_2)) + param_4) * 0x10000) >> 0x10,
                     (int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint16_t))) + param_5) * 0x10000) >> 0x10,(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(4) * sizeof(uint16_t))),(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(6) * sizeof(uint16_t))),
                     uVar4,uVar2));
-      puVar1 = param_2 + 0xc;
-      param_2 = param_2 + 0x10;
+      puVar1 = param_2 + 0xc * sizeof(uint16_t);  // fn:42 ushort* elem step
+      param_2 = param_2 + 0x10 * sizeof(uint16_t);  // ushort* elem step
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x44))) = 0xffffff - ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)puVar1)) + param_6);
     } while (iVar6 < param_3);
   }

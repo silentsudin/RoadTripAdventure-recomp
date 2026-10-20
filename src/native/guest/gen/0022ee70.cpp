@@ -179,7 +179,7 @@ LAB_0022f200:
         }
       }
       iVar7 = iVar7 + -1;
-      param_2 = param_2 + 0xb;
+      param_2 = param_2 + 0xb * sizeof(int32_t);  // fn:178 int* elem step
     } while (iVar7 != -1);
   }
   return 0;

@@ -29,36 +29,41 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
 uint32_t auStack_40 = rtguest::allocFrame(4);
 uint32_t auStack_3c = rtguest::allocFrame(12);
   
-  fVar13 = (*(uint32_t*)rtguest::G(0x3330f0));
+  fVar13 = rtguest::fbits(*(uint32_t*)rtguest::G(0x3330f0));  // DAT_003330f0 is float (fn:30, lwc1)
   puVar9 = (uint32_t)param_2;
   puVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
   bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 6)));
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar9 + 5))) & 0x8000) == 0) {
     bVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19)));
     if (bVar2 == 1) {
-      fVar11 = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) - (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(4) * sizeof(uint32_t)));
-      fVar10 = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(4) * sizeof(uint32_t))) + (*(uint32_t*)rtguest::G(0x3330ec));
-      fVar14 = fVar11 - (*(uint32_t*)rtguest::G(0x3330e8));
-      (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) = fVar11;
-      (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(4) * sizeof(uint32_t))) = fVar10;
-      (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - fVar13;
+      // puVar3[1]/[2]/[4] slots and DAT_003330e0..ec are float (lwc1/swc1, disasm 0x25dffc-0x25e05c; fn:37-42) — bits via fbits/float lvalues.
+      fVar11 = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) - rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(4) * sizeof(uint32_t)));
+      fVar10 = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(4) * sizeof(uint32_t))) + rtguest::fbits(*(uint32_t*)rtguest::G(0x3330ec));
+      fVar14 = fVar11 - rtguest::fbits(*(uint32_t*)rtguest::G(0x3330e8));
+      (*(float*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) = fVar11;
+      (*(float*)rtguest::G((uint32_t)puVar3 + (uint32_t)(4) * sizeof(uint32_t))) = fVar10;
+      (*(float*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - fVar13;
       if (fVar14 <= 78.0) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19))) = 2;
       }
     }
     else if (bVar2 < 2) {
-      if ((bVar2 == 0) &&
-         (bVar4 = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - (*(float*)rtguest::G(0x3330e0)) < (*(uint32_t*)rtguest::G(0x3330e4)),
-         (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - (*(float*)rtguest::G(0x3330e0)), bVar4)) {
-        (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19))) = 1;
+      if (bVar2 == 0) {
+        // disasm 0x25e028-0x25e05c: compare first; the swc1 of [2] runs only on the true path (bc1f at 0x25e058 skips it).
+        fVar14 = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - (*(float*)rtguest::G(0x3330e0));
+        if (fVar14 < rtguest::fbits(*(uint32_t*)rtguest::G(0x3330e4))) {
+          (*(float*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) = fVar14;
+          (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19))) = 1;
+        }
       }
     }
     else if (bVar2 == 2) {
       rtCall((*(uint32_t*)rtguest::G(0x335710)), puVar3, auStack_40, auStack_3c, 0, param_2);
-      fVar13 = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) + (*(uint32_t*)rtguest::G(0x3330f8));
-      bVar4 = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - (*(uint32_t*)rtguest::G(0x3330f4)) < (*(uint32_t*)rtguest::G(0x3330fc));
-      (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - (*(uint32_t*)rtguest::G(0x3330f4));
-      (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) = fVar13;
+      // float domain (lwc1/swc1, disasm 0x25e0c8-0x25e0f8; fn:56-57)
+      fVar13 = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) + rtguest::fbits(*(uint32_t*)rtguest::G(0x3330f8));
+      bVar4 = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - rtguest::fbits(*(uint32_t*)rtguest::G(0x3330f4)) < rtguest::fbits(*(uint32_t*)rtguest::G(0x3330fc));
+      (*(float*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - rtguest::fbits(*(uint32_t*)rtguest::G(0x3330f4));
+      (*(float*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) = fVar13;
       if (bVar4) {
         iVar7 = RT_CALLRA(0x25e0c0, guest::__umoddi3((*(uint64_t*)rtguest::G((uint32_t)puVar9)),5));
         uVar6 = (*(uint32_t*)rtguest::G(0x333108));
@@ -73,8 +78,8 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
     }
     RT_CALLRA(0x25e10c, guest::vu0SubVector(auStack_50,puVar3,0x177ace0));
     fVar13 = rtguest::fbits(RT_CALLRA(0x25e118, guest::vecDotProductVu0(auStack_50,auStack_50)));
-    if ((*(uint32_t*)rtguest::G(0x33310c)) <= SQRT(fVar13)) {
-      fVar13 = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t)));
+    if (rtguest::fbits(*(uint32_t*)rtguest::G(0x33310c)) <= SQRT(fVar13)) {  // DAT_0033310c float (fn:74)
+      fVar13 = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t)));
       goto LAB_0025e178;
     }
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x18)));
@@ -82,7 +87,7 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = 1;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19))) = 3;
   }
-  fVar13 = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t)));
+  fVar13 = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t)));  // (float) cast on undefined4* = reinterpret (fn: "fVar13 = (float)puVar3[2]")
 LAB_0025e178:
   if ((820.0 <= fVar13) || (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 1) != 0)) {
     (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(3) * sizeof(uint32_t))) = 0x3f800000;
