@@ -306,6 +306,11 @@ until ready — never show a row the recomp didn't have.
 - Display mode (Options → Display mode, desktop only: hidden on Android; `[display] window_mode = "windowed"|"borderless"|"fullscreen"`, unknown = windowed): `applyWindow` (`src/settings/Apply.cpp`) drives the presenter's SDL3 window. Borderless = SDL desktop fullscreen (no mode); Fullscreen = SDL fullscreen with the desktop's own resolution and refresh rate as an explicit display mode (never a resolution change; on Windows with Vulkan both look the same, there is no exclusive mode). Back to Window restores the earlier size and position (the Window size row only sets it when changed). Alt+Enter and F11 toggle Window and the last fullscreen kind (`serviceWindow`, per frame from `updatePauseMenu`; the game reads no keys while Alt is held); the pointer is hidden in the fullscreen modes unless the menu is open. macOS sets `SDL_HINT_VIDEO_MAC_FULLSCREEN_SPACES=0` (instant, no Space). `RT_WINDOW_DEBUG=1` logs the window after each apply.
 
 ## Dispatch quota gate (hard)
+Claude Code pool (user-approved 2026-10-20): `claude-code/claude-opus-5-5`,
+`claude-code/claude-sonnet-5-5`, `claude-code/claude-haiku-5-5`,
+`claude-code/claude-fable-5-1`, `claude-code/claude-mythos-5-1` — runs via the
+opencode-claude-code-plugin; its quota is NOT visible to quota_status (user
+says ample). Still pass `model:` + `background: true` per the gate.
 Before EVERY subagent dispatch, run quota_status and verify the target pool
 has meaningful headroom in BOTH windows. A pool with Weekly=0% is DEAD even
 if its 5h window shows 100% (opencode-go incident: dispatched twice into

@@ -603,3 +603,30 @@ guest_gs.cpp kick dispatch + [direct] in guest_vif1 kDirect) over vb1303-1312:
   one copy-pair per frame in the bytes (native parse defect) vs two (gen TU writer defect).
 - Frontier parity agent (openai/gpt-6.1-sol, background) dispatched on exactly this discriminator;
   full handoff + repro commands in build/scratch/w12-parity/HANDOFF-cardband.md.
+
+## W12 2026-10-20 late-4: ROOT CAUSE — ported card-list writer corrupts the TEX2_1 entry
+
+Paired RAM diff native vb1306 (/tmp/ram_n1306.bin) vs oracle EERM parked at vblank 1306
+(/tmp/eerm_p1305.bin, run{vblanks:1305} parks at 1306): the attract card text-list pages are
+byte-identical EXCEPT ONE QWORD, and the copy-chain page differs in one qword:
+
+- 0x336370 (AD entry value; reg qword 0x336378 = 0x16 = TEX2_1 on both sides):
+  game   0x0413780001400000  -> fork TEX2 apply: psm=(v>>20)&0x3F = 0x14 (PSMT4H),
+         cbp=(v>>37)&0x3FFF = 7104, bits56-60=4; oracle batch log text state psm=20/cbp=7104 EXACT.
+  native 0x0000004000008080  -> the TEXA constant (same value as the 0x336360 reg-0x3b entry):
+         psm->0, cbp->2 => text samples page 6720 as RGBA32 => the garbled band, and the
+         band-transition timing artifact.
+- 0x29a840: oracle 0x0033aaf000000000, native 0 (likely uiBatchFlush other-buffer bookkeeping;
+  does it reach GS? RE agent dispatched).
+- All other setup AD pairs (TEX0 0x2013780e65321a40 psm=0x13 tbp=6720 cbp=7104, CLAMP, ALPHA,
+  TEXA, GIF tag qwords incl. PRE/PRIM 0x156 and NLOOP) are byte-identical. The earlier
+  "NLOOP 3 vs 84" reading was an artifact of comparing unpaired vblanks (park1304 predates text).
+
+So the GS sink (PATH2/AD parsing) is EXONERATED for this symptom: identical bytes in, identical
+apply out (frontier agent's parser agreement was right). The defect is the ported display-list
+WRITER: src/native/guest/gen/00203810.cpp (uiBatchFlush) writes 0x4000008080 at 0x336360+iVar in
+two sites (lines 19, 33) where the game writes the TEXA constant AND a COMPUTED TEX2_1 value
+(the 0x0413780001400000 shares bytes 0x13/0x78 with the canvas TEX0 qword -> derived from canvas
+state with psm forced 0x14). RE subagent dispatched to cite the pseudocode derivation; fix goes
+into the gen TU with that citation. test-engineer dispatched to pin the band contract
+(oracle band sha table: vb1308 a7ca7a63d3c7a0c7; vb1312..1348 static 3e45c5141106e978).
