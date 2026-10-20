@@ -195,3 +195,31 @@ Boot@1801 census (RT_VIF_HIST=1): segs=1801 mscals=25080 (== oracle probe to
 the unit) unpackWrites=1,170,345 directQw=92,945, vu1 runs=25080 unported=0;
 the `fault 0x10000002` class (garbage pointers from the double-deref stores)
 is gone. RAM@1800 vs /tmp/eerm_o1800.bin: 1453 B total (was 1474).
+
+## Step 3a done (2026-10-20): GIF front end decodes XGKICK + GIF channel streams
+
+`guest_gif.{h,cpp}` decodes GIF tag streams with the oracle front end's
+semantics (gs_frontend.cpp:919-993 walk + `writeRegisterPacked` :1144-1260):
+NLOOP lo 14:0, FLG lo 59:58, NREG lo 63:60 (0=16), PRE lo 46 with A+D prim
+57:47, odd-N REGLIST pads 8; packed data is 16 B per register, REGLIST 8 B
+with the kick bit in the 64-bit value; XYZ(F)2 kick = ADK hi bit 47 clear
+(case 0x04 unpacks x@lo 15:0, y@lo 47:32, z@hi 27:4, fog@hi 43:36 — the
+game's own quad layout, not the textbook one). FLG 3 drops the stream.
+0x0E = GIF DIRECT: reg addr in hi 7:0, value in lo — how the batch headers
+carry TEX0/CLAMP writes. Wiring: `vu1SetKick(&gifSink)` (XGKICK), GIF
+channel (0x1000A000) chain payload concatenated like VIF1 (payload carries
+its GIF tags; oracle prepends tag-hi only for VIF channels,
+ps2_memory.cpp:1557-1560) and normal-mode payload.
+
+Boot@1801 census (RT_VIF_HIST=1): packed tags 29122 (pre 27747), reglist
+1368, image 96 (imageB=837,664 texture-upload bytes), verts 285,450,
+kicks 49,830 all TRI_STRIP(4); regs 0/1/2/4 = 27747/285450/285450/285450,
+6 and 8 (TEX0/CLAMP via reglists) 1368 each, E (DIRECT) 20911. RAM@1800
+with the sink wired is byte-identical to the pre-sink dump — decode-only,
+no boot perturbation. `gif_test` (tests/native_guest) pins tag/loop/kick/
+image/reserved-FLG semantics.
+
+Next (3b/3c): GS register state (TEX0/CLAMP/FRAME/ZBUF/TEST + IMAGE writes
+into a GS VRAM model), draw batches with decoded vertices, feed the W2
+preview renderer, then title/race/town scanout goldens per the contract
+above.

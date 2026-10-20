@@ -19,6 +19,7 @@
 #include "guest_kernel.h"
 #include "guest_shim.h"
 #include "guest_vif1.h"
+#include "guest_gif.h"
 #include "guest_vu1.h"
 #include "guest_decls.inc"
 
@@ -105,12 +106,14 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
                     uint32_t qwc, uint32_t tadr) {
     // W3 step 1 (docs/native-reference/w13-gs-sink-design.md): VIF1 channel payloads
     // are decoded by the native interpreter (guest_vif1.cpp); RT_VIF_HIST reporting
-    // lives there. The GIF channel payload is GIF packets, counted at segment level.
+    // lives there. The GIF channel payload is GIF packets, decoded in guest_gif.cpp.
     static const bool vifHist = std::getenv("RT_VIF_HIST") != nullptr;
     // W3 step 2: the MSCAL/MSCALF seam runs the transliterated VU1 programs
-    // (guest_vu1.cpp); their XGKICK output reaches the GS in step 3.
-    static const bool vu1Wired = (rtguest::vif1SetHooks(&rtguest::vu1OnMscal, nullptr), true);
-    (void)vu1Wired;
+    // (guest_vu1.cpp); step 3a: their XGKICK output and the GIF channel payload
+    // decode in the GIF front end (guest_gif.cpp).
+    static const bool streamsWired = (rtguest::vif1SetHooks(&rtguest::vu1OnMscal, nullptr),
+                                      rtguest::vu1SetKick(&rtguest::gifSink), true);
+    (void)streamsWired;
     static std::map<uint32_t, uint64_t> gifSegs; // GIF chain segs by tag upper bits[61:58]
     static uint64_t gsegs = 0, gqw = 0;
     uint64_t words = 0;
@@ -181,7 +184,7 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
                 const std::uint8_t* up = rtguest::kRam + physTag + 8u;
                 chainBuf.insert(chainBuf.end(), up, up + 8u);
             }
-            if (hasPayload && channelBase == 0x10009000u) {
+            if (hasPayload && (channelBase == 0x10009000u || channelBase == 0x1000A000u)) {
                 const uint32_t phys = dataAddr & 0x01FFFFFFu;
                 uint32_t len = tq * 16u;
                 if (phys + len > RT_GUEST_RAM_SIZE) len = RT_GUEST_RAM_SIZE - phys;
@@ -190,8 +193,13 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
             }
             if (irq && tie) endChain = true;
         }
-        if (!chainBuf.empty())
-            rtguest::vif1Consume(chainBuf.data(), static_cast<std::uint32_t>(chainBuf.size()));
+        if (!chainBuf.empty()) {
+            const uint32_t len = static_cast<std::uint32_t>(chainBuf.size());
+            if (channelBase == 0x1000A000u)
+                rtguest::gifSink(chainBuf.data(), len);  // payload carries its GIF tags
+            else
+                rtguest::vif1Consume(chainBuf.data(), len);
+        }
         // Oracle register write-back (ps2_memory.cpp:1687-1690) sans CHCR: the callers
         // own CHCR completion, and re-writing STR here would re-trap.
         dmaWrite(channelBase + 0x30u, tagAddr);
@@ -201,6 +209,8 @@ void consumeChannel(uint32_t channelBase, uint32_t chcr, uint32_t madr,
         words = 1u + qwc;                                // normal: madr count (qwc words)
         if (channelBase == 0x10009000u)
             rtguest::vif1Consume(rtguest::kRam + (madr & 0x01FFFFFFu), qwc * 16u);
+        else if (channelBase == 0x1000A000u)
+            rtguest::gifSink(rtguest::kRam + (madr & 0x01FFFFFFu), qwc * 16u);
     }
     if (dmaTrace())
         std::fprintf(stderr, "[dma] ch=0x%x chcr=0x%x madr=0x%x qwc=0x%x tadr=0x%x "
