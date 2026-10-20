@@ -43,9 +43,11 @@ REPORT_KEYS = ("unpaired", "no_signature", "no_body", "needs_struct",
                "skip_array_cast", "hex_subscript", "amp_local", "hand_protected")
 
 # Live TUs carrying hand-verified semantics the regex pass cannot emit (9th
-# sceSifCallRpc end_param arg, sb byte-table stores): regen never overwrites.
+# sceSifCallRpc end_param arg, sb byte-table stores, the 0x20cdc0 jump table lost at 0x20ce1c,
+# 0x23bcd0 uiMenuRun a1 pass-through):
+# regen never overwrites.
 # Evidence: build/scratch/parity/w13flow/CENSUS.md.
-PROTECTED_HAND = {"002793d0", "0020ed30"}
+PROTECTED_HAND = {"002793d0", "0020ed30", "0020cdc0", "0023bcd0"}
 
 def new_report() -> dict:
     return {k: ([] if k != "names" else {}) for k in REPORT_KEYS}

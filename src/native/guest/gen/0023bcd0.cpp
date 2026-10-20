@@ -2,9 +2,12 @@
 #include "../guest_shim.h"
 #include "guest_decls.inc"
 
+// W13: Ghidra dropped uiMenuRun's a1: on the non-first-frame path (bnel 0x23bcf0 -> jal 0x23bd70)
+// $a1 is never written, so uiMenuWindow reads the pad block gs_tasks_walker passed (fn/00204f98.c:8),
+// not address 0 (+0x30 = a stray "cross" edge that auto-picked item 0 in Q's Factory).
 namespace guest {
 
-uint32_t dialogueCmdTabListMenu(uint32_t param_1, ...) {
+uint32_t dialogueCmdTabListMenu(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
@@ -37,7 +40,7 @@ uint32_t pcVar7;
   }
   else {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
-    lVar5 = RT_CALLRA(0x23bd70, guest::uiMenuRun(iVar2));
+    lVar5 = RT_CALLRA(0x23bd70, guest::uiMenuRun(iVar2,param_2));
     if (lVar5 != 0) {
       if (lVar5 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) + -1;
