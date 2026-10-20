@@ -441,3 +441,54 @@ an ALL target only in full builds). Kit/header changes need
 Next: W12 boot-phase drift fix, then scanout parity on attract frames
 with visible 3D (~vb 900+), pgs golden re-grade + divergence-policy
 appendix.
+
+## W12 camera-chain fixes (2026-10-20): projection restored, residue found
+
+Boot attract camera block (0x177e6d0, 0x190 B, matrices at +0/+0x40/+0x80/
++C0/+0x100 — caller RunMenuPanelTask 0x208848 passes camera struct 0x29abd0)
+diverged from the oracle in three stacked layers, all fixed on-machine-code
+evidence (llvm-objdump vaddr direct on build/rom/SLUS_203.98):
+
+1. `allocFrame` 16-byte chunk padding broke guest frame-slot adjacency
+   (transliterator's sized gap chunks encode exact offsets; 196 TUs affected).
+   buildCamera's projection matrix P = afStack_140[5] + adjacent scalar slots
+   (elements 5,8..11,14,15 from DAT_332b2c/332c88/332c8c/332c90/3356e0/3356e4)
+   read back as scaled identity -> projection multiply silently lost.
+   Fix: 4-byte align only (85e812a).
+2. buildCamera jal 0x21f748 ComposeCameraMatrix: delay slot `move $4,$sp`
+   sets callee $a0 to the caller slot (Ghidra's 1-arg call was right about
+   $a0) but $a1..$a3 carry param_2/3/4 live; transliteration dropped them.
+   Flag-SET path CopyVector #1 same clobber: copies param_2 -> auStack_1d0.
+3. ComposeCameraMatrix jal 0x21f3bc/0x21f3c8 (vu0MulMatrix): machine args
+   are (param_1, param_3, auStack_c0) and (auStack_80, param_3, auStack_80)
+   — Ghidra emitted (auStack_c0, param_3) / (auStack_80, param_4, auStack_80)
+   ($a1 at jal #2 is still $16 = param_3; no $5 write between 0x21f3b0 and
+   the jal). d179d05.
+
+After 1+2+3 the block structure matches the oracle (projected columns, unit
+lane-3 rotation terms, homogeneous position column). Residual numeric gap:
+the oracle's V converges to identity with position exactly (0,0,50,1) — i.e.
+ComposeCameraMatrix reads its own never-written frame locals (auStack_b0/
+a0/70/60 as the CopyVector sources feeding BuildCameraViewMatrices vectors)
+and sees boot-era residue from the task's earlier deeper call tree (spawn at
+counter==0). The game reads uninitialized stack deterministically; bit-exact
+attract parity therefore needs the per-task EE stack model (real push/pop
+frame discipline per task stack, contents persisting across invocations —
+the W13 stack model foreshadowed in guest_shim.h's shortcut comment).
+Native bump-arena (reset per vblank) gives different residue.
+
+Tooling: RAM slice pairing (native RT_RAM_DUMP vb:N <-> oracle socket
+state_dump chunk=EERM at park N-1, both named N), float-pair search, and
+per-page diff live in build/scratch/w12-parity/ (never commit). Note oracle
+0x177e700 pair (102400,102400) is P x (0,0,50,1): P[14]=DAT_332c90=2.51661e7
+appears at 0x177e708 — exact-value float searches must use tolerant windows,
+values wobble by rounding pre-settle.
+
+Grading after fixes: boot scanout bit-identical {580,590,640,650}; closeout
+sweep 154/154; det pair race@110 identical; matrix 32/32. Onset phase:
+native attract 3D starts vb ~268, oracle ~285-295 (camera animation runs
+the same 165-frame RunMenuPanelTask window in both; kill at counter >0xa4
+confirmed in native call census).
+
+Next: per-task EE stack model (unblocks attract visible-3D parity ~vb 900+),
+then pgs golden re-grade + divergence-policy appendix.
