@@ -492,3 +492,44 @@ confirmed in native call census).
 
 Next: per-task EE stack model (unblocks attract visible-3D parity ~vb 900+),
 then pgs golden re-grade + divergence-policy appendix.
+
+## Stack mirror + boot-phase gate (2026-10-20, pushed 0874c89)
+
+Step 1 (d8accba): FrameGuard(machine_frame_size) as first statement of all
+1555 gen TU bodies; kernel per-thread frame region save/restore at every
+switchcontext site. Step 2 (6c9fb9b): framesizes.json (1521 fns sized by a
+whole-.text llvm-objdump prologue `addiu/daddiu $sp,-N` scan; 295 frameless
+fns verified zero-chunk), allocFrame carves chunks upward from the pushed
+base (offset-exact, no padding; align fix 85e812a), main-thread stack =
+[0x1F80000,0x2000000) top-down from the ELF's declared main stack. Result:
+native frames land at the oracle's absolute addresses (unique-nonzero-chunk
+search: dominant delta 0), RAM diff down to ~700-800 B/vb.
+
+Machine decode correction (supersedes the a378823 note above for BCM's
+cross/normalize jal dsts): a jal's delay slot executes BEFORE the callee
+body, so registers set in the delay slot ARE visible to the callee as
+arguments. At 0x21f4b8-0x21f4e8 that makes Ghidra's original dst slots
+correct (cross1 +0x00, normalize2 +0x30, cross2 +0x20 <- +0x30,+0x10);
+native now writes exactly the machine slots. (Compose's tail-copy dst fix
+stands — those are plain stores, no jal-arg lag.)
+
+Boot-phase gate (0874c89): the oracle's interpreted IOP boot module loads
+consume 9 vblank periods before the game's first game-task spawn (pool
+empty through park 9, first active dump pair vb10; native vb2). Gate holds
+the boot main thread out of the ready queue until the 10th kVblank tick
+(kBootMainThread(entry, gate=true); false for kernel-primitive tests).
+Task pool now byte-identical at paired dumps vb14..500 incl. the panel
+counter (24@300, 154@430) and the 0x208848->0x208a88 transition@500; boot
+scanouts stay bit-identical {580,590,640,650}.
+
+Remaining attract-camera gap is pure residue BYTES in the shared depth-3
+stack window (base 0x1fffbe0): the oracle's prologue `sd $16-$23/$ra,
+0x40..0xc0($sp)` + `swc1 $f20-$f23` stores write saved-register values into
+slots that other frames later read as locals (Compose's CopyVector sources
++0x60/+0x70 read GPR-save bytes; oracle rest-state in1-source =
+(0,0,0x3f800000,0) = saved regs holding 1.0f bits). Native never writes
+saved slots. Next task: model prologue save-stores generically (values
+derivable per function from the machine prologue: $4-$9 -> param_k, simple
+`move`/`lui` chains -> constants/params, $ra -> call-site pc via a kernel
+link-register shim; older opaque $16-$23/$fN saves stay a known residue
+class).
