@@ -22,6 +22,7 @@ uint64_t g_tags[4] = {};  // tags by FLG: 0 packed, 1 reglist, 2 image, 3 bad
 uint64_t g_verts = 0, g_kicks = 0, g_imageBytes = 0, g_pre = 0;
 std::map<uint32_t, uint64_t> g_kickPrim;  // prim shape (bits 2:0) -> kicks
 std::map<uint32_t, uint64_t> g_regs;      // REGS code -> data writes
+std::map<uint32_t, uint64_t> g_direct;    // DIRECT (0xE) target GS reg addr
 
 inline uint64_t le64(const uint8_t* p) {
     uint64_t v;
@@ -29,7 +30,7 @@ inline uint64_t le64(const uint8_t* p) {
     return v;
 }
 
-void countReg(uint8_t reg, uint64_t lo, bool adk) {
+void countReg(uint8_t reg, uint64_t lo, uint64_t hi, bool adk) {
     ++g_regs[reg];
     switch (reg) {
     case 0x0:
@@ -46,6 +47,9 @@ void countReg(uint8_t reg, uint64_t lo, bool adk) {
             ++g_kicks;
             ++g_kickPrim[static_cast<uint32_t>(st.prim & 7u)];
         }
+        break;
+    case 0xe:  // GIF DIRECT: GS reg addr in hi 7:0, value in lo (oracle :1171)
+        ++g_direct[static_cast<uint32_t>(hi & 0xFFu)];
         break;
     default:
         break;  // TEX0/CLAMP/FOG/FRAME/... decode with the renderer feed
@@ -79,6 +83,7 @@ void gifSink(const uint8_t* data, uint32_t sizeBytes) {
             if (off + bytes > sizeBytes) return;  // truncated: oracle stops too
             for (uint64_t i = 0; i < bytes; i += 16u)
                 countReg(regs[(i / 16u) % nreg], le64(data + off + i),
+                         le64(data + off + i + 8),
                          ((le64(data + off + i + 8) >> 47) & 1u) != 0u);
             off += static_cast<uint32_t>(bytes);
         } else if (flg == 1u) {  // REGLIST
@@ -86,7 +91,7 @@ void gifSink(const uint8_t* data, uint32_t sizeBytes) {
             if (off + n * 8u > sizeBytes) return;
             for (uint64_t i = 0; i < n; ++i) {
                 const uint64_t v = le64(data + off + i * 8u);
-                countReg(regs[i % nreg], v, ((v >> 47) & 1u) != 0u);
+                countReg(regs[i % nreg], v, 0u, ((v >> 47) & 1u) != 0u);
             }
             off += static_cast<uint32_t>((n + 1u) / 2u * 16u);  // odd n pads 8
         } else if (flg == 2u) {  // IMAGE
@@ -115,6 +120,8 @@ void gifCensusDump() {
                  (unsigned long long)g_kicks, (unsigned long long)g_imageBytes);
     for (auto& [r, c] : g_regs)
         std::fprintf(stderr, "  reg=%#x n=%llu\n", r, (unsigned long long)c);
+    for (auto& [a, c] : g_direct)
+        std::fprintf(stderr, "  gsreg=%#x n=%llu\n", a, (unsigned long long)c);
     for (auto& [p, c] : g_kickPrim)
         std::fprintf(stderr, "  kickprim=%u n=%llu\n", p, (unsigned long long)c);
 }

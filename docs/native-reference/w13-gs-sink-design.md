@@ -223,3 +223,15 @@ Next (3b/3c): GS register state (TEX0/CLAMP/FRAME/ZBUF/TEST + IMAGE writes
 into a GS VRAM model), draw batches with decoded vertices, feed the W2
 preview renderer, then title/race/town scanout goldens per the contract
 above.
+
+### Step 3a addendum: DIRECT-target census = the boot register surface (gs_types.h ids)
+
+Histogramming DIRECT (0x0E) targets at boot@1801: UV 5472, XYZ2 5472 (the
+2D pass writes sprite verts through DIRECT pairs), TEX0_1 1368, TEX1_1 1368,
+CLAMP_1 4104, ALPHA_1 1368, TEST_1 1368 (per-2D-batch setup: 1368 = the
+reglist tag count), TEXFLUSH 7, and BITBLTBUF/TRXPOS/TRXREG/TRXDIR 96 each —
+the game sets the BITBLT regs via DIRECT right before the 96 IMAGE-format
+data tags: that is the texture-upload path (837,664 B at boot). FRAME/ZBUF
+never appear via DIRECT: framebuffer switching must arrive another way —
+scope for 3b (PATH3 A+D or reglist tag path in the oracle walk). This is the
+exact GS state surface the native renderer sink must model.
