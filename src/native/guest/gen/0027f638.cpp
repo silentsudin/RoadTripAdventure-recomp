@@ -8,6 +8,10 @@ namespace guest {
 // pseudocode returns long; narrowed to the decl's uint32_t (value is a 32-bit int count / -1)
 uint32_t __sbprintf(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(1152);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x470) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x474) = 0x00000000u;
+  }
   int iVar1;
   long lVar2;
   // FILE aFStack_480[7]: 0x480-byte frame; Ghidra field offsets as in 002826c0,
@@ -24,7 +28,7 @@ uint32_t __sbprintf(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   (*(uint32_t*)rtguest::G(aFStack_480 + 8)) = 0x400;
   (*(uint32_t*)rtguest::G(aFStack_480 + 0x18)) = 0;
   (*(uint32_t*)rtguest::G(aFStack_480 + 0x10)) = (*(uint32_t*)rtguest::G(aFStack_480));
-  lVar2 = (long)(int32_t)vfprintf(aFStack_480, param_2, param_3);  // arg-drop fix: a1/a2 live at jal 0x27f694 (disasm)
+  lVar2 = (long)(int32_t)RT_CALLRA(0x27f694, guest::vfprintf(aFStack_480, param_2, param_3));  // arg-drop fix: a1/a2 live at jal 0x27f694 (disasm)
   if ((-1 < lVar2) && (iVar1 = fflush(aFStack_480), iVar1 != 0)) {
     lVar2 = -1;
   }

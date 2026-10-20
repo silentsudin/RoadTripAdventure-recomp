@@ -6,11 +6,15 @@ namespace guest {
 
 uint32_t scePadEnd(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   int iVar1;
   long lVar2;
   
   (*(uint32_t*)rtguest::G(0x1773500)) = 0xf;
-  lVar2 = sceSifCallRpc(0x17731c0,1,0,0x1773500,0x80,0x1773500,0x80,0);
+  lVar2 = RT_CALLRA(0x2737b8, guest::sceSifCallRpc(0x17731c0,1,0,0x1773500,0x80,0x1773500,0x80,0));
   if (lVar2 < 0) {
     iVar1 = 0;
   }

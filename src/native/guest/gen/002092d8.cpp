@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t gs_options_options_task(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   char cVar1;
   byte bVar2;
   int iVar3;
@@ -15,11 +19,11 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
   
   iVar6 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) == 0) {
-    iVar3 = uiMenuCreate();
-    uiMenuAddItem(iVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac90u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
-    uiMenuAddItem(iVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac94u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
-    uiMenuAddItem(iVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac98u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
-    uiMenuAddItem(iVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29aca0u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
+    iVar3 = RT_CALLRA(0x209300, guest::uiMenuCreate());
+    RT_CALLRA(0x20932c, guest::uiMenuAddItem(iVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac90u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));
+    RT_CALLRA(0x209350, guest::uiMenuAddItem(iVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac94u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));
+    RT_CALLRA(0x209374, guest::uiMenuAddItem(iVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac98u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));
+    RT_CALLRA(0x209398, guest::uiMenuAddItem(iVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x29aca0u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = 1;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 2;
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 0xb4;
@@ -29,19 +33,19 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) != '\0') {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) & 0x7f;
     }
-    lVar4 = uiMenuRun(iVar3);
+    lVar4 = RT_CALLRA(0x2093d4, guest::uiMenuRun(iVar3));
     if (lVar4 != 0) {
       if (lVar4 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xb))) + -1;
       }
       if (lVar4 == -2) {
-        gs_tasks_kill(param_1);
+        RT_CALLRA(0x209408, guest::gs_tasks_kill(param_1));
         bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
         goto LAB_002094d4;
       }
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd)));
       if (cVar1 == '\x01') {
-        PlayUiSound(0x1a);
+        RT_CALLRA(0x209458, guest::PlayUiSound(0x1a));
         uVar5 = 0x208f50;
       }
       else if (cVar1 < '\x02') {
@@ -49,7 +53,7 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
           bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
           goto LAB_002094d4;
         }
-        PlayUiSound(0x1a);
+        RT_CALLRA(0x209470, guest::PlayUiSound(0x1a));
         uVar5 = 0x208c98;
       }
       else {
@@ -58,17 +62,17 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
             bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe)));
             goto LAB_002094d4;
           }
-          PlayUiSound(0x1b);
+          RT_CALLRA(0x209488, guest::PlayUiSound(0x1b));
           iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) = 1;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) = 1;
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = 2;
           goto LAB_002094d0;
         }
-        PlayUiSound(0x1a);
+        RT_CALLRA(0x2094b8, guest::PlayUiSound(0x1a));
         uVar5 = 0x2090c0;
       }
-      gs_tasks_spawn(param_1,uVar5,0);
+      RT_CALLRA(0x20949c, guest::gs_tasks_spawn(param_1,uVar5,0));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) | 0x80;
     }
   }

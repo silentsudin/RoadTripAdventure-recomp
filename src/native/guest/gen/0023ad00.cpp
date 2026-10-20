@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t InterpretScriptCommands(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
 uint32_t pbVar1;
   int iVar2;
   byte bVar3;
@@ -28,7 +32,7 @@ LAB_0023b140:
   case 1:
     goto switchD_0023ad48_caseD_1;
   case 2:
-    lVar7 = TestFlagBitFc98((*(int8_t*)rtguest::G((uint32_t)param_3)));
+    lVar7 = RT_CALLRA(0x23ad54, guest::TestFlagBitFc98((*(int8_t*)rtguest::G((uint32_t)param_3))));
     if (lVar7 != 0) {
       param_3 = pbVar8 + 3;
       goto LAB_0023b13c;
@@ -36,10 +40,10 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
     goto LAB_0023afe0;
   case 3:
-    lVar7 = GetFlaggedSlotCount((*(int8_t*)rtguest::G((uint32_t)param_3)),(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t))),0);
+    lVar7 = RT_CALLRA(0x23ad98, guest::GetFlaggedSlotCount((*(int8_t*)rtguest::G((uint32_t)param_3)),(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t))),0));
     goto LAB_0023afd4;
   case 4:
-    lVar7 = TestStampFlag((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    lVar7 = RT_CALLRA(0x23adac, guest::TestStampFlag((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21)))));
     if (lVar7 == 0) {
       param_3 = pbVar8 + 2;
       goto LAB_0023b13c;
@@ -47,7 +51,7 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_3));
     goto LAB_0023afe0;
   case 5:
-    lVar7 = TestFlagFc68((*(int8_t*)rtguest::G((uint32_t)param_3)));
+    lVar7 = RT_CALLRA(0x23adcc, guest::TestFlagFc68((*(int8_t*)rtguest::G((uint32_t)param_3))));
     if (lVar7 == 0) {
       param_3 = pbVar8 + 3;
       goto LAB_0023b13c;
@@ -55,7 +59,7 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
     goto LAB_0023afe0;
   case 6:
-    lVar7 = TestStateBitFc78((*(int8_t*)rtguest::G((uint32_t)param_3)));
+    lVar7 = RT_CALLRA(0x23adec, guest::TestStateBitFc78((*(int8_t*)rtguest::G((uint32_t)param_3))));
     if (lVar7 == 0) {
       param_3 = pbVar8 + 3;
       goto LAB_0023b13c;
@@ -63,7 +67,7 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
     goto LAB_0023afe0;
   case 7:
-    lVar7 = CheckSlotPresence();
+    lVar7 = RT_CALLRA(0x23ae08, guest::CheckSlotPresence());
     if (lVar7 == 0) {
       param_3 = pbVar8 + 2;
       goto LAB_0023b13c;
@@ -71,12 +75,12 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_3));
     goto LAB_0023afe0;
   case 8:
-    lVar7 = MatchSlotPairState((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    lVar7 = RT_CALLRA(0x23ae24, guest::MatchSlotPairState((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21)))));
     if (lVar7 != 0) {
       uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_3));
       goto LAB_0023afe0;
     }
-    lVar7 = TestFlagFcb8((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    lVar7 = RT_CALLRA(0x23ae40, guest::TestFlagFcb8((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21)))));
     if (lVar7 != 0) {
       param_3 = pbVar8 + 3;
       goto LAB_0023b13c;
@@ -92,14 +96,14 @@ LAB_0023b140:
     rtguest::rtPrintf((char *)rtguest::G((uint32_t)((uint32_t)0x333928u)), param_3);
     goto LAB_0023b13c;
   case 0xb:
-    uVar6 = GetOrSetPresidentRaceResult(0xffffffffffffffff);
+    uVar6 = RT_CALLRA(0x23aec0, guest::GetOrSetPresidentRaceResult(0xffffffffffffffff));
     if (uVar6 == (*(int8_t*)rtguest::G((uint32_t)param_3))) {
       uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
       goto LAB_0023afe0;
     }
     break;
   case 0xd:
-    lVar7 = TestFlagFca8Clear((*(int8_t*)rtguest::G((uint32_t)param_3)));
+    lVar7 = RT_CALLRA(0x23aee4, guest::TestFlagFca8Clear((*(int8_t*)rtguest::G((uint32_t)param_3))));
     if (lVar7 == 0) {
       param_3 = pbVar8 + 3;
       goto LAB_0023b13c;
@@ -107,29 +111,29 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
     goto LAB_0023afe0;
   case 0xe:
-    lVar7 = TestFlagBitFc98(0x50);
+    lVar7 = RT_CALLRA(0x23ad74, guest::TestFlagBitFc98(0x50));
     if (lVar7 == 0) {
       param_3 = pbVar8 + 7;
     }
     else {
-      iVar4 = FindCurrentTaskIndex();
+      iVar4 = RT_CALLRA(0x23af10, guest::FindCurrentTaskIndex());
       param_3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(iVar4) * sizeof(int8_t))) * 4 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x20))))));
     }
     goto LAB_0023b13c;
   case 0xf:
     pbVar8 = pbVar8 + 2;
-    SetFlagBitFc98((*(int8_t*)rtguest::G((uint32_t)param_3)));
+    RT_CALLRA(0x23affc, guest::SetFlagBitFc98((*(int8_t*)rtguest::G((uint32_t)param_3))));
     bVar3 = (*(int8_t*)rtguest::G((uint32_t)pbVar8));
     goto LAB_0023b140;
   case 0x10:
     pbVar8 = pbVar8 + 2;
-    ClearFlagBitFc98((*(int8_t*)rtguest::G((uint32_t)param_3)));
+    RT_CALLRA(0x23b014, guest::ClearFlagBitFc98((*(int8_t*)rtguest::G((uint32_t)param_3))));
     bVar3 = (*(int8_t*)rtguest::G((uint32_t)pbVar8));
     goto LAB_0023b140;
   case 0x11:
     pbVar1 = pbVar8 + 2;
     pbVar8 = pbVar8 + 3;
-    ClearFlaggedSlotBit((*(int8_t*)rtguest::G((uint32_t)param_3)),(*(int8_t*)rtguest::G((uint32_t)pbVar1)),0);
+    RT_CALLRA(0x23b034, guest::ClearFlaggedSlotBit((*(int8_t*)rtguest::G((uint32_t)param_3)),(*(int8_t*)rtguest::G((uint32_t)pbVar1)),0));
     bVar3 = (*(int8_t*)rtguest::G((uint32_t)pbVar8));
     goto LAB_0023b140;
   case 0x12:
@@ -139,25 +143,25 @@ LAB_0023b140:
     goto LAB_0023b13c;
   case 0x13:
     pbVar8 = pbVar8 + 2;
-    RecordTaskResult((*(int8_t*)rtguest::G((uint32_t)param_3)));
+    RT_CALLRA(0x23b064, guest::RecordTaskResult((*(int8_t*)rtguest::G((uint32_t)param_3))));
     bVar3 = (*(int8_t*)rtguest::G((uint32_t)pbVar8));
     goto LAB_0023b140;
   case 0x14:
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 0xc;
-    ReleaseStampFlag(param_2);
+    RT_CALLRA(0x23b08c, guest::ReleaseStampFlag(param_2));
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))) = (*(int8_t*)rtguest::G((uint32_t)param_3));
     param_3 = pbVar8 + 3;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))) = (*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
     goto LAB_0023b13c;
   case 0x15:
     pbVar8 = pbVar8 + 2;
-    SetStateBitFc88((*(int8_t*)rtguest::G((uint32_t)param_3)));
+    RT_CALLRA(0x23b0b4, guest::SetStateBitFc88((*(int8_t*)rtguest::G((uint32_t)param_3))));
     bVar3 = (*(int8_t*)rtguest::G((uint32_t)pbVar8));
     goto LAB_0023b140;
   case 0x16:
-    lVar7 = TestProgressFlagForPair((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21))));
+    lVar7 = RT_CALLRA(0x23ae5c, guest::TestProgressFlagForPair((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x21)))));
     if (lVar7 == 0) {
       param_3 = pbVar8 + 2;
       goto LAB_0023b13c;
@@ -174,7 +178,7 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_3));
     goto LAB_0023afe0;
   case 0x19:
-    lVar7 = TestProgressFlag((*(int8_t*)rtguest::G((uint32_t)param_3)));
+    lVar7 = RT_CALLRA(0x23aea8, guest::TestProgressFlag((*(int8_t*)rtguest::G((uint32_t)param_3))));
     if (lVar7 == 0) {
       param_3 = pbVar8 + 3;
       goto LAB_0023b13c;
@@ -182,7 +186,7 @@ LAB_0023b140:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
     goto LAB_0023afe0;
   case 0x1a:
-    iVar4 = CountBitsFca8Fcb0(0);
+    iVar4 = RT_CALLRA(0x23af38, guest::CountBitsFca8Fcb0(0));
     if ((int)(uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_3)) <= 100 - iVar4) {
       uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)));
       goto LAB_0023afe0;
@@ -197,7 +201,7 @@ LAB_0023b140:
     }
     break;
   case 0x1d:
-    lVar7 = TestObjectAttribute(0x177f760,(*(int8_t*)rtguest::G((uint32_t)param_3)),(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t))));
+    lVar7 = RT_CALLRA(0x23afcc, guest::TestObjectAttribute(0x177f760,(*(int8_t*)rtguest::G((uint32_t)param_3)),(*(int8_t*)rtguest::G((uint32_t)pbVar8 + (uint32_t)(2) * sizeof(int8_t)))));
 LAB_0023afd4:
     if (lVar7 == 0) {
       param_3 = pbVar8 + 4;
@@ -213,12 +217,12 @@ switchD_0023ad48_caseD_1b:
     param_3 = pbVar8 + 2;
     goto LAB_0023b13c;
   }
-  lVar7 = TestStateBitFc78(100);
+  lVar7 = RT_CALLRA(0x23af74, guest::TestStateBitFc78(100));
   if (lVar7 != 0) {
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)param_3));
     goto LAB_0023afe0;
   }
-  lVar7 = TestFlagBitFc98(0x57);
+  lVar7 = RT_CALLRA(0x23af00, guest::TestFlagBitFc98(0x57));
   if (lVar7 != 0) {
     param_3 = pbVar8 + 2;
     goto LAB_0023b13c;
@@ -227,11 +231,11 @@ switchD_0023ad48_caseD_1b:
   goto LAB_0023afe0;
 switchD_0023ad48_caseD_17:
   pbVar8 = pbVar8 + 2;
-  SetProgressFlagAndQueue((*(int8_t*)rtguest::G((uint32_t)param_3)));
+  RT_CALLRA(0x23b0cc, guest::SetProgressFlagAndQueue((*(int8_t*)rtguest::G((uint32_t)param_3))));
   bVar3 = (*(int8_t*)rtguest::G((uint32_t)pbVar8));
   goto LAB_0023b140;
 switchD_0023ad48_caseD_1:
-  lVar7 = TestFlagBitFc98((*(int8_t*)rtguest::G((uint32_t)param_3)));
+  lVar7 = RT_CALLRA(0x23af84, guest::TestFlagBitFc98((*(int8_t*)rtguest::G((uint32_t)param_3))));
   if (lVar7 == 0) {
     param_3 = pbVar8 + 3;
   }

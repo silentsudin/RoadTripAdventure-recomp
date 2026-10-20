@@ -7,6 +7,8 @@ namespace guest {
 uint32_t _printf_r(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
   rtguest::FrameGuard rt_fg(96);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x30) = (uint32_t)(int32_t)param_3;
     *(uint32_t*)rtguest::G(rt_sv+0x34) = (uint32_t)((int64_t)(int32_t)param_3 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0x38) = (uint32_t)(int32_t)param_4;
@@ -29,7 +31,7 @@ uint32_t _printf_r(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint64_
   (*(uint64_t*)rtguest::G((uint32_t)uStack_18)) = param_6;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_10)) = param_7;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_8)) = param_8;
-  _vfprintf_r(param_1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))),param_2,uStack_30);
+  RT_CALLRA(0x27ea18, guest::_vfprintf_r(param_1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))),param_2,uStack_30));
   return 0;
 }
 

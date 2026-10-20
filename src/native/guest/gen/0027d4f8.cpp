@@ -6,7 +6,7 @@ namespace guest {
 
 uint32_t switchD_0027d18c_executeCfaInsnAbort(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(1264);
-  abort();
+  RT_CALLRA(0x27d4f8, guest::abort());
   return 0;
 }
 

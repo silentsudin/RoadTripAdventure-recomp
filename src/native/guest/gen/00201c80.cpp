@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiDrawTextRight(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+  }
   byte bVar1;
 uint32_t pbVar2;
   int iVar3;
@@ -33,7 +37,7 @@ uint32_t pbVar6;
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)param_3));
       iVar3 = param_1 - iVar7;
       while (bVar1 != 0) {
-        iVar3 = uiDrawGlyph(iVar3,param_2 << 1,0,param_3);
+        iVar3 = RT_CALLRA(0x201dc0, guest::uiDrawGlyph(iVar3,param_2 << 1,0,param_3));
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)param_3));
         if (bVar1 == 0x2f) {
           param_3 = param_3 + 2;

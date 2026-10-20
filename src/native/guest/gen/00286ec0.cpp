@@ -20,7 +20,7 @@ uint32_t puVar1;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(4) * 8)) = param_6;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(5) * 8)) = param_7;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(6) * 8)) = param_8;
-  _printf(param_1,uStack_38);
+  RT_CALLRA(0x286f00, guest::_printf(param_1,uStack_38));
   (*(uint32_t*)rtguest::G(0x002e98f8)) = puVar1;
   return 0;
 }

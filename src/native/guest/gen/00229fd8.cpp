@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t InitProgressRamDefaults(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
 uint32_t puVar1;
   int iVar2;
 uint32_t ppuVar3;
 uint32_t puVar4;
   
-  InitSaveSlotDefaults(0);
-  InitSaveSlotDefaults(1);
+  RT_CALLRA(0x229fe0, guest::InitSaveSlotDefaults(0));
+  RT_CALLRA(0x229fe8, guest::InitSaveSlotDefaults(1));
   (*(uint32_t*)rtguest::G(0x177fdb4)) = 1000;
   iVar2 = 0x96;
   puVar4 = 0x017804d0;

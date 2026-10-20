@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t printXyzFixed(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   int iVar3;
@@ -29,7 +33,7 @@ uint32_t auStack_50 = rtguest::allocFrame(64);
     iVar4 = iVar4 + 0xf;
   }
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_50)), (char *)rtguest::G((uint32_t)(0x32fc30)), (iVar1 >> 4) + -0x6c0, (iVar2 >> 4) + -0x790, iVar3 >> 4, iVar4 >> 4);
-  uiDebugText8(0x10,param_2 << 3,auStack_50,0xf);
+  RT_CALLRA(0x26e1e0, guest::uiDebugText8(0x10,param_2 << 3,auStack_50,0xf));
   return 0;
 }
 

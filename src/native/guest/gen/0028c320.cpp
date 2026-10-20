@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceSifStopModule(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x80) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x84) = 0x00000000u;
+  }
   undefined4 uVar1;
 uint32_t puVar2;
   long lVar3;
@@ -14,10 +18,10 @@ uint32_t puVar4;
   undefined8 uVar6;
   undefined8 uVar7;
   
-  lVar3 = _lf_bind();
+  lVar3 = RT_CALLRA(0x28c350, guest::_lf_bind());
   uVar1 = 0xffff0000;
   if (-1 < lVar3) {
-    lVar3 = lfVersionCheck();
+    lVar3 = RT_CALLRA(0x28c360, guest::lfVersionCheck());
     if (lVar3 == 0) {
       (*(uint32_t*)rtguest::G(0x1779e00)) = param_1;
       if (param_3 == (uint32_t)0x0) {
@@ -66,7 +70,7 @@ uint32_t puVar4;
         (*(uint32_t*)rtguest::G((uint32_t)((uint32_t)puVar4 + (uint32_t)(3) * sizeof(uint64_t)))) = uVar1;
         (*(uint32_t*)rtguest::G(0x1779e04)) = 0xfc;
       }
-      lVar3 = sceSifCallRpc(0x177a000,7,0,0x1779e00,0x200,0x1779e00,8,0);
+      lVar3 = RT_CALLRA(0x28c4dc, guest::sceSifCallRpc(0x177a000,7,0,0x1779e00,0x200,0x1779e00,8,0));
       uVar1 = (*(uint32_t*)rtguest::G(0x1779e00));
       if (lVar3 < 0) {
         uVar1 = 0xfffeffff;

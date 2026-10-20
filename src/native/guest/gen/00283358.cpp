@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _setlocale_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   int iVar1;
 uint32_t __s1;
   

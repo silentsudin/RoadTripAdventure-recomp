@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceRead(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(224);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xd0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xd4) = 0x00000000u;
+  }
 uint32_t auStack_d0 = rtguest::allocFrame(4);
     uint32_t uStack_cc = rtguest::allocFrame(4);
     uint32_t uStack_c8 = rtguest::allocFrame(4);
@@ -21,10 +25,10 @@ uint32_t piVar5;
   int iVar6;
 uint32_t puVar7;
   
-  lVar3 = get_iob();
-  _sceFsWaitS(2);
+  lVar3 = RT_CALLRA(0x289538, guest::get_iob());
+  RT_CALLRA(0x289544, guest::_sceFsWaitS(2));
   if ((*(int32_t*)rtguest::G(0x2e9988)) == 0) {
-    _sceFsSigSema();
+    RT_CALLRA(0x28955c, guest::_sceFsSigSema());
     uVar2 = 0xffffffff;
   }
   else {
@@ -39,12 +43,12 @@ uint32_t puVar7;
         (*(uint32_t*)rtguest::G(0x17788d4)) = (uint32_t)param_3;
         (*(uint32_t*)rtguest::G((uint32_t)uStack_c8)) = 0;
         (*(uint32_t*)rtguest::G((uint32_t)uStack_bc)) = 0;
-        uVar4 = CreateSema(auStack_d0);
+        uVar4 = RT_CALLRA(0x2895c0, guest::CreateSema(auStack_d0));
         (*(uint32_t*)rtguest::G(0x17788c4)) = auStack_b0;
         (*(uint32_t*)rtguest::G(0x17788c8)) = 4;
         (*(uint32_t*)rtguest::G(0x17788c0)) = (int)uVar4;
         if ((uVar1 & 0x8000) != 0) {
-          WaitSema((*(uint32_t*)rtguest::G(0x2e9994)));
+          RT_CALLRA(0x2895ec, guest::WaitSema((*(uint32_t*)rtguest::G(0x2e9994))));
           if ((*(uint32_t*)rtguest::G(0x2e9908)) == -1) {
             (*(uint32_t*)rtguest::G(0x2e9908)) = (*(uint32_t*)rtguest::G(0x17788c0));
             (*(uint32_t*)rtguest::G(0x17788c0)) = -(*(uint32_t*)rtguest::G(0x17788c0));
@@ -60,35 +64,35 @@ uint32_t puVar7;
             (*(uint32_t*)rtguest::G(0x17788c0)) = -(*(uint32_t*)rtguest::G(0x17788c0));
           }
 LAB_00289658:
-          SignalSema((*(uint32_t*)rtguest::G(0x2e9994)));
+          RT_CALLRA(0x289658, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e9994))));
         }
         if ((uVar1 & 0x20000000) == 0) {
           sceSifWriteBackDCache(param_2,param_3);
         }
         sceSifWriteBackDCache(0x1779540,0xa4);
         sceSifWriteBackDCache(0x17788c0,0x20);
-        lVar3 = sceSifCallRpc(0x1779b80,2,0,0x17788c0,0x20,0x1779500,4,0);
+        lVar3 = RT_CALLRA(0x2896cc, guest::sceSifCallRpc(0x1779b80,2,0,0x17788c0,0x20,0x1779500,4,0));
         iVar6 = (*(uint32_t*)rtguest::G(0x21779500));
-        if (lVar3 < 0) {DeleteSema(uVar4);
+        if (lVar3 < 0) {RT_CALLRA(0x2896dc, guest::DeleteSema(uVar4));
           return (*(uint32_t*)rtguest::G((uint32_t)auStack_b0 + (uint32_t)(0) * 4));
-_sceFsSigSema();
+RT_CALLRA(0x289580, guest::_sceFsSigSema());
           return 0xfffffff5;
         }
-        _sceFsSigSema();
+        RT_CALLRA(0x2896e4, guest::_sceFsSigSema());
         if (iVar6 == 0) {
-          DeleteSema(uVar4);
+          RT_CALLRA(0x289704, guest::DeleteSema(uVar4));
           return 0xfffffff5;
         }
         if ((uVar1 & 0x8000) != 0) {
-          DeleteSema(uVar4);
+          RT_CALLRA(0x28971c, guest::DeleteSema(uVar4));
           return 0;
         }
-        WaitSema(uVar4);
-        DeleteSema(uVar4);
+        RT_CALLRA(0x28972c, guest::WaitSema(uVar4));
+        RT_CALLRA(0x289734, guest::DeleteSema(uVar4));
 
       }
     }
-    _sceFsSigSema();
+    RT_CALLRA(0x2896f4, guest::_sceFsSigSema());
     uVar2 = 0xfffffff7;
   }
                     /* WARNING: Read-only address (ram,0x21779500) is written */

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t RenderEscapeText(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x64) = 0x00000000u;
+  }
   uint uVar1;
   byte bVar2;
 uint32_t pbVar3;
@@ -40,7 +44,7 @@ LAB_0023a988:
     } while (iVar7 != -1);
   }
   iVar8 = 0;
-  uiSetPaletteBank(10);
+  RT_CALLRA(0x23a9bc, guest::uiSetPaletteBank(10));
   uVar1 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) % 0xc;
   iVar7 = uVar1 - 4;
   iVar5 = 0xad - uVar1;
@@ -55,7 +59,7 @@ LAB_0023a988:
         return param_2;
       }
       if (bVar2 != 0x24) {
-        uVar4 = uiDrawGlyph(uVar4,(iVar5 + iVar7) * 2,iVar7 << 1,param_2);
+        uVar4 = RT_CALLRA(0x23ac3c, guest::uiDrawGlyph(uVar4,(iVar5 + iVar7) * 2,iVar7 << 1,param_2));
         pbVar3 = param_2;
         goto switchD_0023aa48_caseD_42;
       }
@@ -65,7 +69,7 @@ LAB_0023a988:
         pbVar3 = param_2 + 2;
         lVar6 = (long)((int)lVar6 + 1);
         ::sprintf((char *)rtguest::G((uint32_t)(auStack_70)), (char *)rtguest::G((uint32_t)(0x333918)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0177fcf8 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar3)) * 4 + 4))) / 1000);
-        uVar4 = uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,auStack_70);
+        uVar4 = RT_CALLRA(0x23aa70, guest::uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,auStack_70));
         break;
       case 0x42:
       case 0x43:
@@ -83,17 +87,17 @@ LAB_0023a988:
       case 0x51:
         break;
       case 0x47:
-        uVar4 = uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,0x177fda6);
+        uVar4 = RT_CALLRA(0x23aa90, guest::uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,0x177fda6));
         break;
       case 0x4e:
-        uVar4 = uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,0x177fd8c);
+        uVar4 = RT_CALLRA(0x23aab0, guest::uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,0x177fd8c));
         break;
       case 0x52:
-        uVar4 = uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,
-                                (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be398 + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x10)))))) * 4)));
+        uVar4 = RT_CALLRA(0x23aad0, guest::uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,
+                                (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be398 + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x10)))))) * 4))));
         break;
       case 0x53:
-        uVar4 = uiDrawNumberAuto(uVar4,(iVar5 + iVar7) * 2,(*(uint32_t*)rtguest::G(0x1782a6c)),10);
+        uVar4 = RT_CALLRA(0x23aaf4, guest::uiDrawNumberAuto(uVar4,(iVar5 + iVar7) * 2,(*(uint32_t*)rtguest::G(0x1782a6c)),10));
         break;
       case 0x54:
         pbVar3 = param_2 + 2;
@@ -103,10 +107,10 @@ LAB_0023a988:
         else {
           ::sprintf((char *)rtguest::G((uint32_t)(auStack_70)), (char *)rtguest::G((uint32_t)(0x333920)), (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x01787008 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar3)) * 4))) / 9000, ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x01787008 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar3)) * 4))) % 9000) / 0x96, 0x96, 9000);
         }
-        uVar4 = uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,auStack_70);
+        uVar4 = RT_CALLRA(0x23ab54, guest::uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,auStack_70));
         break;
       case 0x55:
-        uVar4 = uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,0x177fd9f);
+        uVar4 = RT_CALLRA(0x23ac1c, guest::uiDrawTextShade(uVar4,iVar5 + iVar7,iVar7,0x177fd9f));
         break;
       default:
         bVar2 = (*(int8_t*)rtguest::G((uint32_t)pbVar3));

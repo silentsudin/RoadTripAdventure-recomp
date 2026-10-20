@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t HouseVisitedMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x64) = 0x00000000u;
+  }
   short sVar1;
   undefined1 uVar2;
   byte bVar3;
@@ -20,73 +24,72 @@ uint32_t auStack_70 = rtguest::allocFrame(32);
   
   iVar9 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))) == 0) {
-    lVar6 = PopByteQueue();
+    lVar6 = RT_CALLRA(0x2655a8, guest::PopByteQueue());
     iVar5 = (int)lVar6 + -1;
     if (lVar6 == 0) {
       iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = 0xffffffff;
-      gs_tasks_kill(param_1);
+      RT_CALLRA(0x2655cc, guest::gs_tasks_kill(param_1));
       return 0;
     }
     (*(uint8_t*)rtguest::G(0x1780a40)) = (uint32_t)iVar5 & 0xff;
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x26))) = (char)iVar5;
   }
   if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) & 2) != 0) {
-    uiArenaInit(0x1762400,0x10000);
-    uiArenaBeginBatch(0x1762400,0,0);
-    uiArenaSetTexture(0x1762400,0x2dbb50,0,0);
-    uiArenaDataTag(0x1762400,1);
-    uiArenaSpritesWrap(0x1762400,0x2dbda8,1,0,0,0xfffff0);
-    drawBoardSpriteGrid(0x1762400,0);
+    RT_CALLRA(0x265600, guest::uiArenaInit(0x1762400,0x10000));
+    RT_CALLRA(0x265610, guest::uiArenaBeginBatch(0x1762400,0,0));
+    RT_CALLRA(0x265628, guest::uiArenaSetTexture(0x1762400,0x2dbb50,0,0));
+    RT_CALLRA(0x265634, guest::uiArenaDataTag(0x1762400,1));
+    RT_CALLRA(0x265658, guest::uiArenaSpritesWrap(0x1762400,0x2dbda8,1,0,0,0xfffff0));
+    RT_CALLRA(0x265664, guest::drawBoardSpriteGrid(0x1762400,0));
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) == '\x03') {
       iVar10 = 0;
-      drawStampCard(0x1762400,
-                    ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1);
-      drawStampCard(0x1762400,(int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf) | 1);
-      drawStampIcon(0x1762400,(*(uint8_t*)rtguest::G(0x1780a40)),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))));
+      RT_CALLRA(0x2656a4, guest::drawStampCard(0x1762400,
+                    ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1));
+      RT_CALLRA(0x2656c4, guest::drawStampCard(0x1762400,(int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf) | 1));
+      RT_CALLRA(0x2656d4, guest::drawStampIcon(0x1762400,(*(uint8_t*)rtguest::G(0x1780a40)),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20)))));
       uVar4 = (*(uint8_t*)rtguest::G(0x1780a40));
       iVar5 = (int)(short)(*(uint8_t*)rtguest::G(0x1780a40));
       while( true ) {
-        lVar6 = ExtractDelimitedToken
-                          (auStack_70,(*(uint32_t*)rtguest::G((uint32_t)(0x2dbba0u + (uint32_t)(iVar5) * 4))),
-                           0x335300,iVar10);
+        lVar6 = RT_CALLRA(0x265744, guest::ExtractDelimitedToken(auStack_70,(*(uint32_t*)rtguest::G((uint32_t)(0x2dbba0u + (uint32_t)(iVar5) * 4))),
+                           0x335300,iVar10));
         if (lVar6 == 0) break;
         iVar7 = iVar10 * 0x18;
         iVar10 = iVar10 + 1;
-        DrawTextHalfY(((int)(short)uVar4 + ((int)(short)uVar4 - (iVar5 >> 0x1f) >> 1) * -2) * 0x120
-                      + 0x3c,iVar7 + 0x110,auStack_70,3);
+        RT_CALLRA(0x265728, guest::DrawTextHalfY(((int)(short)uVar4 + ((int)(short)uVar4 - (iVar5 >> 0x1f) >> 1) * -2) * 0x120
+                      + 0x3c,iVar7 + 0x110,auStack_70,3));
       }
     }
     else if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) == '\x05') {
-      drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))));
+      RT_CALLRA(0x265770, guest::drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2)))));
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))) < 1) {
         if (0x4000 < (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2)))) {
           uVar8 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x26)));
           goto LAB_002657dc;
         }
-        drawStampCard(0x1762400,
-                      ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1);
+        RT_CALLRA(0x265798, guest::drawStampCard(0x1762400,
+                      ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1));
       }
       else if ((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) < 0x4000) {
-        drawStampCard(0x1762400,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x26))) & 0xfe);
+        RT_CALLRA(0x2657dc, guest::drawStampCard(0x1762400,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x26))) & 0xfe));
       }
       else {
         uVar8 = (int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf);
 LAB_002657dc:
-        drawStampCard(0x1762400,uVar8 | 1);
+        RT_CALLRA(0x26580c, guest::drawStampCard(0x1762400,uVar8 | 1));
       }
     }
     else {
-      drawStampCard(0x1762400,
-                    ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1);
-      drawStampCard(0x1762400,(int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf) | 1);
+      RT_CALLRA(0x265840, guest::drawStampCard(0x1762400,
+                    ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1));
+      RT_CALLRA(0x265860, guest::drawStampCard(0x1762400,(int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf) | 1));
     }
-    uiArenaSubmit(0x1762400);
+    RT_CALLRA(0x265868, guest::uiArenaSubmit(0x1762400));
   }
   switch((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)))) {
   case 0:
-    gs_tasks_spawn(param_1,0x20dc50,0x40017);
+    RT_CALLRA(0x2658a8, guest::gs_tasks_spawn(param_1,0x20dc50,0x40017));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) = 1;
     break;
   case 1:
@@ -108,8 +111,8 @@ LAB_002657dc:
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))) + -1;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))) = iVar5;
     if (iVar5 == 0) {
-      SetStateBitFc78AndFc88((uint32_t)(*(uint8_t*)rtguest::G(0x1780a40)));
-      PlayUiSound(0x21);
+      RT_CALLRA(0x26592c, guest::SetStateBitFc78AndFc88((uint32_t)(*(uint8_t*)rtguest::G(0x1780a40))));
+      RT_CALLRA(0x265934, guest::PlayUiSound(0x21));
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) = 0;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) = 4;
     }
@@ -119,8 +122,8 @@ LAB_002657dc:
       bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
       goto LAB_00265adc;
     }
-    PlayUiSound(0x1a);
-    lVar6 = PopByteQueue();
+    RT_CALLRA(0x265960, guest::PlayUiSound(0x1a));
+    lVar6 = RT_CALLRA(0x265968, guest::PopByteQueue());
     if (lVar6 == 0) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) = 6;
     }
@@ -175,7 +178,7 @@ LAB_002657dc:
 LAB_00265a8c:
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) = bVar3 & 0xfd;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x400000;
-    uiFade(0x6000000);
+    RT_CALLRA(0x265aa4, guest::uiFade(0x6000000));
     sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2)));
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) = sVar1 + 1;
     if (0x7f < sVar1) {
@@ -193,7 +196,7 @@ LAB_00265adc:
     iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = 0xffffffff;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x265afc, guest::gs_tasks_kill(param_1));
   }
   return 0;
 }

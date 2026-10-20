@@ -7,6 +7,10 @@ namespace guest {
 // pseudocode: undefined8 _d2b(undefined8, long, int*, int*)
 uint64_t _d2b(uint64_t param_1, uint64_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
     uint32_t uStack_50 = rtguest::allocFrame(4);
   uint uVar1;
   int iVar2;
@@ -18,7 +22,7 @@ uint32_t puVar7;
   ulong uVar8;
 uint32_t auStack_4c = rtguest::allocFrame(12);
   
-  uVar4 = _Balloc(param_1,1);
+  uVar4 = RT_CALLRA(0x28442c, guest::_Balloc(param_1,1));
   uVar5 = param_2 >> 0x20 & 0x7fffffff;
   (*(uint32_t*)rtguest::G((uint32_t)auStack_4c + (uint32_t)(0) * 4)) = (uint32_t)(param_2 >> 0x20) & 0xfffff;
   uVar8 = uVar5 >> 0x14;
@@ -29,14 +33,14 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
   }
   if ((uint32_t)param_2 == 0) {
     iVar2 = 1;
-    iVar3 = _lo0bits(auStack_4c);
+    iVar3 = RT_CALLRA(0x284494, guest::_lo0bits(auStack_4c));
     uVar1 = iVar3 + 0x20;
     (*(uint32_t*)rtguest::G((uint32_t)puVar7)) = (*(uint32_t*)rtguest::G((uint32_t)auStack_4c + (uint32_t)(0) * 4));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x10))) = 1;
   }
   else {
     (*(uint32_t*)rtguest::G((uint32_t)uStack_50)) = (uint32_t)param_2;
-    uVar1 = _lo0bits(uStack_50);
+    uVar1 = RT_CALLRA(0x2844fc, guest::_lo0bits(uStack_50));
     if (uVar1 == 0) {
       (*(uint32_t*)rtguest::G((uint32_t)puVar7)) = (*(uint32_t*)rtguest::G((uint32_t)uStack_50));
     }
@@ -53,7 +57,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
   }
   if (uVar8 == 0) {
     (*(int32_t*)rtguest::G((uint32_t)param_3)) = uVar1 - 0x432;
-    iVar6 = _hi0bits((*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(iVar2 + -1) * sizeof(uint32_t))));
+    iVar6 = RT_CALLRA(0x284548, guest::_hi0bits((*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(iVar2 + -1) * sizeof(uint32_t)))));
     iVar6 = iVar2 * 0x20 - iVar6;
   }
   else {

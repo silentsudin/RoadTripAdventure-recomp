@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t _sceRpcGetFPacket2(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
   int iVar1;
   
   if (((int32_t)param_2 < 0) || ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x20))) <= (int32_t)param_2)) {
-    iVar1 = _sceRpcGetFPacket();
+    iVar1 = RT_CALLRA(0x287944, guest::_sceRpcGetFPacket());
   }
   else {
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) + (int32_t)param_2 * 0x40;

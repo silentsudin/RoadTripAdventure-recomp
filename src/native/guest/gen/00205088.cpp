@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t UpdateMenuFlowTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   byte bVar1;
   int iVar2;
   int iVar3;
   
-  UpdateMenuInputState(param_2);
-  UpdateControllerInput(param_2);
-  ClearInputTransientState(param_2);
+  RT_CALLRA(0x2050a0, guest::UpdateMenuInputState(param_2));
+  RT_CALLRA(0x2050a8, guest::UpdateControllerInput(param_2));
+  RT_CALLRA(0x2050b0, guest::ClearInputTransientState(param_2));
   iVar3 = (int)param_1;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) != '\0') {
     bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25)));
@@ -70,7 +74,7 @@ uint32_t UpdateMenuFlowTask(uint32_t param_1, uint32_t param_2, ...) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 0;
       gs_tasks_spawn(param_1,0x20a2b0,3);
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x28))) = 0;
-      SoundInitVolumes();
+      RT_CALLRA(0x2052b4, guest::SoundInitVolumes());
     }
   }
   return 0;

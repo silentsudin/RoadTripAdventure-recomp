@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t __smakebuf(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
+  }
 uint32_t auStack_90 = rtguest::allocFrame(4);
     uint32_t uStack_8c = rtguest::allocFrame(4);
   bool bVar1;
@@ -20,7 +24,7 @@ uint32_t auStack_90 = rtguest::allocFrame(4);
     return 0;
   }
   if (-1 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xe)))) {
-    lVar2 = _fstat_r((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(int32_t))),(*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xe))),auStack_90);
+    lVar2 = RT_CALLRA(0x283490, guest::_fstat_r((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(int32_t))),(*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xe))),auStack_90));
     if (-1 < lVar2) {
       bVar1 = ((*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) & 0xf000) == 0x2000;
       if (((*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) & 0xf000) == 0x8000) {
@@ -42,7 +46,7 @@ LAB_002834f4:
   bVar1 = false;
   (*(uint16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint32_t))) = uVar3 | 0x800;
 LAB_002834fc:
-  lVar2 = _malloc_r((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(int32_t))),0x400);
+  lVar2 = RT_CALLRA(0x283500, guest::_malloc_r((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(int32_t))),0x400));
   uVar3 = (*(uint16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint32_t)));
   if (lVar2 == 0) {
     (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int32_t))) = (int)param_1 + 0x43;

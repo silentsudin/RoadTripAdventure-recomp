@@ -32,7 +32,7 @@ uint32_t CheckInputMapping(uint32_t param_1, uint32_t param_2, ...) {
     uVar2 = ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) >> 8 & 7U) + 0xf;
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (char)uVar2;
   }
-  lVar3 = loadCarModel(0x3fbb80 + uVar2 * 0x34000,uVar2,uVar1);
+  lVar3 = RT_CALLRA(0x20ccc8, guest::loadCarModel(0x3fbb80 + uVar2 * 0x34000,uVar2,uVar1));
   return lVar3 == 0;
 }
 

@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t flashTask(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   int iVar1;
   
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 8)));
-  uiFade(iVar1 << 0x1a | iVar1 << 3 | iVar1 << 0xb | iVar1 << 0x13);
+  RT_CALLRA(0x208384, guest::uiFade(iVar1 << 0x1a | iVar1 << 3 | iVar1 << 0xb | iVar1 << 0x13));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 8))) == 0x20) {
     gs_tasks_kill(param_1);
     return 0;

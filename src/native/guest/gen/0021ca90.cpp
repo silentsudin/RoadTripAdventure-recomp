@@ -9,13 +9,17 @@ namespace guest {
 
 void UpdateObjectPhysicsState(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   using namespace rtguest::vu0;
   ushort uVar1;
   int iVar3;
   float fVar4;
   float fVar5;
 
-  SpawnCarAtDoor();
+  RT_CALLRA(0x21caa4, guest::SpawnCarAtDoor());
   iVar3 = (int)param_2;
   fVar4 = (*(float*)rtguest::G((uint32_t)(iVar3 + 0x90))) * (*(float*)rtguest::G(0x00332c28));
   fVar5 = (*(float*)rtguest::G((uint32_t)(iVar3 + 0x98))) * (*(float*)rtguest::G(0x00332c28));
@@ -25,7 +29,7 @@ void UpdateObjectPhysicsState(uint32_t param_1, uint32_t param_2, ...) {
       (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa0))) + (int32_t)fVar4;
   (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa8))) =
       (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa8))) + (int32_t)fVar5;
-  LoadCarPerformanceSpecs(param_2,param_1);
+  RT_CALLRA(0x21cafc, guest::LoadCarPerformanceSpecs(param_2,param_1));
   sqc2((uint32_t)(iVar3 + 0xf0),S.vf[0]);
   (*(uint8_t*)rtguest::G((uint32_t)(iVar3 + 0x1ff))) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x1c8))) = 0;
@@ -38,7 +42,7 @@ void UpdateObjectPhysicsState(uint32_t param_1, uint32_t param_2, ...) {
   if ((*(int16_t*)rtguest::G((uint32_t)(iVar3 + 0x20e))) != 0) {
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x198)));
     if ((*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x198)) & 3) == 0) goto LAB_0021cb60;
-    PlayUiSound((int)((short)uVar1 & 1U) + 0x8010);
+    RT_CALLRA(0x21cb54, guest::PlayUiSound((int)((short)uVar1 & 1U) + 0x8010));
   }
   uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(iVar3 + 0x198)));
 LAB_0021cb60:

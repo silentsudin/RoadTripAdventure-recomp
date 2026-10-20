@@ -26,7 +26,7 @@ uint32_t SoundRpcCmd25(uint32_t param_1, ...) {
   (*(uint32_t*)rtguest::G(0x175e8a8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_38));
   (*(uint64_t*)rtguest::G(0x175e8b0)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_30));
   (*(uint32_t*)rtguest::G(0x175e8b8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_28));
-  sceSifCallRpc(0x175e840,0x25,0,0x175e880,0x40,0,0,0);
+  RT_CALLRA(0x258894, guest::sceSifCallRpc(0x175e840,0x25,0,0x175e880,0x40,0,0,0));
   return 0;
 }
 

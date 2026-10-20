@@ -26,11 +26,11 @@ uint32_t puVar14;
   iVar15 = (int)param_5;
   switch((*(uint32_t*)rtguest::G(0x3356c0))) {
   case 0:
-    cdReadEntryPart(param_3,0x100000,0,0x800);
+    RT_CALLRA(0x20bb3c, guest::cdReadEntryPart(param_3,0x100000,0,0x800));
     (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
     break;
   case 1:
-    cdReadEntryPart(param_3,0x100800,0x800,(*(uint32_t*)rtguest::G(0x100004)) + -0x800);
+    RT_CALLRA(0x20bb68, guest::cdReadEntryPart(param_3,0x100800,0x800,(*(uint32_t*)rtguest::G(0x100004)) + -0x800));
     (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
     break;
   case 2:
@@ -42,16 +42,16 @@ uint32_t puVar14;
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar4));
       }
       else {
-        fatal(0x2ea490);
+        RT_CALLRA(0x20bbc8, guest::fatal(0x2ea490));
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar4));
       }
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar4 + 0x20))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar4 + 0x20)));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar4 + (uint32_t)uVar2 * 0x10 + 0x13)));
       puVar4 = puVar4 + (uint32_t)uVar2 * 0x10 + 0x10;
     }
-    uVar8 = sceDmaGetChan(1);
-    sceDmaSync(uVar8,0,0);
-    sendTexturePackets(puVar14);
+    uVar8 = RT_CALLRA(0x20bc04, guest::sceDmaGetChan(1));
+    RT_CALLRA(0x20bc14, guest::sceDmaSync(uVar8,0,0));
+    RT_CALLRA(0x20bc1c, guest::sendTexturePackets(puVar14));
     iVar12 = 0x14;
     if ((*(uint32_t*)rtguest::G(0x100014)) != 0) {
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
@@ -70,11 +70,11 @@ uint32_t puVar14;
     if (param_5 == 3) {
       if (0x528000 < iVar12) {
 LAB_0020bcdc:
-        fatal(0x2ea5e0,iVar12);
+        RT_CALLRA(0x20bce0, guest::fatal(0x2ea5e0,iVar12));
       }
     }
     else if (0x3a8000 < iVar12) goto LAB_0020bcdc;
-    cdReadEntryPart(param_3,0x707b80 + iVar15 * 0x3a8000,(*(uint32_t*)rtguest::G(0x100004)),iVar12);
+    RT_CALLRA(0x20bd0c, guest::cdReadEntryPart(param_3,0x707b80 + iVar15 * 0x3a8000,(*(uint32_t*)rtguest::G(0x100004)),iVar12));
     (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
     break;
   case 3:
@@ -101,7 +101,7 @@ LAB_0020bcdc:
            (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x00708180 + iVar6))) + (int)piVar10);
     }
     else {
-      fatal(0x2ea5b8);
+      RT_CALLRA(0x20bdf0, guest::fatal(0x2ea5b8));
     }
     iVar13 = 0xff;
     piVar10 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + param_2 + 0x70)));
@@ -152,7 +152,7 @@ LAB_0020bcdc:
             (*(int32_t*)rtguest::G((uint32_t)piVar10 + (uint32_t)(0x1e) * sizeof(int32_t))) = (int)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x00708180 + iVar7))) + (int)piVar5);
           }
           else {
-            fatal(0x2ea5b8);
+            RT_CALLRA(0x20bf80, guest::fatal(0x2ea5b8));
           }
           piVar5 = (uint32_t)(*(int32_t*)rtguest::G((uint32_t)piVar10));
           iVar6 = 0xff;
@@ -180,7 +180,7 @@ LAB_0020bcdc:
         piVar5 = piVar10;
         do {
           if (iVar12 == 6) {
-            fatal(0x2ea4a8);
+            RT_CALLRA(0x20c040, guest::fatal(0x2ea4a8));
             iVar6 = (*(int32_t*)rtguest::G((uint32_t)piVar5));
           }
           else {
@@ -203,16 +203,16 @@ LAB_0020bcdc:
           uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar4));
         }
         else {
-          fatal(0x2ea490);
+          RT_CALLRA(0x20c0c8, guest::fatal(0x2ea490));
           uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar4));
         }
         (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar4 + 0x20))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar4 + 0x20)));
         cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar4 + (uint32_t)uVar2 * 0x10 + 0x13)));
         puVar4 = puVar4 + (uint32_t)uVar2 * 0x10 + 0x10;
       }
-      uVar8 = sceDmaGetChan(1);
-      sceDmaSync(uVar8,0,0);
-      sendTexturePackets(puVar14);
+      uVar8 = RT_CALLRA(0x20c104, guest::sceDmaGetChan(1));
+      RT_CALLRA(0x20c114, guest::sceDmaSync(uVar8,0,0));
+      RT_CALLRA(0x20c11c, guest::sendTexturePackets(puVar14));
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)piVar10 + iVar13 + 4))) + (int)piVar10 != 0) {
         return 0;
       }

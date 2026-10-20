@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiMenuCreate(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
 uint32_t puVar1;
 uint32_t puVar2;
   int iVar3;
@@ -27,7 +31,7 @@ uint32_t puVar5;
     iVar4 = iVar4 + -1;
     puVar5 = puVar5 + (uint32_t)(0x30) * sizeof(undefined2);
   } while (iVar4 != -1);
-  fatal(0x2ea058);
+  RT_CALLRA(0x205ca0, guest::fatal(0x2ea058));
 LAB_00205cac:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) = puVar5;
   (*(uint16_t*)rtguest::G((uint32_t)puVar5)) = 0x140;

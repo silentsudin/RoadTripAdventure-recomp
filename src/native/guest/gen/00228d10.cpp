@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ShowSaveLoadSpinner(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   undefined8 uVar3;
@@ -28,16 +32,16 @@ uint32_t ShowSaveLoadSpinner(uint32_t param_1, uint32_t param_2, ...) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 0;
       }
     }
-    lVar4 = uiMenuRun(iVar1,param_2);
+    lVar4 = RT_CALLRA(0x228e88, guest::uiMenuRun(iVar1,param_2));
     if (lVar4 == 1) {
-      PlayUiSound(0x1a);
+      RT_CALLRA(0x228ea0, guest::PlayUiSound(0x1a));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 1;
-      gs_tasks_spawn(param_1,0x228b10,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd))));
+      RT_CALLRA(0x228eb8, guest::gs_tasks_spawn(param_1,0x228b10,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd)))));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) | 0x80;
       return 0;
     }
     if (lVar4 == -1) {
-      PlayUiSound(0x1b);
+      RT_CALLRA(0x228ed8, guest::PlayUiSound(0x1b));
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) = 0;
@@ -50,30 +54,30 @@ uint32_t ShowSaveLoadSpinner(uint32_t param_1, uint32_t param_2, ...) {
     gs_tasks_kill(param_1);
     return 0;
   }
-  uVar3 = uiMenuCreate();
+  uVar3 = RT_CALLRA(0x228d38, guest::uiMenuCreate());
   if ((*(uint32_t*)rtguest::G(0x333284)) == 1) {
-    uiMenuAddItem(uVar3,0x333648,0x10);
+    RT_CALLRA(0x228d90, guest::uiMenuAddItem(uVar3,0x333648,0x10));
     uVar5 = 0x333650;
   }
   else if ((*(uint32_t*)rtguest::G(0x333284)) < 2) {
     if ((*(uint32_t*)rtguest::G(0x333284)) != 0) goto LAB_00228e20;
-    uiMenuAddItem(uVar3,0x333638,0x10);
+    RT_CALLRA(0x228db4, guest::uiMenuAddItem(uVar3,0x333638,0x10));
     uVar5 = 0x333640;
   }
   else {
     if ((*(uint32_t*)rtguest::G(0x333284)) != 2) {
       if ((*(uint32_t*)rtguest::G(0x333284)) == 3) {
-        uiMenuAddItem(uVar3,0x2eb820,0x10);
-        uiMenuAddItem(uVar3,0x2eb830,0x10);
+        RT_CALLRA(0x228dd4, guest::uiMenuAddItem(uVar3,0x2eb820,0x10));
+        RT_CALLRA(0x228de8, guest::uiMenuAddItem(uVar3,0x2eb830,0x10));
       }
       goto LAB_00228e20;
     }
-    uiMenuAddItem(uVar3,0x2eb800,0x10);
+    RT_CALLRA(0x228e00, guest::uiMenuAddItem(uVar3,0x2eb800,0x10));
     uVar5 = 0x2eb810;
   }
-  uiMenuAddItem(uVar3,uVar5,0x10);
+  RT_CALLRA(0x228e14, guest::uiMenuAddItem(uVar3,uVar5,0x10));
 LAB_00228e20:
-  CenterRectangle(uVar3,5);
+  RT_CALLRA(0x228e20, guest::CenterRectangle(uVar3,5));
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar3 + 0x5f))) = 2;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar3 + 0xe))) = 1;
   return 0;

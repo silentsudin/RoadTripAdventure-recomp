@@ -11,6 +11,8 @@ uint64_t dpmul(uint64_t param_1, uint64_t param_2, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x64) = (uint32_t)((int64_t)(int32_t)param_1 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0x68) = (uint32_t)(int32_t)param_2;
     *(uint32_t*)rtguest::G(rt_sv+0x6c) = (uint32_t)((int64_t)(int32_t)param_2 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0xa8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xac) = 0x00000000u;
   }
     uint32_t uStack_b0 = rtguest::allocFrame(4);
     uint32_t uStack_ac = rtguest::allocFrame(4);
@@ -42,8 +44,8 @@ uint32_t puVar4;
   puVar4 = uStack_b0;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_50)) = param_1;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_48)) = param_2;
-  __unpack_d(uStack_50,uStack_b0);
-  __unpack_d(uStack_48,uStack_90);
+  RT_CALLRA(0x27bb40, guest::__unpack_d(uStack_50,uStack_b0));
+  RT_CALLRA(0x27bb50, guest::__unpack_d(uStack_48,uStack_90));
   if ((*(uint32_t*)rtguest::G((uint32_t)uStack_b0)) < 2) {
 LAB_0027bbc4:
     (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = (uint32_t)((*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) != (*(uint32_t*)rtguest::G((uint32_t)uStack_8c)));
@@ -64,11 +66,11 @@ LAB_0027bbac:
       else {
         if (((*(uint32_t*)rtguest::G((uint32_t)uStack_b0)) ^ 2) == 0) goto LAB_0027bbc4;
         if ((*(uint32_t*)rtguest::G((uint32_t)uStack_90)) != 2) {
-          uVar1 = __muldi3((*(uint64_t*)rtguest::G((uint32_t)uStack_80)) & 0xffffffff,(*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) & 0xffffffff);
-          uVar2 = __muldi3((*(uint64_t*)rtguest::G((uint32_t)uStack_80)) >> 0x20,(*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) & 0xffffffff);
-          lVar3 = __muldi3((*(uint64_t*)rtguest::G((uint32_t)uStack_80)) & 0xffffffff,(*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) >> 0x20);
+          uVar1 = RT_CALLRA(0x27bc28, guest::__muldi3((*(uint64_t*)rtguest::G((uint32_t)uStack_80)) & 0xffffffff,(*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) & 0xffffffff));
+          uVar2 = RT_CALLRA(0x27bc38, guest::__muldi3((*(uint64_t*)rtguest::G((uint32_t)uStack_80)) >> 0x20,(*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) & 0xffffffff));
+          lVar3 = RT_CALLRA(0x27bc48, guest::__muldi3((*(uint64_t*)rtguest::G((uint32_t)uStack_80)) & 0xffffffff,(*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) >> 0x20));
           uVar6 = uVar2 + lVar3;
-          lVar3 = __muldi3((*(uint64_t*)rtguest::G((uint32_t)uStack_80)) >> 0x20,(*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) >> 0x20);
+          lVar3 = RT_CALLRA(0x27bc5c, guest::__muldi3((*(uint64_t*)rtguest::G((uint32_t)uStack_80)) >> 0x20,(*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) >> 0x20));
           uVar5 = uVar1 + (uVar6 << 0x20);
           (*(uint64_t*)rtguest::G((uint32_t)uStack_60)) = ((uint64_t)(uVar6 < uVar2) << 0x20) + (uint64_t)(uVar5 < uVar1) +
                       (uVar6 >> 0x20) + lVar3;
@@ -110,7 +112,7 @@ LAB_0027bbac:
     puVar4 = uStack_90;
   }
 LAB_0027bd8c:
-  return __pack_d(puVar4);  // v0 passthrough (dpadd/dpsub twin)
+  return RT_CALLRA(0x27bd8c, guest::__pack_d(puVar4));  // v0 passthrough (dpadd/dpsub twin)
 }
 
 

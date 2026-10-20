@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _sceSifSendCmd(uint32_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint32_t param_5, uint32_t param_6, uint64_t param_7, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+  }
   undefined8 uVar1;
   int iVar2;
 uint32_t puVar3;
@@ -45,10 +49,10 @@ LAB_00287378:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)auStack_80 + iVar2 + 0xc))) = 0x44;
   sceSifWriteBackDCache(param_3,param_4);
   if ((param_2 & 1) == 0) {
-    uVar1 = sceSifSetDma(auStack_80,iVar4 + 1);
+    uVar1 = RT_CALLRA(0x2873e4, guest::sceSifSetDma(auStack_80,iVar4 + 1));
   }
   else {
-    uVar1 = isceSifSetDma(auStack_80);
+    uVar1 = RT_CALLRA(0x2873d4, guest::isceSifSetDma(auStack_80));
   }
   return uVar1;
 }

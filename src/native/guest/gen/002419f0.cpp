@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SubmitCounterTexturePacketB(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   int iVar1;
   
   iVar1 = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) * (int)(*(int16_t*)rtguest::G(0x2a33aa));
@@ -18,7 +22,7 @@ uint32_t SubmitCounterTexturePacketB(uint32_t param_1, ...) {
   (*(uint32_t*)rtguest::G(0x2a34d0)) = (long)(*(uint32_t*)rtguest::G(0x2a33a0)) | (long)(*(uint32_t*)rtguest::G(0x2a33a4)) << 0x20;
   (*(uint32_t*)rtguest::G(0x2a34c0)) = ((long)(iVar1 >> 4) & (uint32_t)(*(uint32_t*)rtguest::G(0x2a33ae))) << 0x10;
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 4;
-  gifChainEndTag(0x2a3490,5);
+  RT_CALLRA(0x241aa8, guest::gifChainEndTag(0x2a3490,5));
   sendTexturePackets(0x2a3490);
   return 0;
 }

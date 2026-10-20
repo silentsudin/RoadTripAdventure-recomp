@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t dialogueCmdTextBox(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   char cVar1;
   byte bVar2;
   int iVar3;
@@ -13,7 +17,7 @@ uint32_t dialogueCmdTextBox(uint32_t param_1, ...) {
   
   iVar4 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) == 0) {
-    gs_tasks_spawn(param_1,0x25bcf0,2);
+    RT_CALLRA(0x23be3c, guest::gs_tasks_spawn(param_1,0x25bcf0,2));
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24)));
   }
   else {

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t copyCarModel(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   int iVar1;
   undefined8 uVar2;
 uint32_t piVar3;
@@ -31,14 +35,14 @@ uint32_t puVar5;
                  (long)(iVar6 * 0x44 + 0x243e) << 0x20 | 0x13000000U | 0x2000000020000;
   (*(uint64_t*)rtguest::G(0x29add0)) = 0x8000000080;
   (*(uint32_t*)rtguest::G(0x29adc0)) = 0;
-  gifChainEndTag(0x29ad90,5);
+  RT_CALLRA(0x20ae68, guest::gifChainEndTag(0x29ad90,5));
   sendTexturePackets(0x29ad90);
-  uVar2 = sceDmaGetChan(2);
-  sceDmaSync(uVar2,0,0);
+  uVar2 = RT_CALLRA(0x20ae78, guest::sceDmaGetChan(2));
+  RT_CALLRA(0x20ae88, guest::sceDmaSync(uVar2,0,0));
   (*(uint32_t*)rtguest::G(0x29adc0)) = 0;
   (*(uint64_t*)rtguest::G(0x29adb0)) = (long)(iVar4 + 0x247e) | (long)(iVar6 * 0x44 + 0x247e) << 0x20 | 0x1000000010000;
   (*(uint64_t*)rtguest::G(0x29add0)) = 0x1000000010;
-  gifChainEndTag(0x29ad90,5);
+  RT_CALLRA(0x20aec0, guest::gifChainEndTag(0x29ad90,5));
   sendTexturePackets(0x29ad90);
   return 0;
 }

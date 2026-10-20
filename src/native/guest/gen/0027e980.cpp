@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t __malloc_unlock(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
   (*(int32_t*)rtguest::G(0x2e9124)) = (*(int32_t*)rtguest::G(0x2e9124)) + -1;
   if ((*(int32_t*)rtguest::G(0x2e9124)) == 0) {
     (*(int32_t*)rtguest::G(0x2e9120)) = 0xffffffff;

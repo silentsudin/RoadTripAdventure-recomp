@@ -7,6 +7,10 @@ namespace guest {
 // pseudocode: cvt(ptr, long, int, ulong, ptr, ptr, long, int*)
 uint32_t cvt(uint32_t param_1, uint64_t param_2, uint32_t param_3, uint64_t param_4, uint32_t param_5, uint32_t param_6, uint64_t param_7, uint32_t param_8, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
+  }
   long lVar1;
 uint32_t pcVar2;
   int iVar3;
@@ -23,20 +27,20 @@ uint32_t apcStack_5c = rtguest::allocFrame(12);
     uVar6 = 2;
   }
   if (param_2 >> 0x20 < 0) {
-    param_2 = dpsub(0,param_2);
+    param_2 = RT_CALLRA(0x280e54, guest::dpsub(0,param_2));
     (*(uint8_t*)rtguest::G((uint32_t)param_5)) = 0x2d;
   }
   else {
     (*(uint8_t*)rtguest::G((uint32_t)param_5)) = 0;
   }
-  uVar6 = _dtoa_r(param_1,param_2,uVar6,param_3,param_6,auStack_60,apcStack_5c);
+  uVar6 = RT_CALLRA(0x280e80, guest::_dtoa_r(param_1,param_2,uVar6,param_3,param_6,auStack_60,apcStack_5c));
   pcVar5 = (uint32_t)uVar6;
   if (((param_7 != 0x67) && (param_7 != 0x47)) || ((param_4 & 1) != 0)) {
     pcVar4 = pcVar5 + param_3;
     if (param_7 == 0x66) {
       piVar7 = (uint32_t)param_6;
       if ((*(int8_t*)rtguest::G((uint32_t)pcVar5)) == '0') {
-        lVar1 = dpcmp(param_2,0);
+        lVar1 = RT_CALLRA(0x280ecc, guest::dpcmp(param_2,0));
         if (lVar1 != 0) {
           (*(int32_t*)rtguest::G((uint32_t)piVar7)) = 1 - param_3;
         }
@@ -47,7 +51,7 @@ uint32_t apcStack_5c = rtguest::allocFrame(12);
       }
       pcVar4 = pcVar4 + iVar3;
     }
-    lVar1 = dpcmp(param_2,0);
+    lVar1 = RT_CALLRA(0x280ef4, guest::dpcmp(param_2,0));
     if (lVar1 == 0) {
       (*(uint32_t*)rtguest::G((uint32_t)apcStack_5c + (uint32_t)(0) * 4)) = pcVar4;
     }

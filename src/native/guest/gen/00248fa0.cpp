@@ -6,12 +6,16 @@ namespace guest {
 
 uint32_t UpdateTaskTimerLimit(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   bool bVar1;
   int iVar2;
   
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) == '\0') {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) < 0x10) {
-      uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) << 3);
+      RT_CALLRA(0x248fd0, guest::uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) << 3));
       bVar1 = false;
     }
     else {
@@ -22,11 +26,11 @@ uint32_t UpdateTaskTimerLimit(uint32_t param_1, uint32_t param_2, ...) {
     bVar1 = false;
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) == '\x02') {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) < 0x10) {
-        uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) * -8 + 0x80);
+        RT_CALLRA(0x249000, guest::uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) * -8 + 0x80));
         bVar1 = false;
       }
       else {
-        gs_tasks_kill();
+        RT_CALLRA(0x249010, guest::gs_tasks_kill());
         bVar1 = true;
       }
     }
@@ -48,7 +52,7 @@ uint32_t UpdateTaskTimerLimit(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 4))) = 0xffffffff;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = 2;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = 0;
-    PlayUiSound(0x1b);
+    RT_CALLRA(0x249080, guest::PlayUiSound(0x1b));
   }
   return 0;
 }

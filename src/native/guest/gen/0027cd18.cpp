@@ -15,17 +15,17 @@ uint32_t piVar2;
 uint32_t puVar7;
 uint32_t piVar8;
   
-  WaitSema((*(uint32_t*)rtguest::G(0x2e99ac)));
+  RT_CALLRA(0x27cd3c, guest::WaitSema((*(uint32_t*)rtguest::G(0x2e99ac))));
   puVar7 = (*(uint32_t*)rtguest::G(0x1776160));
   while( true ) {
     while( true ) {
       if (puVar7 == (uint32_t)0x0) {
-        SignalSema((*(uint32_t*)rtguest::G(0x2e99ac)));
+        RT_CALLRA(0x27cd98, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e99ac))));
         return 0;
       }
       uVar5 = (*(uint32_t*)rtguest::G((uint32_t)puVar7));
       if (uVar5 == 0) {
-        frame_init(puVar7);
+        RT_CALLRA(0x27cd64, guest::frame_init(puVar7));
         uVar5 = (*(uint32_t*)rtguest::G((uint32_t)puVar7));
       }
       if (uVar5 <= param_1) break;
@@ -36,13 +36,13 @@ uint32_t piVar8;
   }
   piVar8 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(3) * sizeof(uint32_t)));
   if ((piVar8 == (uint32_t)0x0) || (piVar2 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(2) * sizeof(uint32_t))), piVar8 == piVar2)) {
-    frame_init(puVar7);
+    RT_CALLRA(0x27cdbc, guest::frame_init(puVar7));
     piVar8 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(3) * sizeof(uint32_t)));
     piVar2 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(2) * sizeof(uint32_t)));
   }
   if (piVar8 != (uint32_t)0x0) {
     if (piVar8 != piVar2) {
-      SignalSema((*(uint32_t*)rtguest::G(0x2e99ac)));
+      RT_CALLRA(0x27cddc, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e99ac))));
       uVar5 = (*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(4) * sizeof(uint32_t)));
       uVar6 = 0;
       if (uVar5 == 0) {
@@ -66,7 +66,7 @@ uint32_t piVar8;
     if (piVar8 != (uint32_t)0x0) {
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)piVar8));
       do {
-        iVar1 = search_fdes(iVar3,param_1);
+        iVar1 = RT_CALLRA(0x27ce58, guest::search_fdes(iVar3,param_1));
         piVar8 = piVar8 + 0x4;  // T* element step
         if (iVar1 != 0) break;
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)piVar8));
@@ -74,9 +74,9 @@ uint32_t piVar8;
       goto LAB_0027ce8c;
     }
   }
-  iVar1 = search_fdes(piVar2,param_1);
+  iVar1 = RT_CALLRA(0x27ce80, guest::search_fdes(piVar2,param_1));
 LAB_0027ce8c:
-  SignalSema((*(uint32_t*)rtguest::G(0x2e99ac)));
+  RT_CALLRA(0x27ce8c, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e99ac))));
   return iVar1;
 }
 

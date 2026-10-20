@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _sceFs_Rcv_Intr(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   int iVar1;
   undefined4 uVar2;
 uint32_t puVar3;
@@ -127,7 +131,7 @@ LAB_00288a64:
     }
   }
   else {
-    iSignalSema();
+    RT_CALLRA(0x288acc, guest::iSignalSema());
   }
                     /* WARNING: Read-only address (ram,0x21779540) is written */
                     /* WARNING: Read-only address (ram,0x21779544) is written */

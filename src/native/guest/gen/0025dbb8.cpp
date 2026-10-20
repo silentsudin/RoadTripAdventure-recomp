@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t stampCollectionTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   short sVar1;
   int iVar2;
   undefined2 uVar3;
@@ -25,12 +29,12 @@ uint32_t piVar12;
   
   iVar10 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 8))) == 0) {
-    __s = (uint32_t)getExtraPacketArea(0x9260);
+    __s = (uint32_t)RT_CALLRA(0x25dbf4, guest::getExtraPacketArea(0x9260));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) = __s;
     (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(__s)), 0, 0x9260));
-    InitObjectType24((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))));
-    gs_music_play_bgm(0xa100201);
-    gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))));
+    RT_CALLRA(0x25dc10, guest::InitObjectType24((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28)))));
+    RT_CALLRA(0x25dc1c, guest::gs_music_play_bgm(0xa100201));
+    RT_CALLRA(0x25dc30, guest::gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28)))));
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x9254))) = 0;
   }
@@ -42,44 +46,44 @@ uint32_t piVar12;
   switch((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x9254)))) {
   case 0:
     uVar14 = 0;
-    SelectMeshIntersectionRoutine(1);
+    RT_CALLRA(0x25dc94, guest::SelectMeshIntersectionRoutine(1));
     lVar13 = 0;
     pfVar9 = (uint32_t)(iVar2 + 0x8cb0);
     do {
       uVar11 = uVar14 & 0xf;
-      uVar4 = __muldi3((*(uint64_t*)rtguest::G((uint32_t)param_2)),lVar13);
-      uVar4 = __muldi3(uVar4,(*(uint32_t*)rtguest::G((uint32_t)0x2c4bc0 + (uint32_t)(uVar11) * 4)));
-      lVar5 = __umoddi3(uVar4,0xa0);
+      uVar4 = RT_CALLRA(0x25dcb8, guest::__muldi3((*(uint64_t*)rtguest::G((uint32_t)param_2)),lVar13));
+      uVar4 = RT_CALLRA(0x25dcc8, guest::__muldi3(uVar4,(*(uint32_t*)rtguest::G((uint32_t)0x2c4bc0 + (uint32_t)(uVar11) * 4))));
+      lVar5 = RT_CALLRA(0x25dcd4, guest::__umoddi3(uVar4,0xa0));
       uVar6 = lVar5 + 0x2d0;
       if ((long)uVar6 < 0) {
-        fVar15 = (float)__floatdisf(uVar6 & 1 | uVar6 >> 1);
+        fVar15 = (float)RT_CALLRA(0x25dce8, guest::__floatdisf(uVar6 & 1 | uVar6 >> 1));
         (*(float*)rtguest::G((uint32_t)pfVar9)) = fVar15 + fVar15;
       }
       else {
-        fVar15 = (float)__floatdisf();
+        fVar15 = (float)RT_CALLRA(0x25dcfc, guest::__floatdisf());
         (*(float*)rtguest::G((uint32_t)pfVar9)) = fVar15;
       }
-      uVar4 = __muldi3((*(uint64_t*)rtguest::G((uint32_t)param_2)),lVar13);
-      uVar4 = __muldi3(uVar4,(*(uint32_t*)rtguest::G((uint32_t)0x2c4bc0 + (uint32_t)(uVar11) * 4)));
-      lVar5 = __umoddi3(uVar4,0xa0);
+      uVar4 = RT_CALLRA(0x25dd14, guest::__muldi3((*(uint64_t*)rtguest::G((uint32_t)param_2)),lVar13));
+      uVar4 = RT_CALLRA(0x25dd24, guest::__muldi3(uVar4,(*(uint32_t*)rtguest::G((uint32_t)0x2c4bc0 + (uint32_t)(uVar11) * 4))));
+      lVar5 = RT_CALLRA(0x25dd30, guest::__umoddi3(uVar4,0xa0));
       uVar6 = lVar5 + 0x2d0;
       if ((long)uVar6 < 0) {
-        fVar15 = (float)__floatdisf(uVar6 & 1 | uVar6 >> 1);
+        fVar15 = (float)RT_CALLRA(0x25dd44, guest::__floatdisf(uVar6 & 1 | uVar6 >> 1));
         fVar15 = fVar15 + fVar15;
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar9 + 0x21))) = (char)uVar14;
       }
       else {
-        fVar15 = (float)__floatdisf();
+        fVar15 = (float)RT_CALLRA(0x25dd5c, guest::__floatdisf());
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar9 + 0x21))) = (char)uVar14;
       }
       uVar14 = uVar14 + 1;
       (*(float*)rtguest::G((uint32_t)pfVar9 + (uint32_t)(2) * sizeof(float))) = fVar15;
-      uVar4 = __muldi3((*(uint64_t*)rtguest::G((uint32_t)param_2)),lVar13);
-      uVar4 = __muldi3(uVar4,(*(uint32_t*)rtguest::G((uint32_t)0x2c4bc0 + (uint32_t)(uVar11) * 4)));
-      uVar3 = __umoddi3(uVar4,0xffff);
+      uVar4 = RT_CALLRA(0x25dd7c, guest::__muldi3((*(uint64_t*)rtguest::G((uint32_t)param_2)),lVar13));
+      uVar4 = RT_CALLRA(0x25dd8c, guest::__muldi3(uVar4,(*(uint32_t*)rtguest::G((uint32_t)0x2c4bc0 + (uint32_t)(uVar11) * 4))));
+      uVar3 = RT_CALLRA(0x25dd98, guest::__umoddi3(uVar4,0xffff));
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar9 + 0x2a))) = uVar3;
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(pfVar9 + 9))) = uVar3;
-      gs_tasks_spawn(param_1,0x25d7c8,pfVar9);
+      RT_CALLRA(0x25ddb8, guest::gs_tasks_spawn(param_1,0x25d7c8,pfVar9));
       lVar13 = lVar13 + 1;
       pfVar9 = pfVar9 + 0x30;  // T* element step
     } while ((int)uVar14 < 0x1e);
@@ -95,8 +99,8 @@ uint32_t piVar12;
       iVar7 = (*(int32_t*)rtguest::G((uint32_t)piVar12));
     }
     if (iVar7 == 0x14) {
-      GetOrSetPresidentRaceResult(1);
-      SetBumperConfig((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))),0,1);
+      RT_CALLRA(0x25de04, guest::GetOrSetPresidentRaceResult(1));
+      RT_CALLRA(0x25de14, guest::SetBumperConfig((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))),0,1));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x9254))) = 2;
       iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28)));
       iVar7 = (*(int32_t*)rtguest::G((uint32_t)piVar12));
@@ -115,7 +119,7 @@ uint32_t piVar12;
   case 3:
     sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2)));
     if (0x40 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2)))) {
-      uiFade(((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2))) + -0x40) * 0x1000000);
+      RT_CALLRA(0x25de7c, guest::uiFade(((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2))) + -0x40) * 0x1000000));
       iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28)));
       sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2)));
     }
@@ -133,12 +137,12 @@ uint32_t piVar12;
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)piVar12));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x9258))) = 1;
   }
-  SetObjectFields848C8480(iVar8,iVar7,1);
-  raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))));
+  RT_CALLRA(0x25ded0, guest::SetObjectFields848C8480(iVar8,iVar7,1));
+  RT_CALLRA(0x25ded8, guest::raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28)))));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x9258))) != 0) {
-    SoundStopAllChannels();
+    RT_CALLRA(0x25deec, guest::SoundStopAllChannels());
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x9258))) = 1;
-    uiFade(0xffffffff80000000);
+    RT_CALLRA(0x25def8, guest::uiFade(0xffffffff80000000));
     iVar10 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x18)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) | 8;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) = 1;

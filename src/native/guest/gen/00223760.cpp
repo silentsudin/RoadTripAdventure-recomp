@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SelectCarAttachmentPoint(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
     uint32_t uStack_20 = rtguest::allocFrame(4);
     uint32_t uStack_1c = rtguest::allocFrame(4);
     uint32_t uStack_18 = rtguest::allocFrame(4);

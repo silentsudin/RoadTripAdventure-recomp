@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t EnterLicenseScreen(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   byte bVar1;
   char cVar2;
   undefined4 uVar3;
@@ -19,7 +23,7 @@ uint32_t pbVar7;
   iVar9 = (int)param_2;
   iVar8 = (int)param_1;
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 10))) != '\0') || ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))) == '\x1a')) {
-    uiFade(0xffffffff80000000);
+    RT_CALLRA(0x237618, guest::uiFade(0xffffffff80000000));
     if ((*(int8_t*)rtguest::G(0x178700a)) == 0) {
       iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) = 1;
@@ -34,10 +38,10 @@ uint32_t pbVar7;
     gs_tasks_kill(param_1);
     return 0;
   }
-  uVar4 = getExtraPacketArea(0x1f0);
+  uVar4 = RT_CALLRA(0x237538, guest::getExtraPacketArea(0x1f0));
   (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))) = (int)uVar4;
-  InitScreenLayout(uVar4);
-  uVar3 = SumPlayerPoints((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x10))));
+  RT_CALLRA(0x237544, guest::InitScreenLayout(uVar4));
+  uVar3 = RT_CALLRA(0x23754c, guest::SumPlayerPoints((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x10)))));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))) = uVar3;
   if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x20))) < 0x18) {
     pbVar5 = 0x01780750;

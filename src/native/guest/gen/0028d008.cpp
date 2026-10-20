@@ -6,8 +6,12 @@ namespace guest {
 
 uint32_t _InitSys(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(16);
-  supplement_crt0();
-  InitAlarm();
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
+  RT_CALLRA(0x28d010, guest::supplement_crt0());
+  RT_CALLRA(0x28d018, guest::InitAlarm());
   InitThread();
   return 0;
 }

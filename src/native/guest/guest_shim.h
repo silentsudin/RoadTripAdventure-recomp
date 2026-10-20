@@ -60,9 +60,16 @@ void setFrameFloor(uint32_t f);
 void framePush(uint32_t size);
 void framePop(uint32_t saved);
 uint32_t allocTaskFrameRegion(uint32_t capBytes);  // returns region end (top)
+// Guest link register model: the machine jal PC of the last call (set by
+// callers via callRA below); callees' prologue $ra saves store it, matching
+// the oracle's saved-return-address residue in frame slots.
+uint32_t pendingRA();
+void setPendingRA(uint32_t r);
+#define RT_CALLRA(pc, ...) (rtguest::setPendingRA(pc), (__VA_ARGS__))
 struct FrameGuard {
     uint32_t saved;
-    explicit FrameGuard(uint32_t size) : saved(frameTop()) { framePush(size); }
+    uint32_t rtRA;  // guest return address of the call that entered this frame
+    explicit FrameGuard(uint32_t size) : saved(frameTop()), rtRA(pendingRA()) { framePush(size); }
     ~FrameGuard() { framePop(saved); }
 };
 

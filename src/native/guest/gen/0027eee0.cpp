@@ -33,7 +33,7 @@ uint32_t puStack_6c;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_18)) = param_6;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_10)) = param_7;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_8)) = param_8;
-  vfprintf(apuStack_c0,param_2,uStack_30);
+  RT_CALLRA(0x27ef54, guest::vfprintf(apuStack_c0,param_2,uStack_30));
   (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)apuStack_c0 + (uint32_t)(0) * 4)))) = 0;
   return 0;
 }

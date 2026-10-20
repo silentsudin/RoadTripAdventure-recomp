@@ -11,12 +11,12 @@ uint32_t puVar1;
   uint uVar3;
   uint uVar4;
   
-  lVar2 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+  lVar2 = RT_CALLRA(0x279fe8, guest::PollSema((*(uint32_t*)rtguest::G(0x2e89bc))));
   if (lVar2 < 0) {
     lVar2 = -200;
   }
   else if ((*(uint32_t*)rtguest::G(0x1774b64)) == 0) {
-    SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+    RT_CALLRA(0x27a010, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     lVar2 = -100;
   }
   else {
@@ -41,13 +41,13 @@ uint32_t puVar1;
         uVar3 = uVar4;
       } while (uVar4 < (*(uint32_t*)rtguest::G(0x1774bd4)));
     }
-    FlushCache(0);
-    lVar2 = sceSifCallRpc(0x1774b40,6,1,0x1774bc0,0x30,0x1776100,4,0);
+    RT_CALLRA(0x27a0bc, guest::FlushCache(0));
+    lVar2 = RT_CALLRA(0x27a0e4, guest::sceSifCallRpc(0x1774b40,6,1,0x1774bc0,0x30,0x1776100,4,0));
     if (lVar2 == 0) {
       (*(uint32_t*)rtguest::G(0x2e89b8)) = 6;
     }
     else {
-      SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+      RT_CALLRA(0x27a104, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     }
   }
   return lVar2;

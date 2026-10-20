@@ -10,6 +10,10 @@ void sceVu0ScaleVectorXYZ(float, uint32_t, uint32_t);
 
 uint32_t UpdateBallPhysics(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(288);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xf8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xfc) = 0x00000000u;
+  }
 uint32_t auStack_120 = rtguest::allocFrame(4);
     uint32_t fStack_11c = rtguest::allocFrame(4);
     rtguest::allocFrame(4);  // guest frame gap
@@ -46,19 +50,19 @@ uint32_t puVar2;
   
   iVar4 = param_1 + 0x60;
   iVar5 = param_1 + 0x40;
-  vu0AddVector(iVar4,iVar4,param_1 + 0x70);
-  vu0CopyVector(auStack_120,iVar4);
+  RT_CALLRA(0x251488, guest::vu0AddVector(iVar4,iVar4,param_1 + 0x70));
+  RT_CALLRA(0x251494, guest::vu0CopyVector(auStack_120,iVar4));
   (*(uint32_t*)rtguest::G((uint32_t)apuStack_6c + (uint32_t)(0) * 4)) = (uint32_t)0x0;
   uVar3 = rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_120, auStack_70, apuStack_6c, 2, param_2);
   if ((*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 100))) < (*(float*)rtguest::G((uint32_t)fStack_114))) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x90))) == 0) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x90))) = 1;
-      PlayUiSound(0x31c);
+      RT_CALLRA(0x2514e8, guest::PlayUiSound(0x31c));
     }
   }
   else if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x90))) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x90))) = 0;
-    PlayUiSound(0x31c);
+    RT_CALLRA(0x251508, guest::PlayUiSound(0x31c));
   }
   fVar9 = (*(float*)rtguest::G(0x332fe4));
   if (uVar3 == 0xffffffffffffffff) {
@@ -86,24 +90,24 @@ uint32_t puVar2;
     }
     goto LAB_00251920;
   }
-  fVar7 = rtguest::fbits(vecDotProductVu0(iVar4,iVar4));
+  fVar7 = rtguest::fbits(RT_CALLRA(0x251604, guest::vecDotProductVu0(iVar4,iVar4)));
   fVar7 = SQRT(fVar7);
   uVar10 = 0;
   if (fVar7 == 0.0) goto LAB_00251920;
   iVar6 = param_1 + 0x60;
-  vu0SubVector(fStack_100,auStack_120,iVar6);
+  RT_CALLRA(0x251658, guest::vu0SubVector(fStack_100,auStack_120,iVar6));
   (*(uint64_t*)rtguest::G((uint32_t)uStack_110)) = (*(uint64_t*)rtguest::G((*(uint32_t*)rtguest::G((uint32_t)apuStack_6c))));
   (*(uint64_t*)rtguest::G((uint32_t)uStack_108)) = (*(uint64_t*)rtguest::G((*(uint32_t*)rtguest::G((uint32_t)apuStack_6c)) + sizeof(uint64_t)));
-  vecNormalizeVu0(uStack_110,uStack_110);
-  fVar8 = rtguest::fbits(vecDotProductVu0(uStack_110,fStack_100));
-  sceVu0ScaleVectorXYZ(fVar8 + fVar9,fStack_100,uStack_110);
-  fVar9 = rtguest::fbits(vecDotProductVu0(fStack_100,fStack_100));
+  RT_CALLRA(0x25167c, guest::vecNormalizeVu0(uStack_110,uStack_110));
+  fVar8 = rtguest::fbits(RT_CALLRA(0x251688, guest::vecDotProductVu0(uStack_110,fStack_100)));
+  RT_CALLRA(0x251698, guest::sceVu0ScaleVectorXYZ(fVar8 + fVar9,fStack_100,uStack_110));
+  fVar9 = rtguest::fbits(RT_CALLRA(0x2516a4, guest::vecDotProductVu0(fStack_100,fStack_100)));
   if (fVar7 < SQRT(fVar9)) {
-    sceVu0ScaleVectorXYZ(fVar7,fStack_100,uStack_110);  // dead 4th arg dropped (see decl note)
+    RT_CALLRA(0x2516ec, guest::sceVu0ScaleVectorXYZ(fVar7,fStack_100,uStack_110));  // dead 4th arg dropped (see decl note)
   }
-  vu0AddVector(iVar6,iVar6,fStack_100);
+  RT_CALLRA(0x2516fc, guest::vu0AddVector(iVar6,iVar6,fStack_100));
   puVar2 = (*(uint32_t*)rtguest::G((uint32_t)apuStack_6c + (uint32_t)(0) * 4));
-  sceVu0ScaleVectorXYZ(rtguest::fbits(0xbf800000),auStack_a0,iVar4);
+  RT_CALLRA(0x251714, guest::sceVu0ScaleVectorXYZ(rtguest::fbits(0xbf800000),auStack_a0,iVar4));
   if (puVar2 == (uint32_t)0x0) {
     (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = CONCAT44(0x3f800000,uVar10);
     (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = CONCAT44(uVar10,uVar10);
@@ -112,10 +116,10 @@ uint32_t puVar2;
     (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = (*(uint64_t*)rtguest::G((uint32_t)puVar2));
     (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = (*(uint64_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint64_t)));
   }
-  vecNormalizeVu0(uStack_90,uStack_90);
-  fVar9 = rtguest::fbits(vecDotProductVu0(uStack_90,auStack_a0));
-  sceVu0ScaleVectorXYZ(fVar9 + fVar9,fStack_100,uStack_90);
-  vu0SubVector(fStack_100,fStack_100,auStack_a0);
+  RT_CALLRA(0x25176c, guest::vecNormalizeVu0(uStack_90,uStack_90));
+  fVar9 = rtguest::fbits(RT_CALLRA(0x251778, guest::vecDotProductVu0(uStack_90,auStack_a0)));
+  RT_CALLRA(0x251788, guest::sceVu0ScaleVectorXYZ(fVar9 + fVar9,fStack_100,uStack_90));
+  RT_CALLRA(0x251798, guest::vu0SubVector(fStack_100,fStack_100,auStack_a0));
   fVar9 = (*(float*)rtguest::G(0x332ff4));
   iVar4 = (int)(uVar3 & 0xf);
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x90))) == 0) {
@@ -147,16 +151,16 @@ LAB_0025186c:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x98))) = 0;
   }
   else {
-    vu0SubVector(auStack_80,iVar6,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) * 0x40 + 0x2ac0d0);
+    RT_CALLRA(0x251898, guest::vu0SubVector(auStack_80,iVar6,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) * 0x40 + 0x2ac0d0));
     (*(uint32_t*)rtguest::G((uint32_t)uStack_7c)) = 0;
-    (*(float*)rtguest::G((uint32_t)fStack_74)) = rtguest::fbits(vecDotProductVu0(auStack_80,auStack_80));
+    (*(float*)rtguest::G((uint32_t)fStack_74)) = rtguest::fbits(RT_CALLRA(0x2518a8, guest::vecDotProductVu0(auStack_80,auStack_80)));
     (*(float*)rtguest::G((uint32_t)fStack_74)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_74)));
     if ((*(float*)rtguest::G((uint32_t)fStack_74)) < (*(float*)rtguest::G(0x332ff8))) {
-      PlayUiSound(0x31b);
+      RT_CALLRA(0x2518ec, guest::PlayUiSound(0x31b));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x98))) = 0;
     }
     else if ((*(float*)rtguest::G((uint32_t)fStack_74)) < (*(float*)rtguest::G(0x332ffc))) {
-      PlayUiSound(0x31a);
+      RT_CALLRA(0x251914, guest::PlayUiSound(0x31a));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x98))) = 0;
     }
     else {
@@ -164,7 +168,7 @@ LAB_0025186c:
     }
   }
 LAB_00251920:
-  vu0ScaleVector(0,afStack_b0,afStack_b0);
+  RT_CALLRA(0x25192c, guest::vu0ScaleVector(0,afStack_b0,afStack_b0));
   pfVar1 = (uint32_t)(param_1 + 0x70);
   for ((*(float*)rtguest::G((uint32_t)fStack_a8)) = -(*(float*)rtguest::G((uint32_t)pfVar1)) / (*(float*)rtguest::G(0x333000)); (*(float*)rtguest::G((uint32_t)fStack_a8)) < (*(float*)rtguest::G(0x333004));
       (*(float*)rtguest::G((uint32_t)fStack_a8)) = (*(float*)rtguest::G((uint32_t)fStack_a8)) + (*(float*)rtguest::G(0x333008))) {
@@ -184,17 +188,17 @@ LAB_00251920:
   for (; (*(float*)rtguest::G(0x333020)) < (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)); (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G(0x333024))) {
   }
   iVar4 = param_1 + 0x50;
-  vu0UnitMatrix(auStack_f0);
-  vu0RotMatrix(auStack_f0,auStack_f0,afStack_b0);
-  vu0ApplyMatrix(iVar4,auStack_f0,iVar4);
-  vu0ApplyMatrix(iVar5,auStack_f0,iVar5);
-  vecNormalizeVu0(iVar4,iVar4);
-  vecNormalizeVu0(iVar5,iVar5);
-  fVar9 = rtguest::fbits(vecDotProductVu0(rtguest::f2bits(pfVar1),rtguest::f2bits(pfVar1)));
+  RT_CALLRA(0x251a60, guest::vu0UnitMatrix(auStack_f0));
+  RT_CALLRA(0x251a70, guest::vu0RotMatrix(auStack_f0,auStack_f0,afStack_b0));
+  RT_CALLRA(0x251a80, guest::vu0ApplyMatrix(iVar4,auStack_f0,iVar4));
+  RT_CALLRA(0x251a90, guest::vu0ApplyMatrix(iVar5,auStack_f0,iVar5));
+  RT_CALLRA(0x251a9c, guest::vecNormalizeVu0(iVar4,iVar4));
+  RT_CALLRA(0x251aa8, guest::vecNormalizeVu0(iVar5,iVar5));
+  fVar9 = rtguest::fbits(RT_CALLRA(0x251ab4, guest::vecDotProductVu0(rtguest::f2bits(pfVar1),rtguest::f2bits(pfVar1))));
   iVar4 = 0x78;
   if (SQRT(fVar9) < (*(float*)rtguest::G(0x333028))) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x94))) == 0) {
-      vu0ScaleVector(0,pfVar1,pfVar1);
+      RT_CALLRA(0x251b0c, guest::vu0ScaleVector(0,pfVar1,pfVar1));
       return 1;
     }
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x94))) + -1;

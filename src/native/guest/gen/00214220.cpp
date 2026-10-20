@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ResetControllerConfigDefaults(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x80) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x84) = 0x00000000u;
+  }
   undefined4 uVar1;
   undefined4 uVar2;
   bool bVar3;
@@ -31,14 +35,14 @@ uint32_t piVar21;
   bVar3 = false;
   iVar20 = (int)param_2;
   piVar21 = (uint32_t)(iVar20 + 0x10);
-  GetControllerButtonConfig();
+  RT_CALLRA(0x214244, guest::GetControllerButtonConfig());
   uVar4 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)piVar21));
   uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x18)));
   uVar10 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x20)));
   uVar13 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x28)));
   uVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x30)));
-  InitTuningConstants(param_1);
-  GetControllerButtonConfig(param_1,param_2);
+  RT_CALLRA(0x214294, guest::InitTuningConstants(param_1));
+  RT_CALLRA(0x2142a0, guest::GetControllerButtonConfig(param_1,param_2));
   puVar17 = (uint32_t)(iVar20 + 0x34);
   uVar15 = 0;
   iVar19 = 0;
@@ -81,7 +85,7 @@ uint32_t piVar21;
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x20))) = uVar10;
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x28))) = uVar13;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x30))) = uVar1;
-      SetControllerButtonConfig(param_1,param_2);
+      RT_CALLRA(0x214400, guest::SetControllerButtonConfig(param_1,param_2));
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)piVar21)) = uVar14;
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x18))) = uVar5;
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar20 + 0x20))) = uVar7;

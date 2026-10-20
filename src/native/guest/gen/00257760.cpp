@@ -6,8 +6,12 @@ namespace guest {
 
 uint32_t BindAndCallRpcInit(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(32);
-  sceSifBindRpc(0x175e840,0x1234567,0);
-  sceSifCallRpc(0x175e840,0,0,0,0,0,0,0);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
+  RT_CALLRA(0x257780, guest::sceSifBindRpc(0x175e840,0x1234567,0));
+  RT_CALLRA(0x2577a8, guest::sceSifCallRpc(0x175e840,0,0,0,0,0,0,0));
   return 0;
 }
 

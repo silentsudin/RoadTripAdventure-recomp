@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t collectionNpcUpdate(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
+  }
 uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t uStack_5c = rtguest::allocFrame(4);
     rtguest::allocFrame(8);  // guest frame gap
@@ -89,38 +93,38 @@ uint32_t puVar8;
           (*(float*)rtguest::G((uint32_t)pfVar2 + (uint32_t)(2) * sizeof(float))) = 880.0;
         }
       }
-      vu0SubVector(auStack_50,pfVar2,0x177ace0);
-      fVar9 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
+      RT_CALLRA(0x25da14, guest::vu0SubVector(auStack_50,pfVar2,0x177ace0));
+      fVar9 = rtguest::fbits(RT_CALLRA(0x25da20, guest::vecDotProductVu0(auStack_50,auStack_50)));
       if (((SQRT(fVar9) < 2.5) && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x18))) + 0x24))) == '\0')) &&
          (((*(uint64_t*)rtguest::G((uint32_t)puVar8 + (uint32_t)(5) * sizeof(uint64_t))) & 4) != 0)) {
-        PlayUiSound(0x302);
+        RT_CALLRA(0x25da8c, guest::PlayUiSound(0x302));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 8))) = 1;
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x18)));
         (*(uint32_t*)rtguest::G((uint32_t)0x177eb4c + (uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x10) * 4)) = 0;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 1;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
       }
-      TransformRectangle(auStack_60,(int)pfVar2 + 0x22);
+      RT_CALLRA(0x25dac4, guest::TransformRectangle(auStack_60,(int)pfVar2 + 0x22));
       pfVar7 = pfVar2 + 4;
-      fVar9 = rtguest::fbits(sinf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c))));
+      fVar9 = rtguest::fbits(RT_CALLRA(0x25dad0, guest::sinf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)))));
       (*(float*)rtguest::G((uint32_t)pfVar2 + (uint32_t)(6) * sizeof(float))) = fVar9;
-      fVar9 = rtguest::fbits(cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c))));
+      fVar9 = rtguest::fbits(RT_CALLRA(0x25dadc, guest::cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)))));
       (*(float*)rtguest::G((uint32_t)pfVar2 + (uint32_t)(4) * sizeof(float))) = -fVar9;
-      vecNormalizeVu0(pfVar7,pfVar7);
-      vu0ScaleVector(rtguest::fbits((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4bd0 + ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) & 3) * 4)))),pfVar7
-                     ,pfVar7);
-      vu0AddVector(pfVar2,pfVar2,pfVar7);
+      RT_CALLRA(0x25daf0, guest::vecNormalizeVu0(pfVar7,pfVar7));
+      RT_CALLRA(0x25db14, guest::vu0ScaleVector(rtguest::fbits((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4bd0 + ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) & 3) * 4)))),pfVar7
+                     ,pfVar7));
+      RT_CALLRA(0x25db24, guest::vu0AddVector(pfVar2,pfVar2,pfVar7));
       cVar5 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 8)));
     }
     else {
-      TransformRectangle(auStack_60,(int)pfVar2 + 0x22);
+      RT_CALLRA(0x25db38, guest::TransformRectangle(auStack_60,(int)pfVar2 + 0x22));
       cVar5 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 8)));
     }
     if (cVar5 == '\0') {
-      vu0UnitMatrix(0x0177eb10 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40);
-      vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),0x0177eb10 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40,
-                    0x0177eb10 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40);
-      vu0CopyVectorXYZ(0x0177eb40 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x10,pfVar2);
+      RT_CALLRA(0x25db5c, guest::vu0UnitMatrix(0x0177eb10 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40));
+      RT_CALLRA(0x25db78, guest::vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),0x0177eb10 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40,
+                    0x0177eb10 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x40));
+      RT_CALLRA(0x25db8c, guest::vu0CopyVectorXYZ(0x0177eb40 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x21))) * 0x10,pfVar2));
     }
   }
   return 0;

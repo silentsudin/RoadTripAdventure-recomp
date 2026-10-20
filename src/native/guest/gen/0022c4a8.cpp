@@ -6,9 +6,13 @@ namespace guest {
 
 uint32_t RunFadeHoldTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   if ((((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) == 0) || ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xf))) != '\0')) &&
      ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) != 0x40)) {
-    uiFade(0x8000000);
+    RT_CALLRA(0x22c4f0, guest::uiFade(0x8000000));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x400000;
     return 0;
   }

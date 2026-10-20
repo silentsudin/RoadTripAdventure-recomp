@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t navigateRouletteTargetGrid(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   ushort uVar1;
   ushort uVar2;
   int iVar3;
@@ -40,7 +44,7 @@ uint32_t navigateRouletteTargetGrid(uint32_t param_1, uint32_t param_2, ...) {
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9984 + param_2 * 0x30)));
   }
   if (iVar3 != param_2) {
-    PlayUiSound(0x1d);
+    RT_CALLRA(0x2614e8, guest::PlayUiSound(0x1d));
   }
   return iVar3;
 }

@@ -6,17 +6,21 @@ namespace guest {
 
 uint32_t sceSifGetIopAddr(uint32_t param_1, uint32_t param_2, uint64_t param_3, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x50) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x54) = 0x00000000u;
+  }
   undefined4 uVar1;
   long lVar2;
   
-  lVar2 = _lf_bind();
+  lVar2 = RT_CALLRA(0x28cb00, guest::_lf_bind());
   if (lVar2 < 0) {
     return 0xffff0000;
   }
   if (param_3 < 3) {
     (*(uint32_t*)rtguest::G(0x1779e04)) = (uint32_t)param_3;
     (*(uint32_t*)rtguest::G(0x1779e00)) = param_1;
-    lVar2 = sceSifCallRpc(0x177a000,3,0,0x1779e00,0x20,0x1779e00,0x20,0);
+    lVar2 = RT_CALLRA(0x28cb50, guest::sceSifCallRpc(0x177a000,3,0,0x1779e00,0x20,0x1779e00,0x20,0));
     if (lVar2 < 0) {
       return 0xfffeffff;
     }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t roulettePayoutTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(160);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x98) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x9c) = 0x00000000u;
+  }
     uint32_t uStack_a0 = rtguest::allocFrame(8);
     uint32_t uStack_98 = rtguest::allocFrame(8);
     uint32_t uStack_90 = rtguest::allocFrame(8);
@@ -35,21 +39,21 @@ uint32_t piVar12;
   
   iVar14 = (int)param_1;
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x1c)));
-  uiArenaInit(iVar1,0x8000);
-  uiArenaBeginBatch(iVar1,0,0);
-  uiArenaSetTexture(iVar1,0x2d9948,0,0);
-  uiArenaDataTag(iVar1,1);
+  RT_CALLRA(0x261e24, guest::uiArenaInit(iVar1,0x8000));
+  RT_CALLRA(0x261e34, guest::uiArenaBeginBatch(iVar1,0,0));
+  RT_CALLRA(0x261e48, guest::uiArenaSetTexture(iVar1,0x2d9948,0,0));
+  RT_CALLRA(0x261e54, guest::uiArenaDataTag(iVar1,1));
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(uStack_a0)), 0, 0x20));
   (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = 0x1c000000280;
-  uiArenaSprites(iVar1,uStack_a0,1,0,0,1);
+  RT_CALLRA(0x261e90, guest::uiArenaSprites(iVar1,uStack_a0,1,0,0,1));
   if (((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8020))) != 0) &&
      (iVar10 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8020))) + -1, ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 8))) & 0x20) != 0)) {
     iVar13 = 2;
     (*(int32_t*)rtguest::G((uint32_t)aiStack_80 + (uint32_t)(1) * 4)) = iVar10 / 6 + 0x12;
     (*(int32_t*)rtguest::G((uint32_t)aiStack_80 + (uint32_t)(2) * 4)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8024))) + 0x15;
     (*(int32_t*)rtguest::G((uint32_t)aiStack_80 + (uint32_t)(0) * 4)) = iVar10;
-    uiArenaSetTexture(iVar1,0x2d9948,1,0);
-    uiArenaDataTag(iVar1,3);
+    RT_CALLRA(0x261f10, guest::uiArenaSetTexture(iVar1,0x2d9948,1,0));
+    RT_CALLRA(0x261f1c, guest::uiArenaDataTag(iVar1,3));
     piVar12 = aiStack_80;
     iVar10 = (*(int32_t*)rtguest::G((uint32_t)aiStack_80 + (uint32_t)(0) * 4));
     while( true ) {
@@ -74,7 +78,7 @@ uint32_t piVar12;
                            (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9970 + iVar3 * 0x30))));
       (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9978 + iVar5 * 0x30))));
       (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = 0;
-      uiArenaSprites(iVar1,uStack_a0,1,0,0,1);
+      RT_CALLRA(0x262040, guest::uiArenaSprites(iVar1,uStack_a0,1,0,0,1));
       if (iVar13 < 0) break;
       iVar10 = (*(int32_t*)rtguest::G((uint32_t)piVar12));
     }
@@ -82,12 +86,12 @@ uint32_t piVar12;
   iVar10 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8008))) * 0x30;
   uVar7 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d996c + iVar10)));
   uVar8 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9968 + iVar10)));
-  uiArenaSetTexture(iVar1,0x2d9948,1,0);
-  uiArenaDataTag(iVar1,1);
+  RT_CALLRA(0x262090, guest::uiArenaSetTexture(iVar1,0x2d9948,1,0));
+  RT_CALLRA(0x26209c, guest::uiArenaDataTag(iVar1,1));
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(uStack_a0)), 0, 0x20));
   (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = 0x2800000028;
-  uiArenaSprites(iVar1,uStack_a0,1,uVar8,uVar7,1);
-  uiArenaSubmit(iVar1);
+  RT_CALLRA(0x2620d4, guest::uiArenaSprites(iVar1,uStack_a0,1,uVar8,uVar7,1));
+  RT_CALLRA(0x2620dc, guest::uiArenaSubmit(iVar1));
   iVar10 = (int)param_2;
   switch((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25)))) {
   case 0:
@@ -97,7 +101,7 @@ uint32_t piVar12;
       sVar9 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2)));
     }
     else {
-      PlayUiSound(0x1a);
+      RT_CALLRA(0x262128, guest::PlayUiSound(0x1a));
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) = 0x80;
       sVar9 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2)));
     }
@@ -116,7 +120,7 @@ uint32_t piVar12;
       sVar9 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2)));
     }
     else {
-      PlayUiSound(0x1a);
+      RT_CALLRA(0x262190, guest::PlayUiSound(0x1a));
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) = 0x80;
       sVar9 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2)));
     }
@@ -135,19 +139,19 @@ uint32_t piVar12;
     if (999999 < (int)puVar11) {
       puVar11 = 0x000f423f;
     }
-    DrawScoreAndRemaining((*(int32_t*)rtguest::G(0x177fdb4)) - (int)puVar11,param_2);
+    RT_CALLRA(0x26223c, guest::DrawScoreAndRemaining((*(int32_t*)rtguest::G(0x177fdb4)) - (int)puVar11,param_2));
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x30))) & 0x50) == 0) {
       sVar9 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2)));
     }
     else {
-      PlayUiSound(0x1a);
+      RT_CALLRA(0x262254, guest::PlayUiSound(0x1a));
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) = 0xc0;
       sVar9 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2)));
     }
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) = sVar9 + 1;
     if (0xc0 < sVar9) {
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) = 0;
-      SpendTimerBudget(-iVar13,0);
+      RT_CALLRA(0x262288, guest::SpendTimerBudget(-iVar13,0));
       iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25))) = 4;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x24))) = 1;
@@ -155,7 +159,7 @@ uint32_t piVar12;
     }
     break;
   case 4:
-    uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) << 0x18);
+    RT_CALLRA(0x2622b4, guest::uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) << 0x18));
     sVar9 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) + 1;
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) = sVar9;
     if (0x80 < sVar9) {
@@ -163,7 +167,7 @@ uint32_t piVar12;
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 2))) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 4))) = 0xffffffff;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x24))) = 1;
-      gs_tasks_kill(param_1);
+      RT_CALLRA(0x2622f0, guest::gs_tasks_kill(param_1));
     }
   }
   return 0;

@@ -9,6 +9,8 @@ namespace guest {
 uint32_t updateTimeOfDayLight(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(176);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x30) = (uint32_t)(int32_t)param_1;
   }
   uint8_t uVar1;
@@ -183,11 +185,11 @@ LAB_00225ed4:
   do {
     iVar5 = iVar6 * 0x10;
     iVar6 = iVar6 + 1;
-    vu0ScaleVector(fVar10,auStack_b0,0x29d500 + iVar5);   // todLightDay
-    vu0ScaleVector(fVar11,auStack_a0,0x29d540 + iVar5);   // todLightDusk
-    vu0ScaleVector(fVar9,auStack_90,0x29d580 + iVar5);    // todLightNight
-    vu0AddVector(auStack_b0,auStack_b0,auStack_a0);
-    vu0AddVector(puVar7,auStack_b0,auStack_90);
+    RT_CALLRA(0x225f18, guest::vu0ScaleVector(fVar10,auStack_b0,0x29d500 + iVar5));   // todLightDay
+    RT_CALLRA(0x225f28, guest::vu0ScaleVector(fVar11,auStack_a0,0x29d540 + iVar5));   // todLightDusk
+    RT_CALLRA(0x225f38, guest::vu0ScaleVector(fVar9,auStack_90,0x29d580 + iVar5));    // todLightNight
+    RT_CALLRA(0x225f48, guest::vu0AddVector(auStack_b0,auStack_b0,auStack_a0));
+    RT_CALLRA(0x225f58, guest::vu0AddVector(puVar7,auStack_b0,auStack_90));
     puVar7 = puVar7 + 0x10;
   } while (iVar6 < 4);
   *(uint32_t*)rtguest::G(0x177f65c) = 0x43000000;
@@ -196,11 +198,11 @@ LAB_00225ed4:
   do {
     iVar5 = iVar6 * 0x10;
     iVar6 = iVar6 + 1;
-    vu0ScaleVector(fVar10,auStack_b0,0x29d5c0 + iVar5);   // todLight2Day
-    vu0ScaleVector(fVar11,auStack_a0,0x29d600 + iVar5);   // todLight2Dusk
-    vu0ScaleVector(fVar9,auStack_90,0x29d640 + iVar5);    // todLight2Night
-    vu0AddVector(auStack_b0,auStack_b0,auStack_a0);
-    vu0AddVector(puVar7,auStack_b0,auStack_90);
+    RT_CALLRA(0x225fb0, guest::vu0ScaleVector(fVar10,auStack_b0,0x29d5c0 + iVar5));   // todLight2Day
+    RT_CALLRA(0x225fc0, guest::vu0ScaleVector(fVar11,auStack_a0,0x29d600 + iVar5));   // todLight2Dusk
+    RT_CALLRA(0x225fd0, guest::vu0ScaleVector(fVar9,auStack_90,0x29d640 + iVar5));    // todLight2Night
+    RT_CALLRA(0x225fe0, guest::vu0AddVector(auStack_b0,auStack_b0,auStack_a0));
+    RT_CALLRA(0x225ff0, guest::vu0AddVector(puVar7,auStack_b0,auStack_90));
     puVar7 = puVar7 + 0x10;
   } while (iVar6 < 4);
   *(uint32_t*)rtguest::G(0x177f69c) = 0x43000000;

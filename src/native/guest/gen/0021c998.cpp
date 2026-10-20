@@ -5,6 +5,10 @@
 namespace guest {
 uint32_t ResetVehicleState(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   using namespace rtguest::vu0;
   sqc2(param_2 + 0xf0, S.vf[0]);
   *static_cast<uint8_t*>(rtguest::G(param_2 + 0x1ff)) = 1;
@@ -17,7 +21,7 @@ uint32_t ResetVehicleState(uint32_t param_1, uint32_t param_2, ...) {
   *static_cast<uint16_t*>(rtguest::G(param_2 + 0x1d2)) = 0;
   uint16_t flags = *static_cast<uint16_t*>(rtguest::G(param_2 + 0x198));
   if (*static_cast<int16_t*>(rtguest::G(param_2 + 0x20e)) != 0 && (flags & 3) != 0)
-    PlayUiSound((static_cast<int16_t>(flags) & 1) + 0x8010);
+    RT_CALLRA(0x21c9f8, guest::PlayUiSound((static_cast<int16_t>(flags) & 1) + 0x8010));
   *static_cast<uint32_t*>(rtguest::G(param_2 + 0x100)) = 0;
   *static_cast<uint32_t*>(rtguest::G(param_2 + 0x208)) = 0;
   *static_cast<uint32_t*>(rtguest::G(param_2 + 0x1f0)) = 0;

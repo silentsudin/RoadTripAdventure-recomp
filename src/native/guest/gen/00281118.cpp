@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t __swsetup_r(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
 uint32_t puVar1;
   int iVar2;
 uint32_t puVar3;
@@ -24,7 +28,7 @@ uint32_t piVar5;
     puVar3 = puVar1;
   }
   if (iVar2 == 0) {
-    __sinit(puVar3);
+    RT_CALLRA(0x281150, guest::__sinit(puVar3));
     uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(piVar5 + 3)));
   }
   else {
@@ -43,7 +47,7 @@ uint32_t piVar5;
           (*(int32_t*)rtguest::G((uint32_t)piVar5 + (uint32_t)(0xc) * sizeof(int32_t))) = 0;
         }
         else {
-          _free_r((*(int32_t*)rtguest::G((uint32_t)piVar5 + (uint32_t)(0x15) * sizeof(int32_t))));
+          RT_CALLRA(0x281194, guest::_free_r((*(int32_t*)rtguest::G((uint32_t)piVar5 + (uint32_t)(0x15) * sizeof(int32_t)))));
           uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(piVar5 + 3)));
           (*(int32_t*)rtguest::G((uint32_t)piVar5 + (uint32_t)(0xc) * sizeof(int32_t))) = 0;
         }
@@ -60,7 +64,7 @@ uint32_t piVar5;
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)piVar5 + (uint32_t)(4) * sizeof(int32_t)));
   }
   if (iVar2 == 0) {
-    __smakebuf(param_1);
+    RT_CALLRA(0x2811d0, guest::__smakebuf(param_1));
     uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(piVar5 + 3)));
   }
   else {

@@ -7,6 +7,10 @@ namespace guest {
 
 uint32_t fflush(uint32_t __stream, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   ushort uVar1;
   uint32_t puVar2;
   int iVar3;
@@ -32,7 +36,7 @@ uint32_t fflush(uint32_t __stream, ...) {
     puVar5 = puVar2;
   }
   if (iVar3 == 0) {
-    __sinit(puVar5);
+    RT_CALLRA(0x282730, guest::__sinit(puVar5));
     uVar1 = (*(uint16_t*)rtguest::G(__stream + 0xc));
   }
   else {

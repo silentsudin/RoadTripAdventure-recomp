@@ -31,7 +31,7 @@ void drawArcRibbon(uint32_t param_1, long param_2, ...) {
   uint32_t uVar11;
   uint32_t auStack_d0 = rtguest::allocFrame(0x40);  // 4 quads: auStack_d0/c0/b0/a0
 
-  vu0MulMatrix(auStack_d0,param_1,(uint32_t)((int)param_1 + 0x40));
+  RT_CALLRA(0x222554, guest::vu0MulMatrix(auStack_d0,param_1,(uint32_t)((int)param_1 + 0x40)));
   uVar11 = *(uint32_t*)rtguest::G(0x00332ce4);
   fVar9 = 6.5;
   uVar10 = 0x41e80000;
@@ -68,9 +68,9 @@ void drawArcRibbon(uint32_t param_1, long param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(0x00299e58 + iVar2))) = rtguest::f2bits(S.vf[9].v[1]);
     (*(uint32_t*)rtguest::G((uint32_t)(0x00299e5c + iVar2))) = rtguest::f2bits(S.vf[9].v[2]);
     fVar7 = ((float)(iVar1 + -10) * fVar5) / 10.0f;
-    fVar4 = rtguest::fbits(sinf(rtguest::f2bits(fVar7)));
+    fVar4 = rtguest::fbits(RT_CALLRA(0x222678, guest::sinf(rtguest::f2bits(fVar7))));
     (*(float*)rtguest::G(0x0029d320)) = fVar4 * fVar6 + 0.5 + fVar9;
-    fVar4 = rtguest::fbits(cosf(rtguest::f2bits(fVar7)));
+    fVar4 = rtguest::fbits(RT_CALLRA(0x222690, guest::cosf(rtguest::f2bits(fVar7))));
     (*(float*)rtguest::G(0x0029d324)) = fVar4 * fVar6 + fVar8;
     S.vf[8] = lqc2(0x0029d320);
     S.vf[4] = lqc2(auStack_d0);
@@ -104,9 +104,9 @@ void drawArcRibbon(uint32_t param_1, long param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(0x0029945c + iVar2))) = rtguest::f2bits(S.vf[9].v[1]);
     (*(uint32_t*)rtguest::G((uint32_t)(0x00299460 + iVar2))) = rtguest::f2bits(S.vf[9].v[2]);
     fVar7 = ((float)(iVar1 + -10) * fVar4) / 10.0f;
-    fVar5 = rtguest::fbits(sinf(rtguest::f2bits(fVar7)));
+    fVar5 = rtguest::fbits(RT_CALLRA(0x2227b0, guest::sinf(rtguest::f2bits(fVar7))));
     (*(float*)rtguest::G(0x0029d320)) = (fVar5 * fVar6 - 0.5) - fVar9;
-    fVar5 = rtguest::fbits(cosf(rtguest::f2bits(fVar7)));
+    fVar5 = rtguest::fbits(RT_CALLRA(0x2227c8, guest::cosf(rtguest::f2bits(fVar7))));
     (*(float*)rtguest::G(0x0029d324)) = fVar5 * fVar6 + fVar8;
     S.vf[8] = lqc2(0x0029d320);
     S.vf[4] = lqc2(auStack_d0);
@@ -122,8 +122,8 @@ void drawArcRibbon(uint32_t param_1, long param_2, ...) {
     (*(int32_t*)rtguest::G((uint32_t)(0x002994cc + iVar2))) = 0;
     iVar2 = iVar2 + 0x78;
   } while (iVar1 < 0x15);
-  vifUploadPacket(0x29d330,3);
-  vifCallModel(0x299430);
+  RT_CALLRA(0x222840, guest::vifUploadPacket(0x29d330,3));
+  RT_CALLRA(0x22284c, guest::vifCallModel(0x299430));
   return;
 }
 

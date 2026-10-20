@@ -6,7 +6,11 @@ namespace guest {
 
 uint32_t UploadCarAt16Env(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(16);
-  vifUploadAt16(0x177f5e0);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
+  RT_CALLRA(0x2236b4, guest::vifUploadAt16(0x177f5e0));
   vifDirect(0x29d290,4);
   return 0;
 }

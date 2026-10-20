@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t _lseek_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   long lVar1;
   
   (*(int32_t*)rtguest::G(0x33573c)) = 0;
-  lVar1 = sysLseek(param_2,param_3,param_4);
+  lVar1 = RT_CALLRA(0x284ab8, guest::sysLseek(param_2,param_3,param_4));
   if ((lVar1 == -1) && ((*(int32_t*)rtguest::G(0x33573c)) != 0)) {
     (*(int32_t*)rtguest::G((uint32_t)param_1)) = (*(int32_t*)rtguest::G(0x33573c));
   }

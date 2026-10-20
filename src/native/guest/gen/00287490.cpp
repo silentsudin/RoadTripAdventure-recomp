@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _sceSifCmdIntrHdlr(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x80) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x84) = 0x00000000u;
+  }
 uint32_t auStack_90 = rtguest::allocFrame(8);
     uint32_t uStack_88 = rtguest::allocFrame(4);
   byte bVar1;
@@ -18,7 +22,7 @@ uint32_t puVar4;
 uint32_t pbVar8;
   
   puVar4 = auStack_90;
-  EIntr();
+  RT_CALLRA(0x28749c, guest::EIntr());
   pbVar8 = (*(uint32_t*)rtguest::G(0x1776e98));
   bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x1776e98))));
   if (bVar1 != 0) {
@@ -34,7 +38,7 @@ uint32_t pbVar8;
       (*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(3) * sizeof(uint32_t))) = uVar6;
       puVar4 = puVar4 + 0x10;  // T* element step
     }
-    isceSifSetDChain();
+    RT_CALLRA(0x28750c, guest::isceSifSetDChain());
     if ((int)(*(uint32_t*)rtguest::G((uint32_t)uStack_88)) < 0) {
       if ((int)((*(uint32_t*)rtguest::G((uint32_t)uStack_88)) & 0x7fffffff) < (*(uint32_t*)rtguest::G(0x1776ea8))) {
         puVar4 = (uint32_t)((*(uint32_t*)rtguest::G((uint32_t)uStack_88)) * 8 + (*(int32_t*)rtguest::G(0x1776ea4)));

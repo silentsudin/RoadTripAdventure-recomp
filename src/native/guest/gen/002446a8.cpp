@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t BuildCarouselQuadC(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   short sVar1;
   int iVar2;
 uint32_t puVar3;
@@ -21,7 +25,7 @@ uint32_t puVar3;
     iVar2 = 0x80;
   }
   else {
-    cos(param_2);
+    RT_CALLRA(0x2446e0, guest::cos(param_2));
     iVar2 = (int)(fVar8 * 16.0) + 0x60;
   }
   puVar3 = (uint32_t)(iVar6 + 0x4c);

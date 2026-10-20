@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceSifExecRequest(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+  }
   undefined4 uVar1;
   long lVar2;
   undefined8 uVar3;
@@ -26,14 +30,14 @@ uint32_t aiStack_80 = rtguest::allocFrame(32);
   if (0 < iVar5) {
     sceSifWriteBackDCache(lVar2,iVar5);
   }
-  DIntr();
+  RT_CALLRA(0x288428, guest::DIntr());
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x34))) & 4) == 0) {
-    uVar3 = _sceRpcGetFPacket(0x1778840,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x34))) >> 0x10);
+    uVar3 = RT_CALLRA(0x288458, guest::_sceRpcGetFPacket(0x1778840,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x34))) >> 0x10));
   }
   else {
-    uVar3 = _sceRpcGetFPacket2(0x1778840);
+    uVar3 = RT_CALLRA(0x288444, guest::_sceRpcGetFPacket2(0x1778840));
   }
-  EIntr();
+  RT_CALLRA(0x288464, guest::EIntr());
   uVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
   iVar6 = (int)uVar3;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x20))) = 0x8000000a;
@@ -62,8 +66,8 @@ uint32_t aiStack_80 = rtguest::allocFrame(32);
   }
   else {
     do {
-      lVar4 = sceSifSendCmd(0xffffffff80000008,uVar3,0x40,lVar2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))),
-                            iVar5);
+      lVar4 = RT_CALLRA(0x2884a8, guest::sceSifSendCmd(0xffffffff80000008,uVar3,0x40,lVar2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))),
+                            iVar5));
     } while (lVar4 == 0);
   }
   return 0;

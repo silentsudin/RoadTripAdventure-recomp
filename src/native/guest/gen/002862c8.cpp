@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceTtyWrite(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x64) = 0x00000000u;
+  }
   long lVar1;
   char cVar2;
 uint32_t pcVar3;
@@ -15,7 +19,7 @@ uint32_t pcVar3;
   iVar4 = 0;
   iVar5 = -1;
   if ((*(int32_t*)rtguest::G(0x1776a9c)) == 0) {
-    DIntr();
+    RT_CALLRA(0x28630c, guest::DIntr());
     (*(int32_t*)rtguest::G(0x1776a9c)) = 1;
     (*(uint32_t*)rtguest::G(0x1776aa0)) = 0x21776ac0;
     pcVar3 = 0x21776acc;
@@ -40,19 +44,19 @@ uint32_t pcVar3;
     (*(uint32_t*)rtguest::G(0x1776a94)) = iVar4 + 0xc;
     (*(uint32_t*)rtguest::G(0x21776ac0)) = (uint32_t)(*(uint32_t*)rtguest::G(0x1776a94));
                     /* WARNING: Read-only address (ram,0x21776ac0) is written */
-    lVar1 = sceDeci2ReqSend((*(int32_t*)rtguest::G(0x1776a90)),(*(uint32_t*)rtguest::G(0x21776ac7)));
+    lVar1 = RT_CALLRA(0x2863a4, guest::sceDeci2ReqSend((*(int32_t*)rtguest::G(0x1776a90)),(*(uint32_t*)rtguest::G(0x21776ac7))));
     if (lVar1 < 0) {
       (*(int32_t*)rtguest::G(0x1776a9c)) = 0;
-      EIntr();
+      RT_CALLRA(0x2863b4, guest::EIntr());
       iVar5 = -1;
     }
     else {
       while ((*(int32_t*)rtguest::G(0x1776a9c)) != 0) {
                     /* WARNING: Read-only address (ram,0x21776ac0) is written */
-        sceDeci2Poll((*(int32_t*)rtguest::G(0x1776a90)));
+        RT_CALLRA(0x2863d4, guest::sceDeci2Poll((*(int32_t*)rtguest::G(0x1776a90))));
       }
                     /* WARNING: Read-only address (ram,0x21776ac0) is written */
-      EIntr();
+      RT_CALLRA(0x2863e8, guest::EIntr());
     }
   }
   return iVar5;

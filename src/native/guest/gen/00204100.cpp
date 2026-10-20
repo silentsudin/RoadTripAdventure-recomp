@@ -22,7 +22,7 @@ uint32_t puVar3;
   }
   bVar1 = (*(int8_t*)rtguest::G((uint32_t)param_3));
   while (bVar1 != 0) {
-    param_1 = uiDrawGlyph(param_1,param_2,0,param_3);
+    param_1 = RT_CALLRA(0x2041b0, guest::uiDrawGlyph(param_1,param_2,0,param_3));
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)param_3));
     if (bVar1 == 0x2f) {
       param_3 = param_3 + 2;

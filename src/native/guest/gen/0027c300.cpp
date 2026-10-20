@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t end_fde_sort(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   int iVar1;
   undefined4 uVar2;
   int iVar3;
@@ -40,7 +44,7 @@ uint32_t piVar23;
       iVar15 = (*(int32_t*)rtguest::G((uint32_t)piVar9 + (uint32_t)(2) * sizeof(int32_t)));
       goto LAB_0027c350;
     }
-    abort();
+    RT_CALLRA(0x27c33c, guest::abort());
   }
   uVar21 = (*(int32_t*)rtguest::G((uint32_t)piVar9 + (uint32_t)(1) * sizeof(int32_t)));
   iVar15 = (*(int32_t*)rtguest::G((uint32_t)piVar9 + (uint32_t)(2) * sizeof(int32_t)));
@@ -173,7 +177,7 @@ LAB_0027c800:
     (*(int32_t*)rtguest::G((uint32_t)piVar9 + (uint32_t)(1) * sizeof(int32_t))) = iVar15;
     (*(int32_t*)rtguest::G((uint32_t)piVar9 + (uint32_t)(3) * sizeof(int32_t))) = (int)uVar14;
     if ((*(int32_t*)rtguest::G((uint32_t)piVar9 + (uint32_t)(1) * sizeof(int32_t))) + (*(int32_t*)rtguest::G((uint32_t)piVar9 + (uint32_t)(3) * sizeof(int32_t))) != param_2) {
-      abort();
+      RT_CALLRA(0x27c484, guest::abort());
     }
     puVar20 = (uint32_t)(*(int32_t*)rtguest::G((uint32_t)piVar23));
     iVar15 = (int)uVar14;
@@ -256,8 +260,8 @@ LAB_0027c610:
         }
       } while (1 < uVar14);
     }
-    fde_merge(param_1,piVar23);
-    free((uint32_t)(*(int32_t*)rtguest::G((uint32_t)piVar23)));
+    RT_CALLRA(0x27c668, guest::fde_merge(param_1,piVar23));
+    RT_CALLRA(0x27c670, guest::free((uint32_t)(*(int32_t*)rtguest::G((uint32_t)piVar23))));
     lVar10 = (long)(*(int32_t*)rtguest::G((uint32_t)piVar9));
   }
   return lVar10;

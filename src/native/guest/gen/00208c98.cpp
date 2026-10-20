@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t gs_options_sub_tasks_vibration(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   char cVar1;
   byte bVar2;
   int iVar3;
@@ -19,12 +23,12 @@ uint32_t gs_options_sub_tasks_vibration(uint32_t param_1, uint32_t param_2, ...)
   
   iVar10 = (int)param_1;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) == '\0') {
-    uVar5 = uiMenuCreate();
-    uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac40u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0);
-    uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac44u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
-    uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac48u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
-    uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac4cu + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
-    uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac50u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10);
+    uVar5 = RT_CALLRA(0x208cc0, guest::uiMenuCreate());
+    RT_CALLRA(0x208cec, guest::uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac40u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0));
+    RT_CALLRA(0x208d10, guest::uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac44u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));
+    RT_CALLRA(0x208d34, guest::uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac48u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));
+    RT_CALLRA(0x208d58, guest::uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac4cu + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));
+    RT_CALLRA(0x208d7c, guest::uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac50u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar5 + 0xc))) = 2;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) = 1;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar5 + 0xe))) = 1;
@@ -50,7 +54,7 @@ uint32_t gs_options_sub_tasks_vibration(uint32_t param_1, uint32_t param_2, ...)
     else if (bVar2 == 4) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x51))) = bVar8 | 2;
     }
-    lVar6 = uiMenuRun(iVar3,param_2);
+    lVar6 = RT_CALLRA(0x208e28, guest::uiMenuRun(iVar3,param_2));
     if (lVar6 == 1) {
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd)));
       if (cVar1 == '\x01') {
@@ -65,8 +69,8 @@ uint32_t gs_options_sub_tasks_vibration(uint32_t param_1, uint32_t param_2, ...)
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0xe))) = 2;
       }
       else if (cVar1 == '\x03') {
-        gs_controls_rumble_start(param_2,0,7,1);
-        gs_controls_rumble_start(param_2,1,7,1);
+        RT_CALLRA(0x208ea0, guest::gs_controls_rumble_start(param_2,0,7,1));
+        RT_CALLRA(0x208eb4, guest::gs_controls_rumble_start(param_2,1,7,1));
       }
       PlayUiSound(0x1a);
       return 0;

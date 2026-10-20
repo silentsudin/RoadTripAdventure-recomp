@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t CalculateAiSteeringAndThrottle(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   byte bVar1;
   byte bVar2;
   uint uVar3;
@@ -34,9 +38,8 @@ uint32_t pbVar11;
     }
     iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x254)));
   }
-  uVar3 = ComputeWaypointTargetAngle
-                    ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x250))) + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 * 8 + iVar8 + 1))) * 0x18,
-                     param_2 + 0x90,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x194))) & 3);
+  uVar3 = RT_CALLRA(0x250970, guest::ComputeWaypointTargetAngle((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x250))) + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 * 8 + iVar8 + 1))) * 0x18,
+                     param_2 + 0x90,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x194))) & 3));
   iVar8 = ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1b8))) * 0xd8) / 0x28000;
   iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 600)));
   if (param_4 == 0) {

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t LoadAndTransformVec4(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   short sVar1;
   int iVar2;
 uint32_t piVar3;
@@ -20,8 +24,8 @@ uint32_t aiStack_20 = rtguest::allocFrame(16);
     (*(int32_t*)rtguest::G((uint32_t)piVar3)) = (int)sVar1;
     piVar3 = piVar3 + 0x4;  // T* element step
   } while (-1 < iVar2);
-  vu0Itof4Vector(param_1,aiStack_20);
-  vu0ScaleVector((*(float*)rtguest::G(0x332f94)),param_1,param_1);
+  RT_CALLRA(0x24fc68, guest::vu0Itof4Vector(param_1,aiStack_20));
+  RT_CALLRA(0x24fc78, guest::vu0ScaleVector((*(float*)rtguest::G(0x332f94)),param_1,param_1));
   return param_1;
 }
 

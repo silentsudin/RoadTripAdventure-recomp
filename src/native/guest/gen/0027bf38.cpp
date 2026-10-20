@@ -11,6 +11,8 @@ uint32_t dpcmp(uint64_t param_1, uint64_t param_2, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x44) = (uint32_t)((int64_t)(int32_t)param_1 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0x48) = (uint32_t)(int32_t)param_2;
     *(uint32_t*)rtguest::G(rt_sv+0x4c) = (uint32_t)((int64_t)(int32_t)param_2 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
   }
 uint32_t auStack_60 = rtguest::allocFrame(32);
 uint32_t auStack_40 = rtguest::allocFrame(32);
@@ -19,9 +21,9 @@ uint32_t auStack_40 = rtguest::allocFrame(32);
   
   (*(uint64_t*)rtguest::G((uint32_t)uStack_20)) = param_1;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_18)) = param_2;
-  __unpack_d(uStack_20,auStack_60);
-  __unpack_d(uStack_18,auStack_40);
-  return __fpcmp_parts_d(auStack_60,auStack_40);  // v0 passthrough; callers use the result
+  RT_CALLRA(0x27bf50, guest::__unpack_d(uStack_20,auStack_60));
+  RT_CALLRA(0x27bf60, guest::__unpack_d(uStack_18,auStack_40));
+  return RT_CALLRA(0x27bf6c, guest::__fpcmp_parts_d(auStack_60,auStack_40));  // v0 passthrough; callers use the result
 }
 
 

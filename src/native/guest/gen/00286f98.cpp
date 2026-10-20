@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t sceSifInitCmd(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x50) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x54) = 0x00000000u;
+  }
 uint32_t puVar1;
   long lVar2;
   ulong uVar3;
   undefined8 uVar4;
   int iVar5;
   
-  DIntr();
+  RT_CALLRA(0x286fb0, guest::DIntr());
   if ((*(int32_t*)rtguest::G(0x2e98fc)) != 0) {
     EIntr();
     return 0;
@@ -46,16 +50,16 @@ uint32_t puVar1;
   (*(uint32_t*)rtguest::G(0x1776ecc)) = 0x01776e98;
   (*(uint32_t*)rtguest::G(0x1776ec4)) = 0x01776e98;
   EIntr();
-  FlushCache(0);
+  RT_CALLRA(0x2870cc, guest::FlushCache(0));
   if ((REG_DMAC_STAT & 0x20) != 0) {
     REG_DMAC_STAT = 0x20;
   }
   if ((REG_DMAC_5_SIF0_CHCR & 0x100) == 0) {
-    sceSifSetDChain();
+    RT_CALLRA(0x28710c, guest::sceSifSetDChain());
   }
-  (*(uint32_t*)rtguest::G(0x1776e94)) = AddDmacHandler(5,0x287490,0);
-  enableDmac(5);
-  lVar2 = sceSifGetReg(0xffffffff80000000);
+  (*(uint32_t*)rtguest::G(0x1776e94)) = RT_CALLRA(0x287120, guest::AddDmacHandler(5,0x287490,0));
+  RT_CALLRA(0x287130, guest::enableDmac(5));
+  lVar2 = RT_CALLRA(0x28713c, guest::sceSifGetReg(0xffffffff80000000));
   (*(uint32_t*)rtguest::G(0x1776ea0)) = (uint32_t)lVar2;
   if (lVar2 != 0) {
     (*(uint32_t*)rtguest::G(0x1776e90)) = 0x01776dc0;
@@ -64,12 +68,12 @@ uint32_t puVar1;
   }
   (*(uint32_t*)rtguest::G(0x1776ea0)) = 0;
   do {
-    uVar3 = sceSifGetReg(4);
+    uVar3 = RT_CALLRA(0x287190, guest::sceSifGetReg(4));
   } while ((uVar3 & 0x20000) == 0);
-  uVar4 = sceSifGetReg(2);
+  uVar4 = RT_CALLRA(0x2871a4, guest::sceSifGetReg(2));
   (*(uint32_t*)rtguest::G(0x1776ea0)) = (uint32_t)uVar4;
-  sceSifSetReg(0xffffffff80000000,uVar4);
-  sceSifSetReg(0xffffffff80000001,0x1776e98);
+  RT_CALLRA(0x2871b4, guest::sceSifSetReg(0xffffffff80000000,uVar4));
+  RT_CALLRA(0x2871c4, guest::sceSifSetReg(0xffffffff80000001,0x1776e98));
   (*(uint32_t*)rtguest::G(0x1776e90)) = 0x01776dc0;
   (*(uint32_t*)rtguest::G(0x1776e8c)) = 0;
   sceSifSendCmd(0xffffffff80000002,0x1776e80,0x14,0,0,0);

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceGsExecStoreImage(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x80) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x84) = 0x00000000u;
+  }
   bool bVar1;
   uint uVar2;
   ulong uVar3;
@@ -73,7 +77,7 @@ uint32_t sceGsExecStoreImage(uint32_t param_1, ...) {
     uVar7 = uVar7 + 1;
     if (bVar1) goto LAB_0026f058;
   }
-  uVar3 = GsGetIMR();
+  uVar3 = RT_CALLRA(0x26eef4, guest::GsGetIMR());
   GsPutIMR(uVar3 | 0x200);
   (*(uint8_t*)rtguest::G(0x12001000)) = 2;
   REG_DMAC_1_VIF1_QWC = 7;

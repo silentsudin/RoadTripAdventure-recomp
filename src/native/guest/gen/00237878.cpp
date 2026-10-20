@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t DrawLocationList(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   byte bVar1;
 uint32_t puVar2;
   undefined8 uVar3;
@@ -28,11 +32,11 @@ uint32_t pbVar11;
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar11));
         iVar8 = (int)((((uint32_t)bVar1 * 2 + (uint32_t)bVar1) * 8 - (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2)))) + 0x80) / 2
         ;
-        uiDrawText(0x78,iVar8,(*(uint32_t*)rtguest::G((uint32_t)(0x29fd30u + (uint32_t)(bVar1) * 4))),0);
-        uVar3 = GetPlayerScoreboardPtr(iVar10);
-        uiDrawText(0xb4,iVar8,uVar3,0);
+        RT_CALLRA(0x237928, guest::uiDrawText(0x78,iVar8,(*(uint32_t*)rtguest::G((uint32_t)(0x29fd30u + (uint32_t)(bVar1) * 4))),0));
+        uVar3 = RT_CALLRA(0x237930, guest::GetPlayerScoreboardPtr(iVar10));
+        RT_CALLRA(0x237944, guest::uiDrawText(0xb4,iVar8,uVar3,0));
         if (((*(uint32_t*)rtguest::G((uint32_t)0x178700b + (uint32_t)(iVar10 * 4) * 4)) & 0xf0) == 0) {
-          lVar4 = TestStateBitFc78(0x28,iVar8,0x01787008 + iVar10 * 4,0);
+          lVar4 = RT_CALLRA(0x237990, guest::TestStateBitFc78(0x28,iVar8,0x01787008 + iVar10 * 4,0));
           iVar5 = 0x48;
           if (lVar4 == 0) {
             iVar5 = 8;
@@ -42,7 +46,7 @@ uint32_t pbVar11;
         else {
           puVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be438 + (uint32_t)((char)(*(uint32_t*)rtguest::G((uint32_t)0x1787008 + (uint32_t)(iVar10 * 4) * 4)) * 2) * 4));
         }
-        uiDrawText(0x17c,iVar8,puVar2,0);
+        RT_CALLRA(0x2379b4, guest::uiDrawText(0x17c,iVar8,puVar2,0));
         iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10)));
       }
       iVar10 = iVar10 + 1;

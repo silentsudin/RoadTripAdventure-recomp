@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t RecordLapSplitTimes(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   undefined4 uVar1;
   bool bVar2;
   int iVar3;
@@ -26,18 +30,18 @@ uint32_t RecordLapSplitTimes(uint32_t param_1, uint32_t param_2, uint32_t param_
     if ((uVar7 & 3) != 0) {
       if (iVar4 < (*(int32_t*)rtguest::G(0x335700))) {
         if ((*(int32_t*)rtguest::G(0x335700)) == 0x7fffffff) {
-          PlayUiSound(0x2e);
+          RT_CALLRA(0x22d42c, guest::PlayUiSound(0x2e));
           iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x260)));
           (*(int32_t*)rtguest::G(0x335700)) = iVar4;
         }
         else {
-          PlayUiSound(0x2f);
+          RT_CALLRA(0x22d440, guest::PlayUiSound(0x2f));
           iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x260)));
           (*(int32_t*)rtguest::G(0x335700)) = iVar4;
         }
       }
       else {
-        PlayUiSound(0x2e);
+        RT_CALLRA(0x22d458, guest::PlayUiSound(0x2e));
         iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x260)));
       }
     }
@@ -47,7 +51,7 @@ LAB_0022d480:
   }
   else {
     if ((uVar7 & 3) != 0) {
-      PlayUiSound(0x2e);
+      RT_CALLRA(0x22d478, guest::PlayUiSound(0x2e));
       goto LAB_0022d480;
     }
     cVar5 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x19b)));
@@ -76,7 +80,7 @@ LAB_0022d4bc:
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x247))) = cVar5;
         uVar7 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x198)));
         if ((uVar7 & 3) != 0) {
-          PlayUiSound((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x245))) + 0x8000);
+          RT_CALLRA(0x22d52c, guest::PlayUiSound((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x245))) + 0x8000));
           uVar7 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x198)));
         }
       }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceGsResetGraph(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
   undefined8 uVar1;
 uint32_t puVar2;
   
@@ -14,17 +18,17 @@ uint32_t puVar2;
   }
   else if (param_1 < 2) {
     if (param_1 == 0) {
-      puVar2 = (uint32_t)sceGsGetEnv();
+      puVar2 = (uint32_t)RT_CALLRA(0x26e2bc, guest::sceGsGetEnv());
       (*(uint8_t*)rtguest::G(0x12001000)) = 0x200;
       (*(uint16_t*)rtguest::G((uint32_t)puVar2)) = param_2;
       uVar1 = (*(uint8_t*)rtguest::G(0x12001000));
       (*(uint16_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint16_t))) = param_3;
       (*(uint16_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(3) * sizeof(uint16_t))) = (uint32_t)((uint32_t)uVar1 >> 0x10) & 0xff;
-      GsPutIMR(0xff00);
+      RT_CALLRA(0x26e2f4, guest::GsPutIMR(0xff00));
       (*(uint16_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(2) * sizeof(uint16_t))) = (uint32_t)(param_4 != 0);
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 4))) != 0) {
-        disableIntc(2);
-        RemoveIntcHandler(2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 6))));
+        RT_CALLRA(0x26e30c, guest::disableIntc(2));
+        RT_CALLRA(0x26e318, guest::RemoveIntcHandler(2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 6)))));
         (*(uint16_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(6) * sizeof(uint16_t))) = 0;
         (*(uint16_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(7) * sizeof(uint16_t))) = 0;
         (*(uint16_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(4) * sizeof(uint16_t))) = 0;
@@ -35,7 +39,7 @@ uint32_t puVar2;
     }
   }
   else if (param_1 == 5) {
-    puVar2 = (uint32_t)sceGsGetEnv();
+    puVar2 = (uint32_t)RT_CALLRA(0x26e368, guest::sceGsGetEnv());
     uVar1 = (*(uint8_t*)rtguest::G(0x12001000));
     (*(uint16_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(2) * sizeof(uint16_t))) = (uint32_t)(param_4 != 0);
     (*(uint16_t*)rtguest::G((uint32_t)puVar2)) = param_2;

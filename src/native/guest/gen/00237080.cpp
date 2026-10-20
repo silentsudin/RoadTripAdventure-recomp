@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t DrawEntryRowsForState(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
   byte bVar1;
   uint uVar2;
   uint uVar3;
@@ -20,11 +24,11 @@ uint32_t ppuVar11;
   
   iVar10 = 0x41;
   uVar9 = 0;
-  uiDrawPanelCells(2,3,0x1c,0x11,0);
-  uiDrawTextCell(3,4,0x333840,0);
-  uiDrawTextCell(7,4,0x2ec430,0);
-  uiDrawTextCell(0x10,4,0x333840,0);
-  uiDrawTextCell(0x14,4,0x2ec430,0);
+  RT_CALLRA(0x2370d8, guest::uiDrawPanelCells(2,3,0x1c,0x11,0));
+  RT_CALLRA(0x2370ec, guest::uiDrawTextCell(3,4,0x333840,0));
+  RT_CALLRA(0x237100, guest::uiDrawTextCell(7,4,0x2ec430,0));
+  RT_CALLRA(0x237114, guest::uiDrawTextCell(0x10,4,0x333840,0));
+  RT_CALLRA(0x237128, guest::uiDrawTextCell(0x14,4,0x2ec430,0));
   uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8)));
   ppuVar11 = 0x29fd30u;
   do {
@@ -41,13 +45,13 @@ uint32_t ppuVar11;
         uVar3 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) + 1)));
       }
       if (iVar8 < (int)uVar3) {
-        uiDrawText(0x50,iVar10,(*(uint32_t*)rtguest::G((uint32_t)ppuVar11)),0);
-        uVar4 = GetPlayerScoreboardPtr(iVar8);
+        RT_CALLRA(0x2371b8, guest::uiDrawText(0x50,iVar10,(*(uint32_t*)rtguest::G((uint32_t)ppuVar11)),0));
+        uVar4 = RT_CALLRA(0x2371c0, guest::GetPlayerScoreboardPtr(iVar8));
         uVar7 = 0;
         if ((iVar8 < 3) && (uVar7 = 6, ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0x20) == 0)) {
           uVar7 = 0;
         }
-        uiDrawText(0x96,iVar10,uVar4,uVar7);
+        RT_CALLRA(0x2371f0, guest::uiDrawText(0x96,iVar10,uVar4,uVar7));
         uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8)));
       }
     }
@@ -65,13 +69,13 @@ uint32_t ppuVar11;
         uVar3 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) + 1)));
       }
       if (iVar8 < (int)uVar3) {
-        uiDrawText(0x154,iVar10,(*(uint32_t*)rtguest::G((uint32_t)ppuVar11 + (uint32_t)(0xc) * sizeof(uint32_t))),0);
-        uVar4 = GetPlayerScoreboardPtr(iVar8);
+        RT_CALLRA(0x237270, guest::uiDrawText(0x154,iVar10,(*(uint32_t*)rtguest::G((uint32_t)ppuVar11 + (uint32_t)(0xc) * sizeof(uint32_t))),0));
+        uVar4 = RT_CALLRA(0x237278, guest::GetPlayerScoreboardPtr(iVar8));
         uVar7 = 0;
         if ((iVar8 < 3) && (uVar7 = 6, ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0x20) == 0)) {
           uVar7 = 0;
         }
-        uiDrawText(0x19a,iVar10,uVar4,uVar7);
+        RT_CALLRA(0x2372a8, guest::uiDrawText(0x19a,iVar10,uVar4,uVar7));
         uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8)));
       }
     }

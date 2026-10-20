@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t townMapCoins(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   uint uVar1;
   int iVar2;
   long lVar3;
@@ -17,14 +21,14 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
   iVar4 = 0;
   do {
     iVar5 = iVar2;
-    lVar3 = TestFlagFca8Clear(iVar5);
+    lVar3 = RT_CALLRA(0x241ed8, guest::TestFlagFca8Clear(iVar5));
     if (lVar3 == 0) {
       uVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a397c + iVar4 * 0x10)));
-      lVar3 = tileSlotLoaded(param_2,uVar1);
+      lVar3 = RT_CALLRA(0x241ef8, guest::tileSlotLoaded(param_2,uVar1));
       if ((lVar3 != 0) &&
-         (lVar3 = tileSlotOrigin(auStack_60,0x2a3970 + iVar4 * 0x10,uVar1 & 3), lVar3 != 0
+         (lVar3 = RT_CALLRA(0x241f10, guest::tileSlotOrigin(auStack_60,0x2a3970 + iVar4 * 0x10,uVar1 & 3)), lVar3 != 0
          )) {
-        mapDot(param_1,auStack_60,param_2);
+        RT_CALLRA(0x241f24, guest::mapDot(param_1,auStack_60,param_2));
       }
     }
     iVar2 = iVar5 + 1;

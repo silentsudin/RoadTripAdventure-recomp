@@ -6,11 +6,15 @@ namespace guest {
 
 uint32_t shopMenuDispatchByContext(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
 uint32_t pcVar1;
   long lVar2;
   int iVar3;
   
-  lVar2 = ClassifyObjectContext(param_2);
+  lVar2 = RT_CALLRA(0x269ea0, guest::ClassifyObjectContext(param_2));
   iVar3 = (int)param_1;
   if (lVar2 == 2) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 0x269900;

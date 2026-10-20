@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t UpdateContinuousSoundEffect(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   int iVar1;
   ushort uVar2;
   undefined4 uVar3;
   
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) & 0xc) != 4) {
     if (((*(uint16_t*)rtguest::G((uint32_t)param_2)) != 0) && ((param_5 & 3) != 0)) {
-      PlayUiSound((param_5 & 1) + 0x8010);
+      RT_CALLRA(0x217f98, guest::PlayUiSound((param_5 & 1) + 0x8010));
     }
     (*(uint16_t*)rtguest::G((uint32_t)param_2)) = 0;
     return 0;
@@ -24,7 +28,7 @@ uint32_t UpdateContinuousSoundEffect(uint32_t param_1, uint32_t param_2, uint32_
         return 0;
       }
       if ((param_5 & 3) != 0) {
-        PlayUiSound((param_5 & 1) + 0x8010);
+        RT_CALLRA(0x218000, guest::PlayUiSound((param_5 & 1) + 0x8010));
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)param_2));
       }
     }
@@ -44,7 +48,7 @@ uint32_t UpdateContinuousSoundEffect(uint32_t param_1, uint32_t param_2, uint32_
     uVar2 = (*(uint16_t*)rtguest::G((uint32_t)param_2));
     if ((*(uint16_t*)rtguest::G((uint32_t)param_2)) != 0) goto LAB_00217fa4;
     if ((param_5 & 3) != 0) {
-      PlayUiSound((param_5 & 1) + 0x10);
+      RT_CALLRA(0x218034, guest::PlayUiSound((param_5 & 1) + 0x10));
       goto LAB_00217fa0;
     }
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)param_4));
@@ -73,7 +77,7 @@ LAB_00217fa4:
   uVar2 = (*(uint16_t*)rtguest::G((uint32_t)param_2));
 LAB_00217fe4:
   if ((uVar2 == 0) && ((param_5 & 3) != 0)) {
-    PlayUiSound((param_5 & 1) + 0x8010);
+    RT_CALLRA(0x218094, guest::PlayUiSound((param_5 & 1) + 0x8010));
   }
   return uVar3;
 }

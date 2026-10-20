@@ -6,27 +6,31 @@ namespace guest {
 
 uint32_t RenderShowcaseView(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+  }
 uint32_t auStack_80 = rtguest::allocFrame(64);
   
-  vu0UnitMatrix(0x17525d0);
-  vu0RotMatrixY((*(uint32_t*)rtguest::G(0x29f36c)),0x17525d0,0x17525d0);
-  vu0CopyVectorXYZ(0x1752600,0x29f360);
+  RT_CALLRA(0x22c2bc, guest::vu0UnitMatrix(0x17525d0));
+  RT_CALLRA(0x22c2d0, guest::vu0RotMatrixY((*(uint32_t*)rtguest::G(0x29f36c)),0x17525d0,0x17525d0));
+  RT_CALLRA(0x22c2dc, guest::vu0CopyVectorXYZ(0x1752600,0x29f360));
   (*(uint32_t*)rtguest::G(0x1752658)) = 0;
   (*(uint32_t*)rtguest::G(0x1752654)) = 0;
   (*(uint32_t*)rtguest::G(0x1752650)) = 0;
-  vu0UnitMatrix(0x1752610);
+  RT_CALLRA(0x22c2f4, guest::vu0UnitMatrix(0x1752610));
   (*(uint32_t*)rtguest::G(0x1752644)) = (*(uint32_t*)rtguest::G(0x332e24));
   if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G((uint32_t)0x177ea50 + (uint32_t)((int)param_3) * 4)) + 8))) & 0x400) == 0) {
     (*(uint32_t*)rtguest::G(0x1752644)) = 0;
   }
-  UpdateSceneLightsAndFog(1,0);
-  vu0UnitMatrix(auStack_80);
-  SetViewDistanceGlobals(0x45000000,0x45000000);
-  buildCamera(0x177e6d0,0x29f3d0,auStack_80,auStack_80);
-  updateLightDirection(0x177e850);
-  vifUploadAt4(0x177e6d0);
-  ResetShowroomLighting();
-  DrawCarVariant0(0x17525d0,param_3);
+  RT_CALLRA(0x22c328, guest::UpdateSceneLightsAndFog(1,0));
+  RT_CALLRA(0x22c330, guest::vu0UnitMatrix(auStack_80));
+  RT_CALLRA(0x22c340, guest::SetViewDistanceGlobals(0x45000000,0x45000000));
+  RT_CALLRA(0x22c358, guest::buildCamera(0x177e6d0,0x29f3d0,auStack_80,auStack_80));
+  RT_CALLRA(0x22c360, guest::updateLightDirection(0x177e850));
+  RT_CALLRA(0x22c368, guest::vifUploadAt4(0x177e6d0));
+  RT_CALLRA(0x22c370, guest::ResetShowroomLighting());
+  RT_CALLRA(0x22c37c, guest::DrawCarVariant0(0x17525d0,param_3));
   return 0;
 }
 

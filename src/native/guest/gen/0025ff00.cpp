@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t dualViewCourseTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   byte bVar1;
   short sVar2;
   int iVar3;
@@ -18,11 +22,11 @@ uint32_t psVar7;
   
   iVar8 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) == 0) {
-    uVar5 = getExtraPacketArea(0x8cd0);
+    uVar5 = RT_CALLRA(0x25ff30, guest::getExtraPacketArea(0x8cd0));
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))) = (int)uVar5;
-    InitMode14(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))));
-    gs_music_play_bgm(0xa100201);
-    gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))));
+    RT_CALLRA(0x25ff40, guest::InitMode14(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c)))));
+    RT_CALLRA(0x25ff4c, guest::gs_music_play_bgm(0xa100201));
+    RT_CALLRA(0x25ff60, guest::gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)))));
     iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
     (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)((uint32_t)(iVar8 + 0x8cb0))), 0, 0x20));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x8cb4))) = 0;
@@ -40,8 +44,8 @@ uint32_t psVar7;
   switch((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4)))) {
   case 0:
     uVar9 = 0x43ce0000;
-    StoreIndexedPosition(0x43ce0000,0x42540000,(*(uint32_t*)rtguest::G(0x33313c)),0,0xffffffffffffc000);
-    StoreIndexedPosition(uVar9,0x42540000,(*(uint32_t*)rtguest::G(0x333140)),1,0xffffffffffffc000);
+    RT_CALLRA(0x260010, guest::StoreIndexedPosition(0x43ce0000,0x42540000,(*(uint32_t*)rtguest::G(0x33313c)),0,0xffffffffffffc000));
+    RT_CALLRA(0x260028, guest::StoreIndexedPosition(uVar9,0x42540000,(*(uint32_t*)rtguest::G(0x333140)),1,0xffffffffffffc000));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4))) = 1;
   case 1:
     if (((*(int8_t*)rtguest::G(0x177ae9a)) != 0x13) || ((*(uint32_t*)rtguest::G(0x333144)) <= (*(uint32_t*)rtguest::G(0x177ace8)))) {
@@ -66,22 +70,22 @@ uint32_t psVar7;
 LAB_00260154:
       if ((*(int8_t*)rtguest::G(0x177ae9a)) == 0x55) {
         if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb6))) == 5) {
-          SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1);
-          GetOrSetPresidentRaceResult(1);
+          RT_CALLRA(0x260178, guest::SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1));
+          RT_CALLRA(0x26010c, guest::GetOrSetPresidentRaceResult(1));
         }
         else {
-          SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1);
+          RT_CALLRA(0x26011c, guest::SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1));
           if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) == 0) {
             if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbc))) < 0xbb9) {
-              GetOrSetPresidentRaceResult(3,1);
+              RT_CALLRA(0x260130, guest::GetOrSetPresidentRaceResult(3,1));
             }
             else {
-              GetOrSetPresidentRaceResult(2,1);
+              RT_CALLRA(0x260180, guest::GetOrSetPresidentRaceResult(2,1));
             }
           }
           else {
-            SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),1,1);
-            GetOrSetPresidentRaceResult(2);
+            RT_CALLRA(0x2601b0, guest::SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),1,1));
+            RT_CALLRA(0x2601b8, guest::GetOrSetPresidentRaceResult(2));
           }
         }
         (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb6))) = 2;
@@ -93,13 +97,13 @@ LAB_00260154:
     else {
       uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
 LAB_002600f0:
-      SetObjectState(uVar9,0,1);
+      RT_CALLRA(0x2600f4, guest::SetObjectState(uVar9,0,1));
       if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) == 0) {
-        GetOrSetPresidentRaceResult(0);
+        RT_CALLRA(0x2601d8, guest::GetOrSetPresidentRaceResult(0));
       }
       else {
-        GetOrSetPresidentRaceResult(1);
-        SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),1,1);
+        RT_CALLRA(0x2601e8, guest::GetOrSetPresidentRaceResult(1));
+        RT_CALLRA(0x260194, guest::SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),1,1));
       }
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb6))) = 2;
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4))) = 2;
@@ -140,7 +144,7 @@ LAB_002602dc:
         }
         uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
       }
-      InitHudConfig2(uVar9,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbc))));
+      RT_CALLRA(0x2602e0, guest::InitHudConfig2(uVar9,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbc)))));
       lVar6 = (long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb6)));
     }
     else {
@@ -156,7 +160,7 @@ LAB_002602dc:
   case 3:
     sVar2 = (*(int16_t*)rtguest::G((uint32_t)psVar7));
     if (0x40 < (*(int16_t*)rtguest::G((uint32_t)psVar7))) {
-      uiFade(((*(int16_t*)rtguest::G((uint32_t)psVar7)) + -0x40) * 0x1000000);
+      RT_CALLRA(0x260344, guest::uiFade(((*(int16_t*)rtguest::G((uint32_t)psVar7)) + -0x40) * 0x1000000));
       sVar2 = (*(int16_t*)rtguest::G((uint32_t)psVar7));
     }
     if (sVar2 < 0xc0) {
@@ -177,7 +181,7 @@ LAB_002602dc:
 LAB_00260378:
   switch(lVar6) {
   case 0:
-    StoreIndexedPosition(0x43ce0000,0x42540000,(*(uint32_t*)rtguest::G(0x333154)),1,0xffffffffffffc000);
+    RT_CALLRA(0x2603b0, guest::StoreIndexedPosition(0x43ce0000,0x42540000,(*(uint32_t*)rtguest::G(0x333154)),1,0xffffffffffffc000));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb6))) = 1;
   case 1:
     if (((*(uint32_t*)rtguest::G(0x177b10a)) != 0x13) || ((*(uint32_t*)rtguest::G(0x333158)) <= (*(uint32_t*)rtguest::G(0x177af58)))) {
@@ -201,21 +205,21 @@ LAB_00260378:
       }
 LAB_002604b8:
       if ((*(uint32_t*)rtguest::G(0x177b10a)) == 0x55) {
-        SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),1,1);
-        SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1);
+        RT_CALLRA(0x26048c, guest::SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),1,1));
+        RT_CALLRA(0x2604e0, guest::SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1));
         (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb6))) = 2;
         (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4))) = 2;
-        GetOrSetPresidentRaceResult(1);
+        RT_CALLRA(0x2604a0, guest::GetOrSetPresidentRaceResult(1));
       }
     }
     else {
       uVar9 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
 LAB_00260478:
-      SetObjectState(uVar9,1,1);
-      SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1);
+      RT_CALLRA(0x26047c, guest::SetObjectState(uVar9,1,1));
+      RT_CALLRA(0x2604d0, guest::SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1));
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb6))) = 2;
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4))) = 2;
-      GetOrSetPresidentRaceResult(2);
+      RT_CALLRA(0x2604f4, guest::GetOrSetPresidentRaceResult(2));
       uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cc0)));
 LAB_002604ac:
       if ((uVar4 & 2) != 0) goto LAB_002604b8;
@@ -236,7 +240,7 @@ LAB_002604ac:
   case 3:
     sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb2)));
     if (0x40 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb2)))) {
-      uiFade(((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb2))) + -0x40) * 0x1000000);
+      RT_CALLRA(0x260594, guest::uiFade(((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb2))) + -0x40) * 0x1000000));
       sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb2)));
     }
     if (sVar2 < 0xc0) {
@@ -246,15 +250,15 @@ LAB_002604ac:
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb8))) = 1;
     }
   }
-  raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))));
+  RT_CALLRA(0x2605c4, guest::raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)))));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb8))) != 0) {
-    SoundStopAllChannels();
-    uiFade(0xffffffff80000000);
+    RT_CALLRA(0x2605d8, guest::SoundStopAllChannels());
+    RT_CALLRA(0x2605e0, guest::uiFade(0xffffffff80000000));
     iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 8;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 4))) = 0xffffffff;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x260608, guest::gs_tasks_kill(param_1));
   }
   return 0;
 }

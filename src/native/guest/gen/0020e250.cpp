@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t cdReadEntryPart(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   long lVar1;
   int iVar2;
   int iVar3;
@@ -27,7 +31,7 @@ uint32_t cdReadEntryPart(uint32_t param_1, uint32_t param_2, uint32_t param_3, u
   (*(uint64_t*)rtguest::G(0x1727b80)) = CONCAT44(iVar3,(int)(*(uint64_t*)rtguest::G((uint32_t)param_1)));
   (*(uint32_t*)rtguest::G(0x3356cc)) = 0x01727b80;
   (*(uint32_t*)rtguest::G(0x3356c8)) = (uint32_t)param_2;
-  lVar1 = sceCdRead(iVar3,(*(uint32_t*)rtguest::G(0x1727b88)),param_2,0x333380);
+  lVar1 = RT_CALLRA(0x20e2e8, guest::sceCdRead(iVar3,(*(uint32_t*)rtguest::G(0x1727b88)),param_2,0x333380));
   if (lVar1 == 0) {
     (*(uint32_t*)rtguest::G(0x3356c4)) = 0;
   }

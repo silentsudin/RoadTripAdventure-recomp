@@ -24,7 +24,7 @@ uint32_t auStack_6c = rtguest::allocFrame(12);
     sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16)));
     while( true ) {
       (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) = sVar1 + -0x80;
-      buildCamera(param_1,param_2,param_4,param_5);
+      RT_CALLRA(0x21e118, guest::buildCamera(param_1,param_2,param_4,param_5));
       if (0 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16)))) break;
       fVar6 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x104)));
       lVar2 = rtCall((*(uint32_t*)rtguest::G(0x335710)), iVar5, auStack_70, auStack_6c, param_6, param_3);
@@ -43,7 +43,7 @@ uint32_t auStack_6c = rtguest::allocFrame(12);
         return 0;
       }
       (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) + -0x80;
-      buildCamera(param_1,param_2,param_4,param_5);
+      RT_CALLRA(0x21e1bc, guest::buildCamera(param_1,param_2,param_4,param_5));
     } while ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) < 1);
   }
   else {
@@ -53,7 +53,7 @@ uint32_t auStack_6c = rtguest::allocFrame(12);
       sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16)));
       while( true ) {
         (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) = sVar1 + 0x80;
-        buildCamera(param_1,param_2,param_4,param_5);
+        RT_CALLRA(0x21e238, guest::buildCamera(param_1,param_2,param_4,param_5));
         if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) < 0) break;
         fVar6 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x114)));
         lVar2 = rtCall((*(uint32_t*)rtguest::G(0x335710)), iVar4 + 0x110, auStack_70, auStack_6c, param_6, param_3);
@@ -72,7 +72,7 @@ uint32_t auStack_6c = rtguest::allocFrame(12);
           return 0;
         }
         (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))) + 0x80;
-        buildCamera(param_1,param_2,param_4,param_5);
+        RT_CALLRA(0x21e2dc, guest::buildCamera(param_1,param_2,param_4,param_5));
       } while (-1 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x16))));
     }
   }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateAnimationPhaseMachine(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x64) = 0x00000000u;
+  }
   char cVar1;
   long lVar2;
   uint uVar3;
@@ -19,7 +23,7 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
     lVar2 = ApplyMotionClipFrame(0x17524b0,param_2,0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))));
     if (lVar2 == 0) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = 0xc;
-      PlayUiSound(0x35);
+      RT_CALLRA(0x22a70c, guest::PlayUiSound(0x35));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
     }
     else {
@@ -48,13 +52,13 @@ LAB_0022a784:
         goto LAB_0022a784;
       }
     }
-    vu0CopyVector(auStack_70,0x1752600);
-    vu0UnitMatrix(0x17525d0);
-    vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175265c + 2)) * 3.0517578e-05 * (*(uint32_t*)rtguest::G(0x332df4)),0x17525d0,0x17525d0)
+    RT_CALLRA(0x22a79c, guest::vu0CopyVector(auStack_70,0x1752600));
+    RT_CALLRA(0x22a7a4, guest::vu0UnitMatrix(0x17525d0));
+    RT_CALLRA(0x22a7d4, guest::vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175265c + 2)) * 3.0517578e-05 * (*(uint32_t*)rtguest::G(0x332df4)),0x17525d0,0x17525d0))
     ;
-    vu0CopyVectorXYZ(0x1752600,auStack_70);
+    RT_CALLRA(0x22a7e0, guest::vu0CopyVectorXYZ(0x1752600,auStack_70));
     if (uVar3 == 0x40) {
-      PlayUiSound(0x8035);
+      RT_CALLRA(0x22a7f4, guest::PlayUiSound(0x8035));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = 7;
       cVar1 = '\a';
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = 0;
@@ -68,7 +72,7 @@ LAB_0022a784:
     lVar2 = ApplyMotionClipFrame(0x17524b0,param_2,2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))));
     if (lVar2 == 0) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = 0xc;
-      PlayUiSound(0x35);
+      RT_CALLRA(0x22a85c, guest::PlayUiSound(0x35));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
     }
     else {
@@ -97,13 +101,13 @@ LAB_0022a8e4:
         goto LAB_0022a8e4;
       }
     }
-    vu0CopyVector(auStack_60,0x17524e0);
-    vu0UnitMatrix(0x17524b0);
-    vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175253c + 2)) * 3.0517578e-05 * (*(uint32_t*)rtguest::G(0x332df8)),0x17524b0,0x17524b0)
+    RT_CALLRA(0x22a8fc, guest::vu0CopyVector(auStack_60,0x17524e0));
+    RT_CALLRA(0x22a904, guest::vu0UnitMatrix(0x17524b0));
+    RT_CALLRA(0x22a934, guest::vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175253c + 2)) * 3.0517578e-05 * (*(uint32_t*)rtguest::G(0x332df8)),0x17524b0,0x17524b0))
     ;
-    vu0CopyVectorXYZ(0x17524e0,auStack_60);
+    RT_CALLRA(0x22a940, guest::vu0CopyVectorXYZ(0x17524e0,auStack_60));
     if (uVar3 == 0x80) {
-      PlayUiSound(0x8035);
+      RT_CALLRA(0x22a954, guest::PlayUiSound(0x8035));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) = 0;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) + '\x01';
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = cVar1;
@@ -121,7 +125,7 @@ LAB_0022a8e4:
     lVar2 = ApplyMotionClipFrame(0x17524b0,param_2,1,iVar4);
     if (lVar2 == 0) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = 4;
-      PlayUiSound(0x35);
+      RT_CALLRA(0x22a9d0, guest::PlayUiSound(0x35));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27)));
     }
     else {
@@ -150,12 +154,12 @@ LAB_0022aa4c:
       goto LAB_0022aa4c;
     }
   }
-  vu0CopyVector(auStack_50,0x1752600);
-  vu0UnitMatrix(0x17525d0);
-  vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175265c + 2)) * 3.0517578e-05 * (*(uint32_t*)rtguest::G(0x332dfc)),0x17525d0,0x17525d0);
-  vu0CopyVectorXYZ(0x1752600,auStack_50);
+  RT_CALLRA(0x22aa64, guest::vu0CopyVector(auStack_50,0x1752600));
+  RT_CALLRA(0x22aa6c, guest::vu0UnitMatrix(0x17525d0));
+  RT_CALLRA(0x22aa9c, guest::vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175265c + 2)) * 3.0517578e-05 * (*(uint32_t*)rtguest::G(0x332dfc)),0x17525d0,0x17525d0));
+  RT_CALLRA(0x22aaa8, guest::vu0CopyVectorXYZ(0x1752600,auStack_50));
   if (uVar3 == 0x80) {
-    PlayUiSound(0x8035);
+    RT_CALLRA(0x22aabc, guest::PlayUiSound(0x8035));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = 5;
     cVar1 = '\x05';
   }

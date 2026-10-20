@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t CycleCameraPresetState(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   uint uVar1;
   byte bVar2;
   ushort uVar3;
@@ -34,7 +38,7 @@ uint32_t puVar5;
   do {
     puVar5 = puVar5 + 0x270;  // T* element step
     if ((uVar3 & 0x27e) == uVar6) {
-      InitializeTask((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))),0x238b18,iVar7);
+      RT_CALLRA(0x21e38c, guest::InitializeTask((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))),0x238b18,iVar7));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (byte)iVar7;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (byte)uVar1;
       bVar4 = true;
@@ -55,7 +59,7 @@ LAB_0021e440:
           }
           uVar3 = (*(uint16_t*)rtguest::G((uint32_t)puVar5));
         }
-        InitializeTask((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))),0x238b18,iVar7);
+        RT_CALLRA(0x21e3b4, guest::InitializeTask((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))),0x238b18,iVar7));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (byte)iVar7;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = (byte)uVar1;
       }

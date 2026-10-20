@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t notebookStampListTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
     uint32_t uStack_50 = rtguest::allocFrame(8);
     uint32_t uStack_48 = rtguest::allocFrame(8);
     uint32_t uStack_40 = rtguest::allocFrame(8);
@@ -37,7 +41,7 @@ uint32_t notebookStampListTask(uint32_t param_1, uint32_t param_2, ...) {
     goto LAB_00265cec;
   case 2:
     iVar8 = (int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1;
-    iVar4 = NavigateGridSelection(param_2,iVar8,0x32,1,0,0);
+    iVar4 = RT_CALLRA(0x265bec, guest::NavigateGridSelection(param_2,iVar8,0x32,1,0,0));
     iVar5 = (iVar4 << 0x11) >> 0x11;
     (*(uint8_t*)rtguest::G(0x1780a40)) = (uint32_t)(iVar4 << 1);
     if (iVar8 < iVar5) {
@@ -55,8 +59,8 @@ uint32_t notebookStampListTask(uint32_t param_1, uint32_t param_2, ...) {
         bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x27)));
         goto LAB_00265cec;
       }
-      PlayUiSound(0x1b);
-      gs_tasks_spawn(param_1,0x20dc50,0x40005);
+      RT_CALLRA(0x265c5c, guest::PlayUiSound(0x1b));
+      RT_CALLRA(0x265c74, guest::gs_tasks_spawn(param_1,0x20dc50,0x40005));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 4;
     }
     break;
@@ -90,29 +94,29 @@ LAB_00265ce4:
   bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x27)));
 LAB_00265cec:
   if ((bVar2 & 2) == 0) goto LAB_00265f9c;
-  uiArenaInit(0x1762400,0x10000);
-  uiArenaBeginBatch(0x1762400,0,0);
-  uiArenaSetTexture(0x1762400,0x2dbb50,0,0);
-  uiArenaDataTag(0x1762400,1);
-  uiArenaSpritesWrap(0x1762400,0x2dbda8,1,0,0,0xfffff0);
-  drawBoardSpriteGrid(0x1762400,0);
+  RT_CALLRA(0x265cf8, guest::uiArenaInit(0x1762400,0x10000));
+  RT_CALLRA(0x265d08, guest::uiArenaBeginBatch(0x1762400,0,0));
+  RT_CALLRA(0x265d20, guest::uiArenaSetTexture(0x1762400,0x2dbb50,0,0));
+  RT_CALLRA(0x265d2c, guest::uiArenaDataTag(0x1762400,1));
+  RT_CALLRA(0x265d50, guest::uiArenaSpritesWrap(0x1762400,0x2dbda8,1,0,0,0xfffff0));
+  RT_CALLRA(0x265d5c, guest::drawBoardSpriteGrid(0x1762400,0));
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) == '\x03') {
-    drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 2))));
+    RT_CALLRA(0x265d78, guest::drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 2)))));
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x20))) < 1) {
       if (0x4000 < (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 2)))) {
         uVar6 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x26)));
         goto LAB_00265de4;
       }
-      drawStampCard(0x1762400,
-                    ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1);
+      RT_CALLRA(0x265da0, guest::drawStampCard(0x1762400,
+                    ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1));
     }
     else if ((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 2))) < 0x4000) {
-      drawStampCard(0x1762400,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x26))) & 0xfe);
+      RT_CALLRA(0x265de4, guest::drawStampCard(0x1762400,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x26))) & 0xfe));
     }
     else {
       uVar6 = (int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf);
 LAB_00265de4:
-      drawStampCard(0x1762400,uVar6 | 1);
+      RT_CALLRA(0x265e14, guest::drawStampCard(0x1762400,uVar6 | 1));
     }
   }
   else {
@@ -123,30 +127,30 @@ LAB_00265de4:
         (*(uint64_t*)rtguest::G((uint32_t)uStack_48)) = 0x9800000052;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = 0x2800000016;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = 0;
-        uiArenaDataTag(0x1762400,1);
-        uiArenaSprites(0x1762400,uStack_50,1,0x1e,0xcc,1);
+        RT_CALLRA(0x265ea8, guest::uiArenaDataTag(0x1762400,1));
+        RT_CALLRA(0x265ec4, guest::uiArenaSprites(0x1762400,uStack_50,1,0x1e,0xcc,1));
       }
       if (iVar9 < 0x62) {
         (*(uint64_t*)rtguest::G((uint32_t)uStack_50)) = 0;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_48)) = 0x9800000068;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = 0x2800000016;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = 0;
-        uiArenaDataTag(0x1762400,1);
-        uiArenaSprites(0x1762400,uStack_50,1,0x24c,0xcc,1);
+        RT_CALLRA(0x265f24, guest::uiArenaDataTag(0x1762400,1));
+        RT_CALLRA(0x265f40, guest::uiArenaSprites(0x1762400,uStack_50,1,0x24c,0xcc,1));
       }
     }
-    drawStampCard(0x1762400,
-                  ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1);
-    drawStampCard(0x1762400,(int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf) | 1);
+    RT_CALLRA(0x265f68, guest::drawStampCard(0x1762400,
+                  ((int)((int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf)) >> 1) << 1));
+    RT_CALLRA(0x265f88, guest::drawStampCard(0x1762400,(int)(short)(*(uint8_t*)rtguest::G(0x1780a40)) + (uint32_t)((*(uint8_t*)rtguest::G(0x1780a40)) >> 0xf) | 1));
   }
-  uiArenaSubmit(0x1762400);
+  RT_CALLRA(0x265f90, guest::uiArenaSubmit(0x1762400));
   bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x27)));
 LAB_00265f9c:
   if ((bVar2 & 1) != 0) {
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = 0xffffffff;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x265fbc, guest::gs_tasks_kill(param_1));
   }
   return 0;
 }

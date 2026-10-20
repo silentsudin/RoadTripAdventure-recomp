@@ -7,6 +7,8 @@ namespace guest {
 uint32_t AdvanceVehicleMotion(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, ...) {
   rtguest::FrameGuard rt_fg(224);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xc8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xcc) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x30) = (uint32_t)(int32_t)param_1;
   }
     uint32_t iStack_dc = rtguest::allocFrame(4);
@@ -249,7 +251,7 @@ LAB_0021931c:
   (*(int32_t*)rtguest::G((uint32_t)iStack_a0)) = param_8;
   if (bVar1) {
     ::sprintf((char *)rtguest::G((uint32_t)(auStack_d0)), (char *)rtguest::G((uint32_t)(0x2eadb0)), iVar5);
-    uiDebugText8(300,0x78,auStack_d0,0xf);
+    RT_CALLRA(0x2193a0, guest::uiDebugText8(300,0x78,auStack_d0,0xf));
   }
   iVar9 = (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1d0))) + ((iVar13 + iVar8) * 0x80) / iVar11;
   (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1d0))) = (short)iVar9;
@@ -274,9 +276,9 @@ LAB_0021931c:
   }
   if ((*(int32_t*)rtguest::G(0x3356d4)) != 0) {
     ::sprintf((char *)rtguest::G((uint32_t)(auStack_d0)), (char *)rtguest::G((uint32_t)(0x2eadc0)), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1bc))), (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1d0))));
-    uiDebugText8(300,0x88,auStack_d0,0xf);
+    RT_CALLRA(0x219448, guest::uiDebugText8(300,0x88,auStack_d0,0xf));
     ::sprintf((char *)rtguest::G((uint32_t)(auStack_d0)), (char *)rtguest::G((uint32_t)(0x2eadd0)), (*(uint32_t*)rtguest::G((uint32_t)iStack_9c)));
-    uiDebugText8(300,0x98,auStack_d0,0xf);
+    RT_CALLRA(0x219470, guest::uiDebugText8(300,0x98,auStack_d0,0xf));
   }
   return (*(uint32_t*)rtguest::G((uint32_t)iStack_9c));;
 }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t RunCountdownTimerTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   short sVar1;
   undefined4 uVar2;
   uint uVar3;
@@ -17,7 +21,7 @@ uint32_t RunCountdownTimerTask(uint32_t param_1, uint32_t param_2, ...) {
   uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c)));
   if (sVar1 < 0x40) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffeffff;
-    uiFade((0x40 - sVar1) * 0x2000000);
+    RT_CALLRA(0x22db30, guest::uiFade((0x40 - sVar1) * 0x2000000));
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) + 1;
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x4000) != 0) {
@@ -26,7 +30,7 @@ uint32_t RunCountdownTimerTask(uint32_t param_1, uint32_t param_2, ...) {
   }
   iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8)));
   if (iVar4 == 0x3c) {
-    PlayUiSound(0x2d);
+    RT_CALLRA(0x22db6c, guest::PlayUiSound(0x2d));
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8)));
   }
   else {
@@ -35,7 +39,7 @@ uint32_t RunCountdownTimerTask(uint32_t param_1, uint32_t param_2, ...) {
     }
     else {
       if (iVar4 != 300) goto LAB_0022dbb4;
-      PlayBgmSlot1();
+      RT_CALLRA(0x22db98, guest::PlayBgmSlot1());
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x100;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = uVar3;
@@ -43,10 +47,10 @@ uint32_t RunCountdownTimerTask(uint32_t param_1, uint32_t param_2, ...) {
   }
 LAB_0022dbb4:
   if (iVar4 < 300) {
-    SetVehicleMode(uVar2,iVar4 / 0x3c + 2);
+    RT_CALLRA(0x22dbd0, guest::SetVehicleMode(uVar2,iVar4 / 0x3c + 2));
   }
   else {
-    SetVehicleMode(uVar2,6);
+    RT_CALLRA(0x22dbe0, guest::SetVehicleMode(uVar2,6));
     if ((*(int8_t*)rtguest::G(0x177adea)) == '\0') {
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
       if (((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) != 0x168) && ((uVar3 & 0x8000) == 0)) {
@@ -57,11 +61,11 @@ LAB_0022dbb4:
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = uVar3 | 0x114;
-    SetVehicleMode(uVar2,0);
+    RT_CALLRA(0x22dc2c, guest::SetVehicleMode(uVar2,0));
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = 0xffffffff;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x22dc48, guest::gs_tasks_kill(param_1));
   }
   return 0;
 }

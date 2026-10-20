@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t AdvanceCarEmitterStep(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
   rtguest::FrameGuard rt_fg(192);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x98) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x9c) = 0x00000000u;
+  }
     uint32_t uStack_c0 = rtguest::allocFrame(4);
     uint32_t uStack_bc = rtguest::allocFrame(4);
     uint32_t fStack_b8 = rtguest::allocFrame(4);
@@ -49,12 +53,12 @@ uint32_t pfVar1;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_a4)) = 0x3f800000;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_bc)) = 0;
-  vu0ApplyMatrix(uStack_c0,param_2,uStack_c0);
-  vu0ApplyMatrix(uStack_b0,param_2,uStack_b0);
+  RT_CALLRA(0x224fb4, guest::vu0ApplyMatrix(uStack_c0,param_2,uStack_c0));
+  RT_CALLRA(0x224fc8, guest::vu0ApplyMatrix(uStack_b0,param_2,uStack_b0));
   if (((*(int32_t*)rtguest::G((uint32_t)param_5)) == 0) ||
      (drawCarEffectB(fVar5,uVar4,param_3 >> 2 & 3,param_4,uStack_c0,7), (*(int32_t*)rtguest::G((uint32_t)param_5)) == 0)) {
-    vu0CopyVector(auStack_70,uStack_c0);
-    vu0MulMatrix(auStack_a0,param_7,auStack_a0);
+    RT_CALLRA(0x22500c, guest::vu0CopyVector(auStack_70,uStack_c0));
+    RT_CALLRA(0x22501c, guest::vu0MulMatrix(auStack_a0,param_7,auStack_a0));
     if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_64))) {
       pfVar1 = 0x0172ff7c;
       iVar2 = 0;
@@ -68,8 +72,8 @@ uint32_t pfVar1;
       if (iVar2 != 0x80) {
         (*(uint16_t*)rtguest::G((uint32_t)param_6)) = (short)iVar2;
         (*(uint32_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar2) * 4)) = 7;
-        vu0CopyVector(0x0172ff70 + iVar3,uStack_c0);
-        vu0CopyVector(iVar3 + 0x172ff80,uStack_b0);
+        RT_CALLRA(0x2250b4, guest::vu0CopyVector(0x0172ff70 + iVar3,uStack_c0));
+        RT_CALLRA(0x2250c4, guest::vu0CopyVector(iVar3 + 0x172ff80,uStack_b0));
         (*(uint32_t*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(iVar2 * 4) * 4)) = fVar5;
         (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar3))) = param_1 - 0.5;
       }

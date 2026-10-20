@@ -6,7 +6,11 @@ namespace guest {
 
 uint32_t vifKick(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
-  FlushCache(0);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
+  RT_CALLRA(0x227200, guest::FlushCache(0));
   do {
   } while ((REG_DMAC_1_VIF1_CHCR & 0x100) != 0);
   REG_DMAC_1_VIF1_QWC = 0;

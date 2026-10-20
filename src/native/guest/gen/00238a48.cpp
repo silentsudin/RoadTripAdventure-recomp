@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t DrawRaceSummaryRow(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   
@@ -14,8 +18,8 @@ uint32_t DrawRaceSummaryRow(uint32_t param_1, uint32_t param_2, ...) {
   if ((param_2 & 1) == 0) {
     iVar1 = 2;
   }
-  uiDrawTextCell(iVar1,2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be398 + (uint32_t)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x2bddd0 + (uint32_t)(iVar2) * 4))) * 4)),3);
-  uiDrawTextCell(iVar1 + 7,3,(*(uint32_t*)rtguest::G((uint32_t)(0x29fdb0u + (uint32_t)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x002bddd3u + (uint32_t)(iVar2) * 4))) * 4))),3);
+  RT_CALLRA(0x238a9c, guest::uiDrawTextCell(iVar1,2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be398 + (uint32_t)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x2bddd0 + (uint32_t)(iVar2) * 4))) * 4)),3));
+  RT_CALLRA(0x238ac0, guest::uiDrawTextCell(iVar1 + 7,3,(*(uint32_t*)rtguest::G((uint32_t)(0x29fdb0u + (uint32_t)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x002bddd3u + (uint32_t)(iVar2) * 4))) * 4))),3));
   DrawShopRow(iVar1,4,param_1,0);
   DrawShopRow(iVar1,8,param_1,1);
   DrawShopRow(iVar1,0xc,param_1,2);

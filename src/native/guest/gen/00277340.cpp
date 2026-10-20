@@ -6,6 +6,10 @@ namespace guest {
 
 uint64_t floor(uint64_t __x, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   undefined8 uVar1;
   long lVar2;
   uint64_t dVar3;  // double bits through uint64 (shim convention)
@@ -25,8 +29,8 @@ uint64_t floor(uint64_t __x, ...) {
   uVar6 = uVar9 - 0x3ff;
   if ((int)uVar6 < 0x14) {
     if ((int)uVar6 < 0) {
-      uVar1 = dpadd(__x,0x7e37e43c8800759c);
-      lVar2 = dpcmp(uVar1,0);
+      uVar1 = RT_CALLRA(0x277394, guest::dpadd(__x,0x7e37e43c8800759c));
+      lVar2 = RT_CALLRA(0x2773a4, guest::dpcmp(uVar1,0));
       if (0 < lVar2) {
         if ((long)uVar5 < 0) {
           if ((uVar5 & 0x7fffffff) != 0 || uVar8 != 0) {
@@ -45,8 +49,8 @@ uint64_t floor(uint64_t __x, ...) {
       if ((uVar5 & uVar10) == 0 && uVar8 == 0) {
         return __x;
       }
-      uVar1 = dpadd(__x,0x7e37e43c8800759c);
-      lVar2 = dpcmp(uVar1,0);
+      uVar1 = RT_CALLRA(0x27740c, guest::dpadd(__x,0x7e37e43c8800759c));
+      lVar2 = RT_CALLRA(0x27741c, guest::dpcmp(uVar1,0));
       if (0 < lVar2) {
         if ((long)uVar5 < 0) {
           uVar5 = (uint32_t)(iVar4 + (0x100000 >> (uVar6 & 0x1f)));
@@ -61,15 +65,15 @@ uint64_t floor(uint64_t __x, ...) {
       if (uVar6 != 0x400) {
         return __x;
       }
-      dVar3 = dpadd(__x,__x);
+      dVar3 = RT_CALLRA(0x27746c, guest::dpadd(__x,__x));
       return dVar3;
     }
     uVar9 = 0xffffffff >> (uVar9 - 0x413 & 0x1f);
     if ((uVar7 & uVar9) == 0) {
       return __x;
     }
-    uVar1 = dpadd(__x,0x7e37e43c8800759c);
-    lVar2 = dpcmp(uVar1,0);
+    uVar1 = RT_CALLRA(0x2774a0, guest::dpadd(__x,0x7e37e43c8800759c));
+    lVar2 = RT_CALLRA(0x2774b0, guest::dpcmp(uVar1,0));
     if (0 < lVar2) {
       uVar10 = uVar8;
       if ((long)uVar5 < 0) {

@@ -8,16 +8,16 @@ int64_t sceMcRename(uint32_t param_1, uint32_t param_2, int64_t param_3, int64_t
   rtguest::FrameGuard rt_fg(144);
   long lVar1;
   
-  lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+  lVar1 = RT_CALLRA(0x27ac50, guest::PollSema((*(uint32_t*)rtguest::G(0x2e89bc))));
   if (lVar1 < 0) {
     lVar1 = -200;
   }
   else if ((*(uint32_t*)rtguest::G(0x1774b64)) == 0) {
-    SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+    RT_CALLRA(0x27ac78, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     lVar1 = -100;
   }
   else if (((param_3 == 0) || ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)param_3)) == '\0')) || (param_4 == 0)) {
-    SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+    RT_CALLRA(0x27aca4, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     lVar1 = -0xd2;
   }
   else {
@@ -29,13 +29,13 @@ int64_t sceMcRename(uint32_t param_1, uint32_t param_2, int64_t param_3, int64_t
     (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)((uint32_t)0x01774ba0)), (char *)rtguest::G((uint32_t)((uint32_t)param_4)), 0x20));
     (*(uint32_t*)rtguest::G(0x1774c00)) = 0x01774b80;
     (*(uint8_t*)rtguest::G((uint32_t)0x01774bb8 + 7)) = 0;
-    FlushCache(0);
-    lVar1 = sceSifCallRpc(0x1774b40,0xe,1,0x1774bf0,0x414,0x1776100,4,0);
+    RT_CALLRA(0x27ad00, guest::FlushCache(0));
+    lVar1 = RT_CALLRA(0x27ad2c, guest::sceSifCallRpc(0x1774b40,0xe,1,0x1774bf0,0x414,0x1776100,4,0));
     if (lVar1 == 0) {
       (*(uint32_t*)rtguest::G(0x2e89b8)) = 0x13;
     }
     else {
-      SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+      RT_CALLRA(0x27ad4c, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     }
   }
   return lVar1;

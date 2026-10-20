@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t StartMenuFlow(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   undefined8 uVar1;
   
-  gs_tasks_spawn(param_1,0x20df98,0);
+  RT_CALLRA(0x2052f0, guest::gs_tasks_spawn(param_1,0x20df98,0));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))) = 0x205088; // &UpdateMenuFlowTask: sw of the code address, not a data read
-  gs_tasks_spawn(param_1,0x20dc50,0x400000);
-  uVar1 = gs_tasks_spawn(param_1,0x20a2b0,0);
-  SetTaskFlag(uVar1);
+  RT_CALLRA(0x205310, guest::gs_tasks_spawn(param_1,0x20dc50,0x400000));
+  uVar1 = RT_CALLRA(0x205324, guest::gs_tasks_spawn(param_1,0x20a2b0,0));
+  RT_CALLRA(0x20532c, guest::SetTaskFlag(uVar1));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = 0;
   SoundInitVolumes();
   return 0;

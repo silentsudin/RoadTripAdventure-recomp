@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t countFlaggedSlotsAlt(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x50) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x54) = 0x00000000u;
+  }
     uint32_t uStack_60 = rtguest::allocFrame(8);
     uint32_t uStack_58 = rtguest::allocFrame(8);
     uint32_t uStack_50 = rtguest::allocFrame(4);
@@ -26,11 +30,11 @@ uint32_t piVar9;
     (*(uint64_t*)rtguest::G((uint32_t)uStack_58)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x002dc468 + iVar1)));
     (*(uint32_t*)rtguest::G((uint32_t)uStack_50)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dc470 + iVar1)));
     if (param_1 == 9) {
-      applySlotMaskDefaults(uStack_60);
+      RT_CALLRA(0x2681fc, guest::applySlotMaskDefaults(uStack_60));
     }
     iVar1 = 0;
     while( true ) {
-      lVar3 = FindFlaggedSlotIndex(0,0,iVar1,0);
+      lVar3 = RT_CALLRA(0x26832c, guest::FindFlaggedSlotIndex(0,0,iVar1,0));
       puVar4 = (uint32_t)((int)uStack_60 + ((uint32_t)lVar3 >> 5) * 4);
       if (lVar3 == -1) break;
       (*(uint32_t*)rtguest::G((uint32_t)puVar4)) = (*(uint32_t*)rtguest::G((uint32_t)puVar4)) & ~(1 << ((uint32_t)lVar3 & 0x1f));
@@ -68,7 +72,7 @@ uint32_t piVar9;
     (*(uint64_t*)rtguest::G((uint32_t)uStack_60)) = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_60 + 4)),
                          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dc528 + ((int)param_1 * 0x10 + (int)param_2) * 4))));
     if (param_1 == 9) {
-      applySlotMaskDefaults(uStack_60);
+      RT_CALLRA(0x2682f0, guest::applySlotMaskDefaults(uStack_60));
     }
     if (param_3 != 0xffffffff) {
       if (0x7f < param_3) {
@@ -95,7 +99,7 @@ LAB_002683c8:
     }
     uVar6 = 4;
   }
-  iVar1 = CountSetBitsInByteArray(uStack_60,uVar6);
+  iVar1 = RT_CALLRA(0x268364, guest::CountSetBitsInByteArray(uStack_60,uVar6));
   return iVar1;
 }
 

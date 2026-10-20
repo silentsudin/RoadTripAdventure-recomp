@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateControllerInput(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+  }
     uint32_t uStack_70 = rtguest::allocFrame(4);
     rtguest::allocFrame(12);  // guest frame gap
 uint32_t auStack_60 = rtguest::allocFrame(2);
@@ -34,7 +38,7 @@ uint32_t pbVar14;
   iVar13 = 0;
   iVar15 = 0;
   do {
-    lVar4 = ReadPadState(param_1,iVar13,auStack_60);
+    lVar4 = RT_CALLRA(0x20ab58, guest::ReadPadState(param_1,iVar13,auStack_60));
     if (lVar4 == 0) {
       (*(int8_t*)rtguest::G((uint32_t)pbVar14 + (uint32_t)(0) * sizeof(int8_t))) = 0;
       (*(int8_t*)rtguest::G((uint32_t)pbVar14 + (uint32_t)(1) * sizeof(int8_t))) = 0;

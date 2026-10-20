@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SelectAndBuildCamera(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(192);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+  }
     uint32_t uStack_c0 = rtguest::allocFrame(4);
     uint32_t uStack_bc = rtguest::allocFrame(4);
     uint32_t uStack_b8 = rtguest::allocFrame(4);
@@ -47,7 +51,7 @@ uint32_t puVar13;
   bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)));
   if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) == -1) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x21ed90;
-    CameraWaitOrCutsceneState();
+    RT_CALLRA(0x238bdc, guest::CameraWaitOrCutsceneState());
   }
   else {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) == 0) {
@@ -102,10 +106,10 @@ LAB_00238cc4:
     }
     if ((uVar12 & 0x1000) == 0) {
       if ((uVar12 & 0xc) == 0) {
-        buildCamera(puVar13,pfVar10,0,0);
+        RT_CALLRA(0x238fd4, guest::buildCamera(puVar13,pfVar10,0,0));
       }
       else {
-        vu0UnitMatrix(uStack_c0);
+        RT_CALLRA(0x238ff0, guest::vu0UnitMatrix(uStack_c0));
         (*(float*)rtguest::G((uint32_t)pfVar10)) = 0.0;
         sVar3 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar11 + 0x1a)));
         uVar12 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea0c + iVar9)));
@@ -142,7 +146,7 @@ LAB_00238cc4:
         else {
           (*(float*)rtguest::G((uint32_t)fStack_88)) = (float)(*(uint32_t*)rtguest::G((uint32_t)0x177ace8 + (uint32_t)(iVar4 * 0x9c) * 4));
         }
-        buildCamera(puVar13,pfVar10,uStack_c0,uStack_c0);
+        RT_CALLRA(0x2390e4, guest::buildCamera(puVar13,pfVar10,uStack_c0,uStack_c0));
       }
     }
     else {
@@ -203,7 +207,7 @@ LAB_00238cc4:
       (*(float*)rtguest::G((uint32_t)fStack_a8)) = (*(float*)rtguest::G((uint32_t)fStack_a8)) / (*(float*)rtguest::G((uint32_t)fStack_88));
       (*(float*)rtguest::G((uint32_t)fStack_88)) = SQRT(fVar15) / (*(float*)rtguest::G((uint32_t)fStack_88));
       (*(float*)rtguest::G((uint32_t)fStack_8c)) = (*(float*)rtguest::G((uint32_t)fStack_ac));
-      buildCamera(puVar13,pfVar10,uStack_c0,0);
+      RT_CALLRA(0x239100, guest::buildCamera(puVar13,pfVar10,uStack_c0,0));
     }
   }
   return 0;

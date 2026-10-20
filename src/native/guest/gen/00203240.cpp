@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiDrawHintBar(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+  }
   byte bVar1;
   int iVar2;
 uint32_t puVar3;
@@ -13,10 +17,10 @@ uint32_t puVar3;
 uint32_t pbVar5;
   
   if (param_1 == 0) {
-    uiDrawPanel9(0x1ae,0x1d,0xb4,0xc,0);
+    RT_CALLRA(0x20327c, guest::uiDrawPanel9(0x1ae,0x1d,0xb4,0xc,0));
   }
   else {
-    uiDrawPanel9(0x1ae,0x1d,0xb4,0x18,0);
+    RT_CALLRA(0x2032a0, guest::uiDrawPanel9(0x1ae,0x1d,0xb4,0x18,0));
   }
   if (param_1 == 3) {
     uVar4 = 0x1b6;
@@ -30,7 +34,7 @@ uint32_t pbVar5;
     }
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
     while (bVar1 != 0) {
-      uVar4 = uiDrawGlyph(uVar4,0x3a,0,pbVar5);
+      uVar4 = RT_CALLRA(0x203358, guest::uiDrawGlyph(uVar4,0x3a,0,pbVar5));
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
       if (bVar1 == 0x2f) {
         pbVar5 = pbVar5 + 2;
@@ -65,7 +69,7 @@ uint32_t pbVar5;
     }
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
     while (bVar1 != 0) {
-      uVar4 = uiDrawGlyph(uVar4,0x3a,0,pbVar5);
+      uVar4 = RT_CALLRA(0x203460, guest::uiDrawGlyph(uVar4,0x3a,0,pbVar5));
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
       if (bVar1 == 0x2f) {
         pbVar5 = pbVar5 + 2;
@@ -102,7 +106,7 @@ uint32_t pbVar5;
         }
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
         while (bVar1 != 0) {
-          uVar4 = uiDrawGlyph(uVar4,0x52,0,pbVar5);
+          uVar4 = RT_CALLRA(0x203590, guest::uiDrawGlyph(uVar4,0x52,0,pbVar5));
           bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
           if (bVar1 == 0x2f) {
             pbVar5 = pbVar5 + 2;
@@ -138,7 +142,7 @@ uint32_t pbVar5;
       }
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
       while (bVar1 != 0) {
-        uVar4 = uiDrawGlyph(uVar4,0x52,0,pbVar5);
+        uVar4 = RT_CALLRA(0x203690, guest::uiDrawGlyph(uVar4,0x52,0,pbVar5));
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
         if (bVar1 == 0x2f) {
           pbVar5 = pbVar5 + 2;
@@ -174,7 +178,7 @@ uint32_t pbVar5;
     }
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
     while (bVar1 != 0) {
-      uVar4 = uiDrawGlyph(uVar4,0x52,0,pbVar5);
+      uVar4 = RT_CALLRA(0x203790, guest::uiDrawGlyph(uVar4,0x52,0,pbVar5));
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
       if (bVar1 == 0x2f) {
         pbVar5 = pbVar5 + 2;

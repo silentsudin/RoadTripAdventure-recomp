@@ -6,6 +6,10 @@ namespace guest {
 
 void textGridPutChar(uint64_t param_1, uint32_t param_2, uint32_t param_3) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   uint uVar1;
 uint32_t puVar2;
   
@@ -21,7 +25,7 @@ uint32_t puVar2;
     }
   }
   else {
-    textBufferSetPixel16(param_1,(*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(4) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(5) * sizeof(uint32_t))),param_2 | (param_3 & 0xff) << 8);
+    RT_CALLRA(0x2715c4, guest::textBufferSetPixel16(param_1,(*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(4) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(5) * sizeof(uint32_t))),param_2 | (param_3 & 0xff) << 8));
     (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(4) * sizeof(uint32_t))) = (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(4) * sizeof(uint32_t))) + 1;
   }
   if ((*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(4) * sizeof(uint32_t))) < (*(uint32_t*)rtguest::G((uint32_t)puVar2))) {
@@ -33,7 +37,7 @@ uint32_t puVar2;
     uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(5) * sizeof(uint32_t)));
   }
   if ((*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint32_t))) <= uVar1) {
-    textGridScrollUp(param_1,(uVar1 - (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint32_t)))) + 1);
+    RT_CALLRA(0x271644, guest::textGridScrollUp(param_1,(uVar1 - (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint32_t)))) + 1));
     (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(5) * sizeof(uint32_t))) = (*(uint32_t*)rtguest::G((uint32_t)puVar2 + (uint32_t)(1) * sizeof(uint32_t))) - 1;
   }
   return;

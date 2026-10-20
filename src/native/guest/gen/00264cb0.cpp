@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SubstituteNameTokens(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
 uint32_t __src;
 uint32_t pcVar1;
 uint32_t acStack_50 = rtguest::allocFrame(48);
@@ -23,7 +27,7 @@ uint32_t acStack_50 = rtguest::allocFrame(48);
     pcVar1 = pcVar1 + 1;
   }
   (uint32_t)(uintptr_t)(::strcpy((char *)rtguest::G((uint32_t)(acStack_50)), (char *)rtguest::G((uint32_t)(pcVar1 + 2))));
-  __src = (uint32_t)GetSlotDataPtr(0,0);
+  __src = (uint32_t)RT_CALLRA(0x264d1c, guest::GetSlotDataPtr(0,0));
   (uint32_t)(uintptr_t)(::strcpy((char *)rtguest::G((uint32_t)(pcVar1)), (char *)rtguest::G((uint32_t)(__src))));
   pcVar1 = (uint32_t)(uintptr_t)(::strcat((char *)rtguest::G((uint32_t)(param_1)), (char *)rtguest::G((uint32_t)(acStack_50))));
   return pcVar1;

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ResetCarEffectSlots(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
 uint32_t pvVar1;
   
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x0172ff70)), 0, 0x800));

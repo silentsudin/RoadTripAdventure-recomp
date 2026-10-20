@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceSifCallRpc(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, uint32_t param_9, ...) {
   rtguest::FrameGuard rt_fg(192);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xb0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xb4) = 0x00000000u;
+  }
   int iVar1;
   long lVar2;
   long lVar3;
@@ -14,7 +18,7 @@ uint32_t sceSifCallRpc(uint32_t param_1, uint32_t param_2, uint64_t param_3, uin
   uint32_t uStack_bc = auStack_c0 + 4;
   uint32_t uStack_b8 = auStack_c0 + 8;
 
-  lVar2 = sifAllocRpcPacket(0x1778840);
+  lVar2 = RT_CALLRA(0x287ef8, guest::sifAllocRpcPacket(0x1778840));
   if (lVar2 == 0) {
     return 0xffffffff;
   }
@@ -51,20 +55,20 @@ uint32_t sceSifCallRpc(uint32_t param_1, uint32_t param_2, uint64_t param_3, uin
   if ((param_3 & 1) == 0) {
     (*(uint32_t*)rtguest::G((uint32_t)uStack_b8)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_bc)) = 1;
-    lVar3 = CreateSema(auStack_c0);
+    lVar3 = RT_CALLRA(0x287fec, guest::CreateSema(auStack_c0));
     (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4)) = (int)lVar3;
     if (lVar3 < 0) {
-      sifFreeRpcPacket(lVar2);
+      RT_CALLRA(0x287ffc, guest::sifFreeRpcPacket(lVar2));
       return 0xfffffffd;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x30))) = 1;
-    lVar3 = sceSifSendCmd(0xffffffff8000000a,lVar2,0x40,param_4,(*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(5) * 4)),param_5);
+    lVar3 = RT_CALLRA(0x287fcc, guest::sceSifSendCmd(0xffffffff8000000a,lVar2,0x40,param_4,(*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(5) * 4)),param_5));
     if (lVar3 != 0) {
-      WaitSema((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4)));
-      DeleteSema((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4)));
+      RT_CALLRA(0x288050, guest::WaitSema((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4))));
+      RT_CALLRA(0x288038, guest::DeleteSema((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4))));
       return 0;
     }
-    DeleteSema((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4)));
+    RT_CALLRA(0x288058, guest::DeleteSema((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4))));
   }
   else {
     if (param_8 == 0) {
@@ -74,12 +78,12 @@ uint32_t sceSifCallRpc(uint32_t param_1, uint32_t param_2, uint64_t param_3, uin
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x30))) = 1;
     }
     (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4)) = -1;
-    lVar3 = sceSifSendCmd(0xffffffff8000000a,lVar2,0x40,param_4,(*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(5) * 4)),param_5);
+    lVar3 = RT_CALLRA(0x288028, guest::sceSifSendCmd(0xffffffff8000000a,lVar2,0x40,param_4,(*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(5) * 4)),param_5));
     if (lVar3 != 0) {
       return 0;
     }
   }
-  sifFreeRpcPacket(lVar2);
+  RT_CALLRA(0x288040, guest::sifFreeRpcPacket(lVar2));
   return 0xfffffffe;
 }
 

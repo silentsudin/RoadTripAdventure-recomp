@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SpawnCarSmoke(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(192);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x98) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x9c) = 0x00000000u;
+  }
 uint32_t afStack_c0 = rtguest::allocFrame(12);
     uint32_t uStack_b4 = rtguest::allocFrame(4);
     uint32_t uStack_b0 = rtguest::allocFrame(4);
@@ -50,17 +54,17 @@ uint32_t pfVar1;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = 0;
   (*(float*)rtguest::G((uint32_t)afStack_c0 + (uint32_t)(1) * 4)) = 0.0;
   (*(float*)rtguest::G((uint32_t)afStack_c0 + (uint32_t)(2) * 4)) = (*(float*)rtguest::G((uint32_t)fStack_a8));
-  vu0ApplyMatrix(afStack_c0,param_1,afStack_c0);
-  vu0ApplyMatrix(uStack_b0,param_1,uStack_b0);
+  RT_CALLRA(0x224508, guest::vu0ApplyMatrix(afStack_c0,param_1,afStack_c0));
+  RT_CALLRA(0x22451c, guest::vu0ApplyMatrix(uStack_b0,param_1,uStack_b0));
   if ((*(int32_t*)rtguest::G((uint32_t)param_4)) != 0) {
-    drawCarEffectB(fVar4,fVar6,param_2 >> 2 & 3,param_3,afStack_c0,2);
+    RT_CALLRA(0x224544, guest::drawCarEffectB(fVar4,fVar6,param_2 >> 2 & 3,param_3,afStack_c0,2));
   }
   if (fVar5 < SQRT(((*(float*)rtguest::G((uint32_t)afStack_c0 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff70 + (*(int16_t*)rtguest::G((uint32_t)param_5)) * 0x10)))) *
                    ((*(float*)rtguest::G((uint32_t)afStack_c0 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff70 + (*(int16_t*)rtguest::G((uint32_t)param_5)) * 0x10)))) +
                    ((*(float*)rtguest::G((uint32_t)afStack_c0 + (uint32_t)(2) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff78 + (*(int16_t*)rtguest::G((uint32_t)param_5)) * 0x10)))) *
                    ((*(float*)rtguest::G((uint32_t)afStack_c0 + (uint32_t)(2) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff78 + (*(int16_t*)rtguest::G((uint32_t)param_5)) * 0x10)))))) {
-    vu0CopyVector(auStack_70,afStack_c0);
-    vu0MulMatrix(auStack_a0,param_6,auStack_a0);
+    RT_CALLRA(0x2245c0, guest::vu0CopyVector(auStack_70,afStack_c0));
+    RT_CALLRA(0x2245d0, guest::vu0MulMatrix(auStack_a0,param_6,auStack_a0));
     if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_64))) {
       pfVar1 = 0x0172ff7c;
       iVar2 = 0;
@@ -74,8 +78,8 @@ uint32_t pfVar1;
       if (iVar2 != 0x80) {
         (*(int16_t*)rtguest::G((uint32_t)param_5)) = (short)iVar2;
         (*(uint32_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar2) * 4)) = 2;
-        vu0CopyVector(0x0172ff70 + iVar3,afStack_c0);
-        vu0CopyVector(iVar3 + 0x172ff80,uStack_b0);
+        RT_CALLRA(0x22465c, guest::vu0CopyVector(0x0172ff70 + iVar3,afStack_c0));
+        RT_CALLRA(0x22466c, guest::vu0CopyVector(iVar3 + 0x172ff80,uStack_b0));
         (*(uint32_t*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(iVar2 * 4) * 4)) = 0.5;
         (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar3))) = fVar4;
       }

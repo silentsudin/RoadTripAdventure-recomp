@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceSdRemoteCallbackInit(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
 uint32_t auStack_50 = rtguest::allocFrame(4);
 rtguest::allocFrame(8);  // guest frame gap
     uint32_t uStack_44 = rtguest::allocFrame(4);
@@ -28,15 +32,15 @@ uint32_t puStack_40;
   (*(uint32_t*)rtguest::G(0x2e899c)) = 0;
   (*(uint32_t*)rtguest::G(0x2e89a0)) = 0;
   (*(uint32_t*)rtguest::G(0x2e89a4)) = 0;
-  sceSdRemote(1,0xe620);
+  RT_CALLRA(0x2795e4, guest::sceSdRemote(1,0xe620));
   pcStack_4c = 0x279660;
   puStack_48 = 0x01773a00;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_44)) = 0x1000;
   puStack_40 = 0x33aaf0;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_3c)) = param_1;
-  uVar1 = CreateThread(auStack_50);
+  uVar1 = RT_CALLRA(0x27961c, guest::CreateThread(auStack_50));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_30)) = (uint32_t)uVar1;
-  lVar2 = StartThread(uVar1,0);
+  lVar2 = RT_CALLRA(0x27962c, guest::StartThread(uVar1,0));
   if (lVar2 < 0) {
     rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331da0u)));
     (*(uint32_t*)rtguest::G((uint32_t)uStack_30)) = 0xffffffff;

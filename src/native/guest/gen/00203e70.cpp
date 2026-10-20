@@ -21,8 +21,8 @@ uint32_t puVar1;
     }
   }
   if (iVar2 < 0x9fc) {
-    uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + iVar2 * 0x10 + 0x70,param_1,param_2,
-                  param_3 * 0x140000 + 0x780000 >> 0x10,0xb4,0x14,0x14);
+    RT_CALLRA(0x203f20, guest::uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + iVar2 * 0x10 + 0x70,param_1,param_2,
+                  param_3 * 0x140000 + 0x780000 >> 0x10,0xb4,0x14,0x14));
     (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
   }
   return 0;

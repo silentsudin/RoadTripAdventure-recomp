@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _b2d(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   int iVar1;
   long lVar2;
   ulong uVar3;
@@ -21,7 +25,7 @@ uint32_t puVar10;
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10)));
   puVar8 = puVar10 + iVar1 + -1;
   uVar9 = (*(uint32_t*)rtguest::G((uint32_t)puVar8));
-  lVar2 = _hi0bits((long)(int)uVar9);
+  lVar2 = RT_CALLRA(0x2842a0, guest::_hi0bits((long)(int)uVar9));
   iVar6 = (int)lVar2;
   (*(int32_t*)rtguest::G((uint32_t)param_2)) = 0x20 - iVar6;
   if (lVar2 < 0xb) {

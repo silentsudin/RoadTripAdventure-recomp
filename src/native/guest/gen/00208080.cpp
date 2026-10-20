@@ -6,11 +6,15 @@ namespace guest {
 
 uint32_t ApplyMatrixRotation(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
 uint32_t auStack_60 = rtguest::allocFrame(64);
   
-  vu0UnitMatrix(auStack_60);
-  vu0RotMatrixY(param_1,auStack_60,auStack_60);
-  vu0MulMatrix(param_2,param_2,auStack_60);
+  RT_CALLRA(0x208098, guest::vu0UnitMatrix(auStack_60));
+  RT_CALLRA(0x2080a8, guest::vu0RotMatrixY(param_1,auStack_60,auStack_60));
+  RT_CALLRA(0x2080b8, guest::vu0MulMatrix(param_2,param_2,auStack_60));
   return 0;
 }
 

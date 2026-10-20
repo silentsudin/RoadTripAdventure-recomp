@@ -6,7 +6,11 @@ namespace guest {
 
 uint32_t sceDelDrv(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
-  _sceCallCode(param_1,0x10);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
+  RT_CALLRA(0x28a688, guest::_sceCallCode(param_1,0x10));
   return 0;
 }
 

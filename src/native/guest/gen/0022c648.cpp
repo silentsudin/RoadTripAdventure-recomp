@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t stampBookBuild(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
 uint32_t puVar1;
 uint32_t puVar2;
 uint32_t puVar3;
@@ -26,9 +30,9 @@ uint32_t pcVar14;
   int iVar18;
   
   iVar16 = 0;
-  iVar8 = getShopPacketArea(0xc50);
-  gifBeginSpriteBatch(iVar8,0x200435ce29329f2e);
-  gifSetSpriteCount(iVar8 + 0x60,0x26);
+  iVar8 = RT_CALLRA(0x22c678, guest::getShopPacketArea(0xc50));
+  RT_CALLRA(0x22c6a0, guest::gifBeginSpriteBatch(iVar8,0x200435ce29329f2e));
+  RT_CALLRA(0x22c6b0, guest::gifSetSpriteCount(iVar8 + 0x60,0x26));
   iVar18 = iVar8;
   iVar17 = iVar8;
   do {
@@ -39,8 +43,8 @@ uint32_t pcVar14;
     do {
       iVar15 = iVar15 + 0x20;
       iVar13 = iVar13 + -1;
-      uiSpriteWriteZ(iVar11,iVar10 >> 0x10,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)0x29f508u + iVar16 * 2))),0xba
-                     ,0x4f,0x1e,0x20,0x100000);
+      RT_CALLRA(0x22c700, guest::uiSpriteWriteZ(iVar11,iVar10 >> 0x10,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)0x29f508u + iVar16 * 2))),0xba
+                     ,0x4f,0x1e,0x20,0x100000));
       iVar10 = iVar15 * 0x10000;
       iVar11 = iVar11 + 0x50;
     } while (-1 < iVar13);
@@ -51,8 +55,8 @@ uint32_t pcVar14;
     do {
       iVar15 = iVar15 + 0x20;
       iVar13 = iVar13 + -1;
-      uiSpriteWriteZ(iVar11,iVar10 >> 0x10,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)0x29f508u + iVar16 * 2))),0xba
-                     ,0x4f,0x1e,0x20,0x100000);
+      RT_CALLRA(0x22c758, guest::uiSpriteWriteZ(iVar11,iVar10 >> 0x10,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)0x29f508u + iVar16 * 2))),0xba
+                     ,0x4f,0x1e,0x20,0x100000));
       iVar10 = iVar15 * 0x10000;
       iVar11 = iVar11 + 0x50;
     } while (-1 < iVar13);
@@ -67,15 +71,15 @@ uint32_t pcVar14;
     cVar6 = (*(int8_t*)rtguest::G((uint32_t)pcVar14));
     pcVar14 = pcVar14 + 1;
     if (cVar6 != '\0') {
-      uiHideSprite(iVar18);
+      RT_CALLRA(0x22c79c, guest::uiHideSprite(iVar18));
     }
     iVar17 = iVar17 + -1;
     iVar18 = iVar18 + 0x50;
   } while (-1 < iVar17);
-  uiSpriteWrite(iVar8 + 0x7f0,0xf2,0x16,0,0,0x9c,0x5c);
-  lVar9 = TestFlagBitFc98(0x57);
+  RT_CALLRA(0x22c7cc, guest::uiSpriteWrite(iVar8 + 0x7f0,0xf2,0x16,0,0,0x9c,0x5c));
+  lVar9 = RT_CALLRA(0x22c7d4, guest::TestFlagBitFc98(0x57));
   if (lVar9 == 0) {
-    uiHideSprite(iVar8 + 0x7f0);
+    RT_CALLRA(0x22c7e4, guest::uiHideSprite(iVar8 + 0x7f0));
   }
   iVar17 = 0;
   iVar18 = iVar8 + 0x840;
@@ -88,12 +92,12 @@ uint32_t pcVar14;
     puVar5 = puVar12 + -1;
     uVar7 = (*(uint16_t*)rtguest::G((uint32_t)puVar12));
     puVar12 = puVar12 + 6;
-    uiSpriteWrite(iVar18,(*(uint16_t*)rtguest::G((uint32_t)puVar1)),(*(uint16_t*)rtguest::G((uint32_t)puVar2)),(*(uint16_t*)rtguest::G((uint32_t)puVar3)),(*(uint16_t*)rtguest::G((uint32_t)puVar4)),(*(uint16_t*)rtguest::G((uint32_t)puVar5)),uVar7);
+    RT_CALLRA(0x22c81c, guest::uiSpriteWrite(iVar18,(*(uint16_t*)rtguest::G((uint32_t)puVar1)),(*(uint16_t*)rtguest::G((uint32_t)puVar2)),(*(uint16_t*)rtguest::G((uint32_t)puVar3)),(*(uint16_t*)rtguest::G((uint32_t)puVar4)),(*(uint16_t*)rtguest::G((uint32_t)puVar5)),uVar7));
     iVar16 = iVar17 + 10;
     iVar17 = iVar17 + 1;
-    lVar9 = GetFlaggedSlotCount(0xf,iVar16,0);
+    lVar9 = RT_CALLRA(0x22c830, guest::GetFlaggedSlotCount(0xf,iVar16,0));
     if (lVar9 == 0) {
-      uiHideSprite(iVar18);
+      RT_CALLRA(0x22c840, guest::uiHideSprite(iVar18));
     }
     iVar18 = iVar18 + 0x50;
   } while (iVar17 < 0xd);

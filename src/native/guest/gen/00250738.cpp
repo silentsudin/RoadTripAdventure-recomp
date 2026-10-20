@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t DrawWaypointDebugGrid(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+  }
   byte bVar1;
   ulong uVar2;
   undefined8 uVar3;
@@ -29,7 +33,7 @@ uint32_t auStack_70 = rtguest::allocFrame(32);
       while( true ) {
         uVar5 = iVar8 + iVar6;
         if (bVar1 == uVar5) {
-          uiDebugText8(iVar9,iVar6 * 8 + 0x40,0x3344c0,0xf);
+          RT_CALLRA(0x2507e4, guest::uiDebugText8(iVar9,iVar6 * 8 + 0x40,0x3344c0,0xf));
           iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 600)));
         }
         else {
@@ -45,7 +49,7 @@ uint32_t auStack_70 = rtguest::allocFrame(32);
             }
           }
           ::sprintf((char *)rtguest::G((uint32_t)(auStack_70)), (char *)rtguest::G((uint32_t)(0x328050)), uVar3, (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + iVar10 + iVar6))) * 5, ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25c))) + iVar10 + iVar6))) & 0x3f) * 5);
-          uiDebugText8((uVar7 & 7) * 0x50 + 0x20,iVar6 * 8 + 0x40,auStack_70,0xf);
+          RT_CALLRA(0x250880, guest::uiDebugText8((uVar7 & 7) * 0x50 + 0x20,iVar6 * 8 + 0x40,auStack_70,0xf));
         }
         iVar6 = iVar6 + 1;
         if (0x13 < iVar6) break;

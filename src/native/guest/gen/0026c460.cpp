@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t RequestLocationAssetLoad(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x78) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x7c) = 0x00000000u;
+  }
   char cVar1;
 uint32_t puVar2;
   undefined8 uVar3;
@@ -29,8 +33,8 @@ uint32_t auStack_80 = rtguest::allocFrame(96);
   iVar8 = (int)param_1;
   iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) == 0) {
-    uVar3 = uiMenuCreate(param_1);
-    LayoutTextItems(uVar3,auStack_80,0x16,0xb);
+    uVar3 = RT_CALLRA(0x26c4b8, guest::uiMenuCreate(param_1));
+    RT_CALLRA(0x26c4cc, guest::LayoutTextItems(uVar3,auStack_80,0x16,0xb));
   }
   else {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) == '\0') {
@@ -46,11 +50,11 @@ uint32_t auStack_80 = rtguest::allocFrame(96);
         iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = 0xffffffff;
-        gs_tasks_kill(param_1);
+        RT_CALLRA(0x26c53c, guest::gs_tasks_kill(param_1));
       }
       else {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x23))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd)));
-        gs_tasks_spawn(param_1,0x26be50,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))));
+        RT_CALLRA(0x26c560, guest::gs_tasks_spawn(param_1,0x26be50,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c)))));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 1;
       }
     }

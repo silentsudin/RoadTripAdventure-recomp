@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SpawnTownDialogueTasks(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   long lVar1;
   
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) == '\0') {
@@ -13,7 +17,7 @@ uint32_t SpawnTownDialogueTasks(uint32_t param_1, uint32_t param_2, ...) {
     gs_tasks_spawn(param_1,0x22d1e0,0);
     return 0;
   }
-  lVar1 = MatchSlotPairState((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x21))));
+  lVar1 = RT_CALLRA(0x21172c, guest::MatchSlotPairState((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x21)))));
   (*(int32_t*)rtguest::G(0x177ea5c)) = (int)0x177f760 + (int)lVar1 * 0x1c;
   if (lVar1 == 0) {
     (*(int32_t*)rtguest::G(0x177ea5c)) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) * 4))) +

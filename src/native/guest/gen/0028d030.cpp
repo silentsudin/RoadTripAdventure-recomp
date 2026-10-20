@@ -8,6 +8,8 @@ uint32_t sceDeci2Open(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...)
   rtguest::FrameGuard rt_fg(32);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x4) = (uint32_t)(int32_t)param_2;
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x8) = (uint32_t)(int32_t)param_3;
   }
     uint32_t uStack_20 = rtguest::allocFrame(4);
@@ -19,7 +21,7 @@ uint32_t puStack_14;
   puStack_14 = 0x2177a0a8;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_1c)) = param_2;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_18)) = param_3;
-  Deci2Call(1,uStack_20);
+  RT_CALLRA(0x28d060, guest::Deci2Call(1,uStack_20));
   return 0;
 }
 

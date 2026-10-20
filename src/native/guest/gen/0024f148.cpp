@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiArenaFlatRects(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
 uint32_t puVar1;
 uint32_t puVar2;
 uint32_t puVar3;
@@ -36,7 +40,7 @@ uint32_t puVar6;
       if (iVar9 < param_3) {
         param_3 = iVar9;
       }
-      gifFlatRectTag(iVar8,param_3);
+      RT_CALLRA(0x24f208, guest::gifFlatRectTag(iVar8,param_3));
       if (0 < param_3) {
         iVar8 = (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int32_t)));
         while( true ) {
@@ -57,10 +61,10 @@ uint32_t puVar6;
           puVar5 = param_2 + 0xc;
           puVar6 = param_2 + 0xe;
           param_2 = param_2 + 0x10;
-          uiFlatVertexWrite(iVar9,(int)(((uint32_t)uVar7 + param_4) * 0x10000) >> 0x10,
+          RT_CALLRA(0x24f288, guest::uiFlatVertexWrite(iVar9,(int)(((uint32_t)uVar7 + param_4) * 0x10000) >> 0x10,
                             (int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar1)) + param_5) * 0x10000) >> 0x10,
                             (int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar2)) + param_6) * 0x10000) >> 0x10,(*(uint16_t*)rtguest::G((uint32_t)puVar3)),(*(uint16_t*)rtguest::G((uint32_t)puVar4)),
-                            (*(uint16_t*)rtguest::G((uint32_t)puVar5)),(*(uint16_t*)rtguest::G((uint32_t)puVar6)));
+                            (*(uint16_t*)rtguest::G((uint32_t)puVar5)),(*(uint16_t*)rtguest::G((uint32_t)puVar6))));
           if (param_3 <= iVar10) break;
           iVar8 = (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int32_t)));
         }

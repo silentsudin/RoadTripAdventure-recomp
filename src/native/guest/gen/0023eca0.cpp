@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SubmitEightTexturePackets(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   ushort uVar1;
   int iVar2;
   int iVar3;
@@ -31,7 +35,7 @@ uint32_t puVar5;
                      (long)(*(uint32_t*)rtguest::G(0x2a2eb8)) << 0x10 | (long)(*(uint32_t*)rtguest::G(0x2a2eb8)) << 0x30;
       (*(uint32_t*)rtguest::G(0x2a3610)) = (long)(*(uint32_t*)rtguest::G(0x2a2ec0)) | (long)(*(uint32_t*)rtguest::G(0x2a2ec4)) << 0x20;
       (*(uint32_t*)rtguest::G(0x2a3600)) = ((long)(iVar6 >> 4) & (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002a2ece))) << 0x10;
-      AdvanceOscillatingValue(param_1 + 2);
+      RT_CALLRA(0x23ed80, guest::AdvanceOscillatingValue(param_1 + 2));
     }
     else {
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) * (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)piVar4 + 0x1a)));
@@ -52,7 +56,7 @@ uint32_t puVar5;
     piVar4 = piVar4 + 0x20;  // T* element step
   } while (iVar7 < 8);
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 0x20;
-  gifChainEndTag(0x2a3490,0x21);
+  RT_CALLRA(0x23ee40, guest::gifChainEndTag(0x2a3490,0x21));
   sendTexturePackets(0x2a3490);
   return 0;
 }

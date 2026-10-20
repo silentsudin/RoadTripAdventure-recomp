@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t drawCarsAction(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(400);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x180) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x184) = 0x00000000u;
+  }
 uint32_t auStack_190 = rtguest::allocFrame(60);
     uint32_t fStack_154 = rtguest::allocFrame(4);
 uint32_t acStack_150 = rtguest::allocFrame(32);
@@ -40,14 +44,14 @@ uint32_t puVar5;
   float fVar7;
   
   iVar6 = 0x17;
-  vifUploadAt4();
-  vifUploadAt16(0x177f5e0);
-  vifDirect(0x29d290,4);
+  RT_CALLRA(0x222bac, guest::vifUploadAt4());
+  RT_CALLRA(0x222bbc, guest::vifUploadAt16(0x177f5e0));
+  RT_CALLRA(0x222bcc, guest::vifDirect(0x29d290,4));
   puVar5 = 0x177ac50;
   do {
     if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) != 0) {
-      ToRelativeVec4(puVar5 + 6,puVar5 + 0x14,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x58))),
-                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x5c))));
+      RT_CALLRA(0x222bf8, guest::ToRelativeVec4(puVar5 + 6,puVar5 + 0x14,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x58))),
+                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x5c)))));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_130)) = 0x3f800000;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_124)) = 0x3f000000;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_12c)) = 0x3f800000;
@@ -57,23 +61,23 @@ uint32_t puVar5;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_11c)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x154)));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_118)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x164)));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_114)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x174)));
-      vifUploadColours(uStack_130,uStack_120);
-      vu0CopyMatrix(auStack_110,puVar5);
+      RT_CALLRA(0x222c44, guest::vifUploadColours(uStack_130,uStack_120));
+      RT_CALLRA(0x222c50, guest::vu0CopyMatrix(auStack_110,puVar5));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_ec)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_fc)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_10c)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_dc)) = 0;
-      vifObjectMatrix(auStack_110);
+      RT_CALLRA(0x222c68, guest::vifObjectMatrix(auStack_110));
       iVar3 = iVar3 * 0x44;
-      vifBatchRegs((long)(iVar3 + 0x243e) | 0x1d308000U | (long)(iVar3 + 0x247e) << 0x25 |
-                   0x20000005c0000000,7,0x1fc401fc40a,9);
-      vifCallModel(0x290570);
+      RT_CALLRA(0x222cc8, guest::vifBatchRegs((long)(iVar3 + 0x243e) | 0x1d308000U | (long)(iVar3 + 0x247e) << 0x25 |
+                   0x20000005c0000000,7,0x1fc401fc40a,9));
+      RT_CALLRA(0x222cd0, guest::vifCallModel(0x290570));
     }
     iVar6 = iVar6 + -1;
     puVar5 = puVar5 + 0x270;  // T* element step
   } while (-1 < iVar6);
-  vifDirect(0x29d240,5);
-  vifUploadLightAt16(0x177f5e0);
+  RT_CALLRA(0x222cf0, guest::vifDirect(0x29d240,5));
+  RT_CALLRA(0x222cfc, guest::vifUploadLightAt16(0x177f5e0));
   puVar5 = 0x177ac50;
   (*(uint32_t*)rtguest::G(0x3356e8)) = 0;
   iVar6 = 0;
@@ -82,37 +86,37 @@ uint32_t puVar5;
     (*(int8_t*)rtguest::G((uint32_t)pcVar4)) = -1;
     iVar6 = iVar6 + 1;
     if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) != 0) {
-      vu0MulMatrix(auStack_190,param_1,puVar5);
+      RT_CALLRA(0x222d48, guest::vu0MulMatrix(auStack_190,param_1,puVar5));
       fVar7 = (*(float*)rtguest::G((uint32_t)fStack_154)) / (*(float*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x18c)));
       if ((*(uint32_t*)rtguest::G(0x332cf8)) <= fVar7) {
-        vu0CopyMatrix(auStack_d0,puVar5);
+        RT_CALLRA(0x222d7c, guest::vu0CopyMatrix(auStack_d0,puVar5));
         (*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 4))) = -(*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 4)));
         (*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x14))) = -(*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x14)));
         (*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x24))) = -(*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x24)));
         (*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x34))) =
              ((*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x144))) + (*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x144)))) -
              (*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x34)));
-        vu0CopyMatrix(auStack_90,0x177f5e0);
+        RT_CALLRA(0x222dc0, guest::vu0CopyMatrix(auStack_90,0x177f5e0));
         (*(float*)rtguest::G((uint32_t)fStack_80)) = -(*(float*)rtguest::G((uint32_t)fStack_80));
         (*(float*)rtguest::G((uint32_t)fStack_7c)) = -(*(float*)rtguest::G((uint32_t)fStack_7c));
         (*(float*)rtguest::G((uint32_t)fStack_78)) = -(*(float*)rtguest::G((uint32_t)fStack_78));
-        vifUploadLightAt16(auStack_90);
-        drawCar((*(uint32_t*)rtguest::G(0x332cfc)),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x11c))),puVar5,
-                (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x194))),(*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x19c))) >> 0xc & 3);
-        vu0CopyMatrix(puVar5,auStack_d0);
-        vifUploadLightAt16(0x177f5e0);
-        cVar1 = drawCar(fVar7,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x11c))),puVar5,
+        RT_CALLRA(0x222dec, guest::vifUploadLightAt16(auStack_90));
+        RT_CALLRA(0x222e0c, guest::drawCar((*(uint32_t*)rtguest::G(0x332cfc)),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x11c))),puVar5,
+                (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x194))),(*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x19c))) >> 0xc & 3));
+        RT_CALLRA(0x222e18, guest::vu0CopyMatrix(puVar5,auStack_d0));
+        RT_CALLRA(0x222e20, guest::vifUploadLightAt16(0x177f5e0));
+        cVar1 = RT_CALLRA(0x222e40, guest::drawCar(fVar7,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x11c))),puVar5,
                         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x194))),
-                        (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x19c))) >> 0xc & 3);
+                        (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x19c))) >> 0xc & 3));
         (*(int8_t*)rtguest::G((uint32_t)pcVar4)) = cVar1;
       }
     }
     puVar5 = puVar5 + 0x270;  // T* element step
   } while (iVar6 < 0x18);
-  vifUploadColours(0x29d2d0,0x29d2e0);
+  RT_CALLRA(0x222e64, guest::vifUploadColours(0x29d2d0,0x29d2e0));
   puVar5 = 0x177ac50;
   iVar6 = 0;
-  vifDirect(0x29d2f0,2);
+  RT_CALLRA(0x222e88, guest::vifDirect(0x29d2f0,2));
   do {
     pcVar4 = acStack_150 + iVar6;
     iVar6 = iVar6 + 1;
@@ -121,8 +125,8 @@ uint32_t puVar5;
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x1fe))) == '\0') {
         bVar2 = 0;
       }
-      drawCarExtraParts(puVar5,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x194))),
-                        bVar2 | (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x1fc))) != '\0',(*(int8_t*)rtguest::G((uint32_t)pcVar4)));
+      RT_CALLRA(0x222ec0, guest::drawCarExtraParts(puVar5,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x194))),
+                        bVar2 | (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x1fc))) != '\0',(*(int8_t*)rtguest::G((uint32_t)pcVar4))));
     }
     puVar5 = puVar5 + 0x270;  // T* element step
   } while (iVar6 < 0x18);

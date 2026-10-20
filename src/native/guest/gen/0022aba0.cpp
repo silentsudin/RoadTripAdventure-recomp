@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t AdvanceAnimationPhaseState(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   char cVar1;
   short sVar2;
   
@@ -30,14 +34,14 @@ uint32_t AdvanceAnimationPhaseState(uint32_t param_1, ...) {
     }
     else if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) == '\r') {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = 2;
-      vu0UnitMatrix(0x17525d0);
-      vu0RotMatrixY((*(uint32_t*)rtguest::G(0x29f34c)),0x17525d0,0x17525d0);
-      vu0CopyVectorXYZ(0x1752600,0x29f340);
+      RT_CALLRA(0x22ac7c, guest::vu0UnitMatrix(0x17525d0));
+      RT_CALLRA(0x22ac8c, guest::vu0RotMatrixY((*(uint32_t*)rtguest::G(0x29f34c)),0x17525d0,0x17525d0));
+      RT_CALLRA(0x22ac98, guest::vu0CopyVectorXYZ(0x1752600,0x29f340));
       (*(uint32_t*)rtguest::G(0x175265c)) = (*(uint32_t*)rtguest::G(0x333688));
       (*(uint32_t*)rtguest::G(0x1752650)) = 0;
       (*(uint32_t*)rtguest::G(0x1752658)) = 0;
       (*(uint32_t*)rtguest::G(0x1752654)) = 0;
-      vu0UnitMatrix(0x1752610);
+      RT_CALLRA(0x22acc8, guest::vu0UnitMatrix(0x1752610));
       sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2)));
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) = 0;
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x20))) = sVar2 + -1;

@@ -14,7 +14,7 @@ uint32_t sceSifFreeIopHeap(uint32_t param_1, ...) {
   }
   else {
     (*(uint32_t*)rtguest::G(0x1779cc0)) = param_1;
-    lVar2 = sceSifCallRpc(0x1779c40,2,0,0x1779cc0,4,0x1779c80,4,0);
+    lVar2 = RT_CALLRA(0x28be1c, guest::sceSifCallRpc(0x1779c40,2,0,0x1779cc0,4,0x1779c80,4,0));
     uVar1 = (*(uint32_t*)rtguest::G(0x1779c80));
     if (lVar2 < 0) {
       uVar1 = 0xffffffff;

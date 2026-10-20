@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t MemoryCardOpenWriteTask(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   long lVar1;
   int iVar2;
   
@@ -13,7 +17,7 @@ uint32_t MemoryCardOpenWriteTask(uint32_t param_1, ...) {
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c)));
   (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x27))) = (char)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c))) >> 8);
   rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb7b8u)));
-  lVar1 = sceMcOpen((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26))),0,0x2eb5b0,2);
+  lVar1 = RT_CALLRA(0x22a1a8, guest::sceMcOpen((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26))),0,0x2eb5b0,2));
   if (lVar1 != 0) {
     rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2eb6e8u)), lVar1);
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x18)));

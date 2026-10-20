@@ -6,12 +6,16 @@ namespace guest {
 
 uint32_t AdjustWidgetCentering(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   short sVar1;
   int iVar2;
   int iVar3;
   
   (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x11))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x11))) + '\x01';
-  iVar2 = uiTextWidth(param_2);
+  iVar2 = RT_CALLRA(0x205d1c, guest::uiTextWidth(param_2));
   sVar1 = (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t)));
   iVar2 = iVar2 + 0x14;
   iVar3 = (int)sVar1;

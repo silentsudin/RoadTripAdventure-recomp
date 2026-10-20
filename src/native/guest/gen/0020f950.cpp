@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t StartRaceModeTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
 uint32_t pcVar1;
   char cVar2;
   undefined1 uVar3;
@@ -26,8 +30,8 @@ uint32_t puVar16;
   uint uVar18;
   
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x800 | 0x410000;
-  SelectMeshIntersectionRoutine(1);
-  SelectScene3dHandler(1);
+  RT_CALLRA(0x20f998, guest::SelectMeshIntersectionRoutine(1));
+  RT_CALLRA(0x20f9a0, guest::SelectScene3dHandler(1));
   iVar17 = (int)param_1;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) == 1) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) =
@@ -49,10 +53,10 @@ uint32_t puVar16;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x20))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x1c)));
   uVar3 = (*(uint8_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10)))));
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) = uVar3;
-  UpdateSceneLightsAndFog(0,uVar3);
+  RT_CALLRA(0x20fa58, guest::UpdateSceneLightsAndFog(0,uVar3));
   uVar5 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) + 0xc)));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x14))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a88e8 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) * 8)));
-  SetAICarController(uVar5);
+  RT_CALLRA(0x20fa7c, guest::SetAICarController(uVar5));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x60))) = 0xffffffff;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x54))) = 0x40;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x6c))) = 0xffffffff;
@@ -129,7 +133,7 @@ uint32_t puVar16;
     else {
       uVar11 = 0x4000d;
     }
-    gs_tasks_spawn(param_1,0x20dc50,uVar11);
+    RT_CALLRA(0x20fd60, guest::gs_tasks_spawn(param_1,0x20dc50,uVar11));
     bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10)));
   }
   if ((bVar12 & 2) == 0) {
@@ -152,11 +156,11 @@ uint32_t puVar16;
             } while (iVar13 < (int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1));
             uVar7 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 1;
           }
-          gs_tasks_spawn(param_1,0x20dc50,uVar7 | 0x370300);
+          RT_CALLRA(0x20fd84, guest::gs_tasks_spawn(param_1,0x20dc50,uVar7 | 0x370300));
         }
         uVar7 = 0;
-        gs_tasks_spawn(param_1,0x20dc50,0x750000);
-        SpawnGameViewTasks(param_1,0);
+        RT_CALLRA(0x20fde0, guest::gs_tasks_spawn(param_1,0x20dc50,0x750000));
+        RT_CALLRA(0x20fd90, guest::SpawnGameViewTasks(param_1,0));
         iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10)));
         iVar13 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 1))) - 2;
         if (0 < iVar13) {
@@ -170,9 +174,9 @@ uint32_t puVar16;
             uVar10 = uVar10 | uVar7;
             uVar7 = uVar7 + 1;
             puVar14 = (uint32_t)((*(int32_t*)rtguest::G((uint32_t)piVar9)) + iVar13 * 2);
-            uVar11 = gs_tasks_spawn(param_1,0x218458,uVar10 | 0x800000);
+            uVar11 = RT_CALLRA(0x20fec0, guest::gs_tasks_spawn(param_1,0x218458,uVar10 | 0x800000));
             iVar13 = iVar13 + -1;
-            SetTaskFlag(uVar11);
+            RT_CALLRA(0x20ff4c, guest::SetTaskFlag(uVar11));
             (*(uint8_t*)rtguest::G((uint32_t)puVar16 + (uint32_t)(3) * sizeof(uint8_t))) = 0x80;
             (*(uint8_t*)rtguest::G((uint32_t)puVar16)) = (*(uint8_t*)rtguest::G((uint32_t)puVar14));
             uVar3 = (*(uint8_t*)rtguest::G((uint32_t)puVar14 + (uint32_t)(1) * sizeof(uint8_t)));
@@ -202,43 +206,43 @@ uint32_t puVar16;
               piVar9 = piVar9 + 0x4;  // T* element step
             } while (iVar13 < (int)(bVar12 - 1));
           }
-          gs_tasks_spawn(param_1,0x20dc50,bVar12 - 1 | 0x70300);
+          RT_CALLRA(0x20fed4, guest::gs_tasks_spawn(param_1,0x20dc50,bVar12 - 1 | 0x70300));
         }
-        gs_tasks_spawn(param_1,0x20dc50,0x450000);
-        SpawnGameViewTasks(param_1,0);
-        SpawnRaceRivalTasks(param_1,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))),
-                            2 < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) + 1))),0);
+        RT_CALLRA(0x20ff40, guest::gs_tasks_spawn(param_1,0x20dc50,0x450000));
+        RT_CALLRA(0x20fdec, guest::SpawnGameViewTasks(param_1,0));
+        RT_CALLRA(0x20fdbc, guest::SpawnRaceRivalTasks(param_1,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))),
+                            2 < (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) + 1))),0));
       }
     }
     else {
-      gs_tasks_spawn(param_1,0x20dc50,0x450000);
-      SpawnGameViewTasks(param_1,0);
-      SpawnRaceRivalTasks(param_1,0,0,0);
+      RT_CALLRA(0x210028, guest::gs_tasks_spawn(param_1,0x20dc50,0x450000));
+      RT_CALLRA(0x20fee0, guest::SpawnGameViewTasks(param_1,0));
+      RT_CALLRA(0x20fe00, guest::SpawnRaceRivalTasks(param_1,0,0,0));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x104;
     }
   }
   else {
-    gs_tasks_spawn(param_1,0x20dc50,0x450000);
-    SpawnGameViewTasks(param_1,1);
-    SpawnRaceRivalTasks(param_1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))),
-                        (*(int8_t*)rtguest::G(0x177fdd6)) != '\0' && (*(uint32_t*)rtguest::G(0x178321e)) != '\0',1);
+    RT_CALLRA(0x210038, guest::gs_tasks_spawn(param_1,0x20dc50,0x450000));
+    RT_CALLRA(0x210044, guest::SpawnGameViewTasks(param_1,1));
+    RT_CALLRA(0x210060, guest::SpawnRaceRivalTasks(param_1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))),
+                        (*(int8_t*)rtguest::G(0x177fdd6)) != '\0' && (*(uint32_t*)rtguest::G(0x178321e)) != '\0',1));
   }
-  uVar11 = gs_tasks_spawn(param_1,0x2179d8,0);
-  SetTaskFlag(uVar11);
+  uVar11 = RT_CALLRA(0x210074, guest::gs_tasks_spawn(param_1,0x2179d8,0));
+  RT_CALLRA(0x210080, guest::SetTaskFlag(uVar11));
   bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10)));
   if (bVar12 == 8) {
 LAB_002100f0:
     uVar7 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
   }
   else {
-    uVar11 = gs_tasks_spawn(param_1,0x2490a0,bVar12 >> 1 & 1);
-    SetTaskFlag(uVar11);
+    uVar11 = RT_CALLRA(0x2100a4, guest::gs_tasks_spawn(param_1,0x2490a0,bVar12 >> 1 & 1));
+    RT_CALLRA(0x2100ac, guest::SetTaskFlag(uVar11));
     bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10)));
     if (bVar12 != 8) {
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) + 8)));
       if (iVar6 != 0) {
-        uVar11 = gs_tasks_spawn(param_1,iVar6,bVar12 >> 1 & 1);
-        SetTaskFlag(uVar11);
+        uVar11 = RT_CALLRA(0x2100d8, guest::gs_tasks_spawn(param_1,iVar6,bVar12 >> 1 & 1));
+        RT_CALLRA(0x2100e0, guest::SetTaskFlag(uVar11));
         bVar12 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10)));
         goto LAB_002100fc;
       }
@@ -249,7 +253,7 @@ LAB_002100f0:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = uVar7 | 0x104;
 LAB_002100fc:
   if (bVar12 != 8) {
-    gs_tasks_spawn(param_1,0x22c4a8,0);
+    RT_CALLRA(0x210110, guest::gs_tasks_spawn(param_1,0x22c4a8,0));
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0xc))) = 0x20f3b8;
   return 0;

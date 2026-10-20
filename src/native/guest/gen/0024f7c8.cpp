@@ -7,6 +7,8 @@ namespace guest {
 uint32_t uiArenaSprites(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(96);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_4;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = (uint32_t)(int32_t)param_5;
   }
@@ -41,9 +43,9 @@ uint32_t puVar1;
       if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xe))) & 2) == 0) {
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(10) * sizeof(uint16_t)));
       }
-      uiSpriteWrite(iVar5,(int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)param_2)) + param_4) * 0x10000) >> 0x10,
+      RT_CALLRA(0x24f8d0, guest::uiSpriteWrite(iVar5,(int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)param_2)) + param_4) * 0x10000) >> 0x10,
                     (int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint16_t))) + param_5) * 0x10000) >> 0x10,(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(4) * sizeof(uint16_t))),(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(6) * sizeof(uint16_t))),
-                    uVar4,uVar2);
+                    uVar4,uVar2));
       puVar1 = param_2 + 0xc;
       param_2 = param_2 + 0x10;
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x44))) = 0xffffff - ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)puVar1)) + param_6);

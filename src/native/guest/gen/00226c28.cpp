@@ -11,14 +11,14 @@ uint32_t puVar1;
   ulong uVar3;
   
   if ((*(uint32_t*)rtguest::G(0x3356ec)) == (uint32_t)0x0) {
-    fatal(0x2eafa0);
+    RT_CALLRA(0x226c5c, guest::fatal(0x2eafa0));
   }
   if ((*(uint32_t*)rtguest::G(0x3356f4)) == 0) {
     if ((*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(0xc) * sizeof(undefined4) < (uint32_t)0x17523d0) {
       bVar2 = false;
     }
     else {
-      fatal(0x2eafc0);
+      RT_CALLRA(0x226c90, guest::fatal(0x2eafc0));
       bVar2 = false;
     }
   }

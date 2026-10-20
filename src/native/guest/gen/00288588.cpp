@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t sceSifRpcLoop(uint64_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   long lVar1;
   
   do {
     while (lVar1 = sceSifGetNextRequest(param_1), lVar1 == 0) {
-      SleepThread();
+      RT_CALLRA(0x2885b8, guest::SleepThread());
     }
-    sceSifExecRequest(lVar1);
+    RT_CALLRA(0x2885a0, guest::sceSifExecRequest(lVar1));
   } while( true );
 }
 

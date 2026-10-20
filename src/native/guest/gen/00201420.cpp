@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiDrawGlyphScaled(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+  }
     uint32_t uStack_70 = rtguest::allocFrame(2);
 uint32_t auStack_6e = rtguest::allocFrame(14);
     uint32_t iStack_60 = rtguest::allocFrame(4);
@@ -45,10 +49,10 @@ uint32_t pcVar10;
         if (iVar5 < 0) {
           iVar5 = iVar5 + 0xff;
         }
-        uiSetSpriteXY(iVar8 + 0x90,iVar8 + 0xb0,(short)param_1,param_2,(iVar4 << 8) >> 0x10,
-                      (iVar5 << 8) >> 0x10);
-        uiSetSpriteUV(iVar8 + 0x80,iVar8 + 0xa0,iVar11,iVar9,cVar1,iVar7);
-        uiSetSpriteClamp(iVar8 + 0x70,iVar11,iVar9,cVar1,iVar7);
+        RT_CALLRA(0x201570, guest::uiSetSpriteXY(iVar8 + 0x90,iVar8 + 0xb0,(short)param_1,param_2,(iVar4 << 8) >> 0x10,
+                      (iVar5 << 8) >> 0x10));
+        RT_CALLRA(0x20158c, guest::uiSetSpriteUV(iVar8 + 0x80,iVar8 + 0xa0,iVar11,iVar9,cVar1,iVar7));
+        RT_CALLRA(0x2015a4, guest::uiSetSpriteClamp(iVar8 + 0x70,iVar11,iVar9,cVar1,iVar7));
         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xb4))) = (*(int32_t*)rtguest::G((uint32_t)iStack_60));
         (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x78))) = 8;
         (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
@@ -68,10 +72,10 @@ uint32_t pcVar10;
     }
     else {
       if (uVar3 < 0x889f) {
-        uiKanaGlyphUV(uStack_70,auStack_6e,uVar3,iVar7);
+        RT_CALLRA(0x201660, guest::uiKanaGlyphUV(uStack_70,auStack_6e,uVar3,iVar7));
       }
       else {
-        uiKanjiGlyphUV(uStack_70,auStack_6e,uVar3,iVar7);
+        RT_CALLRA(0x201644, guest::uiKanjiGlyphUV(uStack_70,auStack_6e,uVar3,iVar7));
       }
       iVar8 = (*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10;
       iVar7 = (0x14 - iVar7) * 0x10000 >> 0x10;
@@ -84,10 +88,10 @@ uint32_t pcVar10;
         if (iVar11 < 0) {
           iVar11 = iVar11 + 0xff;
         }
-        uiSetSpriteXY(iVar8 + 0x90,iVar8 + 0xb0,(short)param_1,param_2,(iVar9 << 8) >> 0x10,
-                      (iVar11 << 8) >> 0x10);
-        uiSetSpriteUV(iVar8 + 0x80,iVar8 + 0xa0,(*(uint16_t*)rtguest::G((uint32_t)uStack_70)),(*(uint16_t*)rtguest::G((uint32_t)auStack_6e + (uint32_t)(0) * 2)),0x14,iVar7);
-        uiSetSpriteClamp(iVar8 + 0x70,(*(uint16_t*)rtguest::G((uint32_t)uStack_70)),(*(uint16_t*)rtguest::G((uint32_t)auStack_6e + (uint32_t)(0) * 2)),0x14,iVar7);
+        RT_CALLRA(0x2016ec, guest::uiSetSpriteXY(iVar8 + 0x90,iVar8 + 0xb0,(short)param_1,param_2,(iVar9 << 8) >> 0x10,
+                      (iVar11 << 8) >> 0x10));
+        RT_CALLRA(0x201708, guest::uiSetSpriteUV(iVar8 + 0x80,iVar8 + 0xa0,(*(uint16_t*)rtguest::G((uint32_t)uStack_70)),(*(uint16_t*)rtguest::G((uint32_t)auStack_6e + (uint32_t)(0) * 2)),0x14,iVar7));
+        RT_CALLRA(0x201720, guest::uiSetSpriteClamp(iVar8 + 0x70,(*(uint16_t*)rtguest::G((uint32_t)uStack_70)),(*(uint16_t*)rtguest::G((uint32_t)auStack_6e + (uint32_t)(0) * 2)),0x14,iVar7));
         (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xb4))) = (int)param_3;
         (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
         (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x78))) = 8;

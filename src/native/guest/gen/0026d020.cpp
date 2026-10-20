@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t HandleMenuScrollSelect(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   ushort uVar1;
   
-  uiFade(0xffffffff80006666);
-  DrawWaypointDebugGrid(0x177ac50);
+  RT_CALLRA(0x26d048, guest::uiFade(0xffffffff80006666));
+  RT_CALLRA(0x26d050, guest::DrawWaypointDebugGrid(0x177ac50));
   uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30)));
   if ((uVar1 & 0x1000) != 0) {
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G(0x177aea8)) + (uint32_t)(*(int8_t*)rtguest::G(0x177ae9a))))) =

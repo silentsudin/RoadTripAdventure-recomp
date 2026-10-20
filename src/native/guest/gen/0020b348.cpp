@@ -28,7 +28,7 @@ uint32_t puVar8;
         uVar4 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
       else {
-        fatal(0x2ea490);
+        RT_CALLRA(0x20b3e8, guest::fatal(0x2ea490));
         uVar4 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
@@ -37,9 +37,9 @@ uint32_t puVar8;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
       puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x10;
     }
-    uVar5 = sceDmaGetChan(1);
-    sceDmaSync(uVar5,0,0);
-    sendTexturePackets(0x100000);
+    uVar5 = RT_CALLRA(0x20b438, guest::sceDmaGetChan(1));
+    RT_CALLRA(0x20b448, guest::sceDmaSync(uVar5,0,0));
+    RT_CALLRA(0x20b450, guest::sendTexturePackets(0x100000));
     return 0;
   case 2:
     ppuVar6 = 0x29b00cu;
@@ -56,16 +56,16 @@ uint32_t puVar8;
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar3));
       }
       else {
-        fatal(0x2ea490);
+        RT_CALLRA(0x20b520, guest::fatal(0x2ea490));
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar3));
       }
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)uVar2 * 0x10 + 0x13)));
       puVar3 = puVar3 + (uint32_t)uVar2 * 0x10 + 0x10;
     }
-    uVar5 = sceDmaGetChan(1);
-    sceDmaSync(uVar5,0,0);
-    sendTexturePackets(puVar7);
+    uVar5 = RT_CALLRA(0x20b55c, guest::sceDmaGetChan(1));
+    RT_CALLRA(0x20b56c, guest::sceDmaSync(uVar5,0,0));
+    RT_CALLRA(0x20b574, guest::sendTexturePackets(puVar7));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x20))) = puVar8;
     if (puVar8 == (uint32_t)0x0) {
       return 1;
@@ -73,14 +73,14 @@ uint32_t puVar8;
     if ((int)puVar8 < 0x3fbb81) {
       return 0;
     }
-    fatal(0x2ea4c0);
+    RT_CALLRA(0x20b5a0, guest::fatal(0x2ea4c0));
     return 0;
   case 4:
     (*(uint32_t*)rtguest::G(0x3356c0)) = 0xffffffff;
   default:
     goto switchD_0020b390_default;
   }
-  cdReadEntry(ppuVar6,0x100000);
+  RT_CALLRA(0x20b46c, guest::cdReadEntry(ppuVar6,0x100000));
   (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
 switchD_0020b390_default:
   return 0;

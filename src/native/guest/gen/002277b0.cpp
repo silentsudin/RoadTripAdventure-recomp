@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t InitSaveSlotDefaults(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   uint uVar1;
   int iVar2;
   undefined1 uVar3;

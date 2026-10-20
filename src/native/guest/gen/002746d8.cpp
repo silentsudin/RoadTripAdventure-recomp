@@ -6,12 +6,16 @@ namespace guest {
 
 uint32_t scePadGetSlotMax(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   undefined4 uVar1;
   long lVar2;
   
   (*(uint32_t*)rtguest::G(0x1773500)) = 0xd;
   (*(uint32_t*)rtguest::G(0x1773504)) = param_1;
-  lVar2 = sceSifCallRpc(0x17731c0,1,0,0x1773500,0x80,0x1773500,0x80,0);
+  lVar2 = RT_CALLRA(0x27471c, guest::sceSifCallRpc(0x17731c0,1,0,0x1773500,0x80,0x1773500,0x80,0));
   uVar1 = (*(uint32_t*)rtguest::G(0x177350c));
   if (lVar2 < 0) {
     uVar1 = 0;

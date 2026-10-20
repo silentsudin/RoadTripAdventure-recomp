@@ -7,6 +7,10 @@ namespace guest {
 
 uint32_t sifRpcReplyHandler(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   uint32_t uVar1;
   int32_t iVar2;
   uint32_t puVar3;
@@ -42,9 +46,9 @@ uint32_t sifRpcReplyHandler(uint32_t param_1, ...) {
   iVar2 = (int32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * 4));
 LAB_002879ec:
   if (-1 < iVar2) {
-    iSignalSema();  // pseudo argless call (W12 arg-forwarding item)
+    RT_CALLRA(0x2879f4, guest::iSignalSema());  // pseudo argless call (W12 arg-forwarding item)
   }
-  sifFreeRpcPacket((*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(0) * 4)));
+  RT_CALLRA(0x2879fc, guest::sifFreeRpcPacket((*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(0) * 4))));
   (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(0) * 4)) = 0;
   return 0;
 }

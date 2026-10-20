@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t extract_cie_info(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   undefined4 uVar1;
   int iVar2;
 uint32_t pbVar3;
@@ -43,12 +47,12 @@ uint32_t aiStack_30 = rtguest::allocFrame(16);
   else {
     (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint32_t))) = 0;
   }
-  uVar5 = decode_uleb128(pcVar7,param_2 + 2);
-  pbVar3 = (uint32_t)decode_sleb128(uVar5,param_2 + 3);
+  uVar5 = RT_CALLRA(0x27cf6c, guest::decode_uleb128(pcVar7,param_2 + 2));
+  pbVar3 = (uint32_t)RT_CALLRA(0x27cf78, guest::decode_sleb128(uVar5,param_2 + 3));
   (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(4) * sizeof(uint32_t))) = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar3));
   pbVar3 = pbVar3 + 1;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)param_2)))) == 'z') {
-    iVar2 = decode_uleb128(pbVar3,aiStack_30);
+    iVar2 = RT_CALLRA(0x27cfa4, guest::decode_uleb128(pbVar3,aiStack_30));
     pbVar3 = (uint32_t)(iVar2 + (*(int32_t*)rtguest::G((uint32_t)aiStack_30 + (uint32_t)(0) * 4)));
   }
   return pbVar3;

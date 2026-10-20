@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SpawnTasksFromResidentTable(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
 uint32_t pcVar1;
   char cVar2;
   byte bVar3;
@@ -29,7 +33,7 @@ uint32_t piVar5;
         piVar5 = piVar5 + 0x4;  // T* element step
       } while (iVar6 < (int)(bVar3 - 1));
     }
-    gs_tasks_spawn(param_1,0x20dc50,bVar3 - 1 | param_3 | 0x70300);
+    RT_CALLRA(0x2116f0, guest::gs_tasks_spawn(param_1,0x20dc50,bVar3 - 1 | param_3 | 0x70300));
   }
   return 0;
 }

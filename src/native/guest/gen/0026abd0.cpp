@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ApplyAdjusterOffsets(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
     uint32_t uStack_20 = rtguest::allocFrame(4);
     uint32_t uStack_1c = rtguest::allocFrame(4);
     uint32_t uStack_18 = rtguest::allocFrame(4);
@@ -39,12 +43,12 @@ uint32_t ApplyAdjusterOffsets(uint32_t param_1, uint32_t param_2, uint32_t param
   if ((uVar1 & 0x8000) != 0) {
     (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x90))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x90))) - 0.25;
   }
-  TransformRectangle(uStack_20,iVar3 + 0xb0);
-  vu0UnitMatrix(param_2);
-  vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)uStack_1c)),param_2,param_2);
-  vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)uStack_20)),param_2,param_2);
-  vu0RotMatrixZ((*(uint32_t*)rtguest::G((uint32_t)uStack_18)),param_2,param_2);
-  vu0CopyVectorXYZ(iVar3 + 0x30,iVar3 + 0x90);
+  RT_CALLRA(0x26acec, guest::TransformRectangle(uStack_20,iVar3 + 0xb0));
+  RT_CALLRA(0x26acf4, guest::vu0UnitMatrix(param_2));
+  RT_CALLRA(0x26ad04, guest::vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)uStack_1c)),param_2,param_2));
+  RT_CALLRA(0x26ad14, guest::vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)uStack_20)),param_2,param_2));
+  RT_CALLRA(0x26ad24, guest::vu0RotMatrixZ((*(uint32_t*)rtguest::G((uint32_t)uStack_18)),param_2,param_2));
+  RT_CALLRA(0x26ad30, guest::vu0CopyVectorXYZ(iVar3 + 0x30,iVar3 + 0x90));
   return 0;
 }
 

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t loadFontTextures(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   // 2026-10-19 MIPS cross-check (0x20dde0-0x20de94): Ghidra's pseudocode
   // halved the chunk walk (qword +0x10 / stride size*8+8). Real MIPS:
   // ld/sd 0x20($s0); addiu $s0,$a0,0x10 with $a0=p+size<<4 → stride
@@ -18,12 +22,12 @@ uint32_t loadFontTextures(uint32_t q0, ...) {
   uint32_t size;
   undefined8 uVar4;
   
-  cdReadEntryWait(0x29af58,0x100000);
+  RT_CALLRA(0x20de08, guest::cdReadEntryWait(0x29af58,0x100000));
   puVar2 = 0x00100000;
   cVar1 = (*(int8_t*)rtguest::G(0x100003));
   while (cVar1 != 'p') {
     if (cVar1 != '\x10') {
-      fatal(0x2ea490);
+      RT_CALLRA(0x20de48, guest::fatal(0x2ea490));
     }
     size = (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar2));
     uVar3 = (*(uint64_t*)rtguest::G(puVar2 + 0x20));
@@ -33,9 +37,9 @@ uint32_t loadFontTextures(uint32_t q0, ...) {
     puVar2 = puVar2 + size * 0x10 + 0x10;
     cVar1 = (*(int8_t*)rtguest::G(puVar2 + 3));
   }
-  uVar4 = sceDmaGetChan(1);
-  sceDmaSync(uVar4,0,0);
-  sendTexturePackets(0x100000);
+  uVar4 = RT_CALLRA(0x20de98, guest::sceDmaGetChan(1));
+  RT_CALLRA(0x20dea8, guest::sceDmaSync(uVar4,0,0));
+  RT_CALLRA(0x20deb0, guest::sendTexturePackets(0x100000));
   return 0;
 }
 

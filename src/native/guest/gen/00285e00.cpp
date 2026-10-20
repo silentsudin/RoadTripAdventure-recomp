@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t InitThread(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+  }
 uint32_t auStack_80 = rtguest::allocFrame(4);
 rtguest::allocFrame(8);  // guest frame gap
     uint32_t uStack_74 = rtguest::allocFrame(4);
@@ -24,7 +28,7 @@ uint32_t puStack_70;
   if ((*(int32_t*)rtguest::G(0x2e98f0)) < 1) {
     (*(uint32_t*)rtguest::G((uint32_t)uStack_48)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_4c)) = 0xff;
-    lVar1 = CreateSema(auStack_50);
+    lVar1 = RT_CALLRA(0x285e28, guest::CreateSema(auStack_50));
     (*(uint32_t*)rtguest::G(0x1776570)) = (uint32_t)lVar1;
     if (-1 < lVar1) {
       pcStack_7c = 0x285d28;
@@ -32,17 +36,17 @@ uint32_t puStack_70;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_74)) = 0x400;
       puStack_70 = 0x33aaf0;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = 0;
-      lVar1 = CreateThread(auStack_80);
+      lVar1 = RT_CALLRA(0x285e6c, guest::CreateThread(auStack_80));
       (*(int32_t*)rtguest::G(0x2e98f0)) = (int)lVar1;
       if (-1 < lVar1) {
         (*(uint32_t*)rtguest::G(0x1776578)) = 0;
         (*(uint32_t*)rtguest::G(0x177657c)) = 0;
-        StartThread(lVar1,0x1776578);
-        uVar2 = GetThreadId();
-        ChangeThreadPriority(uVar2,1);
+        RT_CALLRA(0x285ea0, guest::StartThread(lVar1,0x1776578));
+        uVar2 = RT_CALLRA(0x285ea8, guest::GetThreadId());
+        RT_CALLRA(0x285eb4, guest::ChangeThreadPriority(uVar2,1));
         return (*(int32_t*)rtguest::G(0x2e98f0));
       }
-      DeleteSema((*(uint32_t*)rtguest::G(0x1776570)));
+      RT_CALLRA(0x285e80, guest::DeleteSema((*(uint32_t*)rtguest::G(0x1776570))));
     }
   }
   return -1;

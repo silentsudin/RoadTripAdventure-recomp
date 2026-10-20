@@ -22,7 +22,7 @@ uint32_t pcVar4;
     }
   }
   while ((*(int8_t*)rtguest::G((uint32_t)param_4)) != '\0') {
-    param_1 = uiDrawGlyphScaled(param_1,param_2,param_3,0,param_4,param_6);
+    param_1 = RT_CALLRA(0x204670, guest::uiDrawGlyphScaled(param_1,param_2,param_3,0,param_4,param_6));
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)param_4));
     pcVar4 = param_4 + 2;
     param_4 = param_4 + 1;

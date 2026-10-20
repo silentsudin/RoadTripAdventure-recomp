@@ -50,8 +50,8 @@ uint32_t auStack_80 = rtguest::allocFrame(64);
   if ((int)uVar6 << 0x10 < 0) {
     uVar5 = 0xdf0000027f0000;
   }
-  gifAdPair(param_2 + 0x30,uVar5,0x41);
-  vu0CopyMatrix(auStack_80,0x2a8b70);
+  RT_CALLRA(0x244b6c, guest::gifAdPair(param_2 + 0x30,uVar5,0x41));
+  RT_CALLRA(0x244b7c, guest::vu0CopyMatrix(auStack_80,0x2a8b70));
   if (param_1 == 0.0) {
     iVar4 = (int)param_6;
     if (param_6 < 0x2c) {
@@ -81,14 +81,13 @@ uint32_t auStack_80 = rtguest::allocFrame(64);
     (*(uint32_t*)rtguest::G(0x2a8b66)) = 0;
   }
   if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
-    SetViewDistanceGlobals((float)(param_3 + 0x6c0),(float)((param_4 + param_5 / 2) / 2 + 0x790));
+    RT_CALLRA(0x244cc4, guest::SetViewDistanceGlobals((float)(param_3 + 0x6c0),(float)((param_4 + param_5 / 2) / 2 + 0x790)));
   }
   else {
-    SetViewDistanceGlobals
-              ((float)((param_3 << 2) / 5 + 0x700),(float)((param_4 + param_5 / 2) / 2 + 0x780));
+    RT_CALLRA(0x244d14, guest::SetViewDistanceGlobals((float)((param_3 << 2) / 5 + 0x700),(float)((param_4 + param_5 / 2) / 2 + 0x780)));
   }
-  buildCamera(param_2 + 0x50,0x2a8b50,auStack_80,auStack_80);
-  updateLightDirection(param_2 + 0x1d0);
+  RT_CALLRA(0x244d28, guest::buildCamera(param_2 + 0x50,0x2a8b50,auStack_80,auStack_80));
+  RT_CALLRA(0x244d30, guest::updateLightDirection(param_2 + 0x1d0));
   return 0;
 }
 

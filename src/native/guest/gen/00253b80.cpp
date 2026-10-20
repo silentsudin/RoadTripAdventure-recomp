@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t HandleCarObjectCollisions(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x98) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x9c) = 0x00000000u;
+  }
 uint32_t auStack_b0 = rtguest::allocFrame(16);
     uint32_t fStack_a0 = rtguest::allocFrame(4);
     uint32_t fStack_9c = rtguest::allocFrame(4);
@@ -28,8 +32,8 @@ uint32_t puVar5;
   puVar5 = 0x177ac50;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_70)) = param_2;
   do {
-    vu0SubVector(auStack_b0,param_1 + 0x20,puVar5 + 0x12);
-    vu0MulVector(fStack_a0,auStack_b0,auStack_b0);
+    RT_CALLRA(0x253be0, guest::vu0SubVector(auStack_b0,param_1 + 0x20,puVar5 + 0x12));
+    RT_CALLRA(0x253bf4, guest::vu0MulVector(fStack_a0,auStack_b0,auStack_b0));
     if (SQRT((*(float*)rtguest::G((uint32_t)fStack_a0)) + (*(float*)rtguest::G((uint32_t)fStack_9c)) + (*(float*)rtguest::G((uint32_t)fStack_98))) < 2.5) {
       uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33)));
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x40))) = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33)));
@@ -37,22 +41,22 @@ uint32_t puVar5;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x44))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x44))) | 1 << (uVar4 & 0x1f);
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x4c))) = 1;
         if ((uVar1 & 0xfffd) == 0) {
-          gs_controls_rumble_start((*(uint32_t*)rtguest::G((uint32_t)uStack_70)),uVar1 & 1,6,0x40);
+          RT_CALLRA(0x253c9c, guest::gs_controls_rumble_start((*(uint32_t*)rtguest::G((uint32_t)uStack_70)),uVar1 & 1,6,0x40));
         }
       }
-      vecNormalizeVu0(auStack_b0,auStack_b0);
+      RT_CALLRA(0x253ca8, guest::vecNormalizeVu0(auStack_b0,auStack_b0));
       pfVar3 = (uint32_t)(param_1 + 0x30);
-      vu0MulVector(afStack_80,pfVar3,pfVar3);
-      vu0ScaleVector(SQRT((*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_78))) * (*(float*)rtguest::G(0x333058)),afStack_80,auStack_b0);
-      vu0Itof0Vector(auStack_90,puVar5 + 0x1e);
-      vu0ScaleVector((*(float*)rtguest::G(0x33305c)),auStack_90,auStack_90);
-      vu0AddVector(afStack_80,afStack_80,auStack_90);
+      RT_CALLRA(0x253cc0, guest::vu0MulVector(afStack_80,pfVar3,pfVar3));
+      RT_CALLRA(0x253d08, guest::vu0ScaleVector(SQRT((*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_78))) * (*(float*)rtguest::G(0x333058)),afStack_80,auStack_b0));
+      RT_CALLRA(0x253d14, guest::vu0Itof0Vector(auStack_90,puVar5 + 0x1e));
+      RT_CALLRA(0x253d24, guest::vu0ScaleVector((*(float*)rtguest::G(0x33305c)),auStack_90,auStack_90));
+      RT_CALLRA(0x253d34, guest::vu0AddVector(afStack_80,afStack_80,auStack_90));
       (*(float*)rtguest::G((uint32_t)pfVar3)) = (*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4));
       (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x38))) = (*(float*)rtguest::G((uint32_t)fStack_78));
       if (SQRT((*(float*)rtguest::G((uint32_t)fStack_a0)) + (*(float*)rtguest::G((uint32_t)fStack_98))) < 2.0) {
         if (SQRT((*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) * (*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_78)) * (*(float*)rtguest::G((uint32_t)fStack_78))) < (*(float*)rtguest::G(0x333060))) {
           // ELF 0x253de8: f12 = DAT_00333060 (loaded 0x253dd0), $4 = afStack_80 slot (out), $5 = $sp = auStack_b0 (in)
-          vu0ScaleVector((*(float*)rtguest::G((uint32_t)0x00333060)), afStack_80, auStack_b0);
+          RT_CALLRA(0x253de8, guest::vu0ScaleVector((*(float*)rtguest::G((uint32_t)0x00333060)), afStack_80, auStack_b0));
           (*(float*)rtguest::G((uint32_t)pfVar3)) = (*(float*)rtguest::G((uint32_t)afStack_80 + (uint32_t)(0) * 4));
           (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x38))) = (*(float*)rtguest::G((uint32_t)fStack_78));
           goto LAB_00253e2c;
@@ -60,7 +64,7 @@ uint32_t puVar5;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x34))) = uVar2;
       }
       else {
-        fVar6 = rtguest::fbits(GetSpeedFromF15Vector(puVar5 + 0x1e));
+        fVar6 = rtguest::fbits(RT_CALLRA(0x253e08, guest::GetSpeedFromF15Vector(puVar5 + 0x1e)));
         if (50.0 < fVar6) {
 LAB_00253e2c:
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x34))) = uVar2;

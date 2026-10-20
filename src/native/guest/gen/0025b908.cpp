@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t textEntryMoveCursor(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
     uint32_t uStack_20 = rtguest::allocFrame(8);
   bool bVar1;
   byte bVar2;
@@ -79,7 +83,7 @@ LAB_0025ba2c:
   }
   if (uVar7 != uVar4) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (char)uVar4;
-    PlayUiSound(0x1d);
+    RT_CALLRA(0x25baf4, guest::PlayUiSound(0x1d));
   }
   return 0;
 }

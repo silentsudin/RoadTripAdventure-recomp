@@ -29,7 +29,7 @@ uint32_t sceSifLoadIopHeap(uint32_t param_1, uint32_t param_2, ...) {
     }
     (*(uint8_t*)rtguest::G(0x1779dff)) = 0;
     (*(uint32_t*)rtguest::G(0x1779d00)) = param_2;
-    lVar3 = sceSifCallRpc(0x1779c40,3,0,0x1779d00,iVar4 + 5,0x1779c80,4,0);
+    lVar3 = RT_CALLRA(0x28bf2c, guest::sceSifCallRpc(0x1779c40,3,0,0x1779d00,iVar4 + 5,0x1779c80,4,0));
     uVar2 = (*(uint32_t*)rtguest::G(0x1779c80));
     if (lVar3 < 0) {
       uVar2 = 0xffffffff;

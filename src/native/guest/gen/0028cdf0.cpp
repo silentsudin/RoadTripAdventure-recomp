@@ -6,9 +6,13 @@ namespace guest {
 
 uint32_t sceSifIsAliveIop(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
   ulong uVar1;
   
-  uVar1 = sceSifGetReg(4);
+  uVar1 = RT_CALLRA(0x28cdf8, guest::sceSifGetReg(4));
   return (uVar1 & 0x10000) != 0;
 }
 

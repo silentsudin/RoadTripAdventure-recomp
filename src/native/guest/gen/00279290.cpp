@@ -6,12 +6,16 @@ namespace guest {
 
 uint32_t sceSdRemoteInit(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   int iVar1;
   long lVar2;
   
-  sceSifInitRpc(0);
+  RT_CALLRA(0x2792b0, guest::sceSifInitRpc(0));
   do {
-    lVar2 = sceSifBindRpc(0x17739c0,0xffffffff80000701,0);
+    lVar2 = RT_CALLRA(0x2792c4, guest::sceSifBindRpc(0x17739c0,0xffffffff80000701,0));
     iVar1 = 10000;
     if (lVar2 < 0) {
       rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331d78u)));
@@ -21,7 +25,7 @@ uint32_t sceSdRemoteInit(uint32_t q0, ...) {
       iVar1 = iVar1 + -1;
     } while (iVar1 != -1);
   } while ((*(int32_t*)rtguest::G(0x17739e4)) == 0);
-  FlushCache(0);
+  RT_CALLRA(0x279310, guest::FlushCache(0));
   return 0;
 }
 

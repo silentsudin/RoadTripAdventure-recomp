@@ -22,7 +22,7 @@ uint32_t puVar3;
     iVar2 = (*(uint32_t*)rtguest::G(0x335684)) + 7;
     (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x60))) =
          (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x60))) & 0xffffffffffff8000 | (long)(*(uint32_t*)rtguest::G(0x335684)) & 0x7fffU;
-    vifDirect(iVar1,iVar2);
+    RT_CALLRA(0x203884, guest::vifDirect(iVar1,iVar2));
   }
   iVar1 = (param_1 ^ 1) * 0xa070;
   (*(uint32_t*)rtguest::G(0x335688)) = 0xffffffff;

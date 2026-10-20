@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t rouletteTablePoseUpdate(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
+  }
 uint32_t auStack_b0 = rtguest::allocFrame(4);
     uint32_t uStack_ac = rtguest::allocFrame(4);
     rtguest::allocFrame(8);  // guest frame gap
@@ -27,22 +31,22 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
   (*(uint32_t*)rtguest::G((uint32_t)uStack_98)) = 0x3f800000;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = 0x43c80000;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = 0x43c80000;
-  vu0ScaleVector(0,auStack_80,auStack_80);
+  RT_CALLRA(0x260a48, guest::vu0ScaleVector(0,auStack_80,auStack_80));
   fVar1 = (*(uint32_t*)rtguest::G(0x333178));
   sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe)));
   (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = sVar2;
   (*(float*)rtguest::G((uint32_t)fStack_7c)) = (float)(int)sVar2 * fVar1 * 3.0517578e-05;
-  vu0UnitMatrix(auStack_70);
-  vu0RotMatrix(auStack_70,auStack_70,auStack_80);
-  vu0ApplyMatrix(auStack_a0,auStack_70,auStack_a0);
-  vu0ApplyMatrix(auStack_b0,auStack_70,auStack_b0);
-  vecNormalizeVu0(auStack_a0,auStack_a0);
-  vecNormalizeVu0(auStack_b0,auStack_b0);
-  BuildTransformMatrix(0x177eb10,auStack_b0,auStack_a0);
-  vu0CopyVectorXYZ(0x177eb40,uStack_90);
-  vu0CopyMatrix(0x177eb50,0x177eb10);
-  vu0CopyMatrix(0x177eb90,0x177eb10);
-  vu0CopyMatrix(0x177ebd0,0x177eb10);
+  RT_CALLRA(0x260a90, guest::vu0UnitMatrix(auStack_70));
+  RT_CALLRA(0x260aa0, guest::vu0RotMatrix(auStack_70,auStack_70,auStack_80));
+  RT_CALLRA(0x260ab0, guest::vu0ApplyMatrix(auStack_a0,auStack_70,auStack_a0));
+  RT_CALLRA(0x260ac0, guest::vu0ApplyMatrix(auStack_b0,auStack_70,auStack_b0));
+  RT_CALLRA(0x260ad0, guest::vecNormalizeVu0(auStack_a0,auStack_a0));
+  RT_CALLRA(0x260ae0, guest::vecNormalizeVu0(auStack_b0,auStack_b0));
+  RT_CALLRA(0x260af0, guest::BuildTransformMatrix(0x177eb10,auStack_b0,auStack_a0));
+  RT_CALLRA(0x260afc, guest::vu0CopyVectorXYZ(0x177eb40,uStack_90));
+  RT_CALLRA(0x260b08, guest::vu0CopyMatrix(0x177eb50,0x177eb10));
+  RT_CALLRA(0x260b14, guest::vu0CopyMatrix(0x177eb90,0x177eb10));
+  RT_CALLRA(0x260b20, guest::vu0CopyMatrix(0x177ebd0,0x177eb10));
   return 0;
 }
 

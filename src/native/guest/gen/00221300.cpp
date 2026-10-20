@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t renderInit(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   char cVar1;
 uint32_t pcVar2;
 uint32_t puVar3;
@@ -16,7 +20,7 @@ uint32_t puVar3;
     puVar3 = (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) * 400 + 0x177e540);
   }
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) = puVar3;
-  ResetCarEffectSlots();
+  RT_CALLRA(0x221350, guest::ResetCarEffectSlots());
   cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)));
   if (cVar1 == -1) {
     pcVar2 = 0x220938;

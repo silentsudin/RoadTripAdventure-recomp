@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t HandleConfirmationMenuInput(uint64_t param_1, uint64_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   ushort uVar1;
   int iVar2;
   
@@ -15,16 +19,16 @@ LAB_002136b0:
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x30)));
     if ((uVar1 & 0x40) == 0) {
       if ((uVar1 & 0x10) == 0) {
-        iVar2 = NavigateGridSelection(param_2,(*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t))),1,3,0,1);
+        iVar2 = RT_CALLRA(0x213704, guest::NavigateGridSelection(param_2,(*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t))),1,3,0,1));
         (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t))) = iVar2;
       }
       else {
-        PlayUiSound(0x1b);
+        RT_CALLRA(0x2136c0, guest::PlayUiSound(0x1b));
         (*(int32_t*)rtguest::G((uint32_t)param_4)) = 300;
       }
     }
     else {
-      PlayUiSound(0x1a);
+      RT_CALLRA(0x2136e0, guest::PlayUiSound(0x1a));
       (*(int32_t*)rtguest::G((uint32_t)param_4)) = 200;
     }
     goto LAB_0021379c;

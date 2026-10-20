@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiDrawGlyph(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
     uint32_t uStack_40 = rtguest::allocFrame(2);
   ushort uVar1;
   undefined2 uVar2;
@@ -26,21 +30,21 @@ uint32_t asStack_3e = rtguest::allocFrame(14);
     }
     if (uVar1 == 0x818b) {
       if ((*(uint32_t*)rtguest::G(0x335684)) < 0x9fc) {
-        uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,uVar2,(short)param_2,0xc0,0x60,0x10,
-                      (0x18 - iVar6) * 0x10000 >> 0x10);
+        RT_CALLRA(0x201b10, guest::uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,uVar2,(short)param_2,0xc0,0x60,0x10,
+                      (0x18 - iVar6) * 0x10000 >> 0x10));
         (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
       }
       return param_1 + 0x10;
     }
     if (uVar1 < 0x889f) {
-      uiKanaGlyphUV(uStack_40,asStack_3e,uVar1,iVar6);
+      RT_CALLRA(0x201bf8, guest::uiKanaGlyphUV(uStack_40,asStack_3e,uVar1,iVar6));
     }
     else {
-      uiKanjiGlyphUV(uStack_40,asStack_3e,uVar1,iVar6);
+      RT_CALLRA(0x201bdc, guest::uiKanjiGlyphUV(uStack_40,asStack_3e,uVar1,iVar6));
     }
     if ((*(uint32_t*)rtguest::G(0x335684)) < 0x9fc) {
-      uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,uVar2,(param_2 + 2) * 0x10000 >> 0x10,
-                    (*(uint16_t*)rtguest::G((uint32_t)uStack_40)),(*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)),0x14,(0x14 - iVar6) * 0x10000 >> 0x10);
+      RT_CALLRA(0x201ba8, guest::uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,uVar2,(param_2 + 2) * 0x10000 >> 0x10,
+                    (*(uint16_t*)rtguest::G((uint32_t)uStack_40)),(*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)),0x14,(0x14 - iVar6) * 0x10000 >> 0x10));
       (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
     }
     return param_1 + 0x14;
@@ -238,11 +242,11 @@ switchD_002018dc_default:
 LAB_00201a74:
   bVar5 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(uVar4 + 0x29a860)));
   if ((*(uint32_t*)rtguest::G(0x335684)) < 0x9fc) {
-    uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,uVar2,(short)param_2,
+    RT_CALLRA(0x201c4c, guest::uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,uVar2,(short)param_2,
                   (int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)uStack_40)) + (0x10 - (char)bVar5) / 2) * 0x10000) >> 0x10,
                   (*(int16_t*)rtguest::G((uint32_t)asStack_3e + (uint32_t)(0) * 2)),
                   (int)((((int)(char)bVar5 + (uint32_t)(bVar5 >> 7) >> 1) + 8) * 0x10000) >> 0x10,
-                  (0x18 - iVar6) * 0x10000 >> 0x10);
+                  (0x18 - iVar6) * 0x10000 >> 0x10));
     bVar5 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(uVar4 + 0x29a860)));
     (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
   }

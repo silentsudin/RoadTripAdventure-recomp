@@ -9,14 +9,14 @@ uint32_t vifUploadPacket(uint32_t param_1, uint32_t param_2, ...) {
   bool bVar1;
   
   if ((*(uint32_t*)rtguest::G(0x3356ec)) == (uint32_t)0x0) {
-    fatal(0x2eafa0);
+    RT_CALLRA(0x226eac, guest::fatal(0x2eafa0));
   }
   if ((*(uint32_t*)rtguest::G(0x3356f4)) == 0) {
     if ((*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(4) * sizeof(uint) < (uint32_t)0x17523d0) {
       bVar1 = false;
     }
     else {
-      fatal(0x2eafc0);
+      RT_CALLRA(0x226ee0, guest::fatal(0x2eafc0));
       bVar1 = false;
     }
   }

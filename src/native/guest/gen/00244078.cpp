@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t LayoutRaceRowQuads(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
 uint32_t puVar1;
 uint32_t puVar2;
   uint uVar3;
@@ -20,7 +24,7 @@ uint32_t pbVar10;
   iVar6 = 0;
   iVar8 = 0;
   iVar7 = param_1 + 0x20;
-  gifSetTexRegs(param_1,0x2003df66a1411d43,5);
+  RT_CALLRA(0x2440d0, guest::gifSetTexRegs(param_1,0x2003df66a1411d43,5));
   pbVar10 = 0x2be1d8;
   pbVar9 = 0x2be158;
   do {
@@ -41,7 +45,7 @@ uint32_t pbVar10;
         }
       }
     }
-    gifTexQuadTag(iVar7);
+    RT_CALLRA(0x244128, guest::gifTexQuadTag(iVar7));
     uVar3 = 0;
     puVar1 = (uint32_t)(param_1 + iVar8);
     do {

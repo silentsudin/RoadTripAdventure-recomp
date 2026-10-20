@@ -6,33 +6,37 @@ namespace guest {
 
 uint32_t KnockCollectMaskGates(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   long lVar1;
   
-  lVar1 = TestStateBitFc78(0x5c);
+  lVar1 = RT_CALLRA(0x2678f0, guest::TestStateBitFc78(0x5c));
   if (lVar1 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G((uint32_t)param_1)) | 0x20;
   }
-  lVar1 = TestStateBitFc78(0x27);
+  lVar1 = RT_CALLRA(0x26790c, guest::TestStateBitFc78(0x27));
   if (lVar1 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G((uint32_t)param_1)) | 0x40;
   }
-  lVar1 = TestStateBitFc78(0x61);
+  lVar1 = RT_CALLRA(0x267928, guest::TestStateBitFc78(0x61));
   if (lVar1 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G((uint32_t)param_1)) | 0x80;
   }
-  lVar1 = TestStateBitFc78(0x13);
+  lVar1 = RT_CALLRA(0x267944, guest::TestStateBitFc78(0x13));
   if (lVar1 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G((uint32_t)param_1)) | 0x100;
   }
-  lVar1 = TestStateBitFc78(0x43);
+  lVar1 = RT_CALLRA(0x267960, guest::TestStateBitFc78(0x43));
   if (lVar1 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G((uint32_t)param_1)) | 0x200;
   }
-  lVar1 = TestStateBitFc78(0x59);
+  lVar1 = RT_CALLRA(0x26797c, guest::TestStateBitFc78(0x59));
   if (lVar1 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G((uint32_t)param_1)) | 0x400;
   }
-  lVar1 = TestStateBitFc78(0x3b);
+  lVar1 = RT_CALLRA(0x267998, guest::TestStateBitFc78(0x3b));
   if (lVar1 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)param_1)) = (*(uint32_t*)rtguest::G((uint32_t)param_1)) | 0x2000;
   }

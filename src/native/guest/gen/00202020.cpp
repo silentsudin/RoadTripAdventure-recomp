@@ -30,8 +30,8 @@ uint32_t puVar2;
       if (param_5 < 0x9fc) {
         uVar3 = 200;
 LAB_00202104:
-        uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + param_5 * 0x10 + 0x70,unaff_s1_lo * 0x10000 >> 0x10,
-                      (param_2 + -2) * 0x10000 >> 0x10,iVar1,uVar3,0x10,0x14);
+        RT_CALLRA(0x202104, guest::uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + param_5 * 0x10 + 0x70,unaff_s1_lo * 0x10000 >> 0x10,
+                      (param_2 + -2) * 0x10000 >> 0x10,iVar1,uVar3,0x10,0x14));
         (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
       }
     }

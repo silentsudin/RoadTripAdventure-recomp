@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceDmaReset(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
 uint32_t puVar1;
 uint32_t ppuVar2;
   int iVar3;
@@ -32,8 +36,8 @@ uint32_t auStack_50 = rtguest::allocFrame(32);
     piVar4 = piVar4 + 0x4;  // T* element step
   } while (-1 < iVar3);
   REG_DMAC_STAT = 0;
-  memclr(auStack_50,0x14);
-  sceDmaPutEnv(auStack_50);
+  RT_CALLRA(0x27023c, guest::memclr(auStack_50,0x14));
+  RT_CALLRA(0x270244, guest::sceDmaPutEnv(auStack_50));
   if (param_1 == 1) {
     REG_DMAC_CTRL = REG_DMAC_CTRL | 1;
   }

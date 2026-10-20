@@ -23,7 +23,7 @@ uint32_t puVar8;
   iVar11 = (int)param_1;
   iVar10 = (int)param_2;
   if (((*(uint32_t*)rtguest::G(0x3356c0)) & 0x8000) != 0) {
-    lVar5 = cdReadPoll();
+    lVar5 = RT_CALLRA(0x20d15c, guest::cdReadPoll());
     if (lVar5 != 0) {
       uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x1c))) & 0x100000;
       goto LAB_0020dbd8;
@@ -41,7 +41,7 @@ uint32_t puVar8;
           uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
         }
         else {
-          fatal(0x2ea490);
+          RT_CALLRA(0x20d370, guest::fatal(0x2ea490));
           uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
         }
         (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
@@ -55,7 +55,7 @@ uint32_t puVar8;
     if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
     lVar9 = 0;
     if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
-      cdReadEntryPart(0x29b084,0x100000,(uVar4 & 0xff) * 0xc000,0xc000);
+      RT_CALLRA(0x20d8a0, guest::cdReadEntryPart(0x29b084,0x100000,(uVar4 & 0xff) * 0xc000,0xc000));
       (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
       goto switchD_0020d2bc_caseD_2;
     }
@@ -64,7 +64,7 @@ uint32_t puVar8;
     if (puVar8 == (uint32_t)0x20000) {
       if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
         (*(uint32_t*)rtguest::G(0x177f310)) = 0x707b80;
-        cdReadEntry(0x29b174,0x100000);
+        RT_CALLRA(0x20d31c, guest::cdReadEntry(0x29b174,0x100000));
         (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
 switchD_0020d2bc_caseD_2:
         lVar9 = 0;
@@ -72,7 +72,7 @@ switchD_0020d2bc_caseD_2:
       else if ((int)(*(uint32_t*)rtguest::G(0x3356c0)) < 2) {
         lVar9 = 0;
         if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
-          cdReadEntry(0x29b15c,0x707b80);
+          RT_CALLRA(0x20d404, guest::cdReadEntry(0x29b15c,0x707b80));
           (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
           goto switchD_0020d2bc_caseD_2;
         }
@@ -86,7 +86,7 @@ switchD_0020d2bc_caseD_2:
               uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
             }
             else {
-              fatal(0x2ea490);
+              RT_CALLRA(0x20d458, guest::fatal(0x2ea490));
               uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
             }
             (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
@@ -109,10 +109,10 @@ LAB_0020db60:
       if (puVar8 == (uint32_t)0x0) {
         switch(uVar4 & 0xf) {
         case 0:
-          lVar9 = loadCarPartsSet(param_1,param_2);
+          lVar9 = RT_CALLRA(0x20d2cc, guest::loadCarPartsSet(param_1,param_2));
           break;
         case 1:
-          lVar9 = loadPoseSet(param_1,param_2);
+          lVar9 = RT_CALLRA(0x20d2e4, guest::loadPoseSet(param_1,param_2));
           break;
         case 2:
           goto switchD_0020d2bc_caseD_2;
@@ -125,7 +125,7 @@ LAB_0020db60:
                 uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
               }
               else {
-                fatal(0x2ea490);
+                RT_CALLRA(0x20d580, guest::fatal(0x2ea490));
                 uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
               }
               (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
@@ -135,15 +135,15 @@ LAB_0020db60:
               puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x10;
             }
 LAB_0020db38:
-            uVar7 = sceDmaGetChan(1);
-            sceDmaSync(uVar7,0,0);
-            sendTexturePackets(0x100000);
+            uVar7 = RT_CALLRA(0x20db38, guest::sceDmaGetChan(1));
+            RT_CALLRA(0x20db48, guest::sceDmaSync(uVar7,0,0));
+            RT_CALLRA(0x20db50, guest::sendTexturePackets(0x100000));
             lVar9 = 0;
           }
           else if ((int)(*(uint32_t*)rtguest::G(0x3356c0)) < 2) {
             lVar9 = 0;
             if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
-              cdReadEntry(0x29b410,0x100000);
+              RT_CALLRA(0x20d4fc, guest::cdReadEntry(0x29b410,0x100000));
               (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
               goto switchD_0020d2bc_caseD_2;
             }
@@ -156,7 +156,7 @@ LAB_0020da68:
           break;
         case 4:
         case 5:
-          lVar9 = loadShopSet(param_1,param_2);
+          lVar9 = RT_CALLRA(0x20d3cc, guest::loadShopSet(param_1,param_2));
           break;
         case 6:
           if ((*(uint32_t*)rtguest::G(0x3356c0)) == 1) {
@@ -167,7 +167,7 @@ LAB_0020da68:
                 uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
               }
               else {
-                fatal(0x2ea490);
+                RT_CALLRA(0x20d688, guest::fatal(0x2ea490));
                 uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
               }
               (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
@@ -181,7 +181,7 @@ LAB_0020da68:
           if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
           lVar9 = 0;
           if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
-            cdReadEntry(0x29b054,0x100000);
+            RT_CALLRA(0x20d528, guest::cdReadEntry(0x29b054,0x100000));
             (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
             goto switchD_0020d2bc_caseD_2;
           }
@@ -196,7 +196,7 @@ LAB_0020da68:
               uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
             }
             else {
-              fatal(0x2ea490);
+              RT_CALLRA(0x20d800, guest::fatal(0x2ea490));
               uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
             }
             (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
@@ -210,7 +210,7 @@ LAB_0020da68:
         if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
         lVar9 = 0;
         if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
-          cdReadEntry(0x29afa0,0x100000);
+          RT_CALLRA(0x20d5f8, guest::cdReadEntry(0x29afa0,0x100000));
           (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
           goto switchD_0020d2bc_caseD_2;
         }
@@ -225,7 +225,7 @@ LAB_0020da68:
             uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar3));
           }
           else {
-            fatal(0x2ea490);
+            RT_CALLRA(0x20d8f8, guest::fatal(0x2ea490));
             uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar3));
           }
           (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
@@ -237,19 +237,19 @@ LAB_0020da68:
       if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
       lVar9 = 0;
       if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
-        cdReadEntry(0x29af58 + (uVar4 & 0xff) * 3,0x100000);
+        RT_CALLRA(0x20d630, guest::cdReadEntry(0x29af58 + (uVar4 & 0xff) * 3,0x100000));
         (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
         goto switchD_0020d2bc_caseD_2;
       }
     }
     else if (puVar8 < (uint32_t)0x40001) {
       if (puVar8 == (uint32_t)0x30000) {
-        lVar9 = DispatchInputMapping(param_1,param_2);
+        lVar9 = RT_CALLRA(0x20d858, guest::DispatchInputMapping(param_1,param_2));
       }
     }
     else if (puVar8 == (uint32_t)0x50000) {
-      lVar9 = loadCourseTile(param_1,param_2,0x29be50 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x22))) * 0xc,
-                             (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x22))),2);
+      lVar9 = RT_CALLRA(0x20d75c, guest::loadCourseTile(param_1,param_2,0x29be50 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x22))) * 0xc,
+                             (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x22))),2));
     }
   }
   else if (puVar8 == 0x000a0000) {
@@ -261,7 +261,7 @@ LAB_0020da68:
           uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
         }
         else {
-          fatal(0x2ea490);
+          RT_CALLRA(0x20d9f8, guest::fatal(0x2ea490));
           uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
         }
         (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
@@ -275,23 +275,23 @@ LAB_0020da68:
     if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
     lVar9 = 0;
     if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
-      cdReadEntry((uVar4 & 0xff) * 0xc + 0x29b398,0x100000);
+      RT_CALLRA(0x20d7a8, guest::cdReadEntry((uVar4 & 0xff) * 0xc + 0x29b398,0x100000));
       (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
       goto switchD_0020d2bc_caseD_2;
     }
   }
   else if (0x000a0000 < puVar8) {
     if (puVar8 == (uint32_t)0xc0000) {
-      lVar9 = loadCarModelAt(param_1,param_2);
+      lVar9 = RT_CALLRA(0x20d954, guest::loadCarModelAt(param_1,param_2));
     }
     else if (puVar8 < (uint32_t)0xc0001) {
       if (puVar8 == (uint32_t)0xb0000) {
-        lVar9 = CheckInputMapping(param_1,param_2);
+        lVar9 = RT_CALLRA(0x20d6f0, guest::CheckInputMapping(param_1,param_2));
       }
     }
     else if (puVar8 == (uint32_t)0xd0000) {
       if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
-        cdReadEntry(0x29b168,0x100000);
+        RT_CALLRA(0x20d9a0, guest::cdReadEntry(0x29b168,0x100000));
         (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
         goto switchD_0020d2bc_caseD_2;
       }
@@ -308,7 +308,7 @@ LAB_0020da68:
           uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
         }
         else {
-          fatal(0x2ea490);
+          RT_CALLRA(0x20dae8, guest::fatal(0x2ea490));
           uVar6 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
         }
         (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
@@ -325,24 +325,24 @@ LAB_0020da68:
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x22))) == -1) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x68))) = 0xffffffff;
       }
-      cdReadEntry(0x29b150,0x100000);
+      RT_CALLRA(0x20da90, guest::cdReadEntry(0x29b150,0x100000));
       (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
       goto switchD_0020d2bc_caseD_2;
     }
   }
   else if (puVar8 < (uint32_t)0x80001) {
     if (puVar8 == (uint32_t)0x70000) {
-      lVar9 = UpdateInputMapping(param_1,param_2);
+      lVar9 = RT_CALLRA(0x20d6e0, guest::UpdateInputMapping(param_1,param_2));
     }
   }
   else if (puVar8 == (uint32_t)0x90000) {
-    lVar9 = loadFieldTile(param_1,param_2,0x29bb50 + (uVar4 & 0xff) * 0xc,uVar4 & 0xff,
-                          uVar4 & 3);
+    lVar9 = RT_CALLRA(0x20d724, guest::loadFieldTile(param_1,param_2,0x29bb50 + (uVar4 & 0xff) * 0xc,uVar4 & 0xff,
+                          uVar4 & 3));
   }
   if (lVar9 == 0) {
     if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0xffffffff) {
       if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x1c))) & 0x400000) != 0) {
-        ClearTaskPoolFlag();
+        RT_CALLRA(0x20dba8, guest::ClearTaskPoolFlag());
       }
       (*(uint32_t*)rtguest::G(0x333370)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0xc))) = 0x20df98;
@@ -359,9 +359,9 @@ LAB_0020dbd8:
   if (uVar4 == 0) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 8))) < 0x40) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) | 0x400000;
-      uiFade(0x6000000);
+      RT_CALLRA(0x20dc00, guest::uiFade(0x6000000));
     }
-    uiDrawTextCell(0xc,10,0x2ea6b0,0);
+    RT_CALLRA(0x20dc18, guest::uiDrawTextCell(0xc,10,0x2ea6b0,0));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x50))) = 0x80000000;
   }
   return 0;

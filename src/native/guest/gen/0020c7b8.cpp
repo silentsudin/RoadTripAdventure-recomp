@@ -16,12 +16,12 @@ uint32_t puVar2;
 uint32_t puVar7;
   
   if (((*(uint32_t*)rtguest::G(0x3356c0)) & 1) == 0) {
-    cdReadEntry(0x29b438 + (int)param_3 * 0xc,0x100000);
+    RT_CALLRA(0x20c820, guest::cdReadEntry(0x29b438 + (int)param_3 * 0xc,0x100000));
     (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
   }
   else if (((*(uint32_t*)rtguest::G(0x3356c0)) & 1) == 1) {
     if (0x34000 < (*(int32_t*)rtguest::G(0x100018))) {
-      fatal(0x2ea638,param_3,(*(int32_t*)rtguest::G(0x100018)));
+      RT_CALLRA(0x20c860, guest::fatal(0x2ea638,param_3,(*(int32_t*)rtguest::G(0x100018))));
     }
     (uint32_t)(uintptr_t)(::memmove((char *)rtguest::G((uint32_t)(param_1)), (char *)rtguest::G((uint32_t)(0x00100000)), (long)(*(int32_t*)rtguest::G(0x100018))));
     iVar5 = 0;
@@ -39,7 +39,7 @@ uint32_t puVar7;
         uVar4 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 0x20)));
       }
       else {
-        fatal(0x2ea490);
+        RT_CALLRA(0x20c928, guest::fatal(0x2ea490));
         uVar4 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 0x20)));
       }
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 0x20))) =
@@ -49,9 +49,9 @@ uint32_t puVar7;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar2)) * 0x10 + 0x13)));
       puVar2 = puVar2 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar2)) * 0x10 + 0x10;
     }
-    uVar3 = sceDmaGetChan(1);
-    sceDmaSync(uVar3,0,0);
-    sendTexturePackets(puVar7);
+    uVar3 = RT_CALLRA(0x20c97c, guest::sceDmaGetChan(1));
+    RT_CALLRA(0x20c98c, guest::sceDmaSync(uVar3,0,0));
+    RT_CALLRA(0x20c994, guest::sendTexturePackets(puVar7));
   }
   return param_1;
 }

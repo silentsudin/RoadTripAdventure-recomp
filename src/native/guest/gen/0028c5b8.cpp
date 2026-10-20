@@ -6,17 +6,21 @@ namespace guest {
 
 uint32_t sceSifSearchModuleByName(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   undefined4 uVar1;
   long lVar2;
   
-  lVar2 = _lf_bind();
+  lVar2 = RT_CALLRA(0x28c5c4, guest::_lf_bind());
   uVar1 = 0xffff0000;
   if (-1 < lVar2) {
-    lVar2 = lfVersionCheck();
+    lVar2 = RT_CALLRA(0x28c5d4, guest::lfVersionCheck());
     if (lVar2 == 0) {
       (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)((uint32_t)0x01779e08)), (char *)rtguest::G((uint32_t)(param_1)), 0xfc));
       (*(uint8_t*)rtguest::G(0x1779f03)) = 0;
-      lVar2 = sceSifCallRpc(0x177a000,9,0,0x1779e00,0x200,0x1779e00,4,0);
+      lVar2 = RT_CALLRA(0x28c630, guest::sceSifCallRpc(0x177a000,9,0,0x1779e00,0x200,0x1779e00,4,0));
       uVar1 = (*(uint32_t*)rtguest::G(0x1779e00));
       if (lVar2 < 0) {
         uVar1 = 0xfffeffff;

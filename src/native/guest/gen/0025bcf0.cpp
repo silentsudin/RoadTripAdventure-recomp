@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t textEntryDialogTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
 uint32_t __dest;
   long lVar1;
 uint32_t __src;
@@ -15,12 +19,12 @@ uint32_t puVar2;
   
   iVar3 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) < 0x10) {
-    uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) << 3);
+    RT_CALLRA(0x25bd20, guest::uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) << 3));
   }
   else {
     uVar4 = (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) << 3);  // 25bd24 sll $4,$3,3
-    textEntryMoveCursor(uVar4);
-    lVar1 = textEntrySelectInput(param_1,param_2);
+    RT_CALLRA(0x25bd30, guest::textEntryMoveCursor(uVar4));
+    lVar1 = RT_CALLRA(0x25bd3c, guest::textEntrySelectInput(param_1,param_2));
     if (lVar1 != 0) {
       __dest = (*(uint32_t*)rtguest::G((uint32_t)(0x2c40d4u + (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) * 3) * 4)));
       (*(int8_t*)rtguest::G((uint32_t)__dest)) = (*(int8_t*)rtguest::G(0x334e80));
@@ -44,8 +48,8 @@ uint32_t puVar2;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 0x25be30;
     }
   }
-  drawTextEntryGrid(param_1);
-  drawTextEntrySlots(param_1);
+  RT_CALLRA(0x25bdfc, guest::drawTextEntryGrid(param_1));
+  RT_CALLRA(0x25be04, guest::drawTextEntrySlots(param_1));
   uiDrawHintBar(1);
   return 0;
 }

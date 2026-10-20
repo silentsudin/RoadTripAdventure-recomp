@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceDmaSync(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   uint uVar1;
   
   if (param_2 == 1) {

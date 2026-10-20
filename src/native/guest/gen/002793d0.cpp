@@ -11,6 +11,8 @@ uint32_t sceSdRemote(uint64_t param_1, uint32_t param_2, uint64_t param_3, uint6
     *(uint32_t*)rtguest::G(rt_sv+0x9c) = (uint32_t)((int64_t)(int32_t)param_2 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0xa0) = (uint32_t)(int32_t)param_3;
     *(uint32_t*)rtguest::G(rt_sv+0xa4) = (uint32_t)((int64_t)(int32_t)param_3 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0xa8) = (uint32_t)(int32_t)param_4;
     *(uint32_t*)rtguest::G(rt_sv+0xac) = (uint32_t)((int64_t)(int32_t)param_4 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0xb0) = (uint32_t)(int32_t)param_5;
@@ -76,13 +78,13 @@ uint32_t puVar5;
   else {
     puVar4 = 0x01773980;
     if (param_2 == 0x8140) {
-      sceSifCallRpc(0x17739c0,(*(uint32_t*)rtguest::G(0x1773984)) | 0x8140,bVar1,0x1773980,0x40,(*(uint32_t*)rtguest::G(0x1773988)),0x40,uVar7);
+      RT_CALLRA(0x279530, guest::sceSifCallRpc(0x17739c0,(*(uint32_t*)rtguest::G(0x1773984)) | 0x8140,bVar1,0x1773980,0x40,(*(uint32_t*)rtguest::G(0x1773988)),0x40,uVar7));
       return 0;
     }
     uVar6 = 0x10;
     puVar5 = puVar4;
   }
-  sceSifCallRpc(0x17739c0,param_2,bVar1,puVar4,0x40,puVar5,uVar6,uVar7);
+  RT_CALLRA(0x279564, guest::sceSifCallRpc(0x17739c0,param_2,bVar1,puVar4,0x40,puVar5,uVar6,uVar7));
   return 0;
 }
 

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UploadPackedColors(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
     uint32_t uStack_30 = rtguest::allocFrame(4);
     uint32_t uStack_2c = rtguest::allocFrame(4);
     uint32_t uStack_28 = rtguest::allocFrame(4);
@@ -25,7 +29,7 @@ uint32_t UploadPackedColors(uint32_t param_1, ...) {
   (*(uint32_t*)rtguest::G((uint32_t)uStack_18)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x29d150 + (uVar1 >> 0x12 & 0x3c))));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_24)) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_14)) = 0;
-  vifUploadColours(uStack_30,uStack_20);
+  RT_CALLRA(0x2231e8, guest::vifUploadColours(uStack_30,uStack_20));
   return 0;
 }
 

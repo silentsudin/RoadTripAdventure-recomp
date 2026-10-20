@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t InitControlsBindings(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   uint uVar1;
 uint32_t puVar2;
 uint32_t puVar3;
@@ -14,9 +18,9 @@ uint32_t puVar3;
   uint uVar6;
   
   iVar4 = 9;
-  SetFlagBitFc98(1);
-  SetFlagBitFc98(4);
-  SetFlagBitFc98(0x5a);
+  RT_CALLRA(0x227c88, guest::SetFlagBitFc98(1));
+  RT_CALLRA(0x227c90, guest::SetFlagBitFc98(4));
+  RT_CALLRA(0x227c98, guest::SetFlagBitFc98(0x5a));
   (*(uint64_t*)rtguest::G(0x177fc68)) = 0xffffffffffffffff;
   puVar2 = 0x0177fd00;
   (*(uint32_t*)rtguest::G(0x177fc70)) = 0xfffffffff;
@@ -63,24 +67,24 @@ uint32_t puVar3;
   (*(uint32_t*)rtguest::G(0x1780480)) = 3;
   (*(uint32_t*)rtguest::G(0x1780444)) = 3;
   iVar5 = 1;
-  SetObjectAttribute(0x177f760,3,4);
-  SetObjectAttribute(0x177f760,4,4);
-  SetObjectAttribute(0x177f760,5,2);
-  SetObjectAttribute(0x177f760,6,3);
-  SetObjectAttribute(0x177f760,10,2);
+  RT_CALLRA(0x227dfc, guest::SetObjectAttribute(0x177f760,3,4));
+  RT_CALLRA(0x227e0c, guest::SetObjectAttribute(0x177f760,4,4));
+  RT_CALLRA(0x227e1c, guest::SetObjectAttribute(0x177f760,5,2));
+  RT_CALLRA(0x227e2c, guest::SetObjectAttribute(0x177f760,6,3));
+  RT_CALLRA(0x227e3c, guest::SetObjectAttribute(0x177f760,10,2));
   iVar4 = 0x177f77c;
   do {
     iVar5 = iVar5 + -1;
-    SetObjectAttribute(iVar4,1,8);
-    SetObjectAttribute(iVar4,2,9);
-    SetObjectAttribute(iVar4,3,3);
-    SetObjectAttribute(iVar4,4,4);
-    SetObjectAttribute(iVar4,5,2);
-    SetObjectAttribute(iVar4,10,1);
+    RT_CALLRA(0x227e50, guest::SetObjectAttribute(iVar4,1,8));
+    RT_CALLRA(0x227e60, guest::SetObjectAttribute(iVar4,2,9));
+    RT_CALLRA(0x227e70, guest::SetObjectAttribute(iVar4,3,3));
+    RT_CALLRA(0x227e80, guest::SetObjectAttribute(iVar4,4,4));
+    RT_CALLRA(0x227e90, guest::SetObjectAttribute(iVar4,5,2));
+    RT_CALLRA(0x227ea4, guest::SetObjectAttribute(iVar4,10,1));
     iVar4 = iVar4 + 0x1c;
   } while (-1 < iVar5);
-  SetObjectAttribute(0x177f760,9,1);
-  SetObjectAttribute(0x177f760,0xb,2);
+  RT_CALLRA(0x227ec0, guest::SetObjectAttribute(0x177f760,9,1));
+  RT_CALLRA(0x227ed0, guest::SetObjectAttribute(0x177f760,0xb,2));
   (*(uint8_t*)rtguest::G((uint32_t)0x0177f798 + 4)) = 0x6e;
   (*(int8_t*)rtguest::G(0x177fdd4)) = 6;
   (*(uint32_t*)rtguest::G((uint32_t)0x0177f778 + 4)) = 0x005ac5ac;
@@ -91,16 +95,16 @@ uint32_t puVar3;
   (*(uint32_t*)rtguest::G(0x177fdd5)) = 8;
   iVar4 = 1;
   do {
-    SetFlaggedSlotBit(iVar4,0,0);
+    RT_CALLRA(0x227f2c, guest::SetFlaggedSlotBit(iVar4,0,0));
     iVar5 = iVar4 + 1;
-    SetFlaggedSlotBit(iVar4,0,0);
+    RT_CALLRA(0x227f40, guest::SetFlaggedSlotBit(iVar4,0,0));
     iVar4 = iVar5;
   } while (iVar5 < 8);
   uVar6 = 0;
   uVar1 = 0;
   do {
     uVar6 = uVar6 + 1;
-    AppendQueuedByte(uVar1);
+    RT_CALLRA(0x227f60, guest::AppendQueuedByte(uVar1));
     uVar1 = uVar6 & 0xff;
   } while ((int)uVar6 < 0x80);
   return 0;

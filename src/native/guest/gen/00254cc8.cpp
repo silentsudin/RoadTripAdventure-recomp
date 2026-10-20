@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t GetTuningParamFromCarSlot(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   byte bVar1;
   int iVar2;
   undefined4 uVar3;
@@ -14,7 +18,7 @@ uint32_t GetTuningParamFromCarSlot(uint32_t param_1, uint32_t param_2, ...) {
   bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x24a)));
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 600)));
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) & 4) != 0) {
-    UpdateAiCourseSteering(param_2);
+    RT_CALLRA(0x254d04, guest::UpdateAiCourseSteering(param_2));
     uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + (uint32_t)bVar1 * 0xc + 0x74)));
   }
   return uVar3;

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateWorldMapMenuTask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
 uint32_t auStack_50 = rtguest::allocFrame(16);
     uint32_t uStack_40 = rtguest::allocFrame(4);
     uint32_t uStack_3c = rtguest::allocFrame(4);
@@ -29,7 +33,7 @@ LAB_00216e8c:
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)param_4));
       goto LAB_00216eb8;
     }
-    PlayUiSound(0x1b);
+    RT_CALLRA(0x216e98, guest::PlayUiSound(0x1b));
     (*(int32_t*)rtguest::G((uint32_t)param_4)) = 399;
   }
   else {
@@ -55,19 +59,19 @@ LAB_00216eb8:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 4))) = 0;
   }
   param_3 = param_3 + 0x20;
-  uiArenaInit(param_3,0x8000);
-  uiArenaBeginBatch(param_3,0,0);
-  uiArenaSetTexture(param_3,0x29c030,8,0);
-  uiArenaDataTag(param_3,1);
+  RT_CALLRA(0x216ed8, guest::uiArenaInit(param_3,0x8000));
+  RT_CALLRA(0x216ee8, guest::uiArenaBeginBatch(param_3,0,0));
+  RT_CALLRA(0x216f08, guest::uiArenaSetTexture(param_3,0x29c030,8,0));
+  RT_CALLRA(0x216f14, guest::uiArenaDataTag(param_3,1));
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(auStack_50)), 0, 0x20));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_3c)) = 0x1c0;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_40)) = 0x280;
-  uiArenaSprites(param_3,auStack_50,1,0,0,2);
+  RT_CALLRA(0x216f50, guest::uiArenaSprites(param_3,auStack_50,1,0,0,2));
   if ((((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) & 0x20) != 0) && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) != '\"')) {
-    DrawTextHalfY(((*(int32_t*)rtguest::G(0x177acf0)) + 0x2000000U & 0xfffffff) / 0x91140 + 0x82,
-                  0x1a2 - (*(uint32_t*)rtguest::G(0x177acf8)) / 0x91140,0x333580,4);
+    RT_CALLRA(0x216fc8, guest::DrawTextHalfY(((*(int32_t*)rtguest::G(0x177acf0)) + 0x2000000U & 0xfffffff) / 0x91140 + 0x82,
+                  0x1a2 - (*(uint32_t*)rtguest::G(0x177acf8)) / 0x91140,0x333580,4));
   }
-  uiArenaSubmit(param_3);
+  RT_CALLRA(0x216fd0, guest::uiArenaSubmit(param_3));
   return 0;
 }
 

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateRankingsAndAdvance(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x78) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x7c) = 0x00000000u;
+  }
 uint32_t asStack_80 = rtguest::allocFrame(32);
     uint32_t uStack_60 = rtguest::allocFrame(4);
 uint32_t pcVar1;
@@ -27,10 +31,10 @@ uint32_t psVar11;
   int iVar17;
 uint32_t psVar18;
   
-  uiDrawPanelCells(2,4,0x1c,0xe,0);
-  uiDrawTextCell(3,5,0x333848,0);
-  uiDrawTextCell(10,5,0x2ec4c0,0);
-  uiDrawTextCell(0x15,5,0x2ec4d0,0);
+  RT_CALLRA(0x2368a0, guest::uiDrawPanelCells(2,4,0x1c,0xe,0));
+  RT_CALLRA(0x2368b8, guest::uiDrawTextCell(3,5,0x333848,0));
+  RT_CALLRA(0x2368d0, guest::uiDrawTextCell(10,5,0x2ec4c0,0));
+  RT_CALLRA(0x2368e8, guest::uiDrawTextCell(0x15,5,0x2ec4d0,0));
   psVar8 = asStack_80 + 1;
   iVar15 = 0;
   iVar13 = 0;
@@ -87,11 +91,11 @@ uint32_t psVar18;
     }
     iVar17 = iVar13 + 1;
     if (iVar13 << 3 < (int)uVar7) {
-      uiDrawText(0x50,iVar15,(*(uint32_t*)rtguest::G((uint32_t)(0x29fd30u + (uint32_t)(iVar13) * 4))),uVar16);
-      uVar5 = uiDrawText(0xaa,iVar15,0x333850,uVar16);
-      uVar6 = GetPlayerScoreboardPtr((*(int16_t*)rtguest::G((uint32_t)psVar18)) * 3);
-      uiDrawText(uVar5,iVar15,uVar6,uVar16);
-      uiDrawNumber10(0x212,iVar15 << 1,(*(int16_t*)rtguest::G((uint32_t)asStack_80 + (uint32_t)(iVar13 * 2) * 2)),uVar16);
+      RT_CALLRA(0x236a60, guest::uiDrawText(0x50,iVar15,(*(uint32_t*)rtguest::G((uint32_t)(0x29fd30u + (uint32_t)(iVar13) * 4))),uVar16));
+      uVar5 = RT_CALLRA(0x236a78, guest::uiDrawText(0xaa,iVar15,0x333850,uVar16));
+      uVar6 = RT_CALLRA(0x236a8c, guest::GetPlayerScoreboardPtr((*(int16_t*)rtguest::G((uint32_t)psVar18)) * 3));
+      RT_CALLRA(0x236aa0, guest::uiDrawText(uVar5,iVar15,uVar6,uVar16));
+      RT_CALLRA(0x236ab8, guest::uiDrawNumber10(0x212,iVar15 << 1,(*(int16_t*)rtguest::G((uint32_t)asStack_80 + (uint32_t)(iVar13 * 2) * 2)),uVar16));
       uVar7 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 8)));
     }
     psVar18 = psVar18 + 0x4;  // T* element step
@@ -102,7 +106,7 @@ uint32_t psVar18;
     if ((uVar7 & 7) != 0) {
       return 0;
     }
-    PlayUiSound(0x22);
+    RT_CALLRA(0x236aec, guest::PlayUiSound(0x22));
     return 0;
   }
   iVar13 = (int)param_2;
@@ -114,17 +118,17 @@ uint32_t psVar18;
         iVar15 = iVar15 + 1;
       }
     }
-    uiDrawPanelCells(10,0xe,0x14,0x11,0);
+    RT_CALLRA(0x236b5c, guest::uiDrawPanelCells(10,0xe,0x14,0x11,0));
     if (iVar15 < 6) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x20))) =
            (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0029fcb8 + ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x10))) + 3))) * 6 + iVar15) * 4)));
-      uiDrawTextCell(0xb,0xf,0x2ec480,0);
-      uiDrawTextCell(0xb,0x10,(*(uint32_t*)rtguest::G((uint32_t)(0x29fd30u + (uint32_t)(iVar15) * 4))),0);
-      uiDrawTextCell(0xd,0x10,0x333838,0);
-      uiDrawNumber10(0x19a,0x18a,
+      RT_CALLRA(0x236bb0, guest::uiDrawTextCell(0xb,0xf,0x2ec480,0));
+      RT_CALLRA(0x236bd0, guest::uiDrawTextCell(0xb,0x10,(*(uint32_t*)rtguest::G((uint32_t)(0x29fd30u + (uint32_t)(iVar15) * 4))),0));
+      RT_CALLRA(0x236be8, guest::uiDrawTextCell(0xd,0x10,0x333838,0));
+      RT_CALLRA(0x236c1c, guest::uiDrawNumber10(0x19a,0x18a,
                      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0029fcb8 +
-                      ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x10))) + 3))) * 6 + iVar15) * 4))),0);
-      DrawScoreAndRemaining(-(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x20))),param_2);
+                      ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x10))) + 3))) * 6 + iVar15) * 4))),0));
+      RT_CALLRA(0x236c2c, guest::DrawScoreAndRemaining(-(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x20))),param_2));
       uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x30)));
     }
     else {
@@ -138,10 +142,10 @@ uint32_t psVar18;
     return 0;
   }
   (*(int32_t*)rtguest::G(0x1782a70)) = (*(int32_t*)rtguest::G(0x1782a70)) + 1;
-  PlayUiSound(0x1a);
+  RT_CALLRA(0x236c54, guest::PlayUiSound(0x1a));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x28))) | 0x400000;
   if ((*(int32_t*)rtguest::G(0x1782a70)) == 7) {
-    SpendTimerBudget(-(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x20))),0);
+    RT_CALLRA(0x236c84, guest::SpendTimerBudget(-(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x20))),0));
     (*(int32_t*)rtguest::G(0x1782a70)) = 0;
     if ((*(int16_t*)rtguest::G((uint32_t)asStack_80 + (uint32_t)(1) * 2)) == 0) {
       iVar13 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x18)));
@@ -165,7 +169,7 @@ uint32_t psVar18;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))) = uVar9;
 LAB_00236cf0:
-  gs_tasks_kill(param_1);
+  RT_CALLRA(0x236cf0, guest::gs_tasks_kill(param_1));
   return 0;
 }
 

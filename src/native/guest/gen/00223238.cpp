@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t DrawShowroomCarModel(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(32);
-  vifUploadLightMatrix(0x177f620);
-  vifObjectMatrix(param_2);
-  vifBatchRegs((long)(param_3 * 0x44 + 0x243e) | 0x1d308000U |
-               (long)(param_3 * 0x44 + 0x247e) << 0x25 | 0x20000005c0000000,7,0,0xf);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
+  RT_CALLRA(0x223254, guest::vifUploadLightMatrix(0x177f620));
+  RT_CALLRA(0x22325c, guest::vifObjectMatrix(param_2));
+  RT_CALLRA(0x2232ac, guest::vifBatchRegs((long)(param_3 * 0x44 + 0x243e) | 0x1d308000U |
+               (long)(param_3 * 0x44 + 0x247e) << 0x25 | 0x20000005c0000000,7,0,0xf));
   vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x177f310 + (uint32_t)(param_3 * 6) * 4)) + 0x10);
   return 0;
 }

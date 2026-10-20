@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t debugScreenRead(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
 uint32_t puVar3;
@@ -20,10 +24,10 @@ uint32_t auStack_90 = rtguest::allocFrame(112);
   puVar3 = 0x00100020 + param_2 * 0xf0 * sizeof(uint64_t);
   do {
     iVar2 = iVar2 + 1;
-    sceGsSetDefStoreImage(auStack_90,param_1 * 0x8c00000 >> 0x10,10,1,0,iVar1 >> 0x10,0x280,1);
-    FlushCache(0);
-    sceGsExecStoreImage(auStack_90,puVar3);
-    sceGsSyncPath(0,0);
+    RT_CALLRA(0x20dd88, guest::sceGsSetDefStoreImage(auStack_90,param_1 * 0x8c00000 >> 0x10,10,1,0,iVar1 >> 0x10,0x280,1));
+    RT_CALLRA(0x20dd90, guest::FlushCache(0));
+    RT_CALLRA(0x20dda0, guest::sceGsExecStoreImage(auStack_90,puVar3));
+    RT_CALLRA(0x20ddac, guest::sceGsSyncPath(0,0));
     iVar1 = iVar2 * 0x10000;
     puVar3 = puVar3 + 0x1e0 * sizeof(uint64_t);
   } while (iVar2 < 0xe0);

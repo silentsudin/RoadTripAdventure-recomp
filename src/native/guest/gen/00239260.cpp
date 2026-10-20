@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t DisplayMenuMessage(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   byte bVar1;
   int iVar2;
   int iVar3;
@@ -15,16 +19,16 @@ uint32_t DisplayMenuMessage(uint32_t param_1, ...) {
   
   iVar6 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) == 0) {
-    uVar4 = uiMenuCreate();
-    uiMenuAddItem(uVar4,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af0u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10);
-    uiMenuAddItem(uVar4,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af4u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10);
+    uVar4 = RT_CALLRA(0x239280, guest::uiMenuCreate());
+    RT_CALLRA(0x2392a4, guest::uiMenuAddItem(uVar4,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af0u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10));
+    RT_CALLRA(0x2392c0, guest::uiMenuAddItem(uVar4,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af4u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar4 + 0x5f))) = 2;
-    CenterRectangle(uVar4,5);
+    RT_CALLRA(0x2392d4, guest::CenterRectangle(uVar4,5));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar4 + 0xe))) = 1;
   }
   else {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
-    lVar5 = uiMenuRun(iVar2);
+    lVar5 = RT_CALLRA(0x2392e8, guest::uiMenuRun(iVar2));
     if (lVar5 != 0) {
       if (lVar5 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = 1;
@@ -33,7 +37,7 @@ uint32_t DisplayMenuMessage(uint32_t param_1, ...) {
         gs_tasks_kill(param_1);
         return 0;
       }
-      PlayUiSound(0x1a);
+      RT_CALLRA(0x239314, guest::PlayUiSound(0x1a));
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x1c))) + (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))))));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;

@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t sceTtyInit(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   bool bVar1;
   
-  FlushCache(0);
-  (*(int32_t*)rtguest::G(0x1776a90)) = sceDeci2Open(0x210,0x1776a90,0x286130);
+  RT_CALLRA(0x2864fc, guest::FlushCache(0));
+  (*(int32_t*)rtguest::G(0x1776a90)) = RT_CALLRA(0x286514, guest::sceDeci2Open(0x210,0x1776a90,0x286130));
   bVar1 = -1 < (*(int32_t*)rtguest::G(0x1776a90));
   if (bVar1) {
     (*(int32_t*)rtguest::G(0x1776a9c)) = 0;
@@ -22,7 +26,7 @@ uint32_t sceTtyInit(uint32_t q0, ...) {
     (*(uint32_t*)rtguest::G(0x21776ac7)) = 0x48;
     (*(uint32_t*)rtguest::G(0x21776ac8)) = 0;
     (*(uint32_t*)rtguest::G(0x21776ac2)) = 0;
-    (*(int32_t*)rtguest::G(0x1776aa8)) = ttyRingInit(0x100);
+    (*(int32_t*)rtguest::G(0x1776aa8)) = RT_CALLRA(0x286580, guest::ttyRingInit(0x100));
   }
   return bVar1;
 }

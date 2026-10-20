@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateGolfMiniGame(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(336);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x128) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x12c) = 0x00000000u;
+  }
 uint32_t aiStack_150 = rtguest::allocFrame(48);
 uint32_t aiStack_120 = rtguest::allocFrame(48);
 uint32_t auStack_f0 = rtguest::allocFrame(4);
@@ -46,9 +50,9 @@ uint32_t puVar9;
   
   iVar7 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8))) == 0) {
-    SetGamePausedState(param_2,1);
-    uiFade(0xffffffff80000000);
-    pvVar3 = (uint32_t)getExtraPacketArea(0x10e30);
+    RT_CALLRA(0x251bac, guest::SetGamePausedState(param_2,1));
+    RT_CALLRA(0x251bb4, guest::uiFade(0xffffffff80000000));
+    pvVar3 = (uint32_t)RT_CALLRA(0x251bc0, guest::getExtraPacketArea(0x10e30));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x20))) = pvVar3;
     pvVar3 = (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(pvVar3)), 0, 0x10e30));
     return pvVar3;
@@ -67,14 +71,14 @@ uint32_t puVar9;
   if ((uVar6 & 0x8000) != 0) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) == 0) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) = 1;
-      SetBaseValue(iVar1,1);
+      RT_CALLRA(0x251c48, guest::SetBaseValue(iVar1,1));
       uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28)));
     }
     goto LAB_00252488;
   }
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) = 0;
-    SetBaseValue(iVar1,0);
+    RT_CALLRA(0x251c64, guest::SetBaseValue(iVar1,0));
   }
   fVar2 = (*(uint32_t*)rtguest::G(0x333030));
   fVar15 = (*(uint32_t*)rtguest::G(0x33302c));
@@ -85,9 +89,9 @@ uint32_t puVar9;
     iVar11 = 0;
     do {
       (*(int32_t*)rtguest::G((uint32_t)aiStack_150 + (uint32_t)(iVar11) * 4)) = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 2)));
-      vu0SubVector(auStack_f0,0x002ac0c0 + iVar11 * 0x40,iVar11 * 0x40 + 0x2ac0d0);
+      RT_CALLRA(0x251ce4, guest::vu0SubVector(auStack_f0,0x002ac0c0 + iVar11 * 0x40,iVar11 * 0x40 + 0x2ac0d0));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_ec)) = 0;
-      (*(float*)rtguest::G((uint32_t)fStack_e4)) = rtguest::fbits(vecDotProductVu0(auStack_f0,auStack_f0));
+      (*(float*)rtguest::G((uint32_t)fStack_e4)) = rtguest::fbits(RT_CALLRA(0x251cf4, guest::vecDotProductVu0(auStack_f0,auStack_f0)));
       (*(float*)rtguest::G((uint32_t)fStack_e4)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_e4)));
       fVar14 = 0.0;
       iVar10 = iVar11 + 1;
@@ -98,31 +102,31 @@ uint32_t puVar9;
       iVar12 = iVar12 + 0x40;
       iVar11 = iVar10;
     } while (iVar10 < 9);
-    InitGolfCourseTable(iVar13,aiStack_150,aiStack_120);
+    RT_CALLRA(0x251d70, guest::InitGolfCourseTable(iVar13,aiStack_150,aiStack_120));
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 2;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 0;
   case 2:
-    SetGamePausedState(param_2,1);
-    SetGolfCurrentHole(iVar13,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0))));
-    gs_tasks_spawn(param_1,0x252880,iVar13);
+    RT_CALLRA(0x251d88, guest::SetGamePausedState(param_2,1));
+    RT_CALLRA(0x251d94, guest::SetGolfCurrentHole(iVar13,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0)))));
+    RT_CALLRA(0x251da8, guest::gs_tasks_spawn(param_1,0x252880,iVar13));
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 3;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 0;
   case 3:
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) == '\0') {
       return (uint32_t)0x0;
     }
-    uiFade(0xffffffff80000000);
+    RT_CALLRA(0x251dc8, guest::uiFade(0xffffffff80000000));
     pvVar3 = (uint32_t)0xa;
     goto LAB_00252384;
   case 10:
-    SetGamePausedState(param_2,0);
-    InitMiniGameBallState(puVar9,param_2);
+    RT_CALLRA(0x251ddc, guest::SetGamePausedState(param_2,0));
+    RT_CALLRA(0x251dec, guest::InitMiniGameBallState(puVar9,param_2));
     (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) & 0xf7ff;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) & 0xfffffefb | 0x10000;
-    gs_music_play_bgm(0xa0d0201);
-    vu0SubVector(auStack_d0,iVar1 + 0x8d10,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0))) * 0x40 + 0x2ac0d0);
+    RT_CALLRA(0x251e24, guest::gs_music_play_bgm(0xa0d0201));
+    RT_CALLRA(0x251e44, guest::vu0SubVector(auStack_d0,iVar1 + 0x8d10,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0))) * 0x40 + 0x2ac0d0));
     (*(uint32_t*)rtguest::G((uint32_t)uStack_cc)) = 0;
-    (*(float*)rtguest::G((uint32_t)fStack_c4)) = rtguest::fbits(vecDotProductVu0(auStack_d0,auStack_d0));
+    (*(float*)rtguest::G((uint32_t)fStack_c4)) = rtguest::fbits(RT_CALLRA(0x251e54, guest::vecDotProductVu0(auStack_d0,auStack_d0)));
     (*(float*)rtguest::G((uint32_t)fStack_c4)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_c4)));
     if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_c4)) - (*(uint32_t*)rtguest::G(0x333034))) {
       fVar15 = ((*(float*)rtguest::G((uint32_t)fStack_c4)) - (*(uint32_t*)rtguest::G(0x333034))) / (*(uint32_t*)rtguest::G(0x333038));
@@ -133,14 +137,14 @@ uint32_t puVar9;
       iVar13 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0)));
     }
     (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8ce8))) = fVar15;
-    InitMode17(iVar1,iVar13,(int)fVar15,(*(uint32_t*)rtguest::G((uint32_t)0x2ac0e2 + (uint32_t)(iVar13 * 0x20) * 4)));
+    RT_CALLRA(0x251edc, guest::InitMode17(iVar1,iVar13,(int)fVar15,(*(uint32_t*)rtguest::G((uint32_t)0x2ac0e2 + (uint32_t)(iVar13 * 0x20) * 4))));
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 0xb;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 0;
     goto LAB_00251efc;
   case 0xb:
 LAB_00251efc:
     piVar8 = (uint32_t)(iVar1 + 0x8cb4);
-    uiFade(0xffffffff80000000);
+    RT_CALLRA(0x251f00, guest::uiFade(0xffffffff80000000));
     iVar13 = (*(int32_t*)rtguest::G((uint32_t)piVar8));
     (*(int32_t*)rtguest::G((uint32_t)piVar8)) = iVar13 + 1;
     if (7 < iVar13) {
@@ -148,13 +152,13 @@ LAB_00251efc:
       (*(int32_t*)rtguest::G((uint32_t)piVar8)) = 0;
 LAB_00251f38:
       piVar8 = (uint32_t)(iVar1 + 0x8cb4);
-      uiFade((0x40 - (*(int32_t*)rtguest::G((uint32_t)piVar8))) * 0x2000000);
+      RT_CALLRA(0x251f44, guest::uiFade((0x40 - (*(int32_t*)rtguest::G((uint32_t)piVar8))) * 0x2000000));
       iVar13 = (*(int32_t*)rtguest::G((uint32_t)piVar8));
       (*(int32_t*)rtguest::G((uint32_t)piVar8)) = iVar13 + 1;
       if (0x3f < iVar13) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) & 0xfffeffff | 0x104;
-        SetTrackMeta(iVar1,1);
-        PlayBgmSlot1();
+        RT_CALLRA(0x251f80, guest::SetTrackMeta(iVar1,1));
+        RT_CALLRA(0x251f88, guest::PlayBgmSlot1());
         (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 0x1f;
         (*(int32_t*)rtguest::G((uint32_t)piVar8)) = 0;
 LAB_00251fa8:
@@ -170,7 +174,7 @@ LAB_00251fd4:
           (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 0x20;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 0;
 LAB_0025200c:
-          lVar5 = CalculateBallLaunchImpulse(puVar9,param_2);
+          lVar5 = RT_CALLRA(0x252010, guest::CalculateBallLaunchImpulse(puVar9,param_2));
           if (lVar5 != 0) {
             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) & 0xfffffffb;
             (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 0x22;
@@ -194,8 +198,8 @@ LAB_0025200c:
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) | 0x80000000;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
     }
-    ApplyCupAttraction(puVar9,param_2);
-    lVar5 = UpdateBallPhysics(puVar9,param_2);
+    RT_CALLRA(0x252088, guest::ApplyCupAttraction(puVar9,param_2));
+    lVar5 = RT_CALLRA(0x252094, guest::UpdateBallPhysics(puVar9,param_2));
     if (lVar5 == 0) {
       iVar13 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0)));
     }
@@ -203,11 +207,11 @@ LAB_0025200c:
       if ((*(float*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8ce8))) == 0.0) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) & 0x7ffffeff;
         if ((*(uint32_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0))) + 5) * sizeof(uint32_t))) == 0) {
-          PlayUiSound(0x319);
+          RT_CALLRA(0x2520fc, guest::PlayUiSound(0x319));
         }
-        SetTrackMeta(iVar1,0);
-        SetTrackMeta4(iVar1,1);
-        SetShadowConfig(iVar1,1);
+        RT_CALLRA(0x252108, guest::SetTrackMeta(iVar1,0));
+        RT_CALLRA(0x252114, guest::SetTrackMeta4(iVar1,1));
+        RT_CALLRA(0x252120, guest::SetShadowConfig(iVar1,1));
         uVar4 = 0x24;
       }
       else {
@@ -217,9 +221,9 @@ LAB_0025200c:
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 0;
       iVar13 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0)));
     }
-    vu0SubVector(auStack_b0,iVar1 + 0x8d10,iVar13 * 0x40 + 0x2ac0d0);
+    RT_CALLRA(0x252158, guest::vu0SubVector(auStack_b0,iVar1 + 0x8d10,iVar13 * 0x40 + 0x2ac0d0));
     (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = 0;
-    (*(float*)rtguest::G((uint32_t)fStack_a4)) = rtguest::fbits(vecDotProductVu0(auStack_b0,auStack_b0));
+    (*(float*)rtguest::G((uint32_t)fStack_a4)) = rtguest::fbits(RT_CALLRA(0x252168, guest::vecDotProductVu0(auStack_b0,auStack_b0)));
     (*(float*)rtguest::G((uint32_t)fStack_a4)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_a4)));
     if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_a4)) - (*(uint32_t*)rtguest::G(0x33303c))) {
       fVar15 = ((*(float*)rtguest::G((uint32_t)fStack_a4)) - (*(uint32_t*)rtguest::G(0x33303c))) / (*(uint32_t*)rtguest::G(0x333040));
@@ -228,7 +232,7 @@ LAB_0025200c:
       fVar15 = 0.0;
     }
     (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8ce8))) = fVar15;
-    SetTrackMeta2(iVar1,(int)fVar15);
+    RT_CALLRA(0x2521e0, guest::SetTrackMeta2(iVar1,(int)fVar15));
     break;
   case 0x23:
     piVar8 = (uint32_t)(iVar1 + 0x8cb4);
@@ -242,7 +246,7 @@ LAB_0025200c:
         (*(int32_t*)rtguest::G((uint32_t)piVar8 + (uint32_t)(iVar12 + 4) * sizeof(int32_t))) = iVar13 + 1;
         iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0)));
       }
-      SetTrackMeta3(iVar1,(*(int32_t*)rtguest::G((uint32_t)piVar8 + (uint32_t)(iVar12 + 4) * sizeof(int32_t))));
+      RT_CALLRA(0x25224c, guest::SetTrackMeta3(iVar1,(*(int32_t*)rtguest::G((uint32_t)piVar8 + (uint32_t)(iVar12 + 4) * sizeof(int32_t)))));
       (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 0x21;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) & 0x7fffffff;
     }
@@ -253,7 +257,7 @@ LAB_0025200c:
     (*(int32_t*)rtguest::G((uint32_t)piVar8)) = iVar13 + 1;
     if (0xbf < iVar13) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) | 0x10000;
-      PlayBgmSlot5();
+      RT_CALLRA(0x2522a0, guest::PlayBgmSlot5());
       (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 0x25;
       (*(int32_t*)rtguest::G((uint32_t)piVar8)) = 0;
       goto LAB_002522bc;
@@ -262,28 +266,28 @@ LAB_0025200c:
   case 0x25:
 LAB_002522bc:
     piVar8 = (uint32_t)(iVar1 + 0x8cb4);
-    uiFade((*(int32_t*)rtguest::G((uint32_t)piVar8)) << 0x18);
+    RT_CALLRA(0x2522c0, guest::uiFade((*(int32_t*)rtguest::G((uint32_t)piVar8)) << 0x18));
     iVar13 = (*(int32_t*)rtguest::G((uint32_t)piVar8));
     (*(int32_t*)rtguest::G((uint32_t)piVar8)) = iVar13 + 1;
     if (0x7f < iVar13) {
-      PlayBgmSlot2();
+      RT_CALLRA(0x2522e0, guest::PlayBgmSlot2());
       (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 0x28;
       (*(int32_t*)rtguest::G((uint32_t)piVar8)) = 0;
     }
     break;
   case 0x28:
-    gs_music_play_bgm(0xa0b0102);
-    PlayBgmSlot1();
-    SetGamePausedState(param_2,1);
-    RecordGolfHoleScore(iVar13,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((uint32_t)(iVar1 + 0x8cb4)) + (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0))) + 4) * 4)));
-    gs_tasks_spawn(param_1,0x252cb0,iVar13);
+    RT_CALLRA(0x252300, guest::gs_music_play_bgm(0xa0b0102));
+    RT_CALLRA(0x252308, guest::PlayBgmSlot1());
+    RT_CALLRA(0x252314, guest::SetGamePausedState(param_2,1));
+    RT_CALLRA(0x25232c, guest::RecordGolfHoleScore(iVar13,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((uint32_t)(iVar1 + 0x8cb4)) + (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0))) + 4) * 4))));
+    RT_CALLRA(0x252340, guest::gs_tasks_spawn(param_1,0x252cb0,iVar13));
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 0x29;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 0;
   case 0x29:
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) == '\0') {
       return (uint32_t)0x0;
     }
-    uiFade(0xffffffff80000000);
+    RT_CALLRA(0x252360, guest::uiFade(0xffffffff80000000));
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0))) + 1;
     if (iVar7 < 9) {
       pvVar3 = (uint32_t)0x2;
@@ -327,17 +331,17 @@ LAB_00252384:
   default:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8))) = 1;
   }
-  BuildTransformMatrix(0x177eb10,iVar1 + 0x8cf0,iVar1 + 0x8d00);
-  vu0CopyVectorXYZ(0x177eb40,iVar1 + 0x8d10);
-  vu0CopyVector(auStack_a0,iVar1 + 0x8d10);
+  RT_CALLRA(0x2523b8, guest::BuildTransformMatrix(0x177eb10,iVar1 + 0x8cf0,iVar1 + 0x8d00));
+  RT_CALLRA(0x2523c4, guest::vu0CopyVectorXYZ(0x177eb40,iVar1 + 0x8d10));
+  RT_CALLRA(0x2523d0, guest::vu0CopyVector(auStack_a0,iVar1 + 0x8d10));
   (*(uint32_t*)rtguest::G((uint32_t)apuStack_7c + (uint32_t)(0) * 4)) = (uint32_t)0x0;
   lVar5 = rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_a0, auStack_80, apuStack_7c, 2, param_2);
   if (lVar5 != -1) {
     (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)apuStack_7c + (uint32_t)(0) * 4))));
     (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)apuStack_7c + (uint32_t)(0) * 4)) + (uint32_t)(1) * 4));
-    vecNormalizeVu0(uStack_90,uStack_90);
-    BuildYawTransform(0x177eb50,uStack_90);
-    vu0CopyVectorXYZ(0x177eb80,auStack_a0);
+    RT_CALLRA(0x252418, guest::vecNormalizeVu0(uStack_90,uStack_90));
+    RT_CALLRA(0x252424, guest::BuildYawTransform(0x177eb50,uStack_90));
+    RT_CALLRA(0x252430, guest::vu0CopyVectorXYZ(0x177eb80,auStack_a0));
     (*(uint32_t*)rtguest::G(0x177eb84)) = (*(uint32_t*)rtguest::G(0x177eb84)) + (*(uint32_t*)rtguest::G(0x333044));
   }
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8d30))) != 0) {
@@ -349,7 +353,7 @@ LAB_00252384:
   else {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8d30))) == 0) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8d30))) = 10;
-      PlayUiSound();
+      RT_CALLRA(0x252474, guest::PlayUiSound());
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8d34))) = 0;
     }
     else {
@@ -359,10 +363,10 @@ LAB_00252384:
   }
 LAB_00252488:
   if ((uVar6 & 0x10000) == 0) {
-    gs_map_draw_functions_scissored(param_2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0))));
-    raceMapMarkers(param_2);
-    raceMapPickups(param_2,1);
-    raceHudDraw(iVar1);
+    RT_CALLRA(0x252498, guest::gs_map_draw_functions_scissored(param_2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0)))));
+    RT_CALLRA(0x2524a0, guest::raceMapMarkers(param_2));
+    RT_CALLRA(0x2524ac, guest::raceMapPickups(param_2,1));
+    RT_CALLRA(0x2524b4, guest::raceHudDraw(iVar1));
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8)));
   }
   else {
@@ -374,7 +378,7 @@ LAB_00252488:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28))) | 8;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = 0xffffffff;
-    pvVar3 = (uint32_t)gs_tasks_kill(param_1);
+    pvVar3 = (uint32_t)RT_CALLRA(0x2524e4, guest::gs_tasks_kill(param_1));
   }
   return pvVar3;
 }

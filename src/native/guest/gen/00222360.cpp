@@ -6,15 +6,19 @@ namespace guest {
 
 uint32_t drawCarExtraParts(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+  }
 uint32_t piVar1;
   int iVar2;
   int iVar3;
 uint32_t auStack_70 = rtguest::allocFrame(64);
   
-  vu0MulMatrix(auStack_70,param_1,(int)param_1 + 0x40);
-  vifObjectMatrix(auStack_70);
-  vifBatchRegs((long)(param_2 * 0x44 + 0x243e) | 0x1d308000U |
-               (long)(param_2 * 0x44 + 0x247e) << 0x25 | 0x20000005c0000000,7,0,0xf);
+  RT_CALLRA(0x22239c, guest::vu0MulMatrix(auStack_70,param_1,(int)param_1 + 0x40));
+  RT_CALLRA(0x2223a4, guest::vifObjectMatrix(auStack_70));
+  RT_CALLRA(0x2223f4, guest::vifBatchRegs((long)(param_2 * 0x44 + 0x243e) | 0x1d308000U |
+               (long)(param_2 * 0x44 + 0x247e) << 0x25 | 0x20000005c0000000,7,0,0xf));
   piVar1 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x177f310 + (uint32_t)(param_2 * 6 + param_4) * 4));
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)piVar1));
   if ((*(int32_t*)rtguest::G((uint32_t)piVar1 + (uint32_t)(2) * sizeof(int32_t))) != 0) {
@@ -22,7 +26,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
       iVar2 = iVar2 + 0xf;
     }
     if ((param_3 & 1) != 0) {
-      vifCallModel(piVar1 + (iVar2 >> 4) * 4);
+      RT_CALLRA(0x222444, guest::vifCallModel(piVar1 + (iVar2 >> 4) * 4));
     }
   }
   iVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x177f310 + (uint32_t)(param_2 * 6) * 4));
@@ -32,7 +36,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
       iVar3 = iVar3 + 0xf;
     }
     if ((param_3 & 2) != 0) {
-      vifCallModel(iVar2 + (iVar3 >> 4) * 0x10);
+      RT_CALLRA(0x22248c, guest::vifCallModel(iVar2 + (iVar3 >> 4) * 0x10));
     }
   }
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177f318 + param_2 * 0x18)));
@@ -42,7 +46,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
       iVar3 = iVar3 + 0xf;
     }
     if ((param_3 & 2) != 0) {
-      vifCallModel(iVar2 + (iVar3 >> 4) * 0x10);
+      RT_CALLRA(0x2224d0, guest::vifCallModel(iVar2 + (iVar3 >> 4) * 0x10));
     }
   }
   return 0;

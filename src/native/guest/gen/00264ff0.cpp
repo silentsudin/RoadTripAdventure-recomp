@@ -6,6 +6,10 @@ namespace guest {
 
 void drawBoardSpriteGrid(uint64_t param_1, uint32_t param_2) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
     uint32_t uStack_50 = rtguest::allocFrame(4);
     uint32_t uStack_4c = rtguest::allocFrame(4);
     uint32_t uStack_48 = rtguest::allocFrame(4);
@@ -21,8 +25,8 @@ void drawBoardSpriteGrid(uint64_t param_1, uint32_t param_2) {
   uint uVar5;
   
   uVar5 = 0;
-  uiArenaDataTag(param_1,0x1d);
-  uiArenaSpritesWrap(param_1,0x2dbdd0,0x1d,0,0,2);
+  RT_CALLRA(0x265018, guest::uiArenaDataTag(param_1,0x1d));
+  RT_CALLRA(0x265038, guest::uiArenaSpritesWrap(param_1,0x2dbdd0,0x1d,0,0,2));
   (*(int32_t*)rtguest::G((uint32_t)iStack_44)) = param_2 * 0xc + 0x50;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_50)) = 0x38;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_4c)) = 0x2a;
@@ -31,7 +35,7 @@ void drawBoardSpriteGrid(uint64_t param_1, uint32_t param_2) {
   (*(uint32_t*)rtguest::G((uint32_t)uStack_3c)) = 0xc;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_38)) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_34)) = 0;
-  uiArenaDataTag(param_1,0xc);
+  RT_CALLRA(0x265088, guest::uiArenaDataTag(param_1,0xc));
   uVar1 = 0;
   while( true ) {
     iVar4 = 2;
@@ -39,7 +43,7 @@ void drawBoardSpriteGrid(uint64_t param_1, uint32_t param_2) {
     iVar3 = iVar2 * 0x120;
     do {
       iVar4 = iVar4 + -1;
-      uiArenaSprites(param_1,uStack_50,1,iVar3,(uVar5 + iVar2 * -2) * 0x160,2);
+      RT_CALLRA(0x2650e8, guest::uiArenaSprites(param_1,uStack_50,1,iVar3,(uVar5 + iVar2 * -2) * 0x160,2));
       iVar3 = iVar3 + 0x50;
     } while (-1 < iVar4);
     uVar5 = uVar5 + 1;

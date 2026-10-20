@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t raceHudElementJ(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(256);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xd8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xdc) = 0x00000000u;
+  }
     uint32_t uStack_100 = rtguest::allocFrame(8);
     uint32_t uStack_f8 = rtguest::allocFrame(8);
     uint32_t uStack_f0 = rtguest::allocFrame(8);
@@ -48,19 +52,19 @@ uint32_t auStack_80 = rtguest::allocFrame(16);
         (*(uint64_t*)rtguest::G((uint32_t)uStack_f8)) = 0xc100000000;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_f0)) = 0x140000007c;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_e8)) = 0;
-        uiArenaSetTexture(param_1,0x29f5f8,0,7);
-        uiArenaDataTag(param_1,1);
-        uiArenaSprites(param_1,uStack_100,1,0x102,0x14,0);
+        RT_CALLRA(0x231fd8, guest::uiArenaSetTexture(param_1,0x29f5f8,0,7));
+        RT_CALLRA(0x231fe4, guest::uiArenaDataTag(param_1,1));
+        RT_CALLRA(0x232000, guest::uiArenaSprites(param_1,uStack_100,1,0x102,0x14,0));
         iVar2 = (*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(3) * sizeof(int32_t)));
         uVar4 = 0xaaa;
         if (iVar2 == -1) {
           iVar2 = 3;
         }
         else {
-          uVar4 = IntToPackedBCD(iVar2);
-          iVar2 = CountDecimalDigits(iVar2);
+          uVar4 = RT_CALLRA(0x232020, guest::IntToPackedBCD(iVar2));
+          iVar2 = RT_CALLRA(0x23202c, guest::CountDecimalDigits(iVar2));
         }
-        uiArenaSetTexture(param_1,0x29f5f8,0,3);
+        RT_CALLRA(0x232044, guest::uiArenaSetTexture(param_1,0x29f5f8,0,3));
         if (0 < iVar2) {
           uVar6 = 0x42100000;
           iVar3 = iVar2 * 0xf + 0x120;
@@ -91,7 +95,7 @@ uint32_t auStack_80 = rtguest::allocFrame(16);
             (*(uint32_t*)rtguest::G((uint32_t)uStack_9c)) = uVar6;
             (*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) = uVar6;
             (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(auStack_80)), 0, 0x10));
-            uiArenaRotQuads(param_1,uStack_e0,1,iVar3,0x28,0);
+            RT_CALLRA(0x232158, guest::uiArenaRotQuads(param_1,uStack_e0,1,iVar3,0x28,0));
             iVar3 = iVar3 + -0x1e;
           } while (iVar2 != 0);
         }

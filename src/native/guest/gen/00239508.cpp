@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ShowResidentMessage(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   byte bVar1;
   undefined8 uVar2;
   undefined8 uVar3;
@@ -17,22 +21,22 @@ uint32_t piVar6;
   
   iVar8 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) == 0) {
-    uVar2 = uiMenuCreate();
-    uiMenuAddItem(uVar2,0x2ec598,0);
-    uVar3 = GetSlotDataPtr((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))),0);
-    uiMenuAddItem(uVar2,uVar3,0x80);
-    uiMenuAddItem(uVar2,0x2ec5b0,0);
-    uiMenuAddItem(uVar2,0x3338a0,0x10);
-    uiMenuAddItem(uVar2,0x333898,0x10);
+    uVar2 = RT_CALLRA(0x23952c, guest::uiMenuCreate());
+    RT_CALLRA(0x239544, guest::uiMenuAddItem(uVar2,0x2ec598,0));
+    uVar3 = RT_CALLRA(0x239550, guest::GetSlotDataPtr((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))),0));
+    RT_CALLRA(0x239560, guest::uiMenuAddItem(uVar2,uVar3,0x80));
+    RT_CALLRA(0x239574, guest::uiMenuAddItem(uVar2,0x2ec5b0,0));
+    RT_CALLRA(0x239588, guest::uiMenuAddItem(uVar2,0x3338a0,0x10));
+    RT_CALLRA(0x23959c, guest::uiMenuAddItem(uVar2,0x333898,0x10));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar2 + 0x5f))) = 2;
   }
   else {
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
-    lVar4 = uiMenuRun(iVar7);
+    lVar4 = RT_CALLRA(0x2395b4, guest::uiMenuRun(iVar7));
     if (lVar4 != 0) {
       if ((lVar4 != -1) && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0xd))) == '\0')) {
         for (iVar7 = 1; iVar7 < 8; iVar7 = iVar7 + 1) {
-          ClearFlaggedSlotBit(iVar7,(*(uint8_t*)rtguest::G((uint32_t)0x177f76c + (uint32_t)(iVar7 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) * 0x1c) * 1)),0)
+          RT_CALLRA(0x239644, guest::ClearFlaggedSlotBit(iVar7,(*(uint8_t*)rtguest::G((uint32_t)0x177f76c + (uint32_t)(iVar7 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) * 0x1c) * 1)),0))
           ;
         }
         uVar5 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
@@ -53,7 +57,7 @@ uint32_t piVar6;
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c)))));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) = 1;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = (uint32_t)bVar1;
-        gs_tasks_kill(param_1);
+        RT_CALLRA(0x239708, guest::gs_tasks_kill(param_1));
         PlayUiSound(0x1a);
         return 0;
       }

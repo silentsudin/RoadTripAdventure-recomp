@@ -6,12 +6,16 @@ namespace guest {
 
 uint32_t scePadGetButtonMask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   
   iVar2 = 0;
   if ((*(uint32_t*)rtguest::G((uint32_t)0x1773220 + (uint32_t)((int)param_1 * 0x1c + param_2 * 7) * 4)) != 0) {
-    iVar1 = scePadGetDmaStr(param_1);
+    iVar1 = RT_CALLRA(0x274360, guest::scePadGetDmaStr(param_1));
     if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x72))) == '\x01') {
       iVar2 = 0;
       if ((1 < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 100)))) && (iVar2 = 0, 1 < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x66))))) {

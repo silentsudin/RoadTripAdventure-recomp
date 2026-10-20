@@ -9,6 +9,10 @@ namespace guest {
 
 uint32_t atanf(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   int iVar1;
   uint32_t puVar2;
   float fVar3;
@@ -35,7 +39,7 @@ uint32_t atanf(uint32_t param_1, ...) {
     }
   }
   else {
-    fVar6 = rtguest::fbits(fabsf(param_1));
+    fVar6 = rtguest::fbits(RT_CALLRA(0x277800, guest::fabsf(param_1)));
     if (puVar2 < 0x3f980000u) {
       if (puVar2 < 0x3f300000u) {
         fVar5 = ((fVar6 + fVar6) - 1.0f) / (fVar6 + 2.0f);

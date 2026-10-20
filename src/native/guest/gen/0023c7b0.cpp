@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ReleaseStampFlag(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   char cVar1;
   uint uVar2;
   
@@ -16,7 +20,7 @@ uint32_t ReleaseStampFlag(uint32_t param_1, ...) {
       uVar2 = (uint32_t)(*(uint16_t*)rtguest::G(0x1780a3a)) & ~(1 << ((int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x23))) & 0x1fU));
       (*(uint16_t*)rtguest::G(0x1780a3a)) = (uint32_t)uVar2;
       if ((uVar2 & 0x25e) == 0) {
-        SetProgressFlagAndQueue(0x19);
+        RT_CALLRA(0x23c834, guest::SetProgressFlagAndQueue(0x19));
       }
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x23)));
     }

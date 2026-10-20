@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t dialogueCmdPlaySoundCue(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   byte bVar1;
   int iVar2;
   uint uVar3;
@@ -18,7 +22,7 @@ uint32_t dialogueCmdPlaySoundCue(uint32_t param_1, ...) {
     if (uVar3 == 0x10) {
       uVar3 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x0177f778 + 1));
     }
-    gs_tasks_spawn(param_1,0x2083c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002f00ac + uVar3 * 0x10))));
+    RT_CALLRA(0x23bed4, guest::gs_tasks_spawn(param_1,0x2083c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002f00ac + uVar3 * 0x10)))));
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8)));
   }
   if (iVar2 == 0x40) {

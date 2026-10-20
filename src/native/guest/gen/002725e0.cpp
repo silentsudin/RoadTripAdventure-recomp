@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t gifPkAppendTagNreg7(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
 uint32_t puVar1;
   int iVar2;
   
-  iVar2 = gifPkAlign16();
+  iVar2 = RT_CALLRA(0x272604, guest::gifPkAlign16());
   puVar1 = (uint32_t)(*(int32_t*)rtguest::G((uint32_t)param_1));
   (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int32_t))) = iVar2;
   (*(uint32_t*)rtguest::G((uint32_t)puVar1)) = param_4 | 0x70000000;

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t scePadRead(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
 uint32_t __src;
   undefined4 uVar1;
   
@@ -13,7 +17,7 @@ uint32_t __src;
     uVar1 = 0;
   }
   else {
-    __src = (uint32_t)scePadGetDmaStr(param_1);
+    __src = (uint32_t)RT_CALLRA(0x273b90, guest::scePadGetDmaStr(param_1));
     (uint32_t)(uintptr_t)(::memcpy((char *)rtguest::G((uint32_t)(param_3)), (char *)rtguest::G((uint32_t)(__src)), (long)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)__src + 0x60)))));
     uVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)__src + 0x60)));
   }

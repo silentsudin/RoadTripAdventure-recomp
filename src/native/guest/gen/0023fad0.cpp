@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SubmitFiveTexturePacketsC(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
 uint32_t puVar1;
   int iVar2;
   int iVar3;
@@ -44,7 +48,7 @@ uint32_t puVar11;
     puVar11 = puVar11 + 0x40;  // T* element step
   } while (-1 < iVar12);
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 0x14;
-  gifChainEndTag(0x2a3490,0x15);
+  RT_CALLRA(0x23fba4, guest::gifChainEndTag(0x2a3490,0x15));
   sendTexturePackets(0x2a3490);
   return 0;
 }

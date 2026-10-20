@@ -8,11 +8,13 @@ uint32_t sceDeci2ExUnLock(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_1;
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
   }
 uint32_t auStack_20 = rtguest::allocFrame(16);
   
   (*(uint32_t*)rtguest::G((uint32_t)auStack_20 + (uint32_t)(0) * 4)) = param_1;
-  Deci2Call(0xfffffffffffffff7,auStack_20);
+  RT_CALLRA(0x28d1d0, guest::Deci2Call(0xfffffffffffffff7,auStack_20));
   return 0;
 }
 

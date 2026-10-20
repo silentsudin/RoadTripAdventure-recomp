@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t AdvanceTimedTask(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   
   iVar2 = (int)param_1;
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 8)));
   if (iVar1 == 0) {
-    PlayUiSound((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c))));
+    RT_CALLRA(0x2083dc, guest::PlayUiSound((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1c)))));
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 8)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x2c))) = 0x208428;
   }

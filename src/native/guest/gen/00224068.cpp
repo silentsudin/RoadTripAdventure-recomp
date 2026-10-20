@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SpawnCarDustPuffs(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x50) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x54) = 0x00000000u;
+  }
 uint32_t afStack_70 = rtguest::allocFrame(12);
     uint32_t uStack_64 = rtguest::allocFrame(4);
     uint32_t uStack_60 = rtguest::allocFrame(4);
@@ -31,13 +35,13 @@ uint32_t pfVar2;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_54)) = 0x3f800000;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = 0;
     (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(1) * 4)) = 0.0;
-    vu0ApplyMatrix(afStack_70,param_1,afStack_70);
-    vu0ApplyMatrix(uStack_60,param_1,uStack_60);
+    RT_CALLRA(0x2240f4, guest::vu0ApplyMatrix(afStack_70,param_1,afStack_70));
+    RT_CALLRA(0x224108, guest::vu0ApplyMatrix(uStack_60,param_1,uStack_60));
     fVar5 = (float)((*(int32_t*)rtguest::G((uint32_t)param_4)) + -0x10);
     (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(2) * 4)) = (*(uint32_t*)rtguest::G(0x332d18)) - fVar5 * (*(uint32_t*)rtguest::G(0x332d10));
     (*(float*)rtguest::G((uint32_t)fStack_58)) = (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(2) * 4));
-    drawCarEffectB(fVar5 * 0.03125 + (*(uint32_t*)rtguest::G(0x332d14)),fVar5 * 0.015625,param_2 >> 2 & 3,param_3,
-                   afStack_70,1);
+    RT_CALLRA(0x22416c, guest::drawCarEffectB(fVar5 * 0.03125 + (*(uint32_t*)rtguest::G(0x332d14)),fVar5 * 0.015625,param_2 >> 2 & 3,param_3,
+                   afStack_70,1));
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)param_4));
   }
   if (iVar3 < 1) {
@@ -63,10 +67,10 @@ uint32_t pfVar2;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = 0;
   (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(1) * 4)) = 0.0;
   (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(2) * 4)) = (*(float*)rtguest::G((uint32_t)fStack_58));
-  vu0ApplyMatrix(afStack_70,param_1,afStack_70);
-  vu0ApplyMatrix(uStack_60,param_1,uStack_60);
+  RT_CALLRA(0x224250, guest::vu0ApplyMatrix(afStack_70,param_1,afStack_70));
+  RT_CALLRA(0x224260, guest::vu0ApplyMatrix(uStack_60,param_1,uStack_60));
   if ((*(int32_t*)rtguest::G((uint32_t)param_4)) != 0) {
-    drawCarEffectB(fVar5,fVar6,param_2 >> 2 & 3,param_3,afStack_70,1);
+    RT_CALLRA(0x224288, guest::drawCarEffectB(fVar5,fVar6,param_2 >> 2 & 3,param_3,afStack_70,1));
   }
   if (2.0 < SQRT(((*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff70 + (*(int16_t*)rtguest::G((uint32_t)param_5)) * 0x10)))) *
                  ((*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff70 + (*(int16_t*)rtguest::G((uint32_t)param_5)) * 0x10)))) +
@@ -84,8 +88,8 @@ uint32_t pfVar2;
     if (iVar3 != 0x80) {
       (*(int16_t*)rtguest::G((uint32_t)param_5)) = (short)iVar3;
       (*(uint32_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar3) * 4)) = 1;
-      vu0CopyVector(0x0172ff70 + iVar4,afStack_70);
-      vu0CopyVector(iVar4 + 0x172ff80,uStack_60);
+      RT_CALLRA(0x22437c, guest::vu0CopyVector(0x0172ff70 + iVar4,afStack_70));
+      RT_CALLRA(0x22438c, guest::vu0CopyVector(iVar4 + 0x172ff80,uStack_60));
       uVar1 = (*(uint32_t*)rtguest::G(0x332d3c));
       (*(uint32_t*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(iVar3 * 4) * 4)) = 0.25;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar4))) = uVar1;

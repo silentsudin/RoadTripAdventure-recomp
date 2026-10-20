@@ -8,6 +8,10 @@ namespace guest {
 
 uint32_t titlePressStart(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   uint uVar1;
   undefined8 uVar2;
   int iVar3;
@@ -15,19 +19,19 @@ uint32_t titlePressStart(uint32_t param_1, uint32_t param_2, ...) {
   iVar3 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) == 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x50))) = 0x80ffffff;
-    gifBeginSpriteBatch(0x177a9e0,0x20043dce69329d8eULL);
-    gifSetSpriteCount(0x177aa40,1);
-    uiSpriteWriteFull(0x177aa50,0,0,0,0,0x280,0x1c0);
+    RT_CALLRA(0x208ad8, guest::gifBeginSpriteBatch(0x177a9e0,0x20043dce69329d8eULL));
+    RT_CALLRA(0x208ae4, guest::gifSetSpriteCount(0x177aa40,1));
+    RT_CALLRA(0x208b04, guest::uiSpriteWriteFull(0x177aa50,0,0,0,0,0x280,0x1c0));
     (*(uint32_t*)rtguest::G(0x177aa94)) = 0xffff;
-    gifSetTexRegs(0x177aaa0,0x20047b4e253221f2ULL,0);
-    gifSetSpriteCount(0x177aac0,1);
-    uiSpriteWrite(0x177aad0,0x10,0x18,0,0,0x1b8,0xdc);
-    gifChainEndTag(0x177a9d0,0x14);
+    RT_CALLRA(0x208b30, guest::gifSetTexRegs(0x177aaa0,0x20047b4e253221f2ULL,0));
+    RT_CALLRA(0x208b3c, guest::gifSetSpriteCount(0x177aac0,1));
+    RT_CALLRA(0x208b5c, guest::uiSpriteWrite(0x177aad0,0x10,0x18,0,0,0x1b8,0xdc));
+    RT_CALLRA(0x208b68, guest::gifChainEndTag(0x177a9d0,0x14));
   }
-  sendTexturePackets(0x177a9d0);
+  RT_CALLRA(0x208b70, guest::sendTexturePackets(0x177a9d0));
   uVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8)));
   if ((int)uVar1 < 0x10) {
-    uiFade((0xf - uVar1) * 0x8000000);
+    RT_CALLRA(0x208b90, guest::uiFade((0xf - uVar1) * 0x8000000));
     uVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8)));
   }
   if ((int)uVar1 < 0x708) {
@@ -43,7 +47,7 @@ uint32_t titlePressStart(uint32_t param_1, uint32_t param_2, ...) {
       if ((*(uint32_t*)rtguest::G(0x333284)) != 2) goto LAB_00208c4c;
       uVar2 = 0x2ea0c8;
     }
-    uiDrawTextCell(10,0xb,uVar2,4);
+    RT_CALLRA(0x208c3c, guest::uiDrawTextCell(10,0xb,uVar2,4));
   }
   else {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x50))) = 0x80000000;
@@ -54,7 +58,7 @@ LAB_00208c4c:
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 0;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x208c64, guest::gs_tasks_kill(param_1));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x400000;
   }
   return 0;

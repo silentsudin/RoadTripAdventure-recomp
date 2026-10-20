@@ -6,6 +6,10 @@ namespace guest {
 
 int32_t textEmitGlyphsToGs(uint64_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
+  }
   ushort uVar1;
   int iVar2;
   int iVar3;
@@ -21,7 +25,7 @@ int32_t textEmitGlyphsToGs(uint64_t param_1, uint32_t param_2, uint32_t param_3,
   iVar4 = (*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(3) * sizeof(int32_t)));
   iVar5 = (*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(int32_t)));
   uVar7 = (*(int32_t*)rtguest::G((uint32_t)param_2)) + param_3 * iVar3;
-  gifPkAppendTagNreg1(param_1,0,0,0);
+  RT_CALLRA(0x271ed4, guest::gifPkAppendTagNreg1(param_1,0,0,0));
   iVar8 = 0;
   if (param_6 != -1) {
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)param_5));
@@ -31,9 +35,9 @@ int32_t textEmitGlyphsToGs(uint64_t param_1, uint32_t param_2, uint32_t param_3,
       uVar6 = (uint32_t)uVar7;
       uVar7 = uVar7 + iVar3;
       iVar8 = iVar8 + 1;
-      gifEmitBlock8Planes(param_1,uVar6 | (uint32_t)(uint32_t)(iVar5 + param_4 * iVar4) << 0x10 |
+      RT_CALLRA(0x271f58, guest::gifEmitBlock8Planes(param_1,uVar6 | (uint32_t)(uint32_t)(iVar5 + param_4 * iVar4) << 0x10 |
                                   0xffffffff00000000,iVar2,(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)((uVar1 >> 8 & 7) + 8) * sizeof(int32_t))),
-                          (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x00330190 + (uVar1 & 0xff) * 8))),(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(5) * sizeof(int32_t))));
+                          (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x00330190 + (uVar1 & 0xff) * 8))),(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(5) * sizeof(int32_t)))));
       param_6 = param_6 + -1;
       if (param_6 == -1) {
         return iVar8;

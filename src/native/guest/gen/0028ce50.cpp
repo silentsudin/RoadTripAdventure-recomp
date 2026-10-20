@@ -6,6 +6,10 @@ namespace guest {
 
 uint64_t sceSifRebootIop(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+  }
   byte bVar1;
   uint uVar2;
   undefined8 uVar3;
@@ -29,8 +33,8 @@ uint32_t acStack_80 = rtguest::allocFrame(80);
     uVar2 = (int)pbVar6 - (int)(param_1 + -0xb);
   }
   if (uVar2 < 0x51) {
-    sceSifInitRpc(0);
-    sceSifExitRpc();
+    RT_CALLRA(0x28cec4, guest::sceSifInitRpc(0));
+    RT_CALLRA(0x28cecc, guest::sceSifExitRpc());
     cVar5 = 'r';
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)param_1));
     do {
@@ -52,7 +56,7 @@ uint32_t acStack_80 = rtguest::allocFrame(80);
       } while (uVar7 != 0);
       (*(int8_t*)rtguest::G((uint32_t)pcVar4)) = '\0';
     }
-    uVar3 = sceSifResetIop(acStack_80,0);
+    uVar3 = RT_CALLRA(0x28cf44, guest::sceSifResetIop(acStack_80,0));
   }
   else {
     rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x3327d0u)), param_1);

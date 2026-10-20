@@ -12,6 +12,10 @@ namespace guest {
 
 void SpawnCarEntityTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   using namespace rtguest::vu0;
   byte bVar1;
   byte bVar2;
@@ -120,13 +124,13 @@ LAB_002186c8:
           (*(uint16_t*)rtguest::G((uint32_t)(iVar16 + (uint)bVar1 * 0x10 + 0xe)));
     }
   }
-  LoadCarPerformanceSpecs(__s, param_2);
+  RT_CALLRA(0x2186d0, guest::LoadCarPerformanceSpecs(__s, param_2));
   (*(uint32_t*)rtguest::G((uint32_t)(0x00177ae8c + iVar9))) = 0x40000;
-  CarAiInit(__s, param_2, uVar11,
-            (int)(*(uint32_t*)rtguest::G((uint32_t)(iVar18 + 0x1c))) >> 10 & 0x1f);
-  vu0UnitMatrix(__s);
-  vu0UnitMatrix(iVar9 + 0x00177ad00);
-  vu0UnitMatrix(iVar9 + 0x00177ac90);
+  RT_CALLRA(0x2186f4, guest::CarAiInit(__s, param_2, uVar11,
+            (int)(*(uint32_t*)rtguest::G((uint32_t)(iVar18 + 0x1c))) >> 10 & 0x1f));
+  RT_CALLRA(0x2186fc, guest::vu0UnitMatrix(__s));
+  RT_CALLRA(0x218704, guest::vu0UnitMatrix(iVar9 + 0x00177ad00));
+  RT_CALLRA(0x21870c, guest::vu0UnitMatrix(iVar9 + 0x00177ac90));
   iVar13 = (*(int32_t*)rtguest::G((uint32_t)(0x00177add4 + iVar9)));
   if (((*(uint16_t*)rtguest::G((uint32_t)(iVar13 + 8))) & 0x400) == 0) {
     iVar16 = (*(int32_t*)rtguest::G((uint32_t)(iVar18 + 0x1c)));
@@ -142,7 +146,7 @@ LAB_002186c8:
     iVar16 = (*(int32_t*)rtguest::G((uint32_t)(0x00177ade4 + iVar9)));
     bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(0x00177ae97 + iVar9)));
     if ((iVar16 == 0) && (bVar1 < 0x16)) {
-      SpawnCarAtDoor(param_2, __s);
+      RT_CALLRA(0x218d70, guest::SpawnCarAtDoor(param_2, __s));
       uVar14 = (uint)(ushort)(*(int16_t*)rtguest::G((uint32_t)(0x00177ade8 + iVar9)));
     }
     else {
@@ -343,7 +347,7 @@ LAB_00218d7c:
   (*(uint16_t*)rtguest::G((uint32_t)(0x00177ae1e + iVar9))) = 0;
   (*(uint16_t*)rtguest::G((uint32_t)(0x00177ae22 + iVar9))) = 0;
   if ((sVar3 != 0) && (((int)(short)uVar14 & 3U) != 0)) {
-    PlayUiSound(((int)(short)uVar14 & 1U) + 0x8010);
+    RT_CALLRA(0x218e18, guest::PlayUiSound(((int)(short)uVar14 & 1U) + 0x8010));
     uVar14 = (uint)(ushort)(*(int16_t*)rtguest::G((uint32_t)(0x00177ade8 + iVar9)));
   }
   (*(uint32_t*)rtguest::G((uint32_t)(0x00177ae2c + iVar9))) = 0x1000;
@@ -364,7 +368,7 @@ LAB_00218d7c:
     cVar10 = (*(int8_t*)rtguest::G((uint32_t)(iVar17 + 10)));
   }
   else {
-    SoundRpcPlaySequence(uVar14 & 1);
+    RT_CALLRA(0x218e70, guest::SoundRpcPlaySequence(uVar14 & 1));
     cVar10 = (*(int8_t*)rtguest::G((uint32_t)(iVar17 + 10)));
   }
   if (cVar10 == '\b') {
@@ -374,7 +378,7 @@ LAB_00218d7c:
   (*(uint64_t*)rtguest::G((uint32_t)(iVar18 + 0x28))) = __s;
   (*(uint32_t*)rtguest::G((uint32_t)(iVar18 + 0x2c))) =
       0x0021cbb8;  // 3-insn leaf: *(ushort*)(*(u32*)(a0+0x28)+0x198)=0; W12 must register it
-  UpdateVehiclePhysics(param_1, param_2);
+  RT_CALLRA(0x218ebc, guest::UpdateVehiclePhysics(param_1, param_2));
   return;
 }
 

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ScaleCarLightMatrix(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x64) = 0x00000000u;
+  }
 uint32_t auStack_70 = rtguest::allocFrame(16);
 uint32_t auStack_60 = rtguest::allocFrame(16);
 uint32_t auStack_50 = rtguest::allocFrame(16);
@@ -31,13 +35,13 @@ uint32_t auStack_40 = rtguest::allocFrame(12);
     (*(float*)rtguest::G((uint32_t)fStack_28)) = 0.25;
   }
   (*(float*)rtguest::G((uint32_t)fStack_2c)) = (*(float*)rtguest::G((uint32_t)fStack_28));
-  vu0MulVector(auStack_70,param_2,fStack_30);
+  RT_CALLRA(0x22611c, guest::vu0MulVector(auStack_70,param_2,fStack_30));
   iVar1 = (int)param_2;
-  vu0MulVector(auStack_60,iVar1 + 0x10,fStack_30);
-  vu0MulVector(auStack_50,iVar1 + 0x20,fStack_30);
-  vu0MulVector(auStack_40,iVar1 + 0x30,fStack_30);
+  RT_CALLRA(0x22612c, guest::vu0MulVector(auStack_60,iVar1 + 0x10,fStack_30));
+  RT_CALLRA(0x22613c, guest::vu0MulVector(auStack_50,iVar1 + 0x20,fStack_30));
+  RT_CALLRA(0x22614c, guest::vu0MulVector(auStack_40,iVar1 + 0x30,fStack_30));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_34)) = 0x43000000;
-  vifUploadLightMatrix(auStack_70);
+  RT_CALLRA(0x226160, guest::vifUploadLightMatrix(auStack_70));
   return 0;
 }
 

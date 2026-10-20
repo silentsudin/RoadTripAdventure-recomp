@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdatePauseSubmenuTask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+  }
   long lVar1;
   int iVar2;
 uint32_t puVar3;
@@ -18,7 +22,7 @@ uint32_t puVar4;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) == 0) {
     (*(uint32_t*)rtguest::G((uint32_t)puVar3)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) = 0;
-    InitMenuElementLayout(param_3,iVar5 + 0x820c,puVar3 + 7,(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(0x17) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))));
+    RT_CALLRA(0x214f50, guest::InitMenuElementLayout(param_3,iVar5 + 0x820c,puVar3 + 7,(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(0x17) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t)))));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x81d8))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x81d4))) = 0xfffff0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x81cc))) = 0;
@@ -45,7 +49,7 @@ uint32_t puVar4;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x81a8))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x81ac))) = 0;
   }
-  lVar1 = UpdateVerticalMenuNavigation(param_1,param_2,param_3,param_4);
+  lVar1 = RT_CALLRA(0x215028, guest::UpdateVerticalMenuNavigation(param_1,param_2,param_3,param_4));
   if (lVar1 == 299) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 1;
   }
@@ -75,22 +79,22 @@ uint32_t puVar4;
 LAB_002150dc:
   iVar2 = iVar5 + 0x20;
   puVar4 = (uint32_t)(iVar5 + 0x81dc);
-  uiArenaInit(iVar2,0x8000);
-  uiArenaBeginBatch(iVar2,0,0);
+  RT_CALLRA(0x2150e4, guest::uiArenaInit(iVar2,0x8000));
+  RT_CALLRA(0x2150f4, guest::uiArenaBeginBatch(iVar2,0,0));
   iVar6 = 1;
-  DrawMenuGridBorder(param_3,iVar2,iVar5 + 0x81a4,1);
-  DrawMenuListItems(param_3,iVar2,iVar5 + 0x81b4,1,param_2);
-  DrawMenuGridBackground(param_3,iVar2,iVar5 + 0x81c8,1);
+  RT_CALLRA(0x215110, guest::DrawMenuGridBorder(param_3,iVar2,iVar5 + 0x81a4,1));
+  RT_CALLRA(0x21512c, guest::DrawMenuListItems(param_3,iVar2,iVar5 + 0x81b4,1,param_2));
+  RT_CALLRA(0x215148, guest::DrawMenuGridBackground(param_3,iVar2,iVar5 + 0x81c8,1));
   do {
     if (((((*(uint32_t*)rtguest::G((uint32_t)puVar4)) & 1) != 0) && ((*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(4) * sizeof(uint32_t))) != 0)) && (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) & 0x10) != 0)) {
-      uiArenaSetTexture(iVar2,0x29c030,0,0);
-      uiArenaDataTag(iVar2,1);
-      uiArenaSprites(iVar2,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(5) * sizeof(uint32_t))) * 0x20 + 0x29c300,1,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(2) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(3) * sizeof(uint32_t))));
+      RT_CALLRA(0x215194, guest::uiArenaSetTexture(iVar2,0x29c030,0,0));
+      RT_CALLRA(0x2151a0, guest::uiArenaDataTag(iVar2,1));
+      RT_CALLRA(0x2151c4, guest::uiArenaSprites(iVar2,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(5) * sizeof(uint32_t))) * 0x20 + 0x29c300,1,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(2) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(3) * sizeof(uint32_t)))));
     }
     iVar6 = iVar6 + -1;
     puVar4 = puVar4 + 0x18;  // T* element step
   } while (iVar6 != -1);
-  DrawMenuCursorAndIcons(param_3,iVar2,iVar5 + 0x820c,0xb);
+  RT_CALLRA(0x2151e8, guest::DrawMenuCursorAndIcons(param_3,iVar2,iVar5 + 0x820c,0xb));
   uiArenaSubmit(iVar2);
   return 0;
 }

@@ -6,8 +6,12 @@ namespace guest {
 
 uint32_t gs_music_play_bgm(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
-  MusicRpcCmd15(0);
-  MusicRpcPlayBgm(0,param_1);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
+  RT_CALLRA(0x258ee4, guest::MusicRpcCmd15(0));
+  RT_CALLRA(0x258ef8, guest::MusicRpcPlayBgm(0,param_1));
   SendMusicPlayRpc((int)param_1 >> 8 & 0xff,
                    0x29adf0 + ((int)param_1 >> 0x10 & 0xffU) * 3);
   return 0;

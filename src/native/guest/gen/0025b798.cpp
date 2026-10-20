@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t textEntrySelectInput(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   int iVar1;
   short sVar2;
   
@@ -16,15 +20,15 @@ uint32_t textEntrySelectInput(uint32_t param_1, uint32_t param_2, ...) {
     if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) != 'Z') {
       if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) == '[') {
         if (0 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2)))) {
-          PlayUiSound(0x1a);
+          RT_CALLRA(0x25b7c8, guest::PlayUiSound(0x1a));
           return 1;
         }
-        PlayUiSound(0x1c);
+        RT_CALLRA(0x25b828, guest::PlayUiSound(0x1c));
         return 0;
       }
       if ((long)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) <
           (long)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c40d8 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) * 0xc)))) {
-        PlayUiSound(0x22);
+        RT_CALLRA(0x25b838, guest::PlayUiSound(0x22));
         sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) + 1;
         iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c40d8 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) * 0xc)));
         (*(uint32_t*)rtguest::G((uint32_t)0x1760880 + (uint32_t)((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2)))) * 4)) =
@@ -44,12 +48,12 @@ uint32_t textEntrySelectInput(uint32_t param_1, uint32_t param_2, ...) {
     sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2)));
   }
   if (0 < sVar2) {
-    PlayUiSound(0x1b);
+    RT_CALLRA(0x25b878, guest::PlayUiSound(0x1b));
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) + -1;
     return 0;
   }
 LAB_0025b8e8:
-  PlayUiSound(0x1c);
+  RT_CALLRA(0x25b8e8, guest::PlayUiSound(0x1c));
   return 0;
 }
 

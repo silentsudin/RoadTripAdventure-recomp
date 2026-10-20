@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateCarCarCollisionsTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
     uint32_t fStack_70 = rtguest::allocFrame(4);
     uint32_t fStack_6c = rtguest::allocFrame(4);
     uint32_t fStack_68 = rtguest::allocFrame(4);
@@ -34,7 +38,7 @@ uint32_t puVar6;
           puVar5 = puVar2 + 0x4e;
           if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 0x81))) & 0x7fff) != 0) {
             fVar9 = 0.0;
-            VecSubtractAndLength(fStack_70,puVar2 + 0x62,puVar6 + 0x14);
+            RT_CALLRA(0x217a78, guest::VecSubtractAndLength(fStack_70,puVar2 + 0x62,puVar6 + 0x14));
             if ((((*(float*)rtguest::G((uint32_t)fStack_64)) != fVar9) && ((*(float*)rtguest::G((uint32_t)fStack_64)) < (*(float*)rtguest::G(0x332b6c)))) &&
                ((lVar3 = TestCarCollisionBox(puVar5,puVar6), lVar3 != 0 ||
                 (lVar3 = TestCarCollisionBox(puVar6,puVar5), lVar3 != 0)))) {
@@ -45,7 +49,7 @@ uint32_t puVar6;
               }
               if ((((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar6 + 0x33))) & 3) != 0) || (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar2 + 0x81))) & 3) != 0)
                  ) {
-                HandleCarCollisionResponse(param_1,param_2,puVar6,puVar5,iVar1);
+                RT_CALLRA(0x217b20, guest::HandleCarCollisionResponse(param_1,param_2,puVar6,puVar5,iVar1));
               }
               fVar10 = (*(float*)rtguest::G((uint32_t)fStack_70)) * fVar11 * 32768.0;
               fVar8 = (*(float*)rtguest::G((uint32_t)fStack_6c)) * fVar11 * 32768.0;

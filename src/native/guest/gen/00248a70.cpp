@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateCarouselPromptDialog(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   char cVar1;
   bool bVar2;
   int iVar3;
@@ -14,7 +18,7 @@ uint32_t UpdateCarouselPromptDialog(uint32_t param_1, uint32_t param_2, ...) {
   iVar4 = (int)param_1;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) == '\0') {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) < 0x10) {
-      uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) << 3);
+      RT_CALLRA(0x248aa0, guest::uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) << 3));
       bVar2 = false;
     }
     else {
@@ -25,18 +29,18 @@ uint32_t UpdateCarouselPromptDialog(uint32_t param_1, uint32_t param_2, ...) {
     bVar2 = false;
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) == '\x02') {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) < 0x10) {
-        uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) * -8 + 0x80);
+        RT_CALLRA(0x248ad0, guest::uiSetTexa((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) * -8 + 0x80));
         bVar2 = false;
       }
       else {
-        gs_tasks_kill();
+        RT_CALLRA(0x248ae0, guest::gs_tasks_kill());
         bVar2 = true;
       }
     }
   }
   if (!bVar2) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) == 0) {
-      gs_tasks_spawn(param_1,0x239150,0x327740);
+      RT_CALLRA(0x248b10, guest::gs_tasks_spawn(param_1,0x239150,0x327740));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24)));
     }
     else {
@@ -46,7 +50,7 @@ uint32_t UpdateCarouselPromptDialog(uint32_t param_1, uint32_t param_2, ...) {
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25)));
     }
     else {
-      PlayUiSound(0x1a);
+      RT_CALLRA(0x248b24, guest::PlayUiSound(0x1a));
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) == 0) {
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x18)));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
@@ -79,7 +83,7 @@ uint32_t UpdateCarouselPromptDialog(uint32_t param_1, uint32_t param_2, ...) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 0xffffffff;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) = 2;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) = 0;
-      PlayUiSound(0x1b);
+      RT_CALLRA(0x248bd0, guest::PlayUiSound(0x1b));
     }
   }
   return 0;

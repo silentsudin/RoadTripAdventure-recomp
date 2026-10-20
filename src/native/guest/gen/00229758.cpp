@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t CommitSaveSlotTask(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   char cVar1;
 uint32_t puVar2;
 uint32_t puVar3;
@@ -48,7 +52,7 @@ uint32_t puVar3;
       } while (puVar2 != (uint32_t)0x1782ba0);
       (*(uint64_t*)rtguest::G((uint32_t)puVar3)) = (*(uint8_t*)rtguest::G(0x01782ba0));
     }
-    gs_tasks_spawn(param_1,0x2291c8,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x1c))) | (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x1c))) << 8);
+    RT_CALLRA(0x229914, guest::gs_tasks_spawn(param_1,0x2291c8,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x1c))) | (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x1c))) << 8));
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24)));
   }
   else {

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t HandleToggleMenuInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   ushort uVar1;
   int iVar2;
   
@@ -18,7 +22,7 @@ LAB_00213b94:
     if ((uVar1 & 0x10) == 0) {
       return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
     }
-    PlayUiSound(0x1b);
+    RT_CALLRA(0x213ba0, guest::PlayUiSound(0x1b));
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) + 0xe))) | 0x80;
     (*(int32_t*)rtguest::G((uint32_t)param_4)) = 300;
     return 300;

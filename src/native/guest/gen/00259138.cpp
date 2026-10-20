@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SpawnDoorMenuEntity(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+  }
     uint32_t fStack_80 = rtguest::allocFrame(4);
     uint32_t fStack_7c = rtguest::allocFrame(4);
     uint32_t fStack_78 = rtguest::allocFrame(4);
@@ -48,7 +52,7 @@ uint32_t pfVar4;
                   fVar12 = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(1) * sizeof(float)));
                   goto LAB_00259274;
                 }
-                lVar2 = TestFlagBitFc98(0x50);
+                lVar2 = RT_CALLRA(0x25925c, guest::TestFlagBitFc98(0x50));
                 if (lVar2 == 0) goto LAB_00259270;
                 lVar2 = (long)(*(uint8_t*)rtguest::G(0x002be49e));
               }
@@ -87,8 +91,8 @@ LAB_00259274:
                           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))) | 0x400000;
                         }
                         else {
-                          uiDrawText(0x82,0x71,0x328780,6);
-                          uiDrawText(0x82,0x7d,0x3287a8,6);
+                          RT_CALLRA(0x25941c, guest::uiDrawText(0x82,0x71,0x328780,6));
+                          RT_CALLRA(0x259434, guest::uiDrawText(0x82,0x7d,0x3287a8,6));
                         }
                         lVar2 = (long)(char)(*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)(iVar3) * 1));
                       }

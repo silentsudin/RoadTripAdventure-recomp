@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t AwardHouseStampIfUnset(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
   if ((param_1 < 10) && ((*(uint32_t*)rtguest::G((uint32_t)0x1780338 + (uint32_t)((int)param_1) * 4)) == 0)) {
     gs_stamps_award_function((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2a2b20 + (uint32_t)((int)param_1) * 4)));
     return 0;

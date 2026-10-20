@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t DrawRaceHudNumbers(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x50) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x54) = 0x00000000u;
+  }
   uint uVar1;
   undefined8 uVar2;
   uint uVar3;
   uint uVar4;
 uint32_t auStack_60 = rtguest::allocFrame(64);
   
-  uVar1 = ComputeGridCellIndex((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xa0))),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xa8))));
+  uVar1 = RT_CALLRA(0x26d720, guest::ComputeGridCellIndex((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xa0))),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xa8)))));
   uVar4 = uVar1;
   if ((int)uVar1 < 0) {
     uVar4 = uVar1 + 3;
@@ -22,20 +26,20 @@ uint32_t auStack_60 = rtguest::allocFrame(64);
     uVar3 = uVar1 + 0xf;
   }
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_60)), (char *)rtguest::G((uint32_t)(0x32fb18)), (int)uVar3 >> 4, (int)uVar4 >> 2 & 3, (int)(uVar1 & 2) >> 1 | (uVar1 & 1) << 1);
-  uiDebugText8(0x20,0x18,auStack_60,0xf);
-  uVar2 = fptodp((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x90))));
+  RT_CALLRA(0x26d780, guest::uiDebugText8(0x20,0x18,auStack_60,0xf));
+  uVar2 = RT_CALLRA(0x26d788, guest::fptodp((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x90)))));
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_60)), (char *)rtguest::G((uint32_t)(0x335618)), uVar2);
-  uiDebugText8(0x20,0x20,auStack_60,0xf);
-  uVar2 = fptodp((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x94))));
+  RT_CALLRA(0x26d7b0, guest::uiDebugText8(0x20,0x20,auStack_60,0xf));
+  uVar2 = RT_CALLRA(0x26d7bc, guest::fptodp((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x94)))));
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_60)), (char *)rtguest::G((uint32_t)(0x335620)), uVar2);
-  uiDebugText8(0x20,0x28,auStack_60,0xf);
-  uVar2 = fptodp((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x98))));
+  RT_CALLRA(0x26d7e4, guest::uiDebugText8(0x20,0x28,auStack_60,0xf));
+  uVar2 = RT_CALLRA(0x26d7f0, guest::fptodp((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x98)))));
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_60)), (char *)rtguest::G((uint32_t)(0x335628)), uVar2);
-  uiDebugText8(0x20,0x30,auStack_60,0xf);
+  RT_CALLRA(0x26d814, guest::uiDebugText8(0x20,0x30,auStack_60,0xf));
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_60)), (char *)rtguest::G((uint32_t)(0x32fb28)), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x19c))));
-  uiDebugText8(0x20,0x38,auStack_60,0xf);
+  RT_CALLRA(0x26d83c, guest::uiDebugText8(0x20,0x38,auStack_60,0xf));
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_60)), (char *)rtguest::G((uint32_t)(0x32fb38)), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1f8))));
-  uiDebugText8(0x20,0x40,auStack_60,0xf);
+  RT_CALLRA(0x26d864, guest::uiDebugText8(0x20,0x40,auStack_60,0xf));
   return 0;
 }
 

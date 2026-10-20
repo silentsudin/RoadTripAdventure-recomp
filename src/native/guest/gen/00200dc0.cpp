@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiDrawIcon3(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
 uint32_t puVar1;
   int iVar2;
   undefined8 uVar3;
@@ -73,7 +77,7 @@ uint32_t puVar1;
     iVar2 = (*(uint32_t*)rtguest::G(0x335680)) + iVar2 * 0x10 + 0x70;
     uVar6 = 0x1e;
   }
-  uiSpriteWrite(iVar2,param_1,param_2,uVar3,uVar4,uVar5,uVar6);
+  RT_CALLRA(0x200fc8, guest::uiSpriteWrite(iVar2,param_1,param_2,uVar3,uVar4,uVar5,uVar6));
   (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
   return 0;
 }

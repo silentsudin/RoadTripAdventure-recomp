@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t FinishOnCarApproach(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   ushort uVar1;
   uint uVar2;
   int iVar3;
@@ -32,15 +36,15 @@ LAB_0022dd94:
                    (uint32_t)(1 << ((uVar1 & 0x30) >> 4) + (uint32_t)((uVar1 & 0x40) != 0) * 3);
             }
             if (iVar5 == 0) {
-              PlayBgmSlot5();
-              SoundStopAllChannels();
+              RT_CALLRA(0x22dd3c, guest::PlayBgmSlot5());
+              RT_CALLRA(0x22dd44, guest::SoundStopAllChannels());
               (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 1;
               iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));
               uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
               (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2))) = 0;
               (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) = 0x22eac8;
               (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = uVar2 & 0xfffffeff | 0x10000;
-              gs_tasks_kill(param_1);
+              RT_CALLRA(0x22dd74, guest::gs_tasks_kill(param_1));
               iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10)));
             }
             else {

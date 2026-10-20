@@ -6,16 +6,20 @@ namespace guest {
 
 uint32_t sceCdCallback(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   undefined4 uVar1;
   long lVar2;
   
-  lVar2 = sceCdSync(1);
+  lVar2 = RT_CALLRA(0x277cec, guest::sceCdSync(1));
   uVar1 = 0;
   if (lVar2 == 0) {
-    DIntr();
+    RT_CALLRA(0x277cfc, guest::DIntr());
     uVar1 = (*(uint32_t*)rtguest::G(0x1773580));
     (*(uint32_t*)rtguest::G(0x1773580)) = param_1;
-    EIntr();
+    RT_CALLRA(0x277d0c, guest::EIntr());
   }
   return uVar1;
 }

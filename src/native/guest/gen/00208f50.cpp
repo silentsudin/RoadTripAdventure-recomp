@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t gs_options_sub_tasks_speaker(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   char cVar1;
   undefined8 uVar2;
   long lVar3;
@@ -15,14 +19,14 @@ uint32_t pbVar4;
   
   iVar6 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) == 0) {
-    uVar2 = uiMenuCreate();
-    uiMenuAddItem(uVar2,0x3332d0,0x10);
-    uiMenuAddItem(uVar2,0x3332d8,0x10);
-    CenterRectangle(uVar2,8);
+    uVar2 = RT_CALLRA(0x208f74, guest::uiMenuCreate());
+    RT_CALLRA(0x208f8c, guest::uiMenuAddItem(uVar2,0x3332d0,0x10));
+    RT_CALLRA(0x208fa0, guest::uiMenuAddItem(uVar2,0x3332d8,0x10));
+    RT_CALLRA(0x208fac, guest::CenterRectangle(uVar2,8));
     iVar5 = (int)uVar2;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xe))) = 1;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 2;
-    cVar1 = SoundRpcGetStatus();
+    cVar1 = RT_CALLRA(0x208fc0, guest::SoundRpcGetStatus());
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd))) = cVar1;
     pbVar4 = (uint32_t)(iVar5 + cVar1 + 0x50);
     (*(int8_t*)rtguest::G((uint32_t)pbVar4)) = (*(int8_t*)rtguest::G((uint32_t)pbVar4)) | 2;
@@ -31,20 +35,20 @@ uint32_t pbVar4;
     }
   }
   iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
-  lVar3 = uiMenuRun(iVar5,param_2);
+  lVar3 = RT_CALLRA(0x208ffc, guest::uiMenuRun(iVar5,param_2));
   if (lVar3 != 0) {
     if (lVar3 == -2) {
       gs_tasks_kill(param_1);
       return 0;
     }
     if (lVar3 == -1) {
-      PlayUiSound(0x1b);
+      RT_CALLRA(0x209060, guest::PlayUiSound(0x1b));
     }
     else {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x50))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x50))) & 0xfd;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x51))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x51))) & 0xfd;
-      gs_options_speaker_set((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd))));
-      PlayUiSound(0x1f);
+      RT_CALLRA(0x209058, guest::gs_options_speaker_set((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd)))));
+      RT_CALLRA(0x209088, guest::PlayUiSound(0x1f));
       pbVar4 = (uint32_t)(iVar5 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd))) + 0x50);
       (*(int8_t*)rtguest::G((uint32_t)pbVar4)) = (*(int8_t*)rtguest::G((uint32_t)pbVar4)) | 2;
     }

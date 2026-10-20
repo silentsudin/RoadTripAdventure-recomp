@@ -14,7 +14,7 @@ uint32_t sceSifAllocSysMemory(uint32_t param_1, uint32_t param_2, uint32_t param
     (*(uint32_t*)rtguest::G(0x1779cc0)) = param_2;
     (*(uint32_t*)rtguest::G(0x1779cc4)) = param_1;
     (*(uint32_t*)rtguest::G(0x1779cc8)) = param_3;
-    lVar2 = sceSifCallRpc(0x1779c40,4,0,0x1779cc0,0xc,0x1779c80,4,0);
+    lVar2 = RT_CALLRA(0x28bda4, guest::sceSifCallRpc(0x1779c40,4,0,0x1779cc0,0xc,0x1779c80,4,0));
     uVar1 = (*(uint32_t*)rtguest::G(0x1779c80));
     if (lVar2 < 0) {
       uVar1 = 0;

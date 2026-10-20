@@ -17,17 +17,17 @@ uint32_t drawFieldTiles(uint32_t param_1, uint32_t param_2, ...) {
   
   if ((-1 < (*(int8_t*)rtguest::G(0x3335b8))) && (iVar3 = (int)(*(int8_t*)rtguest::G(0x3335b8)), -1 < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x60))))) {
     uVar6 = 0;
-    vifSetBatchOffset(0x29d080 + iVar3 * 0x10);
+    RT_CALLRA(0x21fb94, guest::vifSetBatchOffset(0x29d080 + iVar3 * 0x10));
     fVar7 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x29d080 + iVar3 * 0x10)));
     fVar8 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 0x10 + 0x29d088)));
     uVar5 = 0;
     while( true ) {
-      lVar2 = cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
-                          (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1);
+      lVar2 = RT_CALLRA(0x21fc10, guest::cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
+                          (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1));
       iVar3 = uVar6 * 4;
       uVar6 = uVar6 + 1;
       if (lVar2 != 0) {
-        vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + (*(uint32_t*)rtguest::G(0x177ab20))))));
+        RT_CALLRA(0x21fc2c, guest::vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + (*(uint32_t*)rtguest::G(0x177ab20)))))));
       }
       if (0x3f < (int)uVar6) break;
       uVar5 = (int)uVar6 >> 3;
@@ -35,17 +35,17 @@ uint32_t drawFieldTiles(uint32_t param_1, uint32_t param_2, ...) {
   }
   if ((-1 < (*(uint32_t*)rtguest::G(0x3335b9))) && (iVar3 = (int)(*(uint32_t*)rtguest::G(0x3335b9)), -1 < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 100))))) {
     uVar6 = 0;
-    vifSetBatchOffset(0x29d080 + iVar3 * 0x10);
+    RT_CALLRA(0x21fc6c, guest::vifSetBatchOffset(0x29d080 + iVar3 * 0x10));
     fVar7 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x29d080 + iVar3 * 0x10)));
     fVar8 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 0x10 + 0x29d088)));
     uVar5 = 0;
     while( true ) {
-      lVar2 = cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
-                          (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1);
+      lVar2 = RT_CALLRA(0x21fcf0, guest::cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
+                          (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1));
       iVar3 = uVar6 * 4;
       uVar6 = uVar6 + 1;
       if (lVar2 != 0) {
-        vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + (*(int32_t*)rtguest::G(0x177ab24))))));
+        RT_CALLRA(0x21fd0c, guest::vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + (*(int32_t*)rtguest::G(0x177ab24)))))));
       }
       if (0x3f < (int)uVar6) break;
       uVar5 = (int)uVar6 >> 3;
@@ -53,17 +53,17 @@ uint32_t drawFieldTiles(uint32_t param_1, uint32_t param_2, ...) {
   }
   if ((-1 < (*(uint32_t*)rtguest::G(0x3335ba))) && (iVar3 = (int)(*(uint32_t*)rtguest::G(0x3335ba)), -1 < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x68))))) {
     uVar6 = 0;
-    vifSetBatchOffset(0x29d080 + iVar3 * 0x10);
+    RT_CALLRA(0x21fd4c, guest::vifSetBatchOffset(0x29d080 + iVar3 * 0x10));
     fVar7 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x29d080 + iVar3 * 0x10)));
     fVar8 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 0x10 + 0x29d088)));
     uVar5 = 0;
     while( true ) {
-      lVar2 = cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
-                          (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1);
+      lVar2 = RT_CALLRA(0x21fdd0, guest::cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
+                          (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1));
       iVar3 = uVar6 * 4;
       uVar6 = uVar6 + 1;
       if (lVar2 != 0) {
-        vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + (*(int32_t*)rtguest::G(0x177ab28))))));
+        RT_CALLRA(0x21fdec, guest::vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + (*(int32_t*)rtguest::G(0x177ab28)))))));
       }
       if (0x3f < (int)uVar6) break;
       uVar5 = (int)uVar6 >> 3;
@@ -78,17 +78,17 @@ uint32_t drawFieldTiles(uint32_t param_1, uint32_t param_2, ...) {
   else {
     iVar3 = (int)(*(uint32_t*)rtguest::G(0x3335bb));
     uVar6 = 0;
-    vifSetBatchOffset(0x29d080 + iVar3 * 0x10);
+    RT_CALLRA(0x21fe34, guest::vifSetBatchOffset(0x29d080 + iVar3 * 0x10));
     fVar7 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x29d080 + iVar3 * 0x10)));
     fVar8 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 0x10 + 0x29d088)));
     uVar5 = 0;
     while( true ) {
-      lVar2 = cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
-                          (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1);
+      lVar2 = RT_CALLRA(0x21feb8, guest::cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
+                          (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1));
       iVar3 = uVar6 * 4;
       uVar6 = uVar6 + 1;
       if (lVar2 != 0) {
-        vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + (*(uint32_t*)rtguest::G(0x177ab2c))))));
+        RT_CALLRA(0x21fed4, guest::vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + (*(uint32_t*)rtguest::G(0x177ab2c)))))));
       }
       if (0x3f < (int)uVar6) break;
       uVar5 = (int)uVar6 >> 3;
@@ -100,18 +100,18 @@ uint32_t drawFieldTiles(uint32_t param_1, uint32_t param_2, ...) {
     fVar7 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x29d080 + (*(uint32_t*)rtguest::G(0x3335bb)) * 0x10)));
     if (-1 < (*(uint32_t*)rtguest::G(0x3335bb))) {
       uVar6 = 0;
-      vifSetBatchOffset();
+      RT_CALLRA(0x21ff30, guest::vifSetBatchOffset());
       uVar5 = 0;
       while( true ) {
-        lVar2 = cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
-                            (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1);
+        lVar2 = RT_CALLRA(0x21ff98, guest::cellVisible((float)(int)((uVar6 & 7) * 200 + (int)fVar7 + 100),
+                            (float)(int)((uVar5 & 7) * 200 + (int)fVar8 + 100),param_1));
         if (lVar2 != 0) {
           iVar3 = 0;
           do {
-            iVar1 = TestProgressFlag(iVar3);
+            iVar1 = RT_CALLRA(0x21ffb8, guest::TestProgressFlag(iVar3));
             iVar4 = iVar3 * 2;
             iVar3 = iVar3 + 1;
-            vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(uVar6 * 4 + (*(uint32_t*)rtguest::G((uint32_t)0x177ab80 + (uint32_t)(iVar4 + iVar1) * 4))))));
+            RT_CALLRA(0x21ffdc, guest::vifCallModel((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(uVar6 * 4 + (*(uint32_t*)rtguest::G((uint32_t)0x177ab80 + (uint32_t)(iVar4 + iVar1) * 4)))))));
           } while (iVar3 < 0x1a);
         }
         uVar6 = uVar6 + 1;

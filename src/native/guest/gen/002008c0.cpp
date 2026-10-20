@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiDrawSmallText(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   byte bVar1;
   uint uVar2;
   int iVar3;
@@ -27,8 +31,8 @@ uint32_t uiDrawSmallText(uint32_t param_1, uint32_t param_2, uint32_t param_3, .
       if ((*(uint32_t*)rtguest::G(0x335684)) < 0x9fc) {
         uVar6 = 0x18;
 LAB_00200a10:
-        uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,param_1,((int)param_2 << 0x11) >> 0x10
-                      ,iVar3,iVar4,cVar5,uVar6);
+        RT_CALLRA(0x200a14, guest::uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,param_1,((int)param_2 << 0x11) >> 0x10
+                      ,iVar3,iVar4,cVar5,uVar6));
         (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
       }
     }

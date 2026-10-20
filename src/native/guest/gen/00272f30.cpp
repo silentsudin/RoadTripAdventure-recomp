@@ -19,21 +19,21 @@ uint32_t puVar1;
   float in_stack_00000000;
   
   fVar2 = (in_stack_00000000 * param_8 * (-param_6 + param_7)) / (-param_8 + in_stack_00000000);
-  vu0UnitMatrix(param_9);  // MIPS 0x272fb0: $a0 = $s0 = same buffer as puVar1=param_9 identity stores
+  RT_CALLRA(0x272fb0, guest::vu0UnitMatrix(param_9));  // MIPS 0x272fb0: $a0 = $s0 = same buffer as puVar1=param_9 identity stores
   (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(5) * sizeof(uint32_t))) = param_1;
   (*(uint32_t*)rtguest::G((uint32_t)puVar1)) = param_1;
   (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(10) * sizeof(uint32_t))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(0xf) * sizeof(uint32_t))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(0xb) * sizeof(uint32_t))) = 0x3f800000;
   (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(0xe) * sizeof(uint32_t))) = 0x3f800000;
-  vu0UnitMatrix(auStack_a0);
+  RT_CALLRA(0x272fd8, guest::vu0UnitMatrix(auStack_a0));
   (*(uint32_t*)rtguest::G((uint32_t)auStack_a0 + (uint32_t)(0) * 4)) = param_2;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) = param_3;
   (*(float*)rtguest::G((uint32_t)fStack_78)) = fVar2;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_70)) = param_4;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = param_5;
   (*(float*)rtguest::G((uint32_t)fStack_68)) = (-param_7 * param_8 + param_6 * in_stack_00000000) / (-param_8 + in_stack_00000000);
-  vu0MulMatrix(param_9,auStack_a0,param_9);
+  RT_CALLRA(0x273000, guest::vu0MulMatrix(param_9,auStack_a0,param_9));
   return 0;
 }
 

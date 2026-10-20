@@ -186,6 +186,10 @@ uint32_t frameTop() { return g_frameTop; }
 void setFrameTop(uint32_t t) { g_frameTop = t; g_frameCursor = t; g_frameCeil = t; }
 void setFrameFloor(uint32_t f) { g_frameFloor = f; }
 
+static uint32_t g_pendingRA = 0;
+uint32_t pendingRA() { return g_pendingRA; }
+void setPendingRA(uint32_t r) { g_pendingRA = r; }
+
 void framePush(uint32_t size) {
     uint32_t base = g_frameTop - size;
     if (size > g_frameTop || base < g_frameFloor) {

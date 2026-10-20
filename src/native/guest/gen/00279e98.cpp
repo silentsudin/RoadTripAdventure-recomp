@@ -8,12 +8,12 @@ uint64_t sceMcRead(uint32_t param_1, uint64_t param_2, uint64_t param_3, ...) {
   rtguest::FrameGuard rt_fg(144);
   long lVar1;
   
-  lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+  lVar1 = RT_CALLRA(0x279ecc, guest::PollSema((*(uint32_t*)rtguest::G(0x2e89bc))));
   if (lVar1 < 0) {
     lVar1 = -200;
   }
   else if ((*(uint32_t*)rtguest::G(0x1774b64)) == 0) {
-    SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+    RT_CALLRA(0x279ef4, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     lVar1 = -100;
   }
   else {
@@ -23,12 +23,12 @@ uint64_t sceMcRead(uint32_t param_1, uint64_t param_2, uint64_t param_3, ...) {
     (*(uint32_t*)rtguest::G(0x1774bc0)) = param_1;
     sceSifWriteBackDCache(param_2,param_3);
     sceSifWriteBackDCache(0x1775040,0xc0);
-    lVar1 = sceSifCallRpc(0x1774b40,5,1,0x1774bc0,0x30,0x1776100,4,0x279e08);
+    lVar1 = RT_CALLRA(0x279f60, guest::sceSifCallRpc(0x1774b40,5,1,0x1774bc0,0x30,0x1776100,4,0x279e08));
     if (lVar1 == 0) {
       (*(uint32_t*)rtguest::G(0x2e89b8)) = 5;
     }
     else {
-      SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+      RT_CALLRA(0x279f80, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     }
   }
   return lVar1;

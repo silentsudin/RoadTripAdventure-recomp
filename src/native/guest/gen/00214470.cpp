@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t HandleControllerConfigMenuInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(160);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x90) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x94) = 0x00000000u;
+  }
     uint32_t uStack_a0 = rtguest::allocFrame(8);
     uint32_t uStack_98 = rtguest::allocFrame(8);
     uint32_t uStack_90 = rtguest::allocFrame(8);
@@ -40,19 +44,19 @@ uint32_t puVar14;
   puVar14 = 0x177f760 + iVar3 * 0x689;
   if (iVar6 == 0x65) {
 LAB_002145b8:
-    lVar4 = NavigateGridSelection(param_2,(*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(2) * sizeof(int32_t))),1,0xc,iVar3,1);
+    lVar4 = RT_CALLRA(0x2145c8, guest::NavigateGridSelection(param_2,(*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(2) * sizeof(int32_t))),1,0xc,iVar3,1));
     (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(2) * sizeof(int32_t))) = (int)lVar4;
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1c))) * 2 + (int)param_2 + 0x30)));
     if ((uVar1 & 0x10) != 0) {
       piVar10 = __s + 4;
-      PlayUiSound(0x1b);
+      RT_CALLRA(0x2145f8, guest::PlayUiSound(0x1b));
       (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(3) * sizeof(int32_t))) = 0;
       (*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)piVar10));
       (*(uint64_t*)rtguest::G((uint32_t)uStack_98)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(__s + 6)));
       (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(__s + 8)));
       (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(__s + 10)));
       (*(int32_t*)rtguest::G((uint32_t)iStack_80)) = (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(0xc) * sizeof(int32_t)));
-      GetControllerButtonConfig(puVar14,param_4);
+      RT_CALLRA(0x214560, guest::GetControllerButtonConfig(puVar14,param_4));
       (*(uint64_t*)rtguest::G((uint32_t)uStack_70)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)piVar10));
       (*(uint64_t*)rtguest::G((uint32_t)uStack_68)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(__s + 6)));
       (*(uint64_t*)rtguest::G((uint32_t)uStack_60)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(__s + 8)));
@@ -65,7 +69,7 @@ LAB_002145b8:
       (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(0xc) * sizeof(int32_t))) = (*(int32_t*)rtguest::G((uint32_t)iStack_80));
       iVar3 = ::memcmp((char *)rtguest::G((uint32_t)(uStack_a0)), (char *)rtguest::G((uint32_t)(uStack_70)), 0x24);
       if (iVar3 != 0) {
-        gs_tasks_spawn(param_1,0x2173d0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1c))));
+        RT_CALLRA(0x214708, guest::gs_tasks_spawn(param_1,0x2173d0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1c)))));
         (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(2) * sizeof(int32_t))) = 10;
         (*(int32_t*)rtguest::G((uint32_t)__s)) = 0x66;
         return 0x66;
@@ -78,8 +82,8 @@ LAB_00214894:
       if ((uVar1 & 0x40) == 0) {
         return (*(int32_t*)rtguest::G((uint32_t)__s));  // dropped *__s return
       }
-      PlayUiSound(0x1a);
-      ResetControllerConfigDefaults(puVar14,param_4);
+      RT_CALLRA(0x214764, guest::PlayUiSound(0x1a));
+      RT_CALLRA(0x214770, guest::ResetControllerConfigDefaults(puVar14,param_4));
       return (*(int32_t*)rtguest::G((uint32_t)__s));  // dropped *__s return
     }
     if (lVar4 < 9) {
@@ -89,8 +93,8 @@ LAB_00214894:
       if (lVar4 == 10) {
         if ((uVar1 & 0x40) != 0) {
           bVar2 = false;
-          PlayUiSound(0x1a);
-          GetControllerButtonConfig(puVar14,param_4);
+          RT_CALLRA(0x21478c, guest::PlayUiSound(0x1a));
+          RT_CALLRA(0x214650, guest::GetControllerButtonConfig(puVar14,param_4));
           piVar8 = __s + 0xd;
           uVar9 = 0;
           piVar11 = __s + 4;
@@ -131,11 +135,11 @@ LAB_00214894:
           return (*(int32_t*)rtguest::G((uint32_t)__s));  // dropped *__s return
         }
         if ((*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(0x18) * sizeof(int32_t))) != 0) {
-          PlayUiSound(0x1e);
+          RT_CALLRA(0x21487c, guest::PlayUiSound(0x1e));
           return (*(int32_t*)rtguest::G((uint32_t)__s));  // dropped *__s return
         }
-        PlayUiSound(0x1a);
-        SetControllerButtonConfig(puVar14,param_4);
+        RT_CALLRA(0x2148a8, guest::PlayUiSound(0x1a));
+        RT_CALLRA(0x214888, guest::SetControllerButtonConfig(puVar14,param_4));
         (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(3) * sizeof(int32_t))) = 0;
         goto LAB_00214894;
       }
@@ -151,7 +155,7 @@ LAB_00214894:
     }
     bVar2 = false;
     iVar12 = 0;
-    iVar3 = NavigateGridSelection(param_2,(*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(iVar3 + 4) * sizeof(int32_t))),iVar6,1,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1c))),1);
+    iVar3 = RT_CALLRA(0x214920, guest::NavigateGridSelection(param_2,(*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(iVar3 + 4) * sizeof(int32_t))),iVar6,1,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1c))),1));
     piVar8 = __s + 0xd;
     uVar9 = 0;
     (*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)((*(int32_t*)rtguest::G((uint32_t)__s + (uint32_t)(2) * sizeof(int32_t))) + 4) * sizeof(int32_t))) = iVar3;
@@ -204,11 +208,11 @@ LAB_00214a90:
         return 0x66;
       }
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))) == 0) {
-        PlayUiSound(0x1a);
+        RT_CALLRA(0x214a14, guest::PlayUiSound(0x1a));
         (*(int32_t*)rtguest::G((uint32_t)__s)) = 300;
         return 300;
       }
-      PlayUiSound(0x1b);
+      RT_CALLRA(0x214a30, guest::PlayUiSound(0x1b));
       goto LAB_00214a3c;
     }
     if (iVar6 == 300) {
@@ -241,7 +245,7 @@ LAB_0021456c:
         goto LAB_00214a90;
       }
       (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(__s)), 0, 0x6c));
-      GetControllerButtonConfig(puVar14,param_4);
+      RT_CALLRA(0x214798, guest::GetControllerButtonConfig(puVar14,param_4));
       (*(int32_t*)rtguest::G((uint32_t)__s)) = 1;
       goto LAB_0021456c;
     }

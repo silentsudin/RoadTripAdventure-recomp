@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t uiDrawBarWithArrow(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
 uint32_t puVar1;
   int iVar2;
   
-  uiDrawBar3();
+  RT_CALLRA(0x203da4, guest::uiDrawBar3());
   iVar2 = (*(uint32_t*)rtguest::G(0x335684));
   if ((*(uint32_t*)rtguest::G(0x335688)) != 0xd) {
     (*(uint32_t*)rtguest::G(0x335688)) = 0xd;
@@ -22,8 +26,8 @@ uint32_t puVar1;
     }
   }
   if (iVar2 < 0x9fc) {
-    uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + iVar2 * 0x10 + 0x70,(param_1 + -0x28) * 0x10000 >> 0x10,
-                  (param_2 + -2) * 0x10000 >> 0x10,0x150,0xe0,0x26,0x1c);
+    RT_CALLRA(0x203e48, guest::uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + iVar2 * 0x10 + 0x70,(param_1 + -0x28) * 0x10000 >> 0x10,
+                  (param_2 + -2) * 0x10000 >> 0x10,0x150,0xe0,0x26,0x1c));
     (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
   }
   return 0;

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t RunFadeOutExitTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   int iVar1;
   
   iVar1 = (int)param_1;
@@ -19,7 +23,7 @@ uint32_t RunFadeOutExitTask(uint32_t param_1, uint32_t param_2, ...) {
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x18)));
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x24))) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 4))) = 0xffffffff;
-  gs_tasks_kill(param_1);
+  RT_CALLRA(0x22eb4c, guest::gs_tasks_kill(param_1));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x50))) = 0x80000000;
   uiFade(0xffffffff80000000);
   return 0;

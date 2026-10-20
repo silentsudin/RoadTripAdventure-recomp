@@ -23,7 +23,7 @@ uint32_t SndRpcQueryCmd10(uint32_t q0, ...) {
   (*(uint64_t*)rtguest::G(0x175e8a8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_48));
   (*(uint64_t*)rtguest::G(0x175e8b0)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_40));
   (*(uint64_t*)rtguest::G(0x175e8b8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_38));
-  sceSifCallRpc(0x175e840,0x10,0,0x175e880,0x40,0x175f880,0x40,0);
+  RT_CALLRA(0x258110, guest::sceSifCallRpc(0x175e840,0x10,0,0x175e880,0x40,0x175f880,0x40,0));
   return (uint32_t)(*(uint64_t*)rtguest::G(0x175f880));
 }
 

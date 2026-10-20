@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t AdvanceDayCycleStep(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   byte bVar1;
   int iVar2;
   char cVar3;
@@ -17,7 +21,7 @@ uint32_t AdvanceDayCycleStep(uint32_t param_1, uint32_t param_2, ...) {
   bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27)));
   lVar5 = (long)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8)));
   if (lVar5 == (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x002dcd50 + (uint32_t)bVar1 * 2))) + -0x40) {
-    gs_tasks_spawn(param_1,0x2082d8,0);
+    RT_CALLRA(0x26d208, guest::gs_tasks_spawn(param_1,0x2082d8,0));
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27)));
     lVar5 = (long)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8)));
   }
@@ -36,7 +40,7 @@ uint32_t AdvanceDayCycleStep(uint32_t param_1, uint32_t param_2, ...) {
       return 0;
     }
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x27))) = cVar3;
-    uVar4 = gs_tasks_spawn(param_1,0x26ca48,cVar3);
+    uVar4 = RT_CALLRA(0x26d298, guest::gs_tasks_spawn(param_1,0x26ca48,cVar3));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) = uVar4;
   }
   return 0;

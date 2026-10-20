@@ -10,7 +10,7 @@ uint32_t vifEndPacket(uint32_t param_1, ...) {
 uint32_t puVar2;
   
   if ((*(uint32_t*)rtguest::G(0x3356f4)) != param_1) {
-    fatal(0x2eb008);
+    RT_CALLRA(0x22718c, guest::fatal(0x2eb008));
   }
   iVar1 = (*(uint32_t*)rtguest::G(0x3356f4));
   (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)))) = 0;

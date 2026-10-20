@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateTrafficHazard(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   int iVar3;
@@ -16,7 +20,7 @@ uint32_t puVar6;
   int iVar8;
   float fVar9;
   
-  lVar4 = TestStateBitFc78(0x11);
+  lVar4 = RT_CALLRA(0x240d10, guest::TestStateBitFc78(0x11));
   if ((lVar4 != 0) || ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 8))) == 0)) {
     (*(uint32_t*)rtguest::G(0x2a2bd8)) = (*(uint32_t*)rtguest::G(0x332ee0));
     (*(uint32_t*)rtguest::G(0x177af68)) = 0x74428f4;
@@ -36,15 +40,15 @@ uint32_t puVar6;
   }
   else if ((*(int8_t*)rtguest::G(0x335739)) < 2) {
     if (((*(int8_t*)rtguest::G(0x335739)) == 0) && ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x54))) == 0x17)) {
-      lVar4 = TestFlagBitFc98(0x50);
+      lVar4 = RT_CALLRA(0x240db4, guest::TestFlagBitFc98(0x50));
       if (((lVar4 == 0) &&
-          (((lVar4 = TestStateBitFc78(0x11), lVar4 == 0 &&
+          (((lVar4 = RT_CALLRA(0x240dc4, guest::TestStateBitFc78(0x11)), lVar4 == 0 &&
             (0x2327f < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14))) - 54000U)) &&
            (lVar4 = IsPointInsideQuad(0x2a3880,0x177ac50), lVar4 != 0)))) && ((*(uint32_t*)rtguest::G(0x177ace4)) < 50.0))
       {
         (*(int8_t*)rtguest::G(0x335739)) = 1;
         (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
-        ResetVehicleState(param_2,0x177ac50);
+        RT_CALLRA(0x240e4c, guest::ResetVehicleState(param_2,0x177ac50));
       }
       puVar6 = 0x177ac50;
       fVar9 = 50.0;
@@ -68,7 +72,7 @@ uint32_t puVar6;
         iVar7 = iVar7 + -1;
         puVar6 = puVar6 + 0x270;  // T* element step
       } while (-1 < iVar7);
-      lVar4 = TestStateBitFc78(0x11);
+      lVar4 = RT_CALLRA(0x240f8c, guest::TestStateBitFc78(0x11));
       if (((lVar4 != 0) || ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14))) - 54000U < 0x23280)) &&
          (lVar4 = IsPointInsideQuad(0x2a38e0,0x177ac50), lVar4 != 0)) {
         (*(uint32_t*)rtguest::G(0x177ae20)) = 0;
@@ -113,14 +117,14 @@ uint32_t puVar6;
   }
   else if ((*(int8_t*)rtguest::G(0x335739)) == 3) {
     rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec938u)));
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x241228, guest::gs_tasks_kill(param_1));
   }
-  lVar4 = TestStateBitFc78(0x11);
+  lVar4 = RT_CALLRA(0x241230, guest::TestStateBitFc78(0x11));
   if (((lVar4 == 0) && (53999 < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14))))) && ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14))) < 0x30570)) {
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x54)));
   }
   else {
-    lVar4 = TestFlagBitFc98(0x50);
+    lVar4 = RT_CALLRA(0x241260, guest::TestFlagBitFc98(0x50));
     if (lVar4 == 0) {
       return 0;
     }

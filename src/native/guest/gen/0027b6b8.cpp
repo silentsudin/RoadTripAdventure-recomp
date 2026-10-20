@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t __do_global_ctors(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
 uint32_t puVar1;
 uint32_t piVar2;
 uint32_t pcVar3;
@@ -13,7 +17,7 @@ uint32_t pcVar3;
 uint32_t puVar5;
   int iVar6;
   
-  __register_frame_info(0x2e99c0,0x1776140);
+  RT_CALLRA(0x27b6d4, guest::__register_frame_info(0x2e99c0,0x1776140));
   iVar6 = (*(uint32_t*)rtguest::G(0x2e99b0));
   if ((*(uint32_t*)rtguest::G(0x2e99b0)) == -1) {
     iVar6 = 0;

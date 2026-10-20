@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ApplyCollisionImpulse(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x80) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x84) = 0x00000000u;
+  }
     uint32_t iStack_90 = rtguest::allocFrame(4);
     uint32_t iStack_8c = rtguest::allocFrame(4);
     uint32_t iStack_88 = rtguest::allocFrame(4);
@@ -51,8 +55,8 @@ uint32_t aiStack_70 = rtguest::allocFrame(16);
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x22))) == '\x1c') {
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x212))) == '\0') {
         if ((((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x198))) & 3) != 0) && (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) & 0x48) == 0)) {
-          PlayUiSound(0x8311);
-          PlayUiSound(0x311);
+          RT_CALLRA(0x219780, guest::PlayUiSound(0x8311));
+          RT_CALLRA(0x219788, guest::PlayUiSound(0x311));
         }
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x212))) = 0x20;
         cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x22)));
@@ -60,7 +64,7 @@ uint32_t aiStack_70 = rtguest::allocFrame(16);
       goto LAB_002197ac;
     }
 LAB_002197bc:
-    TransformVecByF15Matrix(aiStack_80,iVar6 + 0xb0,iVar6 + 0xf0);
+    RT_CALLRA(0x2197c8, guest::TransformVecByF15Matrix(aiStack_80,iVar6 + 0xb0,iVar6 + 0xf0));
     (*(int32_t*)rtguest::G((uint32_t)aiStack_70 + (uint32_t)(0) * 4)) = 0;
     (*(int32_t*)rtguest::G((uint32_t)aiStack_70 + (uint32_t)(1) * 4)) = 0;
     (*(int32_t*)rtguest::G((uint32_t)aiStack_70 + (uint32_t)(2) * 4)) = 0;
@@ -146,14 +150,14 @@ LAB_00219960:
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) | 0x200;
       }
     }
-    TransformVecByF15Matrix(iStack_90,param_2,iStack_90);
+    RT_CALLRA(0x2199bc, guest::TransformVecByF15Matrix(iStack_90,param_2,iStack_90));
     (*(int32_t*)rtguest::G((uint32_t)iStack_50)) = ((*(int32_t*)rtguest::G((uint32_t)iStack_90)) << 4) / 0x19;
     (*(int32_t*)rtguest::G((uint32_t)iStack_4c)) = ((*(int32_t*)rtguest::G((uint32_t)iStack_8c)) << 4) / 0x19;
     (*(int32_t*)rtguest::G((uint32_t)iStack_48)) = ((*(int32_t*)rtguest::G((uint32_t)iStack_88)) << 4) / 0x19;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xa0))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xa0))) + (*(int32_t*)rtguest::G((uint32_t)iStack_50)) & 0xfffffff;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xa4))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xa4))) + (*(int32_t*)rtguest::G((uint32_t)iStack_4c));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xa8))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xa8))) + (*(int32_t*)rtguest::G((uint32_t)iStack_48)) & 0xfffffff;
-    TransformVecByF15Matrix(aiStack_70,param_2,aiStack_70);
+    RT_CALLRA(0x219a54, guest::TransformVecByF15Matrix(aiStack_70,param_2,aiStack_70));
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xf0))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xf0))) + (*(int32_t*)rtguest::G((uint32_t)aiStack_70 + (uint32_t)(0) * 4));
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xf8))) + (*(int32_t*)rtguest::G((uint32_t)aiStack_70 + (uint32_t)(2) * 4));
     goto LAB_00219c08;
@@ -161,7 +165,7 @@ LAB_00219960:
   cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x22)));
 LAB_002197ac:
   if (cVar1 != '\x1c') goto LAB_002197bc;
-  TransformVecByF15Matrix(iStack_90,iVar6 + 0xb0,iVar6 + 0xf0);
+  RT_CALLRA(0x219a88, guest::TransformVecByF15Matrix(iStack_90,iVar6 + 0xb0,iVar6 + 0xf0));
   switch(uVar3 & 0xf) {
   case 0:
     break;
@@ -206,7 +210,7 @@ LAB_00219b40:
     goto switchD_00219aac_default;
   }
 switchD_00219aac_default:
-  TransformVecByF15Matrix(iStack_90,param_2,iStack_90);
+  RT_CALLRA(0x219b6c, guest::TransformVecByF15Matrix(iStack_90,param_2,iStack_90));
   (*(int32_t*)rtguest::G((uint32_t)iStack_40)) = ((*(int32_t*)rtguest::G((uint32_t)iStack_90)) << 4) / 0x19;
   (*(int32_t*)rtguest::G((uint32_t)iStack_3c)) = ((*(int32_t*)rtguest::G((uint32_t)iStack_8c)) << 4) / 0x19;
   (*(int32_t*)rtguest::G((uint32_t)iStack_38)) = ((*(int32_t*)rtguest::G((uint32_t)iStack_88)) << 4) / 0x19;
@@ -237,10 +241,10 @@ LAB_00219c08:
     case 7:
     case 9:
     default:
-      gs_controls_rumble_start(param_1,uVar2 & 1,5,0xff);
+      RT_CALLRA(0x219c6c, guest::gs_controls_rumble_start(param_1,uVar2 & 1,5,0xff));
       return 0;
     }
-    gs_controls_rumble_start(param_1,uVar2 & 1,uVar5,0xff);
+    RT_CALLRA(0x219c8c, guest::gs_controls_rumble_start(param_1,uVar2 & 1,uVar5,0xff));
   }
   return 0;
 }

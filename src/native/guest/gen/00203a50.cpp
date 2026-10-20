@@ -26,8 +26,8 @@ uint32_t puVar4;
     param_3 = param_3 + 1;
     if (uVar2 != 0x20) {
       if ((*(uint32_t*)rtguest::G(0x335684)) < 0x9fc) {
-        uiSpriteWriteWH((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,param_1,param_2,
-                        (int)((uVar2 & 7) * 0x80000 + 0x1c00000) >> 0x10,(uVar2 & 0x78) + 0xe0,8,8);
+        RT_CALLRA(0x203b34, guest::uiSpriteWriteWH((*(uint32_t*)rtguest::G(0x335680)) + (*(uint32_t*)rtguest::G(0x335684)) * 0x10 + 0x70,param_1,param_2,
+                        (int)((uVar2 & 7) * 0x80000 + 0x1c00000) >> 0x10,(uVar2 & 0x78) + 0xe0,8,8));
         (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
       }
     }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ResolveGroundContact(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(272);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xe8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xec) = 0x00000000u;
+  }
 uint32_t auStack_110 = rtguest::allocFrame(32);
 uint32_t aiStack_f0 = rtguest::allocFrame(32);
     uint32_t fStack_d0 = rtguest::allocFrame(4);
@@ -73,8 +77,8 @@ uint32_t pfVar11;
   (*(int32_t*)rtguest::G((uint32_t)iStack_84)) = param_5;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_80)) = param_6;
   do {
-    vu0ApplyMatrix(pfVar7,param_2,puVar10);
-    vu0AddVector(pfVar7,pfVar7,fStack_d0);
+    RT_CALLRA(0x21b528, guest::vu0ApplyMatrix(pfVar7,param_2,puVar10));
+    RT_CALLRA(0x21b538, guest::vu0AddVector(pfVar7,pfVar7,fStack_d0));
     iVar6 = uVar9 * 4;
     (*(int32_t*)rtguest::G((uint32_t)aiStack_f0 + (uint32_t)(uVar9) * 4)) = (int)((*(float*)rtguest::G((uint32_t)pfVar7 + (uint32_t)(1) * sizeof(float))) * 32768.0);
     lVar3 = rtCall((*(uint32_t*)rtguest::G(0x335710)), pfVar7, auStack_110 + iVar6, auStack_90, (*(int32_t*)rtguest::G((uint32_t)iStack_78)), param_1);
@@ -91,7 +95,7 @@ uint32_t pfVar11;
   if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x184))) + 8))) & 8) == 0) {
     iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_88)) + 0xc))) + (*(int32_t*)rtguest::G((uint32_t)iStack_84));
   }
-  uVar2 = UpdateWheelSuspension(param_1,param_2,aiStack_f0,auStack_110,(*(uint32_t*)rtguest::G((uint32_t)uStack_8c)),pfVar11,iVar6);
+  uVar2 = RT_CALLRA(0x21b5e0, guest::UpdateWheelSuspension(param_1,param_2,aiStack_f0,auStack_110,(*(uint32_t*)rtguest::G((uint32_t)uStack_8c)),pfVar11,iVar6));
   uVar12 = uVar12 | uVar2;
   iVar6 = (((*(int32_t*)rtguest::G((uint32_t)aiStack_f0 + (uint32_t)(0) * 4)) * 0x21 + (((*(int32_t*)rtguest::G((uint32_t)aiStack_f0 + (uint32_t)(1) * 4)) + (*(int32_t*)rtguest::G((uint32_t)aiStack_f0 + (uint32_t)(2) * 4))) / 2) * 0x22) / 0x43 << 4) / 0x19
   ;
@@ -129,7 +133,7 @@ LAB_0021b6a0:
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1f8))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1f8))) | 0x40;
       if ((((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x213))) == '\0') && (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x198))) & 3) != 0)) &&
          (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x28))) & 0x48) == 0)) {
-        PlayUiSound(0x28);
+        RT_CALLRA(0x21b81c, guest::PlayUiSound(0x28));
       }
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x184)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x213))) = 0xff;
@@ -215,17 +219,17 @@ LAB_0021b85c:
   fVar14 = (float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1d4))) * (*(uint32_t*)rtguest::G(0x332c04)) * 3.0517578e-05;
   (*(float*)rtguest::G((uint32_t)fStack_b0)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x120))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x130)));
   (*(float*)rtguest::G((uint32_t)fStack_a8)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x128))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x138)));
-  vecCrossProductVu0(auStack_a0,fStack_c0,fStack_b0);
+  RT_CALLRA(0x21b9b0, guest::vecCrossProductVu0(auStack_a0,fStack_c0,fStack_b0));
   if ((*(float*)rtguest::G((uint32_t)fStack_9c)) < 0.0) {
     (*(float*)rtguest::G((uint32_t)fStack_9c)) = -(*(float*)rtguest::G((uint32_t)fStack_9c));
   }
-  vecNormalizeVu0(auStack_a0,auStack_a0);
+  RT_CALLRA(0x21b9dc, guest::vecNormalizeVu0(auStack_a0,auStack_a0));
   if (uVar2 != 0) {
-    SteerHeadingVector(rtguest::f2bits(fVar14),auStack_a0,uVar2);
+    RT_CALLRA(0x21b9f0, guest::SteerHeadingVector(rtguest::f2bits(fVar14),auStack_a0,uVar2));
   }
-  BuildYawTransform(param_2,auStack_a0);
-  ApplyMatrixRotation(rtguest::f2bits((float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1d4))) * fVar13 * 3.0517578e-05f),param_2);
-  mat4InvertAffine(iVar8 + 0xb0,param_2);
+  RT_CALLRA(0x21b9fc, guest::BuildYawTransform(param_2,auStack_a0));
+  RT_CALLRA(0x21ba1c, guest::ApplyMatrixRotation(rtguest::f2bits((float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1d4))) * fVar13 * 3.0517578e-05f),param_2));
+  RT_CALLRA(0x21ba28, guest::mat4InvertAffine(iVar8 + 0xb0,param_2));
   return (int)uVar12 >> 3;
 }
 

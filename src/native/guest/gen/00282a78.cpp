@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _free_r(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
 uint32_t ppuVar3;
@@ -20,7 +24,7 @@ uint32_t piVar9;
   if (param_2 == 0) {
     return 0;
   }
-  __malloc_lock();
+  RT_CALLRA(0x282a94, guest::__malloc_lock());
   piVar9 = (uint32_t)((int)param_2 + -8);
   uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + -4)));
   uVar8 = uVar4 & 0xfffffffe;
@@ -40,7 +44,7 @@ uint32_t piVar9;
     bVar10 = (*(uint32_t*)rtguest::G(0x2e90d0)) <= uVar8;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)(*(uint32_t*)rtguest::G(0x002e8cd0)) + 4))) = uVar8 | 1;
     if (bVar10) {
-      _malloc_trim_r(param_1,(*(uint32_t*)rtguest::G(0x2e90d8)));
+      RT_CALLRA(0x282b20, guest::_malloc_trim_r(param_1,(*(uint32_t*)rtguest::G(0x2e90d8))));
     }
     __malloc_unlock(param_1);
     return 0;

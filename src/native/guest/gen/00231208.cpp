@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t raceHudElementG(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(272);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xe8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xec) = 0x00000000u;
+  }
     uint32_t uStack_110 = rtguest::allocFrame(8);
     uint32_t uStack_108 = rtguest::allocFrame(8);
     uint32_t uStack_100 = rtguest::allocFrame(8);
@@ -61,21 +65,21 @@ uint32_t piVar15;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_108)) = 0xd800000000;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_100)) = 0x2000000070;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_f8)) = 0;
-        uiArenaSetTexture(param_1,0x29f5f8,1,2);
-        uiArenaDataTag(param_1,1);
-        uiArenaSprites(param_1,uStack_110,1,0,0,0);
+        RT_CALLRA(0x2312c4, guest::uiArenaSetTexture(param_1,0x29f5f8,1,2));
+        RT_CALLRA(0x2312d0, guest::uiArenaDataTag(param_1,1));
+        RT_CALLRA(0x2312ec, guest::uiArenaSprites(param_1,uStack_110,1,0,0,0));
         (*(uint64_t*)rtguest::G((uint32_t)uStack_110)) = 0x4100000062;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_108)) = 0xc2000000a0;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_100)) = 0x1400000020;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_f8)) = 0;
-        uiArenaSetTexture(param_1,0x29f5f8,1,1);
-        uiArenaDataTag(param_1,1);
-        uiArenaSprites(param_1,uStack_110,1,0,0,0);
+        RT_CALLRA(0x23134c, guest::uiArenaSetTexture(param_1,0x29f5f8,1,1));
+        RT_CALLRA(0x231358, guest::uiArenaDataTag(param_1,1));
+        RT_CALLRA(0x231374, guest::uiArenaSprites(param_1,uStack_110,1,0,0,0));
         uVar16 = (*(uint32_t*)rtguest::G(0x1780a2c));
-        uVar3 = IntToPackedBCD((*(uint32_t*)rtguest::G(0x1780a2c)));
-        iVar4 = CountDecimalDigits(uVar16);
-        uiArenaSetTexture(param_1,0x29f5f8,1,1);
-        uiArenaDataTag(param_1,iVar4);
+        uVar3 = RT_CALLRA(0x231384, guest::IntToPackedBCD((*(uint32_t*)rtguest::G(0x1780a2c))));
+        iVar4 = RT_CALLRA(0x231390, guest::CountDecimalDigits(uVar16));
+        RT_CALLRA(0x2313ac, guest::uiArenaSetTexture(param_1,0x29f5f8,1,1));
+        RT_CALLRA(0x2313b8, guest::uiArenaDataTag(param_1,iVar4));
         if (0 < iVar4) {
           iVar13 = 0x52;
           do {
@@ -86,7 +90,7 @@ uint32_t piVar15;
             (*(uint64_t*)rtguest::G((uint32_t)uStack_108)) = CONCAT44(0xc2,uVar5 << 4);
             (*(uint64_t*)rtguest::G((uint32_t)uStack_100)) = 0x1400000010;
             (*(uint64_t*)rtguest::G((uint32_t)uStack_f8)) = 0;
-            uiArenaSprites(param_1,uStack_110,1,0,0,0);
+            RT_CALLRA(0x231424, guest::uiArenaSprites(param_1,uStack_110,1,0,0,0));
             iVar13 = iVar13 + -0xf;
           } while (iVar4 != 0);
         }
@@ -100,10 +104,10 @@ uint32_t piVar15;
             iVar13 = 3;
           }
           else {
-            uVar5 = IntToPackedBCD(iVar13);
-            iVar13 = CountDecimalDigits(iVar13);
+            uVar5 = RT_CALLRA(0x231460, guest::IntToPackedBCD(iVar13));
+            iVar13 = RT_CALLRA(0x23146c, guest::CountDecimalDigits(iVar13));
           }
-          uiArenaSetTexture(param_1,0x29f5f8,1,3);
+          RT_CALLRA(0x231488, guest::uiArenaSetTexture(param_1,0x29f5f8,1,3));
           if (0 < iVar13) {
             uVar16 = 0x42100000;
             iVar14 = 0;
@@ -136,7 +140,7 @@ uint32_t piVar15;
               (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(auStack_90)), 0, 0x10));
               iVar10 = 0x221 - iVar14;
               iVar14 = iVar14 + 0x1e;
-              uiArenaRotQuads(param_1,uStack_f0,1,iVar10,iVar4 + 0x20,0);
+              RT_CALLRA(0x23159c, guest::uiArenaRotQuads(param_1,uStack_f0,1,iVar10,iVar4 + 0x20,0));
             } while (iVar13 != 0);
           }
           uVar3 = uVar3 + 1;
@@ -161,10 +165,10 @@ uint32_t piVar15;
         uVar8 = (*(uint64_t*)rtguest::G((uint32_t)puVar6 + (uint32_t)(5) * sizeof(uint64_t)));
         (*(uint64_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(4) * sizeof(uint64_t))) = 0;
         (*(uint64_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(5) * sizeof(uint64_t))) = uVar8;
-        uiArenaSetTexture(param_1,0x29f5f8,1,3);
-        uiArenaRotQuads(param_1,uStack_f0,1,0x23f,0x8c,0);
-        uiArenaSetTexture(param_1,0x29f5f8,1,0xb);
-        uiArenaDataTag(param_1,3);
+        RT_CALLRA(0x231630, guest::uiArenaSetTexture(param_1,0x29f5f8,1,3));
+        RT_CALLRA(0x231650, guest::uiArenaRotQuads(param_1,uStack_f0,1,0x23f,0x8c,0));
+        RT_CALLRA(0x23166c, guest::uiArenaSetTexture(param_1,0x29f5f8,1,0xb));
+        RT_CALLRA(0x23167c, guest::uiArenaDataTag(param_1,3));
         iVar14 = 0x26;
         iVar13 = 1;
         iVar4 = 0x70;
@@ -174,7 +178,7 @@ uint32_t piVar15;
           (*(uint64_t*)rtguest::G((uint32_t)uStack_108)) = CONCAT44(0xd8,iVar4);
           (*(uint64_t*)rtguest::G((uint32_t)uStack_100)) = 0x1800000018;
           (*(uint64_t*)rtguest::G((uint32_t)uStack_f8)) = 0;
-          uiArenaSprites(param_1,uStack_110,1,0,0,0);
+          RT_CALLRA(0x2316cc, guest::uiArenaSprites(param_1,uStack_110,1,0,0,0));
           if (iVar13 < 0) break;
           iVar13 = iVar13 + -1;
           iVar4 = iVar4 + 0x18;
@@ -182,9 +186,9 @@ uint32_t piVar15;
       }
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_7c)) + 0xc))) == 1) {
         uVar16 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_7c)) + 8))) * 4 + (*(int32_t*)rtguest::G((uint32_t)iStack_7c)) + 0x10)));
-        uVar3 = IntToPackedBCD(uVar16);
-        iVar4 = CountDecimalDigits(uVar16);
-        uiArenaSetTexture(param_1,0x29f5f8,1,3);
+        uVar3 = RT_CALLRA(0x231704, guest::IntToPackedBCD(uVar16));
+        iVar4 = RT_CALLRA(0x231710, guest::CountDecimalDigits(uVar16));
+        RT_CALLRA(0x23172c, guest::uiArenaSetTexture(param_1,0x29f5f8,1,3));
         if (0 < iVar4) {
           uVar16 = 0x42c00000;
           iVar13 = iVar4 * 0x28 + 0xf0;
@@ -215,7 +219,7 @@ uint32_t piVar15;
             (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = uVar16;
             (*(uint32_t*)rtguest::G((uint32_t)uStack_9c)) = uVar16;
             (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(auStack_90)), 0, 0x10));
-            uiArenaRotQuads(param_1,uStack_f0,1,iVar13,0xa0,0);
+            RT_CALLRA(0x231844, guest::uiArenaRotQuads(param_1,uStack_f0,1,iVar13,0xa0,0));
             iVar13 = iVar13 + -0x50;
           } while (iVar4 != 0);
         }

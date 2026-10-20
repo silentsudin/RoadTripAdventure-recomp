@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t goalPlaneTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   short sVar1;
   int iVar2;
   uint uVar3;
@@ -18,12 +22,12 @@ uint32_t piVar7;
   
   iVar8 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) == 0) {
-    __s = (uint32_t)getExtraPacketArea(0x8cc0);
+    __s = (uint32_t)RT_CALLRA(0x25e660, guest::getExtraPacketArea(0x8cc0));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))) = __s;
     (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(__s)), 0, 0x8cc0));
-    InitObjectType1F((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))));
-    gs_music_play_bgm(0xa100201);
-    gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))));
+    RT_CALLRA(0x25e67c, guest::InitObjectType1F((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)))));
+    RT_CALLRA(0x25e688, guest::gs_music_play_bgm(0xa100201));
+    RT_CALLRA(0x25e69c, guest::gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)))));
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cb4))) = 0;
   }
@@ -48,33 +52,33 @@ LAB_0025e724:
                 ((*(uint32_t*)rtguest::G(0x2c4c58)) - (*(uint32_t*)rtguest::G(0x2c4c50))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2c4c5c))))) &&
         (0.0 < ((*(uint32_t*)rtguest::G(0x2c4c44)) - (*(uint32_t*)rtguest::G(0x2c4c5c))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2c4c40))) -
                ((*(uint32_t*)rtguest::G(0x2c4c40)) - (*(uint32_t*)rtguest::G(0x2c4c58))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2c4c44))))))) {
-      PlayUiSound(0x14);
+      RT_CALLRA(0x25e84c, guest::PlayUiSound(0x14));
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffffefb;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cb4))) = 2;
-      lVar5 = TestStateBitFc78(0x37);
+      lVar5 = RT_CALLRA(0x25e878, guest::TestStateBitFc78(0x37));
       if (lVar5 == 0) {
-        GetOrSetPresidentRaceResult(1);
+        RT_CALLRA(0x25e898, guest::GetOrSetPresidentRaceResult(1));
         uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
       }
       else if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cbc))) < 0x1069) {
-        GetOrSetPresidentRaceResult(2);
+        RT_CALLRA(0x25e8a8, guest::GetOrSetPresidentRaceResult(2));
         uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
       }
       else {
-        GetOrSetPresidentRaceResult(0);
+        RT_CALLRA(0x25e8b8, guest::GetOrSetPresidentRaceResult(0));
         uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
       }
-      SetRoadData(uVar6,0,1);
+      RT_CALLRA(0x25e8c8, guest::SetRoadData(uVar6,0,1));
     }
     if ((*(uint32_t*)rtguest::G(0x177ace4)) <= 100.0) {
-      SetRoadData4((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1);
-      GetOrSetPresidentRaceResult(0);
+      RT_CALLRA(0x25e8f8, guest::SetRoadData4((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1));
+      RT_CALLRA(0x25e900, guest::GetOrSetPresidentRaceResult(0));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cb4))) = 3;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
     }
     if ((*(uint32_t*)rtguest::G(0x177ace0)) <= 110.0) {
-      GetOrSetPresidentRaceResult(0);
+      RT_CALLRA(0x25e93c, guest::GetOrSetPresidentRaceResult(0));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cb4))) = 3;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
@@ -93,7 +97,7 @@ LAB_0025e97c:
       }
       uVar6 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
     }
-    InitHudConfig2(uVar6,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cbc))));
+    RT_CALLRA(0x25e980, guest::InitHudConfig2(uVar6,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cbc)))));
     break;
   case 2:
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)piVar7));
@@ -111,7 +115,7 @@ LAB_0025e97c:
   case 4:
     sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2)));
     if (0x40 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2)))) {
-      uiFade(((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2))) + -0x40) * 0x1000000);
+      RT_CALLRA(0x25e9f8, guest::uiFade(((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2))) + -0x40) * 0x1000000));
       sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2)));
     }
     if (sVar1 < 0xc0) {
@@ -125,19 +129,19 @@ LAB_0025e97c:
   default:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cb8))) = 1;
   }
-  vu0UnitMatrix(0x177eb10);
-  vu0CopyVector(0x177eb40,0x2c4c10);
-  vu0UnitMatrix(0x177eb50);
-  vu0RotMatrixX(((float)((*(int32_t*)rtguest::G((uint32_t)piVar7)) % 0x168 + -0xb4) * (*(uint32_t*)rtguest::G(0x333124))) / 180.0,0x177eb50,0x177eb50);
-  vu0CopyVector(0x177eb80,0x2c4c20);
-  vu0UnitMatrix(0x177eb90);
-  vu0CopyVector(0x177ebc0,0x2c4c30);
-  raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))));
+  RT_CALLRA(0x25ea54, guest::vu0UnitMatrix(0x177eb10));
+  RT_CALLRA(0x25ea60, guest::vu0CopyVector(0x177eb40,0x2c4c10));
+  RT_CALLRA(0x25ea68, guest::vu0UnitMatrix(0x177eb50));
+  RT_CALLRA(0x25eabc, guest::vu0RotMatrixX(((float)((*(int32_t*)rtguest::G((uint32_t)piVar7)) % 0x168 + -0xb4) * (*(uint32_t*)rtguest::G(0x333124))) / 180.0,0x177eb50,0x177eb50));
+  RT_CALLRA(0x25eac8, guest::vu0CopyVector(0x177eb80,0x2c4c20));
+  RT_CALLRA(0x25ead0, guest::vu0UnitMatrix(0x177eb90));
+  RT_CALLRA(0x25eadc, guest::vu0CopyVector(0x177ebc0,0x2c4c30));
+  RT_CALLRA(0x25eae4, guest::raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)))));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cb8))) == 0) {
     return 0;
   }
-  SoundStopAllChannels();
-  uiFade(0xffffffff80000000);
+  RT_CALLRA(0x25eaf8, guest::SoundStopAllChannels());
+  RT_CALLRA(0x25eb00, guest::uiFade(0xffffffff80000000));
   iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 8;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) = 1;

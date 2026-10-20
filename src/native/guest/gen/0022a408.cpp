@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ApplyMotionClipFrame(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x50) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x54) = 0x00000000u;
+  }
     uint32_t uStack_70 = rtguest::allocFrame(4);
     uint32_t uStack_6c = rtguest::allocFrame(4);
     uint32_t fStack_68 = rtguest::allocFrame(4);
@@ -77,22 +81,22 @@ uint32_t psVar8;
         }
         (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x84))) = fVar9 + fVar10;
 LAB_0022a570:
-        vu0CopyVector(auStack_60,iVar6 + 0x30);
+        RT_CALLRA(0x22a570, guest::vu0CopyVector(auStack_60,iVar6 + 0x30));
         (*(uint32_t*)rtguest::G((uint32_t)uStack_70)) = 0;
         (*(uint32_t*)rtguest::G((uint32_t)uStack_64)) = 0;
         (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = 0;
         (*(float*)rtguest::G((uint32_t)fStack_68)) = (float)(int)(*(int16_t*)rtguest::G((uint32_t)psVar8)) / fVar11;
-        vu0UnitMatrix(param_1);
-        vu0RotMatrixY((float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x8e))) * 3.0517578e-05 * (*(float*)rtguest::G(0x332de8)),param_1,
-                      param_1);
-        vu0ApplyMatrix(uStack_70,param_1,uStack_70);
-        vu0AddVector(iVar6 + 0x30,auStack_60,uStack_70);
+        RT_CALLRA(0x22a5a4, guest::vu0UnitMatrix(param_1));
+        RT_CALLRA(0x22a5d4, guest::vu0RotMatrixY((float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x8e))) * 3.0517578e-05 * (*(float*)rtguest::G(0x332de8)),param_1,
+                      param_1));
+        RT_CALLRA(0x22a5e4, guest::vu0ApplyMatrix(uStack_70,param_1,uStack_70));
+        RT_CALLRA(0x22a5f4, guest::vu0AddVector(iVar6 + 0x30,auStack_60,uStack_70));
         fVar10 = ((float)(int)(*(int16_t*)rtguest::G((uint32_t)psVar8)) / fVar11) / (*(float*)rtguest::G(0x332dec));
         (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x88))) =
              (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x88))) + ((float)(int)(*(int16_t*)rtguest::G((uint32_t)psVar8)) / fVar11) / (*(float*)rtguest::G(0x332df0));
         (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x80))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x80))) + fVar10;
-        WrapCoordinate(iVar6 + 0x80);
-        WrapCoordinate(iVar6 + 0x88);
+        RT_CALLRA(0x22a650, guest::WrapCoordinate(iVar6 + 0x80));
+        RT_CALLRA(0x22a658, guest::WrapCoordinate(iVar6 + 0x88));
         (*(uint8_t*)rtguest::G((uint32_t)param_2)) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(psVar7 + sizeof(int16_t)))) & 2;
         return 1;
       }

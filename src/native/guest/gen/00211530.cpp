@@ -7,6 +7,8 @@ namespace guest {
 uint32_t SpawnTasksFromCarTable(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(96);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_1;
   }
   char cVar1;
@@ -25,7 +27,7 @@ uint32_t piVar4;
     do {
       iVar2 = (int)cVar1 + (int)lVar5;
       lVar5 = (long)((int)lVar5 + 1);
-      lVar3 = MatchSlotPairState(param_2,iVar2);
+      lVar3 = RT_CALLRA(0x2115bc, guest::MatchSlotPairState(param_2,iVar2));
       if (lVar3 == 0) {
         iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + (int)param_2 * 4))) + iVar2 * 0x10;
       }

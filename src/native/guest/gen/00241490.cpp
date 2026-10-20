@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t DispatchCourseEffect(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   
-  InitCarRenderRegs();
+  RT_CALLRA(0x2414a8, guest::InitCarRenderRegs());
   iVar2 = (int)param_1;
   switch((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)))) {
   case 0:
@@ -44,11 +48,11 @@ uint32_t DispatchCourseEffect(uint32_t param_1, uint32_t param_2, ...) {
     return 0;
   case 3:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x241688;
-    InitializeEffectPackets();
+    RT_CALLRA(0x241510, guest::InitializeEffectPackets());
     iVar2 = 0;
     do {
       iVar1 = iVar2 + 1;
-      gs_tasks_spawn(param_1,0x241f68,iVar2);
+      RT_CALLRA(0x241528, guest::gs_tasks_spawn(param_1,0x241f68,iVar2));
       iVar2 = iVar1;
     } while (iVar1 < 6);
     break;
@@ -82,11 +86,11 @@ uint32_t DispatchCourseEffect(uint32_t param_1, uint32_t param_2, ...) {
     return 0;
   case 0x13:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xc))) = 0x241ba0;
-    InitializeEffectPackets();
+    RT_CALLRA(0x2415c8, guest::InitializeEffectPackets());
     iVar2 = 6;
     do {
       iVar1 = iVar2 + 1;
-      gs_tasks_spawn(param_1,0x241f68,iVar2);
+      RT_CALLRA(0x2415e0, guest::gs_tasks_spawn(param_1,0x241f68,iVar2));
       iVar2 = iVar1;
     } while (iVar1 < 0xd);
     break;

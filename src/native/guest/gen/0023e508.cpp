@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SubmitAnimatedTextureLayout(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
 uint32_t puVar1;
   uint uVar2;
   int iVar3;
@@ -56,28 +60,28 @@ uint32_t puVar13;
   uVar15 = 0x440c0000;
   uVar17 = (*(uint32_t*)rtguest::G(0x332e58));
   uVar19 = (*(uint32_t*)rtguest::G(0x332e60));
-  vu0UnitMatrix(0x177eb10);
+  RT_CALLRA(0x23e648, guest::vu0UnitMatrix(0x177eb10));
   uVar10 = (*(uint32_t*)rtguest::G(0x332e64));
-  vu0RotMatrixY(fVar18 * 0.0078125,0x177eb10,0x177eb10);
+  RT_CALLRA(0x23e65c, guest::vu0RotMatrixY(fVar18 * 0.0078125,0x177eb10,0x177eb10));
   iVar14 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8)));
   (*(uint32_t*)rtguest::G(0x177eb48)) = uVar16;
   uVar16 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((((iVar14 >> 2) + 0xf) % 0x1e) * 4 + 0x2a36e8)));
   (*(uint32_t*)rtguest::G(0x177eb40)) = uVar15;
   (*(uint32_t*)rtguest::G(0x177eb44)) = uVar17;
-  vu0UnitMatrix(0x177eb50);
-  vu0RotMatrixY(((float)(iVar14 % 0x160 + -0xb0) * fVar9) / 176.0,0x177eb50,0x177eb50);
+  RT_CALLRA(0x23e6d4, guest::vu0UnitMatrix(0x177eb50));
+  RT_CALLRA(0x23e6e4, guest::vu0RotMatrixY(((float)(iVar14 % 0x160 + -0xb0) * fVar9) / 176.0,0x177eb50,0x177eb50));
   iVar14 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8)));
   (*(uint32_t*)rtguest::G(0x177eb88)) = uVar10;
   uVar17 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(((iVar14 >> 2) % 0x1e) * 4 + 0x2a36e8)));
   (*(uint32_t*)rtguest::G(0x177eb80)) = uVar19;
   (*(uint32_t*)rtguest::G(0x177eb84)) = uVar16;
-  vu0UnitMatrix(0x177eb90);
-  vu0RotMatrixY(((float)(iVar14 % 0x180 + -0xc0) * fVar9) / 192.0,0x177eb90,0x177eb90);
+  RT_CALLRA(0x23e754, guest::vu0UnitMatrix(0x177eb90));
+  RT_CALLRA(0x23e764, guest::vu0RotMatrixY(((float)(iVar14 % 0x180 + -0xc0) * fVar9) / 192.0,0x177eb90,0x177eb90));
   (*(uint32_t*)rtguest::G(0x177ebc8)) = uVar10;
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 0xc;
   (*(uint32_t*)rtguest::G(0x177ebc0)) = uVar19;
   (*(uint32_t*)rtguest::G(0x177ebc4)) = uVar17;
-  gifChainEndTag(0x2a3490,0xd);
+  RT_CALLRA(0x23e794, guest::gifChainEndTag(0x2a3490,0xd));
   sendTexturePackets(0x2a3490);
   return 0;
 }

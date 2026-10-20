@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t HandlePaintEditorInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   uint uVar1;
   char cVar2;
   uint uVar3;
@@ -19,7 +23,7 @@ uint32_t HandlePaintEditorInput(uint32_t param_1, uint32_t param_2, uint32_t par
   uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x34)));
   if (((uVar4 & 0x1000) != 0) && ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) != '\0')) {
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) + -1;
-    PlayUiSound(0x1d);
+    RT_CALLRA(0x25612c, guest::PlayUiSound(0x1d));
     uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x34)));
   }
   if ((uVar4 & 0x4000) == 0) {
@@ -27,7 +31,7 @@ uint32_t HandlePaintEditorInput(uint32_t param_1, uint32_t param_2, uint32_t par
   }
   else if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) < 8) {  // pseudo byte = unsigned
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) + 1;
-    PlayUiSound(0x1d);
+    RT_CALLRA(0x25615c, guest::PlayUiSound(0x1d));
     uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x34)));
     uVar9 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
   }
@@ -47,7 +51,7 @@ uint32_t HandlePaintEditorInput(uint32_t param_1, uint32_t param_2, uint32_t par
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x30))) & 0xa000) != 0) {
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) ^ 1;
 LAB_00256464:
-      PlayUiSound(0x1d);
+      RT_CALLRA(0x256430, guest::PlayUiSound(0x1d));
     }
     goto switchD_002561a0_default;
   case 1:
@@ -150,7 +154,7 @@ LAB_002561f4:
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 5))) = (char)uVar3;
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 3))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_3 + 3))) + (char)lVar8;
     if (lVar8 != 0) {
-      PlayUiSound(0x1d);
+      RT_CALLRA(0x256464, guest::PlayUiSound(0x1d));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) = 1;
     }
     goto switchD_002561a0_default;

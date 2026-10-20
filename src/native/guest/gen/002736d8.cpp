@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t scePadInit2(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
 uint32_t puVar1;
   undefined4 uVar2;
   long lVar3;
@@ -25,7 +29,7 @@ uint32_t puVar1;
   } while (-1 < iVar4);
   (*(uint32_t*)rtguest::G(0x1773500)) = 0x10;
   (*(uint32_t*)rtguest::G(0x1773510)) = 0;
-  lVar3 = sceSifCallRpc(0x17731c0,1,0,0x1773500,0x80,0x1773500,0x80,0);
+  lVar3 = RT_CALLRA(0x273750, guest::sceSifCallRpc(0x17731c0,1,0,0x1773500,0x80,0x1773500,0x80,0));
   uVar2 = (*(uint32_t*)rtguest::G(0x177350c));
   if (lVar3 < 0) {
     uVar2 = 0;

@@ -11,20 +11,20 @@ uint32_t cdReadPoll(uint32_t q0, ...) {
   long lVar3;
   
   if ((*(uint32_t*)rtguest::G(0x3356c4)) == 0) {
-    lVar3 = sceCdDiskReady(1);
+    lVar3 = RT_CALLRA(0x20e454, guest::sceCdDiskReady(1));
     if ((lVar3 == 2) &&
-       (lVar3 = sceCdRead((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G(0x3356cc)) + 4))),
-                          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G(0x3356cc)) + 8))),(*(uint32_t*)rtguest::G(0x3356c8)),0x333380), lVar3 != 0
+       (lVar3 = RT_CALLRA(0x20e478, guest::sceCdRead((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G(0x3356cc)) + 4))),
+                          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G(0x3356cc)) + 8))),(*(uint32_t*)rtguest::G(0x3356c8)),0x333380)), lVar3 != 0
        )) {
       (*(uint32_t*)rtguest::G(0x3356c4)) = 1;
     }
   }
   else {
-    lVar3 = sceCdSync(1);
+    lVar3 = RT_CALLRA(0x20e490, guest::sceCdSync(1));
     if (lVar3 != 0) {
       return lVar3;
     }
-    iVar1 = sceCdGetError();
+    iVar1 = RT_CALLRA(0x20e4a4, guest::sceCdGetError());
     if (iVar1 == 0) {
       return 0;
     }

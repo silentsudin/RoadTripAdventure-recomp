@@ -10,14 +10,14 @@ uint32_t vifUploadLightAt16(uint32_t param_1, ...) {
 uint32_t puVar2;
   
   if ((*(uint32_t*)rtguest::G(0x3356ec)) == (uint32_t)0x0) {
-    fatal(0x2eafa0);
+    RT_CALLRA(0x22695c, guest::fatal(0x2eafa0));
   }
   if ((*(uint32_t*)rtguest::G(0x3356f4)) == 0) {
     if ((*(uint32_t*)rtguest::G(0x3356ec)) + 0x14 * sizeof(uint32_t) < (uint32_t)0x17523d0) {
       bVar1 = false;
     }
     else {
-      fatal(0x2eafc0);
+      RT_CALLRA(0x226990, guest::fatal(0x2eafc0));
       bVar1 = false;
     }
   }
@@ -34,7 +34,7 @@ uint32_t puVar2;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(3) * 4)) = 0x6c040010;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(1) * 4)) = 0;
     (*(uint32_t*)rtguest::G(0x3356ec)) = puVar2;
-    vu0CopyMatrix(puVar2,param_1);
+    RT_CALLRA(0x2269f4, guest::vu0CopyMatrix(puVar2,param_1));
     (*(uint32_t*)rtguest::G(0x3356ec)) = (*(uint32_t*)rtguest::G(0x3356ec)) + 0x10 * sizeof(uint32_t);
   }
   return 0;

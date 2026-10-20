@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SubmitDualAnimatedTextureLayout(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   
@@ -30,9 +34,9 @@ uint32_t SubmitDualAnimatedTextureLayout(uint32_t param_1, ...) {
                  (long)(*(uint32_t*)rtguest::G(0x2a3018)) << 0x10 | (long)(*(uint32_t*)rtguest::G(0x2a3018)) << 0x30;
   (*(uint32_t*)rtguest::G(0x2a34c0)) = ((long)(iVar1 >> 4) & (uint32_t)(*(uint32_t*)rtguest::G(0x2a302e))) << 0x10;
   (*(uint32_t*)rtguest::G(0x2a3500)) = ((long)(iVar2 >> 4) & (uint32_t)(*(uint32_t*)rtguest::G(0x2a304e))) << 0x10;
-  AdvanceOscillatingValue(param_1 + 2);
+  RT_CALLRA(0x23f4e0, guest::AdvanceOscillatingValue(param_1 + 2));
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 8;
-  gifChainEndTag(0x2a3490,9);
+  RT_CALLRA(0x23f504, guest::gifChainEndTag(0x2a3490,9));
   sendTexturePackets(0x2a3490);
   return 0;
 }

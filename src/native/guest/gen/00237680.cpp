@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t DrawShopRow(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
   int iVar1;
 uint32_t puVar2;
   int iVar3;
@@ -27,15 +31,15 @@ uint32_t puVar2;
                    (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x2c22c8 + (char)(*(uint32_t*)rtguest::G((uint32_t)0x1782b1e + (uint32_t)(iVar1) * 4)) * 4))) + 0xc)));
       }
     }
-    uiDrawTextCell(param_1,param_2,puVar2,3);
+    RT_CALLRA(0x23774c, guest::uiDrawTextCell(param_1,param_2,puVar2,3));
     param_3 = param_3 + iVar3 * 0x1a;
-    uiDrawTextCell(iVar6,iVar5 + 1,0x2ec4f0,3);
+    RT_CALLRA(0x237778, guest::uiDrawTextCell(iVar6,iVar5 + 1,0x2ec4f0,3));
     iVar3 = param_3 * 4;
     iVar1 = iVar4 * 0x14 + 0xaa;
-    uiDrawTextCell(iVar4 + 10,iVar5 + 1,(*(uint32_t*)rtguest::G((uint32_t)(0x29fd30u + (uint32_t)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x01780750u + (uint32_t)(param_3) * 4))) * 4))),3);
-    uiDrawTextCell(iVar6,iVar5 + 2,0x2ec500,3);
+    RT_CALLRA(0x2377b8, guest::uiDrawTextCell(iVar4 + 10,iVar5 + 1,(*(uint32_t*)rtguest::G((uint32_t)(0x29fd30u + (uint32_t)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x01780750u + (uint32_t)(param_3) * 4))) * 4))),3));
+    RT_CALLRA(0x2377d0, guest::uiDrawTextCell(iVar6,iVar5 + 2,0x2ec500,3));
     uiDrawTime(iVar1,iVar5 * 0xc + 0x1d,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x017807a0 + iVar3))),3);
-    uiDrawTextCell(iVar6,iVar5 + 3,0x2ec510,3);
+    RT_CALLRA(0x237800, guest::uiDrawTextCell(iVar6,iVar5 + 3,0x2ec510,3));
     uiDrawTime(iVar1,iVar5 * 0xc + 0x29,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x017808d8 + iVar3))),3);
     return 0;
   }

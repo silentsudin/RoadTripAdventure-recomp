@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateAiCourseSteering(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+  }
 uint32_t afStack_70 = rtguest::allocFrame(8);
     uint32_t fStack_68 = rtguest::allocFrame(4);
     rtguest::allocFrame(4);  // guest frame gap
@@ -39,8 +43,8 @@ uint32_t piVar10;
   if (iVar4 == 1) {
     if (((*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b0 + uVar7 * 0x40)))) ||
        (bVar2 = true, (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b4 + uVar7 * 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))))) {
-      vu0SubVector(afStack_60,iVar6 + 0x40,iVar9 + 0x90);
-      vu0MulVector(afStack_60,afStack_60,afStack_60);
+      RT_CALLRA(0x25373c, guest::vu0SubVector(afStack_60,iVar6 + 0x40,iVar9 + 0x90));
+      RT_CALLRA(0x25374c, guest::vu0MulVector(afStack_60,afStack_60,afStack_60));
       uVar8 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a)));
       bVar2 = true;
       if ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a))) * 0x40))) <=
@@ -53,18 +57,18 @@ uint32_t piVar10;
       iVar4 = uVar8 * 3;
       goto LAB_00253b4c;
     }
-    fVar11 = rtguest::fbits(atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a0 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x90)))),rtguest::f2bits(
-                           (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a8 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x98))))));
+    fVar11 = rtguest::fbits(RT_CALLRA(0x2538cc, guest::atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a0 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x90)))),rtguest::f2bits(
+                           (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a8 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x98)))))));
     uVar3 = (uint32_t)
             (int)((fVar11 / (*(float*)rtguest::G(0x333050))) * 32768.0 - (float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x1d4))));
-    vu0SubVector(afStack_50,0x002ac4a0 + uVar8 * 0x40,iVar9 + 0x90);
-    vu0MulVector(afStack_50,afStack_50,afStack_50);
+    RT_CALLRA(0x253818, guest::vu0SubVector(afStack_50,0x002ac4a0 + uVar8 * 0x40,iVar9 + 0x90));
+    RT_CALLRA(0x253828, guest::vu0MulVector(afStack_50,afStack_50,afStack_50));
     if (SQRT((*(float*)rtguest::G((uint32_t)afStack_50 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_48))) < 20.0) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 600))) + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a))) * 0xc + 0x78))) = 0;
-      lVar5 = SetAiSteeringTarget(param_1,uVar3,10);
+      lVar5 = RT_CALLRA(0x2539a8, guest::SetAiSteeringTarget(param_1,uVar3,10));
     }
     else {
-      SetAiSteeringTarget(param_1,uVar3,0);
+      RT_CALLRA(0x2539bc, guest::SetAiSteeringTarget(param_1,uVar3,0));
       lVar5 = 0;
     }
     iVar6 = 2;
@@ -80,8 +84,8 @@ uint32_t piVar10;
       }
       if (((*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b0 + uVar7 * 0x40)))) ||
          (bVar2 = true, (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b4 + uVar7 * 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))))) {
-        vu0SubVector(afStack_40,iVar6 + 0x40,iVar9 + 0x90);
-        vu0MulVector(afStack_40,afStack_40,afStack_40);
+        RT_CALLRA(0x253920, guest::vu0SubVector(afStack_40,iVar6 + 0x40,iVar9 + 0x90));
+        RT_CALLRA(0x253930, guest::vu0MulVector(afStack_40,afStack_40,afStack_40));
         uVar8 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a)));
         bVar2 = true;
         if ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a))) * 0x40))) <=
@@ -98,10 +102,10 @@ uint32_t piVar10;
                       (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x1d4)))) * 0x10000) >> 0x10;
         if ((iVar6 + 0x3ffU & 0xffff) < 0x7ff) {
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 600))) + uVar8 * 0xc + 0x78))) = 0;
-          lVar5 = SetAiSteeringTarget(param_1,iVar6,10);
+          lVar5 = RT_CALLRA(0x253b14, guest::SetAiSteeringTarget(param_1,iVar6,10));
         }
         else {
-          SetAiSteeringTarget(param_1,iVar6,10);
+          RT_CALLRA(0x253b28, guest::SetAiSteeringTarget(param_1,iVar6,10));
           lVar5 = 0;
         }
         if (lVar5 == 0) {
@@ -120,8 +124,8 @@ LAB_00253b4c:
     }
     if (((*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b0 + uVar7 * 0x40)))) ||
        (bVar2 = true, (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b4 + uVar7 * 0x40))) <= (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x40))))) {
-      vu0SubVector(afStack_70,iVar6 + 0x40,iVar9 + 0x90);
-      vu0MulVector(afStack_70,afStack_70,afStack_70);
+      RT_CALLRA(0x253a3c, guest::vu0SubVector(afStack_70,iVar6 + 0x40,iVar9 + 0x90));
+      RT_CALLRA(0x253a4c, guest::vu0MulVector(afStack_70,afStack_70,afStack_70));
       bVar2 = true;
       if ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4b8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a))) * 0x40))) <=
           SQRT((*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_68)))) {
@@ -129,7 +133,7 @@ LAB_00253b4c:
       }
     }
     if (bVar2) {
-      SteerAiToDefaultWaypoint(param_1);
+      RT_CALLRA(0x2537b8, guest::SteerAiToDefaultWaypoint(param_1));
       return 0;
     }
     bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24a)));

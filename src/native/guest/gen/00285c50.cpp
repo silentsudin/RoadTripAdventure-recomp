@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t InitAlarm(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   undefined4 uVar1;
   undefined8 uVar2;
 uint32_t puVar3;
@@ -14,19 +18,19 @@ uint32_t puVar3;
   if ((REG_RCNT3_MODE & 0x100) == 0) {
     uVar4 = 2;
     puVar3 = 0x002e98c0;
-    setSyscall((*(uint32_t*)rtguest::G(0x2e98b0)),(*(uint32_t*)rtguest::G(0x002e98b4)));
-    syscallMemInstall(0xffffffff80076000,0x2e9148,0x740);
-    syscallMemInstall(0x82000,0x2e9888,0x28);
-    FlushCache(0);
-    FlushCache(2);
-    setSyscall((*(uint32_t*)rtguest::G(0x2e98b8)),(*(uint32_t*)rtguest::G(0x2e98bc)));
+    RT_CALLRA(0x285c90, guest::setSyscall((*(uint32_t*)rtguest::G(0x2e98b0)),(*(uint32_t*)rtguest::G(0x002e98b4))));
+    RT_CALLRA(0x285ca8, guest::syscallMemInstall(0xffffffff80076000,0x2e9148,0x740));
+    RT_CALLRA(0x285cc0, guest::syscallMemInstall(0x82000,0x2e9888,0x28));
+    RT_CALLRA(0x285cc8, guest::FlushCache(0));
+    RT_CALLRA(0x285cd0, guest::FlushCache(2));
+    RT_CALLRA(0x285cdc, guest::setSyscall((*(uint32_t*)rtguest::G(0x2e98b8)),(*(uint32_t*)rtguest::G(0x2e98bc))));
     uVar1 = (*(uint32_t*)rtguest::G(0x2e98c0));
     while( true ) {
       uVar4 = uVar4 + 1;
-      uVar2 = getSyscall(uVar1);
+      uVar2 = RT_CALLRA(0x285ce8, guest::getSyscall(uVar1));
       uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puVar3));
       puVar3 = puVar3 + 0x8;  // T* element step
-      setSyscall(uVar1,uVar2);
+      RT_CALLRA(0x285cf8, guest::setSyscall(uVar1,uVar2));
       if (7 < uVar4) break;
       uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puVar3));
     }

@@ -8,6 +8,8 @@ uint32_t _vfprintf_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint3
   rtguest::FrameGuard rt_fg(656);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x1e4) = (uint32_t)(int32_t)param_1;
+    *(uint32_t*)rtguest::G(rt_sv+0x288) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x28c) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x1e8) = (uint32_t)(int32_t)param_2;
   }
 uint32_t auStack_290 = rtguest::allocFrame(16);
@@ -72,12 +74,12 @@ uint32_t pcStack_84;
   
   (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = param_1;
   (*(int32_t*)rtguest::G((uint32_t)iStack_a8)) = param_2;
-  piVar5 = (uint32_t)localeconv();
+  piVar5 = (uint32_t)RT_CALLRA(0x27f7a0, guest::localeconv());
   (*(int32_t*)rtguest::G((uint32_t)iStack_9c)) = (*(int32_t*)rtguest::G((uint32_t)piVar5));
   uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_a8)) + 0xc)));
   (*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(1) * 4)) = 0;
   if (((uVar1 & 8) == 0) || ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_a8)) + 0x10))) == 0)) {
-    lVar9 = __swsetup_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)));
+    lVar9 = RT_CALLRA(0x27f7d0, guest::__swsetup_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8))));
     if (lVar9 != 0) {
       return -1;
     }
@@ -85,7 +87,7 @@ uint32_t pcStack_84;
   }
   piStack_280 = aiStack_270;
   if (((uVar1 & 0x1a) == 10) && (-1 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_a8)) + 0xe))))) {
-    iVar6 = __sbprintf((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),param_3,param_4);
+    iVar6 = RT_CALLRA(0x27f80c, guest::__sbprintf((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),param_3,param_4));
     return iVar6;
   }
   (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = 0;
@@ -94,7 +96,7 @@ uint32_t pcStack_84;
   piVar5 = piStack_280;
   pcVar19 = param_3;
 LAB_0027f840:
-  lVar9 = _mbtowc_r((*(uint32_t*)rtguest::G(0x002e8cc0)),aiStack_bc,param_3,(*(uint32_t*)rtguest::G(0x2e9128)),aiStack_bc + sizeof(int32_t));
+  lVar9 = RT_CALLRA(0x27f858, guest::_mbtowc_r((*(uint32_t*)rtguest::G(0x002e8cc0)),aiStack_bc,param_3,(*(uint32_t*)rtguest::G(0x2e9128)),aiStack_bc + sizeof(int32_t)));
   if (0 < lVar9) goto code_r0x0027f86c;
   iVar6 = (int)param_3 - (int)pcVar19;
   goto LAB_0027f880;
@@ -111,7 +113,7 @@ LAB_0027f880:
       (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
       (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + iVar6;
       if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-        lVar10 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+        lVar10 = RT_CALLRA(0x27f8b8, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
         if (lVar10 != 0) goto LAB_00280d84;
         piVar5 = aiStack_270;
       }
@@ -246,13 +248,13 @@ LAB_0027fec0:
         }
         (*(uint64_t*)rtguest::G((uint32_t)uStack_98)) = (*(uint64_t*)rtguest::G((uint32_t)puVar22));
         param_4 = puVar22 + sizeof(uint64_t);
-        lVar10 = isinf((*(uint64_t*)rtguest::G((uint32_t)uStack_98)));
+        lVar10 = RT_CALLRA(0x27fb3c, guest::isinf((*(uint64_t*)rtguest::G((uint32_t)uStack_98))));
         if (lVar10 == 0) {
-          lVar10 = isnan((*(uint64_t*)rtguest::G((uint32_t)uStack_98)));
+          lVar10 = RT_CALLRA(0x27fb84, guest::isnan((*(uint64_t*)rtguest::G((uint32_t)uStack_98))));
           if (lVar10 == 0) {
             uVar24 = uVar13 | 0x100;
-            __s = (uint32_t)cvt((*(uint32_t*)rtguest::G((uint32_t)uStack_ac)),(*(uint64_t*)rtguest::G((uint32_t)uStack_98)),sVar20,uVar24,cStack_c0,aiStack_bc + 2 * sizeof(int32_t),lVar9,
-                              iStack_b0);
+            __s = (uint32_t)RT_CALLRA(0x27fbc0, guest::cvt((*(uint32_t*)rtguest::G((uint32_t)uStack_ac)),(*(uint64_t*)rtguest::G((uint32_t)uStack_98)),sVar20,uVar24,cStack_c0,aiStack_bc + 2 * sizeof(int32_t),lVar9,
+                              iStack_b0));
             if ((lVar9 == 0x67) || (lVar9 == 0x47)) {
               if (((long)(*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(2) * 4)) < -3) || ((long)sVar20 < (long)(*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(2) * 4)))) {
                 bVar2 = lVar9 != 0x67;
@@ -268,7 +270,7 @@ LAB_0027fec0:
             sVar15 = (size_t)(*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(2) * 4));
             if (lVar9 < 0x66) {
               (*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(2) * 4)) = (*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(2) * 4)) + -1;
-              (*(int32_t*)rtguest::G((uint32_t)iStack_90)) = exponent(auStack_290,(*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(2) * 4)),lVar9);
+              (*(int32_t*)rtguest::G((uint32_t)iStack_90)) = RT_CALLRA(0x27fc2c, guest::exponent(auStack_290,(*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(2) * 4)),lVar9));
               if ((1 < (*(int32_t*)rtguest::G((uint32_t)iStack_b0))) || (sVar11 = (long)((*(int32_t*)rtguest::G((uint32_t)iStack_90)) + (*(int32_t*)rtguest::G((uint32_t)iStack_b0))), (uVar13 & 1) != 0)) {
                 sVar11 = (size_t)((*(int32_t*)rtguest::G((uint32_t)iStack_90)) + (*(int32_t*)rtguest::G((uint32_t)iStack_b0)) + 1);
               }
@@ -303,7 +305,7 @@ LAB_0027fec0:
           }
         }
         else {
-          lVar10 = dpcmp((*(uint64_t*)rtguest::G((uint32_t)uStack_98)),0);
+          lVar10 = RT_CALLRA(0x27fb54, guest::dpcmp((*(uint64_t*)rtguest::G((uint32_t)uStack_98)),0));
           if (lVar10 < 0) {
             (*(int8_t*)rtguest::G((uint32_t)acStack_bf + (uint32_t)(0) * 1)) = '-';
           }
@@ -405,7 +407,7 @@ switchD_0027f928_caseD_71:
           sVar20 = ::strlen((char *)rtguest::G((uint32_t)(__s)));
         }
         else {
-          pvVar7 = memchr(__s,0,sVar20);
+          pvVar7 = RT_CALLRA(0x27fdcc, guest::memchr(__s,0,sVar20));
           if ((pvVar7 != (uint32_t)0x0) &&
              (sVar11 = (size_t)((int)pvVar7 - (int)__s), (long)sVar11 <= (long)sVar20)) {
             (*(int8_t*)rtguest::G((uint32_t)acStack_bf + (uint32_t)(0) * 1)) = '\0';
@@ -439,7 +441,7 @@ LAB_0027fe68:
     }
 LAB_00280d64:
     if ((*(int32_t*)rtguest::G((uint32_t)iStack_278)) != 0) {
-      __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+      RT_CALLRA(0x2800a4, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
     }
 LAB_00280d84:
     iVar6 = -1;
@@ -451,7 +453,7 @@ LAB_00280d84:
   goto LAB_0027f840;
 LAB_0027ff84:
   for (; 9 < uVar18; uVar18 = __udivdi3(uVar18,10)) {
-    cVar4 = __umoddi3(uVar18,10);
+    cVar4 = RT_CALLRA(0x27ff58, guest::__umoddi3(uVar18,10));
     __s = __s + -1;
     (*(int8_t*)rtguest::G((uint32_t)__s)) = cVar4 + '0';
   }
@@ -494,7 +496,7 @@ LAB_0027fff4:
             (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = (uint32_t)((uint64_t)uVar14 >> 0x20);
             (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)uVar16;
             (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint64_t)uVar16 >> 0x20);
-            lVar10 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+            lVar10 = RT_CALLRA(0x28010c, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
             uVar14 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_6c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_70)));
             uVar16 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_60)));
             if (lVar10 != 0) goto LAB_00280d84;
@@ -511,7 +513,7 @@ LAB_0027fff4:
       (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
       (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + iVar17;
       if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-        lVar10 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+        lVar10 = RT_CALLRA(0x280164, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
         if (lVar10 != 0) goto LAB_00280d84;
         piVar5 = aiStack_270;
       }
@@ -527,7 +529,7 @@ LAB_0027fff4:
       (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
       (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + 2;
       if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-        lVar10 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+        lVar10 = RT_CALLRA(0x2801cc, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
         if (lVar10 != 0) goto LAB_00280d84;
         piVar5 = aiStack_270;
       }
@@ -540,7 +542,7 @@ LAB_0027fff4:
     (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
     (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + 1;
     if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-      lVar10 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+      lVar10 = RT_CALLRA(0x280254, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
       if (lVar10 != 0) goto LAB_00280d84;
       piVar5 = aiStack_270;
     }
@@ -563,7 +565,7 @@ LAB_0027fff4:
           (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = (uint32_t)((uint64_t)uVar14 >> 0x20);
           (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)uVar16;
           (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint64_t)uVar16 >> 0x20);
-          lVar10 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar10 = RT_CALLRA(0x2802bc, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           uVar14 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_6c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_70)));
           uVar16 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_60)));
           if (lVar10 != 0) goto LAB_00280d84;
@@ -580,7 +582,7 @@ LAB_0027fff4:
     (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
     (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + iVar17;
     if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-      lVar10 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+      lVar10 = RT_CALLRA(0x280334, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
       if (lVar10 != 0) goto LAB_00280d84;
       piVar5 = aiStack_270;
     }
@@ -604,7 +606,7 @@ LAB_0027fff4:
           (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = (uint32_t)((uint64_t)uVar14 >> 0x20);
           (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)uVar16;
           (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint64_t)uVar16 >> 0x20);
-          lVar10 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar10 = RT_CALLRA(0x28039c, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           uVar14 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_6c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_70)));
           uVar16 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_60)));
           if (lVar10 != 0) goto LAB_00280d84;
@@ -621,7 +623,7 @@ LAB_0027fff4:
     (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
     (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + iVar17;
     if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-      lVar10 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+      lVar10 = RT_CALLRA(0x28043c, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
       if (lVar10 != 0) goto LAB_00280d84;
       piVar5 = aiStack_270;
     }
@@ -648,7 +650,7 @@ LAB_00280c08:
         (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
         (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + 1;
         if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-          lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar9 = RT_CALLRA(0x2804a8, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           if (lVar9 != 0) goto LAB_00280d84;
           piVar5 = aiStack_270;
         }
@@ -663,11 +665,11 @@ LAB_002809f4:
         (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
         (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + 2;
         if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-          lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar9 = RT_CALLRA(0x280518, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           if (lVar9 != 0) goto LAB_00280d84;
           piVar5 = aiStack_270;
         }
-        lVar9 = dpcmp((*(uint64_t*)rtguest::G((uint32_t)uStack_98)),0);
+        lVar9 = RT_CALLRA(0x2803f0, guest::dpcmp((*(uint64_t*)rtguest::G((uint32_t)uStack_98)),0));
         if (lVar9 == 0) {
           iVar6 = (*(int32_t*)rtguest::G((uint32_t)iStack_b0)) + -1;
           if (0 < iVar6) {
@@ -685,7 +687,7 @@ LAB_002809f4:
                 if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
                   (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)uVar16;
                   (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint64_t)uVar16 >> 0x20);
-                  lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+                  lVar9 = RT_CALLRA(0x2805bc, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
                   uVar16 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_60)));
                   if (lVar9 != 0) goto LAB_00280d84;
                   piVar5 = aiStack_270;
@@ -701,7 +703,7 @@ LAB_002809f4:
             (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
             (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + iVar6;
             if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-              lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+              lVar9 = RT_CALLRA(0x280614, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
               if (lVar9 != 0) goto LAB_00280d84;
               piVar5 = aiStack_270;
             }
@@ -714,7 +716,7 @@ LAB_002809f4:
           (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
           (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + (*(int32_t*)rtguest::G((uint32_t)iStack_b0)) + -1;
           if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-            lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+            lVar9 = RT_CALLRA(0x280688, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
             if (lVar9 != 0) goto LAB_00280d84;
             piVar5 = aiStack_270;
           }
@@ -726,7 +728,7 @@ LAB_002809f4:
       (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + iVar6;
       goto LAB_00280c08;
     }
-    lVar9 = dpcmp((*(uint64_t*)rtguest::G((uint32_t)uStack_98)),0);
+    lVar9 = RT_CALLRA(0x280a5c, guest::dpcmp((*(uint64_t*)rtguest::G((uint32_t)uStack_98)),0));
     if (lVar9 == 0) {
       (*(int32_t*)rtguest::G((uint32_t)piVar5 + (uint32_t)(1) * sizeof(int32_t))) = 1;
       (*(int32_t*)rtguest::G((uint32_t)piVar5)) = (int)0x003321f8;
@@ -734,7 +736,7 @@ LAB_002809f4:
       (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
       (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + 1;
       if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-        lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+        lVar9 = RT_CALLRA(0x2806ec, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
         if (lVar9 != 0) goto LAB_00280d84;
         piVar5 = aiStack_270;
       }
@@ -750,7 +752,7 @@ LAB_002809f4:
       piVar5 = piVar5 + 2 * sizeof(int32_t);
       (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + 1;
       if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-        lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+        lVar9 = RT_CALLRA(0x28073c, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
         if (lVar9 != 0) goto LAB_00280d84;
         piVar5 = aiStack_270;
       }
@@ -770,7 +772,7 @@ LAB_002809f4:
           if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
             (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)uVar16;
             (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint64_t)uVar16 >> 0x20);
-            lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+            lVar9 = RT_CALLRA(0x280798, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
             uVar16 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_60)));
             if (lVar9 != 0) goto LAB_00280d84;
             piVar5 = aiStack_270;
@@ -795,7 +797,7 @@ LAB_002809f4:
         (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
         (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + 1;
         if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-          lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar9 = RT_CALLRA(0x280810, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           if (lVar9 != 0) goto LAB_00280d84;
           piVar5 = aiStack_270;
         }
@@ -806,7 +808,7 @@ LAB_002809f4:
           piVar5 = piVar5 + 2 * sizeof(int32_t);
           (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + 1;
           if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-            lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+            lVar9 = RT_CALLRA(0x280874, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
             if (lVar9 != 0) goto LAB_00280d84;
             piVar5 = aiStack_270;
           }
@@ -826,7 +828,7 @@ LAB_002809f4:
                 if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
                   (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)uVar16;
                   (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint64_t)uVar16 >> 0x20);
-                  lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+                  lVar9 = RT_CALLRA(0x280900, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
                   uVar16 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_60)));
                   if (lVar9 != 0) goto LAB_00280d84;
                   piVar5 = aiStack_270;
@@ -842,7 +844,7 @@ LAB_002809f4:
             (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
             (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + iVar6;
             if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-              lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+              lVar9 = RT_CALLRA(0x28095c, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
               if (lVar9 != 0) goto LAB_00280d84;
               piVar5 = aiStack_270;
             }
@@ -854,7 +856,7 @@ LAB_002809f4:
           (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
           (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + (*(int32_t*)rtguest::G((uint32_t)iStack_b0));
           if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-            lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+            lVar9 = RT_CALLRA(0x2809bc, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
             if (lVar9 != 0) goto LAB_00280d84;
             piVar5 = aiStack_270;
           }
@@ -868,7 +870,7 @@ LAB_002809f4:
         (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
         (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + (*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(2) * 4));
         if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-          lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar9 = RT_CALLRA(0x280a3c, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           if (lVar9 != 0) goto LAB_00280d84;
           piVar5 = aiStack_270;
         }
@@ -879,7 +881,7 @@ LAB_002809f4:
         (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
         (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + 1;
         if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-          lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar9 = RT_CALLRA(0x280aa8, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           if (lVar9 != 0) goto LAB_00280d84;
           piVar5 = aiStack_270;
         }
@@ -891,7 +893,7 @@ LAB_002809f4:
         (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
         (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + ((*(int32_t*)rtguest::G((uint32_t)iStack_b0)) - (*(int32_t*)rtguest::G((uint32_t)aiStack_bc + (uint32_t)(2) * 4)));
         if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-          lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar9 = RT_CALLRA(0x280b20, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           if (lVar9 != 0) goto LAB_00280d84;
           piVar5 = aiStack_270;
         }
@@ -903,7 +905,7 @@ LAB_002809f4:
       (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
       (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + (*(int32_t*)rtguest::G((uint32_t)iStack_b0));
       if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-        lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+        lVar9 = RT_CALLRA(0x280b84, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
         if (lVar9 != 0) goto LAB_00280d84;
         piVar5 = aiStack_270;
       }
@@ -923,7 +925,7 @@ LAB_002809f4:
             if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
               (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)uVar16;
               (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint64_t)uVar16 >> 0x20);
-              lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+              lVar9 = RT_CALLRA(0x280bd0, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
               uVar16 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_60)));
               if (lVar9 != 0) goto LAB_00280d84;
               piVar5 = aiStack_270;
@@ -939,7 +941,7 @@ LAB_002809f4:
         (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
         (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + iVar6;
         if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
-          lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar9 = RT_CALLRA(0x280c20, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           if (lVar9 != 0) goto LAB_00280d84;
           piVar5 = aiStack_270;
         }
@@ -954,7 +956,7 @@ LAB_002809f4:
     }
   }
   if (!bVar2) {
-    lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+    lVar9 = RT_CALLRA(0x280ca0, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
     if (lVar9 != 0) goto LAB_00280d84;
     piVar5 = aiStack_270;
   }
@@ -974,7 +976,7 @@ LAB_00280c3c:
         if (7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) {
           (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)uVar16;
           (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint64_t)uVar16 >> 0x20);
-          lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20));
+          lVar9 = RT_CALLRA(0x280d00, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)));
           uVar16 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_60)));
           if (lVar9 != 0) goto LAB_00280d84;
           piVar5 = aiStack_270;
@@ -988,7 +990,7 @@ LAB_00280c3c:
     (*(int32_t*)rtguest::G((uint32_t)piVar5)) = (int)uVar16 + 0x2170;
     (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) + 1;
     (*(int32_t*)rtguest::G((uint32_t)iStack_278)) = (*(int32_t*)rtguest::G((uint32_t)iStack_278)) + iVar6;
-    if ((7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) && (lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)), lVar9 != 0))
+    if ((7 < (*(int32_t*)rtguest::G((uint32_t)iStack_27c))) && (lVar9 = RT_CALLRA(0x280d3c, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20))), lVar9 != 0))
     goto LAB_00280d84;
   }
   uVar13 = (*(uint32_t*)rtguest::G((uint32_t)uStack_a0));
@@ -996,7 +998,7 @@ LAB_00280c3c:
     uVar13 = (*(uint32_t*)rtguest::G((uint32_t)uStack_88));
   }
   (*(int32_t*)rtguest::G((uint32_t)iStack_a4)) = (*(int32_t*)rtguest::G((uint32_t)iStack_a4)) + uVar13;
-  if (((*(int32_t*)rtguest::G((uint32_t)iStack_278)) != 0) && (lVar9 = __sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20)), lVar9 != 0))
+  if (((*(int32_t*)rtguest::G((uint32_t)iStack_278)) != 0) && (lVar9 = RT_CALLRA(0x280d6c, guest::__sprint_r((*(int32_t*)rtguest::G((uint32_t)iStack_a8)),rtguest::allocFrame(0x20))), lVar9 != 0))
   goto LAB_00280d84;
   piVar5 = aiStack_270;
   (*(int32_t*)rtguest::G((uint32_t)iStack_27c)) = 0;

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
     uint32_t uStack_50 = rtguest::allocFrame(8);
     uint32_t uStack_48 = rtguest::allocFrame(8);
     uint32_t uStack_40 = rtguest::allocFrame(8);
@@ -33,7 +37,7 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
     bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) | 2;
     goto LAB_00266804;
   case 2:
-    (*(uint32_t*)rtguest::G(0x1780a42)) = navStampDigitByDpad(param_2,(*(uint32_t*)rtguest::G(0x1780a42)));
+    (*(uint32_t*)rtguest::G(0x1780a42)) = RT_CALLRA(0x266638, guest::navStampDigitByDpad(param_2,(*(uint32_t*)rtguest::G(0x1780a42))));
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) = (char)(*(uint32_t*)rtguest::G(0x1780a42));
     uVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10;
     if ((int)sVar2 / 10 < (int)uVar1) {
@@ -48,21 +52,21 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
     }
     else if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x30))) & 0x40) == 0) {
       if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x30))) & 0x10) != 0) {
-        PlayUiSound(0x1b);
-        gs_tasks_spawn(param_1,0x20dc50,0x40005);
-        gs_tasks_spawn(param_1,0x20dc50,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x0177f778 + 2)) | 0xa0000);
+        RT_CALLRA(0x2666ec, guest::PlayUiSound(0x1b));
+        RT_CALLRA(0x266700, guest::gs_tasks_spawn(param_1,0x20dc50,0x40005));
+        RT_CALLRA(0x266748, guest::gs_tasks_spawn(param_1,0x20dc50,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x0177f778 + 2)) | 0xa0000));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 6;
       }
     }
     else {
-      lVar6 = TestFlagFc68((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) + 1);
+      lVar6 = RT_CALLRA(0x2666dc, guest::TestFlagFc68((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) + 1));
       if (lVar6 == 0) {
-        PlayUiSound(0x1c);
+        RT_CALLRA(0x266718, guest::PlayUiSound(0x1c));
         bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
         goto LAB_0026680c;
       }
-      PlayUiSound(0x1a);
-      gs_tasks_spawn(param_1,0x22bfd0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))));
+      RT_CALLRA(0x266730, guest::PlayUiSound(0x1a));
+      RT_CALLRA(0x266760, guest::gs_tasks_spawn(param_1,0x22bfd0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)))));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 4;
     }
     break;
@@ -78,7 +82,7 @@ uint32_t notebookStampGridTask(uint32_t param_1, uint32_t param_2, ...) {
       bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
       goto LAB_0026680c;
     }
-    PlayUiSound(0x1a);
+    RT_CALLRA(0x26679c, guest::PlayUiSound(0x1a));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 2;
     break;
   case 5:
@@ -104,18 +108,18 @@ LAB_00266804:
   bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
 LAB_0026680c:
   if ((bVar3 & 2) != 0) {
-    uiArenaInit(0x1762400,0x10000);
-    uiArenaBeginBatch(0x1762400,0,0);
-    uiArenaSetTexture(0x1762400,0x2dbb50,0,0);
-    uiArenaDataTag(0x1762400,1);
-    uiArenaSpritesWrap(0x1762400,0x2dbda8,1,0,0,0xfffff0);
+    RT_CALLRA(0x266818, guest::uiArenaInit(0x1762400,0x10000));
+    RT_CALLRA(0x266828, guest::uiArenaBeginBatch(0x1762400,0,0));
+    RT_CALLRA(0x266840, guest::uiArenaSetTexture(0x1762400,0x2dbb50,0,0));
+    RT_CALLRA(0x26684c, guest::uiArenaDataTag(0x1762400,1));
+    RT_CALLRA(0x266870, guest::uiArenaSpritesWrap(0x1762400,0x2dbda8,1,0,0,0xfffff0));
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) != '\x04') {
-      drawBoardSpriteGrid(0x1762400,1);
+      RT_CALLRA(0x26688c, guest::drawBoardSpriteGrid(0x1762400,1));
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))) < 1) {
         if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))) < 0) {
-          drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2))));
-          drawStampNumberColumn(0x1762400,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10 << 1);
-          drawStampNumberColumn(0x1762400,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10) * 2 + 3);
+          RT_CALLRA(0x2668a4, guest::drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2)))));
+          RT_CALLRA(0x2668c8, guest::drawStampNumberColumn(0x1762400,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10 << 1));
+          RT_CALLRA(0x2668f0, guest::drawStampNumberColumn(0x1762400,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10) * 2 + 3));
         }
         else {
           uVar7 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
@@ -126,16 +130,16 @@ LAB_0026680c:
               (*(uint64_t*)rtguest::G((uint32_t)uStack_48)) = 0x9800000052;
               (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = 0x2800000016;
               (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = 0;
-              uiArenaDataTag(0x1762400,1);
-              uiArenaSprites(0x1762400,uStack_50,1,0x1e,0xcc,1);
+              RT_CALLRA(0x2669e0, guest::uiArenaDataTag(0x1762400,1));
+              RT_CALLRA(0x2669fc, guest::uiArenaSprites(0x1762400,uStack_50,1,0x1e,0xcc,1));
             }
             if (uVar1 << 1 < 0x12) {
               (*(uint64_t*)rtguest::G((uint32_t)uStack_50)) = 0;
               (*(uint64_t*)rtguest::G((uint32_t)uStack_48)) = 0x9800000068;
               (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = 0x2800000016;
               (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = 0;
-              uiArenaDataTag(0x1762400,1);
-              uiArenaSprites(0x1762400,uStack_50,1,0x24c,0xcc,1);
+              RT_CALLRA(0x266a5c, guest::uiArenaDataTag(0x1762400,1));
+              RT_CALLRA(0x266a78, guest::uiArenaSprites(0x1762400,uStack_50,1,0x24c,0xcc,1));
               uVar7 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
             }
             else {
@@ -143,26 +147,26 @@ LAB_0026680c:
             }
           }
           iVar5 = (uVar7 % 10) * 0xc;
-          uiArenaFlatRects(0x1762400,0x2dc3c0,5,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dbd34 + iVar5))),
-                           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dbd38 + iVar5))),2);
-          drawStampNumberColumn(0x1762400,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10 << 1);
-          drawStampNumberColumn(0x1762400,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10) * 2 + 1);
+          RT_CALLRA(0x266ad0, guest::uiArenaFlatRects(0x1762400,0x2dc3c0,5,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dbd34 + iVar5))),
+                           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002dbd38 + iVar5))),2));
+          RT_CALLRA(0x266930, guest::drawStampNumberColumn(0x1762400,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10 << 1));
+          RT_CALLRA(0x266958, guest::drawStampNumberColumn(0x1762400,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10) * 2 + 1));
         }
       }
       else {
-        drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2))));
-        drawStampNumberColumn(0x1762400,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10) * 2 + -2);
-        drawStampNumberColumn(0x1762400,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10) * 2 + 1);
+        RT_CALLRA(0x266910, guest::drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2)))));
+        RT_CALLRA(0x266af4, guest::drawStampNumberColumn(0x1762400,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10) * 2 + -2));
+        RT_CALLRA(0x266b1c, guest::drawStampNumberColumn(0x1762400,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) / 10) * 2 + 1));
       }
     }
-    uiArenaSubmit(0x1762400);
+    RT_CALLRA(0x266b24, guest::uiArenaSubmit(0x1762400));
     bVar3 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
   }
   if ((bVar3 & 1) != 0) {
     iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 4))) = 0xffffffff;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x266b50, guest::gs_tasks_kill(param_1));
   }
   return 0;
 }

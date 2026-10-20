@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t FindWorldMeshIntersection(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x78) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x7c) = 0x00000000u;
+  }
     uint32_t fStack_80 = rtguest::allocFrame(4);
     uint32_t fStack_7c = rtguest::allocFrame(4);
     uint32_t fStack_78 = rtguest::allocFrame(4);
@@ -25,7 +29,7 @@ uint32_t piVar6;
 uint32_t pfVar7;
   float fVar8;
   
-  vu0CopyVector(fStack_80,param_1);
+  RT_CALLRA(0x2072c4, guest::vu0CopyVector(fStack_80,param_1));
   pfVar7 = (uint32_t)param_1;
   if ((*(float*)rtguest::G((uint32_t)pfVar7 + (uint32_t)(2) * sizeof(float))) < 0.0) {
     if ((*(float*)rtguest::G((uint32_t)pfVar7)) < 800.0) {
@@ -73,20 +77,18 @@ LAB_00207404:
       (*(float*)rtguest::G((uint32_t)fStack_70)) = (*(float*)rtguest::G(0x332b00));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = (*(uint32_t*)rtguest::G(0x332b04));
       (*(float*)rtguest::G((uint32_t)fStack_68)) = 0.0;
-      lVar1 = IntersectPointWithMesh
-                        ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 4 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_5 + 0x7c)))))),fStack_80,param_3,
+      lVar1 = RT_CALLRA(0x2074b4, guest::IntersectPointWithMesh((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 4 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_5 + 0x7c)))))),fStack_80,param_3,
                          (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 2 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_5 + 0x7c))) + 0x400))),fStack_70,
-                         uStack_6c,fStack_68,0xffffffffffffffff);
+                         uStack_6c,fStack_68,0xffffffffffffffff));
       piVar6 = (uint32_t)(param_5 + 0x80);
       iVar4 = 0;
       do {
         iVar5 = iVar4 + 1;
-        lVar2 = TestProgressFlag(iVar4);
+        lVar2 = RT_CALLRA(0x2074cc, guest::TestProgressFlag(iVar4));
         if (lVar2 != 0) {
-          lVar1 = IntersectPointWithMesh
-                            ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 4 + (*(int32_t*)rtguest::G((uint32_t)piVar6))))),fStack_80,param_3,
+          lVar1 = RT_CALLRA(0x207500, guest::IntersectPointWithMesh((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 4 + (*(int32_t*)rtguest::G((uint32_t)piVar6))))),fStack_80,param_3,
                              (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 2 + (*(int32_t*)rtguest::G((uint32_t)piVar6)) + 0x400))),fStack_70,uStack_6c,
-                             fStack_68,lVar1);
+                             fStack_68,lVar1));
         }
         piVar6 = piVar6 + 0x4;  // T* element step
         iVar4 = iVar5;
@@ -102,10 +104,9 @@ LAB_00207404:
       (*(float*)rtguest::G((uint32_t)fStack_64)) = (*(uint32_t*)rtguest::G(0x332b08));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (*(uint32_t*)rtguest::G(0x332b0c));
       (*(float*)rtguest::G((uint32_t)afStack_5c + (uint32_t)(0) * 4)) = 0.0;
-      lVar1 = IntersectPointWithMesh
-                        ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 4 + iVar4))),fStack_80,param_3,
+      lVar1 = RT_CALLRA(0x207588, guest::IntersectPointWithMesh((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 4 + iVar4))),fStack_80,param_3,
                          (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 2 + iVar4 + 0x400))),fStack_64,uStack_60,afStack_5c
-                         ,0xffffffffffffffff);
+                         ,0xffffffffffffffff));
       if (-1 < lVar1) {
         (*(float*)rtguest::G((uint32_t)fStack_7c)) = (*(float*)rtguest::G((uint32_t)fStack_64));
         (*(float*)rtguest::G((uint32_t)fStack_74)) = (*(float*)rtguest::G((uint32_t)afStack_5c + (uint32_t)(0) * 4));

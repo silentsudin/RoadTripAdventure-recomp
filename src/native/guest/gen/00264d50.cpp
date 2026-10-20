@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t drawRotatedQuadPair(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(160);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x78) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x7c) = 0x00000000u;
+  }
     uint32_t iStack_a0 = rtguest::allocFrame(4);
     uint32_t iStack_9c = rtguest::allocFrame(4);
     rtguest::allocFrame(24);  // guest frame gap
@@ -43,8 +47,8 @@ uint32_t puVar5;
   fVar10 = (*(float*)rtguest::G(0x3331f4));
   (*(uint64_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(5) * sizeof(uint64_t))) = uVar7;
   fVar12 = (float)(int)param_2 * fVar10 * 3.0517578e-05;
-  fVar10 = rtguest::fbits(cosf(rtguest::f2bits(fVar12)));
-  fVar12 = rtguest::fbits(sinf(rtguest::f2bits(fVar12)));
+  fVar10 = rtguest::fbits(RT_CALLRA(0x264de8, guest::cosf(rtguest::f2bits(fVar12))));
+  fVar12 = rtguest::fbits(RT_CALLRA(0x264df4, guest::sinf(rtguest::f2bits(fVar12))));
   pfVar4 = afStack_80 + 1;
   iVar6 = 3;
   do {
@@ -55,7 +59,7 @@ uint32_t puVar5;
               ((fVar11 * fVar12 * (*(uint32_t*)rtguest::G(0x3331f8))) / 320.0 + 1.0) - ((float)(*(int32_t*)rtguest::G((uint32_t)iStack_9c)) - 224.0);
     pfVar4 = pfVar4 + 0x10;  // T* element step
   } while (-1 < iVar6);
-  uiArenaRotQuads(param_1,iStack_a0,1,0,0,1);
+  RT_CALLRA(0x264ea0, guest::uiArenaRotQuads(param_1,iStack_a0,1,0,0,1));
   puVar1 = 0x0032f030;
   piVar2 = iStack_a0;
   do {
@@ -76,8 +80,8 @@ uint32_t puVar5;
   (*(uint64_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(4) * sizeof(uint64_t))) = 0;
   (*(uint64_t*)rtguest::G((uint32_t)puVar5 + (uint32_t)(5) * sizeof(uint64_t))) = uVar7;
   fVar12 = fVar12 * 3.0517578e-05;
-  fVar10 = rtguest::fbits(cosf(rtguest::f2bits(fVar12)));
-  fVar12 = rtguest::fbits(sinf(rtguest::f2bits(fVar12)));
+  fVar10 = rtguest::fbits(RT_CALLRA(0x264f10, guest::cosf(rtguest::f2bits(fVar12))));
+  fVar12 = rtguest::fbits(RT_CALLRA(0x264f1c, guest::sinf(rtguest::f2bits(fVar12))));
   pfVar4 = afStack_80 + 1;
   iVar6 = 3;
   do {
@@ -88,7 +92,7 @@ uint32_t puVar5;
               ((fVar11 * fVar12 * (*(uint32_t*)rtguest::G(0x333200))) / 320.0 + 1.0) - ((float)(*(int32_t*)rtguest::G((uint32_t)iStack_9c)) - 224.0);
     pfVar4 = pfVar4 + 0x10;  // T* element step
   } while (-1 < iVar6);
-  uiArenaRotQuads(param_1,iStack_a0,1,0,0,1);
+  RT_CALLRA(0x264fc8, guest::uiArenaRotQuads(param_1,iStack_a0,1,0,0,1));
   return 0;
 }
 

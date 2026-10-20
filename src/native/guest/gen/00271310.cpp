@@ -9,6 +9,8 @@ uint32_t textGridPrintf(uint32_t param_1, uint32_t param_2, uint64_t param_3, ui
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x490) = (uint32_t)(int32_t)param_3;
     *(uint32_t*)rtguest::G(rt_sv+0x494) = (uint32_t)((int64_t)(int32_t)param_3 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x440) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x444) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x498) = (uint32_t)(int32_t)param_4;
     *(uint32_t*)rtguest::G(rt_sv+0x49c) = (uint32_t)((int64_t)(int32_t)param_4 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0x4a0) = (uint32_t)(int32_t)param_5;
@@ -46,7 +48,7 @@ uint32_t pbVar5;
   // The transliterator's ::vsprintf((va_list)(uintptr_t)block) handed the host
   // libc a guest address as va_list (SIGBUS); routed to the guest vsprintf
   // host mirror, which reads the block through G().
-  vsprintf(bStack_4c0,param_2,uStack_30);
+  RT_CALLRA(0x271350, guest::vsprintf(bStack_4c0,param_2,uStack_30));
   uVar4 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)bStack_4c0));
   pbVar5 = abStack_4bf;
   if (uVar4 != 0) {
@@ -71,8 +73,8 @@ LAB_002714f4:
         iVar7 = iVar7 + 1;
       }
       else {
-        uVar3 = charCodeToGlyphIndex(uVar4);
-        textGridPutChar(param_1,uVar3,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc))));
+        uVar3 = RT_CALLRA(0x2714fc, guest::charCodeToGlyphIndex(uVar4));
+        RT_CALLRA(0x27150c, guest::textGridPutChar(param_1,uVar3,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xc)))));
         iVar7 = iVar7 + 1;
       }
       do {
@@ -106,29 +108,29 @@ LAB_002713d4:
                 return iVar7;
               }
               if (iVar6 == 1) {
-                uVar4 = charCodeToTileCoord();
+                uVar4 = RT_CALLRA(0x271484, guest::charCodeToTileCoord());
                 goto LAB_002714f4;
               }
               if (iVar6 != 0) {
                 if (iVar6 == 2) {
-                  uVar4 = xorHighBitPair();
+                  uVar4 = RT_CALLRA(0x271494, guest::xorHighBitPair());
                 }
                 goto LAB_002714f4;
               }
               if (0x9f < uVar4) {
                 if (0xf < (uVar4 - 0xe0 & 0xffff)) {
                   iVar6 = 2;
-                  uVar4 = xorHighBitPair();
+                  uVar4 = RT_CALLRA(0x2714a4, guest::xorHighBitPair());
                   goto LAB_002714f4;
                 }
                 if (0xa0 < bVar1) {
                   iVar6 = 0;
-                  uVar4 = xorHighBitPair();
+                  uVar4 = RT_CALLRA(0x2714c4, guest::xorHighBitPair());
                   goto LAB_002714f4;
                 }
               }
               iVar6 = 1;
-              uVar4 = charCodeToTileCoord();
+              uVar4 = RT_CALLRA(0x2714b4, guest::charCodeToTileCoord());
               goto LAB_002714f4;
             }
             bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));

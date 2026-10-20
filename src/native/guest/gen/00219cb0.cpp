@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t TestQuadLateralMask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+  }
     uint32_t fStack_70 = rtguest::allocFrame(4);
     uint32_t fStack_6c = rtguest::allocFrame(4);
     uint32_t fStack_68 = rtguest::allocFrame(4);
@@ -34,7 +38,7 @@ uint32_t pfVar3;
         (*(float*)rtguest::G((uint32_t)fStack_6c)) = (*(float*)rtguest::G((uint32_t)pfVar1)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x94)));
         (*(float*)rtguest::G((uint32_t)fStack_68)) = (*(float*)rtguest::G((uint32_t)pfVar2)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x98)));
         if (((*(float*)rtguest::G((uint32_t)pfVar3)) <= param_1) && (0.0 <= (*(float*)rtguest::G((uint32_t)fStack_6c)))) {
-          vu0ApplyMatrix(fStack_70,param_4,fStack_70);
+          RT_CALLRA(0x219d88, guest::vu0ApplyMatrix(fStack_70,param_4,fStack_70));
           if (((*(float*)rtguest::G((uint32_t)fStack_68)) < 0.0) || (1.5 < (*(float*)rtguest::G((uint32_t)fStack_68)))) {
             if ((-1.5 <= (*(float*)rtguest::G((uint32_t)fStack_68))) && ((*(float*)rtguest::G((uint32_t)fStack_68)) < 0.0)) {
               if (((*(float*)rtguest::G((uint32_t)fStack_70)) < fVar6) || (0.0 <= (*(float*)rtguest::G((uint32_t)fStack_70)))) {

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t RunCameraZoomTransition(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
+  }
   int iVar1;
   uint uVar2;
   int iVar3;
@@ -31,10 +35,9 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffffbff;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x21e690;
   }
-  ComputeChaseCameraBasis
-            (auStack_b0,auStack_70,0x0177e9f0 + iVar3,0x177ac50 + uVar2 * 0x4e);
-  FixedPosToFloatVec4(auStack_80,0x0177acf0 + uVar2 * 0x9c);
-  buildCamera(0x177e6d0 + uVar2 * 400,0x0177e9f0 + iVar3,auStack_b0,auStack_70);
+  RT_CALLRA(0x21ed4c, guest::ComputeChaseCameraBasis(auStack_b0,auStack_70,0x0177e9f0 + iVar3,0x177ac50 + uVar2 * 0x4e));
+  RT_CALLRA(0x21ed58, guest::FixedPosToFloatVec4(auStack_80,0x0177acf0 + uVar2 * 0x9c));
+  RT_CALLRA(0x21ed6c, guest::buildCamera(0x177e6d0 + uVar2 * 400,0x0177e9f0 + iVar3,auStack_b0,auStack_70));
   return 0;
 }
 

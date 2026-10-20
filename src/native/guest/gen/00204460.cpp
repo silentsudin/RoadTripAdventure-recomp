@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiDrawNumberAuto(uint32_t param_1, uint64_t param_2, uint64_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   int iVar1;
   
   if (param_3 < 1000000000) {
@@ -51,7 +55,7 @@ uint32_t uiDrawNumberAuto(uint32_t param_1, uint64_t param_2, uint64_t param_3, 
     iVar1 = 0xd;
   }
   param_1 = param_1 + iVar1 * 10;
-  uiDrawNumber10(param_1,param_2,param_3,param_4);
+  RT_CALLRA(0x20454c, guest::uiDrawNumber10(param_1,param_2,param_3,param_4));
   return param_1;
 }
 

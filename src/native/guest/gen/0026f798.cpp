@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceGsSetDefDispEnv(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x64) = 0x00000000u;
+  }
   int iVar1;
   short sVar2;
 uint32_t psVar3;
@@ -24,7 +28,7 @@ uint32_t psVar3;
   iVar12 = (int)param_4;
   iVar13 = (int)param_5;
   iVar11 = (int)param_6;
-  psVar3 = (uint32_t)sceGsGetEnv();
+  psVar3 = (uint32_t)RT_CALLRA(0x26f7e0, guest::sceGsGetEnv());
   (*(uint64_t*)rtguest::G((uint32_t)param_1)) = 0x66;
   sVar2 = (*(int16_t*)rtguest::G((uint32_t)psVar3));
   if ((*(int16_t*)rtguest::G((uint32_t)psVar3)) == 0) {

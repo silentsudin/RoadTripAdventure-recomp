@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t scalbnf(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
   int iVar1;
   float fVar2;
   
@@ -25,7 +29,7 @@ uint32_t scalbnf(uint32_t param_1, uint32_t param_2, ...) {
     else {
       fVar2 = 1e+30;
     }
-    param_1 = (float)copysignf(fVar2,param_1);
+    param_1 = (float)RT_CALLRA(0x277ba4, guest::copysignf(fVar2,param_1));
     param_1 = param_1 * fVar2;
   }
   return param_1;

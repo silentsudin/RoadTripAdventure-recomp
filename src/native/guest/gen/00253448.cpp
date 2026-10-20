@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SteerAiToDefaultWaypoint(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
 uint32_t afStack_60 = rtguest::allocFrame(24);
     uint32_t fStack_48 = rtguest::allocFrame(4);
   short sVar1;
@@ -29,27 +33,27 @@ uint32_t pfVar5;
   (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(3) * 4)) = 0.0;
   (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(2) * 4)) = 200.0;
   fVar9 = 32768.0;
-  fVar7 = rtguest::fbits(atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x40)))),rtguest::f2bits(200.0f - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x48))))));
+  fVar7 = rtguest::fbits(RT_CALLRA(0x2534c8, guest::atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x40)))),rtguest::f2bits(200.0f - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x48)))))));
   sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x1d4)));
   fVar7 = (fVar7 / fVar3) * fVar9;
-  vu0SubVector(afStack_60,iVar2 + 0x40,afStack_60);
-  vecNormalizeVu0(afStack_60,afStack_60);
-  vu0ScaleVector((*(float*)rtguest::G(0x33304c)),afStack_60,afStack_60);
-  vu0AddVector(afStack_60,afStack_60,iVar2 + 0x40);
+  RT_CALLRA(0x253504, guest::vu0SubVector(afStack_60,iVar2 + 0x40,afStack_60));
+  RT_CALLRA(0x253510, guest::vecNormalizeVu0(afStack_60,afStack_60));
+  RT_CALLRA(0x253520, guest::vu0ScaleVector((*(float*)rtguest::G(0x33304c)),afStack_60,afStack_60));
+  RT_CALLRA(0x253530, guest::vu0AddVector(afStack_60,afStack_60,iVar2 + 0x40));
   pfVar5 = afStack_60 + 4;
-  vu0SubVector(pfVar5,afStack_60,(uint32_t)(iVar6 + 0x90));
-  vu0MulVector(pfVar5,pfVar5,pfVar5);
-  fVar8 = rtguest::fbits(atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x90)))),rtguest::f2bits(
-                        (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(2) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x98))))));
+  RT_CALLRA(0x253548, guest::vu0SubVector(pfVar5,afStack_60,(uint32_t)(iVar6 + 0x90)));
+  RT_CALLRA(0x253558, guest::vu0MulVector(pfVar5,pfVar5,pfVar5));
+  fVar8 = rtguest::fbits(RT_CALLRA(0x253584, guest::atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x90)))),rtguest::f2bits(
+                        (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(2) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x98)))))));
   uVar4 = (uint32_t)(int)((fVar8 / fVar3) * fVar9 - (float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x1d4))));
   if ((uint32_t)((short)(int)(fVar7 - (float)(int)sVar1) + 0x7ffU) < 0xfff) {
-    SetAiSteeringTarget(param_1,uVar4);
+    RT_CALLRA(0x2535d0, guest::SetAiSteeringTarget(param_1,uVar4));
   }
   else if (20.0 < SQRT((*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(4) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_48)))) {
-    SetAiSteeringTarget(param_1,uVar4,0);
+    RT_CALLRA(0x253634, guest::SetAiSteeringTarget(param_1,uVar4,0));
   }
   else {
-    SetAiSteeringTarget(param_1,uVar4,0x2d);
+    RT_CALLRA(0x25364c, guest::SetAiSteeringTarget(param_1,uVar4,0x2d));
   }
   return 0;
 }

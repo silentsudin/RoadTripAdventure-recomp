@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t CountFlaggedSlots(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+  }
   bool bVar1;
   int iVar2;
   int iVar3;
@@ -24,11 +28,11 @@ uint32_t puVar10;
   puVar9 = 0x01780390 + iVar6 * 5 + param_3 * 0xd12;
   if ((param_1 == 0) || (uVar12 = 0, param_1 == 0xf)) {
     if (param_2 == 0xffffffff) {
-      iVar2 = CountSetBits((*(uint32_t*)rtguest::G((uint32_t)puVar9)));
-      iVar3 = CountSetBits((*(uint32_t*)rtguest::G((uint32_t)0x17803a0 + (uint32_t)(iVar6 * 5 + param_3 * 0xd12) * 4)));
-      iVar4 = CountSetBits((*(uint32_t*)rtguest::G((uint32_t)0x1780398 + (uint32_t)(iVar6 * 5 + param_3 * 0xd12) * 4)));
-      iVar5 = CountSetBits((*(uint32_t*)rtguest::G((uint32_t)0x1780394 + (uint32_t)(iVar6 * 5 + param_3 * 0xd12) * 4)));
-      iVar6 = CountSetBits((*(uint32_t*)rtguest::G((uint32_t)0x178039c + (uint32_t)(iVar6 * 5 + param_3 * 0xd12) * 4)));
+      iVar2 = RT_CALLRA(0x23c1d0, guest::CountSetBits((*(uint32_t*)rtguest::G((uint32_t)puVar9))));
+      iVar3 = RT_CALLRA(0x23c1e0, guest::CountSetBits((*(uint32_t*)rtguest::G((uint32_t)0x17803a0 + (uint32_t)(iVar6 * 5 + param_3 * 0xd12) * 4))));
+      iVar4 = RT_CALLRA(0x23c1f4, guest::CountSetBits((*(uint32_t*)rtguest::G((uint32_t)0x1780398 + (uint32_t)(iVar6 * 5 + param_3 * 0xd12) * 4))));
+      iVar5 = RT_CALLRA(0x23c204, guest::CountSetBits((*(uint32_t*)rtguest::G((uint32_t)0x1780394 + (uint32_t)(iVar6 * 5 + param_3 * 0xd12) * 4))));
+      iVar6 = RT_CALLRA(0x23c21c, guest::CountSetBits((*(uint32_t*)rtguest::G((uint32_t)0x178039c + (uint32_t)(iVar6 * 5 + param_3 * 0xd12) * 4))));
       return iVar2 + iVar3 + iVar4 + iVar5 + iVar6;
     }
     if (((*(uint32_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)((int)param_2 >> 5) * sizeof(uint32_t))) & 1 << (param_2 & 0x1f)) != 0) {
@@ -64,7 +68,7 @@ uint32_t puVar10;
           puVar10 = puVar10 + 0x4;  // T* element step
           iVar3 = iVar2;
           if ((((uVar7 & 1 << (uVar12 & 0x1f)) != 0) &&
-              (((param_4 & 8) == 0 || (lVar8 = DispatchByIndex15(param_1,uVar12), lVar8 != 0)))) &&
+              (((param_4 & 8) == 0 || (lVar8 = RT_CALLRA(0x23c3a0, guest::DispatchByIndex15(param_1,uVar12)), lVar8 != 0)))) &&
              (iVar3 = iVar2 + 1, uVar12 == param_2)) {
             return iVar2;
           }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t __sfp(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   int iVar1;
 uint32_t puVar2;
 uint32_t puVar3;
@@ -14,7 +18,7 @@ uint32_t puVar4;
   puVar4 = (uint32_t)param_1;
   puVar2 = puVar4 + 0x76;
   if ((*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(0xe) * sizeof(uint32_t))) == 0) {
-    __sinit(param_1);  // 2828d4: $4 intact 2828b8 entry
+    RT_CALLRA(0x2828d4, guest::__sinit(param_1));  // 2828d4: $4 intact 2828b8 entry
   }
   do {
     do {
@@ -42,7 +46,7 @@ uint32_t puVar4;
       }
       puVar2 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar3));
     } while ((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar3)) != (uint32_t)0x0);
-    puVar2 = (uint32_t)__sfmoreglue(param_1,4);
+    puVar2 = (uint32_t)RT_CALLRA(0x282928, guest::__sfmoreglue(param_1,4));
     (*(uint32_t*)rtguest::G((uint32_t)puVar3)) = puVar2;
   } while (puVar2 != (uint32_t)0x0);
   (*(uint32_t*)rtguest::G((uint32_t)puVar4)) = 0xc;

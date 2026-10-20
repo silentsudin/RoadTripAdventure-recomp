@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t endingCreditsScroll(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   undefined2 uVar1;
   undefined4 uVar2;
   char cVar3;
@@ -97,8 +101,8 @@ LAB_0026aae0:
       (*(uint32_t*)rtguest::G((uint32_t)0x1772490 + (uint32_t)(iVar4) * 4)) = 0;
       fVar10 = (*(float*)rtguest::G((uint32_t)pfVar9));
     }
-    uiDrawText((*(uint32_t*)rtguest::G((uint32_t)0x1772488 + (uint32_t)(iVar5 * 10) * 4)),(int)fVar10 / 2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x01772494 + iVar4))),
-               (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x01772498 + iVar4))));
+    RT_CALLRA(0x26ab6c, guest::uiDrawText((*(uint32_t*)rtguest::G((uint32_t)0x1772488 + (uint32_t)(iVar5 * 10) * 4)),(int)fVar10 / 2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x01772494 + iVar4))),
+               (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x01772498 + iVar4)))));
     if ((*(float*)rtguest::G((uint32_t)pfVar9)) + (*(float*)rtguest::G((uint32_t)pfVar9)) == 0.0) {
       (*(float*)rtguest::G((uint32_t)pfVar9)) = (float)0xbfc00000;
       goto LAB_0026aba4;

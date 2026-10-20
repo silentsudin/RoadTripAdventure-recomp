@@ -28,8 +28,8 @@ uint32_t puVar1;
     if (((iVar5 == 3) || (iVar5 == 6)) || (iVar5 == 9)) {
       param_1 = param_1 + -10;
       if (iVar3 < 0x9fc) {
-        uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + iVar3 * 0x10 + 0x70,param_1 * 0x10000 >> 0x10,param_2,0x1ae,0xb4,
-                      10,0x14);
+        RT_CALLRA(0x202240, guest::uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + iVar3 * 0x10 + 0x70,param_1 * 0x10000 >> 0x10,param_2,0x1ae,0xb4,
+                      10,0x14));
         iVar3 = (*(uint32_t*)rtguest::G(0x335684)) + 5;
         (*(uint32_t*)rtguest::G(0x335684)) = iVar3;
       }
@@ -41,8 +41,8 @@ uint32_t puVar1;
       if (iVar3 < 0x9fc) {
         uVar4 = 0xb4;
 LAB_002022f8:
-        uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + iVar3 * 0x10 + 0x70,param_1 * 0x10000 >> 0x10,param_2,iVar2,uVar4
-                      ,10,0x14);
+        RT_CALLRA(0x2022f8, guest::uiSpriteWrite((*(uint32_t*)rtguest::G(0x335680)) + iVar3 * 0x10 + 0x70,param_1 * 0x10000 >> 0x10,param_2,iVar2,uVar4
+                      ,10,0x14));
         (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
       }
     }

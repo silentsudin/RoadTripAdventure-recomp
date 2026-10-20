@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t balloonNpcUpdate(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   byte bVar1;
   byte bVar2;
 uint32_t puVar3;
@@ -55,7 +59,7 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
       (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - (*(uint32_t*)rtguest::G(0x3330f4));
       (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) = fVar13;
       if (bVar4) {
-        iVar7 = __umoddi3((*(uint64_t*)rtguest::G((uint32_t)puVar9)),5);
+        iVar7 = RT_CALLRA(0x25e0c0, guest::__umoddi3((*(uint64_t*)rtguest::G((uint32_t)puVar9)),5));
         uVar6 = (*(uint32_t*)rtguest::G(0x333108));
         uVar5 = (*(uint32_t*)rtguest::G(0x333104));
         uVar12 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4bf0 + iVar7 * 4)));
@@ -66,8 +70,8 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19))) = 0;
       }
     }
-    vu0SubVector(auStack_50,puVar3,0x177ace0);
-    fVar13 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
+    RT_CALLRA(0x25e10c, guest::vu0SubVector(auStack_50,puVar3,0x177ace0));
+    fVar13 = rtguest::fbits(RT_CALLRA(0x25e118, guest::vecDotProductVu0(auStack_50,auStack_50)));
     if ((*(uint32_t*)rtguest::G(0x33310c)) <= SQRT(fVar13)) {
       fVar13 = (float)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t)));
       goto LAB_0025e178;
@@ -83,12 +87,12 @@ LAB_0025e178:
     (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(3) * sizeof(uint32_t))) = 0x3f800000;
   }
   puVar8 = 0x0177eb10 + (uint32_t)bVar1 * 0x40;
-  vu0UnitMatrix(puVar8);
+  RT_CALLRA(0x25e1c4, guest::vu0UnitMatrix(puVar8));
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19))) != '\x03') && (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar9 + 5))) & 0x8000) == 0)) {
-    vu0RotMatrixX(((float)(0x14 - (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x28) * (*(uint32_t*)rtguest::G(0x333110))) / 20.0,puVar8,puVar8
-                 );
+    RT_CALLRA(0x25e238, guest::vu0RotMatrixX(((float)(0x14 - (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x28) * (*(uint32_t*)rtguest::G(0x333110))) / 20.0,puVar8,puVar8
+                 ));
   }
-  vu0CopyVector(0x0177eb40 + (uint32_t)bVar1 * 0x10,puVar3);
+  RT_CALLRA(0x25e24c, guest::vu0CopyVector(0x0177eb40 + (uint32_t)bVar1 * 0x10,puVar3));
   return 0;
 }
 

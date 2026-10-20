@@ -10,6 +10,10 @@ namespace guest {
 
 uint32_t __ieee754_atan2f(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   int iVar1;
   uint32_t uVar2;
   uint32_t puVar3;
@@ -44,7 +48,7 @@ uint32_t __ieee754_atan2f(uint32_t param_1, uint32_t param_2, ...) {
     puVar3 = 0x3fc90fdcu;
     iVar1 = (int32_t)(hy - hx) >> 0x17;
     if ((iVar1 < 0x3d) && ((-1 < (int32_t)param_2 || (puVar3 = 0, -0x3d < iVar1)))) {
-      uVar4 = fabsf(rtguest::f2bits(y / rtguest::fbits(param_2)));
+      uVar4 = RT_CALLRA(0x2751fc, guest::fabsf(rtguest::f2bits(y / rtguest::fbits(param_2))));
       puVar3 = atanf(uVar4);
     }
     if (uVar2 == 1) {

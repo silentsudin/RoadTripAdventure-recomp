@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t goalAreaTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   int iVar1;
   uint uVar2;
   float fVar3;
@@ -18,12 +22,12 @@ uint32_t puVar6;
   
   iVar5 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) == 0) {
-    __s = (uint32_t)getExtraPacketArea(0x8cc0);
+    __s = (uint32_t)RT_CALLRA(0x260668, guest::getExtraPacketArea(0x8cc0));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))) = __s;
     (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(__s)), 0, 0x8cc0));
-    ResetMode16((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))));
-    gs_music_play_bgm(0xa100201);
-    gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))));
+    RT_CALLRA(0x260684, guest::ResetMode16((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)))));
+    RT_CALLRA(0x260690, guest::gs_music_play_bgm(0xa100201));
+    RT_CALLRA(0x2606a4, guest::gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)))));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))) + 0x8cb0))) = 0;
     (*(uint8_t*)rtguest::G(0x177b05a)) = 1;
     return 0;
@@ -34,14 +38,14 @@ uint32_t puVar6;
   switch((*(uint32_t*)rtguest::G((uint32_t)puVar6))) {
   case 0:
     uVar8 = 0x41c40000;
-    StoreIndexedPosition((*(uint32_t*)rtguest::G(0x333168)),0x41c40000,0x43c20000,0,0);
-    StoreIndexedPosition((*(uint32_t*)rtguest::G(0x33316c)),uVar8,0x43c20000,1,0);
+    RT_CALLRA(0x260728, guest::StoreIndexedPosition((*(uint32_t*)rtguest::G(0x333168)),0x41c40000,0x43c20000,0,0));
+    RT_CALLRA(0x260740, guest::StoreIndexedPosition((*(uint32_t*)rtguest::G(0x33316c)),uVar8,0x43c20000,1,0));
     (*(uint32_t*)rtguest::G((uint32_t)puVar6)) = 1;
   case 1:
     if ((((*(uint32_t*)rtguest::G(0x177ace0)) < 410.0) || (430.0 < (*(uint32_t*)rtguest::G(0x177ace0)))) || ((*(uint32_t*)rtguest::G(0x177ace8)) < 370.0)
        ) {
-      GetOrSetPresidentRaceResult(0);
-      SetRoadData5((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),0,1);
+      RT_CALLRA(0x2607b0, guest::GetOrSetPresidentRaceResult(0));
+      RT_CALLRA(0x2607c0, guest::SetRoadData5((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),0,1));
       (*(uint32_t*)rtguest::G((uint32_t)puVar6)) = 2;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffffeff;
@@ -53,20 +57,20 @@ uint32_t puVar6;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffffeff;
       if (fVar7 < fVar3) {
-        GetOrSetPresidentRaceResult(1);
-        SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),0,1);
+        RT_CALLRA(0x26083c, guest::GetOrSetPresidentRaceResult(1));
+        RT_CALLRA(0x26084c, guest::SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),0,1));
         fVar7 = (*(uint32_t*)rtguest::G(0x333174));
       }
       else {
         if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8))) < 0x1e1) {
-          GetOrSetPresidentRaceResult(3);
+          RT_CALLRA(0x260870, guest::GetOrSetPresidentRaceResult(3));
           uVar8 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)));
         }
         else {
-          GetOrSetPresidentRaceResult(2);
+          RT_CALLRA(0x260880, guest::GetOrSetPresidentRaceResult(2));
           uVar8 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)));
         }
-        SetWheelSprite(uVar8,0,1);
+        RT_CALLRA(0x260890, guest::SetWheelSprite(uVar8,0,1));
         fVar7 = (*(uint32_t*)rtguest::G(0x333174));
       }
     }
@@ -88,7 +92,7 @@ LAB_002608e4:
       }
       uVar8 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8)));
     }
-    InitHudConfig2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),uVar8);
+    RT_CALLRA(0x2608e8, guest::InitHudConfig2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),uVar8));
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)));
     break;
   case 2:
@@ -96,7 +100,7 @@ LAB_002608e4:
     (*(uint32_t*)rtguest::G((uint32_t)puVar6)) = 3;
     break;
   case 3:
-    uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) << 0x18);
+    RT_CALLRA(0x26091c, guest::uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) << 0x18));
     if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) < 0x80) {
       (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) + 1;
       iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)));
@@ -109,15 +113,15 @@ LAB_002608e4:
   case 0xffffffff:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 1;
   }
-  raceHudDraw(iVar4);
+  RT_CALLRA(0x260960, guest::raceHudDraw(iVar4));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) != 0) {
-    SoundStopAllChannels();
-    uiFade(0xffffffff80000000);
+    RT_CALLRA(0x260974, guest::SoundStopAllChannels());
+    RT_CALLRA(0x26097c, guest::uiFade(0xffffffff80000000));
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x18)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 8;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) = 0xffffffff;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x2609a4, guest::gs_tasks_kill(param_1));
   }
   return 0;
 }

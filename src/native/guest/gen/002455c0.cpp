@@ -7,6 +7,8 @@ namespace guest {
 uint32_t drawCarouselScene(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(160);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_2;
   }
     uint32_t iStack_90 = rtguest::allocFrame(4);
@@ -42,7 +44,7 @@ uint32_t puVar20;
   float fVar28;
   float fVar29;
   
-  iVar8 = getExtraPacketArea(0x4c60);
+  iVar8 = RT_CALLRA(0x2455fc, guest::getExtraPacketArea(0x4c60));
   uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 6)));
   uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x34)));
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 10))) & 2) != 0) {
@@ -54,24 +56,24 @@ uint32_t puVar20;
     iVar26 = 0;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x28))) = iVar8;
     iVar18 = iVar8 + 0x60;
-    gifBeginSpriteBatch(iVar8,0x2003ecce21411efc);
+    RT_CALLRA(0x245684, guest::gifBeginSpriteBatch(iVar8,0x2003ecce21411efc));
     (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x10))) = 0x3001b;
     (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x58))) = 0x42;
     (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x50))) = 0x8000000044;
     (*(int32_t*)rtguest::G((uint32_t)iStack_90)) = 0;
-    gifSetTexRegs(iVar18,0x2003a84621411cc6,5);
+    RT_CALLRA(0x2456dc, guest::gifSetTexRegs(iVar18,0x2003a84621411cc6,5));
     (*(int32_t*)rtguest::G((uint32_t)iStack_88)) = 0;
     iVar25 = iVar8 + 0x80;
     iVar24 = iVar18;
     do {
-      gifTexQuadTag(iVar25);
+      RT_CALLRA(0x2456f8, guest::gifTexQuadTag(iVar25));
       puVar19 = (uint32_t)(iVar24 + iVar26 + 0x5c);
       iVar21 = 3;
       iVar12 = iVar18 + (*(int32_t*)rtguest::G((uint32_t)iStack_88));
       puVar20 = 0x002a8a20;
       do {
         iVar12 = iVar12 + 0x30;
-        vu0CopyVector(iVar12,puVar20);
+        RT_CALLRA(0x245724, guest::vu0CopyVector(iVar12,puVar20));
         iVar21 = iVar21 + -1;
         (*(uint32_t*)rtguest::G((uint32_t)puVar19)) = 0xff0;
         puVar19 = puVar19 + 0x30;  // T* element step
@@ -84,7 +86,7 @@ uint32_t puVar20;
       (*(int32_t*)rtguest::G((uint32_t)iStack_88)) = (*(int32_t*)rtguest::G((uint32_t)iStack_88)) + 0x50;
       iVar24 = iVar24 + 0x80;
     } while ((*(int32_t*)rtguest::G((uint32_t)iStack_90)) < 0x10);
-    LayoutRaceRowQuads(iVar8 + 0xd80,param_2);
+    RT_CALLRA(0x245778, guest::LayoutRaceRowQuads(iVar8 + 0xd80,param_2));
     iVar24 = 0x11;
     puVar19 = (uint32_t)(iVar8 + 0x1f60);
     do {
@@ -102,7 +104,7 @@ uint32_t puVar20;
       (*(uint32_t*)rtguest::G((uint32_t)puVar19 + (uint32_t)(7) * sizeof(uint32_t))) = 0x44480000;
       puVar19 = puVar19 + 0x1e0;  // T* element step
     } while (-1 < iVar24);
-    SetupCarouselSlotTransforms(iVar8 + 0x3d60);
+    RT_CALLRA(0x2457f4, guest::SetupCarouselSlotTransforms(iVar8 + 0x3d60));
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 10)));
     if (cVar1 == '\x01') {
       uVar17 = 0x40ff;
@@ -131,17 +133,17 @@ LAB_0024585c:
         goto LAB_0024585c;
       }
     }
-    uVar5 = CountSetBits((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x20))));
+    uVar5 = RT_CALLRA(0x245868, guest::CountSetBits((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x20)))));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26))) = uVar5;
-    uVar5 = FindSetBitRank((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x20))),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x1c))));
+    uVar5 = RT_CALLRA(0x245878, guest::FindSetBitRank((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x20))),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x1c)))));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) = uVar5;
-    gs_music_play_bgm(0xa190201);
-    PlayBgmSlot1();
+    RT_CALLRA(0x245888, guest::gs_music_play_bgm(0xa190201));
+    RT_CALLRA(0x245890, guest::PlayBgmSlot1());
   }
   iVar26 = 0;
   iVar18 = iVar8 + 0x1aa0;
   iVar24 = (int)(*(uint64_t*)rtguest::G((uint32_t)param_2));
-  gifSetSpriteCount(iVar18,0xf);
+  RT_CALLRA(0x2458c0, guest::gifSetSpriteCount(iVar18,0xf));
   iVar25 = 0;
   do {
     iVar23 = 0;
@@ -153,7 +155,7 @@ LAB_0024585c:
       iVar21 = iVar21 + -1;
       iVar16 = iVar23 - iVar24 % 200;
       iVar23 = iVar23 + 200;
-      uiSpriteWrite(iVar12,iVar16 * 0x10000 >> 0x10,(iVar25 << 0x11) >> 0x10,0,0,200,0x96);
+      RT_CALLRA(0x24594c, guest::uiSpriteWrite(iVar12,iVar16 * 0x10000 >> 0x10,(iVar25 << 0x11) >> 0x10,0,0,200,0x96));
       (*(uint32_t*)rtguest::G((uint32_t)puVar19)) = 1;
       puVar19 = puVar19 + 0x50;  // T* element step
       iVar12 = iVar12 + 0x50;
@@ -238,14 +240,14 @@ LAB_00245ad0:
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar25 + 4))) = iVar24;
     }
     else if (iVar24 == 2) {
-      PlayBgmSlot5();
+      RT_CALLRA(0x245af0, guest::PlayBgmSlot5());
       iVar24 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar24 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar24 + 4))) = 0xffffffff;
     }
   }
 LAB_00245b08:
-  UpdateSceneLightsAndFog(1,0);
+  RT_CALLRA(0x245b08, guest::UpdateSceneLightsAndFog(1,0));
   uVar17 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
   iVar24 = 0;
   if (uVar17 != 0) {
@@ -273,14 +275,14 @@ LAB_00245b78:
                                      (int)uVar17) * 8 + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 2)))) * 0x2000) /
                                   (int)uVar17) * (*(uint32_t*)rtguest::G(0x332f3c)) * 3.0517578e-05;
       if (cVar1 == '\0') {
-        fVar27 = rtguest::fbits(cosf(rtguest::f2bits(fVar29)));
+        fVar27 = rtguest::fbits(RT_CALLRA(0x245bdc, guest::cosf(rtguest::f2bits(fVar29))));
         iVar23 = (int)(fVar27 * fVar28) + 0xc0;
-        fVar27 = rtguest::fbits(sinf(rtguest::f2bits(fVar29)));
+        fVar27 = rtguest::fbits(RT_CALLRA(0x245bf4, guest::sinf(rtguest::f2bits(fVar29))));
         iVar25 = (int)(fVar27 * 192.0) + 0x140;
-        fVar27 = rtguest::fbits(cosf(rtguest::f2bits(fVar29)));
+        fVar27 = rtguest::fbits(RT_CALLRA(0x245c14, guest::cosf(rtguest::f2bits(fVar29))));
         iVar12 = (int)(fVar27 * fVar28) + 0x80;
-        BuildCarouselQuadA(fVar29,iVar8 + 0x60,iVar26,iVar25,iVar12,iVar23);
-        BuildCarouselQuadD(fVar29,iVar8 + 0xd80,iVar26,iVar25,iVar12,iVar23);
+        RT_CALLRA(0x245c48, guest::BuildCarouselQuadA(fVar29,iVar8 + 0x60,iVar26,iVar25,iVar12,iVar23));
+        RT_CALLRA(0x245c68, guest::BuildCarouselQuadD(fVar29,iVar8 + 0xd80,iVar26,iVar25,iVar12,iVar23));
         if (iVar26 < 10) {
           if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 10))) == '\x01') {
             iVar21 = iVar26 * 0x10;
@@ -307,12 +309,12 @@ LAB_00245b78:
           iVar21 = iVar21 - iVar26;
           uVar9 = 0;
 LAB_00245ea8:
-          BuildCarouselDrawPacket(fVar29,iVar8 + iVar21 * 0x20 + 0x1f60,iVar25,iVar12,iVar23,uVar9);
+          RT_CALLRA(0x245ea8, guest::BuildCarouselDrawPacket(fVar29,iVar8 + iVar21 * 0x20 + 0x1f60,iVar25,iVar12,iVar23,uVar9));
           uVar17 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
         }
         else {
-          BuildCarouselQuadB(fVar29,iVar8 + (iVar21 - iVar26) * 0x10 + 0x3d60,iVar25,iVar12,iVar23,
-                             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 8))));
+          RT_CALLRA(0x245d28, guest::BuildCarouselQuadB(fVar29,iVar8 + (iVar21 - iVar26) * 0x10 + 0x3d60,iVar25,iVar12,iVar23,
+                             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 8)))));
           bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
 LAB_00245ee4:
           uVar17 = (uint32_t)bVar2;
@@ -339,8 +341,8 @@ LAB_00245ee4:
           iVar25 = 0x140;
           iVar12 = 0xc0;
         }
-        BuildCarouselQuadA(fVar29,iVar8 + 0x60,iVar26,iVar25,iVar12,0x100);
-        BuildCarouselQuadD(fVar29,iVar8 + 0xd80,iVar26,iVar25,iVar12,0x100);
+        RT_CALLRA(0x245dd8, guest::BuildCarouselQuadA(fVar29,iVar8 + 0x60,iVar26,iVar25,iVar12,0x100));
+        RT_CALLRA(0x245df8, guest::BuildCarouselQuadD(fVar29,iVar8 + 0xd80,iVar26,iVar25,iVar12,0x100));
         if (iVar26 < 10) {
           if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 10))) == '\x01') {
             iVar21 = iVar26 * 0x10;
@@ -364,8 +366,8 @@ LAB_00245ee4:
           iVar21 = iVar26 << 4;
         }
         if (0x11 < (int)uVar17) {
-          BuildCarouselQuadB(fVar29,iVar8 + (iVar21 - iVar26) * 0x10 + 0x3d60,iVar25,iVar12,0x100,
-                             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 8))));
+          RT_CALLRA(0x245ed8, guest::BuildCarouselQuadB(fVar29,iVar8 + (iVar21 - iVar26) * 0x10 + 0x3d60,iVar25,iVar12,0x100,
+                             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 8)))));
           bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
           goto LAB_00245ee4;
         }
@@ -382,11 +384,11 @@ LAB_00245ee4:
       uVar13 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x20)));
     } while( true );
   }
-  vifBeginPacket(1);
-  vifDirect(iVar8,6);
-  vifDirect(iVar18,0x4c);
+  RT_CALLRA(0x245ef4, guest::vifBeginPacket(1));
+  RT_CALLRA(0x245f00, guest::vifDirect(iVar8,6));
+  RT_CALLRA(0x245f0c, guest::vifDirect(iVar18,0x4c));
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x25))) == '\0') {
-    vifDirect(0x2a8b20,3);
+    RT_CALLRA(0x245f24, guest::vifDirect(0x2a8b20,3));
     bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
     uVar17 = (uint32_t)(bVar2 >> 1);
     bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
@@ -409,7 +411,7 @@ LAB_00245ee4:
       }
       iVar18 = -1;
 LAB_00245fa8:
-      drawCarouselCells((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x28))),iVar18,param_2);
+      RT_CALLRA(0x245fac, guest::drawCarouselCells((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x28))),iVar18,param_2));
       iVar24 = (int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27))) + uVar17) % (int)(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
       if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26))) == 0) {
         trap(7);
@@ -428,7 +430,7 @@ LAB_00245fa8:
         }
         iVar8 = -1;
 LAB_00246018:
-        drawCarouselCells((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x28))),iVar8,param_2);
+        RT_CALLRA(0x24601c, guest::drawCarouselCells((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x28))),iVar8,param_2));
       }
       uVar17 = uVar17 - 1;
       if ((int)uVar17 < 0) goto LAB_002460ac;
@@ -436,7 +438,7 @@ LAB_00246018:
       bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)));
     } while( true );
   }
-  vifDirect(0x2a8b20,3);
+  RT_CALLRA(0x24603c, guest::vifDirect(0x2a8b20,3));
   bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x26)));
   iVar8 = 0;
   if (bVar2 == 0) {
@@ -459,10 +461,10 @@ LAB_00246018:
     iVar24 = -1;
   }
 LAB_002460a0:
-  drawCarouselCells((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x28))),iVar24,param_2);
+  RT_CALLRA(0x2460a4, guest::drawCarouselCells((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x28))),iVar24,param_2));
 LAB_002460ac:
-  uVar11 = vifEndPacket(1);
-  vifKick(uVar11);
+  uVar11 = RT_CALLRA(0x2460ac, guest::vifEndPacket(1));
+  RT_CALLRA(0x2460b4, guest::vifKick(uVar11));
   if (((((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x25))) != '\0') || ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 8))) == 0)) ||
       ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 2))) != 0)) || (iVar8 = 0, (uVar3 & 0x40) == 0)) {
     return 0;
@@ -486,7 +488,7 @@ LAB_00246130:
   else if (iVar8 < 0xe) {
     if (iVar8 != 0xc) {
 LAB_002461c4:
-      gs_tasks_spawn(param_1,0x248180);
+      RT_CALLRA(0x2461ac, guest::gs_tasks_spawn(param_1,0x248180));
       goto LAB_002461d0;
     }
     uVar11 = 0x248580;
@@ -498,7 +500,7 @@ LAB_002461c4:
     if (iVar8 != 0xf) goto LAB_002461c4;
     uVar11 = 0x248bf0;
   }
-  gs_tasks_spawn(param_1,uVar11,0);
+  RT_CALLRA(0x2461c4, guest::gs_tasks_spawn(param_1,uVar11,0));
 LAB_002461d0:
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 8))) = 0;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x25))) = 1;

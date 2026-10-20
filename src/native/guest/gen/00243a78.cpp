@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t ComputeScaledPartValue(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   int iVar3;
   
-  iVar1 = ComputeSlotScore(param_3);
-  iVar2 = ComputeSlotScore(param_3 ^ 1);
-  iVar3 = DispatchByIndex15(param_1,param_2);
+  iVar1 = RT_CALLRA(0x243aa4, guest::ComputeSlotScore(param_3));
+  iVar2 = RT_CALLRA(0x243ab0, guest::ComputeSlotScore(param_3 ^ 1));
+  iVar3 = RT_CALLRA(0x243ac0, guest::DispatchByIndex15(param_1,param_2));
   if (param_4 == 0) {
     iVar1 = (iVar3 * (2000 - (iVar1 - iVar2))) / 2000;
   }

@@ -7,6 +7,8 @@ namespace guest {
 uint32_t texAnimCopyA(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(272);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xe8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xec) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_1;
   }
   undefined4 uVar1;
@@ -64,11 +66,11 @@ uint32_t texAnimCopyA(uint32_t param_1, ...) {
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 0xc;
   uVar8 = (*(uint32_t*)rtguest::G(0x332e4c));
   uVar10 = (*(uint32_t*)rtguest::G(0x332e44));
-  gifChainEndTag(0x2a3490,0xd);
-  sendTexturePackets(0x2a3490);
+  RT_CALLRA(0x23e440, guest::gifChainEndTag(0x2a3490,0xd));
+  RT_CALLRA(0x23e448, guest::sendTexturePackets(0x2a3490));
   fVar9 = (float)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x168 + -0xb4) * (*(uint32_t*)rtguest::G(0x332e50));
-  vu0UnitMatrix(0x177eb10);
-  vu0RotMatrixX(fVar9 / 180.0,0x177eb10,0x177eb10);
+  RT_CALLRA(0x23e4a4, guest::vu0UnitMatrix(0x177eb10));
+  RT_CALLRA(0x23e4b4, guest::vu0RotMatrixX(fVar9 / 180.0,0x177eb10,0x177eb10));
   (*(uint32_t*)rtguest::G(0x177eb40)) = uVar10;
   (*(uint32_t*)rtguest::G(0x177eb48)) = uVar8;
   (*(uint32_t*)rtguest::G(0x177eb44)) = uVar1;

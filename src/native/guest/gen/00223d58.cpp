@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateCarEffectSlots(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
   int iVar1;
   uint uVar2;
 uint32_t puVar3;
@@ -23,7 +27,7 @@ uint32_t puVar3;
       uVar2 = param_1 >> 2;
       switch((*(uint32_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar4) * 4))) {
       case 1:
-        drawCarEffectB((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))),fVar5,uVar2 & 3,param_3,puVar3,1);
+        RT_CALLRA(0x223e18, guest::drawCarEffectB((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))),fVar5,uVar2 & 3,param_3,puVar3,1));
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) == 0) {
           fVar5 = 0.015625;
           fVar6 = (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1)));
@@ -40,7 +44,7 @@ LAB_00223f0c:
         }
         break;
       case 2:
-        drawCarEffectB((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))),fVar5,uVar2 & 3,param_3,puVar3,2);
+        RT_CALLRA(0x223e58, guest::drawCarEffectB((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))),fVar5,uVar2 & 3,param_3,puVar3,2));
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) == 0) {
           fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1))) - 0.0078125;
           (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1))) = fVar5;
@@ -52,7 +56,7 @@ LAB_00223f0c:
         }
         break;
       case 3:
-        drawCarEffectB((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))),fVar5,uVar2 & 3,param_3,puVar3,3);
+        RT_CALLRA(0x223ec0, guest::drawCarEffectB((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))),fVar5,uVar2 & 3,param_3,puVar3,3));
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) == 0) {
           fVar6 = (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1)));
           fVar5 = 0.0078125;
@@ -62,7 +66,7 @@ LAB_00223f0c:
       default:
         goto switchD_00223df4_caseD_4;
       case 7:
-        drawCarEffectB(fVar5,0x3f000000,0,param_3,puVar3,7);
+        RT_CALLRA(0x223f6c, guest::drawCarEffectB(fVar5,0x3f000000,0,param_3,puVar3,7));
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) == 0) {
           fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1))) + 0.0078125;
           (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1))) = fVar5;
@@ -86,13 +90,13 @@ LAB_00224004:
         break;
       case 8:
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) == 0) {
-          AdvanceCarEffectSlot(iVar4);
+          RT_CALLRA(0x223f38, guest::AdvanceCarEffectSlot(iVar4));
           fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1)));
           if ((*(uint32_t*)rtguest::G((uint32_t)0x17307f4 + (uint32_t)(iVar4 * 8) * 4)) != '\0') {
             (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x017307f0 + iVar4 * 8))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x017307f0 + iVar4 * 8))) + 1;
           }
         }
-        drawCarEffectB((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))),fVar5,uVar2 & 3,param_3,puVar3,3);
+        RT_CALLRA(0x223f98, guest::drawCarEffectB((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))),fVar5,uVar2 & 3,param_3,puVar3,3));
       }
     }
     else {

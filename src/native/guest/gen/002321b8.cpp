@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t raceHudInit(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(param_1)), 0, 0x8cb0));
   (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x8004))) = (int)param_2;
   if (param_2 == 0) {

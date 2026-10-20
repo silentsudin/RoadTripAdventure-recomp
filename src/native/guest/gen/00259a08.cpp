@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateNpcTailCarTransform(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
+  }
     // alloc order = guest stack layout: &uStack_60 spans _60,_5c,_58 ascending
     // (TransformRectangle writes float3), auStack_50 adjacent above.
     uint32_t uStack_60 = rtguest::allocFrame(4);
@@ -31,8 +35,8 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
   pbVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) != 0) goto LAB_0025a078;
   pfVar8 = (uint32_t)(pbVar1 + 0x20);
-  vu0SubVector(auStack_50,pfVar8,0x177ace0);
-  fVar10 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
+  RT_CALLRA(0x259a5c, guest::vu0SubVector(auStack_50,pfVar8,0x177ace0));
+  fVar10 = rtguest::fbits(RT_CALLRA(0x259a68, guest::vecDotProductVu0(auStack_50,auStack_50)));
   if (SQRT(fVar10) < 1.5) {
     if (((*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(2) * sizeof(int8_t))) & 1) == 0) {
       (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(6) * sizeof(int8_t))) = 0;
@@ -48,7 +52,7 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
       }
     }
     (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(3) * sizeof(int8_t))) = bVar3;
-    fVar11 = rtguest::fbits(GetSpeedFromF15Vector(0x177ad40));
+    fVar11 = rtguest::fbits(RT_CALLRA(0x259b3c, guest::GetSpeedFromF15Vector(0x177ad40)));
     iVar2 = (*(int32_t*)rtguest::G(0x177ad48));
     fVar10 = (*(float*)rtguest::G(0x3330c0));
     iVar9 = (int)fVar11;
@@ -244,23 +248,23 @@ LAB_00259f6c:
     }
   }
   if (iVar5 >> 0x18 == 0x10) {
-    vu0SubVector(auStack_50,(*(uint32_t*)rtguest::G((uint32_t)(0x2c3a00u + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(1) * sizeof(int8_t)))) * 4))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x10,0x177ace0);
-    fVar10 = rtguest::fbits(vecDotProductVu0(auStack_50,auStack_50));
+    RT_CALLRA(0x259fec, guest::vu0SubVector(auStack_50,(*(uint32_t*)rtguest::G((uint32_t)(0x2c3a00u + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(1) * sizeof(int8_t)))) * 4))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x10,0x177ace0));
+    fVar10 = rtguest::fbits(RT_CALLRA(0x259ff8, guest::vecDotProductVu0(auStack_50,auStack_50)));
     if (1.5 <= SQRT(fVar10)) {
-      vu0CopyVector(pfVar8,(*(uint32_t*)rtguest::G((uint32_t)(0x2c3a00u + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(1) * sizeof(int8_t)))) * 4))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x10);
+      RT_CALLRA(0x25a060, guest::vu0CopyVector(pfVar8,(*(uint32_t*)rtguest::G((uint32_t)(0x2c3a00u + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(1) * sizeof(int8_t)))) * 4))) + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x10));
       (*(int8_t*)rtguest::G((uint32_t)pbVar1 + (uint32_t)(2) * sizeof(int8_t))) = 0;
     }
   }
 LAB_0025a078:
-  TransformRectangle(uStack_60,pbVar1 + 0x30);
-  vu0UnitMatrix(0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40);
-  vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)uStack_60)),0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40,0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40)
+  RT_CALLRA(0x25a078, guest::TransformRectangle(uStack_60,pbVar1 + 0x30));
+  RT_CALLRA(0x25a090, guest::vu0UnitMatrix(0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40));
+  RT_CALLRA(0x25a0a8, guest::vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)uStack_60)),0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40,0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40))
   ;
-  vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40,0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40)
+  RT_CALLRA(0x25a0c0, guest::vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40,0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40))
   ;
-  vu0RotMatrixZ((*(uint32_t*)rtguest::G((uint32_t)uStack_58)),0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40,0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40)
+  RT_CALLRA(0x25a0dc, guest::vu0RotMatrixZ((*(uint32_t*)rtguest::G((uint32_t)uStack_58)),0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40,0x0177eb10 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x40))
   ;
-  vu0CopyVector(0x0177eb40 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x10,pbVar1 + 0x20);
+  RT_CALLRA(0x25a0f0, guest::vu0CopyVector(0x0177eb40 + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar1)) * 0x10,pbVar1 + 0x20));
   return 0;
 }
 

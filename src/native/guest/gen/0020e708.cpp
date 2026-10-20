@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateTownBlockTasks(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   byte bVar1;
   uint uVar2;
   uint uVar3;
@@ -26,7 +30,7 @@ uint32_t piVar13;
   iVar14 = (int)param_1;
   iVar15 = (int)param_2;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 8))) == 0) {
-    SetAICarController(0x2508e0);
+    RT_CALLRA(0x20e748, guest::SetAICarController(0x2508e0));
     cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x23)));
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) = cVar8;
     if (cVar8 == '\0') {
@@ -39,11 +43,11 @@ uint32_t piVar13;
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25))) = (bVar1 != 8) + '\x03';
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) == '\x16') {
-      uVar6 = gs_tasks_spawn(param_1,0x218458,(uint32_t)bVar1 << 10 | 0x800021);
+      uVar6 = RT_CALLRA(0x20e7c8, guest::gs_tasks_spawn(param_1,0x218458,(uint32_t)bVar1 << 10 | 0x800021));
       iVar15 = 0;
-      SetTaskFlag(uVar6);
-      uVar6 = gs_tasks_spawn(param_1,0x218458,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) << 10 | 0x800042);
-      SetTaskFlag(uVar6);
+      RT_CALLRA(0x20e7d4, guest::SetTaskFlag(uVar6));
+      uVar6 = RT_CALLRA(0x20e7f4, guest::gs_tasks_spawn(param_1,0x218458,(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) << 10 | 0x800042));
+      RT_CALLRA(0x20e7fc, guest::SetTaskFlag(uVar6));
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x26))) == '\0') {
         cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25)));
         goto LAB_0020eb84;
@@ -55,8 +59,8 @@ uint32_t piVar13;
         iVar15 = iVar15 + 1;
         uVar2 = (uint32_t)bVar1 << 10 | uVar9;
         uVar9 = uVar9 + 0x20;
-        uVar6 = gs_tasks_spawn(param_1,0x218458,uVar2 | uVar3 | 0x800000);
-        SetTaskFlag(uVar6);
+        uVar6 = RT_CALLRA(0x20e840, guest::gs_tasks_spawn(param_1,0x218458,uVar2 | uVar3 | 0x800000));
+        RT_CALLRA(0x20e848, guest::SetTaskFlag(uVar6));
         if ((int)(uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x26))) <= iVar15) break;
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27)));
       }
@@ -65,14 +69,13 @@ uint32_t piVar13;
       iVar10 = 0;
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x26))) != '\0') {
         while( true ) {
-          lVar5 = CheckUnlockCondition
-                            (bVar1,(char)(*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)((uint32_t)bVar1 * 8) * 1)) + iVar10,
-                             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x14))));
+          lVar5 = RT_CALLRA(0x20e8ac, guest::CheckUnlockCondition(bVar1,(char)(*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)((uint32_t)bVar1 * 8) * 1)) + iVar10,
+                             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x14)))));
           if (lVar5 == 0) {
-            uVar6 = gs_tasks_spawn(param_1,0x218458,
+            uVar6 = RT_CALLRA(0x20e8e4, guest::gs_tasks_spawn(param_1,0x218458,
                                    (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) << 10 | (iVar10 + 4) * 0x20 |
-                                   iVar10 + 1U | 0x800000);
-            SetTaskFlag(uVar6);
+                                   iVar10 + 1U | 0x800000));
+            RT_CALLRA(0x20e8ec, guest::SetTaskFlag(uVar6));
             bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x26)));
           }
           else {
@@ -94,7 +97,7 @@ uint32_t piVar13;
       lVar5 = tileSlotLoaded(param_2,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8))));
       if (lVar5 == 0) {
         rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea770u)), (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) * 8))));
-        DestroyTaskRecord(param_1);
+        RT_CALLRA(0x20e978, guest::DestroyTaskRecord(param_1));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x26))) = 0;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25))) = 0;
         cVar8 = '\0';
@@ -122,7 +125,7 @@ uint32_t piVar13;
               do {
                 iVar15 = (int)cVar8 + (int)lVar5;
                 lVar5 = (long)((int)lVar5 + 1);
-                lVar7 = MatchSlotPairState(uVar9,iVar15);
+                lVar7 = RT_CALLRA(0x20ea24, guest::MatchSlotPairState(uVar9,iVar15));
                 if (lVar7 == 0) {
                   puVar4 = (*(uint32_t*)rtguest::G((uint32_t)ppuVar12)) + iVar15 * 0x10;
                 }
@@ -133,7 +136,7 @@ uint32_t piVar13;
                 piVar13 = piVar13 + (uint32_t)(1) * sizeof(int32_t);
               } while (lVar5 < (long)uVar16);
             }
-            gs_tasks_spawn(param_1,0x20dc50,uVar16 | 0x370400);
+            RT_CALLRA(0x20ea88, guest::gs_tasks_spawn(param_1,0x20dc50,uVar16 | 0x370400));
           }
           cVar8 = '\x01';
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x25))) = 1;
@@ -152,13 +155,12 @@ uint32_t piVar13;
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x26))) != '\0') {
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27)));
         while( true ) {
-          lVar5 = CheckUnlockCondition
-                            (bVar1,(char)(*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)((uint32_t)bVar1 * 8) * 1)) + iVar10,
-                             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x14))));
+          lVar5 = RT_CALLRA(0x20eb18, guest::CheckUnlockCondition(bVar1,(char)(*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)((uint32_t)bVar1 * 8) * 1)) + iVar10,
+                             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x14)))));
           if (lVar5 == 0) {
-            gs_tasks_spawn(param_1,0x218458,
+            RT_CALLRA(0x20eb48, guest::gs_tasks_spawn(param_1,0x218458,
                            (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x27))) << 10 | (iVar10 + 4) * 0x20 | iVar10 + 1U
-                           | 0x800000);
+                           | 0x800000));
             bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x26)));
           }
           else {

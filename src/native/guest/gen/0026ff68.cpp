@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceGsSetDefDrawEnv2(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x64) = 0x00000000u;
+  }
   short sVar1;
   ulong uVar2;
   int iVar3;
@@ -21,11 +25,11 @@ uint32_t sceGsSetDefDrawEnv2(uint32_t param_1, uint32_t param_2, uint32_t param_
   (*(uint64_t*)rtguest::G((uint32_t)param_1)) = ((long)((int)((uint32_t)param_3 << 0x10) >> 0x16) & 0x3fU) << 0x10 | (uVar5 & 0xf) << 0x18;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(uint64_t))) = 0x4f;
   if (uVar6 == 0) {
-    sVar1 = sceGszbufaddr(uVar5,iVar4,iVar3);
+    sVar1 = RT_CALLRA(0x26ffec, guest::sceGszbufaddr(uVar5,iVar4,iVar3));
     uVar2 = (long)sVar1 | ((long)(int)param_6 & 0xfU) << 0x18 | 0x100000000;
   }
   else {
-    sVar1 = sceGszbufaddr(uVar5,iVar4,iVar3);
+    sVar1 = RT_CALLRA(0x270020, guest::sceGszbufaddr(uVar5,iVar4,iVar3));
     uVar2 = (long)sVar1 | ((long)(int)param_6 & 0xfU) << 0x18;
   }
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint64_t))) = uVar2;

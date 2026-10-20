@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateNearbyCarEffect(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
+  }
   char cVar1;
   char cVar2;
   int iVar3;
@@ -47,7 +51,7 @@ uint32_t pfVar6;
   pfVar6 = (uint32_t)0x177ace0;
   iVar5 = 0;
   do {
-    fVar8 = rtguest::fbits(GetSpeedFromF15Vector((int)0x0177ad40 + iVar5));
+    fVar8 = rtguest::fbits(RT_CALLRA(0x2420d8, guest::GetSpeedFromF15Vector((int)0x0177ad40 + iVar5)));
     if (0x3c < (int)fVar8) {
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
       if (((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a3fb8 + iVar3 * 0xc))) - 20.0 < (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0177ace8 + iVar5))))
@@ -93,7 +97,7 @@ uint32_t pfVar6;
   cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
   if (cVar1 != cVar2) {
     if (cVar2 == '\x01') {
-      PlayUiSound(0x307);
+      RT_CALLRA(0x2422a0, guest::PlayUiSound(0x307));
       iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
       goto LAB_002422bc;
     }
@@ -101,7 +105,7 @@ uint32_t pfVar6;
       iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
       goto LAB_002422bc;
     }
-    PlayUiSound(0x308);
+    RT_CALLRA(0x2422b0, guest::PlayUiSound(0x308));
   }
   iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c)));
 LAB_002422bc:
@@ -114,8 +118,8 @@ LAB_002422bc:
       iVar7 = iVar5 * 4 + -0x18;
     }
   }
-  vu0UnitMatrix(0x0177eb10 + iVar7 * 0x40);
-  vu0UnitMatrix(0x0177eb50 + iVar7 * 0x40);
+  RT_CALLRA(0x2422f0, guest::vu0UnitMatrix(0x0177eb10 + iVar7 * 0x40));
+  RT_CALLRA(0x2422fc, guest::vu0UnitMatrix(0x0177eb50 + iVar7 * 0x40));
   iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) * 0xc;
   fVar11 = (1.0 - fVar11) * 5.0;
   fVar8 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a3fb8 + iVar5)));

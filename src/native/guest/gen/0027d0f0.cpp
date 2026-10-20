@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t execute_cfa_insn(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
     uint32_t iStack_30 = rtguest::allocFrame(4);
     uint32_t uStack_2c = rtguest::allocFrame(4);
   byte bVar1;
@@ -34,7 +38,7 @@ LAB_0027d1dc:
   if ((bVar1 & 0x80) != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) = bVar1 & 0x3f;
 LAB_0027d21c:
-    puVar10 = (uint32_t)decode_uleb128(puVar10,iStack_30);
+    puVar10 = (uint32_t)RT_CALLRA(0x27d20c, guest::decode_uleb128(puVar10,iStack_30));
     if ((*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) != (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x7f)))) {
       (*(int32_t*)rtguest::G((uint32_t)iStack_30)) = (*(int32_t*)rtguest::G((uint32_t)iStack_30)) * (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0xc)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) + 0x3fc))) = 1;
@@ -69,22 +73,22 @@ LAB_0027d1f4:
     puVar10 = (uint32_t)switchD_0027d18c_executeCfaInsnEpilogue();
     return puVar10;
   case 5:
-    puVar10 = (uint32_t)decode_uleb128(puVar10,uStack_2c);
+    puVar10 = (uint32_t)RT_CALLRA(0x27d21c, guest::decode_uleb128(puVar10,uStack_2c));
     goto LAB_0027d21c;
   case 6:
-    decode_uleb128(puVar10,uStack_2c);
+    RT_CALLRA(0x27d26c, guest::decode_uleb128(puVar10,uStack_2c));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) + 0x3fc))) = 0;
     puVar10 = (uint32_t)switchD_0027d18c_executeCfaInsnEpilogue();
     return puVar10;
   case 9:
-    uVar4 = decode_uleb128(puVar10,uStack_2c);
-    decode_uleb128(uVar4,auStack_28);
+    uVar4 = RT_CALLRA(0x27d28c, guest::decode_uleb128(puVar10,uStack_2c));
+    RT_CALLRA(0x27d298, guest::decode_uleb128(uVar4,auStack_28));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) + 0x3fc))) = 2;
     (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(uStack_2c + 4) * sizeof(uint64_t))) = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)auStack_28 + (uint32_t)(0) * 4));
     puVar10 = (uint32_t)switchD_0027d18c_executeCfaInsnEpilogue();
     return puVar10;
   case 10:
-    puVar3 = malloc(0x480);
+    puVar3 = RT_CALLRA(0x27d390, guest::malloc(0x480));
     puVar6 = puVar3;
     puVar5 = param_2;
     do {
@@ -115,22 +119,22 @@ LAB_0027d1f4:
       puVar5 = puVar5 + 0x20;  // T* element step
       param_2 = param_2 + 4;
     } while (puVar5 != puVar6 + 0x90);
-    free(puVar6);
+    RT_CALLRA(0x27d424, guest::free(puVar6));
     break;
   case 0xc:
-    uVar4 = decode_uleb128(puVar10,uStack_2c);
-    decode_uleb128(uVar4,iStack_30);
+    uVar4 = RT_CALLRA(0x27d2cc, guest::decode_uleb128(puVar10,uStack_2c));
+    RT_CALLRA(0x27d2d8, guest::decode_uleb128(uVar4,iStack_30));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x7f))) = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)uStack_2c));
     (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint64_t))) = (long)(*(int32_t*)rtguest::G((uint32_t)iStack_30));
     puVar10 = (uint32_t)switchD_0027d18c_executeCfaInsnEpilogue();
     return puVar10;
   case 0xd:
-    decode_uleb128(puVar10,uStack_2c);
+    RT_CALLRA(0x27d2fc, guest::decode_uleb128(puVar10,uStack_2c));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x7f))) = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)uStack_2c));
     puVar10 = (uint32_t)switchD_0027d18c_executeCfaInsnEpilogue();
     return puVar10;
   case 0xe:
-    decode_uleb128(puVar10,iStack_30);
+    RT_CALLRA(0x27d31c, guest::decode_uleb128(puVar10,iStack_30));
     (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint64_t))) = (long)(*(int32_t*)rtguest::G((uint32_t)iStack_30));
     puVar10 = (uint32_t)switchD_0027d18c_executeCfaInsnEpilogue();
     return puVar10;
@@ -139,7 +143,7 @@ LAB_0027d1f4:
     (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint64_t))) = 0;
     (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint64_t))) = 0;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x477))) = 0;
-    puVar10 = (uint32_t)decode_uleb128(puVar10,iStack_30);
+    puVar10 = (uint32_t)RT_CALLRA(0x27d34c, guest::decode_uleb128(puVar10,iStack_30));
     puVar11 = (uint32_t)((int)puVar10 + (*(int32_t*)rtguest::G((uint32_t)iStack_30)));
     for (; puVar10 < puVar11; puVar10 = (uint32_t)decode_stack_op(puVar10,param_2)) {
     }
@@ -161,13 +165,13 @@ code_r0x0027d500:
     } while (uVar7 < 0x20);
     break;
   case 0x2e:
-    decode_uleb128(puVar10,iStack_30);
+    RT_CALLRA(0x27d48c, guest::decode_uleb128(puVar10,iStack_30));
     (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(3) * sizeof(uint64_t))) = (long)(*(int32_t*)rtguest::G((uint32_t)iStack_30));
     puVar10 = (uint32_t)switchD_0027d18c_executeCfaInsnEpilogue();
     return puVar10;
   case 0x2f:
-    uVar4 = decode_uleb128(puVar10,uStack_2c);
-    decode_uleb128(uVar4,iStack_30);
+    uVar4 = RT_CALLRA(0x27d4ac, guest::decode_uleb128(puVar10,uStack_2c));
+    RT_CALLRA(0x27d4b8, guest::decode_uleb128(uVar4,iStack_30));
     (*(int32_t*)rtguest::G((uint32_t)iStack_30)) = (*(int32_t*)rtguest::G((uint32_t)iStack_30)) * (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0xc)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) + 0x3fc))) = 1;
     (*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(uStack_2c + 4) * sizeof(uint64_t))) = (long)-(*(int32_t*)rtguest::G((uint32_t)iStack_30));

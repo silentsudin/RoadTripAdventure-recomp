@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t sceSifRegisterRpc(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   
-  DIntr();
+  RT_CALLRA(0x2881ac, guest::DIntr());
   (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0xf) * sizeof(uint32_t))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0xe) * sizeof(uint32_t))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)param_1)) = param_2;

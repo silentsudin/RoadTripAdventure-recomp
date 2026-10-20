@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _sdrCB(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
 uint32_t pcVar1;
   
   switch((*(uint32_t*)rtguest::G((uint32_t)param_2))) {

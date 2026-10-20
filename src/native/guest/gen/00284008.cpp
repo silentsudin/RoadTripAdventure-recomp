@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t __mdiff(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   uint uVar1;
   uint uVar2;
 uint32_t piVar3;
@@ -21,9 +25,9 @@ uint32_t puVar11;
   int iVar13;
 uint32_t puVar14;
   
-  lVar5 = __mcmp(param_2,param_3);
+  lVar5 = RT_CALLRA(0x284030, guest::__mcmp(param_2,param_3));
   if (lVar5 == 0) {
-    uVar6 = _Balloc(param_1,0);
+    uVar6 = RT_CALLRA(0x284044, guest::_Balloc(param_1,0));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar6 + 0x10))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar6 + 0x14))) = 0;
   }
@@ -34,7 +38,7 @@ uint32_t puVar14;
       param_2 = param_3;
     }
     iVar13 = (int)uVar6;
-    uVar6 = _Balloc(param_1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4))));
+    uVar6 = RT_CALLRA(0x28407c, guest::_Balloc(param_1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 4)))));
     puVar10 = (uint32_t)(iVar13 + 0x14);
     puVar11 = (uint32_t)((int)param_2 + 0x14);
     iVar12 = (int)uVar6;

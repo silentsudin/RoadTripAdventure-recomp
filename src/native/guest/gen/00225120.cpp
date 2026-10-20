@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t drawCarEffects(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   int iVar1;
   uint uVar2;
 uint32_t puVar3;
@@ -15,16 +19,16 @@ uint32_t puVar4;
   
   iVar5 = (int)param_1 + 0x170;
   iVar6 = 0;
-  vifUploadCamera();
-  vifUploadAt16(0x177f5e0);
-  vifDirect(0x29d3b0,4);
+  RT_CALLRA(0x225150, guest::vifUploadCamera());
+  RT_CALLRA(0x22515c, guest::vifUploadAt16(0x177f5e0));
+  RT_CALLRA(0x22516c, guest::vifDirect(0x29d3b0,4));
   puVar3 = 0x177ac50;
   do {
     if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x33))) != 0) {
       if (iVar6 < 3) {
         if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x20e))) != 0) {
-          drawCarEffectA(puVar3,(*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x20e))),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x194)))
-                         ,param_3);
+          RT_CALLRA(0x2251a4, guest::drawCarEffectA(puVar3,(*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x20e))),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x194)))
+                         ,param_3));
         }
         iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19c)));
       }
@@ -34,13 +38,13 @@ uint32_t puVar4;
       uVar2 = iVar1 >> 8 & 7;
       if (uVar2 == 1) {
         if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) != 0) {
-          SpawnCarSmoke(puVar3,param_2,iVar5,puVar3 + 0x41,(int)puVar3 + 0x20c,param_1);
+          RT_CALLRA(0x22523c, guest::SpawnCarSmoke(puVar3,param_2,iVar5,puVar3 + 0x41,(int)puVar3 + 0x20c,param_1));
         }
       }
       else if (uVar2 < 2) {
         if (uVar2 == 0) {
           if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) != 0) {
-            SpawnCarDustPuffs(puVar3,param_2,iVar5,puVar3 + 0x41,(int)puVar3 + 0x20c);
+            RT_CALLRA(0x22520c, guest::SpawnCarDustPuffs(puVar3,param_2,iVar5,puVar3 + 0x41,(int)puVar3 + 0x20c));
           }
         }
         else {
@@ -49,26 +53,25 @@ uint32_t puVar4;
       }
       else if (uVar2 == 2) {
         if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) != 0) {
-          SpawnCarSparks(puVar3,param_2,iVar5,puVar3 + 0x41,(int)puVar3 + 0x20c,param_1);
+          RT_CALLRA(0x22526c, guest::SpawnCarSparks(puVar3,param_2,iVar5,puVar3 + 0x41,(int)puVar3 + 0x20c,param_1));
         }
       }
       else if (uVar2 == 6) {
         if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) != 0) {
           if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x3f))) & 0x40) == 0) {
-            AdvanceCarEmitterStep
-                      ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x11c))),puVar3,param_2,iVar5,puVar3 + 0x41,
-                       (int)puVar3 + 0x20c,param_1);
+            RT_CALLRA(0x225334, guest::AdvanceCarEmitterStep((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x11c))),puVar3,param_2,iVar5,puVar3 + 0x41,
+                       (int)puVar3 + 0x20c,param_1));
           }
           else {
             puVar4 = (uint32_t)param_3;
             if (((*(uint64_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(5) * sizeof(uint64_t))) & 0x8000) == 0) {
               if (((*(uint64_t*)rtguest::G((uint32_t)puVar4)) & 3) == 0) {
-                SpawnCarDebrisCycle(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4)));
-                SpawnCarDebrisCycle(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4)) + 2);
-                SpawnCarDebrisCycle(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4)) + 4);
-                SpawnCarDebrisCycle(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4)) + 6);
+                RT_CALLRA(0x2252c0, guest::SpawnCarDebrisCycle(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4))));
+                RT_CALLRA(0x2252d4, guest::SpawnCarDebrisCycle(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4)) + 2));
+                RT_CALLRA(0x2252e8, guest::SpawnCarDebrisCycle(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4)) + 4));
+                RT_CALLRA(0x2252fc, guest::SpawnCarDebrisCycle(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4)) + 6));
               }
-              SpawnCarEmitterEntry(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4)),iVar6);
+              RT_CALLRA(0x225310, guest::SpawnCarEmitterEntry(puVar3,param_1,(*(uint64_t*)rtguest::G((uint32_t)puVar4)),iVar6));
             }
           }
         }

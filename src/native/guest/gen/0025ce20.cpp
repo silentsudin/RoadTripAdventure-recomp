@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t drawFieldProp2aBatch(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(160);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
+  }
   int iVar1;
   byte bVar2;
   uint uVar3;
@@ -21,7 +25,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(48);
 uint32_t auStack_70 = rtguest::allocFrame(16);
   
   iVar8 = 0;
-  vifFixedRegs(0x20068fc559307476,7,0,0xf);
+  RT_CALLRA(0x25ce78, guest::vifFixedRegs(0x20068fc559307476,7,0,0xf));
 LAB_0025ce90:
   piVar7 = 0x0177f5b0;
   pfVar4 = (uint32_t)(0x01760dd8 + iVar8 * 3);
@@ -51,17 +55,17 @@ LAB_0025ce90:
     }
 LAB_0025cf68:
     iVar9 = iVar9 + 1;
-    vu0UnitMatrix(auStack_a0);
+    RT_CALLRA(0x25cf68, guest::vu0UnitMatrix(auStack_a0));
     fVar11 = (*(float*)rtguest::G((uint32_t)pfVar4));
     pbVar5 = pbVar5 + 1;
     pfVar6 = pfVar6 + 0x4;  // T* element step
     pfVar4 = pfVar4 + 0x4;  // T* element step
-    vu0RotMatrixX((fVar11 * (*(float*)rtguest::G(0x3330d8))) / 180.0,auStack_a0,auStack_a0);
-    tileSlotOrigin(auStack_70,iVar8 * 0x10 + 0x2c4a70,2);
-    vifObjectMatrix(auStack_a0);
+    RT_CALLRA(0x25cfa0, guest::vu0RotMatrixX((fVar11 * (*(float*)rtguest::G(0x3330d8))) / 180.0,auStack_a0,auStack_a0));
+    RT_CALLRA(0x25cfb8, guest::tileSlotOrigin(auStack_70,iVar8 * 0x10 + 0x2c4a70,2));
+    RT_CALLRA(0x25cfc0, guest::vifObjectMatrix(auStack_a0));
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)piVar7));
     piVar7 = piVar7 + 0x4;  // T* element step
-    vifCallModel(iVar1 + 0x10);
+    RT_CALLRA(0x25cfd0, guest::vifCallModel(iVar1 + 0x10));
     if (2 < iVar9) break;
     uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
   } while( true );

@@ -25,11 +25,11 @@ uint32_t puVar13;
   
   switch((*(uint32_t*)rtguest::G(0x3356c0))) {
   case 0:
-    cdReadEntryPart(param_3,0x100000,0,0x800);
+    RT_CALLRA(0x20c1f4, guest::cdReadEntryPart(param_3,0x100000,0,0x800));
     (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
     break;
   case 1:
-    cdReadEntryPart(param_3,0x100800,0x800,(*(uint32_t*)rtguest::G(0x100004)) + -0x800);
+    RT_CALLRA(0x20c220, guest::cdReadEntryPart(param_3,0x100800,0x800,(*(uint32_t*)rtguest::G(0x100004)) + -0x800));
     (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
     break;
   case 2:
@@ -41,16 +41,16 @@ uint32_t puVar13;
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar5));
       }
       else {
-        fatal(0x2ea490);
+        RT_CALLRA(0x20c280, guest::fatal(0x2ea490));
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)puVar5));
       }
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x20))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x20)));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + (uint32_t)uVar2 * 0x10 + 0x13)));
       puVar5 = puVar5 + (uint32_t)uVar2 * 0x10 + 0x10;
     }
-    uVar9 = sceDmaGetChan(1);
-    sceDmaSync(uVar9,0,0);
-    sendTexturePackets(puVar13);
+    uVar9 = RT_CALLRA(0x20c2bc, guest::sceDmaGetChan(1));
+    RT_CALLRA(0x20c2cc, guest::sceDmaSync(uVar9,0,0));
+    RT_CALLRA(0x20c2d4, guest::sendTexturePackets(puVar13));
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)));
     if (cVar1 < '\x12') {
       iVar12 = 5;
@@ -71,9 +71,9 @@ uint32_t puVar13;
     iVar12 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0xffffc))) - (*(uint32_t*)rtguest::G(0x100004));
     rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ea528u)), iVar12);
     if (0x750000 < iVar12) {
-      fatal(0x2ea5e0,iVar12);
+      RT_CALLRA(0x20c3c0, guest::fatal(0x2ea5e0,iVar12));
     }
-    cdReadEntryPart(param_3,0x707b80 + param_5 * 0x3a8000,(*(uint32_t*)rtguest::G(0x100004)),iVar12);
+    RT_CALLRA(0x20c3ec, guest::cdReadEntryPart(param_3,0x707b80 + param_5 * 0x3a8000,(*(uint32_t*)rtguest::G(0x100004)),iVar12));
     (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
     break;
   case 3:
@@ -100,7 +100,7 @@ uint32_t puVar13;
            (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x00708180 + iVar7))) + (int)piVar11);
     }
     else {
-      fatal(0x2ea5b8);
+      RT_CALLRA(0x20c4d8, guest::fatal(0x2ea5b8));
     }
     iVar14 = 0xff;
     piVar11 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + param_2 + 0x70)));
@@ -136,7 +136,7 @@ uint32_t puVar13;
           piVar6 = piVar11;
           do {
             if (iVar14 == 6) {
-              fatal(0x2ea4a8);
+              RT_CALLRA(0x20c624, guest::fatal(0x2ea4a8));
               iVar8 = (*(int32_t*)rtguest::G((uint32_t)piVar6));
             }
             else {
@@ -156,7 +156,7 @@ uint32_t puVar13;
         puVar5 = puVar13;
         while (cVar1 != 'p') {
           if (cVar1 != '\x10') {
-            fatal(0x2ea490);
+            RT_CALLRA(0x20c6b8, guest::fatal(0x2ea490));
           }
           (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x20))) =
                (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x20))) & 0xffffc000ffffffff |
@@ -165,9 +165,9 @@ uint32_t puVar13;
           cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar5)) * 0x10 + 0x13)));
           puVar5 = puVar5 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar5)) * 0x10 + 0x10;
         }
-        uVar9 = sceDmaGetChan(1);
-        sceDmaSync(uVar9,0,0);
-        sendTexturePackets(puVar13);
+        uVar9 = RT_CALLRA(0x20c70c, guest::sceDmaGetChan(1));
+        RT_CALLRA(0x20c71c, guest::sceDmaSync(uVar9,0,0));
+        RT_CALLRA(0x20c724, guest::sendTexturePackets(puVar13));
         piVar11 = (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)piVar11 + iVar7 + 4))) + (int)piVar11);
         if (piVar11 == (uint32_t)0x0) break;
         iVar12 = iVar12 + 1;

@@ -11,20 +11,20 @@ uint32_t sceCdDiskReady(uint64_t param_1, ...) {
   long lVar3;
   
   if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {
-    scePrintf(0x331d08);
+    RT_CALLRA(0x278cdc, guest::scePrintf(0x331d08));
   }
-  cmd_sem_init();
-  iVar1 = PollSema((*(int32_t*)rtguest::G(0x2e6f2c)));
+  RT_CALLRA(0x278ce4, guest::cmd_sem_init());
+  iVar1 = RT_CALLRA(0x278cf0, guest::PollSema((*(int32_t*)rtguest::G(0x2e6f2c))));
   uVar2 = 6;
   if ((*(int32_t*)rtguest::G(0x2e6f2c)) == iVar1) {
-    lVar3 = sceCdSyncS(1);
+    lVar3 = RT_CALLRA(0x278d04, guest::sceCdSyncS(1));
     if (lVar3 == 0) {
-      sceSifInitRpc(0);
+      RT_CALLRA(0x278d14, guest::sceSifInitRpc(0));
       if ((*(int32_t*)rtguest::G(0x2e6f44)) < 0) {
         while( true ) {
           while (lVar3 = sceSifBindRpc(0x17737d0,0xffffffff8000059a,0), lVar3 < 0) {
             if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {
-              scePrintf(0x331d18);
+              RT_CALLRA(0x278d8c, guest::scePrintf(0x331d18));
             }
             iVar1 = 0x100000;
             do {
@@ -41,16 +41,16 @@ uint32_t sceCdDiskReady(uint64_t param_1, ...) {
       }
       (*(uint32_t*)rtguest::G(0x1773810)) = (uint32_t)param_1;
       sceSifWriteBackDCache(0x1773810,4);
-      lVar3 = sceSifCallRpc(0x17737d0,0,0,0x1773810,4,0x2e8100,4,0);
+      lVar3 = RT_CALLRA(0x278e14, guest::sceSifCallRpc(0x17737d0,0,0,0x1773810,4,0x2e8100,4,0));
       if (-1 < lVar3) {
         if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {
-          scePrintf(0x331d38);
+          RT_CALLRA(0x278e4c, guest::scePrintf(0x331d38));
         }
-        SignalSema((*(int32_t*)rtguest::G(0x2e6f2c)));
+        RT_CALLRA(0x278e28, guest::SignalSema((*(int32_t*)rtguest::G(0x2e6f2c))));
         return 0;
       }
     }
-    SignalSema((*(int32_t*)rtguest::G(0x2e6f2c)));
+    RT_CALLRA(0x278e60, guest::SignalSema((*(int32_t*)rtguest::G(0x2e6f2c))));
     uVar2 = 6;
     if (param_1 == 8) {
       uVar2 = 0xffffffff;

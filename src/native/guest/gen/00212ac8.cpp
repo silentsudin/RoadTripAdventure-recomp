@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateVerticalMenuNavigation(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   bool bVar1;
   ushort uVar2;
   int iVar3;
@@ -145,7 +149,7 @@ uint32_t piVar6;
               if ((*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(0x19) * sizeof(int32_t))) != 0) goto LAB_00213014;
               iVar3 = (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(0x17) * sizeof(int32_t)));
             }
-            iVar3 = NavigateGridSelection(param_2,(*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t))),1,iVar3,0,1);
+            iVar3 = RT_CALLRA(0x213050, guest::NavigateGridSelection(param_2,(*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t))),1,iVar3,0,1));
             if ((*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t))) != iVar3) {
               iVar4 = (iVar3 + 1) * 0x24;
               iVar7 = iVar4 + 0x8210;
@@ -208,12 +212,12 @@ uint32_t piVar6;
             goto LAB_002135ac;
           }
 LAB_00213014:
-          PlayUiSound(0x1b);
+          RT_CALLRA(0x212fdc, guest::PlayUiSound(0x1b));
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x81ec))) = 0;
           iVar3 = 300;
         }
         else {
-          PlayUiSound(0x1a);
+          RT_CALLRA(0x213014, guest::PlayUiSound(0x1a));
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 0x81ec))) = 0;
           iVar3 = 200;
         }

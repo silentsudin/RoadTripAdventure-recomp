@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceMcInit(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
+  }
 uint32_t auStack_a0 = rtguest::allocFrame(4);
     uint32_t uStack_9c = rtguest::allocFrame(4);
     uint32_t uStack_98 = rtguest::allocFrame(4);
@@ -18,13 +22,13 @@ uint32_t auStack_a0 = rtguest::allocFrame(4);
     (*(uint32_t*)rtguest::G((uint32_t)uStack_8c)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_9c)) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_98)) = 1;
-    (*(int32_t*)rtguest::G(0x2e89bc)) = CreateSema(auStack_a0);
+    (*(int32_t*)rtguest::G(0x2e89bc)) = RT_CALLRA(0x2797e8, guest::CreateSema(auStack_a0));
   }
-  sceMcSync(0,0,0);
-  WaitSema((*(int32_t*)rtguest::G(0x2e89bc)));
-  sceSifInitRpc(0);
+  RT_CALLRA(0x2797fc, guest::sceMcSync(0,0,0));
+  RT_CALLRA(0x279804, guest::WaitSema((*(int32_t*)rtguest::G(0x2e89bc))));
+  RT_CALLRA(0x27980c, guest::sceSifInitRpc(0));
   while( true ) {
-    lVar2 = sceSifBindRpc(0x1774b40,0xffffffff80000400,0);
+    lVar2 = RT_CALLRA(0x279858, guest::sceSifBindRpc(0x1774b40,0xffffffff80000400,0));
     if (lVar2 < 0) {
       rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x331e08u)));
       do {
@@ -37,8 +41,8 @@ uint32_t auStack_a0 = rtguest::allocFrame(4);
       iVar1 = iVar1 + -1;
     } while (iVar1 != 0);
   }
-  lVar2 = sceSifCallRpc(0x1774b40,0xfe,0,0x1774bc0,0x30,0x1776100,0xc,0);
-  SignalSema((*(int32_t*)rtguest::G(0x2e89bc)));
+  lVar2 = RT_CALLRA(0x2798c4, guest::sceSifCallRpc(0x1774b40,0xfe,0,0x1774bc0,0x30,0x1776100,0xc,0));
+  RT_CALLRA(0x2798d0, guest::SignalSema((*(int32_t*)rtguest::G(0x2e89bc))));
   if (lVar2 < 0) {
     (*(uint32_t*)rtguest::G(0x1774b64)) = 0;
     iVar1 = (int)lVar2 + -100;

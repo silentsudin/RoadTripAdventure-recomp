@@ -16,7 +16,7 @@ uint32_t SndRpcCmdCArgs(uint32_t param_1, uint32_t param_2, uint32_t param_3, ui
   (*(uint64_t*)rtguest::G(0x175e8a0)) = CONCAT44(param_6,param_5);
   (*(uint64_t*)rtguest::G(0x175e8a8)) = CONCAT44(param_8,param_7);
   (*(uint64_t*)rtguest::G(0x175e8b0)) = CONCAT44(param_10,param_9);
-  sceSifCallRpc(0x175e840,0xc,0,0x175e880,0x40,0,0,0);
+  RT_CALLRA(0x2582f4, guest::sceSifCallRpc(0x175e840,0xc,0,0x175e880,0x40,0,0,0));
   return 0;
 }
 

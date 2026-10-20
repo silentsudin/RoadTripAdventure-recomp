@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiMenuAddItem(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   byte bVar1;
   short sVar2;
   char cVar3;
@@ -20,7 +24,7 @@ uint32_t pbVar9;
   
   psVar7 = (uint32_t)param_1;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)psVar7 + 0xf))) == '\x0f') {
-    fatal(0x2ea070);
+    RT_CALLRA(0x2058e4, guest::fatal(0x2ea070));
   }
   bVar11 = param_3 & 0x80;
   bVar8 = param_3;
@@ -69,11 +73,11 @@ uint32_t pbVar9;
   bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar9));
   lVar10 = 0;
   if ((bVar1 & 0x40) == 0) {
-    lVar10 = uiTextWidth((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(psVar7 + ((uint32_t)bVar8 * 2 + 10) * sizeof(int16_t)))));
+    lVar10 = RT_CALLRA(0x2059e4, guest::uiTextWidth((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(psVar7 + ((uint32_t)bVar8 * 2 + 10) * sizeof(int16_t))))));
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar9));
   }
   if ((bVar1 & 0x80) != 0) {
-    iVar4 = MeasureTextWidth(param_1,bVar8 - 1);
+    iVar4 = RT_CALLRA(0x205a00, guest::MeasureTextWidth(param_1,bVar8 - 1));
     lVar10 = (long)((int)lVar10 + iVar4);
   }
   sVar2 = (*(int16_t*)rtguest::G((uint32_t)psVar7 + (uint32_t)(2) * sizeof(int16_t)));

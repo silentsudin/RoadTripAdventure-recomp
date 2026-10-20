@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateRaceRecords(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   byte bVar1;
   char cVar2;
   short sVar3;
@@ -105,7 +109,7 @@ uint32_t pbVar25;
       do {
         iVar19 = iVar19 + 1;
         if ((*(uint8_t*)rtguest::G(0x178700a)) < (*(uint8_t*)rtguest::G((uint32_t)0x178700a + (uint32_t)(iVar22) * 1))) {
-          SetFlagFcb8((*(uint32_t*)rtguest::G((uint32_t)0x1787008 + (uint32_t)(iVar22) * 4)),(*(uint32_t*)rtguest::G((uint32_t)0x1787009 + (uint32_t)(iVar22) * 4)));
+          RT_CALLRA(0x237efc, guest::SetFlagFcb8((*(uint32_t*)rtguest::G((uint32_t)0x1787008 + (uint32_t)(iVar22) * 4)),(*(uint32_t*)rtguest::G((uint32_t)0x1787009 + (uint32_t)(iVar22) * 4))));
           iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10)));
         }
         iVar22 = iVar19 * 4;
@@ -368,7 +372,7 @@ uint32_t pbVar25;
       }
     }
     else {
-      lVar6 = GetOrSetPresidentRaceResult(0xffffffffffffffff);
+      lVar6 = RT_CALLRA(0x238830, guest::GetOrSetPresidentRaceResult(0xffffffffffffffff));
       if (lVar6 == 1) {
         rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2ec570u)));
         pcVar13 = 0x0178323c + uVar21 + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1e))) * 0x30;

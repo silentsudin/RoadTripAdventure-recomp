@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t PaintEditorConfirmTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   undefined1 uVar1;
   uint uVar2;
   int iVar3;
@@ -16,7 +20,7 @@ uint32_t puVar6;
   iVar5 = (int)param_1;
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) * 0x1c;
   puVar6 = (uint32_t)((int)0x177f760 + iVar3);
-  DrawPaintEditorDigits(param_1,0x175b570,puVar6);
+  RT_CALLRA(0x25652c, guest::DrawPaintEditorDigits(param_1,0x175b570,puVar6));
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) != '\0') {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 4))) == 0) {
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) == '\0') {
@@ -33,7 +37,7 @@ uint32_t puVar6;
         if (((*(uint32_t*)rtguest::G((uint32_t)puVar6)) ^ (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x20)))) >> 0x18 == 0) {
           iVar4 = iVar3;
         }
-        SpendTimerBudget(iVar4,0);
+        RT_CALLRA(0x256584, guest::SpendTimerBudget(iVar4,0));
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x20))) = (*(uint32_t*)rtguest::G((uint32_t)puVar6));
       }
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x18)));
@@ -43,10 +47,10 @@ uint32_t puVar6;
     }
     else {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc))) = 0x256640;
-      PlayUiSound(0x1b);
+      RT_CALLRA(0x2565d8, guest::PlayUiSound(0x1b));
     }
   }
-  vifDirect(0x175b570,0x32c);
+  RT_CALLRA(0x2565e4, guest::vifDirect(0x175b570,0x32c));
   iVar3 = 100;
   uVar2 = (*(uint32_t*)rtguest::G((uint32_t)puVar6)) ^ (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x20)));
   if ((uVar2 & 0xffffff) == 0) {

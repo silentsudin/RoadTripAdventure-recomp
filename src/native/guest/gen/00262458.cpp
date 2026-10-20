@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t auditRouletteOutcome(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
   if ((*(int32_t*)rtguest::G(0x177fdb4)) < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x800c)))) {
     GetOrSetPresidentRaceResult(1);
     return 0;

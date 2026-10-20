@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t DrawLicenseList(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   byte bVar1;
   uint uVar2;
 uint32_t pbVar3;
@@ -39,14 +43,14 @@ uint32_t ppuVar9;
     }
     if (iVar4 < iVar6) {
       iVar4 = iVar8 + 1;
-      uiDrawTextCell(0xb,iVar8,(*(uint32_t*)rtguest::G((uint32_t)ppuVar9)),0);
+      RT_CALLRA(0x236404, guest::uiDrawTextCell(0xb,iVar8,(*(uint32_t*)rtguest::G((uint32_t)ppuVar9)),0));
       iVar7 = iVar7 + 0x18;
-      uiDrawTextCell(0xd,iVar8,0x333838,0);
+      RT_CALLRA(0x23641c, guest::uiDrawTextCell(0xd,iVar8,0x333838,0));
       iVar8 = iVar4;
       if ((int)uVar5 < 6) {
-        uiDrawNumber10(0x19a,iVar7,
+        RT_CALLRA(0x236464, guest::uiDrawNumber10(0x19a,iVar7,
                        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0029fcb8 +
-                        ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) + 3))) * 6 + uVar5) * 4))),0);
+                        ((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) + 3))) * 6 + uVar5) * 4))),0));
       }
     }
     uVar5 = uVar5 + 1;

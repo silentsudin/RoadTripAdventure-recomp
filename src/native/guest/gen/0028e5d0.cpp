@@ -9,6 +9,8 @@ uint32_t dptoul(uint64_t param_1, ...) {
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x20) = (uint32_t)(int32_t)param_1;
     *(uint32_t*)rtguest::G(rt_sv+0x24) = (uint32_t)((int64_t)(int32_t)param_1 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
   }
     // __unpack_d's out-struct is contiguous: class+0, sign+4, exp+8, pad+0xc, u64 mantissa+0x10
     uint32_t uStack_40 = rtguest::allocFrame(0x18);
@@ -16,7 +18,7 @@ uint32_t dptoul(uint64_t param_1, ...) {
 uint32_t auStack_20 = rtguest::allocFrame(16);
   
   (*(uint64_t*)rtguest::G((uint32_t)auStack_20 + (uint32_t)(0) * 8)) = param_1;
-  __unpack_d(auStack_20,uStack_40);
+  RT_CALLRA(0x28e5e0, guest::__unpack_d(auStack_20,uStack_40));
   uVar1 = 0;
   if (((((*(uint32_t*)rtguest::G((uint32_t)uStack_40)) != 2) && (1 < (*(uint32_t*)rtguest::G((uint32_t)uStack_40)))) && ((*(int32_t*)rtguest::G((uint32_t)uStack_40 + (uint32_t)(1) * sizeof(int32_t))) == 0)) &&
      (uVar1 = 0xffffffff, (*(uint32_t*)rtguest::G((uint32_t)uStack_40)) != 4)) {

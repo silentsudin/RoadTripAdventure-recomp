@@ -8,6 +8,8 @@ uint32_t textGridDraw(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(224);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x20) = (uint32_t)(int32_t)param_1;
+    *(uint32_t*)rtguest::G(rt_sv+0xd0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xd4) = 0x00000000u;
   }
 uint32_t auStack_e0 = rtguest::allocFrame(4);
 uint32_t auStack_dc = rtguest::allocFrame(12);
@@ -30,12 +32,12 @@ uint32_t puStack_b0;
   uVar8 = 0;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_b4)) = 0;
   puStack_c0 = param_1;
-  puStack_bc = (uint32_t)sceDmaGetChan(2);
+  puStack_bc = (uint32_t)RT_CALLRA(0x271128, guest::sceDmaGetChan(2));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_b8)) = (*(uint32_t*)rtguest::G((uint32_t)puStack_c0 + (uint32_t)(1) * sizeof(uint32_t)));
   uVar1 = (*(uint32_t*)rtguest::G((uint32_t)puStack_c0));
   uVar7 = (*(uint32_t*)rtguest::G((uint32_t)puStack_c0 + (uint32_t)(2) * sizeof(uint32_t)));
-  gifPkBufferInit(auStack_e0,0x70000000);
-  gifPkBufferInit(auStack_d0,0x70002000);
+  RT_CALLRA(0x27114c, guest::gifPkBufferInit(auStack_e0,0x70000000));
+  RT_CALLRA(0x27115c, guest::gifPkBufferInit(auStack_d0,0x70002000));
   (*(uint32_t*)rtguest::G((uint32_t)puStack_bc)) = (*(uint32_t*)rtguest::G((uint32_t)puStack_bc)) | 0x40;
   if ((*(uint32_t*)rtguest::G((uint32_t)uStack_b8)) != 0) {
     do {
@@ -49,14 +51,14 @@ uint32_t puStack_b0;
           if (4 < uVar1 - uVar5) {
             uVar3 = 4;
           }
-          gifPkBufferReset(puVar4);
+          RT_CALLRA(0x2711bc, guest::gifPkBufferReset(puVar4));
           (*(uint32_t*)rtguest::G((uint32_t)uStack_b4)) = (*(uint32_t*)rtguest::G((uint32_t)uStack_b4)) ^ 1;
           uVar6 = uVar5 + uVar3;
-          textEmitGlyphsToGs(puVar4,puStack_b0,uVar5,uVar8,uVar7,uVar3);
-          gifPkAppendTagNreg7(puVar4,0,0,0);
-          gifPkAlign16(puVar4);
-          sceGsSyncPath(0,0);
-          sceDmaSend(puStack_bc,(*(uint32_t*)rtguest::G((uint32_t)auStack_dc + (uint32_t)(uVar2 * 4) * 4)) & 0x3fff | 0x80000000);
+          RT_CALLRA(0x2711e8, guest::textEmitGlyphsToGs(puVar4,puStack_b0,uVar5,uVar8,uVar7,uVar3));
+          RT_CALLRA(0x2711fc, guest::gifPkAppendTagNreg7(puVar4,0,0,0));
+          RT_CALLRA(0x271204, guest::gifPkAlign16(puVar4));
+          RT_CALLRA(0x271210, guest::sceGsSyncPath(0,0));
+          RT_CALLRA(0x27122c, guest::sceDmaSend(puStack_bc,(*(uint32_t*)rtguest::G((uint32_t)auStack_dc + (uint32_t)(uVar2 * 4) * 4)) & 0x3fff | 0x80000000));
           uVar7 = uVar7 + uVar3 * 2;
           uVar5 = uVar6;
         } while (uVar6 < uVar1);
@@ -64,7 +66,7 @@ uint32_t puStack_b0;
       uVar8 = uVar8 + 1;
     } while (uVar8 < (*(uint32_t*)rtguest::G((uint32_t)uStack_b8)));
   }
-  sceGsSyncPath(0,0);
+  RT_CALLRA(0x271264, guest::sceGsSyncPath(0,0));
   return 0;
 }
 

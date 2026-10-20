@@ -6,11 +6,15 @@ namespace guest {
 
 uint32_t sendTexturePackets(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   undefined8 uVar1;
   
-  uVar1 = sceDmaGetChan(2);
-  FlushCache(0);
-  sceDmaSync(uVar1,0,0);
+  uVar1 = RT_CALLRA(0x207b64, guest::sceDmaGetChan(2));
+  RT_CALLRA(0x207b70, guest::FlushCache(0));
+  RT_CALLRA(0x207b80, guest::sceDmaSync(uVar1,0,0));
   REG_DMAC_2_GIF_QWC = 0;
   REG_DMAC_2_GIF_TADR = param_1;
   REG_DMAC_STAT = 3;

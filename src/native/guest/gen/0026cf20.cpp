@@ -6,15 +6,19 @@ namespace guest {
 
 uint32_t BrowseItemsMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   int iVar1;
   byte bVar2;
   int iVar3;
   int iVar4;
   
-  creditsScene();
+  RT_CALLRA(0x26cf34, guest::creditsScene());
   iVar3 = (int)param_1;
-  DrawRaceSummaryRow((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))),0,param_2);
-  DrawRaceSummaryRow((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) + 1,1,param_2);
+  RT_CALLRA(0x26cf44, guest::DrawRaceSummaryRow((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))),0,param_2));
+  RT_CALLRA(0x26cf58, guest::DrawRaceSummaryRow((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26))) + 1,1,param_2));
   bVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x26)));
   iVar4 = (int)param_2;
   if ((bVar2 < 0x18) && (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x34))) & 0x2000) != 0)) {

@@ -18,8 +18,8 @@ uint32_t puVar1;
     uVar2 = 1;
     puVar1 = 0x000f423f;
   }
-  DrawDialogTextLine(0x1b8,0x4a,puVar1,0x177fd9f);
-  uiDrawIcon20(0x204,((uint32_t)((*(uint64_t*)rtguest::G((uint32_t)param_2)) >> 1) & 7) + 0x39,7);
+  RT_CALLRA(0x22e91c, guest::DrawDialogTextLine(0x1b8,0x4a,puVar1,0x177fd9f));
+  RT_CALLRA(0x22e940, guest::uiDrawIcon20(0x204,((uint32_t)((*(uint64_t*)rtguest::G((uint32_t)param_2)) >> 1) & 7) + 0x39,7));
   return uVar2;
 }
 

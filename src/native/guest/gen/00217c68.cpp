@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateCarTireSound(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
   char cVar1;
   undefined2 uVar2;
   ushort uVar3;
@@ -68,7 +72,7 @@ LAB_00217d4c:
   uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x198)));
   if ((uVar3 & 3) != 0) {
     if ((uVar3 & 0xa00) != 0) {
-      SoundStopVoiceByHandle(uVar3 & 1,0);
+      RT_CALLRA(0x217d68, guest::SoundStopVoiceByHandle(uVar3 & 1,0));
       SndRpcCmd22((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x198))) & 1,2,0,0,0);
       return 0;
     }
@@ -100,17 +104,17 @@ LAB_00217d4c:
       }
       if (iVar6 != iVar10) {
         if (iVar6 != 0) {
-          PlayUiSound(iVar6 + 0x8000);
+          RT_CALLRA(0x217e70, guest::PlayUiSound(iVar6 + 0x8000));
         }
         if (iVar10 == 0) {
           (*(int32_t*)rtguest::G((uint32_t)piVar9)) = 0;
         }
         else {
-          PlayUiSound(iVar10);
+          RT_CALLRA(0x217e80, guest::PlayUiSound(iVar10));
           (*(int32_t*)rtguest::G((uint32_t)piVar9)) = iVar10;
         }
       }
-      SoundStopVoiceByHandle(uVar7,lVar8);
+      RT_CALLRA(0x217e90, guest::SoundStopVoiceByHandle(uVar7,lVar8));
       param_4 = param_4 & 1;
       if ('\0' < cVar1) {
         param_4 = 0;

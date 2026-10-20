@@ -6,15 +6,19 @@ namespace guest {
 
 uint32_t InitRankingDisplay(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   byte bVar1;
   int iVar2;
   uint uVar3;
 uint32_t pbVar4;
   int iVar5;
   
-  PlayBgmSlot1();
+  RT_CALLRA(0x22eccc, guest::PlayBgmSlot1());
   iVar5 = (int)param_1;
-  ResetStateBlock((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))));
+  RT_CALLRA(0x22ecd4, guest::ResetStateBlock((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)))));
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 0;
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x10)));
   if ((((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 3))) & 8) == 0) ||

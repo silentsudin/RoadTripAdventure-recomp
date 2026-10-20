@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t printf(uint32_t __format, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
     uint32_t uStack_38 = rtguest::allocFrame(8);
     uint32_t uStack_30 = rtguest::allocFrame(8);
     uint32_t uStack_28 = rtguest::allocFrame(8);
@@ -32,7 +36,7 @@ uint32_t puVar1;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_18)) = in_t1;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_10)) = in_t2;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_8)) = in_t3;
-  iVar2 = vfprintf((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 8))),__format,uStack_38);
+  iVar2 = RT_CALLRA(0x27ea8c, guest::vfprintf((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar1 + 8))),__format,uStack_38));
   return iVar2;
 }
 

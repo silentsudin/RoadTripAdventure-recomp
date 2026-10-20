@@ -6,7 +6,11 @@ namespace guest {
 
 uint32_t sceSifLoadModuleBuffer(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(32);
-  _sceSifLoadModuleBuffer();
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
+  RT_CALLRA(0x28c6f0, guest::_sceSifLoadModuleBuffer());
   return 0;
 }
 

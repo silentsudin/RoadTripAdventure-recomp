@@ -6,9 +6,13 @@ namespace guest {
 
 uint32_t sceGsPutDispEnv(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   int iVar1;
   
-  iVar1 = sceGsGetEnv();
+  iVar1 = RT_CALLRA(0x26fa14, guest::sceGsGetEnv());
   if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 6))) == 1) {
     (*(uint64_t*)rtguest::G(0x12000000)) = (*(uint64_t*)rtguest::G((uint32_t)param_1));
     (*(uint64_t*)rtguest::G(0x12000070)) = (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint64_t)));

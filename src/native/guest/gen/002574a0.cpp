@@ -19,7 +19,7 @@ uint32_t SoundRpcPlaySequence(uint32_t param_1, ...) {
     uint32_t uStack_38 = rtguest::allocFrame(8);
   
   (*(uint64_t*)rtguest::G(0x175e880)) = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_ac)),param_1);
-  sceSifCallRpc(0x175e840,0x23,0,0x175e880,0x40,0,0,0);
+  RT_CALLRA(0x257534, guest::sceSifCallRpc(0x175e840,0x23,0,0x175e880,0x40,0,0,0));
   (*(uint64_t*)rtguest::G(0x175e880)) = (uint32_t)param_1;
   (*(uint64_t*)rtguest::G(0x175e888)) = 1;
   (*(uint64_t*)rtguest::G(0x175e890)) = (uint64_t)(*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) << 0x20;
@@ -28,7 +28,7 @@ uint32_t SoundRpcPlaySequence(uint32_t param_1, ...) {
   (*(uint32_t*)rtguest::G(0x175e8a8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_48));
   (*(uint64_t*)rtguest::G(0x175e8b0)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_40));
   (*(uint32_t*)rtguest::G(0x175e8b8)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_38));
-  sceSifCallRpc(0x175e840,0x22,0,0x175e880,0x40,0,0,0);
+  RT_CALLRA(0x2575b4, guest::sceSifCallRpc(0x175e840,0x22,0,0x175e880,0x40,0,0,0));
   return 0;
 }
 

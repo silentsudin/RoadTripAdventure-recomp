@@ -9,6 +9,8 @@ uint32_t printf__00286e88(uint64_t param_1, uint64_t param_2, uint64_t param_3, 
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x58) = (uint32_t)(int32_t)param_2;
     *(uint32_t*)rtguest::G(rt_sv+0x5c) = (uint32_t)((int64_t)(int32_t)param_2 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x60) = (uint32_t)(int32_t)param_3;
     *(uint32_t*)rtguest::G(rt_sv+0x64) = (uint32_t)((int64_t)(int32_t)param_3 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0x68) = (uint32_t)(int32_t)param_4;
@@ -28,7 +30,7 @@ uint32_t printf__00286e88(uint64_t param_1, uint64_t param_2, uint64_t param_3, 
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(4) * 8)) = param_6;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(5) * 8)) = param_7;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(6) * 8)) = param_8;
-  _printf(param_1,uStack_38);
+  RT_CALLRA(0x286eac, guest::_printf(param_1,uStack_38));
   return 0;
 }
 

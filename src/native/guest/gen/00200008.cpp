@@ -30,10 +30,10 @@ uint32_t puVar2;
   // model ignores it) then SetupHeap($4=0x17874E0 end-of-bss, $5=-1 rest of RAM).
   syscall(0x3c, 0x33AAF0, 0x1F80000, 0x80000);
   syscall(0x3d, 0x17874E0, 0xFFFFFFFF);
-  _InitSys(0x17874e0,0xffffffffffffffff,0x80000,0x335780,0x2000c0);
-  FlushCache(0);
+  RT_CALLRA(0x200084, guest::_InitSys(0x17874e0,0xffffffffffffffff,0x80000,0x335780,0x2000c0));
+  RT_CALLRA(0x20008c, guest::FlushCache(0));
   EI();
-  __status = gameMainLoop((*(uint32_t*)rtguest::G(0x335780)),0x335784);
+  __status = RT_CALLRA(0x2000a4, guest::gameMainLoop((*(uint32_t*)rtguest::G(0x335780)),0x335784));
   _Exit(__status);
   return 0;
 }

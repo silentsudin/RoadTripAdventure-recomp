@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _s2b(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   char cVar1;
   undefined8 uVar2;
   int iVar3;
@@ -22,7 +26,7 @@ uint32_t pcVar5;
       iVar3 = iVar3 + 1;
     } while (iVar4 < iVar6);
   }
-  uVar2 = _Balloc(param_1,iVar3);
+  uVar2 = RT_CALLRA(0x283904, guest::_Balloc(param_1,iVar3));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar2 + 0x14))) = param_5;
   iVar6 = 9;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar2 + 0x10))) = 1;
@@ -34,7 +38,7 @@ uint32_t pcVar5;
     pcVar5 = (uint32_t)(param_2 + 9);
     while( true ) {
       iVar6 = iVar6 + 1;
-      uVar2 = _multadd(param_1,uVar2,10,cVar1 + -0x30);
+      uVar2 = RT_CALLRA(0x283940, guest::_multadd(param_1,uVar2,10,cVar1 + -0x30));
       if (param_3 <= iVar6) break;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)pcVar5 + (uint32_t)(1) * sizeof(int8_t)));
       pcVar5 = pcVar5 + 1;
@@ -47,7 +51,7 @@ uint32_t pcVar5;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)pcVar5));
       pcVar5 = pcVar5 + 1;
       param_4 = param_4 + -1;
-      uVar2 = _multadd(param_1,uVar2,10,cVar1 + -0x30);
+      uVar2 = RT_CALLRA(0x28398c, guest::_multadd(param_1,uVar2,10,cVar1 + -0x30));
     } while (param_4 != 0);
   }
   return uVar2;

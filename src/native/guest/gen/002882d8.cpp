@@ -6,12 +6,16 @@ namespace guest {
 
 uint32_t sceSifRemoveRpcQueue(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
   undefined4 uVar3;
   int iVar4;
   
-  DIntr();
+  RT_CALLRA(0x2882e8, guest::DIntr());
   iVar4 = (*(int32_t*)rtguest::G(0x1778868));
   if ((*(int32_t*)rtguest::G(0x1778868)) == param_1) {
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G(0x1778868)) + 0x14)));
@@ -37,7 +41,7 @@ uint32_t sceSifRemoveRpcQueue(uint32_t param_1, ...) {
   }
 LAB_00288348:
   (*(int32_t*)rtguest::G(0x1778868)) = iVar1;
-  EIntr();
+  RT_CALLRA(0x288348, guest::EIntr());
   return iVar4;
 }
 

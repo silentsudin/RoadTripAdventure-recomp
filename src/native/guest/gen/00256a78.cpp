@@ -6,11 +6,15 @@ namespace guest {
 
 uint32_t SlideInPaintEditorWindow(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   short sVar1;
   
   sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) + 4;
   (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) = sVar1;
-  uiSpriteWrite(0x175b5e0,0x178,sVar1,0x120,0x140,0xd6,0x38);
+  RT_CALLRA(0x256abc, guest::uiSpriteWrite(0x175b5e0,0x178,sVar1,0x120,0x140,0xd6,0x38));
   if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) == 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x256640;
   }

@@ -6,24 +6,28 @@ namespace guest {
 
 uint32_t _sceCd_scmd_prechk(uint64_t param_1, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   int iVar1;
   long lVar2;
   
-  cmd_sem_init();
-  iVar1 = PollSema((*(int32_t*)rtguest::G(0x2e6f2c)));
+  RT_CALLRA(0x278868, guest::cmd_sem_init());
+  iVar1 = RT_CALLRA(0x278874, guest::PollSema((*(int32_t*)rtguest::G(0x2e6f2c))));
   if ((*(int32_t*)rtguest::G(0x2e6f2c)) == iVar1) {
     (*(uint32_t*)rtguest::G(0x2e6f18)) = (uint32_t)param_1;
-    ReferThreadStatus((*(uint32_t*)rtguest::G(0x1773590)),0x1773598);
-    lVar2 = sceCdSyncS(1);
+    RT_CALLRA(0x2788c4, guest::ReferThreadStatus((*(uint32_t*)rtguest::G(0x1773590)),0x1773598));
+    lVar2 = RT_CALLRA(0x2788cc, guest::sceCdSyncS(1));
     if (lVar2 == 0) {
-      sceSifInitRpc(0);
+      RT_CALLRA(0x2788f0, guest::sceSifInitRpc(0));
       if (-1 < (*(int32_t*)rtguest::G(0x2e6f48))) {
         return 1;
       }
       while( true ) {
         while (lVar2 = sceSifBindRpc(0x2e8948,0xffffffff80000593,0), lVar2 < 0) {
           if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {
-            scePrintf(0x331cc0);
+            RT_CALLRA(0x2788a0, guest::scePrintf(0x331cc0));
           }
           iVar1 = 0x100000;
           do {
@@ -39,10 +43,10 @@ uint32_t _sceCd_scmd_prechk(uint64_t param_1, ...) {
       (*(uint32_t*)rtguest::G(0x2e6f48)) = 0;
       return 1;
     }
-    SignalSema((*(int32_t*)rtguest::G(0x2e6f2c)));
+    RT_CALLRA(0x2788e0, guest::SignalSema((*(int32_t*)rtguest::G(0x2e6f2c))));
   }
   else if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {
-    scePrintf(0x331c98,param_1,(*(uint32_t*)rtguest::G(0x2e6f18)));
+    RT_CALLRA(0x278968, guest::scePrintf(0x331c98,param_1,(*(uint32_t*)rtguest::G(0x2e6f18))));
     return 0;
   }
   return 0;

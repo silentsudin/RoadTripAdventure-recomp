@@ -6,6 +6,10 @@ namespace guest {
 
 void DrawRecordTableRows(uint32_t param_1, uint64_t param_2, uint32_t param_3, uint64_t param_4) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   char cVar1;
   char cVar2;
   undefined8 uVar3;

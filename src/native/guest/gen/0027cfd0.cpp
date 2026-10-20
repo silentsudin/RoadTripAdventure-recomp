@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t decode_stack_op(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   byte bVar1;
   long lVar2;
   long extraout_a0;
@@ -23,27 +27,27 @@ uint32_t aiStack_30 = rtguest::allocFrame(16);
       return lVar2;
     }
     if (bVar1 == 0x23) {
-      lVar2 = decode_uleb128(lVar2,aiStack_30);
+      lVar2 = RT_CALLRA(0x27d0b8, guest::decode_uleb128(lVar2,aiStack_30));
       (*(int64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 8))) = (long)(*(int32_t*)rtguest::G((uint32_t)aiStack_30 + (uint32_t)(0) * 4));
       return lVar2;
     }
 LAB_0027d0d0:
-    abort();
+    RT_CALLRA(0x27d0d0, guest::abort());
     return extraout_a0;
   }
   if (bVar1 == 0x90) {
-    lVar2 = decode_sleb128(lVar2,aiStack_30);
+    lVar2 = RT_CALLRA(0x27d050, guest::decode_sleb128(lVar2,aiStack_30));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x3f8))) = (uint32_t)(*(int32_t*)rtguest::G((uint32_t)aiStack_30 + (uint32_t)(0) * 4));
   }
   else if (0x8f < bVar1) {
     if (bVar1 != 0x92) goto LAB_0027d0d0;
-    lVar2 = decode_sleb128(lVar2,aiStack_30);
+    lVar2 = RT_CALLRA(0x27d078, guest::decode_sleb128(lVar2,aiStack_30));
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x3f8))) = (uint32_t)(*(int32_t*)rtguest::G((uint32_t)aiStack_30 + (uint32_t)(0) * 4));
     goto LAB_0027d090;
   }
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x3f8))) = bVar1 - 0x70;
 LAB_0027d090:
-  lVar2 = decode_sleb128(lVar2,aiStack_30);
+  lVar2 = RT_CALLRA(0x27d090, guest::decode_sleb128(lVar2,aiStack_30));
   (*(int64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) = (long)(*(int32_t*)rtguest::G((uint32_t)aiStack_30 + (uint32_t)(0) * 4));
   return lVar2;
 }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _mprec_log10(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   undefined8 uVar1;
   
   uVar1 = 0x3ff0000000000000;
@@ -14,7 +18,7 @@ uint32_t _mprec_log10(uint32_t param_1, ...) {
   }
   else {
     for (; 0 < param_1; param_1 = param_1 + -1) {
-      uVar1 = dpmul(uVar1,0x4024000000000000);
+      uVar1 = RT_CALLRA(0x2846a0, guest::dpmul(uVar1,0x4024000000000000));
     }
   }
   return uVar1;

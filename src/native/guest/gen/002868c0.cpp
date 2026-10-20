@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _printf(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x80) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x84) = 0x00000000u;
+  }
   byte bVar1;
 uint32_t pbVar2;
   char cVar3;
@@ -145,7 +149,7 @@ LAB_00286910:
         rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x2d);
       }
       for (; uVar10 != 0; uVar10 = __divdi3(uVar10,10)) {
-        cVar4 = __moddi3(uVar10,10);
+        cVar4 = RT_CALLRA(0x286bc8, guest::__moddi3(uVar10,10));
         pcVar8 = pcVar8 + -1;
         (*(int8_t*)rtguest::G((uint32_t)pcVar8)) = cVar4 + '0';
       }
@@ -172,8 +176,8 @@ LAB_00286910:
     else {
       param_1 = pbVar2 + 2;
       // MIPS leaves $4 = 0x286d18 (this case's jump-table target) at the jal; Ghidra dropped it
-      uVar5 = fptodp(0x286d18);
-      fpFormatFloatSci(uVar5);
+      uVar5 = RT_CALLRA(0x286d4c, guest::fptodp(0x286d18));
+      RT_CALLRA(0x286d54, guest::fpFormatFloatSci(uVar5));
       param_2 = param_2 + 8;
     }
     goto LAB_00286e58;
@@ -264,10 +268,10 @@ LAB_00286910:
     }
     else {
       do {
-        cVar4 = __umoddi3(uVar10,10);
+        cVar4 = RT_CALLRA(0x286ca0, guest::__umoddi3(uVar10,10));
         pcVar8 = pcVar8 + -1;
         (*(int8_t*)rtguest::G((uint32_t)pcVar8)) = cVar4 + '0';
-        uVar10 = __udivdi3(uVar10,10);
+        uVar10 = RT_CALLRA(0x286cbc, guest::__udivdi3(uVar10,10));
       } while (uVar10 != 0);
     }
     param_1 = pbVar2 + 2;

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t navStampDigitByDpad(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   ushort uVar1;
   int iVar2;
   int iVar3;
@@ -33,7 +37,7 @@ uint32_t navStampDigitByDpad(uint32_t param_1, uint32_t param_2, ...) {
   }
   iVar2 = iVar3;
   if ((iVar3 != param_2) && (iVar2 = param_2, iVar3 == (iVar3 + 100) % 100)) {
-    PlayUiSound(0x1d);
+    RT_CALLRA(0x2660dc, guest::PlayUiSound(0x1d));
     iVar2 = iVar3;
   }
   return iVar2;

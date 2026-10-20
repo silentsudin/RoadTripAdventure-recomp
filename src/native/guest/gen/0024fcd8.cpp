@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t CarAiInit(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   ushort uVar1;
   undefined4 uVar2;
   undefined4 uVar3;
@@ -26,12 +30,12 @@ uint32_t puVar4;
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x80000) == 0) {
       if (param_3 != 0) {
         rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x327ff0u)), param_4, param_3);
-        lVar8 = carAiPathLookup(param_4,(int)param_3 + -1);
+        lVar8 = RT_CALLRA(0x24fd68, guest::carAiPathLookup(param_4,(int)param_3 + -1));
       }
     }
     else {
       rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x327ff0u)), param_4, param_3);
-      lVar8 = carAiPathLookup(param_4,param_3);
+      lVar8 = RT_CALLRA(0x24fd98, guest::carAiPathLookup(param_4,param_3));
     }
     if (lVar8 != 0) {
       uVar2 = (*(uint32_t*)rtguest::G((uint32_t)lVar8 + (uint32_t)(1) * 4));

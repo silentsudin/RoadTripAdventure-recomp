@@ -68,7 +68,7 @@ uint32_t puStack_8c;
         (*(uint64_t*)rtguest::G((uint32_t)puVar15)) = 0;
       }
       else {
-        uVar21 = litodp((*(uint32_t*)rtguest::G((uint32_t)puVar20)));
+        uVar21 = RT_CALLRA(0x275b08, guest::litodp((*(uint32_t*)rtguest::G((uint32_t)puVar20))));
         (*(uint64_t*)rtguest::G((uint32_t)puVar15)) = uVar21;
       }
       iVar10 = iVar10 + -1;
@@ -93,8 +93,8 @@ uint32_t puStack_8c;
           uVar12 = (*(uint64_t*)rtguest::G((uint32_t)puVar16));
           puVar16 = puVar16 + -1;
           iVar10 = iVar10 + -1;
-          uVar11 = dpmul(uVar11,uVar12);
-          uVar21 = dpadd(uVar21,uVar11);
+          uVar11 = RT_CALLRA(0x275b88, guest::dpmul(uVar11,uVar12));
+          uVar21 = RT_CALLRA(0x275b98, guest::dpadd(uVar21,uVar11));
         } while (iVar10 != 0);
       }
       (*(uint64_t*)rtguest::G((uint32_t)puVar15)) = uVar21;
@@ -109,25 +109,25 @@ LAB_00275bc8:
   puVar9 = auStack_2c4 + 1;
   for (iVar13 = iVar10; 0 < iVar13; iVar13 = iVar13 + -1) {
     puVar15 = puVar15 + -1;
-    uVar11 = dpmul(uVar21,0x3e70000000000000);
-    uVar11 = dptoli(uVar11);
-    uVar11 = litodp(uVar11);
-    uVar12 = dpmul(uVar11,0x4170000000000000);
+    uVar11 = RT_CALLRA(0x275bf4, guest::dpmul(uVar21,0x3e70000000000000));
+    uVar11 = RT_CALLRA(0x275c00, guest::dptoli(uVar11));
+    uVar11 = RT_CALLRA(0x275c08, guest::litodp(uVar11));
+    uVar12 = RT_CALLRA(0x275c20, guest::dpmul(uVar11,0x4170000000000000));
     uVar21 = dpsub(uVar21,uVar12);
-    uVar3 = dptoli(uVar21);
+    uVar3 = RT_CALLRA(0x275c3c, guest::dptoli(uVar21));
     uVar21 = (*(uint64_t*)rtguest::G((uint32_t)puVar15));
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = uVar3;
     puVar9 = puVar9 + 0x4;  // T* element step
-    uVar21 = dpadd(uVar21,uVar11);
+    uVar21 = RT_CALLRA(0x275c54, guest::dpadd(uVar21,uVar11));
   }
-  uVar21 = scalbn(uVar21,(*(int32_t*)rtguest::G((uint32_t)iStack_70)));
-  dVar7 = (double)dpmul(uVar21,0x3fc0000000000000);
-  dVar7 = floor(dVar7);
-  uVar11 = dpmul(dVar7,0x4020000000000000);
+  uVar21 = RT_CALLRA(0x275c6c, guest::scalbn(uVar21,(*(int32_t*)rtguest::G((uint32_t)iStack_70))));
+  dVar7 = (double)RT_CALLRA(0x275c84, guest::dpmul(uVar21,0x3fc0000000000000));
+  dVar7 = RT_CALLRA(0x275c90, guest::floor(dVar7));
+  uVar11 = RT_CALLRA(0x275ca4, guest::dpmul(dVar7,0x4020000000000000));
   uVar21 = dpsub(uVar21,uVar11);
-  uVar11 = dptoli(uVar21);
+  uVar11 = RT_CALLRA(0x275cc4, guest::dptoli(uVar21));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_74)) = (uint32_t)uVar11;
-  uVar11 = litodp(uVar11);
+  uVar11 = RT_CALLRA(0x275cd0, guest::litodp(uVar11));
   uVar21 = dpsub(uVar21,uVar11);
   if ((*(int32_t*)rtguest::G((uint32_t)iStack_70)) < 1) {
     if ((*(int32_t*)rtguest::G((uint32_t)iStack_70)) == 0) {
@@ -135,7 +135,7 @@ LAB_00275bc8:
     }
     else {
       iVar13 = 2;
-      lVar8 = dpcmp(uVar21,0x3fe0000000000000);
+      lVar8 = RT_CALLRA(0x275d64, guest::dpcmp(uVar21,0x3fe0000000000000));
       if (lVar8 < 0) {
         iVar13 = 0;
       }
@@ -185,11 +185,11 @@ LAB_00275dbc:
     }
 LAB_00275e30:
     if ((iVar13 == 2) && (uVar21 = dpsub(0x3ff0000000000000,uVar21), bVar2)) {
-      uVar11 = scalbn(0x3ff0000000000000,(*(int32_t*)rtguest::G((uint32_t)iStack_70)));
+      uVar11 = RT_CALLRA(0x275e60, guest::scalbn(0x3ff0000000000000,(*(int32_t*)rtguest::G((uint32_t)iStack_70))));
       uVar21 = dpsub(uVar21,uVar11);
     }
   }
-  lVar8 = dpcmp(uVar21,0);
+  lVar8 = RT_CALLRA(0x275e84, guest::dpcmp(uVar21,0));
   if (lVar8 == 0) {
     iVar19 = iVar10 + -1;
     uVar4 = 0;
@@ -221,7 +221,7 @@ LAB_00275e30:
       do {
         uVar11 = 0;
         iVar14 = (*(int32_t*)rtguest::G((uint32_t)iStack_80)) + iVar19;
-        uVar21 = litodp((*(uint32_t*)rtguest::G((uint32_t)puVar20)));
+        uVar21 = RT_CALLRA(0x275f6c, guest::litodp((*(uint32_t*)rtguest::G((uint32_t)puVar20))));
         (*(uint64_t*)rtguest::G((uint32_t)puVar15)) = uVar21;
         if (-1 < (*(int32_t*)rtguest::G((uint32_t)iStack_80))) {
           iVar5 = (*(int32_t*)rtguest::G((uint32_t)iStack_80)) + 1;
@@ -233,8 +233,8 @@ LAB_00275e30:
             uVar12 = (*(uint64_t*)rtguest::G((uint32_t)puVar17));
             puVar17 = puVar17 + -1;
             iVar5 = iVar5 + -1;
-            uVar21 = dpmul(uVar21,uVar12);
-            uVar11 = dpadd(uVar11,uVar21);
+            uVar21 = RT_CALLRA(0x275fa8, guest::dpmul(uVar21,uVar12));
+            uVar11 = RT_CALLRA(0x275fb8, guest::dpadd(uVar11,uVar21));
           } while (iVar5 != 0);
         }
         iVar19 = iVar19 + 1;
@@ -247,7 +247,7 @@ LAB_00275e30:
     goto LAB_00275bc8;
   }
 LAB_00275ff0:
-  lVar8 = dpcmp(uVar21,0);
+  lVar8 = RT_CALLRA(0x275ff8, guest::dpcmp(uVar21,0));
   if (lVar8 == 0) {
     puVar9 = auStack_2c4 + iVar10;
     (*(int32_t*)rtguest::G((uint32_t)iStack_70)) = (*(int32_t*)rtguest::G((uint32_t)iStack_70)) + -0x18;
@@ -259,29 +259,29 @@ LAB_00275ff0:
     }
   }
   else {
-    uVar21 = scalbn(uVar21,-(*(int32_t*)rtguest::G((uint32_t)iStack_70)));
-    lVar8 = dpcmp(uVar21,0x4170000000000000);
+    uVar21 = RT_CALLRA(0x276064, guest::scalbn(uVar21,-(*(int32_t*)rtguest::G((uint32_t)iStack_70))));
+    lVar8 = RT_CALLRA(0x276078, guest::dpcmp(uVar21,0x4170000000000000));
     if (lVar8 < 0) {
       iVar19 = iVar10 << 2;
     }
     else {
       (*(int32_t*)rtguest::G((uint32_t)iStack_70)) = (*(int32_t*)rtguest::G((uint32_t)iStack_70)) + 0x18;
-      uVar11 = dpmul(uVar21,0x3e70000000000000);
-      uVar11 = dptoli(uVar11);
-      uVar11 = litodp(uVar11);
+      uVar11 = RT_CALLRA(0x276098, guest::dpmul(uVar21,0x3e70000000000000));
+      uVar11 = RT_CALLRA(0x2760a4, guest::dptoli(uVar11));
+      uVar11 = RT_CALLRA(0x2760ac, guest::litodp(uVar11));
       iVar14 = iVar10 + 1;
-      uVar12 = dpmul(uVar11,0x4170000000000000);
+      uVar12 = RT_CALLRA(0x2760c4, guest::dpmul(uVar11,0x4170000000000000));
       iVar10 = iVar10 + 1;
       uVar21 = dpsub(uVar21,uVar12);
-      uVar4 = dptoli(uVar21);
+      uVar4 = RT_CALLRA(0x2760e0, guest::dptoli(uVar21));
       iVar19 = iVar10 * 4;
       (*(uint32_t*)rtguest::G((uint32_t)auStack_2c4 + (uint32_t)(iVar14) * 4)) = uVar4;
       uVar21 = uVar11;
     }
-    uVar3 = dptoli(uVar21);
+    uVar3 = RT_CALLRA(0x27610c, guest::dptoli(uVar21));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)auStack_2c4 + iVar19 + 4))) = uVar3;
   }
-  uVar21 = scalbn(0x3ff0000000000000,(*(int32_t*)rtguest::G((uint32_t)iStack_70)));
+  uVar21 = RT_CALLRA(0x276124, guest::scalbn(0x3ff0000000000000,(*(int32_t*)rtguest::G((uint32_t)iStack_70))));
   if (-1 < iVar10) {
     puVar9 = auStack_2c4 + iVar10 + 1;
     puVar15 = auStack_130 + iVar10;
@@ -290,11 +290,11 @@ LAB_00275ff0:
     while( true ) {
       puVar9 = puVar9 + -1;
       iVar19 = iVar19 + -1;
-      uVar11 = litodp(uVar4);
-      uVar11 = dpmul(uVar21,uVar11);
+      uVar11 = RT_CALLRA(0x276154, guest::litodp(uVar4));
+      uVar11 = RT_CALLRA(0x276164, guest::dpmul(uVar21,uVar11));
       (*(uint64_t*)rtguest::G((uint32_t)puVar15)) = uVar11;
       puVar15 = puVar15 + -1;
-      uVar21 = dpmul(uVar21,0x3e70000000000000);
+      uVar21 = RT_CALLRA(0x27617c, guest::dpmul(uVar21,0x3e70000000000000));
       if (iVar19 < 0) break;
       uVar4 = (*(uint32_t*)rtguest::G((uint32_t)puVar9));
     }
@@ -323,8 +323,8 @@ LAB_00276234:
           (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)lVar8;
           (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint32_t)lVar8 >> 0x20);
           iVar14 = iVar14 + 1;
-          uVar11 = dpmul(uVar11,uVar12);
-          uVar21 = dpadd(uVar21,uVar11);
+          uVar11 = RT_CALLRA(0x2761ec, guest::dpmul(uVar11,uVar12));
+          uVar21 = RT_CALLRA(0x2761fc, guest::dpadd(uVar21,uVar11));
           lVar8 = CONCAT44((*(uint32_t*)rtguest::G((uint32_t)uStack_5c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_60)));
           if ((*(int32_t*)rtguest::G((uint32_t)iStack_78)) < iVar14) goto LAB_00276234;
           iVar6 = iVar5 * 8;
@@ -344,7 +344,7 @@ LAB_00276234:
             uVar11 = (*(uint64_t*)rtguest::G((uint32_t)puVar15));
             puVar15 = puVar15 + -1;
             iVar10 = iVar10 + -1;
-            uVar21 = dpadd(uVar21,uVar11);
+            uVar21 = RT_CALLRA(0x2762b4, guest::dpadd(uVar21,uVar11));
           } while (-1 < iVar10);
         }
         (*(uint64_t*)rtguest::G((uint32_t)puStack_8c)) = uVar21;
@@ -363,7 +363,7 @@ LAB_00276234:
           uVar11 = (*(uint64_t*)rtguest::G((uint32_t)puVar15));
           puVar15 = puVar15 + -1;
           iVar19 = iVar19 + -1;
-          uVar21 = dpadd(uVar21,uVar11);
+          uVar21 = RT_CALLRA(0x27631c, guest::dpadd(uVar21,uVar11));
         } while (-1 < iVar19);
       }
       (*(uint64_t*)rtguest::G((uint32_t)puStack_8c)) = uVar21;
@@ -378,7 +378,7 @@ LAB_00276234:
           uVar11 = (*(uint64_t*)rtguest::G((uint32_t)puVar15));
           puVar15 = puVar15 + 0x8;  // T* element step
           iVar10 = iVar10 + -1;
-          uVar21 = dpadd(uVar21,uVar11);
+          uVar21 = RT_CALLRA(0x27638c, guest::dpadd(uVar21,uVar11));
         } while (iVar10 != 0);
       }
       (*(uint64_t*)rtguest::G((uint32_t)puStack_8c + (uint32_t)(1) * sizeof(uint64_t))) = uVar21;
@@ -396,9 +396,9 @@ LAB_00276234:
         uVar11 = (*(uint64_t*)rtguest::G((uint32_t)puVar15));
         uVar12 = (*(uint64_t*)rtguest::G((uint32_t)puVar15 + (uint32_t)(1) * sizeof(uint64_t)));
         iVar19 = iVar19 + -1;
-        uVar21 = dpadd(uVar11,uVar12);
+        uVar21 = RT_CALLRA(0x2763f8, guest::dpadd(uVar11,uVar12));
         uVar11 = dpsub(uVar11,uVar21);
-        uVar11 = dpadd(uVar12,uVar11);
+        uVar11 = RT_CALLRA(0x27641c, guest::dpadd(uVar12,uVar11));
         (*(uint64_t*)rtguest::G((uint32_t)puVar15)) = uVar21;
         (*(uint64_t*)rtguest::G((uint32_t)puVar15 + (uint32_t)(1) * sizeof(uint64_t))) = uVar11;
         puVar15 = puVar15 + -1;
@@ -411,9 +411,9 @@ LAB_00276234:
         uVar11 = (*(uint64_t*)rtguest::G((uint32_t)puVar15));
         uVar12 = (*(uint64_t*)rtguest::G((uint32_t)puVar15 + (uint32_t)(1) * sizeof(uint64_t)));
         iVar19 = iVar19 + -1;
-        uVar21 = dpadd(uVar11,uVar12);
+        uVar21 = RT_CALLRA(0x276460, guest::dpadd(uVar11,uVar12));
         uVar11 = dpsub(uVar11,uVar21);
-        uVar11 = dpadd(uVar12,uVar11);
+        uVar11 = RT_CALLRA(0x276484, guest::dpadd(uVar12,uVar11));
         (*(uint64_t*)rtguest::G((uint32_t)puVar15)) = uVar21;
         (*(uint64_t*)rtguest::G((uint32_t)puVar15 + (uint32_t)(1) * sizeof(uint64_t))) = uVar11;
         puVar15 = puVar15 + -1;
@@ -426,7 +426,7 @@ LAB_00276234:
         uVar11 = (*(uint64_t*)rtguest::G((uint32_t)puVar15));
         puVar15 = puVar15 + -1;
         iVar10 = iVar10 + -1;
-        uVar21 = dpadd(uVar21,uVar11);
+        uVar21 = RT_CALLRA(0x2764cc, guest::dpadd(uVar21,uVar11));
       } while (1 < iVar10);
     }
     if (iVar13 == 0) {

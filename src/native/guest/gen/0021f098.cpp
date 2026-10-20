@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t BuildMenuSceneCamera(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x50) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x54) = 0x00000000u;
+  }
   int iVar1;
 uint32_t auStack_60 = rtguest::allocFrame(48);
 uint32_t auStack_30 = rtguest::allocFrame(16);
@@ -21,12 +25,12 @@ uint32_t auStack_30 = rtguest::allocFrame(16);
     if (iVar1 < 0x101) {
       (*(uint32_t*)rtguest::G(0x29ccd4)) = (short)iVar1 * 5 + 0x380;
     }
-    buildCamera(0x177e6d0,0x29ccc0,0,0);
+    RT_CALLRA(0x21f12c, guest::buildCamera(0x177e6d0,0x29ccc0,0,0));
   }
   else {
-    vu0UnitMatrix(auStack_60);
-    vu0CopyVector(auStack_30,0x177ace0);
-    buildCamera(0x177e6d0,0x29ca00u + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) * 8,auStack_60,auStack_60);
+    RT_CALLRA(0x21f140, guest::vu0UnitMatrix(auStack_60));
+    RT_CALLRA(0x21f150, guest::vu0CopyVector(auStack_30,0x177ace0));
+    RT_CALLRA(0x21f178, guest::buildCamera(0x177e6d0,0x29ca00u + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) * 8,auStack_60,auStack_60));
   }
   return 0;
 }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t StreetSceneTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   char cVar1;
   short sVar2;
   int iVar3;
@@ -19,12 +23,12 @@ uint32_t puVar8;
   
   iVar9 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))) == 0) {
-    iVar3 = getExtraPacketArea(0x8cc0);
+    iVar3 = RT_CALLRA(0x259620, guest::getExtraPacketArea(0x8cc0));
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))) = iVar3;
     (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)((uint32_t)(iVar3 + 0x8cb0))), 0, 0x10));
-    InitMode13((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) >> 1 & 1);
-    gs_music_play_bgm(0xa0d0201);
-    gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))));
+    RT_CALLRA(0x259648, guest::InitMode13((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) >> 1 & 1));
+    RT_CALLRA(0x259654, guest::gs_music_play_bgm(0xa0d0201));
+    RT_CALLRA(0x259668, guest::gs_tasks_spawn(param_1,0x2357c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28)))));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))) + 0x8cb0))) = 0;
     return 0;
   }
@@ -34,34 +38,34 @@ uint32_t puVar8;
   switch((*(uint32_t*)rtguest::G((uint32_t)puVar8))) {
   case 0:
     uVar10 = 0x44340000;
-    StoreIndexedPosition(0x44340000,0x40c00000,0x42c30000,0,0xffffffffffffc000);
-    StoreIndexedPosition(uVar10,0x40c00000,0x42cd0000,1,0xffffffffffffc000);
+    RT_CALLRA(0x2596dc, guest::StoreIndexedPosition(0x44340000,0x40c00000,0x42c30000,0,0xffffffffffffc000));
+    RT_CALLRA(0x2596f8, guest::StoreIndexedPosition(uVar10,0x40c00000,0x42cd0000,1,0xffffffffffffc000));
     (*(uint8_t*)rtguest::G(0x177b05a)) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = 1;
     break;
   case 1:
     break;
   case 2:
-    GetOrSetPresidentRaceResult((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))));
+    RT_CALLRA(0x259848, guest::GetOrSetPresidentRaceResult((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)))));
     if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) == 0) {
       uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
     }
     else {
-      GetOrSetPresidentRaceResult((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) ^ 3);
+      RT_CALLRA(0x25985c, guest::GetOrSetPresidentRaceResult((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) ^ 3));
       if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) == 0) {
         if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1) != 0) {
-          SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),0,1);
+          RT_CALLRA(0x25987c, guest::SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),0,1));
         }
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) & 0x1000200) == 0x200) {
-          SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),0,1);
+          RT_CALLRA(0x2598a4, guest::SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),0,1));
           goto LAB_00259934;
         }
         uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
       }
       else {
-        SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) >> 1,1);
+        RT_CALLRA(0x259900, guest::SetWheelSprite((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) >> 1,1));
         if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27))) & ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) ^ 3)) == 0) {
-          SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1,1);
+          RT_CALLRA(0x25992c, guest::SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1,1));
           uVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) & 1;
           (*(uint16_t*)rtguest::G((uint32_t)0x177ade8 + (uint32_t)(uVar4 * 0x138) * 2)) = (*(uint16_t*)rtguest::G((uint32_t)0x177ade8 + (uint32_t)(uVar4 * 0x138) * 2)) | 0x800;
 LAB_00259934:
@@ -76,10 +80,10 @@ LAB_00259934:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = uVar4 & 0xfffffeff;
     (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = 3;
   case 3:
-    raceHudDraw(iVar7);
+    RT_CALLRA(0x259838, guest::raceHudDraw(iVar7));
     sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2)));
     if (0x40 < (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2)))) {
-      uiFade(((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) + -0x40) * 0x1000000);
+      RT_CALLRA(0x25996c, guest::uiFade(((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) + -0x40) * 0x1000000));
       sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2)));
     }
     if (sVar2 < 0xc0) {
@@ -101,11 +105,11 @@ LAB_002599a8:
   if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25))) == '\0') {
     bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
     if ((bVar6 & 1) == 0) {
-      CheckCarArrivedAtZone(param_1,0);
+      RT_CALLRA(0x259738, guest::CheckCarArrivedAtZone(param_1,0));
       bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
     }
     if ((bVar6 & 2) == 0) {
-      CheckCarArrivedAtZone(param_1,1);
+      RT_CALLRA(0x259754, guest::CheckCarArrivedAtZone(param_1,1));
       cVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
     }
     else {
@@ -126,13 +130,13 @@ LAB_00259790:
       bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10)));
     }
     else {
-      SetRoadData4((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),0,1);
+      RT_CALLRA(0x2597a4, guest::SetRoadData4((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),0,1));
       bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10)));
       bVar5 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
     }
   }
   if (((bVar6 & 2) != 0) && ((bVar5 & 2) != 0)) {
-    SetRoadData4((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),1,1);
+    RT_CALLRA(0x2597d4, guest::SetRoadData4((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),1,1));
     bVar5 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x27)));
   }
   if (bVar5 == 3) {
@@ -147,16 +151,16 @@ LAB_00259790:
     (*(uint32_t*)rtguest::G(0x177b058)) = (*(uint32_t*)rtguest::G(0x177b058)) | 0x800;
     (*(uint32_t*)rtguest::G(0x177afb8)) = 0;
   }
-  raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))));
+  RT_CALLRA(0x259950, guest::raceHudDraw((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28)))));
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4)));
 LAB_002599ac:
   if (iVar3 != 0) {
-    uiFade(0xffffffff80000000);
+    RT_CALLRA(0x2599b4, guest::uiFade(0xffffffff80000000));
     iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x18)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 8;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = 0xffffffff;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x2599dc, guest::gs_tasks_kill(param_1));
   }
   return 0;
 }

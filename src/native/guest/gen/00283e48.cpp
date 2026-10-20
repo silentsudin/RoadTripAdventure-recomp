@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _lshift(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   undefined8 uVar1;
   int iVar2;
   uint uVar3;
@@ -26,7 +30,7 @@ uint32_t puVar8;
   for (iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 8))); iVar6 < iVar10; iVar6 = iVar6 << 1) {
     iVar5 = iVar5 + 1;
   }
-  uVar1 = _Balloc(param_1,iVar5);
+  uVar1 = RT_CALLRA(0x283eb4, guest::_Balloc(param_1,iVar5));
   puVar8 = (uint32_t)((int)uVar1 + 0x14);
   if (0 < iVar9) {
     do {
@@ -61,7 +65,7 @@ uint32_t puVar8;
     }
   }
   (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar1 + 0x10))) = iVar10 + -1;
-  _Bfree(param_1,param_2);
+  RT_CALLRA(0x283f70, guest::_Bfree(param_1,param_2));
   return uVar1;
 }
 

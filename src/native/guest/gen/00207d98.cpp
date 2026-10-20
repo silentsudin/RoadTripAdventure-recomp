@@ -5,6 +5,10 @@
 namespace guest {
 uint32_t eeQuadBuild(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(272);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x100) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x104) = 0x00000000u;
+  }
   using namespace rtguest::vu0;
   S.vf[1] = lqc2(param_2); S.vf[2] = lqc2(param_2 + 16);
   vadd(15, 1, 1, 2);
@@ -24,7 +28,7 @@ uint32_t eeQuadBuild(uint32_t param_1, uint32_t param_2, ...) {
   w(0x10, s[0]); w(0x14, s[1]); w(0x18, s[2]); w(0x1c, 0x3f800000);
   w(0x20, r(32)); w(0x24, r(36)); w(0x28, r(40)); w(0x2c, r(44));
   w(0x30, r(48)); w(0x34, r(52)); w(0x38, r(56)); w(0x3c, r(60));
-  eeQuadTransform(param_1, frame);
+  RT_CALLRA(0x207eb0, guest::eeQuadTransform(param_1, frame));
   return 0;
 }
 RT_GUEST_FN(0x00207d98, guest::eeQuadBuild)

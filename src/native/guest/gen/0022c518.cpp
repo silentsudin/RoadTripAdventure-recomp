@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t StartCourseEventTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   long lVar1;
   int iVar2;
   int iVar3;
@@ -20,9 +24,8 @@ uint32_t StartCourseEventTask(uint32_t param_1, uint32_t param_2, ...) {
     uiFade(0x10000000);
     return 0;
   }
-  lVar1 = CheckUnlockCondition
-                    ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x21))),
-                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x14))));
+  lVar1 = RT_CALLRA(0x22c54c, guest::CheckUnlockCondition((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x23))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x21))),
+                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x14)))));
   if (lVar1 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))) | 2;
   }

@@ -18,8 +18,8 @@ uint32_t UpdateInputMapping(uint32_t param_1, ...) {
     return false;
   }
   iVar2 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) + (*(uint32_t*)rtguest::G(0x3356c0)) / 2;
-  lVar1 = loadCarModel(0x3fbb80 + iVar2 * 0x34000,iVar2,
-                       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G((uint32_t)0x177ea50 + (uint32_t)(iVar2) * 4)) + 4))));
+  lVar1 = RT_CALLRA(0x20cda8, guest::loadCarModel(0x3fbb80 + iVar2 * 0x34000,iVar2,
+                       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G((uint32_t)0x177ea50 + (uint32_t)(iVar2) * 4)) + 4)))));
   return lVar1 == 0;
 }
 

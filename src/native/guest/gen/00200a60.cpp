@@ -116,7 +116,7 @@ uint32_t puVar2;
     uVar6 = 0x14;
     uVar7 = 0x14;
   }
-  uiSpriteWrite(iVar1,param_1,iVar3,uVar4,uVar5,uVar6,uVar7);
+  RT_CALLRA(0x200da0, guest::uiSpriteWrite(iVar1,param_1,iVar3,uVar4,uVar5,uVar6,uVar7));
   (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
   return 0;
 }

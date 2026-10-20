@@ -8,6 +8,8 @@ namespace guest {
 uint64_t litodp(uint64_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x0) = 0x00000003u;
     *(uint32_t*)rtguest::G(rt_sv+0x0) = 0x00000002u;
     *(uint32_t*)rtguest::G(rt_sv+0x8) = 0x0000003cu;
@@ -37,7 +39,7 @@ uint64_t litodp(uint64_t param_1, ...) {
       (*(int32_t*)rtguest::G((uint32_t)iStack_28)) = (*(int32_t*)rtguest::G((uint32_t)iStack_28)) + -1;
     }
   }
-  uVar1 = __pack_d(uStack_30);
+  uVar1 = RT_CALLRA(0x27c02c, guest::__pack_d(uStack_30));
   return uVar1;
 }
 

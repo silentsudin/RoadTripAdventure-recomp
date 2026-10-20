@@ -6,12 +6,16 @@ namespace guest {
 
 uint32_t SoundStopAllChannels(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
 uint32_t piVar1;
   int iVar2;
   
-  SoundRpcCmd25(0);
-  SoundRpcCmd25(1);
-  MusicRpcCmd15(1);
+  RT_CALLRA(0x258ff8, guest::SoundRpcCmd25(0));
+  RT_CALLRA(0x259000, guest::SoundRpcCmd25(1));
+  RT_CALLRA(0x259008, guest::MusicRpcCmd15(1));
   piVar1 = 0x00335728;
   iVar2 = 1;
   do {

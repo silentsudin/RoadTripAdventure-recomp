@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateWheelSuspension(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+  }
 uint32_t aiStack_70 = rtguest::allocFrame(16);
     uint32_t iStack_60 = rtguest::allocFrame(4);
   int iVar1;
@@ -176,7 +180,7 @@ LAB_0021b310:
             if (iVar3 < 0) {
               iVar3 = iVar3 + 0xf;
             }
-            gs_controls_rumble_start(param_1,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x198))) & 1,1,iVar3 >> 4);
+            RT_CALLRA(0x21b360, guest::gs_controls_rumble_start(param_1,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x198))) & 1,1,iVar3 >> 4));
             iVar3 = (*(int32_t*)rtguest::G((uint32_t)piVar7));
           }
         }

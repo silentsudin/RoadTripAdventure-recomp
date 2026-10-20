@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t HandleAudioSettingsMenuInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   ushort uVar1;
   char cVar2;
   short sVar3;
@@ -33,7 +37,7 @@ LAB_00213a40:
             (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(1) * sizeof(int32_t))) = 0;
             return 0;
           }
-          ApplySoundVolumes((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14))));
+          RT_CALLRA(0x213860, guest::ApplySoundVolumes((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14)))));
           sVar3 = (*(int16_t*)rtguest::G(0x1780a3e));
           (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t))) = (int)(*(int8_t*)rtguest::G(0x1780a3d));
           cVar2 = (*(int8_t*)rtguest::G(0x1780a3d));
@@ -86,25 +90,25 @@ LAB_00213a40:
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x30)));
   }
   if ((uVar1 & 0x40) != 0) {
-    PlayUiSound(0x1a);
+    RT_CALLRA(0x2138f0, guest::PlayUiSound(0x1a));
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t)));
     if ((*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(3) * sizeof(int32_t))) != iVar4) {
       (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(3) * sizeof(int32_t))) = iVar4;
       (*(int8_t*)rtguest::G(0x1780a3d)) = (char)iVar4;
       if ((*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(3) * sizeof(int32_t))) != 0) {
-        SoundRpcCmd33PlaySe((*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(3) * sizeof(int32_t))) + -1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14))));
-        SoundRpcCmd34();
+        RT_CALLRA(0x213920, guest::SoundRpcCmd33PlaySe((*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(3) * sizeof(int32_t))) + -1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14)))));
+        RT_CALLRA(0x213928, guest::SoundRpcCmd34());
         return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
       }
 LAB_00213a30:
-      SoundRpcCmd35();
+      RT_CALLRA(0x213a30, guest::SoundRpcCmd35());
       return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
     }
 LAB_00213a50:
   return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
   }
   if ((uVar1 & 0x10) != 0) {
-    PlayUiSound(0x1b);
+    RT_CALLRA(0x213940, guest::PlayUiSound(0x1b));
     (*(int32_t*)rtguest::G((uint32_t)param_4)) = 300;
     return 300;
   }
@@ -119,7 +123,7 @@ LAB_00213a50:
       }
       iVar4 = (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t)));
     }
-    iVar4 = NavigateGridSelection(param_2,iVar4,3,1,0,1);
+    iVar4 = RT_CALLRA(0x2139b0, guest::NavigateGridSelection(param_2,iVar4,3,1,0,1));
     (*(int32_t*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(int32_t))) = iVar4;
   }
   else {
@@ -131,7 +135,7 @@ LAB_0021398c:
   if (iVar4 < 0) {
     iVar4 = iVar4 + 0x7f;
   }
-  SoundRpcCmd31(iVar4 >> 7,iVar4 >> 7);
+  RT_CALLRA(0x2139dc, guest::SoundRpcCmd31(iVar4 >> 7,iVar4 >> 7));
   return (*(int32_t*)rtguest::G((uint32_t)param_4));  // dropped *param_4 return
 }
 

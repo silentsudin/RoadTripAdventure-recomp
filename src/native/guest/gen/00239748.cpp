@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t ShowSequencedMessages(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   byte bVar1;
   int iVar2;
   int iVar3;
@@ -17,8 +21,8 @@ uint32_t ShowSequencedMessages(uint32_t param_1, uint32_t param_2, ...) {
   
   iVar8 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) == 0) {
-    uVar5 = uiMenuCreate();
-    cVar4 = CheckSlotPresence();
+    uVar5 = RT_CALLRA(0x23976c, guest::uiMenuCreate());
+    cVar4 = RT_CALLRA(0x239774, guest::CheckSlotPresence());
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) = cVar4;
     if (cVar4 != '\0') {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) = 0;
@@ -26,18 +30,18 @@ uint32_t ShowSequencedMessages(uint32_t param_1, uint32_t param_2, ...) {
       ShowAwardMessage(param_1,param_2);
       return 0;
     }
-    uVar6 = GetSlotDataPtr(1,0);
-    uiMenuAddItem(uVar5,uVar6,0x10);
-    uVar6 = GetSlotDataPtr(2,0);
-    uiMenuAddItem(uVar5,uVar6,0x10);
-    uiMenuAddItem(uVar5,0x3338a8,0x10);
+    uVar6 = RT_CALLRA(0x2397bc, guest::GetSlotDataPtr(1,0));
+    RT_CALLRA(0x2397cc, guest::uiMenuAddItem(uVar5,uVar6,0x10));
+    uVar6 = RT_CALLRA(0x2397d8, guest::GetSlotDataPtr(2,0));
+    RT_CALLRA(0x2397e8, guest::uiMenuAddItem(uVar5,uVar6,0x10));
+    RT_CALLRA(0x2397fc, guest::uiMenuAddItem(uVar5,0x3338a8,0x10));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar5 + 0x5f))) = 2;
-    CenterRectangle(uVar5,5);
+    RT_CALLRA(0x239810, guest::CenterRectangle(uVar5,5));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar5 + 0xe))) = 1;
   }
   else {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
-    lVar7 = uiMenuRun(iVar2);
+    lVar7 = RT_CALLRA(0x23982c, guest::uiMenuRun(iVar2));
     if (lVar7 != 0) {
       if (lVar7 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) + -1;
@@ -46,7 +50,7 @@ uint32_t ShowSequencedMessages(uint32_t param_1, uint32_t param_2, ...) {
         gs_tasks_kill(param_1);
         return 0;
       }
-      PlayUiSound(0x1a);
+      RT_CALLRA(0x239860, guest::PlayUiSound(0x1a));
       if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) != '\x02') {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xc))) = 0x239508;
         cVar4 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));

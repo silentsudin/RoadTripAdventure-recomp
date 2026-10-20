@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiArenaSetTexture(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
 uint32_t plVar1;
   int iVar2;
   int iVar3;
@@ -21,7 +25,7 @@ uint32_t plVar1;
     (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int32_t))) = iVar2;
   }
   if (iVar3 != 0) {
-    gifSetTexRegs(iVar3,(*(int64_t*)rtguest::G((uint32_t)plVar1 + (uint32_t)(1) * sizeof(int64_t))),(*(int64_t*)rtguest::G((uint32_t)plVar1)) + (param_4 << 0x38));
+    RT_CALLRA(0x24f69c, guest::gifSetTexRegs(iVar3,(*(int64_t*)rtguest::G((uint32_t)plVar1 + (uint32_t)(1) * sizeof(int64_t))),(*(int64_t*)rtguest::G((uint32_t)plVar1)) + (param_4 << 0x38)));
     (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) & 0xffffffffffffff0f | 0x60;
   }
   return 0;

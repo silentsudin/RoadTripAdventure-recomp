@@ -11,6 +11,10 @@ namespace guest {
 
 uint32_t __ieee754_rem_pio2f(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+  }
     uint32_t fStack_40 = rtguest::allocFrame(4);
   int iVar1;
 uint32_t pfVar2;
@@ -81,7 +85,7 @@ uint32_t afStack_3c = rtguest::allocFrame(28);
         iVar3 = iVar3 + -1;
       } while ((*(float*)rtguest::G((uint32_t)pfVar2)) == 0.0);
     }
-    iVar3 = __kernel_rem_pio2f(fStack_40,param_2,iVar1 + -0x86,iVar3,2,0x331560);
+    iVar3 = RT_CALLRA(0x27564c, guest::__kernel_rem_pio2f(fStack_40,param_2,iVar1 + -0x86,iVar3,2,0x331560));
     if (-1 < (int32_t)param_1) {  // blez on bits
       return iVar3;
     }

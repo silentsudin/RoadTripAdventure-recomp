@@ -6,6 +6,10 @@ namespace guest {
 
 void textGridEmitRows(uint32_t param_1, uint64_t param_2) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+  }
   uint uVar1;
   int iVar2;
   uint uVar3;

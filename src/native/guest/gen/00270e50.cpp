@@ -6,7 +6,11 @@ namespace guest {
 
 uint32_t textGridDestroy(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
-  heapFreeBlock((*(uint32_t*)rtguest::G(param_1 + 2 * sizeof(uint32_t))));
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
+  RT_CALLRA(0x270e60, guest::heapFreeBlock((*(uint32_t*)rtguest::G(param_1 + 2 * sizeof(uint32_t)))));
   (*(uint32_t*)rtguest::G(param_1 + 1 * sizeof(uint32_t))) = 0;
   (*(uint32_t*)rtguest::G(param_1 + 2 * sizeof(uint32_t))) = 0;
   (*(uint32_t*)rtguest::G(param_1)) = 0;

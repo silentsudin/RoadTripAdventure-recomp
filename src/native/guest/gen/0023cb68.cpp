@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SetProgressFlagAndQueue(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   char cVar1;
   long lVar2;
   uint uVar3;
@@ -36,13 +40,13 @@ uint32_t puVar4;
       }
     }
   }
-  lVar2 = CountSetBits((*(uint32_t*)rtguest::G(0x177fdd0)));
+  lVar2 = RT_CALLRA(0x23cc40, guest::CountSetBits((*(uint32_t*)rtguest::G(0x177fdd0))));
   if (lVar2 == 0xd) {
     (*(uint32_t*)rtguest::G(0x177fdd0)) = (*(uint32_t*)rtguest::G(0x177fdd0)) | 0x200;
   }
   if ((*(uint32_t*)rtguest::G(0x177fdd0)) == 0x3ffffef) {
     (*(uint32_t*)rtguest::G(0x177fdd0)) = 0x3ffffff;
-    gs_stamps_award_function(0x33);
+    RT_CALLRA(0x23cc80, guest::gs_stamps_award_function(0x33));
     if ((*(int32_t*)rtguest::G(0x177fd88)) == 0x80) {
       puVar4 = 0x0177fd08;
       iVar5 = 0;

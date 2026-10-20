@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t RunSaveProgressTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+  }
   char cVar1;
   byte bVar2;
   char cVar3;
@@ -28,13 +32,13 @@ uint32_t puVar13;
   iVar8 = uVar15 * 0x3448 + uVar6 * 0x1c;
   puVar13 = (uint32_t)((int)0x177f760 + iVar8);
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 8))) == 0) {
-    uVar5 = uiMenuCreate();
+    uVar5 = RT_CALLRA(0x22bbf4, guest::uiMenuCreate());
     uVar9 = 0xf;
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x1c))) & 3) != 0) {
       uVar9 = 0xc;
     }
-    LayoutTextItems(uVar5,0x29f370,uVar9,6);
-    CenterRectangle(uVar5,5);
+    RT_CALLRA(0x22bc20, guest::LayoutTextItems(uVar5,0x29f370,uVar9,6));
+    RT_CALLRA(0x22bc2c, guest::CenterRectangle(uVar5,5));
     iVar14 = (int)uVar5;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0xe))) = 1;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0x5f))) = 1;
@@ -61,8 +65,8 @@ uint32_t puVar13;
       uVar10 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) + 1;
     }
     if (uVar10 == 0xd) {
-      gs_tasks_spawn(param_1,0x2083c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002f00ac + uVar11 * 0x10))));
-      SetObjectAttribute(puVar13,0xd,uVar11);
+      RT_CALLRA(0x22bd40, guest::gs_tasks_spawn(param_1,0x2083c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002f00ac + uVar11 * 0x10)))));
+      RT_CALLRA(0x22bd50, guest::SetObjectAttribute(puVar13,0xd,uVar11));
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 2))) = 0;
     }
     else {
@@ -82,9 +86,9 @@ uint32_t puVar13;
         }
       }
       else if (uVar10 == 0xe) {
-        gs_tasks_spawn(param_1,0x20dc50,uVar11 | 0x3a0000);
+        RT_CALLRA(0x22bd70, guest::gs_tasks_spawn(param_1,0x20dc50,uVar11 | 0x3a0000));
       }
-      SetObjectAttribute(puVar13,uVar10,uVar11);
+      RT_CALLRA(0x22bd80, guest::SetObjectAttribute(puVar13,uVar10,uVar11));
       if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x2ed336u + (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0177f770 + iVar8))) * 7))) == 0) {
         trap(7);
       }
@@ -100,7 +104,7 @@ uint32_t puVar13;
     }
   }
 LAB_0022be88:
-  uiMenuWindow(iVar14,param_2,0x29f370);
+  RT_CALLRA(0x22be94, guest::uiMenuWindow(iVar14,param_2,0x29f370));
   if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 2))) == 0) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0xe))) == '\0') {
       cVar3 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0xd)));
@@ -135,7 +139,7 @@ LAB_0022bed4:
       uVar6 = uVar11 | (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(puVar13 + (uVar11 + 0xc) * sizeof(uint32_t)))) << 8 |
               (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x1c))) << 0x10;
     }
-    uVar4 = gs_tasks_spawn(param_1,0x246250,uVar6);
+    uVar4 = RT_CALLRA(0x22bf8c, guest::gs_tasks_spawn(param_1,0x246250,uVar6));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x20))) = uVar4;
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0xe))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 0xe))) | 0x80;
   }

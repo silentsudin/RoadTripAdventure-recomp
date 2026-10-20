@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t iSuspendThread(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   undefined4 uVar1;
   ulong in_v0;
   int iVar2;
@@ -18,11 +22,11 @@ uint32_t iSuspendThread(uint32_t param_1, ...) {
       (*(uint32_t*)rtguest::G(0x177657c)) = ((*(uint32_t*)rtguest::G(0x177657c)) & 0x1ff) + 1;
       (*(uint32_t*)rtguest::G((uint32_t)0x1776580 + (uint32_t)(iVar2) * 4)) = 2;
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x1776581))) = (char)in_v0;
-      iSignalSema(uVar1);
+      RT_CALLRA(0x28606c, guest::iSignalSema(uVar1));
     }
   }
   else {
-    _iSuspendThread(param_1);  // W12: tail-call forwarded $4 (ledger bare-call fix)
+    RT_CALLRA(0x286010, guest::_iSuspendThread(param_1));  // W12: tail-call forwarded $4 (ledger bare-call fix)
   }
   return 0;
 }

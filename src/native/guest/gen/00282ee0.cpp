@@ -7,6 +7,10 @@ namespace guest {
 
 uint32_t __sfvwrite_r(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
   uint32_t piVar1;
   uint32_t pcVar2;
   bool bVar3;
@@ -29,7 +33,7 @@ uint32_t __sfvwrite_r(uint32_t param_1, uint32_t param_2, ...) {
   if ((*(int32_t*)rtguest::G(param_2 + 8)) != 0) {
     uVar8 = (*(uint16_t*)rtguest::G(param_1 + 0xc));
     if (((uVar8 & 8) == 0) || ((*(int32_t*)rtguest::G(param_1 + 0x10)) == 0)) {
-      lVar7 = __swsetup_r(param_1);  // arg-drop fix: a0 live at jal 0x282f38 (disasm)
+      lVar7 = RT_CALLRA(0x282f38, guest::__swsetup_r(param_1));  // arg-drop fix: a0 live at jal 0x282f38 (disasm)
       if (lVar7 != 0) {
         return 0xffffffff;
       }
@@ -57,9 +61,9 @@ joined_r0x00282ff0:
               pcVar9 = (*(uint32_t*)rtguest::G(param_1 + 0x14));
               goto LAB_002830a0;
             }
-            memmove(pcVar2,unaff_s3_lo,uVar12);
+            RT_CALLRA(0x283030, guest::memmove(pcVar2,unaff_s3_lo,uVar12));
             (*(uint32_t*)rtguest::G(param_1)) = (uint32_t)(pcVar9 + (*(uint32_t*)rtguest::G(param_1)));
-            iVar4 = fflush(param_1);
+            iVar4 = RT_CALLRA(0x283088, guest::fflush(param_1));
             if (iVar4 != 0) {
               uVar8 = (*(uint16_t*)rtguest::G(param_1 + 0xc));
               goto LAB_00283288;
@@ -70,7 +74,7 @@ joined_r0x00282ff0:
             pcVar9 = (*(uint32_t*)rtguest::G(param_1 + 0x14));
 LAB_002830a0:
             if (__n_00 < (ulong)(long)(int)pcVar9) {
-              memmove(pcVar2,unaff_s3_lo,__n_00);
+              RT_CALLRA(0x283074, guest::memmove(pcVar2,unaff_s3_lo,__n_00));
               pcVar9 = (*(uint32_t*)rtguest::G(param_1 + 8)) - iVar6;
               iVar4 = (*(int32_t*)rtguest::G(param_1)) + iVar6;
               goto LAB_002830f4;
@@ -87,7 +91,7 @@ LAB_002830a0:
           if (__n_00 < uVar12) {
             uVar12 = __n_00;
           }
-          memmove((*(uint32_t*)rtguest::G(param_1)),unaff_s3_lo,uVar12);
+          RT_CALLRA(0x2830dc, guest::memmove((*(uint32_t*)rtguest::G(param_1)),unaff_s3_lo,uVar12));
           pcVar9 = (*(uint32_t*)rtguest::G(param_1 + 8)) - (int)uVar12;
           iVar4 = (*(int32_t*)rtguest::G(param_1)) + (int)uVar12;
 LAB_002830f4:
@@ -119,7 +123,7 @@ LAB_002830f4:
             pcVar9 = (*(uint32_t*)rtguest::G(param_1));
           }
           else {
-            pvVar5 = memchr(unaff_s3_lo,10,__n_00);
+            pvVar5 = RT_CALLRA(0x28315c, guest::memchr(unaff_s3_lo,10,__n_00));
             iVar6 = (int)__n_00;
             if (pvVar5 != (uint32_t)0x0) {
               iVar6 = (int)pvVar5 - (int)unaff_s3_lo;
@@ -137,9 +141,9 @@ LAB_002830f4:
           __n = (size_t)(int)pcVar11;
           iVar6 = (int)unaff_s5;
           if (((*(uint32_t*)rtguest::G(param_1 + 0x10)) < pcVar9) && ((long)__n < (long)uVar12)) {
-            memmove(pcVar9,unaff_s3_lo,__n);
+            RT_CALLRA(0x2831bc, guest::memmove(pcVar9,unaff_s3_lo,__n));
             (*(uint32_t*)rtguest::G(param_1)) = (uint32_t)(pcVar11 + (*(uint32_t*)rtguest::G(param_1)));
-            iVar4 = fflush(param_1);
+            iVar4 = RT_CALLRA(0x2831d0, guest::fflush(param_1));
             unaff_s5 = (ulong)(iVar6 - (int)pcVar11);
             if (iVar4 != 0) {
               uVar8 = (*(uint16_t*)rtguest::G(param_1 + 0xc));
@@ -147,7 +151,7 @@ LAB_002830f4:
             }
           }
           else if ((long)uVar12 < (long)(int)pcVar2) {
-            memmove(pcVar9,unaff_s3_lo,uVar12);
+            RT_CALLRA(0x283228, guest::memmove(pcVar9,unaff_s3_lo,uVar12));
             iVar4 = (int)uVar12;
             (*(uint32_t*)rtguest::G(param_1 + 8)) = (*(uint32_t*)rtguest::G(param_1 + 8)) - iVar4;
             (*(uint32_t*)rtguest::G(param_1)) = (*(uint32_t*)rtguest::G(param_1)) + iVar4;
@@ -163,7 +167,7 @@ LAB_002830f4:
             }
           }
           if (unaff_s5 == 0) {
-            iVar6 = fflush(param_1);
+            iVar6 = RT_CALLRA(0x283254, guest::fflush(param_1));
             if (iVar6 != 0) {
               uVar8 = (*(uint16_t*)rtguest::G(param_1 + 0xc));
               goto LAB_00283288;

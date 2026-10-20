@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t OpenPaintEditorScene(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   uint uVar1;
   int iVar2;
   int iVar3;
@@ -32,7 +36,7 @@ uint32_t OpenPaintEditorScene(uint32_t param_1, uint32_t param_2, ...) {
 LAB_002569e8:
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x27))) = bVar4;
     }
-    BuildPaintEditorMenuSprites(0x175b570);
+    RT_CALLRA(0x2569f0, guest::BuildPaintEditorMenuSprites(0x175b570));
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c)));
   }
   if (iVar3 == 0) {

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t SubmitConditionalTextureLayout(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
 uint32_t puVar1;
   int iVar2;
   int iVar3;
@@ -44,10 +48,10 @@ uint32_t puVar11;
     puVar11 = puVar11 + 0x40;  // T* element step
   } while (-1 < iVar12);
   (*(uint64_t*)rtguest::G(0x2a34a0)) = (*(uint64_t*)rtguest::G(0x2a34a0)) & 0xffffffffffff8000 | 0xc;
-  gifChainEndTag(0x2a3490,0xd);
-  sendTexturePackets(0x2a3490);
+  RT_CALLRA(0x23ef4c, guest::gifChainEndTag(0x2a3490,0xd));
+  RT_CALLRA(0x23ef54, guest::sendTexturePackets(0x2a3490));
   if (((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) & 2) != 0) {
-    vu0UnitMatrix(0x177eb10);
+    RT_CALLRA(0x23ef70, guest::vu0UnitMatrix(0x177eb10));
     vu0CopyVector(0x177eb40,0x2a37d0);
     return 0;
   }

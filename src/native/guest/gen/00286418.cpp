@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t sceTtyRead(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x50) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x54) = 0x00000000u;
+  }
   char cVar1;
   int iVar2;
   int iVar3;
@@ -18,7 +22,7 @@ uint32_t sceTtyRead(uint32_t param_1, uint32_t param_2, ...) {
       do {
       } while ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G(0x1776aa8)) + 4))) == 0);
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + iVar2))) = (*(int8_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G(0x1776aa8)) + 8)))));
-      ttyRingPop((*(int32_t*)rtguest::G(0x1776aa8)));
+      RT_CALLRA(0x286490, guest::ttyRingPop((*(int32_t*)rtguest::G(0x1776aa8))));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + iVar2)));
     } while (((cVar1 != '\n') && (cVar1 != '\r')) && (iVar2 = iVar3, iVar3 < param_2));
   }

@@ -6,11 +6,15 @@ namespace guest {
 
 uint32_t sceSifRemoveRpc(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   int iVar1;
   undefined4 uVar2;
   int iVar3;
   
-  DIntr();
+  RT_CALLRA(0x288258, guest::DIntr());
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 8)));
   if (iVar3 == param_1) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 8))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x38)));
@@ -31,7 +35,7 @@ uint32_t sceSifRemoveRpc(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x38))) = uVar2;
   }
 LAB_002882b0:
-  EIntr();
+  RT_CALLRA(0x2882b0, guest::EIntr());
   return iVar3;
 }
 

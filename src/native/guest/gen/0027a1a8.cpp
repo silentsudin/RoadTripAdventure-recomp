@@ -14,13 +14,13 @@ uint32_t sceMcSync(uint64_t param_1, uint64_t param_2, uint64_t param_3, ...) {
     uVar3 = 0xffffffff;
   }
   else {
-    lVar1 = sceSifCheckStatRpc(0x1774b40);
+    lVar1 = RT_CALLRA(0x27a1ec, guest::sceSifCheckStatRpc(0x1774b40));
     if ((param_1 == 0) && (lVar1 != 0)) {
       while( true ) {
-        lVar2 = sceSifCheckStatRpc(0x1774b40);
+        lVar2 = RT_CALLRA(0x27a218, guest::sceSifCheckStatRpc(0x1774b40));
         lVar1 = 0;
         if (lVar2 == 0) break;
-        mcDelayThread(0x3c);
+        RT_CALLRA(0x27a210, guest::mcDelayThread(0x3c));
       }
     }
     uVar3 = (uint32_t)(lVar1 == 0);
@@ -32,7 +32,7 @@ uint32_t sceMcSync(uint64_t param_1, uint64_t param_2, uint64_t param_3, ...) {
       if (param_3 != 0) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)param_3)) = (*(uint32_t*)rtguest::G(0x1776100));
       }
-      SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+      RT_CALLRA(0x27a258, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     }
   }
   return uVar3;

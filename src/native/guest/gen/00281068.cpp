@@ -20,7 +20,7 @@ uint32_t vsprintf(uint32_t __s, uint32_t __format, uint32_t __arg, ...) {
   *(uint32_t*)rtguest::G((uint32_t)puStack_1c) = *(uint32_t*)rtguest::G(0x2e8cc0);  // PTR_DAT_002e8cc0
   *(uint32_t*)rtguest::G((uint32_t)apcStack_70) = __s;
   *(uint32_t*)rtguest::G((uint32_t)pcStack_60) = __s;
-  iVar1 = vfprintf(apcStack_70,__format,__arg);
+  iVar1 = RT_CALLRA(0x2810a0, guest::vfprintf(apcStack_70,__format,__arg));
   *(uint8_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)apcStack_70))) = 0;
   return (uint32_t)iVar1;
 }

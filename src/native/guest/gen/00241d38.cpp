@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t drawCoins(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x80) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x84) = 0x00000000u;
+  }
   uint uVar1;
   int iVar2;
   long lVar3;
@@ -14,24 +18,24 @@ uint32_t drawCoins(uint32_t param_1, uint32_t param_2, ...) {
 uint32_t auStack_90 = rtguest::allocFrame(48);
 uint32_t auStack_60 = rtguest::allocFrame(16);
   
-  vu0UnitMatrix(auStack_90);
-  vu0RotMatrixY((float)(int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) - 0x80) * (*(float*)rtguest::G(0x332ef0)) * 0.0078125,auStack_90,
-                auStack_90);
-  vifFixedRegs(0x2003aa0599405d48,7,0,0xf);
+  RT_CALLRA(0x241d6c, guest::vu0UnitMatrix(auStack_90));
+  RT_CALLRA(0x241da4, guest::vu0RotMatrixY((float)(int)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) - 0x80) * (*(float*)rtguest::G(0x332ef0)) * 0.0078125,auStack_90,
+                auStack_90));
+  RT_CALLRA(0x241dcc, guest::vifFixedRegs(0x2003aa0599405d48,7,0,0xf));
   iVar2 = 1;
   iVar4 = 0;
   do {
     iVar5 = iVar2;
-    lVar3 = TestFlagFca8Clear(iVar5);
+    lVar3 = RT_CALLRA(0x241de8, guest::TestFlagFca8Clear(iVar5));
     if (lVar3 == 0) {
       uVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a397c + iVar4 * 0x10)));
-      lVar3 = tileSlotLoaded(param_2,uVar1);
+      lVar3 = RT_CALLRA(0x241e08, guest::tileSlotLoaded(param_2,uVar1));
       if (lVar3 != 0) {
-        vu0CopyVectorXYZ(auStack_60,0x2a3970 + iVar4 * 0x10);
-        lVar3 = tileSlotOrigin(auStack_60,auStack_60,uVar1 & 3);
+        RT_CALLRA(0x241e1c, guest::vu0CopyVectorXYZ(auStack_60,0x2a3970 + iVar4 * 0x10));
+        lVar3 = RT_CALLRA(0x241e2c, guest::tileSlotOrigin(auStack_60,auStack_60,uVar1 & 3));
         if (lVar3 != 0) {
-          vifObjectMatrix(auStack_90);
-          vifCallModel((*(uint32_t*)rtguest::G(0x335718)) + 0x10);
+          RT_CALLRA(0x241e3c, guest::vifObjectMatrix(auStack_90));
+          RT_CALLRA(0x241e48, guest::vifCallModel((*(uint32_t*)rtguest::G(0x335718)) + 0x10));
         }
       }
     }

@@ -21,15 +21,15 @@ uint32_t auStack_30 = rtguest::allocFrame(16);
     }
   }
   if (param_3 == 0x7fffffff) {
-    uiDrawSmallText(param_1,param_2,0x2e9b70);
+    RT_CALLRA(0x203c08, guest::uiDrawSmallText(param_1,param_2,0x2e9b70));
   }
   else if (param_3 < 360000) {
     iVar2 = (int)param_3;
     ::sprintf((char *)rtguest::G((uint32_t)(auStack_30)), (char *)rtguest::G((uint32_t)(0x2e9b90)), iVar2 / 0xe10, (iVar2 / 0x3c) % 0x3c, ((iVar2 % 0x3c) * 100) / 0x3c, iVar2 % 0x3c, 0x3c);
-    uiDrawSmallText(param_1,param_2,auStack_30);
+    RT_CALLRA(0x203c34, guest::uiDrawSmallText(param_1,param_2,auStack_30));
   }
   else {
-    uiDrawSmallText(param_1,param_2,0x2e9b80);
+    RT_CALLRA(0x203cb4, guest::uiDrawSmallText(param_1,param_2,0x2e9b80));
   }
   return 0;
 }

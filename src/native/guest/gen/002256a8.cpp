@@ -6,13 +6,17 @@ namespace guest {
 
 uint32_t drawSkyLayers(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   (*(uint32_t*)rtguest::G(0x29d47c)) = (*(uint32_t*)rtguest::G(0x177f728));
-  vifUploadColours(0x29d470,0x29d480);
-  vifBatchRegs(0x1fc00000009,9,0x2007df45e9443dfa,7);
+  RT_CALLRA(0x2256e4, guest::vifUploadColours(0x29d470,0x29d480));
+  RT_CALLRA(0x225714, guest::vifBatchRegs(0x1fc00000009,9,0x2007df45e9443dfa,7));
   vifCallModel(0x2962e0);
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) != '\"') {
     (*(uint32_t*)rtguest::G(0x29d47c)) = (*(uint32_t*)rtguest::G(0x177f720));
-    vifUploadColours(0x29d490,0x29d480);
+    RT_CALLRA(0x225740, guest::vifUploadColours(0x29d490,0x29d480));
     vifCallModel(0x298a50);
     return 0;
   }

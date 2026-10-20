@@ -22,16 +22,16 @@ uint32_t puVar2;
   }
   iVar4 = (param_1 + -0x1c) * 0x10000 >> 0x10;
   if (iVar3 < 0x9fc) {
-    uiSpriteWrite(iVar1 + iVar3 * 0x10 + 0x70,(0x232 - param_2) * 0x10000 >> 0x10,iVar4,0x58,0x118,8
-                  ,0x1c);
+    RT_CALLRA(0x202c30, guest::uiSpriteWrite(iVar1 + iVar3 * 0x10 + 0x70,(0x232 - param_2) * 0x10000 >> 0x10,iVar4,0x58,0x118,8
+                  ,0x1c));
     iVar3 = (*(uint32_t*)rtguest::G(0x335684)) + 5;
     iVar1 = (*(uint32_t*)rtguest::G(0x335680));
     (*(uint32_t*)rtguest::G(0x335684)) = iVar3;
   }
   if (iVar3 < 0x9fc) {
-    uiSpriteWrite(iVar1 + iVar3 * 0x10 + 0x70,(0x23a - param_2) * 0x10000 >> 0x10,
+    RT_CALLRA(0x202c8c, guest::uiSpriteWrite(iVar1 + iVar3 * 0x10 + 0x70,(0x23a - param_2) * 0x10000 >> 0x10,
                   (param_1 + -0x1c) * 0x10000 >> 0x10,0x60,0x118,(param_2 + 4) * 0x10000 >> 0x10,
-                  0x1c);
+                  0x1c));
     iVar3 = (*(uint32_t*)rtguest::G(0x335684)) + 5;
     iVar1 = (*(uint32_t*)rtguest::G(0x335680));
     (*(uint32_t*)rtguest::G(0x335684)) = iVar3;
@@ -39,7 +39,7 @@ uint32_t puVar2;
   iVar1 = iVar3 * 0x10 + iVar1;
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x20))) = 0x46007180073;
   if (iVar3 < 0x9fc) {
-    uiSpriteWrite(iVar1 + 0x70,0x23e,iVar4,0xd0,0x100,0x18,0x1c);
+    RT_CALLRA(0x202ce4, guest::uiSpriteWrite(iVar1 + 0x70,0x23e,iVar4,0xd0,0x100,0x18,0x1c));
     (*(uint32_t*)rtguest::G(0x335684)) = (*(uint32_t*)rtguest::G(0x335684)) + 5;
   }
   return 0;

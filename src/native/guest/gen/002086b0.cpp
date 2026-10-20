@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t InitializeMenuPanelTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   short sVar1;
   char cVar2;
 uint32_t pcVar3;
@@ -26,21 +30,21 @@ uint32_t pcVar3;
     pcVar3 = 0x208270;
     uVar4 = 1;
   }
-  gs_tasks_spawn(param_1,pcVar3,uVar4);
+  RT_CALLRA(0x208728, guest::gs_tasks_spawn(param_1,pcVar3,uVar4));
   cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
 LAB_00208738:
   if (cVar2 == '\x01') {
     sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) + 1;
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) = sVar1;
     if (sVar1 == 0xd4) {
-      gs_tasks_spawn(param_1,0x2082d8,1);
+      RT_CALLRA(0x208768, guest::gs_tasks_spawn(param_1,0x2082d8,1));
     }
     sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2)));
     if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2))) < 0xf4) {
-      gifBeginSpriteBatch(0x34a6c0,0x2003f9ce65319d8e);
-      gifSetSpriteCount(0x34a720,1);
-      uiSpriteWrite(0x34a730,0x80,0x20,0,0,0x180,0x180);
-      vifDirect(0x34a6c0,0xc);
+      RT_CALLRA(0x2087a0, guest::gifBeginSpriteBatch(0x34a6c0,0x2003f9ce65319d8e));
+      RT_CALLRA(0x2087ac, guest::gifSetSpriteCount(0x34a720,1));
+      RT_CALLRA(0x2087cc, guest::uiSpriteWrite(0x34a730,0x80,0x20,0,0,0x180,0x180));
+      RT_CALLRA(0x2087d8, guest::vifDirect(0x34a6c0,0xc));
       sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 2)));
     }
   }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t drawAnimatedProps(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
   int iVar1;
   long lVar2;
 uint32_t puVar3;
@@ -58,7 +62,7 @@ uint32_t pfVar6;
     iVar7 = 0xd;
     puVar4 = 0x002c4ad0;
     do {
-      lVar2 = tileSlotLoaded(param_2,(*(uint32_t*)rtguest::G((uint32_t)puVar4)));
+      lVar2 = RT_CALLRA(0x25d26c, guest::tileSlotLoaded(param_2,(*(uint32_t*)rtguest::G((uint32_t)puVar4))));
       if (lVar2 != 0) {
         rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t))))), param_1, param_2);
       }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateRaceResultsMenu(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   char cVar1;
   ushort uVar2;
   int iVar3;
@@ -36,7 +40,7 @@ uint32_t UpdateRaceResultsMenu(uint32_t param_1, uint32_t param_2, ...) {
   }
   if (cVar1 == '\0') {
     if (iVar3 < 0x10) {
-      uiSetTexa(iVar3 << 3);
+      RT_CALLRA(0x248214, guest::uiSetTexa(iVar3 << 3));
       bVar4 = false;
     }
     else {
@@ -47,11 +51,11 @@ uint32_t UpdateRaceResultsMenu(uint32_t param_1, uint32_t param_2, ...) {
     bVar4 = false;
     if (cVar1 == '\x02') {
       if (iVar3 < 0x10) {
-        uiSetTexa(iVar3 * -8 + 0x80);
+        RT_CALLRA(0x248240, guest::uiSetTexa(iVar3 * -8 + 0x80));
         bVar4 = false;
       }
       else {
-        gs_tasks_kill(param_1);
+        RT_CALLRA(0x248250, guest::gs_tasks_kill(param_1));
         bVar4 = true;
       }
     }
@@ -59,13 +63,13 @@ uint32_t UpdateRaceResultsMenu(uint32_t param_1, uint32_t param_2, ...) {
   if (bVar4) {
     return 0;
   }
-  DrawCarouselStatText((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),param_2);
+  RT_CALLRA(0x248268, guest::DrawCarouselStatText((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),param_2));
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 10))) == '\x01') {
-    DrawCarouselSlotPanel(param_1,param_2);
+    RT_CALLRA(0x248284, guest::DrawCarouselSlotPanel(param_1,param_2));
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
   }
   else {
-    DrawTwoPlayerResults(param_1,param_2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))));
+    RT_CALLRA(0x24829c, guest::DrawTwoPlayerResults(param_1,param_2,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)))));
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25)));
   }
   if (cVar1 != '\0') {
@@ -76,12 +80,12 @@ uint32_t UpdateRaceResultsMenu(uint32_t param_1, uint32_t param_2, ...) {
   }
   else {
     if ((uVar2 & 0x40) != 0) {
-      PlayUiSound(0x1a);
+      RT_CALLRA(0x2482cc, guest::PlayUiSound(0x1a));
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 4))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))) | 0x400000;
-      gs_tasks_kill(param_1);
+      RT_CALLRA(0x2482f4, guest::gs_tasks_kill(param_1));
       return 0;
     }
     uVar2 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x30)));
@@ -98,10 +102,10 @@ uint32_t UpdateRaceResultsMenu(uint32_t param_1, uint32_t param_2, ...) {
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 4))) = 0xffffffff;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x25))) = 2;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) = 0;
-  PlayUiSound(0x1b);
+  RT_CALLRA(0x248354, guest::PlayUiSound(0x1b));
 LAB_00248364:
-  uiDrawIcon3(0x1fe,0x20,0);
-  uiDrawIcon3(0x1a4,0x20,1);
+  RT_CALLRA(0x248364, guest::uiDrawIcon3(0x1fe,0x20,0));
+  RT_CALLRA(0x248374, guest::uiDrawIcon3(0x1a4,0x20,1));
   return 0;
 }
 

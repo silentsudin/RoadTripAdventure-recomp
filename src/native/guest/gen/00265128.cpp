@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t drawStampIcon(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x90) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x94) = 0x00000000u;
+  }
 uint32_t aiStack_b0 = rtguest::allocFrame(32);
     uint32_t fStack_90 = rtguest::allocFrame(4);
     uint32_t fStack_8c = rtguest::allocFrame(4);
@@ -34,7 +38,7 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) | 0x2000000d80000000;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) | 0xd80000000;
   fVar2 = ((float)param_3 / 5.0 + 1.0) * 64.0;
-  uiArenaSetTexture(param_1,uStack_40,0,0);
+  RT_CALLRA(0x2651d8, guest::uiArenaSetTexture(param_1,uStack_40,0,0));
   (*(float*)rtguest::G((uint32_t)fStack_90)) = -fVar2;
   (*(int32_t*)rtguest::G((uint32_t)aiStack_b0 + (uint32_t)(5) * 4)) = 0x40;
   (*(int32_t*)rtguest::G((uint32_t)aiStack_b0 + (uint32_t)(4) * 4)) = 0x40;
@@ -60,7 +64,7 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
   (*(float*)rtguest::G((uint32_t)fStack_5c)) = fVar2;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_54)) = uVar1;
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(auStack_50)), 0, 0x10));
-  uiArenaRotQuads(param_1,aiStack_b0,1,0,0,0);
+  RT_CALLRA(0x265294, guest::uiArenaRotQuads(param_1,aiStack_b0,1,0,0,0));
   return 0;
 }
 

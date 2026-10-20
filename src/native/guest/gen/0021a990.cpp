@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t AcquireVehicleInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
 uint32_t psVar1;
   ulong uVar2;
   int iVar3;
@@ -25,7 +29,7 @@ uint32_t puVar10;
   uVar14 = 0;
   iVar12 = (int)param_3;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x250))) != 0) {
-    uVar14 = UpdateVehicleWaypointProgress(param_2,param_3);
+    uVar14 = RT_CALLRA(0x21a9cc, guest::UpdateVehicleWaypointProgress(param_2,param_3));
   }
   iVar3 = (int)param_2;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))) == '\x18') {
@@ -42,8 +46,8 @@ uint32_t puVar10;
     if ((long)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x10))) + 2))) + -1) <= (long)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x19b))))
     goto LAB_0021aa98;
     if (uVar2 == 2) {
-      PlayUiSound((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x245))) + 0x8000);
-      PlayUiSound(0x309);
+      RT_CALLRA(0x21aa38, guest::PlayUiSound((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x245))) + 0x8000));
+      RT_CALLRA(0x21aa40, guest::PlayUiSound(0x309));
       uVar8 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198)));
     }
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198))) = uVar8 | 0x400;
@@ -59,7 +63,7 @@ uint32_t puVar10;
     uVar2 = (uint32_t)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198)));
 LAB_0021aa98:
     if (uVar2 == 0x402) {
-      PlayUiSound(0x8309);
+      RT_CALLRA(0x21aaa4, guest::PlayUiSound(0x8309));
       uVar2 = (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198)));
     }
     uVar11 = uVar2 & 0xfffffffffffffbff;
@@ -76,7 +80,7 @@ LAB_0021aa98:
     if ((uVar5 & 0x40) == 0) {
       if ((uVar2 & 0x80) == 0) {
         if ((uVar2 & 3) != 0) {
-          uVar13 = gs_controls_player_control(param_1,param_2,param_3);
+          uVar13 = RT_CALLRA(0x21ab98, guest::gs_controls_player_control(param_1,param_2,param_3));
           uVar5 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28)));
         }
       }

@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t AdvanceCarEffectSlot(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+  }
     uint32_t fStack_50 = rtguest::allocFrame(4);
     uint32_t fStack_4c = rtguest::allocFrame(4);
     uint32_t fStack_48 = rtguest::allocFrame(4);
@@ -58,10 +62,10 @@ uint32_t puVar4;
     (*(float*)rtguest::G((uint32_t)fStack_50)) = fVar5 * 0.09375 + 0.0;
     (*(float*)rtguest::G((uint32_t)fStack_3c)) = (*(float*)rtguest::G((uint32_t)fStack_4c));
     (*(float*)rtguest::G((uint32_t)fStack_38)) = (*(float*)rtguest::G((uint32_t)fStack_48));
-    vu0ApplyMatrix(fStack_50,0x177ac50 + (cVar1 * 0x28 - (int)cVar1) * 2,fStack_50);
-    vu0ApplyMatrix(fStack_40,0x177ac50 + (cVar1 * 0x28 - (int)cVar1) * 2,fStack_40);
-    vu0CopyVectorXYZ(0x0172ff70 + iVar3,fStack_50);
-    vu0CopyVectorXYZ(iVar3 + 0x172ff80,fStack_40);
+    RT_CALLRA(0x225528, guest::vu0ApplyMatrix(fStack_50,0x177ac50 + (cVar1 * 0x28 - (int)cVar1) * 2,fStack_50));
+    RT_CALLRA(0x22553c, guest::vu0ApplyMatrix(fStack_40,0x177ac50 + (cVar1 * 0x28 - (int)cVar1) * 2,fStack_40));
+    RT_CALLRA(0x225548, guest::vu0CopyVectorXYZ(0x0172ff70 + iVar3,fStack_50));
+    RT_CALLRA(0x225554, guest::vu0CopyVectorXYZ(iVar3 + 0x172ff80,fStack_40));
     fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar3))) + 0.0625;
   }
   (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar3))) = fVar5;

@@ -6,11 +6,15 @@ namespace guest {
 
 uint32_t SndRpcReadBlock1F(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+  }
   undefined8 uVar1;
   undefined8 uVar2;
   undefined8 uVar3;
   
-  sceSifCallRpc(0x175e840,0x1f,0,0,0,0x175f880,0x40,0);
+  RT_CALLRA(0x258178, guest::sceSifCallRpc(0x175e840,0x1f,0,0,0,0x175f880,0x40,0));
   uVar3 = (*(uint64_t*)rtguest::G(0x175f898));
   uVar2 = (*(uint64_t*)rtguest::G(0x175f890));
   uVar1 = (*(uint64_t*)rtguest::G(0x175f888));

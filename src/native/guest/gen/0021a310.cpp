@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t gs_controls_car_update(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x50) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x54) = 0x00000000u;
+  }
   byte bVar1;
   short sVar2;
   undefined1 uVar3;
@@ -144,10 +148,9 @@ LAB_0021a454:
   if (iVar7 < 0) {
     iVar7 = iVar7 + 0xff;
   }
-  uVar5 = AdvanceVehicleMotion
-                    (auStack_60,param_2,(*(uint32_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)param_3)),iVar7 >> 8,iVar15,param_4,
-                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x28))) & 4);
-  UpdateCarTireSound(param_1,param_2,uVar5,param_4);
+  uVar5 = RT_CALLRA(0x21a594, guest::AdvanceVehicleMotion(auStack_60,param_2,(*(uint32_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint32_t))),(*(uint32_t*)rtguest::G((uint32_t)param_3)),iVar7 >> 8,iVar15,param_4,
+                     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x28))) & 4));
+  RT_CALLRA(0x21a5a8, guest::UpdateCarTireSound(param_1,param_2,uVar5,param_4));
   iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x218)));
   iVar10 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1b8)));
   iVar12 = 0;
@@ -239,12 +242,12 @@ LAB_0021a714:
   (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1d4))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1d4))) + sVar6;
   iVar7 = ((iVar14 + sVar4) * (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1b8)))) / 0x28be;
 LAB_0021a7a4:
-  TransformVecByF15Matrix(iVar13 + 0xf0,param_2,auStack_60);
+  RT_CALLRA(0x21a7ac, guest::TransformVecByF15Matrix(iVar13 + 0xf0,param_2,auStack_60));
   iVar16 = iVar16 * (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x19c))) & 7) * 2 + iVar8 + 0x210)));
   if (iVar16 < 0) {
     iVar16 = iVar16 + 0xff;
   }
-  UpdateSteeringDamping(param_2,iVar14,iVar16 >> 8,iVar15,iVar7);
+  RT_CALLRA(0x21a7e8, guest::UpdateSteeringDamping(param_2,iVar14,iVar16 >> 8,iVar15,iVar7));
   return 0;
 }
 

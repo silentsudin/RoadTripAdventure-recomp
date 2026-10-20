@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateZoneCheckFrame(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+  }
   char cVar1;
   ushort uVar2;
   undefined4 uVar3;
@@ -25,7 +29,7 @@ uint32_t puVar5;
   puVar5 = 0x177ac50;
   do {
     if ((((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) != 0) && (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) & 0x200) == 0)) &&
-       (UpdateZoneFromRects(param_1,puVar5,param_2,cVar1 * 0x30 + 0x2a8198),
+       (RT_CALLRA(0x22ec04, guest::UpdateZoneFromRects(param_1,puVar5,param_2,cVar1 * 0x30 + 0x2a8198)),
        (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 0x19a))) != '\0')) {
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x4c))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x4c))) + 1;
     }
@@ -52,7 +56,7 @@ LAB_0022ec64:
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 2))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xc))) = 0x22ee00;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28))) = uVar4 | 8;
-  PlayBgmSlot5();
+  RT_CALLRA(0x22ec88, guest::PlayBgmSlot5());
   uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
 LAB_0022ec94:
   raceHudDraw(uVar3);

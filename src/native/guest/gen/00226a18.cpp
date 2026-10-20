@@ -10,14 +10,14 @@ uint32_t vifUploadColours(uint32_t param_1, uint32_t param_2, ...) {
 uint32_t puVar2;
   
   if ((*(uint32_t*)rtguest::G(0x3356ec)) == (uint32_t)0x0) {
-    fatal(0x2eafa0);
+    RT_CALLRA(0x226a3c, guest::fatal(0x2eafa0));
   }
   if ((*(uint32_t*)rtguest::G(0x3356f4)) == 0) {
     if ((*(uint32_t*)rtguest::G(0x3356ec)) + 0xc * sizeof(uint32_t) < (uint32_t)0x17523d0) {
       bVar1 = false;
     }
     else {
-      fatal(0x2eafc0);
+      RT_CALLRA(0x226a70, guest::fatal(0x2eafc0));
       bVar1 = false;
     }
   }
@@ -34,9 +34,9 @@ uint32_t puVar2;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(3) * 4)) = 0x6c020018;
     (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G(0x3356ec)) + (uint32_t)(1) * 4)) = 0;
     (*(uint32_t*)rtguest::G(0x3356ec)) = puVar2;
-    vu0CopyVector(puVar2,param_1);
+    RT_CALLRA(0x226ad4, guest::vu0CopyVector(puVar2,param_1));
     (*(uint32_t*)rtguest::G(0x3356ec)) = (*(uint32_t*)rtguest::G(0x3356ec)) + 4 * sizeof(uint32_t);
-    vu0CopyVector((*(uint32_t*)rtguest::G(0x3356ec)),param_2);
+    RT_CALLRA(0x226aec, guest::vu0CopyVector((*(uint32_t*)rtguest::G(0x3356ec)),param_2));
     (*(uint32_t*)rtguest::G(0x3356ec)) = (*(uint32_t*)rtguest::G(0x3356ec)) + 4 * sizeof(uint32_t);
   }
   return 0;

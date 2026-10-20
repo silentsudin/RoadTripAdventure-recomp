@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateZoneFromRects(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   bool bVar1;
   undefined1 uVar2;
 uint32_t pfVar3;
@@ -20,7 +24,7 @@ uint32_t pfVar3;
   }
   if (bVar1) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x19a))) == '\x04') {
-      RecordLapSplitTimes(param_1,param_2);
+      RT_CALLRA(0x22d6a0, guest::RecordLapSplitTimes(param_1,param_2));
       uVar2 = 2;
     }
     else {

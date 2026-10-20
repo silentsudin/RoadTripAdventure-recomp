@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateMenuOptionTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   char cVar1;
   int iVar2;
   int iVar3;
@@ -16,32 +20,32 @@ uint32_t UpdateMenuOptionTask(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10))) = 8;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x400000;
     (*(uint32_t*)rtguest::G(0x177ea50)) = 0x177f760;
-    gs_tasks_spawn(param_1,0x20f950,0x18);
-    gs_music_play_bgm(0xa180201);
+    RT_CALLRA(0x20a19c, guest::gs_tasks_spawn(param_1,0x20f950,0x18));
+    RT_CALLRA(0x20a1a8, guest::gs_music_play_bgm(0xa180201));
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8)));
   }
   else if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) == '\0') {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xf))) == '\0') {
-      PlayBgmSlot1();
+      RT_CALLRA(0x20a1d0, guest::PlayBgmSlot1());
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8)));
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) + '\x01';
     }
     else {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x400000;
-      uiFade(0x8000000);
-      uiDrawTextCell(0xc,10,0x2ea398,0);
+      RT_CALLRA(0x20a1fc, guest::uiFade(0x8000000));
+      RT_CALLRA(0x20a214, guest::uiDrawTextCell(0xc,10,0x2ea398,0));
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8)));
     }
   }
   if (iVar2 == 0xe10) {
-    PlayBgmSlot5();
+    RT_CALLRA(0x20a22c, guest::PlayBgmSlot5());
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24)));
   }
   else if (iVar2 < 0xe11) {
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24)));
   }
   else {
-    uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2))) << 0x19);
+    RT_CALLRA(0x20a24c, guest::uiFade((int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2))) << 0x19));
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2))) + 1;
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24)));
   }

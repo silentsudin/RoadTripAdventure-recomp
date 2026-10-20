@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t uiMenuWindow(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+  }
   byte bVar1;
   char cVar2;
   short sVar3;
@@ -24,12 +28,12 @@ uint32_t pbVar9;
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x13))) + 2;
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x13))) = bVar1;
 LAB_002053ec:
-      uiSetTexa((uint32_t)bVar1 << 3);
+      RT_CALLRA(0x2053b8, guest::uiSetTexa((uint32_t)bVar1 << 3));
       sVar3 = (*(int16_t*)rtguest::G((uint32_t)param_1));
     }
     else {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(7) * sizeof(int16_t)))) = 0;
-      uiSetTexa(0x80);
+      RT_CALLRA(0x2053ec, guest::uiSetTexa(0x80));
       sVar3 = (*(int16_t*)rtguest::G((uint32_t)param_1));
     }
   }
@@ -41,20 +45,19 @@ LAB_002053ec:
       if (cVar2 != '\0') goto LAB_002053ec;
     }
     else {
-      uiSetTexa(0x80);
+      RT_CALLRA(0x205400, guest::uiSetTexa(0x80));
     }
     sVar3 = (*(int16_t*)rtguest::G((uint32_t)param_1));
   }
-  uiDrawPanel9(sVar3,(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))),(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))),(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x5f))));
+  RT_CALLRA(0x205418, guest::uiDrawPanel9(sVar3,(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))),(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))),(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t))),(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x5f)))));
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xb))) == '\0') {
     iVar10 = (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t)));
     goto LAB_002055e8;
   }
   if ((char)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(7) * sizeof(int16_t))) == '\0') {
-    cVar2 = NavigateGridSelection
-                      (param_2,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xd))),1,
+    cVar2 = RT_CALLRA(0x205460, guest::NavigateGridSelection(param_2,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xd))),1,
                        (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xb))) + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x11))),
-                       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(6) * sizeof(int16_t)))) & 3,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(6) * sizeof(int16_t)))) >> 2 ^ 1) & 1);
+                       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(6) * sizeof(int16_t)))) & 3,((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(6) * sizeof(int16_t)))) >> 2 ^ 1) & 1));
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(8) * sizeof(int16_t))));
     uVar5 = (uint32_t)bVar1;
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xd))) = cVar2;
@@ -95,14 +98,14 @@ LAB_002053ec:
 LAB_00205544:
     uVar5 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(8) * sizeof(int16_t))));
   }
-  uiDrawBar3((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int16_t))) + 0x14,
+  RT_CALLRA(0x205590, guest::uiDrawBar3((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int16_t))) + 0x14,
              ((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) + (((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(5) * sizeof(int16_t)))) + (int)cVar2) - uVar5) * 0xc) * 2,
-             (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) + (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int16_t))) * -2 + -0x14);
+             (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) + (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int16_t))) * -2 + -0x14));
   if ((char)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(7) * sizeof(int16_t))) == '\0') {
-    uiDrawArrow((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int16_t))) + -0x14,
+    RT_CALLRA(0x2055dc, guest::uiDrawArrow((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(int16_t))) + -0x14,
                 ((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) +
                 (((uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(5) * sizeof(int16_t)))) + (int)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xd)))) -
-                (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(8) * sizeof(int16_t))))) * 0xc) * 2);
+                (uint32_t)(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(8) * sizeof(int16_t))))) * 0xc) * 2));
     iVar10 = (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t)));
   }
   else {
@@ -161,15 +164,15 @@ LAB_002056b0:
       }
       if ((bVar1 & 0x40) == 0) {
         if ((bVar1 & 8) == 0) {
-          unaff_s5 = uiDrawText(unaff_s5,iVar10,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)psVar4)),uVar6);
+          unaff_s5 = RT_CALLRA(0x205704, guest::uiDrawText(unaff_s5,iVar10,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)psVar4)),uVar6));
         }
         else {
-          unaff_s5 = uiDrawTextRight((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))),iVar10);
+          unaff_s5 = RT_CALLRA(0x2056f0, guest::uiDrawTextRight((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))),iVar10));
         }
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xf)));
       }
       else {
-        uiDrawNumberAuto(unaff_s5,iVar10,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)psVar4)));
+        RT_CALLRA(0x2056c4, guest::uiDrawNumberAuto(unaff_s5,iVar10,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)psVar4))));
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xf)));
       }
       iVar8 = iVar8 + 1;
@@ -202,15 +205,15 @@ LAB_002056b0:
     if ((bVar1 & 0x10) != 0) {
       bVar1 = 0;
       if ((char)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(8) * sizeof(int16_t))) != '\0') {
-        uiDrawIcon20((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) +
+        RT_CALLRA(0x2057d0, guest::uiDrawIcon20((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) +
                      ((int)((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) + (uint32_t)((uint32_t)(uint16_t)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) >> 0xf)) >> 1) + -10,
-                     (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) * 2 + -0x14,2);
+                     (*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) * 2 + -0x14,2));
         bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + (uint32_t)(8) * sizeof(int16_t))));
       }
       if (bVar1 < (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x11)))) {
-        uiDrawIcon20((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) +
+        RT_CALLRA(0x205820, guest::uiDrawIcon20((int)(*(int16_t*)rtguest::G((uint32_t)param_1)) +
                      ((int)((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) + (uint32_t)((uint32_t)(uint16_t)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(int16_t))) >> 0xf)) >> 1) + -10,
-                     ((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t)))) * 2,3);
+                     ((int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(int16_t))) + (int)(*(int16_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int16_t)))) * 2,3));
       }
     }
     if ((uVar7 & 0x40) != 0) {

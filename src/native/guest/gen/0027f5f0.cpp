@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t __sprint_r(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   undefined8 uVar1;
   
   uVar1 = 0;
@@ -14,7 +18,7 @@ uint32_t __sprint_r(uint32_t param_1, uint32_t param_2, ...) {
   }
   else {
     // arg-drop fix: a0/a1 never written after entry, live at jal 0x27f618 (disasm)
-    uVar1 = __sfvwrite_r(param_1, param_2);
+    uVar1 = RT_CALLRA(0x27f618, guest::__sfvwrite_r(param_1, param_2));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 8))) = 0;
   }

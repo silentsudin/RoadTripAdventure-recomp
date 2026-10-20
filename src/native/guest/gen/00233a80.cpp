@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t UpdateTimedPhaseTask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
+  }
   int iVar1;
   short sVar2;
   int iVar3;
@@ -21,7 +25,7 @@ uint32_t puVar9;
   iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x1c)));
   if (sVar2 < 0x40) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffeffff;
-    uiFade((0x40 - sVar2) * 0x2000000);
+    RT_CALLRA(0x233aec, guest::uiFade((0x40 - sVar2) * 0x2000000));
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 2))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 2))) + 1;
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x4000) != 0) {
@@ -30,7 +34,7 @@ uint32_t puVar9;
   }
   iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8)));
   if (iVar8 == 0x3c) {
-    PlayUiSound(0x2d);
+    RT_CALLRA(0x233b24, guest::PlayUiSound(0x2d));
     iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8)));
   }
   else if (iVar8 == 0xf0) {
@@ -148,7 +152,7 @@ LAB_00233d50:
 LAB_00233de0:
   if (((iVar8 == 300) || ((*(int8_t*)rtguest::G(0x177adea)) != '\0')) || (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) != 0)) {
     if (param_5 == 0) {
-      PlayBgmSlot1();
+      RT_CALLRA(0x233e0c, guest::PlayBgmSlot1());
     }
     if (param_4 == 0) {
       uVar4 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) | 0x104;
@@ -177,7 +181,7 @@ LAB_00233de0:
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x80cc))) = 0x40000000;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 4))) = 0xffffffff;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x24))) = 1;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x233eb4, guest::gs_tasks_kill(param_1));
   }
   return 0;
 }

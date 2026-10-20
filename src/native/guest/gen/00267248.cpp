@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t raceSummaryScene(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+  }
     uint32_t uStack_50 = rtguest::allocFrame(8);
     uint32_t uStack_48 = rtguest::allocFrame(8);
     uint32_t uStack_40 = rtguest::allocFrame(8);
@@ -28,7 +32,7 @@ uint32_t raceSummaryScene(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) | 2;
   case 2:
     bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
-    bVar1 = NavigateGridSelection(param_2,bVar4,0xe,1,0,0);
+    bVar1 = RT_CALLRA(0x2672c4, guest::NavigateGridSelection(param_2,bVar4,0xe,1,0,0));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) = bVar1;
     if (bVar4 < bVar1) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))) = 0x800;
@@ -43,7 +47,7 @@ uint32_t raceSummaryScene(uint32_t param_1, uint32_t param_2, ...) {
       goto switchD_0026728c_caseD_4;
     }
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x30))) & 0x10) != 0) {
-      PlayUiSound(0x1b);
+      RT_CALLRA(0x26732c, guest::PlayUiSound(0x1b));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25))) = 4;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27))) & 0xfd | 1;
       goto switchD_0026728c_caseD_4;
@@ -63,12 +67,12 @@ switchD_0026728c_caseD_4:
     bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
   }
   if ((bVar4 & 2) == 0) goto LAB_0026789c;
-  uiArenaInit(0x1762400,0x10000);
-  uiArenaBeginBatch(0x1762400,0,0);
-  uiArenaSetTexture(0x1762400,0x2dbb50,0,0);
-  uiArenaDataTag(0x1762400,1);
-  uiArenaSpritesWrap(0x1762400,0x2dbda8,1,0,0,0xfffff0);
-  drawBoardSpriteGrid(0x1762400,3);
+  RT_CALLRA(0x267394, guest::uiArenaInit(0x1762400,0x10000));
+  RT_CALLRA(0x2673a4, guest::uiArenaBeginBatch(0x1762400,0,0));
+  RT_CALLRA(0x2673bc, guest::uiArenaSetTexture(0x1762400,0x2dbb50,0,0));
+  RT_CALLRA(0x2673c8, guest::uiArenaDataTag(0x1762400,1));
+  RT_CALLRA(0x2673ec, guest::uiArenaSpritesWrap(0x1762400,0x2dbda8,1,0,0,0xfffff0));
+  RT_CALLRA(0x2673f8, guest::drawBoardSpriteGrid(0x1762400,3));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))) == 0) {
     bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) & 0x20) != 0) {
@@ -77,38 +81,38 @@ switchD_0026728c_caseD_4:
         (*(uint64_t*)rtguest::G((uint32_t)uStack_48)) = 0x9800000052;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = 0x2800000016;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = 0;
-        uiArenaDataTag(0x1762400,1);
-        uiArenaSprites(0x1762400,uStack_50,1,0x1e,0xcc,1);
+        RT_CALLRA(0x267484, guest::uiArenaDataTag(0x1762400,1));
+        RT_CALLRA(0x2674a0, guest::uiArenaSprites(0x1762400,uStack_50,1,0x1e,0xcc,1));
       }
       if (bVar4 < 0xd) {
         (*(uint64_t*)rtguest::G((uint32_t)uStack_50)) = 0;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_48)) = 0x9800000068;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = 0x2800000016;
         (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = 0;
-        uiArenaDataTag(0x1762400,1);
-        uiArenaSprites(0x1762400,uStack_50,1,0x24c,0xcc,1);
+        RT_CALLRA(0x2674fc, guest::uiArenaDataTag(0x1762400,1));
+        RT_CALLRA(0x267518, guest::uiArenaSprites(0x1762400,uStack_50,1,0x24c,0xcc,1));
       }
     }
   }
   else {
-    drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2))));
+    RT_CALLRA(0x267410, guest::drawRotatedQuadPair(0x1762400,(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2)))));
   }
-  uiArenaSubmit(0x1762400);
+  RT_CALLRA(0x267520, guest::uiArenaSubmit(0x1762400));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))) < 1) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x20))) < 0) {
       uVar6 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
       if ((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2))) < 0x4001) {
         uVar5 = uVar6 * 2;
         if (uVar5 < 0x1a) {
-          DrawRaceSummaryRow(uVar5,0,param_2);
+          RT_CALLRA(0x26755c, guest::DrawRaceSummaryRow(uVar5,0,param_2));
           bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
           goto LAB_0026789c;
         }
         uVar9 = 0x32;
         if (uVar6 == 0xd) {
-          iVar7 = raceSummaryDrawFigure8Row(0x32,0x3a);
-          iVar7 = raceSummaryDrawSkiJumpRow(0x32,iVar7 + 0x18);
-          raceSummaryDrawCurlingRow(0x32,iVar7 + 0x18);
+          iVar7 = RT_CALLRA(0x267594, guest::raceSummaryDrawFigure8Row(0x32,0x3a));
+          iVar7 = RT_CALLRA(0x2675a0, guest::raceSummaryDrawSkiJumpRow(0x32,iVar7 + 0x18));
+          RT_CALLRA(0x2675ac, guest::raceSummaryDrawCurlingRow(0x32,iVar7 + 0x18));
           bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
           goto LAB_0026789c;
         }
@@ -120,7 +124,7 @@ switchD_0026728c_caseD_4:
       else {
         uVar5 = uVar6 * 2 + 3;
         if (uVar5 < 0x1a) {
-          DrawRaceSummaryRow(uVar5,uVar5 - (uVar5 & 0x3fe),param_2);
+          RT_CALLRA(0x2675e0, guest::DrawRaceSummaryRow(uVar5,uVar5 - (uVar5 & 0x3fe),param_2));
           bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
           goto LAB_0026789c;
         }
@@ -129,9 +133,9 @@ switchD_0026728c_caseD_4:
           uVar9 = 0x32;
         }
         if (uVar6 * 2 == 0x17) {
-          iVar7 = raceSummaryDrawFigure8Row(uVar9,0x3a);
-          iVar7 = raceSummaryDrawSkiJumpRow(uVar9,iVar7 + 0x18);
-          raceSummaryDrawCurlingRow(uVar9,iVar7 + 0x18);
+          iVar7 = RT_CALLRA(0x26761c, guest::raceSummaryDrawFigure8Row(uVar9,0x3a));
+          iVar7 = RT_CALLRA(0x267628, guest::raceSummaryDrawSkiJumpRow(uVar9,iVar7 + 0x18));
+          RT_CALLRA(0x267634, guest::raceSummaryDrawCurlingRow(uVar9,iVar7 + 0x18));
           bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
           goto LAB_0026789c;
         }
@@ -145,23 +149,23 @@ switchD_0026728c_caseD_4:
       uVar6 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
       uVar5 = uVar6 * 2;
       if (uVar5 < 0x1a) {
-        DrawRaceSummaryRow(uVar5,0,param_2);
+        RT_CALLRA(0x267680, guest::DrawRaceSummaryRow(uVar5,0,param_2));
         uVar6 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
       }
       else if (uVar6 == 0xd) {
-        iVar7 = raceSummaryDrawFigure8Row(0x32,0x3a);
-        iVar7 = raceSummaryDrawSkiJumpRow(0x32,iVar7 + 0x18);
-        raceSummaryDrawCurlingRow(0x32,iVar7 + 0x18);
+        iVar7 = RT_CALLRA(0x2676bc, guest::raceSummaryDrawFigure8Row(0x32,0x3a));
+        iVar7 = RT_CALLRA(0x2676c8, guest::raceSummaryDrawSkiJumpRow(0x32,iVar7 + 0x18));
+        RT_CALLRA(0x2676d4, guest::raceSummaryDrawCurlingRow(0x32,iVar7 + 0x18));
         uVar6 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
       }
       else if (uVar5 == 0x1b) {
-        uVar9 = raceSummaryDrawGolfRow(0x32,0x3a);
-        raceSummaryDrawRallyRow(0x32,uVar9);
+        uVar9 = RT_CALLRA(0x2677dc, guest::raceSummaryDrawGolfRow(0x32,0x3a));
+        RT_CALLRA(0x2677e8, guest::raceSummaryDrawRallyRow(0x32,uVar9));
         uVar6 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26)));
       }
       uVar5 = uVar6 * 2 + 1;
       if (uVar5 < 0x1a) {
-        DrawRaceSummaryRow(uVar5,uVar5 - (uVar5 & 0x3fe),param_2);
+        RT_CALLRA(0x2676fc, guest::DrawRaceSummaryRow(uVar5,uVar5 - (uVar5 & 0x3fe),param_2));
         bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
         goto LAB_0026789c;
       }
@@ -170,9 +174,9 @@ switchD_0026728c_caseD_4:
         uVar9 = 0x32;
       }
       if (uVar6 * 2 == 0x19) {
-        iVar7 = raceSummaryDrawFigure8Row(uVar9,0x3a);
-        iVar7 = raceSummaryDrawSkiJumpRow(uVar9,iVar7 + 0x18);
-        raceSummaryDrawCurlingRow(uVar9,iVar7 + 0x18);
+        iVar7 = RT_CALLRA(0x267734, guest::raceSummaryDrawFigure8Row(uVar9,0x3a));
+        iVar7 = RT_CALLRA(0x267740, guest::raceSummaryDrawSkiJumpRow(uVar9,iVar7 + 0x18));
+        RT_CALLRA(0x26774c, guest::raceSummaryDrawCurlingRow(uVar9,iVar7 + 0x18));
         bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
         goto LAB_0026789c;
       }
@@ -187,15 +191,15 @@ switchD_0026728c_caseD_4:
     if ((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 2))) < 0x4000) {
       iVar7 = uVar6 * 2 + -2;
       if (iVar7 < 0x1a) {
-        DrawRaceSummaryRow(iVar7,0,param_2);
+        RT_CALLRA(0x267774, guest::DrawRaceSummaryRow(iVar7,0,param_2));
         bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
         goto LAB_0026789c;
       }
       uVar9 = 0x32;
       if (uVar6 == 0xe) {
-        iVar7 = raceSummaryDrawFigure8Row(0x32,0x3a);
-        iVar7 = raceSummaryDrawSkiJumpRow(0x32,iVar7 + 0x18);
-        raceSummaryDrawCurlingRow(0x32,iVar7 + 0x18);
+        iVar7 = RT_CALLRA(0x2677ac, guest::raceSummaryDrawFigure8Row(0x32,0x3a));
+        iVar7 = RT_CALLRA(0x2677b8, guest::raceSummaryDrawSkiJumpRow(0x32,iVar7 + 0x18));
+        RT_CALLRA(0x2677c4, guest::raceSummaryDrawCurlingRow(0x32,iVar7 + 0x18));
         bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
         goto LAB_0026789c;
       }
@@ -207,7 +211,7 @@ switchD_0026728c_caseD_4:
     else {
       uVar5 = uVar6 * 2 + 1;
       if (uVar5 < 0x1a) {
-        DrawRaceSummaryRow(uVar5,uVar5 - (uVar5 & 0x3fe),param_2);
+        RT_CALLRA(0x267814, guest::DrawRaceSummaryRow(uVar5,uVar5 - (uVar5 & 0x3fe),param_2));
         bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
         goto LAB_0026789c;
       }
@@ -216,9 +220,9 @@ switchD_0026728c_caseD_4:
         uVar9 = 0x32;
       }
       if (uVar6 * 2 == 0x19) {
-        iVar7 = raceSummaryDrawFigure8Row(uVar9,0x3a);
-        iVar7 = raceSummaryDrawSkiJumpRow(uVar9,iVar7 + 0x18);
-        raceSummaryDrawCurlingRow(uVar9,iVar7 + 0x18);
+        iVar7 = RT_CALLRA(0x267854, guest::raceSummaryDrawFigure8Row(uVar9,0x3a));
+        iVar7 = RT_CALLRA(0x267860, guest::raceSummaryDrawSkiJumpRow(uVar9,iVar7 + 0x18));
+        RT_CALLRA(0x26786c, guest::raceSummaryDrawCurlingRow(uVar9,iVar7 + 0x18));
         bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
         goto LAB_0026789c;
       }
@@ -228,15 +232,15 @@ switchD_0026728c_caseD_4:
       }
     }
   }
-  uVar3 = raceSummaryDrawGolfRow(uVar9,0x3a);
-  raceSummaryDrawRallyRow(uVar9,uVar3);
+  uVar3 = RT_CALLRA(0x267880, guest::raceSummaryDrawGolfRow(uVar9,0x3a));
+  RT_CALLRA(0x26788c, guest::raceSummaryDrawRallyRow(uVar9,uVar3));
   bVar4 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x27)));
 LAB_0026789c:
   if ((bVar4 & 1) != 0) {
     iVar8 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 4))) = 0xffffffff;
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x2678b8, guest::gs_tasks_kill(param_1));
   }
   return 0;
 }

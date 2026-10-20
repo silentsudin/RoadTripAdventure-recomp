@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   char cVar1;
   undefined1 uVar2;
   int iVar3;
@@ -13,7 +17,7 @@ uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
   
   iVar4 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 8))) == 0) {
-    gs_tasks_spawn(param_1,0x2282c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))));
+    RT_CALLRA(0x228f64, guest::gs_tasks_spawn(param_1,0x2282c0,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c)))));
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x24)));
   }
   else {
@@ -30,7 +34,7 @@ uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) + 4;
         break;
       }
-      gs_tasks_spawn(param_1,0x2282c0,1);
+      RT_CALLRA(0x228fd0, guest::gs_tasks_spawn(param_1,0x2282c0,1));
       uVar2 = 4;
     }
     else {
@@ -39,21 +43,21 @@ uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
       }
       else {
         if (iVar3 < 3) {
-          gs_tasks_spawn(param_1,0x228510,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) * 0x101);
+          RT_CALLRA(0x229004, guest::gs_tasks_spawn(param_1,0x228510,(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) * 0x101));
           uVar2 = 1;
           goto LAB_002291b0;
         }
         iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c)));
       }
       if (iVar3 != 0) break;
-      gs_tasks_spawn(param_1,0x2282c0,1);
+      RT_CALLRA(0x22903c, guest::gs_tasks_spawn(param_1,0x2282c0,1));
       uVar2 = 3;
     }
     goto LAB_002291b0;
   case 1:
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 4))) == 0) {
       if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) == 0) {
-        gs_tasks_spawn(param_1,0x2282c0,1);
+        RT_CALLRA(0x2290c4, guest::gs_tasks_spawn(param_1,0x2282c0,1));
         uVar2 = 4;
         goto LAB_002291b0;
       }
@@ -91,7 +95,7 @@ uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
     }
     else {
       if ((-1 < iVar3) && (iVar3 < 3)) {
-        gs_tasks_spawn(param_1,0x228510,0x101);
+        RT_CALLRA(0x229154, guest::gs_tasks_spawn(param_1,0x228510,0x101));
         uVar2 = 5;
         goto LAB_002291b0;
       }
@@ -106,7 +110,7 @@ LAB_0022919c:
   default:
     goto switchD_00228f98_default;
   }
-  gs_tasks_spawn(param_1,0x227380,iVar3);
+  RT_CALLRA(0x2291a4, guest::gs_tasks_spawn(param_1,0x227380,iVar3));
   uVar2 = 2;
 LAB_002291b0:
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) = uVar2;

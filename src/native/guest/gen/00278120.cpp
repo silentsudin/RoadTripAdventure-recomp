@@ -9,13 +9,13 @@ uint32_t sceCdPOffCallback(uint32_t param_1, uint32_t param_2, ...) {
   undefined4 uVar1;
   
   if ((*(int32_t*)rtguest::G(0x2e6f3c)) < 0) {
-    PowerOffCB();
+    RT_CALLRA(0x278148, guest::PowerOffCB());
   }
-  DIntr();
+  RT_CALLRA(0x278150, guest::DIntr());
   uVar1 = (*(uint32_t*)rtguest::G(0x1773584));
   (*(uint32_t*)rtguest::G(0x1773584)) = param_1;
   (*(uint32_t*)rtguest::G(0x1773588)) = param_2;
-  EIntr();
+  RT_CALLRA(0x278168, guest::EIntr());
   return uVar1;
 }
 

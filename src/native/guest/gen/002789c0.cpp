@@ -6,15 +6,19 @@ namespace guest {
 
 uint32_t sceCdInit(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
+  }
   int iVar1;
   long lVar2;
   undefined4 uVar3;
   
-  lVar2 = sceCdSyncS(1);
+  lVar2 = RT_CALLRA(0x2789f0, guest::sceCdSyncS(1));
   uVar3 = 0;
   if (lVar2 == 0) {
-    sceSifInitRpc(0);
-    (*(uint32_t*)rtguest::G(0x1773590)) = GetThreadId();
+    RT_CALLRA(0x278a04, guest::sceSifInitRpc(0));
+    (*(uint32_t*)rtguest::G(0x1773590)) = RT_CALLRA(0x278a0c, guest::GetThreadId());
     (*(uint32_t*)rtguest::G(0x2e6f24)) = 1;
     (*(int32_t*)rtguest::G(0x2e6f50)) = (*(int32_t*)rtguest::G(0x2e6f50)) + 1;
     (*(int32_t*)rtguest::G(0x2e6f3c)) = 0xffffffff;
@@ -27,7 +31,7 @@ uint32_t sceCdInit(uint32_t param_1, ...) {
     while( true ) {
       while (lVar2 = sceSifBindRpc(0x17737a8,0xffffffff80000592,0), lVar2 < 0) {
         if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {
-          scePrintf(0x331cd8,lVar2,(*(int32_t*)rtguest::G(0x2e6f50)));
+          RT_CALLRA(0x278ab4, guest::scePrintf(0x331cd8,lVar2,(*(int32_t*)rtguest::G(0x2e6f50))));
         }
         iVar1 = 0x100000;
         do {
@@ -43,7 +47,7 @@ uint32_t sceCdInit(uint32_t param_1, ...) {
     (*(uint32_t*)rtguest::G(0x2e6f4c)) = 0;
     (*(uint32_t*)rtguest::G(0x1773800)) = param_1;
     sceSifWriteBackDCache(0x1773800,4);
-    lVar2 = sceSifCallRpc(0x17737a8,0,0,0x1773800,4,0x2e8100,0x10,0);
+    lVar2 = RT_CALLRA(0x278b28, guest::sceSifCallRpc(0x17737a8,0,0,0x1773800,4,0x2e8100,0x10,0));
     if (lVar2 < 0) {
       (*(uint32_t*)rtguest::G(0x2e6f24)) = 0;
       uVar3 = 0;
@@ -52,14 +56,14 @@ uint32_t sceCdInit(uint32_t param_1, ...) {
       uVar3 = 2;
       (*(uint32_t*)rtguest::G(0x2e6f24)) = 0;
       if (((param_1 < 0) || (param_1 < 2)) || (param_1 != 5)) {
-        cmd_sem_init();
-        PowerOffCB();
+        RT_CALLRA(0x278c5c, guest::cmd_sem_init());
+        RT_CALLRA(0x278c64, guest::PowerOffCB());
       }
       else {
         if (0 < (*(uint32_t*)rtguest::G(0x002e6f10))) {
-          scePrintf(0x331cf8);
+          RT_CALLRA(0x278c28, guest::scePrintf(0x331cf8));
         }
-        cdvd_exit();
+        RT_CALLRA(0x278c30, guest::cdvd_exit());
         (*(int32_t*)rtguest::G(0x2e6f28)) = 0xffffffff;
         (*(int32_t*)rtguest::G(0x2e6f2c)) = 0xffffffff;
         (*(uint32_t*)rtguest::G(0x2e6f20)) = 0xffffffff;

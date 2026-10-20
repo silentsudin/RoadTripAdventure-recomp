@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _signal_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+  }
   undefined4 uVar1;
   int iVar2;
   long lVar3;
@@ -14,7 +18,7 @@ uint32_t puVar4;
   if (param_2 < 0x20) {
     iVar2 = (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x75) * sizeof(uint32_t)));
     if (iVar2 == 0) {
-      lVar3 = _init_signal_r(param_1);  // 27ebac: $4 intact 27eb8c entry; newlib signal->_init_signal_r(reent)
+      lVar3 = RT_CALLRA(0x27ebac, guest::_init_signal_r(param_1));  // 27ebac: $4 intact 27eb8c entry; newlib signal->_init_signal_r(reent)
       if (lVar3 != 0) {
         return 0xffffffff;
       }

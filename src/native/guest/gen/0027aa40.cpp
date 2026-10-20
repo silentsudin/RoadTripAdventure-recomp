@@ -8,16 +8,16 @@ int64_t sceMcSetFileInfo(uint32_t param_1, uint32_t param_2, int64_t param_3, ui
   rtguest::FrameGuard rt_fg(160);
   long lVar1;
   
-  lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+  lVar1 = RT_CALLRA(0x27aa80, guest::PollSema((*(uint32_t*)rtguest::G(0x2e89bc))));
   if (lVar1 < 0) {
     lVar1 = -200;
   }
   else if ((*(uint32_t*)rtguest::G(0x1774b64)) == 0) {
-    SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+    RT_CALLRA(0x27aaa8, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     lVar1 = -100;
   }
   else if ((param_3 == 0) || ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)param_3)) == '\0')) {
-    SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+    RT_CALLRA(0x27aacc, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     lVar1 = -0xd2;
   }
   else {
@@ -35,13 +35,13 @@ int64_t sceMcSetFileInfo(uint32_t param_1, uint32_t param_2, int64_t param_3, ui
     (*(uint32_t*)rtguest::G(0x1774bf4)) = param_2;
     (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)(0x01774c04)), (char *)rtguest::G((uint32_t)((uint32_t)param_3)), 0x3ff));
     (*(uint8_t*)rtguest::G(0x1775003)) = 0;
-    FlushCache(0);
-    lVar1 = sceSifCallRpc(0x1774b40,0xe,1,0x1774bf0,0x414,0x1776100,4,0);
+    RT_CALLRA(0x27ab94, guest::FlushCache(0));
+    lVar1 = RT_CALLRA(0x27abc0, guest::sceSifCallRpc(0x1774b40,0xe,1,0x1774bf0,0x414,0x1776100,4,0));
     if (lVar1 == 0) {
       (*(uint32_t*)rtguest::G(0x2e89b8)) = 0xe;
     }
     else {
-      SignalSema((*(uint32_t*)rtguest::G(0x2e89bc)));
+      RT_CALLRA(0x27abe0, guest::SignalSema((*(uint32_t*)rtguest::G(0x2e89bc))));
     }
   }
   return lVar1;

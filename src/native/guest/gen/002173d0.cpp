@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t PromptConfigConfirmationTask(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+  }
   char cVar1;
   undefined1 uVar2;
   int iVar3;
@@ -16,10 +20,10 @@ uint32_t psVar6;
   
   iVar7 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8))) == 0) {
-    uVar4 = uiMenuCreate();
-    uiMenuAddItem(uVar4,0x333558,0);
-    uiMenuAddItem(uVar4,0x333560,0x10);
-    uiMenuAddItem(uVar4,0x333568,0x10);
+    uVar4 = RT_CALLRA(0x2173f0, guest::uiMenuCreate());
+    RT_CALLRA(0x217408, guest::uiMenuAddItem(uVar4,0x333558,0));
+    RT_CALLRA(0x21741c, guest::uiMenuAddItem(uVar4,0x333560,0x10));
+    RT_CALLRA(0x217430, guest::uiMenuAddItem(uVar4,0x333568,0x10));
     psVar6 = (uint32_t)uVar4;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)psVar6 + 0xd))) = 1;
     uVar2 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x1c)));
@@ -29,7 +33,7 @@ uint32_t psVar6;
   }
   else {
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28)));
-    lVar5 = uiMenuRun(iVar3);
+    lVar5 = RT_CALLRA(0x217478, guest::uiMenuRun(iVar3));
     if (lVar5 != 0) {
       if (lVar5 == -1) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd))) = 1;

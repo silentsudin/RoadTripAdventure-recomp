@@ -8,6 +8,10 @@ namespace guest {
 
 uint32_t frame_init(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+  }
   int32_t iVar1;
   int32_t lVar2;
   int32_t iVar3;
@@ -21,7 +25,7 @@ uint32_t frame_init(uint32_t param_1, ...) {
   if ((*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0) * 4)) == 0) {
     piVar4 = (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * 4));
     if (piVar4 == 0) {
-      iVar5 = (int32_t)count_fdes((*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4)));
+      iVar5 = (int32_t)RT_CALLRA(0x27cbf8, guest::count_fdes((*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4))));
     }
     else {
       iVar3 = (int32_t)(*(int32_t*)rtguest::G((uint32_t)piVar4 + (uint32_t)(0) * 4));
@@ -29,7 +33,7 @@ uint32_t frame_init(uint32_t param_1, ...) {
       if (iVar3 != 0) {
         do {
           piVar4 = piVar4 + 4;  // int* element step
-          iVar1 = (int32_t)count_fdes((uint32_t)iVar3);
+          iVar1 = (int32_t)RT_CALLRA(0x27cc18, guest::count_fdes((uint32_t)iVar3));
           iVar3 = (int32_t)(*(int32_t*)rtguest::G((uint32_t)piVar4 + (uint32_t)(0) * 4));
           iVar5 = iVar5 + iVar1;
         } while (iVar3 != 0);
@@ -48,12 +52,12 @@ LAB_0027cc28:
   }
   else {
     (*(uint64_t*)rtguest::G((uint32_t)pvStack_40)) =
-         (uint64_t)malloc((uint32_t)((int64_t)iVar5 << 2));
+         (uint64_t)RT_CALLRA(0x27cc30, guest::malloc((uint32_t)((int64_t)iVar5 << 2)));
   }
   (*(uint64_t*)rtguest::G((uint32_t)pvStack_38)) = 0;
   if ((*(uint32_t*)rtguest::G((uint32_t)pvStack_40)) != 0) {
     (*(uint64_t*)rtguest::G((uint32_t)pvStack_38)) =
-         (uint64_t)malloc((uint32_t)((int64_t)iVar5 << 2));
+         (uint64_t)RT_CALLRA(0x27cc50, guest::malloc((uint32_t)((int64_t)iVar5 << 2)));
   }
   if (((*(uint32_t*)rtguest::G((uint32_t)pvStack_40)) != 0) ||
       (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0) * 4)) == 0) {
@@ -61,18 +65,18 @@ LAB_0027cc28:
     (*(int32_t*)rtguest::G((uint32_t)iStack_30)) = -1;
     (*(int32_t*)rtguest::G((uint32_t)aiStack_2c + (uint32_t)(0) * 4)) = 0;
     if (piVar4 == 0) {
-      add_fdes((*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4)), pvStack_40,
-               iStack_30, aiStack_2c);
+      RT_CALLRA(0x27ccac, guest::add_fdes((*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * 4)), pvStack_40,
+               iStack_30, aiStack_2c));
     }
     else {
       iVar3 = (int32_t)(*(int32_t*)rtguest::G((uint32_t)piVar4 + (uint32_t)(0) * 4));
       while (iVar3 != 0) {
         piVar4 = piVar4 + 4;  // int* element step
-        add_fdes((uint32_t)iVar3, pvStack_40, iStack_30, aiStack_2c);
+        RT_CALLRA(0x27ccd4, guest::add_fdes((uint32_t)iVar3, pvStack_40, iStack_30, aiStack_2c));
         iVar3 = (int32_t)(*(int32_t*)rtguest::G((uint32_t)piVar4 + (uint32_t)(0) * 4));
       }
     }
-    lVar2 = (int32_t)end_fde_sort(pvStack_40, (uint32_t)iVar5);
+    lVar2 = (int32_t)RT_CALLRA(0x27cce0, guest::end_fde_sort(pvStack_40, (uint32_t)iVar5));
     if (lVar2 != 0) {
       (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * 4)) = (int32_t)lVar2;
     }

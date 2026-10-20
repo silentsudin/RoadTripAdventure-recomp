@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t LayoutTextItems(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   char cVar1;
   short sVar2;
   undefined4 uVar3;
@@ -25,7 +29,7 @@ uint32_t puVar6;
     while( true ) {
       puVar6 = puVar6 + (uint32_t)(1) * sizeof(uint32_t);
       iVar7 = iVar7 + -1;
-      uiMenuAddItem(param_1,uVar3,0x10);
+      RT_CALLRA(0x205dfc, guest::uiMenuAddItem(param_1,uVar3,0x10));
       iVar4 = param_4;
       if (iVar7 == 0) break;
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)puVar6));
@@ -40,7 +44,7 @@ uint32_t puVar6;
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)param_2));
       param_2 = param_2 + (uint32_t)(1) * sizeof(uint32_t);
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)psVar5 + 0x11))) = cVar1 + '\x01';
-      iVar7 = uiTextWidth(uVar3);
+      iVar7 = RT_CALLRA(0x205e3c, guest::uiTextWidth(uVar3));
       sVar2 = (*(int16_t*)rtguest::G((uint32_t)psVar5 + (uint32_t)(2) * sizeof(int16_t)));
       iVar7 = iVar7 + 0x14;
       iVar4 = (int)sVar2;

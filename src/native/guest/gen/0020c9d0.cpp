@@ -27,7 +27,7 @@ uint32_t puVar11;
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
     }
     else {
-      fatal(0x2ea660,iVar9);
+      RT_CALLRA(0x20caac, guest::fatal(0x2ea660,iVar9));
       bVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26)));
     }
     uVar5 = (uint32_t)bVar1;
@@ -46,7 +46,7 @@ uint32_t puVar11;
         uVar8 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
       else {
-        fatal(0x2ea490);
+        RT_CALLRA(0x20cb78, guest::fatal(0x2ea490));
         uVar8 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20)));
       }
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x20))) =
@@ -57,9 +57,9 @@ uint32_t puVar11;
       cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x13)));
       puVar3 = puVar3 + (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)puVar3)) * 0x10 + 0x10;
     }
-    uVar7 = sceDmaGetChan(1);
-    sceDmaSync(uVar7,0,0);
-    sendTexturePackets(puVar11);
+    uVar7 = RT_CALLRA(0x20cbc8, guest::sceDmaGetChan(1));
+    RT_CALLRA(0x20cbd8, guest::sceDmaSync(uVar7,0,0));
+    RT_CALLRA(0x20cbe0, guest::sendTexturePackets(puVar11));
     if ((uint32_t)(iVar9 + (int)__dest) == (uint32_t)0x0) {
       uVar6 = 1;
     }
@@ -73,7 +73,7 @@ uint32_t puVar11;
         return 0;
       }
       (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x26))) = (char)((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) >> 8);
-      cdReadEntry(((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) & 0xff) * 0xc + 0x29b428,0x100000);
+      RT_CALLRA(0x20ca60, guest::cdReadEntry(((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) & 0xff) * 0xc + 0x29b428,0x100000));
       (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
     }
     else {

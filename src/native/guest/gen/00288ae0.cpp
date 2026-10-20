@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _sceFsSemInit(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+  }
   uint32_t auStack_40 = rtguest::allocFrame(0x18);
   uint32_t uStack_3c = auStack_40 + 4;
   uint32_t uStack_38 = auStack_40 + 8;
@@ -15,7 +19,7 @@ uint32_t _sceFsSemInit(uint32_t q0, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) = 0;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_3c)) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_38)) = 1;
-    (*(int32_t*)rtguest::G(0x2e998c)) = CreateSema(auStack_40);
+    (*(int32_t*)rtguest::G(0x2e998c)) = RT_CALLRA(0x288b10, guest::CreateSema(auStack_40));
   }
   return 0;
 }

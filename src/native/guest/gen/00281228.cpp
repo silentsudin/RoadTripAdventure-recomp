@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t quorem(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+  }
   uint uVar1;
   uint uVar2;
   uint uVar3;
@@ -67,7 +71,7 @@ uint32_t puVar14;
       }
     }
 LAB_0028135c:
-    lVar4 = __mcmp(param_1,param_2);
+    lVar4 = RT_CALLRA(0x28135c, guest::__mcmp(param_1,param_2));
     if (-1 < lVar4) {
       iVar13 = iVar13 + 1;
       iVar5 = 0;

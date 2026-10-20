@@ -6,10 +6,14 @@ namespace guest {
 
 uint32_t ApplyRacePlayerMode(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+  }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24))) != '\0') {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x21))) = 9;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) = 8;
-    SpawnTownDialogueTasks();
+    RT_CALLRA(0x26d650, guest::SpawnTownDialogueTasks());
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x26d678;
   }
   return 0;

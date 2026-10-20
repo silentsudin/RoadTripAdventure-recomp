@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t gs_tasks_spawn(uint64_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(16);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+  }
   int iVar1;
   int iVar2;
 uint32_t pcVar3;
@@ -16,7 +20,7 @@ uint32_t pcVar3;
     iVar1 = iVar1 + 1;
     pcVar3 = pcVar3 + 0x30;
     if (0x2f < iVar1) {
-      fatal(0x2ea048);
+      RT_CALLRA(0x204d08, guest::fatal(0x2ea048));
       return (uint32_t)0x0;
     }
   }
