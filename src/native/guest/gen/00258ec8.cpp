@@ -13,7 +13,7 @@ uint32_t gs_music_play_bgm(uint32_t param_1, ...) {
   RT_CALLRA(0x258ee4, guest::MusicRpcCmd15(0));
   RT_CALLRA(0x258ef8, guest::MusicRpcPlayBgm(0,param_1));
   SendMusicPlayRpc((int)param_1 >> 8 & 0xff,
-                   0x29adf0 + ((int)param_1 >> 0x10 & 0xffU) * 3);
+                   0x29adf0 + ((int)param_1 >> 0x10 & 0xffU) * 0xc);  // W13: fn/00258ec8.c:11 `&gs_music_file_table + idx*3`, 12-byte {name*,a,b} entries (SendMusicPlayRpc reads [0..2])
   return 0;
 }
 

@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # tests/native_w11: W4-11 gauge needle ROM-law contract.
 file(GLOB RT_W11_TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/*_test.cpp")
 foreach(_rt_w11_test_source IN LISTS RT_W11_TEST_SOURCES)

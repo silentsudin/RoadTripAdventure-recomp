@@ -28,7 +28,11 @@ static void rtPending(const char* name) {
         std::fprintf(stderr, "[hostlib] pending host port: %s -> 0\n", name);
 }
 
-uint32_t memclr(uint32_t q0, uint64_t q1, ...) { rtPending("memclr"); return 0; }
+// fn/00270148.c:8-16: byte-at-a-time clear, returns void in the guest.
+uint32_t memclr(uint32_t dst, uint64_t count, ...) {
+  for (uint32_t i = 0; i < (uint32_t)count; ++i) *(uint8_t*)rtguest::G(dst + i) = 0;
+  return 0;
+}
 RT_STUB_FN(0x00270148, guest::memclr)
 
 uint32_t sceDmaRecv(uint32_t q0, ...) { rtPending("sceDmaRecv"); return 0; }
@@ -95,7 +99,13 @@ RT_STUB_FN(0x00282D70, guest::_malloc_trim_r)
 uint32_t _mbtowc_r(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, ...) { rtPending("_mbtowc_r"); return 0; }
 RT_STUB_FN(0x00283598, guest::_mbtowc_r)
 
-uint32_t memchr(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("memchr"); return 0; }
+// fn/002835cc.c:40-49: byte scan over n bytes, returns the guest address found or 0.
+uint32_t memchr(uint32_t src, uint32_t c, uint32_t count, ...) {
+  const uint8_t needle = (uint8_t)c;
+  for (uint32_t i = 0; i < count; ++i)
+    if (*(uint8_t*)rtguest::G(src + i) == needle) return src + i;
+  return 0;
+}
 RT_STUB_FN(0x002835CC, guest::memchr)
 
 uint32_t _calloc_r(uint32_t q0, uint32_t q1, uint32_t q2, ...) { rtPending("_calloc_r"); return 0; }

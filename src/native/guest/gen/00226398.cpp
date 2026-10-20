@@ -10,8 +10,8 @@ uint32_t KickVifPacket(uint32_t q0, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-  vifKick(0x28e730);
-  return 0;
+  // W13: tail-call passthrough (fn/00226398.c: void body = single call; v0 survives to the caller)
+  return vifKick(0x28e730);
 }
 
 

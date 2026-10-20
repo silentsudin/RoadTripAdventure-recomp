@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # tests/native_w4: wave-4 worker tests (W4-06 race HUD layout first).
 # Registered by a single add_subdirectory line inside the RT_NATIVE_ASSETS_BUILD_TESTS
 # block of src/native/CMakeLists.txt (same convention as tests/native_w8).

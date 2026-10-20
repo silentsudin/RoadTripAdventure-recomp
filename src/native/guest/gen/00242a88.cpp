@@ -1,6 +1,7 @@
 // guest:0x00242a88 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 
@@ -63,7 +64,7 @@ uint32_t auStack_30 = rtguest::allocFrame(16);
     RT_CALLRA(0x242c44, guest::mapViewMatrix((*(float*)rtguest::G((uint32_t)pfVar3)) + 1728.0,(*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(1) * sizeof(float))),(*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(2) * sizeof(float))),0x1752700));
   }
   else {
-    RT_CALLRA(0x242c70, guest::mapViewMatrix((*(float*)rtguest::G((uint32_t)pfVar3)) * (*(uint32_t*)rtguest::G(0x332f2c)) + 1792.0,(*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(1) * sizeof(float))),(*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(2) * sizeof(float))),0x1752700));
+    RT_CALLRA(0x242c70, guest::mapViewMatrix((*(float*)rtguest::G((uint32_t)pfVar3)) * (*(float*)rtguest::G(0x332f2c)) + 1792.0,(*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(1) * sizeof(float))),(*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(2) * sizeof(float))),0x1752700));
   }
   RT_CALLRA(0x242c84, guest::vifDirect(0x2a4430,2));
   RT_CALLRA(0x242c8c, guest::vu0UnitMatrix(auStack_60));

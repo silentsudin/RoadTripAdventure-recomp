@@ -7,7 +7,7 @@ LOG=/tmp/rt-closeout-$(date +%H%M)
 echo "== refresh_decls"
 python3 scripts/refresh_decls.py src/native/guest/gen build/decomp/guest_decls.inc --apply
 echo "== configure"
-RT_SKIP_ANDROID_CHECK=1 RT_SKIP_VRC_PLUGIN=1 cmake -S src/native -B build/w-G0-verify -DRT_NATIVE_ASSETS_BUILD_TESTS=ON > $LOG-cmake.log 2>&1
+RT_SKIP_ANDROID_CHECK=1 RT_SKIP_VRC_PLUGIN=1 cmake -S src/native -B build/w-G0-verify -DCMAKE_BUILD_TYPE=Release -DRT_NATIVE_ASSETS_BUILD_TESTS=ON > $LOG-cmake.log 2>&1
 echo "== build"
 cmake --build build/w-G0-verify -j 8 > $LOG-build.log 2>&1 || { grep -E "error|FAILED" $LOG-build.log | head -40; exit 1; }
 grep -c "error:" $LOG-build.log || true

@@ -2,15 +2,19 @@
   "spec": "docs/native-reference/ui-parity.md",
   "generated_by": "tests/native_parity",
   "summary": {
-    "SPEC_DRIFT": 0,
-    "SPEC_GAP": 0,
-    "KNOWN_GAP": 0,
+    "SPEC_DRIFT": 4,
+    "SPEC_GAP": 118,
+    "KNOWN_GAP": 36,
     "DEFECT": 0,
     "INFO": 0
   },
   "spec_gap_breakdown": {
-    "by_kind": {},
-    "uncited": 0
+    "by_kind": {
+      "format": 13,
+      "label/value": 41,
+      "hint": 64
+    },
+    "uncited": 12
   },
   "string_manifest": {
     "declared_source_ranges": {
@@ -86,5 +90,1686 @@
     "visible_templates": 293,
     "spec_declared_count": 184
   },
-  "findings": []
+  "findings": [
+    {
+      "category": "KNOWN_GAP",
+      "check": "check4-fonte-coverage",
+      "detail": "manifest uses '°' (U+00B0); native must render 'deg'",
+      "evidence": {
+        "char": "°",
+        "substitution": "deg",
+        "citations": [
+          "src/ui/PerfOverlay.cpp:59"
+        ],
+        "ledger": "ui-parity.md:102 (ledger 5)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check4-fonte-coverage",
+      "detail": "manifest uses '—' (U+2014); native must render ' - '",
+      "evidence": {
+        "char": "—",
+        "substitution": " - ",
+        "citations": [
+          "src/ui/SecondScreen.cpp:491"
+        ],
+        "ledger": "ui-parity.md:102 (ledger 5)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check4-fonte-coverage",
+      "detail": "manifest uses '…' (U+2026); native must render '...'",
+      "evidence": {
+        "char": "…",
+        "substitution": "...",
+        "citations": [
+          "src/ui/PauseMenu.cpp:2002",
+          "src/ui/PauseMenu.cpp:690"
+        ],
+        "ledger": "ui-parity.md:102 (ledger 5)"
+      }
+    },
+    {
+      "category": "SPEC_DRIFT",
+      "check": "check5-geometry-color",
+      "detail": "ui-parity.md:9 states a 1080p x-factor of 1.6875x but the source mapping (race_hud.h / hud_layout.h, output-modes.md:156) is a uniform 2.25x per axis",
+      "evidence": {
+        "doc_claim": 1.6875,
+        "source_factor": 2.25,
+        "native_uniform": 2.25
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Aspect ratio' absent from the native OptionsModel: no native aspect-ratio row (widescreen policy, ledger 3)",
+      "evidence": {
+        "screen": "Display",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Buttons' absent from the native OptionsModel: no native rebinding row",
+      "evidence": {
+        "screen": "Controllers",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Controls' absent from the native OptionsModel: no native scheme row (Modern/Classic/Custom)",
+      "evidence": {
+        "screen": "Controllers",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Display mode' absent from the native OptionsModel: no native display-mode row",
+      "evidence": {
+        "screen": "Display",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Draw distance' absent from the native OptionsModel: no native draw-distance row",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Fix steering bias' absent from the native OptionsModel: no native steering-bias row",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Frame generation' absent from the native OptionsModel: no native frame-generation row",
+      "evidence": {
+        "screen": "Display",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Frame rate' absent from the native OptionsModel: no native frame-rate row",
+      "evidence": {
+        "screen": "Display",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Frame skip' absent from the native OptionsModel: no native frame-skip row",
+      "evidence": {
+        "screen": "Display",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'HUD position' absent from the native OptionsModel: no native HUD-position row",
+      "evidence": {
+        "screen": "Display",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'High detail cars' absent from the native OptionsModel: no native high-detail-cars row",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Interlacing' absent from the native OptionsModel: native is progressive-only (ledger 2)",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Mipmaps' absent from the native OptionsModel: no native mipmap row",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Plays as' absent from the native OptionsModel: no native device-assignment row",
+      "evidence": {
+        "screen": "Controllers",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Race car shadows' absent from the native OptionsModel: no native race-car-shadow row",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Renderer' absent from the native OptionsModel: no native renderer-choice row",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Right stick deadzone' absent from the native OptionsModel: native Stick deadzone covers one stick only",
+      "evidence": {
+        "screen": "Controllers",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Save slot (four cards)' absent from the native OptionsModel: native has two slot<N>.sav slots, not four thumbnail cards",
+      "evidence": {
+        "screen": "Save",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Sharpening' absent from the native OptionsModel: no native sharpening row",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Speaker' absent from the native OptionsModel: no native speaker (mono/stereo) row",
+      "evidence": {
+        "screen": "Sound",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Supersampling (SSAA)' absent from the native OptionsModel: no native SSAA row",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Test vibration' absent from the native OptionsModel: no native test-vibration row",
+      "evidence": {
+        "screen": "Controllers",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Texture pack' absent from the native OptionsModel: no native HD-texture-pack row (Field textures is not the pack)",
+      "evidence": {
+        "screen": "Graphics",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "recomp row 'Window size' absent from the native OptionsModel: no native window-size row",
+      "evidence": {
+        "screen": "Display",
+        "ledger": "ui-parity.md:144-146 (Model-layer gaps)"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "native row 'controllers.deadzone' is GpuWavePending and must be hidden in retail UI",
+      "evidence": {
+        "native_id": "controllers.deadzone",
+        "ledger": "ui-parity.md:54"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "native row 'controllers.rumble' is GpuWavePending and must be hidden in retail UI",
+      "evidence": {
+        "native_id": "controllers.rumble",
+        "ledger": "ui-parity.md:54"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "native row 'controllers.rumble_strength' is GpuWavePending and must be hidden in retail UI",
+      "evidence": {
+        "native_id": "controllers.rumble_strength",
+        "ledger": "ui-parity.md:54"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "native row 'controllers.triggers' is GpuWavePending and must be hidden in retail UI",
+      "evidence": {
+        "native_id": "controllers.triggers",
+        "ledger": "ui-parity.md:54"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "native row 'display.aa' is GpuWavePending and must be hidden in retail UI",
+      "evidence": {
+        "native_id": "display.aa",
+        "ledger": "ui-parity.md:54"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "native row 'display.map_mode' is GpuWavePending and must be hidden in retail UI",
+      "evidence": {
+        "native_id": "display.map_mode",
+        "ledger": "ui-parity.md:54"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "native row 'display.second_screen' is GpuWavePending and must be hidden in retail UI",
+      "evidence": {
+        "native_id": "display.second_screen",
+        "ledger": "ui-parity.md:54"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "native row 'display.upscaler' is GpuWavePending and must be hidden in retail UI",
+      "evidence": {
+        "native_id": "display.upscaler",
+        "ledger": "ui-parity.md:54"
+      }
+    },
+    {
+      "category": "KNOWN_GAP",
+      "check": "check3-options-mapping",
+      "detail": "native row 'sound.radio_station' is GpuWavePending and must be hidden in retail UI",
+      "evidence": {
+        "native_id": "sound.radio_station",
+        "ledger": "ui-parity.md:54"
+      }
+    },
+    {
+      "category": "SPEC_DRIFT",
+      "check": "check2-row-order",
+      "detail": "driving: row 'Controls' is drawn on this page but its literal (src/ui/PauseMenu.cpp:960) is outside the spec's cited range [(979, 1048)]",
+      "evidence": {
+        "screen": "driving",
+        "row": "Controls",
+        "literal_line": 960
+      }
+    },
+    {
+      "category": "SPEC_DRIFT",
+      "check": "check1-string-manifest",
+      "detail": "declared string source src/platform/Controllers.h [(3, 78)] contains no string literals",
+      "evidence": {
+        "file": "src/platform/Controllers.h",
+        "ranges": [
+          [
+            3,
+            78
+          ]
+        ]
+      }
+    },
+    {
+      "category": "SPEC_DRIFT",
+      "check": "check1-string-manifest",
+      "detail": "spec anchors 'Controllers' to src/ui/PauseMenu.cpp:813-872 where it is absent",
+      "evidence": {
+        "doc_line": 58,
+        "literal": "Controllers",
+        "citation": "src/ui/PauseMenu.cpp:813-872",
+        "distance": 14
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '%.0f fps'",
+      "evidence": {
+        "citation": "src/ui/PerfOverlay.cpp:36",
+        "length": 8,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '%.0f miles driven'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:336",
+        "length": 17,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '%d%%'",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:327",
+        "length": 4,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '%d:%02d'",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:331",
+        "length": 7,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '%d:%02d %s'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:234",
+        "length": 10,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '%d:%02d / %d:%02d'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:611",
+        "length": 17,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '%s%d\"%02d'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:194",
+        "length": 9,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: ', under a minute left'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:660",
+        "length": 21,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '--\\'--\"--'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:217",
+        "length": 8,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '. Esc cancels ('",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:926",
+        "length": 15,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '. Guide cancels ('",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:926",
+        "length": 17,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \". Keep the menu open, or it'll finish next time you start.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:663",
+        "length": 58,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '16x (1280x448)'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:596",
+        "length": 14,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '16x (1280x896, anti-aliased)'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:587",
+        "length": 28,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '2x (640x448)'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:584",
+        "length": 12,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '4x (1280x448)'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:594",
+        "length": 13,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '4x (640x448, anti-aliased)'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:585",
+        "length": 26,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '8x (1280x448)'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:595",
+        "length": 13,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: '8x (1280x896)'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:586",
+        "length": 13,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: ': buttons'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:1905",
+        "length": 9,
+        "kind": "label/value",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: ': see or change each control.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:969",
+        "length": 29,
+        "kind": "hint",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'A sharper, smoother picture. Higher settings need a faster GPU.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:606",
+        "length": 63,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Accurate emulates the PS2's graphics chip exactly, at a much higher GPU cost.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:559",
+        "length": 77,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Arm ASR leaves no room for added frames on this device: it runs at 60. Pick another upscaler for higher rates.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:485",
+        "length": 110,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Battery %.0f °C'",
+      "evidence": {
+        "citation": "src/ui/PerfOverlay.cpp:59",
+        "length": 15,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'CPU %.0f%%'",
+      "evidence": {
+        "citation": "src/ui/PerfOverlay.cpp:50",
+        "length": 10,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Cars and wheels always use their most detailed models.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:616",
+        "length": 54,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Choose another'",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:400",
+        "length": 14,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Choose which control presses each button.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:892",
+        "length": 41,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Coins'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:345",
+        "length": 5,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Coins found'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:244",
+        "length": 11,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Controller'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:1903",
+        "length": 10,
+        "kind": "label/value",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Custom ('",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:421",
+        "length": 8,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Disconnected'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:884",
+        "length": 12,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Display'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:397",
+        "length": 7,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Draws and fades the world further away. Costs speed.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:619",
+        "length": 52,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Driving controls'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:1898",
+        "length": 16,
+        "kind": "label/value",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Dynamic: feel the engine, the road, the brakes and every knock, on both motors and the triggers. Classic: the game's own buzz.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:859",
+        "length": 126,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Enhanced: a sharper map that marks Q's Factory, the shops, the Quick-Pic Shops you haven't used and the houses you haven't visited (in races, the sharper course map). Original: the game's own.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:466",
+        "length": 192,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Every stamp collected!'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:389",
+        "length": 22,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Everything the game plays: music, radio and effects.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:532",
+        "length": 52,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'GPU %d%% @ %d MHz'",
+      "evidence": {
+        "citation": "src/ui/PerfOverlay.cpp:54",
+        "length": 17,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Gas and brake on triggers respond to how far you press them.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:1046",
+        "length": 60,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Go back to a moment you kept.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:298",
+        "length": 29,
+        "kind": "hint",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Go back to this moment.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:357",
+        "length": 23,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Graphics'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:543",
+        "length": 8,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Hardware draws with your GPU directly: lighter and smoother, the best choice for most players.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:558",
+        "length": 94,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Houses to visit'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:242",
+        "length": 15,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'How strongly every controller shakes.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:868",
+        "length": 37,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'How strongly this controller shakes.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:905",
+        "length": 36,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"How the picture is scaled up to the window. FSR 1, Snapdragon GSR and MetalFX keep edges sharp; GSR 2, Arm ASR, FSR 3, DLSS, XeSS and MetalFX temporal also smooth them over frames, using the game's motion.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:756",
+        "length": 205,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"If the device can't keep up, Auto shows fewer pictures so driving and music stay at full speed. Off shows every picture, but the game and its sound slow down.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:506",
+        "length": 158,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Interpolated frames sit between two game frames: smoothest. Extrapolated ones continue the newest frame's motion: no extra delay, rougher at edges.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:499",
+        "length": 147,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"It isn't damaged, but it was made in a way that can't be compared with the known good copy. It will most likely work.\"",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:389",
+        "length": 117,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"It isn't the usual copy of Road Trip (USA), so it may be damaged or from another release. It might still work.\"",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:378",
+        "length": 110,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'It plays while you drive.'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:619",
+        "length": 25,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Keep this moment in one of four slots, to come back to. Memory card saves are separate.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:297",
+        "length": 87,
+        "kind": "hint",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Left turns ramp the wheel like right ones instead of snapping.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:613",
+        "length": 62,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Left/Right: who this plays as. Select: buttons and sticks.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:837",
+        "length": 58,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Left/Right: who this plays as. Select: keys.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:836",
+        "length": 44,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Licence'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:343",
+        "length": 7,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Loading'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:2060",
+        "length": 7,
+        "kind": "label/value",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Modern: right trigger gas, left trigger brake. Classic: the game's own. Custom: yours.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:968",
+        "length": 86,
+        "kind": "hint",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Money'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:342",
+        "length": 5,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Mono plays both channels from every speaker.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:534",
+        "length": 44,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'New stamp!'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:541",
+        "length": 10,
+        "kind": "hint",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'No stamps yet: they come from people, places and races.'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:389",
+        "length": 55,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Nothing saved here yet.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:346",
+        "length": 23,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Off (640x224)'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:583",
+        "length": 13,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Off (640x448)'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:592",
+        "length": 13,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Off always samples the full-size texture, so distant roads and signs stay sharp.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:610",
+        "length": 80,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Off shows every frame whole: no flicker or combing. On keeps the original TV fields.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:708",
+        "length": 84,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Part of this .chd no longer matches what was recorded when it was made. Make a new one from your disc if you can.'",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:383",
+        "length": 113,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Photos'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:347",
+        "length": 6,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Photos here'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:239",
+        "length": 11,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Player 2 joins once a device plays as player 2.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:891",
+        "length": 47,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Raise this if the car drifts when you let go of the stick.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:902",
+        "length": 58,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Replace this slot with the moment now.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:336",
+        "length": 38,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Save this moment here.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:336",
+        "length": 22,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Saving'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:2060",
+        "length": 6,
+        "kind": "label/value",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Select, then press a button.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:921",
+        "length": 28,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Select, then press a key.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:921",
+        "length": 25,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Select, then press the control you want. Changing one makes the controls Custom.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:989",
+        "length": 80,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Setup didn't finish\"",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:279",
+        "length": 19,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Sharpening (AMD's RCAS) after upscaling.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:766",
+        "length": 40,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Shows the cars' shadows during races too.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:622",
+        "length": 41,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Smooths edges after rendering. TAA also steadies shimmer, using the game's motion.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:729",
+        "length": 82,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Sound'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:526",
+        "length": 5,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Speedometer, map and timers: inside the centred 4:3 area or at the screen edges.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:455",
+        "length": 80,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Start or load an Adventure to fill your notebook.'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:327",
+        "length": 49,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Swap the game's textures for a high-detail pack. Pick None for the originals.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:644",
+        "length": 77,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'The frame rate along the bottom of the screen; Detailed adds the longest frame, CPU and GPU load and temperature.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:518",
+        "length": 113,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"The game runs at 60. Higher rates add frames re-rendered from the game's own geometry, each object moved on along its motion: no added delay.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:483",
+        "length": 141,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'The lower screen shows the map, your race place, journey and stamps. Off gives it back to Android.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:524",
+        "length": 98,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'The map is on the top screen.'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:802",
+        "length": 29,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'The map shows here while you drive or race.'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:802",
+        "length": 43,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'The radio in town: PEACH FM, E-RADIO or Off. Kept when you save your Adventure.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:542",
+        "length": 79,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'The radio is off.'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:618",
+        "length": 17,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"This .chd can't be checked\"",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:388",
+        "length": 26,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'This disc image is damaged'",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:382",
+        "length": 26,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'This disc image looks different'",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:377",
+        "length": 31,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Time'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:237",
+        "length": 4,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Towns'",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:346",
+        "length": 5,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Try again'",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:296",
+        "length": 9,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Use it'",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:400",
+        "length": 6,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Use it anyway'",
+      "evidence": {
+        "citation": "src/ui/SetupScreen.cpp:403",
+        "length": 13,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'VU1 %.0f%%  GS %.0f%%'",
+      "evidence": {
+        "citation": "src/ui/PerfOverlay.cpp:48",
+        "length": 21,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Vibration is off.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:868",
+        "length": 17,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Who plays, buttons and vibration.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:301",
+        "length": 33,
+        "kind": "hint",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Widens the 3D view to fill wider screens. 2D screens and the HUD stay 4:3.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:450",
+        "length": 74,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'Window and picture settings.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:300",
+        "length": 28,
+        "kind": "hint",
+        "line_cited": false
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"Window, a borderless window over the whole screen, or fullscreen with its own display mode (the desktop's size). Alt+Enter or F11 switches.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:412",
+        "length": 139,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"You can also drag the window's edges.\"",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:443",
+        "length": 37,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'You can change these once the game has started.'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:1006",
+        "length": 47,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: \"You'll hear it when you're back in a town.\"",
+      "evidence": {
+        "citation": "src/ui/SecondScreen.cpp:620",
+        "length": 42,
+        "kind": "hint",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'game %.0f'",
+      "evidence": {
+        "citation": "src/ui/PerfOverlay.cpp:41",
+        "length": 9,
+        "kind": "format",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'or hold'",
+      "evidence": {
+        "citation": "src/ui/PauseMenu.cpp:1023",
+        "length": 7,
+        "kind": "label/value",
+        "line_cited": true
+      }
+    },
+    {
+      "category": "SPEC_GAP",
+      "check": "check1-string-manifest",
+      "detail": "ground-truth literal not named in ui-parity.md: 'worst %.1f ms'",
+      "evidence": {
+        "citation": "src/ui/PerfOverlay.cpp:46",
+        "length": 13,
+        "kind": "format",
+        "line_cited": true
+      }
+    }
+  ]
 }

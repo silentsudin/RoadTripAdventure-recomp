@@ -6,8 +6,8 @@ namespace guest {
 
 uint32_t _sceFsSigSema(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(96);
-  SignalSema((*(uint32_t*)rtguest::G(0x2e998c)));
-  return 0;
+  // W13: tail-call passthrough (fn/00288b60.c: void body = single call; v0 survives to the caller)
+  return SignalSema((*(uint32_t*)rtguest::G(0x2e998c)));
 }
 
 

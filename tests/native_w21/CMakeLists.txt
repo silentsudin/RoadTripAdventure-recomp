@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # W8-04: CPU preview rotated textured quad and tachometer needle draw.
 add_executable(w21_rot_quad_test rot_quad_test.cpp)
 target_include_directories(w21_rot_quad_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../src/native)

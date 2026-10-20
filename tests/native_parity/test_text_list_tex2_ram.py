@@ -27,7 +27,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-RT_APP = Path(os.environ.get("RT_APP_BIN", ROOT / "build" / "w-G2-vu1" / "rt-app"))
+RT_APP = Path(os.environ.get("RT_APP_BIN", ROOT / "build" / "w-G0-verify" / "rt-app"))
 
 RAM_SIZE = 32 << 20
 VBLANK = 1306

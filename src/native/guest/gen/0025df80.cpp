@@ -1,6 +1,7 @@
 // guest:0x0025df80 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 
@@ -89,7 +90,7 @@ LAB_0025e178:
   puVar8 = 0x0177eb10 + (uint32_t)bVar1 * 0x40;
   RT_CALLRA(0x25e1c4, guest::vu0UnitMatrix(puVar8));
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x19))) != '\x03') && (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar9 + 5))) & 0x8000) == 0)) {
-    RT_CALLRA(0x25e238, guest::vu0RotMatrixX(((float)(0x14 - (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x28) * (*(uint32_t*)rtguest::G(0x333110))) / 20.0,puVar8,puVar8
+    RT_CALLRA(0x25e238, guest::vu0RotMatrixX(((float)(0x14 - (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x28) * (*(float*)rtguest::G(0x333110))) / 20.0,puVar8,puVar8
                  ));
   }
   RT_CALLRA(0x25e24c, guest::vu0CopyVector(0x0177eb40 + (uint32_t)bVar1 * 0x10,puVar3));

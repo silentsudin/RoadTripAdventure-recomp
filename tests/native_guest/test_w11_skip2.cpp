@@ -60,8 +60,11 @@ int main() {
   guest::strncpy(dst, src, 2);
   assert(((uint8_t*)rtguest::G(dst))[0] == 'A' && ((uint8_t*)rtguest::G(dst))[1] == 'A' &&
          ((uint8_t*)rtguest::G(dst))[6] == 0x5a && ((uint8_t*)rtguest::G(dst))[7] == 0x5a);
-  // 16-aligned fast path (all-high-bit bytes keep the fast loop alive)
-  src = m + 0xb0; dst = m + 0xc0;
+  // 16-aligned fast path (all-high-bit bytes keep the fast loop alive).
+  // shortcut: fn/0027f430.c:60-66 loads a full 16-byte chunk before storing,
+  // so dst must not overlap the unread source (newlibc contract); old dst sat
+  // inside the src fill.
+  src = m + 0xb0; dst = m + 0xe0;
   for (int i = 0; i < 34; i++) ((uint8_t*)rtguest::G(src))[i] = uint8_t(0x80 + i);
   ((uint8_t*)rtguest::G(src))[30] = 0;  // NUL in second chunk
   guest::strncpy(dst, src, 40);
@@ -84,9 +87,11 @@ int main() {
     for (int c = 0; c < 4; c++)
       *(uint32_t*)rtguest::G(in + r * 0x10 + c * 4) = r * 10 + c;
   guest::mat4Transpose(out, in);
-  // faithful PCPYLD/PCPYUD chain output (row-reversed transpose):
-  const uint32_t want[16] = {30, 20, 10, 0,   11, 1, 31, 21,
-                             32, 22, 12, 2,   13, 3, 33, 23};
+  // PCPYLD/PCPYUD chain (fn/00272820.c): auVar1 stores cols 0,1,2,3 -> the
+  // four output 16B vectors hold transposed columns; LE vector-to-memory
+  // puts word 0 at the lowest address (previous pin mirrored each vector).
+  const uint32_t want[16] = {0, 10, 20, 30,  1, 11, 21, 31,
+                             2, 12, 22, 32,  3, 13, 23, 33};
   for (int i = 0; i < 16; i++)
     assert(*(uint32_t*)rtguest::G(out + i * 4) == want[i]);
 

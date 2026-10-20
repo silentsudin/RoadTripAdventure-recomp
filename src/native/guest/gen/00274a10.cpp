@@ -4,6 +4,7 @@
 // 0x2752cc: sign test is blez on x's raw bits (bgtz form) -> (int32_t)param_1.
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 
@@ -30,7 +31,7 @@ uint32_t sinf(uint32_t param_1, ...) {
   uVar1 = uVar1 & 3;
   if (uVar1 == 1) {
     fVar2 = rtguest::fbits(RT_CALLRA(0x274ab4, guest::__kernel_cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_30)),(*(uint32_t*)rtguest::G((uint32_t)uStack_2c)))));
-    return rtguest::f2bits(-fVar2);
+    return rtguest::f2bits(fVar2);  // n==1: +cos, no flip (fn/00274a10.c:25; newlib sf_sin.c)
   }
   if (uVar1 < 2) {
     if (uVar1 == 0) {
@@ -43,7 +44,7 @@ uint32_t sinf(uint32_t param_1, ...) {
     return rtguest::f2bits(-fVar2);
   }
   fVar2 = rtguest::fbits(RT_CALLRA(0x274ae0, guest::__kernel_cosf((*(uint32_t*)rtguest::G((uint32_t)uStack_30)),(*(uint32_t*)rtguest::G((uint32_t)uStack_2c)))));
-  return rtguest::f2bits(fVar2);
+  return rtguest::f2bits(-fVar2);  // n==3: -cos (fn/00274a10.c:41 LAB_00274aec neg.s)
 }
 
 

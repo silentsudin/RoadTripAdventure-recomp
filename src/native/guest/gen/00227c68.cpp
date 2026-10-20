@@ -29,7 +29,7 @@ uint32_t puVar3;
   do {
     iVar4 = iVar4 + -1;
     (*(uint64_t*)rtguest::G((uint32_t)puVar2)) = 0xffffffffffffffff;
-    puVar2 = puVar2 + -1;
+    puVar2 = puVar2 - sizeof(uint64_t);  // W13: fn/00227c68.c:28 `puVar2 + -1` on undefined8* (was -1 byte)
   } while (-1 < iVar4);
   (*(uint32_t*)rtguest::G(0x177fdb4)) = 10000;
   puVar3 = 0x017803e0;

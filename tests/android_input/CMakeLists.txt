@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # Builds the input layer (without the game or raylib) for Android, to check it stays portable:
 #   scripts/check_android_input.sh
 cmake_minimum_required(VERSION 3.24)

@@ -17,7 +17,7 @@ uint32_t puVar1;
       (*(uint8_t*)rtguest::G((uint32_t)puVar1)) = (*(uint8_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(1) * sizeof(uint8_t)));
       puVar1 = puVar1 + 1;
     } while (iVar2 < 0x7f);
-    (*(uint32_t*)rtguest::G(0x177fd87)) = param_1;
+    (*(uint8_t*)rtguest::G(0x177fd87)) = (uint8_t)param_1;  // byte DAT; u32 store clobbers count DAT_0177fd88
     return 0;
   }
   (*(uint8_t*)rtguest::G((uint32_t)0x177fd08 + (uint32_t)((*(int32_t*)rtguest::G(0x177fd88))) * 1)) = param_1;

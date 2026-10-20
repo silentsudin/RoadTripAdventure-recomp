@@ -46,7 +46,7 @@ uint32_t puVar5;
   if (cVar2 == '\a') {
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x16))) =
          (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x16))) + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x3c))) * -0x80;
-    (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x3d))) * -0x80;
+    (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 20))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 20))) + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x3d))) * -0x80;
     cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xd)));
   }
   else {
@@ -55,7 +55,7 @@ uint32_t puVar5;
   if (cVar2 == '\a') {
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x16))) =
          (*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x16))) + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x40))) * -0x80;
-    (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x41))) * -0x80;
+    (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 20))) = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 20))) + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x41))) * -0x80;
     uVar1 = (*(uint16_t*)rtguest::G((uint32_t)puVar5));
   }
   else {
@@ -88,6 +88,7 @@ uint32_t puVar5;
 }
 
 
+// W13 fn/0021f198.c:45 `*(short*)(param_2 + 5)` float*: typed-pointer arithmetic is element-scaled (x4); transliterator left it byte-unscaled
 RT_GUEST_FN(0x0021f198, guest::ApplyFreeCameraInput)
 
 }  // namespace guest

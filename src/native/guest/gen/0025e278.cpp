@@ -94,7 +94,7 @@ uint32_t puVar8;
           RT_CALLRA(0x25e4d4, guest::SetRoadData4((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),0,1));
           RT_CALLRA(0x25e4dc, guest::GetOrSetPresidentRaceResult(0));
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x90b4))) = 2;
-          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) & 0xfffffffb;
+          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) & 0xfffffffb;
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = 0;
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) = 0;
           rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x334e90u)));
@@ -104,7 +104,7 @@ uint32_t puVar8;
       }
       break;
     case 2:
-      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) & 0xfffffeff;
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) & 0xfffffeff;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x90b4))) = 3;
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 2))) = 0;
@@ -131,7 +131,7 @@ uint32_t puVar8;
       RT_CALLRA(0x25e5bc, guest::SoundStopAllChannels());
       RT_CALLRA(0x25e5c4, guest::uiFade(0xffffffff80000000));
       iVar9 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x18)));
-      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) | 8;
+      (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) | 8;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24))) = 1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 4))) = 0xffffffff;
       RT_CALLRA(0x25e5ec, guest::gs_tasks_kill(param_1));
@@ -141,6 +141,7 @@ uint32_t puVar8;
 }
 
 
+// W13 fn/0025e278.c:95/105 `*(uint*)(param_2 + 5)` long*: typed-pointer arithmetic is element-scaled (x8); transliterator left it byte-unscaled
 RT_GUEST_FN(0x0025e278, guest::balloonCourseTask)
 
 }  // namespace guest

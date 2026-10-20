@@ -48,7 +48,7 @@ uint32_t UpdateQuickRaceMenuTask(uint32_t param_1, uint32_t param_2, ...) {
             (*(uint8_t*)rtguest::G(0x29c028 + (*(uint8_t*)rtguest::G((uint32_t)(iVar2 + 0x26)))));
         (*(uint32_t*)rtguest::G(0x177ea50)) = 0x177f760;
         (*(uint32_t*)rtguest::G((uint32_t)0x177f760 + 0)) =
-             (*(uint32_t*)rtguest::G((uint32_t)0x17804d0 + (uint32_t)((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x0029c028u + (uint32_t)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26)))) * 4))) * 4));
+             (*(uint32_t*)rtguest::G((uint32_t)0x17804d0 + (uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x0029c028u + (uint32_t)((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26))))))  /* W13: fn/00211170.c:46 `(byte)(&DAT_0029c028)[idx]` is a BYTE table (cf. :43); was read as u32[idx] */) * 4));
         RT_CALLRA(0x2112b0, guest::gs_tasks_spawn(param_1,0x20dc50,0x70001));
         RT_CALLRA(0x2112c4, guest::gs_tasks_spawn(param_1,0x20f950,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x26)))));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x25))) = 6;

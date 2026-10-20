@@ -25,11 +25,11 @@ uint32_t afStack_40 = rtguest::allocFrame(8);
   if (param_2 < 10) {
     iVar3 = param_2 * 0x10;
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 10))) == '\x01') {
-      uVar4 = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be158 + (uint32_t)(iVar3) * 4));
+      uVar4 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2be158 + (uint32_t)iVar3));
       bVar1 = uVar4 < 0x12;
     }
     else {
-      uVar4 = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be1d8 + (uint32_t)(iVar3) * 4));
+      uVar4 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2be1d8 + (uint32_t)iVar3));
       bVar1 = uVar4 < 0x12;
     }
   }

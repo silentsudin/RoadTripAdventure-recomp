@@ -1,6 +1,7 @@
 // guest:0x002455c0 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 
@@ -45,7 +46,7 @@ uint32_t puVar20;
   float fVar29;
   
   iVar8 = RT_CALLRA(0x2455fc, guest::getExtraPacketArea(0x4c60));
-  uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 6)));
+  uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 6 * sizeof(uint64_t))));  // W13: fn/002455c0.c:43 `*(ushort *)(param_2 + 6)` with `undefined8 *param_2` = +0x30
   uVar4 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x34)));
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 10))) & 2) != 0) {
     uVar3 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x32))) | uVar3;
@@ -273,7 +274,7 @@ LAB_00245b78:
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x25)));
       fVar29 = (float)(int)(short)(((((int)((iVar24 + uVar17) - (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 0x27)))) %
                                      (int)uVar17) * 8 + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar22 + 2)))) * 0x2000) /
-                                  (int)uVar17) * (*(uint32_t*)rtguest::G(0x332f3c)) * 3.0517578e-05;
+                                  (int)uVar17) * (*(float*)rtguest::G(0x332f3c)) * 3.0517578e-05f;
       if (cVar1 == '\0') {
         fVar27 = rtguest::fbits(RT_CALLRA(0x245bdc, guest::cosf(rtguest::f2bits(fVar29))));
         iVar23 = (int)(fVar27 * fVar28) + 0xc0;
@@ -286,11 +287,11 @@ LAB_00245b78:
         if (iVar26 < 10) {
           if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 10))) == '\x01') {
             iVar21 = iVar26 * 0x10;
-            uVar17 = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be158 + (uint32_t)(iVar21) * 4));
+            uVar17 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2be158 + (uint32_t)iVar21));
           }
           else {
             iVar21 = iVar26 * 0x10;
-            uVar17 = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be1d8 + (uint32_t)(iVar21) * 4));
+            uVar17 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2be1d8 + (uint32_t)iVar21));
           }
         }
         else {
@@ -346,11 +347,11 @@ LAB_00245ee4:
         if (iVar26 < 10) {
           if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 10))) == '\x01') {
             iVar21 = iVar26 * 0x10;
-            uVar17 = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be158 + (uint32_t)(iVar21) * 4));
+            uVar17 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2be158 + (uint32_t)iVar21));
           }
           else {
             iVar21 = iVar26 * 0x10;
-            uVar17 = (uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2be1d8 + (uint32_t)(iVar21) * 4));
+            uVar17 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2be1d8 + (uint32_t)iVar21));
           }
         }
         else {

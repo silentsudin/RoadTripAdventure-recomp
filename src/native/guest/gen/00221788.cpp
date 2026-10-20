@@ -4,7 +4,9 @@
 
 namespace guest {
 
-uint32_t drawCar(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+uint32_t drawCar(uint32_t rt_bits_1, uint32_t rt_bits_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+  float param_1 = rtguest::fbits(rt_bits_1);  // f12.. float arg carried as bits (W13 float-param fix)
+  float param_2 = rtguest::fbits(rt_bits_2);  // f12.. float arg carried as bits (W13 float-param fix)
   rtguest::FrameGuard rt_fg(544);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x1f8) = rt_fg.rtRA;
@@ -70,7 +72,7 @@ uint32_t puVar8;
   iVar11 = (int)param_3;
   RT_CALLRA(0x2218a8, guest::vu0MulMatrix(auStack_220,param_3,iVar11 + 0x40));
   RT_CALLRA(0x2218b8, guest::vu0CopyMatrix(auStack_1e0,auStack_220));
-  RT_CALLRA(0x2218d0, guest::ScaleCarLightMatrix((*(float*)rtguest::G((uint32_t)fStack_1ec)) - param_2,0x177f620 + param_5 * 0x40));
+  RT_CALLRA(0x2218d0, guest::ScaleCarLightMatrix(rtguest::f2bits((*(float*)rtguest::G((uint32_t)fStack_1ec)) - param_2),0x177f620 + param_5 * 0x40));
   RT_CALLRA(0x2218d8, guest::vifObjectMatrix(auStack_220));
   RT_CALLRA(0x221928, guest::vifBatchRegs((long)(param_4 * 0x44 + 0x243e) | 0x1d308000U |
                (long)(param_4 * 0x44 + 0x247e) << 0x25 | 0x20000005c0000000,7,0,0xf));
@@ -189,7 +191,7 @@ LAB_00221c74:
         if (param_1 == 0.0) {
           RT_CALLRA(0x221e70, guest::drawCarWheelsNear(param_3,iVar11 + 0x80,puVar2));
         }
-        else if (param_1 < (*(uint32_t*)rtguest::G(0x332ccc))) {
+        else if (param_1 < (*(float*)rtguest::G(0x332ccc))) {
           RT_CALLRA(0x221e98, guest::drawCarWheelsMid(param_3,iVar11 + 0x80));
         }
         else {

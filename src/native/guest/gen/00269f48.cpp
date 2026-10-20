@@ -84,14 +84,14 @@ uint32_t puVar20;
   do {
     iVar15 = iVar15 + -1;
     (*(int32_t*)rtguest::G((uint32_t)piVar10)) = (int)puVar4;
-    piVar10 = piVar10 + -1;
+    piVar10 = piVar10 - sizeof(int32_t);  // W13: fn/00269f48.c:86 `piVar10 + -1` on int* (was -1 byte)
     puVar4 = puVar4 + -0x16;
   } while (-1 < iVar15);
   if (iVar17 < 1) {
     uVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x25)));
   }
   else {
-    piVar10 = aiStack_dc + 3;
+    piVar10 = aiStack_dc + 3 * sizeof(int32_t);
     puVar5 = 0x0177fde0;
     iVar15 = iVar17;
     do {
@@ -210,7 +210,7 @@ LAB_0026a8cc:
     if (iVar17 < 0xb) {
       iVar15 = iVar17;
     }
-    RT_CALLRA(0x26a490, guest::LayoutTextItems(uVar7,aiStack_dc + 3,iVar17,iVar15));
+    RT_CALLRA(0x26a490, guest::LayoutTextItems(uVar7,aiStack_dc + 3 * sizeof(int32_t),iVar17,iVar15));
     puVar12 = (uint32_t)uVar7;
     (*(uint16_t*)rtguest::G((uint32_t)puVar12)) = 0x14;
     (*(uint16_t*)rtguest::G((uint32_t)puVar12 + (uint32_t)(1) * sizeof(uint16_t))) = 0x16;
@@ -222,7 +222,7 @@ LAB_0026a8cc:
 LAB_0026a2a4:
     iVar17 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar19 + 0x28)));
     iVar15 = 0;
-    RT_CALLRA(0x26a2b8, guest::uiMenuWindow(iVar17,(*(int32_t*)rtguest::G((uint32_t)iStack_60)),aiStack_dc + 3));
+    RT_CALLRA(0x26a2b8, guest::uiMenuWindow(iVar17,(*(int32_t*)rtguest::G((uint32_t)iStack_60)),aiStack_dc + 3 * sizeof(int32_t)));
     RT_CALLRA(0x26a4f0, guest::uiDrawPanel9(0xf0,0x16,0x17c,0xb0,0));
     RT_CALLRA(0x26a720, guest::uiDrawText(0x168,0x16,0x3353f0,0));
     RT_CALLRA(0x26a73c, guest::uiDrawText(0x1b8,0x16,0x3353f8,0));

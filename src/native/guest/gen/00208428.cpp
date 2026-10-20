@@ -10,8 +10,8 @@ uint32_t PlayTaskSound(uint32_t param_1, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-  PlayUiSound((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) + 0x8000);
-  return 0;
+  // W13: tail-call passthrough (fn/00208428.c: void body = single call; v0 survives to the caller)
+  return PlayUiSound((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) + 0x8000);
 }
 
 

@@ -10,8 +10,8 @@ uint32_t sceSifSendCmd(uint64_t param_1, uint64_t param_2, uint64_t param_3, uin
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-  RT_CALLRA(0x287438, guest::_sceSifSendCmd(param_1,0,param_2,param_3,param_4,param_5,param_6));
-  return 0;
+  // W13: tail-call passthrough (fn/00287410.c: void body = single call; v0 survives to the caller)
+  return RT_CALLRA(0x287438, guest::_sceSifSendCmd(param_1,0,param_2,param_3,param_4,param_5,param_6));
 }
 
 

@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # W8-03: collision grid road-ribbon sizing contract.
 add_executable(w23_collision_sizing_test
     collision_sizing_test.cpp

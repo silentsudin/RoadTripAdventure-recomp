@@ -1,6 +1,7 @@
 // guest:0x0025d7c8 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 

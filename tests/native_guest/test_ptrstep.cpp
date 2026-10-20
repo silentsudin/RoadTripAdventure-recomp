@@ -29,5 +29,10 @@ int main() {
   assert(sh_(s + 0x42) == 0x7a48);  // (0x21+8)*8+0x7900
   assert(q_(s + 0x10) == 0x600050);  // param_1[2] qword RMW
   assert(q_(s + 0x30) == 0xf000d0);  // param_1[6] qword RMW
-  assert(sh_(s + 4) == 0 && sh_(s + 8) == 0);  // old buggy offsets stay untouched
+  // fn/00206040.c:53-74: the record prologue really writes qwords param_1[0]
+  // (RMW, spills into s+4) and param_1[1] = 8; the "untouched" premise was wrong.
+  // fn/00206040.c:53-74: the record prologue really writes qword *param_1
+  // (RMW 0x1bff017fff for these params, spilling 0x1b into s+4) and
+  // param_1[1] = 8 at byte +8; the "untouched" premise was wrong.
+  assert(sh_(s + 4) == 0x1b && sh_(s + 8) == 8);
 }

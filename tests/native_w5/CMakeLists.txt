@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # tests/native_w5: wave-5 worker tests (W4-05 dashcam source first).
 # Registered by a single add_subdirectory line in src/native/CMakeLists.txt,
 # placed right after rt_native_assets is defined so Android builds also get

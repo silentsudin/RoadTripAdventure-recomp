@@ -10,8 +10,8 @@ uint32_t ToggleInputFlagWrapper(uint64_t param_1, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-  debugScreenRead(param_1 ^ 1);
-  return 0;
+  // W13: tail-call passthrough (fn/0020e4e8.c: void body = single call; v0 survives to the caller)
+  return debugScreenRead(param_1 ^ 1);
 }
 
 

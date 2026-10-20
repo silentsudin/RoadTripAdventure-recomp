@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t ScaleCarLightMatrix(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t ScaleCarLightMatrix(uint32_t rt_bits_1, uint32_t param_2, ...) {
+  float param_1 = rtguest::fbits(rt_bits_1);  // f12.. float arg carried as bits (W13 float-param fix)
   rtguest::FrameGuard rt_fg(112);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
@@ -27,7 +28,7 @@ uint32_t auStack_40 = rtguest::allocFrame(12);
   else {
     (*(float*)rtguest::G((uint32_t)fStack_30)) = param_1 * (*(float*)rtguest::G(0x332dcc)) + 0.5;
   }
-  (*(float*)rtguest::G((uint32_t)fStack_28)) = param_1 * (*(uint32_t*)rtguest::G(0x332dd0)) + 1.0;
+  (*(float*)rtguest::G((uint32_t)fStack_28)) = param_1 * (*(float*)rtguest::G(0x332dd0)) + 1.0;
   if ((*(float*)rtguest::G((uint32_t)fStack_30)) < 0.0) {
     (*(float*)rtguest::G((uint32_t)fStack_30)) = 0.0;
   }

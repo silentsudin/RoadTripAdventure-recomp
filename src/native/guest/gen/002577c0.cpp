@@ -10,8 +10,8 @@ uint32_t CallRpcCmd1(uint32_t q0, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
   }
-  RT_CALLRA(0x2577ec, guest::sceSifCallRpc(0x175e840,1,0,0,0,0,0,0));
-  return 0;
+  // W13: tail-call passthrough (fn/002577c0.c: void body = single call; v0 survives to the caller)
+  return RT_CALLRA(0x2577ec, guest::sceSifCallRpc(0x175e840,1,0,0,0,0,0,0));
 }
 
 

@@ -10,8 +10,8 @@ uint32_t sceSifLoadModule(uint32_t q0, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
   }
-  RT_CALLRA(0x28c95c, guest::_sceSifLoadModule());
-  return 0;
+  // W13: tail-call passthrough (fn/0028c950.c: void body = single call; v0 survives to the caller)
+  return RT_CALLRA(0x28c95c, guest::_sceSifLoadModule());
 }
 
 

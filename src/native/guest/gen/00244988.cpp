@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t BuildCarouselDrawPacket(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+uint32_t BuildCarouselDrawPacket(uint32_t rt_bits_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+  float param_1 = rtguest::fbits(rt_bits_1);  // f12.. float arg carried as bits (W13 float-param fix)
   rtguest::FrameGuard rt_fg(128);
   uint uVar1;
   ushort uVar2;
@@ -68,23 +69,23 @@ uint32_t auStack_80 = rtguest::allocFrame(64);
     }
     (*(uint32_t*)rtguest::G(0x2a8b66)) = (uint32_t)(iVar4 << 5);
     if (param_6 < 0x14) {
-      (*(uint32_t*)rtguest::G(0x2a8b54)) = (float)iVar4;
+      (*(uint32_t*)rtguest::G(0x2a8b54)) = rtguest::f2bits((float)iVar4);
     }
     else {
-      (*(uint32_t*)rtguest::G(0x2a8b54)) = 20.0;
+      (*(uint32_t*)rtguest::G(0x2a8b54)) = rtguest::f2bits(20.0f);
     }
   }
   else {
-    (*(uint32_t*)rtguest::G(0x2a8b54)) = 0.0;
+    (*(uint32_t*)rtguest::G(0x2a8b54)) = 0;
     (*(float*)rtguest::G(0x2a8b60)) = 440.0;
     (*(uint32_t*)rtguest::G(0x2a8b64)) = 0x4000;
     (*(uint32_t*)rtguest::G(0x2a8b66)) = 0;
   }
   if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
-    RT_CALLRA(0x244cc4, guest::SetViewDistanceGlobals((float)(param_3 + 0x6c0),(float)((param_4 + param_5 / 2) / 2 + 0x790)));
+    RT_CALLRA(0x244cc4, guest::SetViewDistanceGlobals(rtguest::f2bits((float)(param_3 + 0x6c0)),rtguest::f2bits((float)((param_4 + param_5 / 2) / 2 + 0x790))));
   }
   else {
-    RT_CALLRA(0x244d14, guest::SetViewDistanceGlobals((float)((param_3 << 2) / 5 + 0x700),(float)((param_4 + param_5 / 2) / 2 + 0x780)));
+    RT_CALLRA(0x244d14, guest::SetViewDistanceGlobals(rtguest::f2bits((float)((param_3 << 2) / 5 + 0x700)),rtguest::f2bits((float)((param_4 + param_5 / 2) / 2 + 0x780))));
   }
   RT_CALLRA(0x244d28, guest::buildCamera(param_2 + 0x50,0x2a8b50,auStack_80,auStack_80));
   RT_CALLRA(0x244d30, guest::updateLightDirection(param_2 + 0x1d0));

@@ -110,7 +110,7 @@ uint32_t piVar12;
     }
     break;
   case 2:
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) & 0xfffffeff;
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) & 0xfffffeff;
     (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x9254))) = 3;
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2))) = 0;
@@ -144,7 +144,7 @@ uint32_t piVar12;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x9258))) = 1;
     RT_CALLRA(0x25def8, guest::uiFade(0xffffffff80000000));
     iVar10 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x18)));
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 5))) | 8;
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) | 8;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 4))) = 0xffffffff;
     gs_tasks_kill(param_1);
@@ -154,6 +154,7 @@ uint32_t piVar12;
 }
 
 
+// W13 fn/0025dbb8.c:111/145 `*(uint*)(param_2 + 5)` undefined8*: typed-pointer arithmetic is element-scaled (x8); transliterator left it byte-unscaled
 RT_GUEST_FN(0x0025dbb8, guest::stampCollectionTask)
 
 }  // namespace guest

@@ -53,6 +53,8 @@ inline Vu4 blend(Vu4 d, Vu4 r, uint32_t dest) {
     return d;
 }
 // Oracle: ps2_runtime_macros.h:959-988. FMAC results replace MAC and merge STATUS sticky bits.
+// Which ops set them: ps2xRecomp vu_translator.cpp:22-38 fmacFlagTarget -- every add/sub/mul/
+// madd/msub/opmula/opmsub form (fd or ACC); max/mini, ftoi/itof, moves and vi ops do not.
 inline void fmacFlags(Vu4 r, uint32_t dest) {
     uint32_t mac = 0;
     for (uint32_t lane = 0; lane != 4; ++lane) {
@@ -175,7 +177,7 @@ inline void ctc2(uint32_t cr, uint32_t v) {
 inline void vadd(uint32_t d, uint32_t fd, uint32_t fs, uint32_t ft) {
     Vu4 r{{S.vf[fs].v[0] + S.vf[ft].v[0], S.vf[fs].v[1] + S.vf[ft].v[1],
            S.vf[fs].v[2] + S.vf[ft].v[2], S.vf[fs].v[3] + S.vf[ft].v[3]}};
-    S.vf[fd] = blend(S.vf[fd], r, d);
+    S.vf[fd] = blend(S.vf[fd], r, d); fmacFlags(r, d);
 }
 inline void vsub(uint32_t d, uint32_t fd, uint32_t fs, uint32_t ft) {
     Vu4 r{{S.vf[fs].v[0] - S.vf[ft].v[0], S.vf[fs].v[1] - S.vf[ft].v[1],
@@ -185,14 +187,14 @@ inline void vsub(uint32_t d, uint32_t fd, uint32_t fs, uint32_t ft) {
 inline void vmul(uint32_t d, uint32_t fd, uint32_t fs, uint32_t ft) {
     Vu4 r{{S.vf[fs].v[0] * S.vf[ft].v[0], S.vf[fs].v[1] * S.vf[ft].v[1],
            S.vf[fs].v[2] * S.vf[ft].v[2], S.vf[fs].v[3] * S.vf[ft].v[3]}};
-    S.vf[fd] = blend(S.vf[fd], r, d);
+    S.vf[fd] = blend(S.vf[fd], r, d); fmacFlags(r, d);
 }
 
 // ---- bc (broadcast-second-source) forms ------------------------------------
 inline void vaddbc(uint32_t d, uint32_t bc, uint32_t fd, uint32_t fs, uint32_t ft) {
     Vu4 b = bcast(S.vf[ft], bc), &s = S.vf[fs];
     Vu4 r{{s.v[0] + b.v[0], s.v[1] + b.v[1], s.v[2] + b.v[2], s.v[3] + b.v[3]}};
-    S.vf[fd] = blend(S.vf[fd], r, d);
+    S.vf[fd] = blend(S.vf[fd], r, d); fmacFlags(r, d);
 }
 inline void vsubbc(uint32_t d, uint32_t bc, uint32_t fd, uint32_t fs, uint32_t ft) {
     Vu4 b = bcast(S.vf[ft], bc), &s = S.vf[fs];
@@ -202,13 +204,13 @@ inline void vsubbc(uint32_t d, uint32_t bc, uint32_t fd, uint32_t fs, uint32_t f
 inline void vmulbc(uint32_t d, uint32_t bc, uint32_t fd, uint32_t fs, uint32_t ft) {
     Vu4 b = bcast(S.vf[ft], bc), &s = S.vf[fs];
     Vu4 r{{s.v[0] * b.v[0], s.v[1] * b.v[1], s.v[2] * b.v[2], s.v[3] * b.v[3]}};
-    S.vf[fd] = blend(S.vf[fd], r, d);
+    S.vf[fd] = blend(S.vf[fd], r, d); fmacFlags(r, d);
 }
 inline void vmaddbc(uint32_t d, uint32_t bc, uint32_t fd, uint32_t fs, uint32_t ft) {
     Vu4 b = bcast(S.vf[ft], bc), &s = S.vf[fs], &a = S.acc;
     Vu4 r{{a.v[0] + s.v[0] * b.v[0], a.v[1] + s.v[1] * b.v[1],
            a.v[2] + s.v[2] * b.v[2], a.v[3] + s.v[3] * b.v[3]}};
-    S.vf[fd] = blend(S.vf[fd], r, d);
+    S.vf[fd] = blend(S.vf[fd], r, d); fmacFlags(r, d);
 }
 inline void vmaxbc(uint32_t d, uint32_t bc, uint32_t fd, uint32_t fs, uint32_t ft) {
     Vu4 b = bcast(S.vf[ft], bc), &s = S.vf[fs];
@@ -226,23 +228,23 @@ inline void vminibc(uint32_t d, uint32_t bc, uint32_t fd, uint32_t fs, uint32_t 
 inline void vmulabc(uint32_t d, uint32_t bc, uint32_t fs, uint32_t ft) {
     Vu4 b = bcast(S.vf[ft], bc), &s = S.vf[fs];
     Vu4 r{{s.v[0] * b.v[0], s.v[1] * b.v[1], s.v[2] * b.v[2], s.v[3] * b.v[3]}};
-    S.acc = blend(S.acc, r, d);
+    S.acc = blend(S.acc, r, d); fmacFlags(r, d);
 }
 inline void vmaddabc(uint32_t d, uint32_t bc, uint32_t fs, uint32_t ft) {
     Vu4 b = bcast(S.vf[ft], bc), &s = S.vf[fs], &a = S.acc;
     Vu4 r{{a.v[0] + s.v[0] * b.v[0], a.v[1] + s.v[1] * b.v[1],
            a.v[2] + s.v[2] * b.v[2], a.v[3] + s.v[3] * b.v[3]}};
-    S.acc = blend(S.acc, r, d);
+    S.acc = blend(S.acc, r, d); fmacFlags(r, d);
 }
 
 // ---- Q/I scalar-source ops --------------------------------------------------
 inline void vaddq(uint32_t d, uint32_t fd, uint32_t fs) {
     Vu4 r{{S.vf[fs].v[0] + S.q, S.vf[fs].v[1] + S.q, S.vf[fs].v[2] + S.q, S.vf[fs].v[3] + S.q}};
-    S.vf[fd] = blend(S.vf[fd], r, d);
+    S.vf[fd] = blend(S.vf[fd], r, d); fmacFlags(r, d);
 }
 inline void vmulq(uint32_t d, uint32_t fd, uint32_t fs) {
     Vu4 r{{S.vf[fs].v[0] * S.q, S.vf[fs].v[1] * S.q, S.vf[fs].v[2] * S.q, S.vf[fs].v[3] * S.q}};
-    S.vf[fd] = blend(S.vf[fd], r, d);
+    S.vf[fd] = blend(S.vf[fd], r, d); fmacFlags(r, d);
 }
 
 // ---- Q pipeline (vwaitq is a no-op: our Q resolves immediately) -------------
@@ -257,14 +259,14 @@ inline void vopmula(uint32_t d, uint32_t fs, uint32_t ft) {
     // oracle shuffles: fs.yzxw * ft.zxyw lane-wise (no ACC add), dest-masked
     const float *a = S.vf[fs].v, *b = S.vf[ft].v;
     Vu4 r{{a[1] * b[2], a[2] * b[0], a[0] * b[1], a[3] * b[3]}};
-    S.acc = blend(S.acc, r, d);
+    S.acc = blend(S.acc, r, d); fmacFlags(r, d);
 }
 inline void vopmsub(uint32_t d, uint32_t fd, uint32_t fs, uint32_t ft) {
     // oracle: fd = ACC - (fs yzx * ft zxy) lane-wise; lane3 = acc.w - a.w*b.w
     const float *a = S.vf[fs].v, *b = S.vf[ft].v, *ac = S.acc.v;
     Vu4 r{{ac[0] - a[1] * b[2], ac[1] - a[2] * b[0], ac[2] - a[0] * b[1],
            ac[3] - a[3] * b[3]}};
-    S.vf[fd] = blend(S.vf[fd], r, d);
+    S.vf[fd] = blend(S.vf[fd], r, d); fmacFlags(r, d);
 }
 
 // ---- conversions -------------------------------------------------------------

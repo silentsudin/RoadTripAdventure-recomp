@@ -10,8 +10,8 @@ uint32_t PlayUiSound(uint32_t param_1, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-  SndRpcPlayOrStop(param_1 | 0x40400000);
-  return 0;
+  // W13: tail-call passthrough (fn/00258e50.c: void body = single call; v0 survives to the caller)
+  return SndRpcPlayOrStop(param_1 | 0x40400000);
 }
 
 

@@ -1,5 +1,6 @@
 // guest:0x0021f450 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
+#include "../guest_fpu.h"
 #include "guest_decls.inc"
 
 namespace guest {
@@ -53,10 +54,10 @@ uint32_t pfVar4;
     (*(float*)rtguest::G((uint32_t)fStack_88)) = (*(float*)rtguest::G((uint32_t)fStack_88)) + (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(2) * sizeof(float)));
     do {
       if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
-        (*(float*)rtguest::G((uint32_t)fStack_80)) = ((*(float*)rtguest::G((uint32_t)pfVar4)) * (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)))) / fParam1;
+        (*(float*)rtguest::G((uint32_t)fStack_80)) = rtguest::div_s(((*(float*)rtguest::G((uint32_t)pfVar4)) * (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)))), fParam1);  // fn/0021f450.c:49 div.s @0x21f588 rounds to nearest (rtguest::div_s)
       }
       else {
-        (*(float*)rtguest::G((uint32_t)fStack_80)) = ((*(float*)rtguest::G((uint32_t)pfVar4)) * (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)))) / (fParam1 * fVar8);
+        (*(float*)rtguest::G((uint32_t)fStack_80)) = rtguest::div_s(((*(float*)rtguest::G((uint32_t)pfVar4)) * (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)))), fParam1 * fVar8);  // fn/0021f450.c:52 div.s @0x21f56c
       }
       (*(float*)rtguest::G((uint32_t)fStack_78)) = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)));
       pfVar1 = pfVar4 + 4;  // fn/0021f450.c:54 pfVar1 = pfVar4 + 1 is float* arithmetic (+4 bytes; MIPS lwc1 $f1,0x4($16) @0x21f598)
@@ -64,7 +65,7 @@ uint32_t pfVar4;
       iVar3 = (int)param_7 + iVar6;
       iVar6 = iVar6 + 0x10;
       iVar5 = iVar5 + -1;
-      (*(float*)rtguest::G((uint32_t)fStack_7c)) = ((*(float*)rtguest::G((uint32_t)pfVar1)) * (*(float*)rtguest::G((uint32_t)fStack_78))) / (fParam1 * fVar2);  // fn/0021f450.c:61 param_1 is the FLOAT fov ($f20, MIPS mul.s $f2,$f20,$f22 @0x21f594); u32 param_1 int-converted the raw bits
+      (*(float*)rtguest::G((uint32_t)fStack_7c)) = rtguest::div_s(((*(float*)rtguest::G((uint32_t)pfVar1)) * (*(float*)rtguest::G((uint32_t)fStack_78))), fParam1 * fVar2);  // fn/0021f450.c:60 div.s @0x21f5c8;  // fn/0021f450.c:61 param_1 is the FLOAT fov ($f20, MIPS mul.s $f2,$f20,$f22 @0x21f594); u32 param_1 int-converted the raw bits
       (*(uint32_t*)rtguest::G((uint32_t)uStack_74)) = uVar7;
       RT_CALLRA(0x21f5cc, guest::vu0ApplyMatrix(iVar3,auStack_c0,fStack_80));
     } while (-1 < iVar5);

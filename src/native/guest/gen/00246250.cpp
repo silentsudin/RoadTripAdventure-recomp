@@ -1,6 +1,7 @@
 // guest:0x00246250 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 
@@ -450,7 +451,7 @@ LAB_00246c28:
       }
       fVar38 = (float)(int)(short)(((((int)(((*(int32_t*)rtguest::G((uint32_t)iStack_8c)) + uVar19) - (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x27)))) %
                                      (int)uVar19) * 8 + (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 2)))) * 0x2000) /
-                                  (int)uVar19) * (*(uint32_t*)rtguest::G(0x332f40)) * 3.0517578e-05;
+                                  (int)uVar19) * (*(float*)rtguest::G(0x332f40)) * 3.0517578e-05f;
       if (fVar38 == 0.0) {
         bVar12 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar30 + 0x25)));
         if (bVar12 == 0) goto LAB_00246d18;
@@ -528,10 +529,10 @@ LAB_00246d18:
         (*(uint64_t*)rtguest::G((uint32_t)uStack_a8)) = CONCAT44((int)((uint32_t)(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x002a8cf8 + iVar28))) >> 0x20),
                              ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a8cf8 + iVar28))) * 256.0) / (float)iVar29);
         if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
-          RT_CALLRA(0x247010, guest::SetViewDistanceGlobals((float)((*(int32_t*)rtguest::G((uint32_t)iStack_74)) + 0x7b0),(float)((iVar33 + iVar29 / 2) / 2 + 0x790)));
+          RT_CALLRA(0x247010, guest::SetViewDistanceGlobals(rtguest::f2bits((float)((*(int32_t*)rtguest::G((uint32_t)iStack_74)) + 0x7b0)),rtguest::f2bits((float)((iVar33 + iVar29 / 2) / 2 + 0x790))));
         }
         else {
-          RT_CALLRA(0x247060, guest::SetViewDistanceGlobals((float)((iVar36 * 4) / 5 + 0x700),(float)((iVar33 + iVar29 / 2) / 2 + 0x780)));
+          RT_CALLRA(0x247060, guest::SetViewDistanceGlobals(rtguest::f2bits((float)((iVar36 * 4) / 5 + 0x700)),rtguest::f2bits((float)((iVar33 + iVar29 / 2) / 2 + 0x780))));
         }
         RT_CALLRA(0x247074, guest::buildCamera(iVar7 * 400 + 0x1756200,uStack_b0,auStack_f0,auStack_f0));
         RT_CALLRA(0x24707c, guest::updateLightDirection(iVar7 * 400 + 0x1756380));

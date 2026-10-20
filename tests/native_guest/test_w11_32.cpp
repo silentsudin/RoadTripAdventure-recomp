@@ -23,11 +23,12 @@ int main() {
   *(uint8_t*)rtguest::G(0x00400021) = 3;
   *(uint8_t*)rtguest::G(0x00400023) = 2;
   *(uint32_t*)rtguest::G(0x01780338 + 2 * 4) = 0xFFFFFFFFu;
-  // house stamp table[2] low byte 0x41 -> uVar2 = 0x164 -> word[1] |= 1<<0x24
-  *(uint32_t*)rtguest::G(0x002A2B20 + 2 * 4) = 0x41;
+  // house stamp table is a BYTE table (fn/0023c7b0.c:27-30): table[2]=0x41 ->
+  // uVar2=0x140 -> (0x40)>>6 = word[1] |= 1<<0
+  *(uint8_t*)rtguest::G(0x002A2B20 + 2) = 0x41;
   guest::ReleaseStampFlag(0x00400000);
   assert(*(uint32_t*)rtguest::G(0x01780338 + 2 * 4) == 0xFFFFFFF7u);
-  assert(*(uint32_t*)rtguest::G(0x0177FC88 + 8) == 0x10000000u);
+  assert(*(uint64_t*)rtguest::G(0x0177FC88 + 8) == 1u);
   // a3a branch untouched (idx != 0): bit 2 not cleared there
   assert(*(uint16_t*)rtguest::G(0x01780A3A) == 0);
   // guard is unsigned (ELF lbu+sltiu): +0x21 = 0x81 skips the whole body

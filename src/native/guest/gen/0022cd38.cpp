@@ -1,6 +1,7 @@
 // guest:0x0022cd38 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 
@@ -31,7 +32,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
     uVar8 = RT_CALLRA(0x22cdd0, guest::atan2f(0x3f800000,0x40800000));
     RT_CALLRA(0x22cde0, guest::vu0RotMatrixY(uVar8,0x1752660,0x1752660));
     (*(float*)rtguest::G(0x1752690)) = -1.0;
-    (*(uint32_t*)rtguest::G(0x1752698)) = -6.0;
+    (*(uint32_t*)rtguest::G(0x1752698)) = rtguest::f2bits(-6.0f);
     RT_CALLRA(0x22ce00, guest::vu0UnitMatrix(0x17526a0));
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G(0x177ea50)) + 8))) & 0x400) == 0) {
       (*(uint32_t*)rtguest::G(0x17526d4)) = 0;

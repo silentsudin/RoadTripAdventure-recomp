@@ -1,6 +1,7 @@
 // guest:0x0022aeb0 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 
@@ -158,7 +159,7 @@ LAB_0022b238:
                                 (uint32_t)(*(uint32_t*)rtguest::G(0x175253c)));
         RT_CALLRA(0x22b3e0, guest::vu0CopyVector(auStack_c0,0x17524e0));
         RT_CALLRA(0x22b3e8, guest::vu0UnitMatrix(0x17524b0));
-        RT_CALLRA(0x22b418, guest::vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175253c + 2)) * 3.0517578e-05 * (*(uint32_t*)rtguest::G(0x332e00)),0x17524b0,
+        RT_CALLRA(0x22b418, guest::vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175253c + 2)) * 3.0517578e-05 * (*(float*)rtguest::G(0x332e00)),0x17524b0,
                       0x17524b0));
         RT_CALLRA(0x22b424, guest::vu0CopyVectorXYZ(0x17524e0,auStack_c0));
         cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24)));
@@ -174,7 +175,7 @@ LAB_0022b238:
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x26))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x26))) + (char)iVar5;
         RT_CALLRA(0x22b498, guest::vu0CopyVector(auStack_b0,0x1752600));
         RT_CALLRA(0x22b4a0, guest::vu0UnitMatrix(0x17525d0));
-        RT_CALLRA(0x22b4d0, guest::vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175265c + 2)) * 3.0517578e-05 * (*(uint32_t*)rtguest::G(0x332e04)),0x17525d0,
+        RT_CALLRA(0x22b4d0, guest::vu0RotMatrixY((float)(int)(*(uint16_t*)rtguest::G((uint32_t)0x0175265c + 2)) * 3.0517578e-05 * (*(float*)rtguest::G(0x332e04)),0x17525d0,
                       0x17525d0));
         RT_CALLRA(0x22b4dc, guest::vu0CopyVectorXYZ(0x1752600,auStack_b0));
         cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x24)));
@@ -332,7 +333,7 @@ LAB_0022b864:
     RT_CALLRA(0x22b898, guest::vifBeginPacket(1));
     cVar8 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x26)));
     RT_CALLRA(0x22b8ac, guest::vu0UnitMatrix(auStack_a0));
-    RT_CALLRA(0x22b8e8, guest::vu0RotMatrixY(((float)(uint32_t)(cVar8 + 0x80) * 0.0078125 - 1.0) * (*(uint32_t*)rtguest::G(0x332e10)),auStack_a0,
+    RT_CALLRA(0x22b8e8, guest::vu0RotMatrixY(((float)(uint32_t)(cVar8 + 0x80) * 0.0078125 - 1.0) * (*(float*)rtguest::G(0x332e10)),auStack_a0,
                   auStack_a0));
     (*(uint32_t*)rtguest::G((uint32_t)uStack_68)) = uVar3;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_70)) = uVar11;

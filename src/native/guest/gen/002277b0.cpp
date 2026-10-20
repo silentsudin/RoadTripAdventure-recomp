@@ -23,7 +23,7 @@ uint32_t puVar9;
 uint32_t __s;
   
   iVar2 = param_1 * 0x3448;
-  __s = 0x177f760 + param_1 * 0x689;
+  __s = 0x177f760 + param_1 * 0x689 * sizeof(uint64_t);  // W13: fn/002277b0.c:21 `&gs_progress_ram_address + param_1 * 0x689` (undefined8*) = slot stride 0x3448; unscaled, slot 1's memset zeroed slot 0
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(__s)), 0, 0x3448));
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x1780a48 + iVar2))) = 0x40;
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x01780a4a + iVar2))) = 0x80;
@@ -37,7 +37,7 @@ uint32_t __s;
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x01780a50 + iVar2))) = 4;
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x01780a52 + iVar2))) = 1;
   puVar9 = __s;
-  puVar5 = 0x0177f768 + param_1 * 0xd12;
+  puVar5 = 0x0177f768 + param_1 * 0xd12 * sizeof(uint32_t);
   do {
     puVar7 = puVar5 + 0x45c * sizeof(uint32_t);
     puVar4 = (uint32_t)((int)__s + iVar10 + 0xff0);
@@ -75,7 +75,7 @@ uint32_t __s;
   iVar10 = 0xb70;
   do {
     iVar8 = iVar8 + -1;
-    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)(0x0177f768 + param_1 * 0xd12) + iVar10))) = 0x7fffffff;
+    (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)(0x0177f768 + param_1 * 0xd12 * sizeof(uint32_t)) + iVar10))) = 0x7fffffff;
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)__s + iVar10 + 0x12))) = 0xff;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177f76c + iVar10 + iVar2))) = 0x7fffffff;
     iVar10 = iVar10 + 0xc;
@@ -131,11 +131,12 @@ uint32_t __s;
   (*(uint32_t*)rtguest::G((uint32_t)0x178046c + (uint32_t)(param_1 * 0xd12) * 4)) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)0x1780480 + (uint32_t)(param_1 * 0xd12) * 4)) = 1;
   (*(uint32_t*)rtguest::G((uint32_t)0x1780494 + (uint32_t)(param_1 * 0xd12) * 4)) = 1;
-  (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)((uint32_t)(0x0177fd8c + param_1 * 0xd12))), (char *)rtguest::G((uint32_t)(0x2eb470u)), 8));
+  (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)((uint32_t)(0x0177fd8c + param_1 * 0xd12 * sizeof(uint32_t)))), (char *)rtguest::G((uint32_t)(0x2eb470u)), 8));
   (uint32_t)(uintptr_t)(::strncpy((char *)rtguest::G((uint32_t)(0x0177fd94 + iVar2)), (char *)rtguest::G((uint32_t)(0x2eb478u)), 4));
   (*(uint8_t*)rtguest::G((uint32_t)0x177fd98 + (uint32_t)iVar2)) = '\0';
   uVar3 = (*(uint8_t*)rtguest::G(0x3335fc));
-  (*(uint8_t*)rtguest::G((uint32_t)0x177fd9f + (uint32_t)(param_1 * 0xd12))) = (*(uint8_t*)rtguest::G(0x3335f8));
+  // MIPS 0x227acc-0x227ae0: lwl/lwr 4 bytes from 0x3335f8 -> swl/swr at slot+0x63f (Ghidra showed a single byte store)
+  ::memcpy(rtguest::G((uint32_t)(0x177fd9f + iVar2)), rtguest::G(0x3335f8), 4);
   (*(uint8_t*)rtguest::G((uint32_t)0x177fda3 + (uint32_t)iVar2)) = uVar3;
   CopyAiRouteTables(iVar2 + 0x1780a60);
   CopyAiRouteTables(iVar2 + 0x1781a60);

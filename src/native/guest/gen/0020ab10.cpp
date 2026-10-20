@@ -77,7 +77,7 @@ LAB_0020abdc:
       pcVar6 = (uint32_t)((int)0x00335694 + 3);
       do {
         uVar3 = (*(uint32_t*)rtguest::G((uint32_t)puVar10));
-        puVar10 = puVar10 + -1;
+        puVar10 = puVar10 - sizeof(uint32_t);  // W13: fn/0020ab10.c `puVar10 = puVar10 + -1` on uint* (was -1 byte: misaligned mask table reads)
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x2c))) & uVar3) == 0) {
           (*(int8_t*)rtguest::G((uint32_t)pcVar6)) = '\0';
         }

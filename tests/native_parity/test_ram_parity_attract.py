@@ -8,15 +8,15 @@ RT_RAM_DUMP at 1306 with build/scratch/w12-parity/pin_ram_attract.py.
 
 301 differing bytes on 6 4-KiB pages are intentional baseline debt, NOT
 accepted parity (re-pinned 2026-10-20 cycle-2 after camera-matrix, vf0, DMA
-side-table and EE float-mode fixes; was 498/10). Accept ledger by page:
+side-table and EE float-mode fixes; was 498/10). Re-pinned again same day after
+the rtguest::div_s round-nearest divide fix (W13-DIV): 0x177e and the
+0x1fffc34 quotient spill went, now 291 B / 5 pages. Accept ledger by page:
 0x0 (4 B at 0x2f0/0x2f8): oracle-only writes, no game function or oracle
 constant references them; 0x175e+0x1773 (12 B): game code copies stale stack
-words (sceSdRemote varargs, RPC end_param); 0x177e (9 B): float divide where
-the oracle uses ps2_fpu_div_s (saturating) and native gen TUs use plain '/';
-divide-helper policy is a W13 task (EE thread mode RZ+FZ is applied in
-main.cpp); 0x1787 (26 B): the oracle's sceGsResetGraph stand-in mallocs a
+words (sceSdRemote varargs, RPC end_param); 0x1787 (26 B): the oracle's
+sceGsResetGraph stand-in mallocs a
 128-byte GIF packet from runtime->guestMalloc, which native does not model
-(W13: runtime-heap mirroring incl. putDrawEnv/putDispEnv); 0x1fff (250 B):
+(W13: runtime-heap mirroring incl. putDrawEnv/putDispEnv); 0x1fff (249 B):
 oracle prologues save callee registers and crt0 stand-ins build frames native
 host stubs never push. (gsFieldParity 0x335909 was re-pinned AWAY on
 2026-10-20: shim fix wakeVSyncWaiters, oracle completeVSync
@@ -43,7 +43,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-RT_APP = Path(os.environ.get("RT_APP_BIN", ROOT / "build/w12-ubfix/rt-app"))
+RT_APP = Path(os.environ.get("RT_APP_BIN", ROOT / "build/w-G0-verify/rt-app"))
 RAM_SIZE = 32 << 20
 PAGE_SIZE = 4096
 VBLANK = 1306
@@ -71,17 +71,6 @@ PINNED_DIFFS = {
         (0x017739e1, 0x39, 0x00),
         (0x017739e2, 0x77, 0x00),
         (0x017739e3, 0x01, 0x00),
-    ),
-    0x177e: (
-        (0x0177e7d0, 0xa6, 0xa5),
-        (0x0177e7d4, 0x05, 0x04),
-        (0x0177e7e0, 0xa6, 0xa5),
-        (0x0177e7e4, 0x05, 0x04),
-        (0x0177e7f4, 0x63, 0x62),
-        (0x0177e804, 0x63, 0x62),
-        (0x0177e814, 0x05, 0x04),
-        (0x0177e824, 0x63, 0x62),
-        (0x0177e834, 0x63, 0x62),
     ),
     0x1787: (
         (0x017874e0, 0x07, 0x00),
@@ -190,7 +179,6 @@ PINNED_DIFFS = {
         (0x01fffbd1, 0xfe, 0x00),
         (0x01fffbd2, 0xff, 0x00),
         (0x01fffbd3, 0x01, 0x00),
-        (0x01fffc34, 0x63, 0x62),
         (0x01fffc41, 0xfd, 0x00),
         (0x01fffc42, 0xff, 0x00),
         (0x01fffc43, 0x01, 0x00),

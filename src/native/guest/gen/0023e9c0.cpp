@@ -1,6 +1,7 @@
 // guest:0x0023e9c0 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 
@@ -31,7 +32,7 @@ uint32_t ppuVar10;
     do {
       iVar7 = iVar7 + -1;
       (*(uint32_t*)rtguest::G((uint32_t)puVar6)) = 0x43340000;
-      puVar6 = puVar6 + -1;
+      puVar6 = puVar6 - sizeof(uint32_t);  // W13: fn/0023e9c0.c:31 `puVar6 + -1` on undefined4* (was -1 byte)
     } while (-1 < iVar7);
   }
   ppuVar10 = 0x2a3766u;

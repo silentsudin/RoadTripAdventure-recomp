@@ -24,28 +24,31 @@ int main() {
   assert(*(uint32_t*)rtguest::G(cb + 8) == data);
   assert(*(uint32_t*)rtguest::G(cb + 0xc) == data);
 
-  guest::ttyRingPush(cb);
-  guest::ttyRingPush(cb);            // tail hits data+cap -> wraps
+  // fn/002860b0.c/002860f0.c: the ring advances its pointers ONE BYTE per
+  // call (tty byte ring, registry note); with cap 8 the 8th step hits
+  // data+cap and wraps back to data.
+  for (int i = 0; i < 8; ++i) guest::ttyRingPush(cb);
   assert(*(uint32_t*)rtguest::G(cb + 0xc) == data);
-  assert(*(uint32_t*)rtguest::G(cb + 4) == 2);
-  guest::ttyRingPop(cb);
-  assert(*(uint32_t*)rtguest::G(cb + 8) == data + 4);
-  assert(*(uint32_t*)rtguest::G(cb + 4) == 1);
-  guest::ttyRingPop(cb);             // head hits limit -> wraps
+  assert(*(uint32_t*)rtguest::G(cb + 4) == 8);
+  for (int i = 0; i < 8; ++i) guest::ttyRingPop(cb);
   assert(*(uint32_t*)rtguest::G(cb + 8) == data);
   assert(*(uint32_t*)rtguest::G(cb + 4) == 0);
 
   // strcmp
-  const uint32_t s = 0x00400400;  // 8-aligned
+  const uint32_t s = 0x00400400;  // 16-aligned
   std::memcpy(rtguest::kRam + s, "abc", 4);
   std::memcpy(rtguest::kRam + s + 0x20, "abd", 4);
   std::memcpy(rtguest::kRam + s + 0x40, "ab", 3);
-  std::memcpy(rtguest::kRam + s + 1, "xabc", 5);   // unaligned pair
-  std::memcpy(rtguest::kRam + s + 0x21, "xabd", 5);
+  const uint32_t u = 0x00400800;  // unaligned pair, separate buffer
+  std::memcpy(rtguest::kRam + u + 1, "xabc", 5);
+  std::memcpy(rtguest::kRam + u + 0x21, "xabd", 5);
   assert((int32_t)guest::strcmp(s, s) == 0);
   assert((int32_t)guest::strcmp(s, s + 0x20) == -1);
   assert((int32_t)guest::strcmp(s + 0x20, s) == 1);
-  assert((int32_t)guest::strcmp(s, s + 0x40) == 'c');  // prefix: 'c' vs NUL
-  assert((int32_t)guest::strcmp(s + 1, s + 0x21) == -1);  // unaligned path
+  // prefix 'c' vs NUL: words differ at byte 2 -> byte tail returns 'c'-0
+  // (disasm 0x27f1a4 -> tail 0x27f1ac). Equal-word-with-NUL returns 0 at
+  // 0x27f184 via jr ra (never reached here).
+  assert((int32_t)guest::strcmp(s, s + 0x40) == 'c');
+  assert((int32_t)guest::strcmp(u + 1, u + 0x21) == -1);  // unaligned path
   return 0;
 }

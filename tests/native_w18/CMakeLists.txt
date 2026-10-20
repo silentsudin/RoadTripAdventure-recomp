@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # W6-04: deterministic native session driveline exposure.
 add_executable(w18_driveline_test driveline_test.cpp)
 target_link_libraries(w18_driveline_test PRIVATE rt_native_assets)

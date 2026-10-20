@@ -10,8 +10,8 @@ uint32_t signal(uint32_t param_1, uint32_t param_2, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-  _signal_r((*(uint32_t*)rtguest::G(0x002e8cc0)),param_1,param_2);
-  return 0;
+  // W13: tail-call passthrough (fn/0027ed78.c: void body = single call; v0 survives to the caller)
+  return _signal_r((*(uint32_t*)rtguest::G(0x002e8cc0)),param_1,param_2);
 }
 
 

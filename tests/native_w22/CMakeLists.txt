@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 add_executable(w22_autopilot_test
     autopilot_test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/native/app/Autopilot.cpp)

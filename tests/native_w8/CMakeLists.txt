@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # W4-08 script_ops contract test.  Self-contained: compiles gameplay/script_ops.cpp straight
 # into the test (no rt_native_assets link), so it also works with a bare
 #   cmake -S tests/native_w8 -B build/native-w408-t && cmake --build build/native-w408-t

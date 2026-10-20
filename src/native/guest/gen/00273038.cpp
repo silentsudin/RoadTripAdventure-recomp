@@ -4,7 +4,10 @@
 
 namespace guest {
 
-uint32_t vu0DropShadowMatrix(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+uint32_t vu0DropShadowMatrix(uint32_t rt_bits_1, uint32_t rt_bits_2, uint32_t rt_bits_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+  float param_1 = rtguest::fbits(rt_bits_1);  // f12.. float arg carried as bits (W13 float-param fix)
+  float param_2 = rtguest::fbits(rt_bits_2);  // f12.. float arg carried as bits (W13 float-param fix)
+  float param_3 = rtguest::fbits(rt_bits_3);  // f12.. float arg carried as bits (W13 float-param fix)
   rtguest::FrameGuard rt_fg(0);
   float fVar1;
   float fVar2;

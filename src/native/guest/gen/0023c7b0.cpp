@@ -28,8 +28,9 @@ uint32_t ReleaseStampFlag(uint32_t param_1, ...) {
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x23)));
     }
     if ((cVar1 != '\0') && (cVar1 < '\n')) {
-      uVar2 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2a2b20 + (uint32_t)(cVar1) * 4)) + 0xff;
-      if ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)0x2a2b20 + (uint32_t)(cVar1) * 4)) != 0) {
+      // fn/0023c7b0.c:27: (byte)(&gs_houses_stamp_table)[cVar1], not a u32 table.
+      uVar2 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x2a2b20 + (uint32_t)cVar1)) + 0xff;
+      if ((*(uint8_t*)rtguest::G((uint32_t)0x2a2b20 + (uint32_t)cVar1)) != 0) {
         (*(uint64_t*)rtguest::G((uint32_t)0x177fc88 + (uint32_t)((uVar2 & 0xff) >> 6) * 8)) =
              (*(uint64_t*)rtguest::G((uint32_t)0x177fc88 + (uint32_t)((uVar2 & 0xff) >> 6) * 8)) | 1L << ((long)(int)uVar2 & 0x3fU);
       }

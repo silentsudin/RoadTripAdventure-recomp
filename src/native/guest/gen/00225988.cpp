@@ -206,7 +206,11 @@ LAB_00225ed4:
     puVar7 = puVar7 + 0x10;
   } while (iVar6 < 4);
   *(uint32_t*)rtguest::G(0x177f69c) = 0x43000000;
-  *(uint32_t*)rtguest::G((uint32_t)(iStack_80 + 0x50)) = *(uint32_t*)rtguest::G(0x177f750);
+  // disasm 0x226010 lw $v1,0x30($sp) + 0x22604c sw $v0,0x50($v1): the slot's
+  // VALUE is the task pointer (param_2 stored above) — dereference it. The
+  // transliterator used the slot address + 0x50, which wrote fog into the
+  // stack frame instead of the light task.
+  *(uint32_t*)rtguest::G(*(uint32_t*)rtguest::G((uint32_t)iStack_80) + 0x50) = *(uint32_t*)rtguest::G(0x177f750);
   return 0;
 }
 

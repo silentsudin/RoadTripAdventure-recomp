@@ -237,7 +237,7 @@ LAB_0020da68:
       if (1 < (int)(*(uint32_t*)rtguest::G(0x3356c0))) goto LAB_0020da68;
       lVar9 = 0;
       if ((*(uint32_t*)rtguest::G(0x3356c0)) == 0) {
-        RT_CALLRA(0x20d630, guest::cdReadEntry(0x29af58 + (uVar4 & 0xff) * 3,0x100000));
+        RT_CALLRA(0x20d630, guest::cdReadEntry(0x29af58 + (uVar4 & 0xff) * 0xc,0x100000)  /* W13: fn/0020d120.c:239 `&sysFileTable + idx*3` on undefined4[] = 12-byte entries (symbols: sysFileTable 12-byte {..lsn,sectors}) */);
         (*(uint32_t*)rtguest::G(0x3356c0)) = (*(uint32_t*)rtguest::G(0x3356c0)) | 0x8000;
         goto switchD_0020d2bc_caseD_2;
       }

@@ -35,15 +35,15 @@ uint32_t puVar1;
         return 0;
       }
       uVar2 = -(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(8) * sizeof(uint16_t)));
-      if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x12))) & 1) == 0) {
+      if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 36))) & 1) == 0) {
         uVar2 = (*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(8) * sizeof(uint16_t)));
       }
       uVar4 = -(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(10) * sizeof(uint16_t)));
-      if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x12))) & 2) == 0) {
+      if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 36))) & 2) == 0) {
         uVar4 = (*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(10) * sizeof(uint16_t)));
       }
-      if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xc))) == 0) {
-        iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 8)));
+      if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 24))) == 0) {
+        iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 16)));
         if (iVar3 < 0) {
           iVar3 = -iVar3;
         }
@@ -55,8 +55,8 @@ uint32_t puVar1;
       RT_CALLRA(0x24fa70, guest::uiSpriteWriteWrap(iVar6,(int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)param_2)) + param_4) * 0x10000) >> 0x10,
                         (int)(((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(uint16_t))) + param_5) * 0x10000) >> 0x10,(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(4) * sizeof(uint16_t))),(*(uint16_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(6) * sizeof(uint16_t))),
                         uVar2,uVar4,lVar5));
-      puVar1 = param_2 + 0x10;
-      param_2 = param_2 + 0x14;
+      puVar1 = param_2 + 32;
+      param_2 = param_2 + 40;
       iVar7 = iVar7 + 1;
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x44))) = 0xffffff - ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)puVar1)) + param_6);
     } while (iVar7 < param_3);
@@ -65,6 +65,7 @@ uint32_t puVar1;
 }
 
 
+// W13 fn/0024f928.c:34-55 `param_2 + 0x12/0xc/8/0x10/0x14` ushort*: typed-pointer arithmetic is element-scaled (x2); transliterator left it byte-unscaled
 RT_GUEST_FN(0x0024f928, guest::uiArenaSpritesWrap)
 
 }  // namespace guest

@@ -10,8 +10,8 @@ uint32_t PlayBgmSlot4(uint32_t q0, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-  MusicRpcPlayBgm(4,0);
-  return 0;
+  // W13: tail-call passthrough (fn/00258f90.c: void body = single call; v0 survives to the caller)
+  return MusicRpcPlayBgm(4,0);
 }
 
 

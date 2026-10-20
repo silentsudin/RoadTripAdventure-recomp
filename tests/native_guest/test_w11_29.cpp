@@ -116,7 +116,7 @@ int main() {
   // sqrtf chain: digit-by-digit integer sqrt on bits (fdlibm e_sqrtf.c).
   assert(guest::sqrtf(0x40800000u) == 0x40000000u);  // sqrt(4)=2 exact
   assert(guest::sqrtf(0x3f800000u) == 0x3f800000u);  // sqrt(1)=1
-  assert(guest::sqrtf(0x3ff00000u) == 0x3fb504f3u);  // sqrt(2) correctly rounded
+  assert(guest::sqrtf(0x40000000u) == 0x3fb504f3u);  // sqrt(2) correctly rounded (0x3ff00000 is 1.875)
   assert(guest::sqrtf(0xbf800000u) == 0x7fc00000u);  // negative -> div.s 0/0 qNaN
   assert(guest::sqrtf(0x00400000u) == 0x00400000u);  // |bits|<=0x7fffff: as-is
   // atanf (fdlibm a_tanf band structure): tiny |x| returns x's bits.
@@ -134,8 +134,11 @@ int main() {
     *(uint32_t*)rtguest::G(0x00331b38 + 4u * k) = hi[k];
     *(uint32_t*)rtguest::G(0x00331b48 + 4u * k) = lo[k];
   }
-  // atan(1.0): band s=1, t=(1-1)/(1+1)=0 -> hi[1]+lo[1] = correctly-rounded pi/4.
-  assert(guest::atanf(0x3f800000u) == 0x3f22f983u);
+  // atan(1.0): band s=1, t=(1-1)/(1+1)=0 -> hi[1]+lo[1] in float (fdlibm
+  // sf_atan.c) = pio4_hi, 0x3f490fda. The old 0x3f22f983 literal is 2/pi.
+  float h1 = *(float*)&hi[1];
+  float l1 = *(float*)&lo[1];
+  assert(guest::atanf(0x3f800000u) == rtguest::f2bits(h1 + l1));
   // atan(0.5): band s=0 (0x3f300000 bound), t=(2*0.5-1)/(0.5+2)=0 -> hi[0]+lo[0].
   float h0 = *(float*)&hi[0];
   float l0 = *(float*)&lo[0];

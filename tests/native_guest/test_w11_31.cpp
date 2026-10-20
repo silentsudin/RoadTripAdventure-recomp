@@ -17,11 +17,13 @@ uint32_t AppendQueuedByte(uint32_t q0 = 0, ...);
 int main() {
   std::memset(rtguest::kRam, 0, sizeof(rtguest::kRam));
 
-  // ScaleShortByMatrix: (int)2 -> itof4 -> (2,0,0,0) x DAT_00332f98=3.0f -> 6.0f
+  // ScaleShortByMatrix: (int)2 -> itof4 (fn/00272a28.c _vitof4 = /16) ->
+  // (0.125,0,0,0) x DAT_00332f98=3.0f -> 0.375f
   *(float*)rtguest::G(0x00332f98) = 3.0f;
-  assert(guest::ScaleShortByMatrix(2) == 0x40C00000u);
-  // Negative short input: 0xFFFE sign-extends to -2 -> -6.0f
-  assert(guest::ScaleShortByMatrix(0xFFFE) == 0xC0C00000u);
+  assert(guest::ScaleShortByMatrix(2) == 0x3EC00000u);
+  // Negative short input: a0 holds the sign-extended word 0xFFFFFFFE for -2;
+  // ScaleShortByMatrix takes a register value, not a truncated half.
+  assert(guest::ScaleShortByMatrix(0xFFFFFFFEu) == 0xBEC00000u);
 
   // AppendQueuedByte: append path
   *(uint8_t*)rtguest::G(0x0177fd88) = 0;

@@ -79,7 +79,7 @@ uint32_t pfVar1;
         (*(uint32_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar2) * 4)) = 3;
         RT_CALLRA(0x224954, guest::vu0CopyVector(0x0172ff70 + iVar3,afStack_b0));
         RT_CALLRA(0x224964, guest::vu0CopyVector(iVar3 + 0x172ff80,uStack_a0));
-        (*(uint32_t*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(iVar2 * 4) * 4)) = 0.5;
+        (*(uint32_t*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(iVar2 * 4) * 4)) = rtguest::f2bits(0.5f);
         (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar3))) = fVar4;
       }
     }

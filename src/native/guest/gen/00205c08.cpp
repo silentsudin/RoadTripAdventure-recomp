@@ -10,8 +10,8 @@ uint32_t uiMenuRun(uint32_t param_1, uint32_t param_2, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-  uiMenuWindow(param_1,param_2,0);
-  return 0;
+  // W13: tail jump (fn/00205c08.c: "tail-jumps to uiMenuWindow (0x205350) with a2=0") — v0 passes through to the caller.
+  return uiMenuWindow(param_1,param_2,0);
 }
 
 

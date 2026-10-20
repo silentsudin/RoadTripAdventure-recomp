@@ -2,6 +2,7 @@
 // forwards f12 (float bits).
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 

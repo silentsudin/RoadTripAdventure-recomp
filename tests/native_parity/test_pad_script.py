@@ -12,7 +12,7 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-RT_APP = Path(os.environ.get("RT_APP_BIN", ROOT / "build/w12-ubfix/rt-app"))
+RT_APP = Path(os.environ.get("RT_APP_BIN", ROOT / "build/w-G0-verify/rt-app"))
 FRAMES = 480
 
 

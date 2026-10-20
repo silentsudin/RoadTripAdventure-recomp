@@ -1,6 +1,7 @@
 // guest:0x002238a0 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+#include "w13_float_args.h"
 
 namespace guest {
 
@@ -36,7 +37,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(64);
     (*(uint32_t*)rtguest::G(0x29d37c)) = fVar5 * (*(float*)rtguest::G(0x332d00));
   }
   else {
-    (*(uint32_t*)rtguest::G(0x29d37c)) = 0.5;
+    (*(uint32_t*)rtguest::G(0x29d37c)) = rtguest::f2bits(0.5f);
   }
   RT_CALLRA(0x223950, guest::vifUploadColours(0x29d370,0x29d360));
   RT_CALLRA(0x22397c, guest::vu0MulMatrix(auStack_e0,param_1,(int)param_1 + 0x40));

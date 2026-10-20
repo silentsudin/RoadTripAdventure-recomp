@@ -10,8 +10,8 @@ uint32_t BgmStop1(uint32_t q0, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-  MusicRpcCmd15(1);
-  return 0;
+  // W13: tail-call passthrough (fn/00258eb0.c: void body = single call; v0 survives to the caller)
+  return MusicRpcCmd15(1);
 }
 
 

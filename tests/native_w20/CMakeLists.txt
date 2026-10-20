@@ -1,3 +1,4 @@
+add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test asserts out
 # W7-03: town collision grid -> car-physics integration contract.
 add_executable(w20_collision_grid_test
     collision_grid_test.cpp

@@ -20,9 +20,9 @@ uint32_t UpdateCameraTransition(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) = 5;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x20))) = 0xb4;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) = 0;
-    (*(uint32_t*)rtguest::G(0x2a2bb0)) = 900.0;
-    (*(uint32_t*)rtguest::G(0x2a2bb4)) = 25.0;
-    (*(uint32_t*)rtguest::G(0x2a2bb8)) = 300.0;
+    (*(uint32_t*)rtguest::G(0x2a2bb0)) = rtguest::f2bits(900.0f);
+    (*(uint32_t*)rtguest::G(0x2a2bb4)) = rtguest::f2bits(25.0f);
+    (*(uint32_t*)rtguest::G(0x2a2bb8)) = rtguest::f2bits(300.0f);
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x14))) - 0x255a8U < 0x1fa4) {
       (*(uint8_t*)rtguest::G(0x335738)) = 1;
     }
@@ -32,7 +32,7 @@ uint32_t UpdateCameraTransition(uint32_t param_1, uint32_t param_2, ...) {
     }
     if (uVar3 < 0x17124) {
       (*(uint8_t*)rtguest::G(0x335738)) = 6;
-      (*(uint32_t*)rtguest::G(0x2a2bb4)) = 100.0;
+      (*(uint32_t*)rtguest::G(0x2a2bb4)) = rtguest::f2bits(100.0f);
     }
   }
   switch((*(uint8_t*)rtguest::G(0x335738))) {
@@ -103,19 +103,19 @@ LAB_00240454:
   case 3:
     if (((*(uint32_t*)rtguest::G(0x2a2bb0)) < 900.0) &&
        ((*(uint32_t*)rtguest::G(0x2a2bb0)) = (*(uint32_t*)rtguest::G(0x2a2bb0)) + (*(uint32_t*)rtguest::G(0x332e94)), 900.0 <= (*(uint32_t*)rtguest::G(0x2a2bb0)))) {
-      (*(uint32_t*)rtguest::G(0x2a2bb0)) = 900.0;
+      (*(uint32_t*)rtguest::G(0x2a2bb0)) = rtguest::f2bits(900.0f);
     }
     if ((900.0 < (*(uint32_t*)rtguest::G(0x2a2bb0))) &&
        ((*(uint32_t*)rtguest::G(0x2a2bb0)) = (*(uint32_t*)rtguest::G(0x2a2bb0)) - (*(uint32_t*)rtguest::G(0x332e98)), (*(uint32_t*)rtguest::G(0x2a2bb0)) <= 900.0)) {
-      (*(uint32_t*)rtguest::G(0x2a2bb0)) = 900.0;
+      (*(uint32_t*)rtguest::G(0x2a2bb0)) = rtguest::f2bits(900.0f);
     }
     if (((*(uint32_t*)rtguest::G(0x2a2bb8)) < 300.0) &&
        ((*(uint32_t*)rtguest::G(0x2a2bb8)) = (*(uint32_t*)rtguest::G(0x2a2bb8)) + (*(uint32_t*)rtguest::G(0x332e9c)), 300.0 <= (*(uint32_t*)rtguest::G(0x2a2bb8)))) {
-      (*(uint32_t*)rtguest::G(0x2a2bb8)) = 300.0;
+      (*(uint32_t*)rtguest::G(0x2a2bb8)) = rtguest::f2bits(300.0f);
     }
     if ((300.0 < (*(uint32_t*)rtguest::G(0x2a2bb8))) &&
        ((*(uint32_t*)rtguest::G(0x2a2bb8)) = (*(uint32_t*)rtguest::G(0x2a2bb8)) - (*(uint32_t*)rtguest::G(0x332ea0)), (*(uint32_t*)rtguest::G(0x2a2bb8)) <= 300.0)) {
-      (*(uint32_t*)rtguest::G(0x2a2bb8)) = 300.0;
+      (*(uint32_t*)rtguest::G(0x2a2bb8)) = rtguest::f2bits(300.0f);
     }
     if (((*(uint32_t*)rtguest::G(0x2a2bb0)) == 900.0) && ((*(uint32_t*)rtguest::G(0x2a2bb8)) == 300.0)) {
       (*(uint8_t*)rtguest::G(0x335738)) = 4;
