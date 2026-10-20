@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t ShowMessageAndWait(uint32_t param_1, ...) {
+uint32_t ShowMessageAndWait(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
@@ -21,7 +21,7 @@ uint32_t ShowMessageAndWait(uint32_t param_1, ...) {
     PlayUiSound(0x1e);
     return 0;
   }
-  lVar2 = RT_CALLRA(0x23bb48, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28)))));
+  lVar2 = RT_CALLRA(0x23bb48, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))),param_2));
   if (lVar2 != 0) {
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
@@ -33,6 +33,6 @@ uint32_t ShowMessageAndWait(uint32_t param_1, ...) {
 }
 
 
-RT_GUEST_FN(0x0023bb00, guest::ShowMessageAndWait)
+RT_GUEST_FN(0x0023bb00, *static_cast<uint32_t (*)(uint32_t, uint32_t, ...)>(&guest::ShowMessageAndWait))
 
 }  // namespace guest

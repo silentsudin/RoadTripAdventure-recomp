@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t shopNoBodiesLeftDialog(uint32_t param_1, ...) {
+uint32_t shopNoBodiesLeftDialog(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
@@ -26,7 +26,7 @@ uint32_t psVar4;
     (*(int16_t*)rtguest::G((uint32_t)psVar4)) = 0x140 - (short)((int)((int)(*(int16_t*)rtguest::G((uint32_t)psVar4 + (uint32_t)(2) * sizeof(int16_t))) + (uint32_t)((uint32_t)(*(int16_t*)rtguest::G((uint32_t)psVar4 + (uint32_t)(2) * sizeof(int16_t))) >> 0xf)) >> 1);
   }
   else {
-    lVar2 = RT_CALLRA(0x269e00, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28)))));
+    lVar2 = RT_CALLRA(0x269e00, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))),param_2));
     if (lVar2 != 0) {
       RT_CALLRA(0x269e10, guest::PlayUiSound(0x1a));
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));
@@ -40,6 +40,6 @@ uint32_t psVar4;
 }
 
 
-RT_GUEST_FN(0x00269d50, guest::shopNoBodiesLeftDialog)
+RT_GUEST_FN(0x00269d50, *static_cast<uint32_t (*)(uint32_t, uint32_t, ...)>(&guest::shopNoBodiesLeftDialog))
 
 }  // namespace guest

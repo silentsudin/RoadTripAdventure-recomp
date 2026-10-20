@@ -11,7 +11,8 @@ uint64_t DispatchByIndex16(uint64_t param_1, ...) {
   if (param_1 < 0x10) {
                     /* WARNING: Could not recover jumptable at 0x00243484. Too many branches */
                     /* WARNING: Treating indirect jump as call */
-    uVar1 = rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(0x2f1240u + (uint32_t)((int)param_1) * 4))))));
+    // MIPS 0x243480: lw $v1,0x1240($v1); jr $v1 — RAM table holds targets directly; Ghidra's code** model double-derefs
+    uVar1 = rtCall((*(uint32_t*)rtguest::G((uint32_t)(0x2f1240u + (uint32_t)((int)param_1) * 4))));
     return uVar1;
   }
   return 0;

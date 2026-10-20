@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t noMoneyMenuTask(uint32_t param_1, ...) {
+uint32_t noMoneyMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
@@ -28,7 +28,7 @@ uint32_t psVar5;
   }
   else {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
-    lVar4 = RT_CALLRA(0x262540, guest::uiMenuRun(iVar2));
+    lVar4 = RT_CALLRA(0x262540, guest::uiMenuRun(iVar2,param_2));
     if (lVar4 != 0) {
       RT_CALLRA(0x262550, guest::PlayUiSound(0x1a));
       iVar6 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));
@@ -43,6 +43,6 @@ uint32_t psVar5;
 }
 
 
-RT_GUEST_FN(0x002624b8, guest::noMoneyMenuTask)
+RT_GUEST_FN(0x002624b8, *static_cast<uint32_t (*)(uint32_t, uint32_t, ...)>(&guest::noMoneyMenuTask))
 
 }  // namespace guest

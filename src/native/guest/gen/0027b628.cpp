@@ -17,7 +17,8 @@ uint32_t puVar2;
   puVar2 = (uint32_t)(*(uint32_t*)rtguest::G(0x002e89c0));
   while (iVar1 != 0) {
     (*(uint32_t*)rtguest::G(0x002e89c0)) = (uint32_t)(puVar2 + 1);
-    rtCall((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar2)))));
+    // MIPS 0x27b658: lw $a0,($v0); jalr $a0 — ctor slot holds the target directly; Ghidra's code** model double-derefs
+    rtCall((*(uint32_t*)rtguest::G((uint32_t)puVar2)));
     puVar2 = (uint32_t)(*(uint32_t*)rtguest::G(0x002e89c0));
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(*(uint32_t*)rtguest::G(0x002e89c0))));
   }

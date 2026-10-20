@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t ShowPlayerSelect(uint32_t param_1, ...) {
+uint32_t ShowPlayerSelect(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
@@ -38,7 +38,7 @@ uint32_t ShowPlayerSelect(uint32_t param_1, ...) {
     return 0;
   }
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28)));
-  lVar6 = RT_CALLRA(0x2399d0, guest::uiMenuRun(iVar2));
+  lVar6 = RT_CALLRA(0x2399d0, guest::uiMenuRun(iVar2,param_2));
   if (lVar6 == 0) {
     return 0;
   }
@@ -69,6 +69,6 @@ LAB_00239a40:
 }
 
 
-RT_GUEST_FN(0x00239900, guest::ShowPlayerSelect)
+RT_GUEST_FN(0x00239900, *static_cast<uint32_t (*)(uint32_t, uint32_t, ...)>(&guest::ShowPlayerSelect))
 
 }  // namespace guest

@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t ShowRankedMessage(uint32_t param_1, ...) {
+uint32_t ShowRankedMessage(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
@@ -21,7 +21,7 @@ uint32_t pcVar3;
   
   iVar8 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) != 0) {
-    lVar7 = RT_CALLRA(0x23a0e0, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)))));
+    lVar7 = RT_CALLRA(0x23a0e0, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),param_2));
     if (lVar7 != 0) {
       PlayUiSound(0x1a);
       iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
@@ -81,6 +81,6 @@ LAB_0023a0b0:
 }
 
 
-RT_GUEST_FN(0x00239f68, guest::ShowRankedMessage)
+RT_GUEST_FN(0x00239f68, *static_cast<uint32_t (*)(uint32_t, uint32_t, ...)>(&guest::ShowRankedMessage))
 
 }  // namespace guest

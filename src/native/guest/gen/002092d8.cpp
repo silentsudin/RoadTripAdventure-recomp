@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t gs_options_options_task(uint32_t param_1, ...) {
+uint32_t gs_options_options_task(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(48);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
@@ -33,7 +33,7 @@ uint32_t gs_options_options_task(uint32_t param_1, ...) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) != '\0') {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) & 0x7f;
     }
-    lVar4 = RT_CALLRA(0x2093d4, guest::uiMenuRun(iVar3));
+    lVar4 = RT_CALLRA(0x2093d4, guest::uiMenuRun(iVar3,param_2));
     if (lVar4 != 0) {
       if (lVar4 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xb))) + -1;
@@ -88,6 +88,6 @@ LAB_002094d4:
 }
 
 
-RT_GUEST_FN(0x002092d8, guest::gs_options_options_task)
+RT_GUEST_FN(0x002092d8, *static_cast<uint32_t (*)(uint32_t, uint32_t, ...)>(&guest::gs_options_options_task))
 
 }  // namespace guest

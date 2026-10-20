@@ -47,7 +47,7 @@ REPORT_KEYS = ("unpaired", "no_signature", "no_body", "needs_struct",
 # 0x23bcd0 uiMenuRun a1 pass-through):
 # regen never overwrites.
 # Evidence: build/scratch/parity/w13flow/CENSUS.md.
-PROTECTED_HAND = {"002793d0", "0020ed30", "0020cdc0", "0023bcd0"}
+PROTECTED_HAND = {"002793d0", "0020ed30", "0020cdc0", "002092d8", "002173d0", "0022c8a0", "00239150", "00239260", "00239508", "00239748", "00239900", "00239a80", "00239f68", "0023bb00", "0023bb88", "0023bc90", "0023bcd0", "00261508", "002624b8", "002625a0", "00269d50", "0026b848", "0026bc08", "002412e0", "00243468", "00243670", "002490a0", "0025d028", "0027b628"}
 
 def new_report() -> dict:
     return {k: ([] if k != "names" else {}) for k in REPORT_KEYS}
