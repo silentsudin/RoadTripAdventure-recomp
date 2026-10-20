@@ -5,20 +5,19 @@
 namespace guest {
 
 uint32_t supplement_crt0(uint32_t q0, ...) {
-uint32_t auStack_50 = rtguest::allocFrame(4);
-    uint32_t uStack_4c = rtguest::allocFrame(4);
-    uint32_t uStack_48 = rtguest::allocFrame(4);
-    rtguest::allocFrame(20);  // guest frame gap
-uint32_t auStack_30 = rtguest::allocFrame(4);
-    uint32_t uStack_2c = rtguest::allocFrame(4);
-    uint32_t uStack_28 = rtguest::allocFrame(4);
-  
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_28)) = 1;
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_4c)) = 1;
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_48)) = 1;
-  (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) = 1;
-  (*(uint32_t*)rtguest::G(0x2e99a8)) = CreateSema(auStack_50);
-  (*(uint32_t*)rtguest::G(0x2e99ac)) = CreateSema(auStack_30);
+  // Hand-fixed per disasm 0x28cfc0-0x28d004 (field slots: Ghidra's pseudocode
+  // misassigned the sw offsets; sd $2,0x28 = struct1.count+0x28 == struct2.init,
+  // [delay sw v0,0x24] = sema1 id -> struct2.max). DAT pairing follows the
+  // oracle's executed behavior (eerm_p8 probe: 0x2e99a8=sema1, 0x2e99ac=sema2).
+  uint32_t f = rtguest::allocFrame(0x50u);
+  (*(uint32_t*)rtguest::G(f + 0x28u)) = 1u;
+  (*(uint32_t*)rtguest::G(f + 0x04u)) = 1u;
+  (*(uint32_t*)rtguest::G(f + 0x08u)) = 1u;
+  const int32_t sema1 = CreateSema(f);
+  (*(uint32_t*)rtguest::G(f + 0x24u)) = uint32_t(sema1);
+  const int32_t sema2 = CreateSema(f + 0x20u);
+  (*(uint32_t*)rtguest::G(0x2e99a8u)) = uint32_t(sema1);
+  (*(uint32_t*)rtguest::G(0x2e99acu)) = uint32_t(sema2);
   return 0;
 }
 
