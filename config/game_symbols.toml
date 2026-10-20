@@ -137,11 +137,11 @@
 0x203FC8 = { name = "uiDrawText", note = "string at (x, y2) with palette bank" }
 0x204100 = { name = "uiDrawTextRaw", note = "string at (x, y) with palette bank" }
 0x204230 = { name = "uiDrawTextShade", note = "string with a shade argument, no palette write" }
-0x204310 = { name = "uiDrawTextCell", note = "string on the 20x12 cell grid" }
+0x204310 = { name = "uiDrawTextCell", note = "string on the 20x12 cell grid; bank arg is 64-bit: emits bank<<56|0x13780001400000 TEX2_1 (dsll32 a3 @0x204364) when the cached bank changes" }
 0x204460 = { name = "uiDrawNumberAuto", note = "uiDrawNumber10 sized by the digit count" }
 0x204568 = { name = "uiDrawPanelCells", note = "uiDrawPanel9 from cell coordinates" }
 0x2045D0 = { name = "uiDrawTextScaled", note = "string with uiDrawGlyphScaled" }
-0x2046C0 = { name = "uiDrawNumberFixed", note = "16x20 digits, fixed digit count" }
+0x2046C0 = { name = "uiDrawNumberFixed", note = "16x20 digits, fixed digit count; same 64-bit bank TEX2_1 emit as uiDrawTextCell (bank<<56|0x13780001400000, reg 0x16)" }
 0x205350 = { name = "uiMenuWindow", note = "generic list window widget (panel, rows, scroll bar, cursor, open/close fade); 10 callers" }
 0x2058A8 = { name = "uiMenuAddItem", note = "validates row count 0xF, updates item/scroll flags, stores the supplied row pointer at +0x10, and recomputes text widths" }
 0x205C20 = { name = "uiMenuCreate", note = "scans 7 pools of 0x30-byte slots, fatal on exhaustion, then initializes a 0x140 by 0x70 window and stores it at object +0x28" }
@@ -1389,6 +1389,7 @@
 0x3356F0 = { name = "vifPacketSaved", note = "main-buffer pointer saved while the second buffer is built" }
 0x3356F4 = { name = "vifPacketSecond", note = "1 while building in the second buffer" }
 0x29ED10 = { name = "gifRegListTemplate", note = "GIF tag: NLOOP 1, EOP, REGLIST, NREG 2 (regs patched per call)" }
+0x29A830 = { name = "elfRegInfo", note = ".reginfo inside the text PT_LOAD (MIPS_REGINFO); +0x14 = ri_gp_value 0x33aaf0 ($gp); no code reads it, but the loader should copy the whole PT_LOAD so RAM matches the oracle" }
 0x177E6D0 = { name = "cameraBlocks", note = "0x190 bytes per viewport" }
 0x177F720 = { name = "sceneParams", note = "3 qw for VU1 0x13: time-of-day weights (x, y, z), fog" }
 0x177F310 = { name = "carModels", note = "6 model pointers per car slot (0x18 bytes)" }

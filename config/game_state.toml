@@ -217,6 +217,7 @@ table = 0x2BE438  # 8 bytes per location: name ptr, u16 FLD tile code, u8 doors,
 
 [game]
 # Globals (likely unless noted).
+ui_tex2_base = 0x0013780001400000  # TEX2_1 base emitted by uiSetPaletteBank pattern: PSMT4, CBP 0x1BC0, CT16; OR bank<<56 (CSA). 002039e8.c:15 + ELF 0x204364
 location_address = 0x335923  # u8 current town (not the save point); stale after quitting Adventure
 race_address = 0x335910      # u32 -> race record {course, cars, laps, licence, ...}; stays set after the race
 race_tables = { adventure = 0x2BDDD0, quick_race = 0x2BE158, two_player = 0x2BE1D8 }
