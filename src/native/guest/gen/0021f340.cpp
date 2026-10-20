@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ComposeCameraMatrix(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_d0 = rtguest::allocFrame(12);
     uint32_t uStack_c4 = rtguest::allocFrame(4);
 uint32_t auStack_c0 = rtguest::allocFrame(16);
@@ -31,10 +32,15 @@ uint32_t auStack_60 = rtguest::allocFrame(32);
     vu0ApplyMatrix(param_1,auStack_c0,param_2);
   }
   iVar1 = (int)param_1;
-  vu0CopyVector(iVar1 + 0x10,auStack_b0);
-  vu0CopyVector(iVar1 + 0x20,auStack_a0);
-  vu0CopyVector(iVar1 + 0x30,auStack_70);
-  vu0CopyVector(iVar1 + 0x40,auStack_60);
+  // Machine-exact dsts (disasm 0x21f3fc-0x21f424): the addiu $4,$17,+N in each
+  // delay slot feeds the NEXT jal; $4 at jal 0x21f3fc is still $17 (+0x00).
+  // Ghidra shifted every dst one quad high. The applyMatrix/mulMatrix writes
+  // to param_1+0..0x30 are therefore overwritten here: attract V is stack
+  // feedback state through these aliased slots, not live camera math.
+  vu0CopyVector(iVar1,auStack_b0);
+  vu0CopyVector(iVar1 + 0x10,auStack_a0);
+  vu0CopyVector(iVar1 + 0x20,auStack_70);
+  vu0CopyVector(iVar1 + 0x30,auStack_60);
   return 0;
 }
 

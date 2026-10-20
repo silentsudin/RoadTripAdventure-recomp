@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t BuildCameraViewMatrices(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_d0 = rtguest::allocFrame(16);
 uint32_t auStack_c0 = rtguest::allocFrame(16);
 uint32_t auStack_b0 = rtguest::allocFrame(16);
@@ -29,7 +30,10 @@ uint32_t pfVar4;
   vu0UnitMatrix(auStack_c0);
   vecCrossProductVu0(auStack_d0,param_6,param_5);
   vecNormalizeVu0(auStack_c0,auStack_d0);
-  vecNormalizeVu0(auStack_a0,param_5);
+  // Machine dst (disasm 0x21f4d4: $4 at jal is still $23=auStack_c0; the
+  // addiu $16,$sp,0x30 belongs to the NEXT call's setup — delay-slot lag again):
+  // normalize writes +0x10 (overwriting side), leaving +0x30 never written.
+  vecNormalizeVu0(auStack_c0,param_5);
   vecCrossProductVu0(auStack_b0,auStack_a0,auStack_c0);
   float fParam1;
   __builtin_memcpy(&fParam1, &param_1, sizeof(fParam1));
