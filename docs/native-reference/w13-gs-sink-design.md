@@ -533,3 +533,50 @@ derivable per function from the machine prologue: $4-$9 -> param_k, simple
 `move`/`lui` chains -> constants/params, $ra -> call-site pc via a kernel
 link-register shim; older opaque $16-$23/$fN saves stay a known residue
 class).
+
+## W12 2026-10-20 late: scanout parity reclassified to GS-chain class (poke evidence)
+
+- Grading set: attract+boot scanouts bit-identical at {580,590,640,650,900,1100,1300,1360,1480};
+  DIFF only at transition/card frames {1308-1348,1372-1428,1440-1500-ish}, diff confined to band
+  y136-148 x209-454 (2811 px of 143360). Oracle frames there hold a stable orange card strip (X),
+  native a garbled variant (Y) with the window phase ~3 vb early and ~12 vb short.
+- PAIRING CORRECTION: an oracle state_dump earlier named eerm_o1319 was actually taken at oracle
+  vblank ~1465 (chained run() arithmetic), which manufactured a phantom "+133 walker iterations"
+  and a phantom page-0x335 live-counter drift. True-pair dump (/tmp/eerm_p1319.bin, parked 1318):
+  walker counter DAT_0x335900 matches n/o exactly per vblank (1309 vs 1309); total RAM diff 752 B,
+  pages {1fff:397, 177e:196, 1787:49, 177f:28, 1f10:27, 175e:11, small tails}. 0x335 CLEAN.
+- Frozen-block probe: oracle camera block 0x177e6d0..0x177e870 is frozen (identical oracle dumps
+  vb500/600/1318; native identical 500/1300/1319) — nobody writes it in attract. RT_NATIVE_POKE
+  (temp probe in main.cpp stepLogic, splices a file into kRam at a vb; STRIP before commit)
+  injected the oracle's exact bytes at vb1300: native scanouts at 1308-1348 unchanged, bit-identical
+  to unpoked. => the 0x177e residue is NOT read by card rendering; RAM-value parity is not the
+  scanout gate.
+- 49 B heap 0x17874e0 region decoded: oracle = HLE thread-control-block array (ids 0x41-0x5f,
+  16-byte entries); native = RPC endpoint structs (0x01234567 bind number). Both are oracle-HLE
+  internal mirrors; the game-visible task pool is byte-identical. Inert residue.
+- CONCLUSION: remaining EE-RAM diffs (stack save slots incl. $16-$23 opaque class, camera block,
+  HLE mirror blocks) are proven inert for attract rendering. The card-band X-vs-Y divergence and
+  its phase belong to the GS/VIF1 chain side: suspect the W3 residual 21 DIR=0 chains
+  (DBP=4 C32 640x32 — band y136-148x4=272-592 GS lines fits a 32-line chain) i.e. chain coverage,
+  not RAM mirroring. Next: per-frame draw coverage diff (oracle RT_GS_BATCH_LOG vs native
+  gs_batchPrim/stream) over vb 1306-1312.
+
+### Poke-2 (stack page): also inert — the card divergence lives OUTSIDE EE RAM
+
+Poked the oracle's true-pair bytes 0x1fff000.. (+4 KiB, covering the Compose/buildCamera window
+with all 397 B of stack residue) into native at vb1305, one vb before native's A->Y flip (1307):
+scanouts 1308-1348 stay bit-identical to the UNPOKED native run (21cc/Y then A). Combined with
+poke-1 (camera block), every EE-RAM diff byte at vb1304-1319 is experimentally inert for the card
+behaviour. Yet the card decision differs (native flips at 1307, oracle at ~1310; content Y vs X):
+the state driving it is NOT in the EERM space at all. Candidates, in order of suspicion:
+1. SIF/IOP -> EE message arrival TIMING (message content lands identically when it arrives; the
+   decision branches on arrived-yet). IOP scheduler + SIF DMA model state is not in EE dumps.
+2. MMIO register values fed back to the guest (GS_CSR bit13 FIELD parity via sceGsSyncV poll,
+   INTC_STAT races at vblank boundary) -- native models these host-side (EEHW chunk on oracle).
+3. VU0/VU1 micro-memory + register state carried across frames (VU0M/VU1M/VU0S/VU1S chunks).
+Next discriminator: oracle chunkHashes at park 1304 vs native-side equivalents for EERM(done:
+pair diff 752 B residue only), VU0M/VU1M, EEHW, GSFE. Native has no chunk-hash emitter beyond the
+EE-RAM FNV (RT_STATE_HASH); a temp emitter for native VU0 micro memory + key MMIO shadow regs is
+the cheap probe. The old 3c-2 note "oracle processes 9 fewer CLEARs by vb650" is the same
+phenomenon: per-vblank GIF emission differs while EE RAM agrees -- an emission-decision input
+outside EERM, not a GS defect.
