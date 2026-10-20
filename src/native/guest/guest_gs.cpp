@@ -621,6 +621,49 @@ void gsClearFramebuffer(uint32_t ctxIdx, uint32_t rgba) {
     }
     ++g_clears;
 }
+// Scanout geometry: DISPFB {fbp0-8,fbw9-14,psm15-19,dbx32-42,dby43-53},
+// DISPLAY {dx,dy,magh23-26,magv27-28,dw32-43,dh44-54}; source rect =
+// (dw+1)/(magh+1) x (dh+1)/(magv+1) at base+(dbx,dby), fbp<<5 blocks
+// (framePageBaseToBlock). shortcut: CT32/CT24/CT16(S) only — the game's
+// scanout psm set; other formats return bg-less black until needed.
+bool gsScanoutRgba(std::vector<uint8_t>& out, uint32_t* outW, uint32_t* outH) {
+    const uint64_t dispfb = g_dispEnv[2], display = g_dispEnv[3];
+    if (dispfb == 0ull && display == 0ull) return false;
+    const uint32_t fbw = uint32_t((dispfb >> 9) & 0x3Full);
+    const uint8_t psm = uint8_t((dispfb >> 15) & 0x1Full);
+    const uint32_t dbx = uint32_t((dispfb >> 32) & 0x7FFull);
+    const uint32_t dby = uint32_t((dispfb >> 43) & 0x7FFull);
+    const uint32_t magh = uint32_t((display >> 23) & 0xFull) + 1u;
+    const uint32_t magv = uint32_t((display >> 27) & 0x3ull) + 1u;
+    const uint32_t dw = uint32_t((display >> 32) & 0xFFFull);
+    const uint32_t dh = uint32_t((display >> 44) & 0x7FFull);
+    const uint32_t w = (dw + 1u) / magh, h = (dh + 1u) / magv;
+    if (w == 0u || h == 0u || fbw == 0u) return false;
+    const uint32_t base = (uint32_t(dispfb & 0x1FFull)) << 5u;
+    out.assign(size_t(w) * size_t(h) * 4u, 0u);
+    for (uint32_t y = 0; y < h; ++y)
+        for (uint32_t x = 0; x < w; ++x) {
+            const uint32_t v = gsReadVramPsm(psm, base, fbw, dbx + x, dby + y);
+            uint8_t r, g, b, a;
+            if (psm == kPsmC32 || psm == kPsmC24) {
+                r = uint8_t(v); g = uint8_t(v >> 8); b = uint8_t(v >> 16);
+                a = uint8_t(v >> 24);
+            } else if (psm == kPsmC16 || psm == kPsmC16S) {
+                const uint8_t r5 = uint8_t(v & 0x1F), g5 = uint8_t((v >> 5) & 0x1F),
+                              b5 = uint8_t((v >> 10) & 0x1F);
+                r = uint8_t((r5 << 3) | (r5 >> 2)); g = uint8_t((g5 << 3) | (g5 >> 2));
+                b = uint8_t((b5 << 3) | (b5 >> 2)); a = (v & 0x8000u) ? 0x80u : 0u;
+            } else {
+                continue;
+            }
+            uint8_t* p = out.data() + (size_t(y) * w + x) * 4u;
+            p[0] = r; p[1] = g; p[2] = b;
+            p[3] = uint8_t(a >= 0x80u ? 0xFFu : a * 2u);  // GS alpha 0..128 -> 0..255
+        }
+    *outW = w; *outH = h;
+    return true;
+}
+
 const std::vector<GsStreamVertex>& gsStream() { return g_stream; }
 uint64_t gsBatchCount() { return g_batches.size(); }
 bool gsCensusOn() { return vif1HistOn(); }

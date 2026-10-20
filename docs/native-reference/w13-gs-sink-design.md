@@ -331,3 +331,27 @@ writes, oracle zeroes at @1800), tail 0x1ff0000 291 B, 0x1770000 265 B
 (0x177e6d0-7xx block oracle-nonzero), 0x1780000 49, game vars above,
 0x1f10000 27, 0x2e99a8 8 (-1 sentinel vs oracle 01..02), 0x29a844 3
 (oracle holds pointer 0x33aaf0), 0x1750000 15, exception page 18.
+
+## Step 3c-1 (2026-10-20): scanout readback + dump seam — first pixel parity
+
+`gsScanoutRgba` (guest_gs.cpp): applied display env -> RGBA8. DISPFB
+{fbp0-8 (<< 5 blocks), fbw9-14, psm15-19, dbx32-42, dby43-53} + DISPLAY
+{magh23-26, magv27-28 (2-bit mask: a 0x3F mask leaked dw bits -> magv 33,
+found by the seam, pinned in gs_test)}; source rect (dw+1)/(magh+1) x
+(dh+1)/(magv+1); CT32/CT24/CT16(S) decode, GS alpha 0..128 -> 0..255.
+Seam: `RT_NATIVE_GS_DUMP="vb:path,..."` in rt-app writes 'RGBS' + u32 w,h +
+RGBA8. Oracle side: test socket `{"cmd":"frame","path":F}` writes RAW
+1280x896 RGBA (not PNG despite the .png name; inline "-" is base64).
+Multi-entry `vb:path` parsing shared in parseVbPaths() — the old inline
+lambdas left p on the comma so strtoull returned 0 and EVERY 2nd+ entry
+fired at vblank 0 (the HANDOFF5 "RT_RAM_DUMP landmine" was this bug; all
+multi-slice conclusions were void; fixed + re-verified: single run dumping
+1400/1550/1600/1665/1750/1800 all clean, 1187-1196 vs oracle).
+
+Boot scanout vs oracle frames (native vb=N <-> oracle park N-1, lockstep
+socket): vb5 = PIXEL-IDENTICAL (mean 0.0 max 0 — boot black). vb60: native
+shows the single buffer the last swap applied (FB1); the oracle's 448-line
+scanout composites both buffer fields (top=FB0 black, bot=FB1+game draws)
+— graders must compare per-field. vb1700/1798 attract: frac>16 0.994,
+native = clear fills only (expected pre-rasterizer gap). Next 3c steps:
+sprite rasterization (boot logos), then the PATH1 strip feed.

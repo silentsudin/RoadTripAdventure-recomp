@@ -678,6 +678,21 @@ rt::native::assets::NativeModel demoCar() {
 }
 int envFrames() { const char* value = std::getenv("RT_APP_FRAMES"); return value ? std::max(0, std::atoi(value)) : 0; }
 
+// Parses "vb:path,vb:path" (RT_RAM_DUMP, RT_NATIVE_GS_DUMP).
+static std::vector<std::pair<uint64_t, std::string>> parseVbPaths(const char* e) {
+    std::vector<std::pair<uint64_t, std::string>> v;
+    for (const char* p = e; p && *p;) {
+        const uint64_t vb = std::strtoull(p, nullptr, 10);
+        p = strchr(p, ':');
+        if (!p) break;
+        ++p;
+        const char* q = strchr(p, ',');
+        v.emplace_back(vb, q ? std::string(p, q) : std::string(p));
+        p = q ? q + 1 : nullptr;  // past the comma: strtoull(",123") silently returned 0
+    }
+    return v;
+}
+
 // RT_APP_INTERP=1 enables split pacing (gameplay/interp): logic keeps the
 // fixed 60-Hz quantum PROVEN in docs/native-reference/frame-timing.md
 // (verdict a) while renders run at host refresh with poses interpolated
@@ -2293,23 +2308,8 @@ int main() {
                 }();
                 // RT_RAM_DUMP="vb:path,vb:path": raw 32MB kRam slices at those
                 // vblanks, for byte diffing against the oracle's EERM chunk.
-                // shortcut: dumps before a scene transition deterministically
-                // derail that transition (HANDOFF5 landmine); dump at the
-                // final vblank only until the loader-gate cause is found.
-                static const std::vector<std::pair<uint64_t, std::string>> ramDumps = [] {
-                    std::vector<std::pair<uint64_t, std::string>> v;
-                    const char* e = std::getenv("RT_RAM_DUMP");
-                    for (const char* p = e; p && *p;) {
-                        const uint64_t vb = std::strtoull(p, nullptr, 10);
-                        p = strchr(p, ':');
-                        if (!p) break;
-                        ++p;
-                        const char* q = strchr(p, ',');
-                        v.emplace_back(vb, q ? std::string(p, q) : std::string(p));
-                        p = q;
-                    }
-                    return v;
-                }();
+                static const std::vector<std::pair<uint64_t, std::string>> ramDumps =
+                    parseVbPaths(std::getenv("RT_RAM_DUMP"));
                 // RT_BOOT_START=N: scripted pad script (temporary probe:
                 // Up@N, Cross@N+120, Start@N+240 — each held 3 vblanks).
                 static const long bootStart = [] {
@@ -2343,11 +2343,33 @@ int main() {
                     std::fflush(hashLog);
                 }
                 for (const auto& [vb, path] : ramDumps) {
-                    if (nativeBoot.vblanks != vb) continue;
+                    if (uint64_t(nativeBoot.vblanks) != vb) continue;
                     if (FILE* f = std::fopen(path.c_str(), "wb")) {
                         std::fwrite(rtguest::kRam, 1, RT_GUEST_RAM_SIZE, f);
                         std::fclose(f);
                     }
+                }
+                // RT_NATIVE_GS_DUMP="vb:path,...": W3 3c scanout readback —
+                // 'RGBS' + u32 w,h + RGBA8 rows of the applied display env,
+                // graded against oracle test-socket frame PNGs.
+                static const std::vector<std::pair<uint64_t, std::string>> gsDumps =
+                    parseVbPaths(std::getenv("RT_NATIVE_GS_DUMP"));
+                for (const auto& [vb, path] : gsDumps) {
+                    if (uint64_t(nativeBoot.vblanks) != vb) continue;
+                    std::vector<uint8_t> img;
+                    uint32_t w = 0, h = 0;
+                    if (!rtguest::gsScanoutRgba(img, &w, &h)) continue;
+                    if (FILE* f = std::fopen(path.c_str(), "wb")) {
+                        std::fwrite("RGBS", 1, 4, f);
+                        std::fwrite(&w, 4, 1, f);
+                        std::fwrite(&h, 4, 1, f);
+                        std::fwrite(img.data(), 1, img.size(), f);
+                        std::fclose(f);
+                    }
+                    std::fprintf(stderr, "[scanout] vb=%llu w=%u h=%u fbp=0x%x psm=0x%x\n",
+                                 (unsigned long long)vb, w, h,
+                                 unsigned(rtguest::gsDisplayEnv()[2] & 0x1FFull),
+                                 unsigned((rtguest::gsDisplayEnv()[2] >> 15) & 0x1F));
                 }
                 if (std::getenv("RT_BOOT_TRACE_WIN")) {
                     // Per-vblank load-machine trace in [lo,hi] (comma pair).

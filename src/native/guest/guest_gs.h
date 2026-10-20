@@ -63,6 +63,12 @@ void gsClearFramebuffer(uint32_t ctxIdx, uint32_t rgba);
 uint32_t gsReadVramPsm(uint8_t psm, uint32_t base, uint32_t bw, uint32_t x,
                        uint32_t y);  // ReadVramUnlocked analogue
 
+// W3 3c-1 scanout readback: convert the applied display env's FB rect
+// (DISPFB base/dbx/dby + DISPLAY (dw+1)/(magh+1) x (dh+1)/(magv+1)) to RGBA8
+// rows. Oracle scanout geometry (gs_pgs_backend + framePageBaseToBlock);
+// compositing/bgcolor stay with the golden grader.
+bool gsScanoutRgba(std::vector<uint8_t>& out, uint32_t* w, uint32_t* h);
+
 uint64_t gsReg(uint8_t addr);              // raw register file
 const uint8_t* gsVram(); uint32_t gsVramSize();
 const std::vector<GsBatch>& gsBatches();

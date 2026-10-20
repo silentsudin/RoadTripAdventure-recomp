@@ -158,6 +158,17 @@ static void testDbuffDcClearFill() {
     assert(gsReadVramPsm(0x00, 0u, 10u, 10u, 20u) == 0x8011FF33u);
 }
 
+// 3c-1: the applied display env (last swap = which 0: dispfb 70 = FB2,
+// CT32, fbw 10; display 640x224 magh 3) scans out as 640x224 RGBA.
+static void testScanout() {
+    std::vector<uint8_t> img;
+    uint32_t w = 0, h = 0;
+    assert(gsScanoutRgba(img, &w, &h));
+    assert(w == 640u && h == 224u && img.size() == size_t(640) * 224u * 4u);
+    const uint8_t* p = &img[(size_t(20) * 640 + 10) * 4];  // FB2: white fill
+    assert(p[0] == 0xFF && p[1] == 0xFF && p[2] == 0xFF && p[3] == 0xFF);
+}
+
 int main() {
     assert(gsVramSize() == 4u * 1024u * 1024u);
     testUploadCt32();
@@ -166,6 +177,7 @@ int main() {
     testRawRegFile();
     testDbuffDcSeed();
     testDbuffDcClearFill();
+    testScanout();
     std::printf("gs_test: all pins OK\n");
     return 0;
 }
