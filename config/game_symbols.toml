@@ -59,7 +59,7 @@
 0x22CC38 = { name = "drawModelAt177F358", note = "calls the model at 0x177F358 (+0x10); unknown scene" }
 0x25D028 = { name = "drawAnimatedProps", note = "dispatch over 0x2C43B0 to the prop renderers 0x25BE98..0x25D5F8" }
 0x2455C0 = { name = "drawCarouselScene", note = "allocates packet area, builds 0x10 repeated carousel records, then calls 0x244078/0x243B38 and starts sound commands 0xA190201/0x258F30" }
-0x21F698 = { name = "buildCamera", note = "fills a 0x190-byte camera block (matrices at +0, +0x40, +0x80, +0xC0, +0x100)" }
+0x21F698 = { name = "buildCamera", note = "fills a 0x190-byte camera block (matrices at +0, +0x40, +0x80, +0xC0, +0x100); jal 0x21f748 ComposeCameraMatrix carries param_2/3/4 live in $a1..$a3 ($a0 set by delay slot move $4,$sp)" }
 0x2261A0 = { name = "updateLightDirection", note = "light direction relative to the camera position (block + 0x180)" }
 0x225988 = { name = "updateTimeOfDayLight", note = "weights at 0x177F720 and fog from the clock (vblanks since midnight)" }
 0x226248 = { name = "setFixedLight", note = "time-of-day weights/fog from the table at 0x29EA10" }
@@ -432,7 +432,7 @@
 0x21EF98 = { name = "SwitchCameraPresetType20", note = "After cam timer +0x8 hits 0xc0, loads preset type 0x20 from table for this player and chains handler to 0x21ee98 [inferred]" }
 0x21F098 = { name = "BuildMenuSceneCamera", note = "For scene 0x16 eases spin angle DAT_0029ccd0 and zoom from state then builds fixed menu cam; else uses stored matrix ptrs [inferred]" }
 0x21F198 = { name = "ApplyFreeCameraInput", note = "Moves free-cam by tuning deltas per button bits (0x1/4/0x1000-0x8000), scales zoom, adjusts pitch/yaw when mode is 7 [inferred]" }
-0x21F340 = { name = "ComposeCameraMatrix", note = "Builds 4x4 cam matrix from euler angles at src+0x14, premultiplies optional matrices, writes result plus 4 vectors [inferred]" }
+0x21F340 = { name = "ComposeCameraMatrix", note = "Builds 4x4 cam matrix from euler angles at src+0x14, premultiplies optional matrices, writes result plus 4 vectors; tail CopyVector sources auStack_b0/a0/70/60 are UNWRITTEN locals -> game reads stack residue deterministically; jal 0x21f3bc mulMatrix(param_1,param_3,auStack_c0)" }
 0x21F450 = { name = "BuildCameraViewMatrices", note = "Builds camera basis from forward/up vectors and emits frustum/projection matrices with X axis mirrored into output matrices [inferred]" }
 0x21F910 = { name = "SetViewDistanceGlobals", note = "Writes two float view-distance globals (DAT_003356e0/e4) set from camera modes and the options draw-distance page [inferred]" }
 0x21FAE8 = { name = "LoadCameraPreset", note = "Copies the 32-byte camera preset record at index param_2 (stride 32) from table 0x29ce00 into the camera state slot [inferred]" }
