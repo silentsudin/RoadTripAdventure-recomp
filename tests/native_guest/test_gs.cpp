@@ -169,12 +169,93 @@ static void testScanout() {
     assert(p[0] == 0xFF && p[1] == 0xFF && p[2] == 0xFF && p[3] == 0xFF);
 }
 
+static void testTriLinePointRaster() {
+    // CT32 FB page 2 (fbw=2 = 128 px), Z writes masked off, alpha test off,
+    // Z test ALWAYS, scissor ctx0 box 0..127 x 0..63 (units 1/16 px).
+    gsWriteRegister(0x4C, (2ull << 8) | (2ull << 16) | (3ull << 24));  // FRAME_1 fbp=2 fbw=2 CT32
+    gsWriteRegister(0x4E, (1ull << 32) | (1ull << 24));                // ZBUF_1 ZMSK=1 PSM=Z16
+    gsWriteRegister(0x40, (127ull << 16) | (63ull << 32) | (127ull << 48));
+    gsWriteRegister(0x47, 1ull << 17);                                 // TEST_1: ztest ALWAYS
+    gsClearFrameData();
+    const uint32_t black = 0xFFu << 24;  // a=0xFF RGB 0
+    gsClearFramebuffer(0, black);
+
+    // Flat TRI (iip off -> the oracle paints v2's colour): right triangle
+    // (10,10)-(40,10)-(10,40). Pixel centre (x+.5,y+.5) is covered iff
+    // x+y <= 49 (the 30 px hypotenuse passes exactly through those centres
+    // and draws at w == 0 > -kEdgeEpsilon): 465 px, box-verified by hand.
+    gsWriteRegister(0x00, 3u);  // TRI, flat
+    gsWriteRegister(0x01, 0x80u | (0x11u << 8) | (0x22u << 16) | (0x80u << 24));  // v0 RGBAQ
+    gsWriteRegister(0x05, xyz2(10 << 4, 10 << 4, 4));
+    gsWriteRegister(0x01, 0x99u);  // v2 carries the visible colour
+    gsWriteRegister(0x05, xyz2(40 << 4, 10 << 4, 4));
+    gsWriteRegister(0x01, 0x80u | (0xEEu << 8) | (0x00u << 16) | (0x80u << 24));  // v2: g=0xEE
+    gsWriteRegister(0x05, xyz2(10 << 4, 40 << 4, 4));
+    size_t drawn = 0;
+    for (int y = 0; y < 64; ++y)
+        for (int x = 0; x < 128; ++x)
+            if (gsReadVramPsm(3, 2u << 5, 2u, uint32_t(x), uint32_t(y)) != black) ++drawn;
+    assert(drawn == 465u);
+    assert((gsReadVramPsm(3, 2u << 5, 2u, 10u, 10u) & 0xFF00u) == 0xEE00u);  // flat = v2
+    assert(gsReadVramPsm(3, 2u << 5, 2u, 39u, 10u) != black);   // x+y=49 on-edge: drawn
+    assert(gsReadVramPsm(3, 2u << 5, 2u, 40u, 10u) == black);   // just past the leg
+    assert(gsReadVramPsm(3, 2u << 5, 2u, 30u, 30u) == black);   // outside the hypotenuse
+
+    // Degenerate (collinear) -> nothing drawn (|denom| < 0.001f).
+    gsWriteRegister(0x00, 3u);
+    gsWriteRegister(0x01, 0xFFu);
+    gsWriteRegister(0x05, xyz2(10 << 4, 10 << 4, 4));
+    gsWriteRegister(0x05, xyz2(20 << 4, 20 << 4, 4));
+    gsWriteRegister(0x05, xyz2(30 << 4, 30 << 4, 4));
+    assert(gsReadVramPsm(3, 2u << 5, 2u, 20u, 19u) == black);
+
+    // Flat LINESTRIP (10,10)->(30,20)->(30,10): Bresenham, colour = v1 per
+    // segment: 21 + 11 = 32 px, all r=0x44.
+    gsWriteRegister(0x00, 2u);  // LINESTRIP, flat
+    gsWriteRegister(0x01, 0x44u);
+    gsWriteRegister(0x05, xyz2(10 << 4, 10 << 4, 4));
+    assert(gsReadVramPsm(3, 2u << 5, 2u, 10u, 10u) == black);  // v0 write: no kick yet
+    gsWriteRegister(0x05, xyz2(30 << 4, 20 << 4, 4));
+    gsWriteRegister(0x05, xyz2(30 << 4, 10 << 4, 4));
+    size_t line = 0;
+    for (int y = 0; y < 64; ++y)
+        for (int x = 0; x < 128; ++x) {
+            const uint32_t p = gsReadVramPsm(3, 2u << 5, 2u, uint32_t(x), uint32_t(y));
+            if (p != black) {
+                ++line;
+                assert((p & 0xFFu) == 0x44u);
+            }
+        }
+    assert(line == 465u + 32u);
+
+    // POINT: one px.
+    gsWriteRegister(0x00, 0u);
+    gsWriteRegister(0x01, 0x80u | (0x00u << 8) | (0xDDu << 16));  // b=0xDD
+    gsWriteRegister(0x05, xyz2(60 << 4, 5 << 4, 4));
+    assert(gsReadVramPsm(3, 2u << 5, 2u, 60u, 5u) == (0x80u << 24 | 0xDDu << 16));
+    assert(gsReadVramPsm(3, 2u << 5, 2u, 61u, 5u) == black);
+
+    // IIP triangle: centroid of r = 0/255/0 at (20,20) inside (10,10)-(40,10)-(10,40):
+    // weights are each 1/3 there, so r lands at 85 (+/- rounding of the float DDA).
+    gsWriteRegister(0x00, 3u | (1u << 3));  // TRI + IIP
+    gsWriteRegister(0x01, 0x80u);           // v0 r=0
+    gsWriteRegister(0x05, xyz2(10 << 4, 10 << 4, 4));
+    gsWriteRegister(0x01, 0x80u | 0xFFu);   // v1 r=255
+    gsWriteRegister(0x05, xyz2(40 << 4, 10 << 4, 4));
+    gsWriteRegister(0x01, 0x80u);           // v2 r=0
+    gsWriteRegister(0x05, xyz2(10 << 4, 40 << 4, 4));
+    const uint32_t mid = gsReadVramPsm(3, 2u << 5, 2u, 20u, 19u);
+    const int mr = int(mid & 0xFFu);
+    assert(mr >= 83 && mr <= 87);
+}
+
 int main() {
     assert(gsVramSize() == 4u * 1024u * 1024u);
     testUploadCt32();
     testUploadP4();
     testStripBatches();
     testRawRegFile();
+    testTriLinePointRaster();
     testDbuffDcSeed();
     testDbuffDcClearFill();
     testScanout();

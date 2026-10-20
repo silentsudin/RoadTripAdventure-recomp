@@ -397,3 +397,47 @@ open: the 21 boot DIR=0 chains (DBP=4 C32 640x32) native misses.
 Next: 3c-3 PATH1 triangle/strip/line feed (oracle DrawTriangle :1325,
 DrawLine :1443; ~49830 kickprim-4 targets; XGKICK qword Z/fog hi-words
 diverge natively at the sink).
+
+## Step 3c-3 (2026-10-20): triangle/strip/fan/line/point rasterizers
+
+GSCpuBackend::DrawTriangle (gs_cpu_backend.cpp:1325, barycentric coverage,
+winding-normalized weights, kEdgeEpsilon 1e-4), DrawLine (:1443, Bresenham
+with linear colour/z/fog, never textured) and the POINT case (:882)
+transliterated into guest_gs.cpp; expressions copied one for one so C++
+promotion rules keep the float intermediates bit-identical (float DDA into
+double z; z+0.5 rounding on triangles only). Drawn inline at the kick
+per the 3c-2 contract; dispatch mirrors RenderBatch (:869); the batch
+queue trim (strip/fan windows) already existed from 3b.
+
+gs_test pins (hand-verified coverage): right triangle (10,10)-(40,10)-(10,40)
+covers exactly 465 px — the 30 px hypotenuse passes through pixel centres
+with x+y=49, drawn at w=0 (>= -eps); flat colour = v2 (TRI) / v1 (LINE);
+collinear denom<0.001 draws nothing; LINESTRIP 21+11 px; POINT 1 px; IIP
+centroid r ~ 85. All green; boot scanout stays bit-identical at
+{580,590,640,650} while native now draws the XGKICK stream — the hidden
+loader-window 3D never leaks into scanout even though the two models
+draw different hidden contents.
+
+XGKICK qword divergence (the open item from 3c-2) is root-caused and is
+NOT in VU1 or the GS feed: our transliterated SetupLit+LitStrip replay
+6000 boot-scene oracle runs byte-exactly including full input data memory
+(vu1strips_test with RT_VU1_CAPTURE=/tmp/boot_lit.vu1cap; oracle
+RT_VU1_CAPTURE writes VU1CAP01: code image + per-run state in/out, 16KB
+data in/out, expected XGKICK packets; RT_VU1_CAPTURE_PCS filters entries).
+The per-run VIF1 UNPACK write streams to VU1 qwords 0..19 align vector
+for vector, in order, with identical opcodes/imm/NUM — but the payload
+values differ from the first camera write onward (native camera w-columns
+zero + normalized rows; oracle viewport-scaled projection). The game's
+EE-side attract-scene matrix math diverges upstream -> moved to the W12
+game-state-drift line (candidates: 0x177e6d0-7xx RAM residuals,
+memory-card HLE answers, EE round-to-zero float in decompiled routines).
+
+Dev-loop gotcha: the oracle game dylib compiles its VU1 lean code against
+the BUNDLED kit (RoadTrip.app/Contents/Resources/sdk), not the source
+tree; `cmake --build --target RoadTrip` does not refresh it (rt_bundle is
+an ALL target only in full builds). Kit/header changes need
+`--target rt_bundle` (or a full build) plus RT_REBUILD_GAME=1.
+
+Next: W12 boot-phase drift fix, then scanout parity on attract frames
+with visible 3D (~vb 900+), pgs golden re-grade + divergence-policy
+appendix.

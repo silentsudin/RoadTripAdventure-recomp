@@ -443,7 +443,11 @@ void vertexKick(bool drawing) {
         b.state = snapshotState();
         // The oracle rasterizes synchronously at the kick: a later TEX0 write
         // in the same packet must not reload g_clut under an earlier draw.
+        // Dispatch mirrors GSCpuBackend::RenderBatch (gs_cpu_backend.cpp:869).
         if (b.primType == 6 && b.vertexCount >= 2) drawSpriteNative(b);
+        else if (b.primType == 0) drawPointNative(b);
+        else if (b.primType <= 2) drawLineNative(b);
+        else if (b.primType <= 5) drawTriangleNative(b);
         g_batches.push_back(b);
         ++g_batchesTotal;
         ++g_batchPrim[b.primType];
@@ -1168,6 +1172,127 @@ void drawSpriteNative(const GsBatch& b) {
     ++g_spritesRendered;
 }
 
+// GSCpuBackend::DrawTriangle (gs_cpu_backend.cpp:1325): barycentric coverage,
+// winding-normalized weights. Expressions mirror the oracle one for one on
+// purpose: C++ promotion rules make the float intermediates bit-identical.
+void drawTriangleNative(const GsBatch& b) {
+    const GsDrawState& s = b.state;
+    const GsVertex& v0 = b.verts[0];
+    const GsVertex& v1 = b.verts[1];
+    const GsVertex& v2 = b.verts[2];
+    const int ofx = int(s.ofx) >> 4, ofy = int(s.ofy) >> 4;
+    const float fx0 = v0.x - float(ofx), fy0 = v0.y - float(ofy);
+    const float fx1 = v1.x - float(ofx), fy1 = v1.y - float(ofy);
+    const float fx2 = v2.x - float(ofx), fy2 = v2.y - float(ofy);
+    int minX = int(std::floor(std::min({fx0, fx1, fx2})));
+    int maxX = int(std::ceil(std::max({fx0, fx1, fx2})));
+    int minY = int(std::floor(std::min({fy0, fy1, fy2})));
+    int maxY = int(std::ceil(std::max({fy0, fy1, fy2})));
+    minX = clampInt(minX, int(s.sc0x), int(s.sc1x));
+    maxX = clampInt(maxX, int(s.sc0x), int(s.sc1x));
+    minY = clampInt(minY, int(s.sc0y), int(s.sc1y));
+    maxY = clampInt(maxY, int(s.sc0y), int(s.sc1y));
+    const float denom = (fy1 - fy2) * (fx0 - fx2) + (fx2 - fx1) * (fy0 - fy2);
+    if (std::fabs(denom) < 0.001f) return;
+    const float winding = (denom < 0.0f) ? -1.0f : 1.0f;
+    const float invAbsDenom = 1.0f / std::fabs(denom);
+    constexpr float kEdgeEpsilon = 1.0e-4f;
+    for (int y = minY; y <= maxY; ++y) {
+        const float py = float(y) + 0.5f;
+        for (int x = minX; x <= maxX; ++x) {
+            const float px = float(x) + 0.5f;
+            const float w0 = (((fy1 - fy2) * (px - fx2) + (fx2 - fx1) * (py - fy2)) * winding) * invAbsDenom;
+            const float w1 = (((fy2 - fy0) * (px - fx2) + (fx0 - fx2) * (py - fy2)) * winding) * invAbsDenom;
+            const float w2 = 1.0f - w0 - w1;
+            if (w0 < -kEdgeEpsilon || w1 < -kEdgeEpsilon || w2 < -kEdgeEpsilon)
+                continue;
+            const double z = v0.z * w0 + v1.z * w1 + v2.z * w2;
+            uint8_t r, g, bl, a;
+            if (s.iip) {
+                r = clampU8(int(v0.r * w0 + v1.r * w1 + v2.r * w2));
+                g = clampU8(int(v0.g * w0 + v1.g * w1 + v2.g * w2));
+                bl = clampU8(int(v0.b * w0 + v1.b * w1 + v2.b * w2));
+                a = clampU8(int(v0.a * w0 + v1.a * w1 + v2.a * w2));
+            } else {
+                r = v2.r; g = v2.g; bl = v2.b; a = v2.a;
+            }
+            if (s.tme) {
+                float is, it, iq;
+                uint16_t iu, iv;
+                if (s.fst) {
+                    iu = uint16_t(v0.u * w0 + v1.u * w1 + v2.u * w2);
+                    iv = uint16_t(v0.v * w0 + v1.v * w1 + v2.v * w2);
+                    is = 0.0f; it = 0.0f; iq = 1.0f;
+                } else {
+                    // The GS DDA interpolates homogeneous S, T, Q; texel
+                    // coordinates come from S/Q, T/Q only after (oracle :1407).
+                    is = v0.s * w0 + v1.s * w1 + v2.s * w2;
+                    it = v0.t * w0 + v1.t * w1 + v2.t * w2;
+                    iq = v0.q * w0 + v1.q * w1 + v2.q * w2;
+                    iu = 0; iv = 0;
+                }
+                const uint32_t texel = sampleTexture(s, is, it, iq, iu, iv);
+                const CombResult c = combineTexture(
+                    s.tcc, s.tfx, r, g, bl, a,
+                    uint8_t(texel), uint8_t(texel >> 8), uint8_t(texel >> 16),
+                    uint8_t(texel >> 24));
+                r = c.r; g = c.g; bl = c.b; a = c.a;
+            }
+            const uint8_t fog = clampU8(int(v0.fog * w0 + v1.fog * w1 + v2.fog * w2));
+            writePixel(s, x, y, int(uint32_t(z + 0.5)), r, g, bl, a, fog);
+        }
+    }
+}
+
+// GSCpuBackend::DrawLine (gs_cpu_backend.cpp:1443): Bresenham with linear
+// colour/z/fog interpolation; lines are never textured (oracle :1489-1504).
+void drawLineNative(const GsBatch& b) {
+    const GsDrawState& s = b.state;
+    const GsVertex& v0 = b.verts[0];
+    const GsVertex& v1 = b.verts[1];
+    const int ofx = int(s.ofx) >> 4, ofy = int(s.ofy) >> 4;
+    int x0 = int(v0.x) - ofx, y0 = int(v0.y) - ofy;
+    int x1 = int(v1.x) - ofx, y1 = int(v1.y) - ofy;
+    const int dx = std::abs(x1 - x0);
+    const int dy = -std::abs(y1 - y0);
+    const int sx = (x0 < x1) ? 1 : -1;
+    const int sy = (y0 < y1) ? 1 : -1;
+    int err = dx + dy;
+    int totalSteps = std::max(std::abs(x1 - x0), std::abs(y1 - y0));
+    if (totalSteps == 0) totalSteps = 1;
+    int step = 0;
+    for (;;) {
+        const float t = float(step) / float(totalSteps);
+        uint8_t r, g, bl, a;
+        if (s.iip) {
+            r = clampU8(int(v0.r + (v1.r - v0.r) * t));
+            g = clampU8(int(v0.g + (v1.g - v0.g) * t));
+            bl = clampU8(int(v0.b + (v1.b - v0.b) * t));
+            a = clampU8(int(v0.a + (v1.a - v0.a) * t));
+        } else {
+            r = v1.r; g = v1.g; bl = v1.b; a = v1.a;
+        }
+        const double z = (v0.z + (v1.z - v0.z) * t);
+        const uint8_t fog = clampU8(int(v0.fog + (v1.fog - v0.fog) * t));
+        writePixel(s, x0, y0, int(uint32_t(z)), r, g, bl, a, fog);
+        if (x0 == x1 && y0 == y1) break;
+        const int e2 = 2 * err;
+        if (e2 >= dy) { err += dy; x0 += sx; }
+        if (e2 <= dx) { err += dx; y0 += sy; }
+        ++step;
+    }
+}
+
+// GS_PRIM_POINT case of GSCpuBackend::RenderBatch (gs_cpu_backend.cpp:882);
+// WritePixel does the scissor test itself.
+void drawPointNative(const GsBatch& b) {
+    const GsDrawState& s = b.state;
+    const GsVertex& v = b.verts[0];
+    const int px = int(v.x) - (int(s.ofx) >> 4);
+    const int py = int(v.y) - (int(s.ofy) >> 4);
+    writePixel(s, px, py, int(uint32_t(v.z)), v.r, v.g, v.b, v.a, v.fog);
+}
+
 // Render batches that have not been rasterized yet (call each vblank;
 // gsClearFrameData resets the cursor at the next frame's clear).
 void gsRenderBatches() {
@@ -1175,7 +1300,7 @@ void gsRenderBatches() {
     if (g_batchesRendered > g_batches.size()) g_batchesRendered = 0;
     for (size_t i = g_batchesRendered; i < g_batches.size(); ++i) {
         const GsBatch& b = g_batches[i];
-        if (b.primType == 6 && b.vertexCount >= 2) continue;  // drawn inline at the kick
+        if (b.primType <= 6) continue;  // every modelled type draws inline at the kick
         ++g_primSkipped[b.primType];
     }
     g_batchesRendered = g_batches.size();

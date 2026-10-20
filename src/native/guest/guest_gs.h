@@ -88,10 +88,13 @@ bool gsCensusOn();
 void gsCensusDump();
 uint64_t gsBatchCount();
 
-// W3 3c-2: rasterize the frame's batches into VRAM (GSCpuBackend DrawSprite
-// subset: SPRITE prims; other prim types counted as skipped until 3c-3).
+// W3 3c-2/3c-3: rasterize the frame's batches into VRAM (GSCpuBackend: every
+// modelled prim type now draws inline at the kick; the drain counts strays).
 void gsRenderBatches();
-void drawSpriteNative(const GsBatch& b);  // inline kick draw (3c-2)
+void drawSpriteNative(const GsBatch& b);   // inline kick draw (3c-2)
+void drawTriangleNative(const GsBatch& b); // inline kick draw (3c-3)
+void drawLineNative(const GsBatch& b);
+void drawPointNative(const GsBatch& b);
 
 }  // namespace rtguest
 #endif
