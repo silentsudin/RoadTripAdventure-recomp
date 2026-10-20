@@ -177,7 +177,8 @@ namespace rt::ui
         };
         std::map<int, SlotTexture> g_slotTextures;
         // RT_MENU_SHOT
-        const char *g_shot = std::getenv("RT_MENU_SHOT");
+        // Read when used, not at static init: on Android files/env.txt sets the environment later (main).
+        const char *shotPath() { return std::getenv("RT_MENU_SHOT"); }
         int g_shotFrames = -1;
 
         template <typename T>
@@ -1199,7 +1200,7 @@ namespace rt::ui
         // load, save_confirm, load_confirm, state_message.
         void shotStep()
         {
-            if (!g_shot)
+            if (!shotPath())
                 return;
             const char *atText = std::getenv("RT_MENU_AT");
             const uint64_t at = atText ? std::strtoull(atText, nullptr, 10) : 900;
@@ -1797,7 +1798,7 @@ namespace rt::ui
         {
             th::scrim(dl, vmin, vmax, appear);
             drawConfirm(dl, vmin, vmax, appear);
-            if (g_shot && g_shotFrames >= 0)
+            if (shotPath() && g_shotFrames >= 0)
                 ++g_shotFrames;
             return;
         }
@@ -2063,19 +2064,19 @@ namespace rt::ui
         }
         drawPrompts(dl, max, min.x, n && rows[sel].change != nullptr);
 
-        if (g_shot && g_shotFrames >= 0 && !rt::states::busy())
+        if (shotPath() && g_shotFrames >= 0 && !rt::states::busy())
             ++g_shotFrames;
     }
 
     void menuShotAfterFrame()
     {
         // Frame 20: the presenter saves this frame as it presents it; quit once it has.
-        if (g_shot && g_shotFrames == 20)
-            rt::host::screenshot(g_shot);
-        if (g_shot && g_shotFrames >= 22)
+        if (shotPath() && g_shotFrames == 20)
+            rt::host::screenshot(shotPath());
+        if (shotPath() && g_shotFrames >= 22)
         {
             // The presenter encodes the PNG on another thread: wait for it (up to 10 s).
-            for (int i = 0; i < 200 && !std::filesystem::exists(g_shot); ++i)
+            for (int i = 0; i < 200 && !std::filesystem::exists(shotPath()); ++i)
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
             std::fflush(nullptr);
             std::_Exit(0);

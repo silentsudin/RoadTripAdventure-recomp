@@ -434,7 +434,7 @@ namespace
 
     // An SDL3 window with a Vulkan swapchain on the GS's device (the picture stays on the GPU), unless
     // RT_PRESENTER=raylib or the CPU GS is chosen: then the runtime's raylib/OpenGL window.
-    void selectPresenter(PS2Runtime &runtime)
+    void selectPresenter(PS2Runtime &runtime, bool offscreen = false)
     {
         const char *choice = std::getenv("RT_PRESENTER");
         const char *gs = std::getenv("RT_GS_BACKEND");
@@ -449,6 +449,7 @@ namespace
         options.vulkanLibrary = vulkanLibrary();
         options.vsync = rt::settings::current().vsync;
         options.dataDir = upscalerDataDir();
+        options.offscreen = offscreen;
         std::string error;
         if (auto presenter = ps2x::gs::createPgsPresenter(options, error))
             runtime.setPresenter(std::move(presenter));
@@ -580,6 +581,9 @@ namespace
     // Test socket {"cmd":"sdlpad","type":"xbox|ps|switch","buttons":"start,back,..."}: a virtual SDL
     // gamepad with these buttons held (the rest released), so tests reach the app's own input
     // path (menus, rebinding, button icons) the way a real controller does. "type":"none" unplugs it.
+    // "lx","ly","rx","ry" (-1..1) move the sticks, "lt"/"rt" (0..1) the triggers. A test-socket
+    // pad/step holds the pad ports over SDL until {"cmd":"release_pad"[,"port":N]} (or pad with
+    // "release_to_sdl":1) hands them back.
     std::atomic<int> g_virtualRumble[4] = {0, 0, 0, 0};
 
     std::string testSdlPad(const std::string &line)
@@ -653,6 +657,16 @@ namespace
                                        // SDL reads a virtual pad's trigger over the axis' whole range (0 = half
                                        // pressed), so released is the minimum.
                                        static_cast<Sint16>(SDL_JOYSTICK_AXIS_MIN + v * (SDL_JOYSTICK_AXIS_MAX - SDL_JOYSTICK_AXIS_MIN)));
+        }
+        // Sticks: "lx","ly","rx","ry" in -1..1 (SDL's sense: ly +1 = down); absent = centred.
+        static const std::pair<const char *, SDL_GamepadAxis> sticks[] = {
+            {"lx", SDL_GAMEPAD_AXIS_LEFTX}, {"ly", SDL_GAMEPAD_AXIS_LEFTY},
+            {"rx", SDL_GAMEPAD_AXIS_RIGHTX}, {"ry", SDL_GAMEPAD_AXIS_RIGHTY}};
+        for (const auto &[key, axis] : sticks)
+        {
+            const std::string amount = ps2_test::jsonField(line, key);
+            const float v = amount.empty() ? 0.0f : std::clamp(std::strtof(amount.c_str(), nullptr), -1.0f, 1.0f);
+            SDL_SetJoystickVirtualAxis(joy, axis, static_cast<Sint16>(v * SDL_JOYSTICK_AXIS_MAX));
         }
         // What the app last asked this pad's motors for (0..65535: low, high, left and right trigger).
         return "{\"ok\":true,\"rumble\":[" + std::to_string(g_virtualRumble[0].load()) + "," +
@@ -1056,8 +1070,12 @@ int main(int argc, char *argv[])
             },
             &hooks);
         rt::settings::exportGsEnvironment(); // before the GS starts
+        // RT_HEADLESS: no window, except for RT_MENU_SHOT, which needs the presenter (the menu is drawn
+        // through it) and gets a hidden, offscreen one.
         if (const char *h = std::getenv("RT_HEADLESS"); !(h && *h == '1'))
             selectPresenter(runtime);
+        else if (std::getenv("RT_MENU_SHOT"))
+            selectPresenter(runtime, true);
         if (!runtime.initialize("Road Trip Adventure"))
         {
             std::cerr << "Failed to initialize PS2 runtime\n";

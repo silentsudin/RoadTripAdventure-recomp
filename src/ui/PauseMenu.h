@@ -13,6 +13,7 @@
 // vblank, save a picture of it and quit (for UI reviews without a person). RT_MENU_LOAD=<slot>
 // loads that save state first (the menu opens 30 vblanks after); RT_MENU_SLOT=<n> focuses a slot;
 // RT_MENU_SAVE=1 (page save) saves into it from the open menu before the picture.
+// Works with RT_HEADLESS=1 (a hidden offscreen presenter) and on Android (files/env.txt).
 
 namespace rt::ui
 {
