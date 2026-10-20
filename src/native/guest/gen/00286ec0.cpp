@@ -7,7 +7,8 @@ namespace guest {
 uint32_t scePrintf(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
   rtguest::FrameGuard rt_fg(176);
     // spill area must be one contiguous block: _printf walks it 8 bytes per arg
-    uint32_t uStack_38 = rtguest::allocFrame(0x38);
+    rtguest::allocFrame(120);  // guest frame gap (sp+0x0..0x77)
+    uint32_t uStack_38 = rtguest::allocFrame(56);  // sp+0x78 (Ghidra entry-sp -0x38, frame 0xb0)
 uint32_t puVar1;
   
   puVar1 = (*(uint32_t*)rtguest::G(0x002e98f8));

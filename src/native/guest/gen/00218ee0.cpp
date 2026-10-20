@@ -11,16 +11,17 @@ uint32_t AdvanceVehicleMotion(uint32_t param_1, uint32_t param_2, uint32_t param
     *(uint32_t*)rtguest::G(rt_sv+0xcc) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x30) = (uint32_t)(int32_t)param_1;
   }
-    uint32_t iStack_dc = rtguest::allocFrame(4);
-    rtguest::allocFrame(8);  // guest frame gap
-uint32_t auStack_d0 = rtguest::allocFrame(32);
-rtguest::allocFrame(4);  // guest frame gap
-    uint32_t iStack_ac = rtguest::allocFrame(4);
-    uint32_t iStack_a8 = rtguest::allocFrame(4);
-    uint32_t iStack_a4 = rtguest::allocFrame(4);
-    uint32_t iStack_a0 = rtguest::allocFrame(4);
-    uint32_t iStack_9c = rtguest::allocFrame(4);
-    uint32_t iStack_98 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap (sp+0x0..0x3)
+    uint32_t iStack_dc = rtguest::allocFrame(4);  // sp+0x4 (Ghidra entry-sp -0xdc, frame 0xe0)
+rtguest::allocFrame(8);  // guest frame gap (sp+0x8..0xf)
+uint32_t auStack_d0 = rtguest::allocFrame(32);  // sp+0x10 (Ghidra entry-sp -0xd0, frame 0xe0)
+    rtguest::allocFrame(4);  // guest frame gap (sp+0x30..0x33)
+    uint32_t iStack_ac = rtguest::allocFrame(4);  // sp+0x34 (Ghidra entry-sp -0xac, frame 0xe0)
+    uint32_t iStack_a8 = rtguest::allocFrame(4);  // sp+0x38 (Ghidra entry-sp -0xa8, frame 0xe0)
+    uint32_t iStack_a4 = rtguest::allocFrame(4);  // sp+0x3c (Ghidra entry-sp -0xa4, frame 0xe0)
+    uint32_t iStack_a0 = rtguest::allocFrame(4);  // sp+0x40 (Ghidra entry-sp -0xa0, frame 0xe0)
+    uint32_t iStack_9c = rtguest::allocFrame(4);  // sp+0x44 (Ghidra entry-sp -0x9c, frame 0xe0)
+    uint32_t iStack_98 = rtguest::allocFrame(4);  // sp+0x48 (Ghidra entry-sp -0x98, frame 0xe0)
   bool bVar1;
   char cVar2;
   short sVar3;

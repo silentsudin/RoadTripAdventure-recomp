@@ -40,7 +40,12 @@ REPORT_KEYS = ("unpaired", "no_signature", "no_body", "needs_struct",
                "dup_def", "stage_collision", "skip_packed_vec", "skip_named_field",
                "skip_wide_field", "strlit", "strlit_unresolved", "stack_redecl",
                "stack_frame_ref", "deep_deref", "skip_arrow_field",
-               "skip_array_cast", "hex_subscript", "amp_local")
+               "skip_array_cast", "hex_subscript", "amp_local", "hand_protected")
+
+# Live TUs carrying hand-verified semantics the regex pass cannot emit (9th
+# sceSifCallRpc end_param arg, sb byte-table stores): regen never overwrites.
+# Evidence: build/scratch/parity/w13flow/CENSUS.md.
+PROTECTED_HAND = {"002793d0", "0020ed30"}
 
 def new_report() -> dict:
     return {k: ([] if k != "names" else {}) for k in REPORT_KEYS}
@@ -1101,6 +1106,9 @@ def main() -> None:
     a.out.mkdir(parents=True, exist_ok=True)
     for f in files:
         addr, tu, _ = res[f.stem]
+        if f.stem in PROTECTED_HAND:
+            report["hand_protected"].append(addr)
+            continue
         if tu:
             (a.out / f"{addr}.cpp").write_text(tu)
     if a.report:

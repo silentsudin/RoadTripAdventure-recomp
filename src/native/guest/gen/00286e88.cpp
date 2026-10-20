@@ -21,7 +21,8 @@ uint32_t printf__00286e88(uint64_t param_1, uint64_t param_2, uint64_t param_3, 
     *(uint32_t*)rtguest::G(rt_sv+0x7c) = (uint32_t)((int64_t)(int32_t)param_6 >> 32);
   }
     // spill area must be one contiguous block: _printf walks it 8 bytes per arg
-    uint32_t uStack_38 = rtguest::allocFrame(0x38);
+    rtguest::allocFrame(88);  // guest frame gap (sp+0x0..0x57)
+    uint32_t uStack_38 = rtguest::allocFrame(56);  // sp+0x58 (Ghidra entry-sp -0x38, frame 0x90)
   
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = param_2;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38 + (uint32_t)(1) * 8)) = param_3;

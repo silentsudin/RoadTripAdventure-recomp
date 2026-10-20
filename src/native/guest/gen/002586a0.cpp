@@ -14,12 +14,13 @@ uint32_t SndRpcCmd22(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint3
     *(uint32_t*)rtguest::G(rt_sv+0x18) = (uint32_t)(int32_t)param_3;
     *(uint32_t*)rtguest::G(rt_sv+0x20) = (uint32_t)(int32_t)param_5;
   }
-    uint32_t uStack_4c = rtguest::allocFrame(4);
-    uint32_t uStack_48 = rtguest::allocFrame(8);
-    uint32_t uStack_40 = rtguest::allocFrame(8);
-    uint32_t uStack_38 = rtguest::allocFrame(8);
-    uint32_t uStack_30 = rtguest::allocFrame(8);
-    uint32_t uStack_28 = rtguest::allocFrame(8);
+    rtguest::allocFrame(36);  // guest frame gap (sp+0x0..0x23)
+    uint32_t uStack_4c = rtguest::allocFrame(4);  // sp+0x24 (Ghidra entry-sp -0x4c, frame 0x70)
+    uint32_t uStack_48 = rtguest::allocFrame(8);  // sp+0x28 (Ghidra entry-sp -0x48, frame 0x70)
+    uint32_t uStack_40 = rtguest::allocFrame(8);  // sp+0x30 (Ghidra entry-sp -0x40, frame 0x70)
+    uint32_t uStack_38 = rtguest::allocFrame(8);  // sp+0x38 (Ghidra entry-sp -0x38, frame 0x70)
+    uint32_t uStack_30 = rtguest::allocFrame(8);  // sp+0x40 (Ghidra entry-sp -0x30, frame 0x70)
+    uint32_t uStack_28 = rtguest::allocFrame(8);  // sp+0x48 (Ghidra entry-sp -0x28, frame 0x70)
   
   if (param_4 == 0) {
     param_3 = 1;

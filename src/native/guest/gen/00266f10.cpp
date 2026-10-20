@@ -10,7 +10,8 @@ uint32_t raceSummaryDrawFigure8Row(uint32_t param_1, uint32_t param_2, ...) {
   int iVar2;
   uint uVar3;
   uint uVar4;
-uint32_t auStack_80 = rtguest::allocFrame(48);
+rtguest::allocFrame(48);  // guest frame gap (sp+0x0..0x2f)
+uint32_t auStack_80 = rtguest::allocFrame(48);  // sp+0x30 (Ghidra entry-sp -0x80, frame 0xb0)
   
   iVar1 = param_2 + 0xa8;
   if (((*(uint32_t*)rtguest::G(0x1780344)) & 0x40) == 0) {

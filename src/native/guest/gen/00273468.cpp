@@ -10,9 +10,10 @@ uint32_t _send_to_iop(uint32_t param_1, uint32_t param_2, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x160) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x164) = 0x00000000u;
   }
-    uint32_t iStack_16c = rtguest::allocFrame(4);
-    uint32_t uStack_168 = rtguest::allocFrame(4);
-    uint32_t uStack_164 = rtguest::allocFrame(4);
+    rtguest::allocFrame(4);  // guest frame gap (sp+0x0..0x3)
+    uint32_t iStack_16c = rtguest::allocFrame(4);  // sp+0x4 (Ghidra entry-sp -0x16c, frame 0x170)
+    uint32_t uStack_168 = rtguest::allocFrame(4);  // sp+0x8 (Ghidra entry-sp -0x168, frame 0x170)
+    uint32_t uStack_164 = rtguest::allocFrame(4);  // sp+0xc (Ghidra entry-sp -0x164, frame 0x170)
 uint32_t puVar1;
   uint uVar2;
 uint32_t puVar3;

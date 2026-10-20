@@ -13,7 +13,8 @@ uint32_t pcVar4;
 uint32_t pcVar5;
 uint32_t pcVar6;
 uint32_t pcVar7;
-uint32_t acStack_e = rtguest::allocFrame(14);
+rtguest::allocFrame(306);  // guest frame gap (sp+0x0..0x131)
+uint32_t acStack_e = rtguest::allocFrame(14);  // sp+0x132 (Ghidra entry-sp -0xe, frame 0x140)
   
   (*(uint8_t*)rtguest::G((uint32_t)param_1)) = param_3;
   if (param_2 < 0) {

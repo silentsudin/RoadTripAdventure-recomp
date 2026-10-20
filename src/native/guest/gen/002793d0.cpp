@@ -69,7 +69,12 @@ uint32_t puVar5;
     (*(uint32_t*)rtguest::G(0x2e89a4)) = (*(uint32_t*)rtguest::G(0x1773988));
     (*(uint32_t*)rtguest::G(0x2e8998)) = (*(uint32_t*)rtguest::G(0x1773984));
   }
+  // 9th sceSifCallRpc arg (end_param, passed at 0($sp)) is dropped by the pseudocode; disasm:
+  // 0x8130: 0x2794d0 lw v1,0x3980(s0) / 0x2794e4 sw v1,(sp); 0x8140: 0x279510 lw v0,8(a3) /
+  // 0x279524 sw v0,(sp); else: 0x279504 addiu v0,s0,0x3980 / 0x279554 sw v0,(sp).
+  uint32_t rt_endParam = 0x01773980;
   if (param_2 == 0x8130) {
+    rt_endParam = (*(uint32_t*)rtguest::G(0x1773980));
     param_2 = (*(uint32_t*)rtguest::G(0x1773984)) | 0x8130;
     uVar6 = 0;
     puVar4 = (*(uint32_t*)rtguest::G(0x1773988));
@@ -78,13 +83,16 @@ uint32_t puVar5;
   else {
     puVar4 = 0x01773980;
     if (param_2 == 0x8140) {
-      RT_CALLRA(0x279530, guest::sceSifCallRpc(0x17739c0,(*(uint32_t*)rtguest::G(0x1773984)) | 0x8140,bVar1,0x1773980,0x40,(*(uint32_t*)rtguest::G(0x1773988)),0x40,uVar7));
+      rt_endParam = (*(uint32_t*)rtguest::G(0x1773988));
+      *(uint32_t*)rtguest::G(rtguest::frameTop()) = rt_endParam;
+      RT_CALLRA(0x279530, guest::sceSifCallRpc(0x17739c0,(*(uint32_t*)rtguest::G(0x1773984)) | 0x8140,bVar1,0x1773980,0x40,(*(uint32_t*)rtguest::G(0x1773988)),0x40,uVar7,rt_endParam));
       return 0;
     }
     uVar6 = 0x10;
     puVar5 = puVar4;
   }
-  RT_CALLRA(0x279564, guest::sceSifCallRpc(0x17739c0,param_2,bVar1,puVar4,0x40,puVar5,uVar6,uVar7));
+  *(uint32_t*)rtguest::G(rtguest::frameTop()) = rt_endParam;
+  RT_CALLRA(0x279564, guest::sceSifCallRpc(0x17739c0,param_2,bVar1,puVar4,0x40,puVar5,uVar6,uVar7,rt_endParam));
   return 0;
 }
 

@@ -6,14 +6,15 @@ namespace guest {
 
 uint32_t SndRpcQueryCmd10(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(128);
-    uint32_t uStack_6c = rtguest::allocFrame(4);
-    uint32_t uStack_68 = rtguest::allocFrame(8);
-    uint32_t uStack_60 = rtguest::allocFrame(8);
-    uint32_t uStack_58 = rtguest::allocFrame(8);
-    uint32_t uStack_50 = rtguest::allocFrame(8);
-    uint32_t uStack_48 = rtguest::allocFrame(8);
-    uint32_t uStack_40 = rtguest::allocFrame(8);
-    uint32_t uStack_38 = rtguest::allocFrame(8);
+    rtguest::allocFrame(20);  // guest frame gap (sp+0x0..0x13)
+    uint32_t uStack_6c = rtguest::allocFrame(4);  // sp+0x14 (Ghidra entry-sp -0x6c, frame 0x80)
+    uint32_t uStack_68 = rtguest::allocFrame(8);  // sp+0x18 (Ghidra entry-sp -0x68, frame 0x80)
+    uint32_t uStack_60 = rtguest::allocFrame(8);  // sp+0x20 (Ghidra entry-sp -0x60, frame 0x80)
+    uint32_t uStack_58 = rtguest::allocFrame(8);  // sp+0x28 (Ghidra entry-sp -0x58, frame 0x80)
+    uint32_t uStack_50 = rtguest::allocFrame(8);  // sp+0x30 (Ghidra entry-sp -0x50, frame 0x80)
+    uint32_t uStack_48 = rtguest::allocFrame(8);  // sp+0x38 (Ghidra entry-sp -0x48, frame 0x80)
+    uint32_t uStack_40 = rtguest::allocFrame(8);  // sp+0x40 (Ghidra entry-sp -0x40, frame 0x80)
+    uint32_t uStack_38 = rtguest::allocFrame(8);  // sp+0x48 (Ghidra entry-sp -0x38, frame 0x80)
   
   (*(int64_t*)rtguest::G(0x175e880)) = (uint64_t)(*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) << 0x20;
   (*(uint64_t*)rtguest::G(0x175e888)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_68));

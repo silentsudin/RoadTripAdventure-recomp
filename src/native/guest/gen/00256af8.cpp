@@ -10,54 +10,55 @@ uint32_t InitSoundRpcDriver(uint32_t q0, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x458) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x45c) = 0x00000000u;
   }
-    uint32_t uStack_250 = rtguest::allocFrame(4);
-    uint32_t uStack_24c = rtguest::allocFrame(4);
-    uint32_t uStack_248 = rtguest::allocFrame(2);
-    uint32_t uStack_246 = rtguest::allocFrame(2);
-    uint32_t uStack_244 = rtguest::allocFrame(4);
-    uint32_t uStack_240 = rtguest::allocFrame(4);
-    rtguest::allocFrame(12);  // guest frame gap
-    uint32_t uStack_230 = rtguest::allocFrame(4);
-    uint32_t uStack_22c = rtguest::allocFrame(4);
-    uint32_t uStack_228 = rtguest::allocFrame(2);
-    uint32_t uStack_226 = rtguest::allocFrame(2);
-    uint32_t uStack_224 = rtguest::allocFrame(4);
-    uint32_t uStack_220 = rtguest::allocFrame(4);
-    rtguest::allocFrame(12);  // guest frame gap
-    uint32_t uStack_210 = rtguest::allocFrame(4);
-    uint32_t uStack_20c = rtguest::allocFrame(4);
-    uint32_t uStack_208 = rtguest::allocFrame(4);
-uint32_t auStack_204 = rtguest::allocFrame(52);
-    uint32_t uStack_1d0 = rtguest::allocFrame(4);
-    uint32_t uStack_1cc = rtguest::allocFrame(4);
-    uint32_t uStack_1c8 = rtguest::allocFrame(4);
-uint32_t auStack_1c4 = rtguest::allocFrame(52);
-    uint32_t uStack_190 = rtguest::allocFrame(4);
-    uint32_t uStack_18c = rtguest::allocFrame(4);
-    uint32_t uStack_188 = rtguest::allocFrame(4);
-uint32_t auStack_184 = rtguest::allocFrame(52);
-    uint32_t uStack_150 = rtguest::allocFrame(4);
-    uint32_t uStack_14c = rtguest::allocFrame(4);
-    uint32_t uStack_148 = rtguest::allocFrame(4);
-uint32_t auStack_144 = rtguest::allocFrame(52);
-    uint32_t uStack_110 = rtguest::allocFrame(4);
-    uint32_t uStack_10c = rtguest::allocFrame(4);
-    uint32_t uStack_108 = rtguest::allocFrame(4);
-uint32_t auStack_104 = rtguest::allocFrame(52);
-    uint32_t uStack_d0 = rtguest::allocFrame(4);
-    uint32_t uStack_cc = rtguest::allocFrame(4);
-    uint32_t uStack_c8 = rtguest::allocFrame(4);
-uint32_t auStack_c4 = rtguest::allocFrame(52);
-    uint32_t uStack_90 = rtguest::allocFrame(4);
-    uint32_t uStack_8c = rtguest::allocFrame(4);
-    uint32_t uStack_88 = rtguest::allocFrame(4);
-    uint32_t uStack_84 = rtguest::allocFrame(4);
-    uint32_t uStack_80 = rtguest::allocFrame(8);
-    uint32_t uStack_78 = rtguest::allocFrame(8);
-    uint32_t uStack_70 = rtguest::allocFrame(8);
-    uint32_t uStack_68 = rtguest::allocFrame(8);
-    uint32_t uStack_60 = rtguest::allocFrame(8);
-    uint32_t uStack_58 = rtguest::allocFrame(8);
+    rtguest::allocFrame(528);  // guest frame gap (sp+0x0..0x20f)
+    uint32_t uStack_250 = rtguest::allocFrame(4);  // sp+0x210 (Ghidra entry-sp -0x250, frame 0x460)
+    uint32_t uStack_24c = rtguest::allocFrame(4);  // sp+0x214 (Ghidra entry-sp -0x24c, frame 0x460)
+    uint32_t uStack_248 = rtguest::allocFrame(2);  // sp+0x218 (Ghidra entry-sp -0x248, frame 0x460)
+    uint32_t uStack_246 = rtguest::allocFrame(2);  // sp+0x21a (Ghidra entry-sp -0x246, frame 0x460)
+    uint32_t uStack_244 = rtguest::allocFrame(4);  // sp+0x21c (Ghidra entry-sp -0x244, frame 0x460)
+    uint32_t uStack_240 = rtguest::allocFrame(4);  // sp+0x220 (Ghidra entry-sp -0x240, frame 0x460)
+    rtguest::allocFrame(12);  // guest frame gap (sp+0x224..0x22f)
+    uint32_t uStack_230 = rtguest::allocFrame(4);  // sp+0x230 (Ghidra entry-sp -0x230, frame 0x460)
+    uint32_t uStack_22c = rtguest::allocFrame(4);  // sp+0x234 (Ghidra entry-sp -0x22c, frame 0x460)
+    uint32_t uStack_228 = rtguest::allocFrame(2);  // sp+0x238 (Ghidra entry-sp -0x228, frame 0x460)
+    uint32_t uStack_226 = rtguest::allocFrame(2);  // sp+0x23a (Ghidra entry-sp -0x226, frame 0x460)
+    uint32_t uStack_224 = rtguest::allocFrame(4);  // sp+0x23c (Ghidra entry-sp -0x224, frame 0x460)
+    uint32_t uStack_220 = rtguest::allocFrame(4);  // sp+0x240 (Ghidra entry-sp -0x220, frame 0x460)
+    rtguest::allocFrame(12);  // guest frame gap (sp+0x244..0x24f)
+    uint32_t uStack_210 = rtguest::allocFrame(4);  // sp+0x250 (Ghidra entry-sp -0x210, frame 0x460)
+    uint32_t uStack_20c = rtguest::allocFrame(4);  // sp+0x254 (Ghidra entry-sp -0x20c, frame 0x460)
+    uint32_t uStack_208 = rtguest::allocFrame(4);  // sp+0x258 (Ghidra entry-sp -0x208, frame 0x460)
+uint32_t auStack_204 = rtguest::allocFrame(52);  // sp+0x25c (Ghidra entry-sp -0x204, frame 0x460)
+    uint32_t uStack_1d0 = rtguest::allocFrame(4);  // sp+0x290 (Ghidra entry-sp -0x1d0, frame 0x460)
+    uint32_t uStack_1cc = rtguest::allocFrame(4);  // sp+0x294 (Ghidra entry-sp -0x1cc, frame 0x460)
+    uint32_t uStack_1c8 = rtguest::allocFrame(4);  // sp+0x298 (Ghidra entry-sp -0x1c8, frame 0x460)
+uint32_t auStack_1c4 = rtguest::allocFrame(52);  // sp+0x29c (Ghidra entry-sp -0x1c4, frame 0x460)
+    uint32_t uStack_190 = rtguest::allocFrame(4);  // sp+0x2d0 (Ghidra entry-sp -0x190, frame 0x460)
+    uint32_t uStack_18c = rtguest::allocFrame(4);  // sp+0x2d4 (Ghidra entry-sp -0x18c, frame 0x460)
+    uint32_t uStack_188 = rtguest::allocFrame(4);  // sp+0x2d8 (Ghidra entry-sp -0x188, frame 0x460)
+uint32_t auStack_184 = rtguest::allocFrame(52);  // sp+0x2dc (Ghidra entry-sp -0x184, frame 0x460)
+    uint32_t uStack_150 = rtguest::allocFrame(4);  // sp+0x310 (Ghidra entry-sp -0x150, frame 0x460)
+    uint32_t uStack_14c = rtguest::allocFrame(4);  // sp+0x314 (Ghidra entry-sp -0x14c, frame 0x460)
+    uint32_t uStack_148 = rtguest::allocFrame(4);  // sp+0x318 (Ghidra entry-sp -0x148, frame 0x460)
+uint32_t auStack_144 = rtguest::allocFrame(52);  // sp+0x31c (Ghidra entry-sp -0x144, frame 0x460)
+    uint32_t uStack_110 = rtguest::allocFrame(4);  // sp+0x350 (Ghidra entry-sp -0x110, frame 0x460)
+    uint32_t uStack_10c = rtguest::allocFrame(4);  // sp+0x354 (Ghidra entry-sp -0x10c, frame 0x460)
+    uint32_t uStack_108 = rtguest::allocFrame(4);  // sp+0x358 (Ghidra entry-sp -0x108, frame 0x460)
+uint32_t auStack_104 = rtguest::allocFrame(52);  // sp+0x35c (Ghidra entry-sp -0x104, frame 0x460)
+    uint32_t uStack_d0 = rtguest::allocFrame(4);  // sp+0x390 (Ghidra entry-sp -0xd0, frame 0x460)
+    uint32_t uStack_cc = rtguest::allocFrame(4);  // sp+0x394 (Ghidra entry-sp -0xcc, frame 0x460)
+    uint32_t uStack_c8 = rtguest::allocFrame(4);  // sp+0x398 (Ghidra entry-sp -0xc8, frame 0x460)
+uint32_t auStack_c4 = rtguest::allocFrame(52);  // sp+0x39c (Ghidra entry-sp -0xc4, frame 0x460)
+    uint32_t uStack_90 = rtguest::allocFrame(4);  // sp+0x3d0 (Ghidra entry-sp -0x90, frame 0x460)
+    uint32_t uStack_8c = rtguest::allocFrame(4);  // sp+0x3d4 (Ghidra entry-sp -0x8c, frame 0x460)
+    uint32_t uStack_88 = rtguest::allocFrame(4);  // sp+0x3d8 (Ghidra entry-sp -0x88, frame 0x460)
+    uint32_t uStack_84 = rtguest::allocFrame(4);  // sp+0x3dc (Ghidra entry-sp -0x84, frame 0x460)
+    uint32_t uStack_80 = rtguest::allocFrame(8);  // sp+0x3e0 (Ghidra entry-sp -0x80, frame 0x460)
+    uint32_t uStack_78 = rtguest::allocFrame(8);  // sp+0x3e8 (Ghidra entry-sp -0x78, frame 0x460)
+    uint32_t uStack_70 = rtguest::allocFrame(8);  // sp+0x3f0 (Ghidra entry-sp -0x70, frame 0x460)
+    uint32_t uStack_68 = rtguest::allocFrame(8);  // sp+0x3f8 (Ghidra entry-sp -0x68, frame 0x460)
+    uint32_t uStack_60 = rtguest::allocFrame(8);  // sp+0x400 (Ghidra entry-sp -0x60, frame 0x460)
+    uint32_t uStack_58 = rtguest::allocFrame(8);  // sp+0x408 (Ghidra entry-sp -0x58, frame 0x460)
   
   RT_CALLRA(0x256b40, guest::sceSdRemoteInit());
   RT_CALLRA(0x256b54, guest::sceSifBindRpc(0x175e840,0x1234567,0));

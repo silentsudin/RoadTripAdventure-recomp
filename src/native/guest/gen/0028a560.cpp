@@ -10,13 +10,14 @@ uint32_t sceAddDrv(uint32_t param_1, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x80) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x84) = 0x00000000u;
   }
-uint32_t auStack_80 = rtguest::allocFrame(4);
-    uint32_t uStack_7c = rtguest::allocFrame(4);
-    uint32_t uStack_78 = rtguest::allocFrame(4);
-    rtguest::allocFrame(8);  // guest frame gap
-    uint32_t uStack_6c = rtguest::allocFrame(4);
-    rtguest::allocFrame(8);  // guest frame gap
-uint32_t auStack_60 = rtguest::allocFrame(16);
+rtguest::allocFrame(16);  // guest frame gap (sp+0x0..0xf)
+uint32_t auStack_80 = rtguest::allocFrame(4);  // sp+0x10 (Ghidra entry-sp -0x80, frame 0x90)
+    uint32_t uStack_7c = rtguest::allocFrame(4);  // sp+0x14 (Ghidra entry-sp -0x7c, frame 0x90)
+    uint32_t uStack_78 = rtguest::allocFrame(4);  // sp+0x18 (Ghidra entry-sp -0x78, frame 0x90)
+    rtguest::allocFrame(8);  // guest frame gap (sp+0x1c..0x23)
+    uint32_t uStack_6c = rtguest::allocFrame(4);  // sp+0x24 (Ghidra entry-sp -0x6c, frame 0x90)
+rtguest::allocFrame(8);  // guest frame gap (sp+0x28..0x2f)
+uint32_t auStack_60 = rtguest::allocFrame(16);  // sp+0x30 (Ghidra entry-sp -0x60, frame 0x90)
   int iVar1;
   undefined8 uVar2;
   long lVar3;

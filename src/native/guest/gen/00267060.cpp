@@ -6,8 +6,9 @@ namespace guest {
 
 uint32_t raceSummaryDrawGolfRow(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(192);
-uint32_t acStack_8c = rtguest::allocFrame(44);
-    uint32_t uStack_60 = rtguest::allocFrame(2);
+rtguest::allocFrame(52);  // guest frame gap (sp+0x0..0x33)
+uint32_t acStack_8c = rtguest::allocFrame(44);  // sp+0x34 (Ghidra entry-sp -0x8c, frame 0xc0)
+    uint32_t uStack_60 = rtguest::allocFrame(2);  // sp+0x60 (Ghidra entry-sp -0x60, frame 0xc0)
   bool bVar1;
   int iVar2;
   size_t sVar3;

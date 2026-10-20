@@ -18,12 +18,13 @@ uint32_t _printf_r(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint64_
     *(uint32_t*)rtguest::G(rt_sv+0x48) = (uint32_t)(int32_t)param_6;
     *(uint32_t*)rtguest::G(rt_sv+0x4c) = (uint32_t)((int64_t)(int32_t)param_6 >> 32);
   }
-    uint32_t uStack_30 = rtguest::allocFrame(8);
-    uint32_t uStack_28 = rtguest::allocFrame(8);
-    uint32_t uStack_20 = rtguest::allocFrame(8);
-    uint32_t uStack_18 = rtguest::allocFrame(8);
-    uint32_t uStack_10 = rtguest::allocFrame(8);
-    uint32_t uStack_8 = rtguest::allocFrame(8);
+    rtguest::allocFrame(48);  // guest frame gap (sp+0x0..0x2f)
+    uint32_t uStack_30 = rtguest::allocFrame(8);  // sp+0x30 (Ghidra entry-sp -0x30, frame 0x60)
+    uint32_t uStack_28 = rtguest::allocFrame(8);  // sp+0x38 (Ghidra entry-sp -0x28, frame 0x60)
+    uint32_t uStack_20 = rtguest::allocFrame(8);  // sp+0x40 (Ghidra entry-sp -0x20, frame 0x60)
+    uint32_t uStack_18 = rtguest::allocFrame(8);  // sp+0x48 (Ghidra entry-sp -0x18, frame 0x60)
+    uint32_t uStack_10 = rtguest::allocFrame(8);  // sp+0x50 (Ghidra entry-sp -0x10, frame 0x60)
+    uint32_t uStack_8 = rtguest::allocFrame(8);  // sp+0x58 (Ghidra entry-sp -0x8, frame 0x60)
   
   (*(uint64_t*)rtguest::G((uint32_t)uStack_30)) = param_3;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_28)) = param_4;

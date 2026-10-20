@@ -10,11 +10,12 @@ uint32_t sceMcInit(uint32_t q0, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
   }
-uint32_t auStack_a0 = rtguest::allocFrame(4);
-    uint32_t uStack_9c = rtguest::allocFrame(4);
-    uint32_t uStack_98 = rtguest::allocFrame(4);
-    rtguest::allocFrame(8);  // guest frame gap
-    uint32_t uStack_8c = rtguest::allocFrame(4);
+rtguest::allocFrame(16);  // guest frame gap (sp+0x0..0xf)
+uint32_t auStack_a0 = rtguest::allocFrame(4);  // sp+0x10 (Ghidra entry-sp -0xa0, frame 0xb0)
+    uint32_t uStack_9c = rtguest::allocFrame(4);  // sp+0x14 (Ghidra entry-sp -0x9c, frame 0xb0)
+    uint32_t uStack_98 = rtguest::allocFrame(4);  // sp+0x18 (Ghidra entry-sp -0x98, frame 0xb0)
+    rtguest::allocFrame(8);  // guest frame gap (sp+0x1c..0x23)
+    uint32_t uStack_8c = rtguest::allocFrame(4);  // sp+0x24 (Ghidra entry-sp -0x8c, frame 0xb0)
   int iVar1;
   long lVar2;
   

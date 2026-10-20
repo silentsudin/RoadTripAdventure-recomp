@@ -7,7 +7,8 @@ namespace guest {
 // 2026-10-19 MIPS cross-check 0x0020c188: Ghidra halved chunk walk (qword +0x10 / stride size*8+8); real MIPS qword +0x20, stride size*16+0x10 (see gen/0020dde0.cpp).
 uint32_t loadCourseTile(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(112);
-    uint32_t iStack_68 = rtguest::allocFrame(4);
+    rtguest::allocFrame(8);  // guest frame gap (sp+0x0..0x7)
+    uint32_t iStack_68 = rtguest::allocFrame(4);  // sp+0x8 (Ghidra entry-sp -0x68, frame 0x70)
   char cVar1;
   ushort uVar2;
   int iVar3;
