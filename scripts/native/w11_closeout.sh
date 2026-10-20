@@ -23,10 +23,12 @@ echo "sweep $n binaries, $fail failed"
 [ $fail -eq 0 ] || exit 1
 echo "== det pair race@110"
 A=build/scratch/closeout-a.ppm B=build/scratch/closeout-b.ppm
+det_rc=0
 for f in $A $B; do
   RT_TIME=virtual RT_APP_STATE=PLAYING RT_APP_MODE=race RT_APP_NOAUDIO=1 RT_APP_HEADLESS=1 \
-  RT_APP_FRAMES=110 RT_APP_SNAPSHOT=$f build/w-G0-verify/rt-app > /tmp/rt-det-$(basename $f).log 2>&1
-  grep -o "simulation_frame=[0-9]*" /tmp/rt-det-$(basename $f).log | tail -1
+  RT_APP_FRAMES=110 RT_APP_SNAPSHOT=$f build/w-G0-verify/rt-app > /tmp/rt-det-$(basename $f).log 2>&1 || det_rc=$?
+  echo "$(basename $f) rc=$det_rc $(grep -o "simulation_frame=[0-9]*" /tmp/rt-det-$(basename $f).log | tail -1)"
 done
+[ $det_rc -eq 0 ] || { echo "DET PAIR: rt-app nonzero exit"; exit 1; }
 cmp $A $B && echo "DET PAIR IDENTICAL"
 echo "closeout logs: $LOG-{cmake,build}.log"
