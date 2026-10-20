@@ -6,6 +6,9 @@ namespace guest {
 
 void DrawMenuCursorAndIcons(uint32_t param_1, uint64_t param_2, uint32_t param_3, uint64_t param_4) {
   rtguest::FrameGuard rt_fg(160);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = (uint32_t)(int32_t)param_1;
+  }
     uint32_t uStack_a0 = rtguest::allocFrame(8);
     uint32_t uStack_98 = rtguest::allocFrame(8);
     uint32_t uStack_90 = rtguest::allocFrame(8);

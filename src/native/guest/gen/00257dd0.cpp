@@ -6,6 +6,11 @@ namespace guest {
 
 uint32_t SndRpcCmdA(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(112);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = (uint32_t)(int32_t)param_1;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = (uint32_t)(int32_t)param_2;
+    *(uint32_t*)rtguest::G(rt_sv+0x18) = (uint32_t)(int32_t)param_3;
+  }
     uint32_t uStack_54 = rtguest::allocFrame(4);
     uint32_t uStack_50 = rtguest::allocFrame(8);
     uint32_t uStack_48 = rtguest::allocFrame(8);

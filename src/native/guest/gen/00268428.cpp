@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t shopPartDialogSingle(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(400);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x120) = (uint32_t)(int32_t)param_1;
+    *(uint32_t*)rtguest::G(rt_sv+0x124) = (uint32_t)(int32_t)param_2;
+  }
 uint32_t acStack_190 = rtguest::allocFrame(80);
 uint32_t acStack_140 = rtguest::allocFrame(65);
 uint32_t acStack_ff = rtguest::allocFrame(65);

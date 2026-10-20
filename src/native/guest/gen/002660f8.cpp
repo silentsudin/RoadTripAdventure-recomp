@@ -6,6 +6,9 @@ namespace guest {
 
 uint32_t drawStampNumberColumn(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(352);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x100) = (uint32_t)(int32_t)param_2;
+  }
     uint32_t uStack_160 = rtguest::allocFrame(4);
     uint32_t uStack_15c = rtguest::allocFrame(4);
     uint32_t uStack_158 = rtguest::allocFrame(4);

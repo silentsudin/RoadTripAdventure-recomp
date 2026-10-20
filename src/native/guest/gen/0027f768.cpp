@@ -6,6 +6,10 @@ namespace guest {
 
 uint32_t _vfprintf_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(656);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x1e4) = (uint32_t)(int32_t)param_1;
+    *(uint32_t*)rtguest::G(rt_sv+0x1e8) = (uint32_t)(int32_t)param_2;
+  }
 uint32_t auStack_290 = rtguest::allocFrame(16);
 rtguest::allocFrame(4);  // guest frame gap
     uint32_t iStack_27c = rtguest::allocFrame(4);

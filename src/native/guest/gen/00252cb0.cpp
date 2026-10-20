@@ -6,6 +6,9 @@ namespace guest {
 
 uint32_t DrawGolfScorecard(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(304);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xd0) = (uint32_t)(int32_t)param_2;
+  }
     uint32_t uStack_130 = rtguest::allocFrame(8);
     uint32_t uStack_128 = rtguest::allocFrame(8);
     uint32_t uStack_120 = rtguest::allocFrame(8);

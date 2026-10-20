@@ -8,6 +8,9 @@ namespace guest {
 
 uint32_t updateTimeOfDayLight(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x30) = (uint32_t)(int32_t)param_1;
+  }
   uint8_t uVar1;
   uint8_t bVar2;
   uint8_t uVar3;

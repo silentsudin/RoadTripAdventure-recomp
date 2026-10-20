@@ -6,6 +6,9 @@ namespace guest {
 
 uint32_t TuningGarageSceneTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_1;
+  }
 uint32_t __s;
   undefined4 uVar1;
   int iVar2;

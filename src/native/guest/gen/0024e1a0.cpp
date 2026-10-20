@@ -9,6 +9,9 @@ namespace guest {
 
 uint32_t UpdateCarControlState(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x20) = (uint32_t)(int32_t)param_6;
+  }
   uint32_t uVar2;
   uint32_t uVar3;
   uint32_t uVar4;

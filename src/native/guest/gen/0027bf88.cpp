@@ -7,6 +7,11 @@ namespace guest {
 // pseudocode: undefined8 litodp(ulong)
 uint64_t litodp(uint64_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = 0x00000003u;
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = 0x00000002u;
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = 0x0000003cu;
+  }
     uint32_t uStack_30 = rtguest::allocFrame(4);
     uint32_t iStack_2c = rtguest::allocFrame(4);
     uint32_t iStack_28 = rtguest::allocFrame(4);

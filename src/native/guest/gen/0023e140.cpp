@@ -6,6 +6,9 @@ namespace guest {
 
 uint32_t texAnimCopyA(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(272);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_1;
+  }
   undefined4 uVar1;
   uint uVar2;
   int iVar3;

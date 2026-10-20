@@ -6,6 +6,12 @@ namespace guest {
 
 uint32_t dpcmp(uint64_t param_1, uint64_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x40) = (uint32_t)(int32_t)param_1;
+    *(uint32_t*)rtguest::G(rt_sv+0x44) = (uint32_t)((int64_t)(int32_t)param_1 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x48) = (uint32_t)(int32_t)param_2;
+    *(uint32_t*)rtguest::G(rt_sv+0x4c) = (uint32_t)((int64_t)(int32_t)param_2 >> 32);
+  }
 uint32_t auStack_60 = rtguest::allocFrame(32);
 uint32_t auStack_40 = rtguest::allocFrame(32);
     uint32_t uStack_20 = rtguest::allocFrame(8);

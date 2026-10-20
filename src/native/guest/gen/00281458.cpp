@@ -7,6 +7,9 @@ namespace guest {
 // pseudocode: char *_dtoa_r(undefined8, ulong, uint, uint, int*, undefined4*, undefined4*)
 uint32_t _dtoa_r(uint64_t param_1, uint64_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = (uint32_t)(int32_t)param_3;
+  }
     uint32_t iStack_b0 = rtguest::allocFrame(4);
     uint32_t iStack_ac = rtguest::allocFrame(4);
     uint32_t uStack_a8 = rtguest::allocFrame(4);

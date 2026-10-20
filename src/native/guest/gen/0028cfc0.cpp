@@ -6,6 +6,12 @@ namespace guest {
 
 uint32_t supplement_crt0(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x28) = 0x00000001u;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000001u;
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = 0x00000001u;
+    *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000001u;
+  }
   // Hand-fixed per disasm 0x28cfc0-0x28d004 (field slots: Ghidra's pseudocode
   // misassigned the sw offsets; sd $2,0x28 = struct1.count+0x28 == struct2.init,
   // [delay sw v0,0x24] = sema1 id -> struct2.max). DAT pairing follows the

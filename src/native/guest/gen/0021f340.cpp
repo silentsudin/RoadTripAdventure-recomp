@@ -32,15 +32,19 @@ uint32_t auStack_60 = rtguest::allocFrame(32);
     vu0ApplyMatrix(param_1,auStack_c0,param_2);
   }
   iVar1 = (int)param_1;
-  // Machine-exact dsts (disasm 0x21f3fc-0x21f424): the addiu $4,$17,+N in each
-  // delay slot feeds the NEXT jal; $4 at jal 0x21f3fc is still $17 (+0x00).
-  // Ghidra shifted every dst one quad high. The applyMatrix/mulMatrix writes
-  // to param_1+0..0x30 are therefore overwritten here: attract V is stack
-  // feedback state through these aliased slots, not live camera math.
+  // Machine-exact tail copies (full disasm 0x21f3fc-0x21f424, delay-slot args
+  // run BEFORE the callee so they ARE the callee's args):
+  //   jal#2 21f3fc: $4=$17+0x00, $5=+0x20 (b-delay 21f3e8)
+  //   jal#3 21f408: $4=$17+0x10 (21f404), $5=+0x30 (21f40c delay)
+  //   jal#4 21f414: $4=$17+0x30 (21f410), $5=+0x60 (21f418 delay)
+  //   jal#5 21f420: $4=$17+0x40 (21f41c), $5=+0x70 (21f424 delay)
+  // dsts are +0x00/+0x10/+0x30/+0x40: column +0x20 keeps the mulMatrix/
+  // applyMatrix write. Attract V is stack feedback through these aliased
+  // slots, not live camera math.
   vu0CopyVector(iVar1,auStack_b0);
   vu0CopyVector(iVar1 + 0x10,auStack_a0);
-  vu0CopyVector(iVar1 + 0x20,auStack_70);
-  vu0CopyVector(iVar1 + 0x30,auStack_60);
+  vu0CopyVector(iVar1 + 0x30,auStack_70);
+  vu0CopyVector(iVar1 + 0x40,auStack_60);
   return 0;
 }
 

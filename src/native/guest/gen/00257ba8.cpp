@@ -6,6 +6,9 @@ namespace guest {
 
 uint32_t SoundRpcGetStatus(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = 0x00000001u;
+  }
     uint32_t uStack_6c = rtguest::allocFrame(4);
     uint32_t uStack_68 = rtguest::allocFrame(8);
     uint32_t uStack_60 = rtguest::allocFrame(8);

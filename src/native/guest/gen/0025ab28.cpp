@@ -6,6 +6,9 @@ namespace guest {
 
 uint32_t raceStandingsMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(256);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0xa0) = (uint32_t)(int32_t)param_2;
+  }
     uint32_t uStack_100 = rtguest::allocFrame(8);
     uint32_t uStack_f8 = rtguest::allocFrame(8);
     uint32_t uStack_f0 = rtguest::allocFrame(8);

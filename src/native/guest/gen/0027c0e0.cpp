@@ -6,6 +6,13 @@ namespace guest {
 
 uint32_t __make_dp(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_1;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = (uint32_t)(int32_t)param_2;
+    *(uint32_t*)rtguest::G(rt_sv+0x8) = (uint32_t)(int32_t)param_3;
+    *(uint32_t*)rtguest::G(rt_sv+0x10) = (uint32_t)(int32_t)param_4;
+    *(uint32_t*)rtguest::G(rt_sv+0x14) = (uint32_t)((int64_t)(int32_t)param_4 >> 32);
+  }
     // __pack_d's in-struct is contiguous: class+0, sign+4, exp+8, pad+0xc, u64 frac+0x10
     uint32_t uStack_30 = rtguest::allocFrame(0x18);
   

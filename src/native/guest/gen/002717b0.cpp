@@ -6,6 +6,10 @@ namespace guest {
 
 void textGridMoveRect(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint32_t param_6, uint32_t param_7) {
   rtguest::FrameGuard rt_fg(176);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_2;
+    *(uint32_t*)rtguest::G(rt_sv+0x4) = (uint32_t)(int32_t)param_4;
+  }
   undefined8 uVar1;
   int iVar2;
   uint uVar3;

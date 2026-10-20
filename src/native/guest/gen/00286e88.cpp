@@ -6,6 +6,18 @@ namespace guest {
 
 uint32_t printf__00286e88(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x58) = (uint32_t)(int32_t)param_2;
+    *(uint32_t*)rtguest::G(rt_sv+0x5c) = (uint32_t)((int64_t)(int32_t)param_2 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x60) = (uint32_t)(int32_t)param_3;
+    *(uint32_t*)rtguest::G(rt_sv+0x64) = (uint32_t)((int64_t)(int32_t)param_3 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x68) = (uint32_t)(int32_t)param_4;
+    *(uint32_t*)rtguest::G(rt_sv+0x6c) = (uint32_t)((int64_t)(int32_t)param_4 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x70) = (uint32_t)(int32_t)param_5;
+    *(uint32_t*)rtguest::G(rt_sv+0x74) = (uint32_t)((int64_t)(int32_t)param_5 >> 32);
+    *(uint32_t*)rtguest::G(rt_sv+0x78) = (uint32_t)(int32_t)param_6;
+    *(uint32_t*)rtguest::G(rt_sv+0x7c) = (uint32_t)((int64_t)(int32_t)param_6 >> 32);
+  }
     // spill area must be one contiguous block: _printf walks it 8 bytes per arg
     uint32_t uStack_38 = rtguest::allocFrame(0x38);
   

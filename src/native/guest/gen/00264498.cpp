@@ -6,6 +6,9 @@ namespace guest {
 
 uint32_t emailBoxTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(928);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    *(uint32_t*)rtguest::G(rt_sv+0x340) = (uint32_t)(int32_t)param_2;
+  }
     uint32_t iStack_3a4 = rtguest::allocFrame(4);
 uint32_t auStack_3a0 = rtguest::allocFrame(512);
 uint32_t acStack_1a0 = rtguest::allocFrame(240);
