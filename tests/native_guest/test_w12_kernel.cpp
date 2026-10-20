@@ -304,7 +304,8 @@ int main() {
     CHECK(rd32(0x400B04) == 0);                 // parked again
     kVblank();
     kPumpToIdle();
-    CHECK(rd32(0x400B04) == 0xFFFFFFFFu);       // fixedResult -1
+    CHECK(rd32(0x400B04) == 1u);  // oracle completeVSync (EeScheduler.cpp:1438): negative
+                                  // fixedResult -> (tick-1)&1; 2nd vblank => (2-1)&1 = 1
     CHECK(kThreadCount() == 0);
 
     std::printf("test_w12_kernel: %s (%d failures)\n", fails ? "FAILED" : "ok", fails);

@@ -810,9 +810,9 @@ void loadClut(const GsCtx& t) {
     loadClutUnlocked(t);
 }
 
-uint32_t rgba5551To8888(uint16_t c) {  // gs_cpu_backend.cpp:41
-    return uint32_t(((c >> 0) & 0x1F) << 3) | (uint32_t((c >> 5) & 0x1F) << 8) |
-           (uint32_t((c >> 10) & 0x1F) << 16) | (uint32_t((c >> 15) & 1) << 24);
+uint32_t rgba5551To8888(uint16_t c) {  // gs_cpu_backend.cpp:38-47: every channel <<3, alpha <<7
+    return uint32_t(((c >> 0) & 0x1F) << 3) | (uint32_t((c >> 5) & 0x1F) << 11) |
+           (uint32_t((c >> 10) & 0x1F) << 19) | (uint32_t((c >> 15) & 1) << 31);
 }
 uint16_t rgba8888To5551(uint32_t c) {  // gs_cpu_backend.cpp:29
     return uint16_t((((c >> 0) & 0xFF) >> 3) | ((((c >> 8) & 0xFF) >> 3) << 5) |

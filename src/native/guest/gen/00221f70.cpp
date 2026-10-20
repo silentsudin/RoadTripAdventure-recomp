@@ -112,7 +112,7 @@ uint32_t puVar5;
         RT_CALLRA(0x222320, guest::drawCarWheelsMid(auStack_180,iVar7 + 0x80,iVar2));
       }
       else {
-        RT_CALLRA(0x222250, guest::vifFixedRegs(0x20138c85dd309c44,7,(uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 5))) << 0x38 | 0x138c85dd409c44,7));
+        RT_CALLRA(0x222250, guest::vifFixedRegs(0x20138c85dd309c44,7,(uint64_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 5))) << 0x38 | 0x138c85dd409c44,7)); // UB fix: pseudocode (ulong) (00221f70.c:109)
         uVar6 = 0;
         RT_CALLRA(0x222260, guest::vu0UnitMatrix(auStack_b0));
         RT_CALLRA(0x222274, guest::vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x80))),auStack_b0,auStack_b0));

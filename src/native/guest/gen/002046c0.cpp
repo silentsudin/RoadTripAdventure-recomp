@@ -1,10 +1,11 @@
 // guest:0x002046c0 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
+// param_4 is ulong in pseudocode (002046c0.c:7): param_4 << 0x38 needs the full 64-bit value.
 #include "guest_decls.inc"
 
 namespace guest {
 
-uint32_t uiDrawNumberFixed(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+uint32_t uiDrawNumberFixed(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(64);
   int iVar1;
 uint32_t puVar2;

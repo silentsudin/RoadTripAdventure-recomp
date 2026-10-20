@@ -154,22 +154,23 @@ uint64_t callGuest(uint32_t addr, uint64_t a0, uint64_t a1, uint64_t a2, uint64_
     return reinterpret_cast<GuestFnPtr>(e)(a0, a1, a2, a3, a4, a5, a6, a7);
 }
 
-// ELF32 section copy into the image (boot ELF is the user's own; never committed).
+// ELF32 PT_LOAD segment copy into the image, as the oracle's LoadExec does
+// (section walking skipped SREGINFO/.mdebug bytes between segments, leaving
+// 0x29a840-0x29a847 stale). Boot ELF is the user's own; never committed.
 bool loadImage(const uint8_t* f, size_t sz) {
     if (sz < 0x34 || memcmp(f, "\x7f" "ELF\x01\x01\x01", 6) != 0) return false;
     auto rd = [&](size_t o) { uint32_t v; memcpy(&v, f + o, 4); return v; };
-    uint32_t shoff = rd(0x20);
-    uint16_t shentsize, shnum, shstrndx;
-    memcpy(&shentsize, f + 0x2e, 2); memcpy(&shnum, f + 0x30, 2); memcpy(&shstrndx, f + 0x32, 2);
-    uint32_t strtab = rd(shoff + shstrndx * shentsize + 0x10);
-    for (uint16_t i = 0; i < shnum; ++i) {
-        size_t e = shoff + i * (size_t)shentsize;
-        uint32_t type = rd(e + 4), addr = rd(e + 0xc), off = rd(e + 0x10), size = rd(e + 0x14);
-        if ((type == 1 /*S_PROGBITS*/ || type == 8 /*S_NOBITS*/) && size &&
-            addr >= 0x80000000u) addr -= 0x80000000u;
-        if (type != 1 && type != 8) continue;
-        if (addr + size > RT_GUEST_RAM_SIZE || (type == 1 && off + size > sz)) return false;
-        if (type == 1) memcpy(kRam + addr, f + off, size);  // .bss stays zero
+    uint32_t phoff = rd(0x1c);
+    uint16_t phentsize, phnum;
+    memcpy(&phentsize, f + 0x2a, 2); memcpy(&phnum, f + 0x2c, 2);
+    for (uint16_t i = 0; i < phnum; ++i) {
+        size_t e = phoff + i * (size_t)phentsize;
+        if (rd(e) != 1 /*PT_LOAD*/) continue;
+        uint32_t off = rd(e + 4), addr = rd(e + 8), filesz = rd(e + 0x10), memsz = rd(e + 0x14);
+        if (addr >= 0x80000000u) addr -= 0x80000000u;
+        if (addr + memsz > RT_GUEST_RAM_SIZE || off + filesz > sz || filesz > memsz) return false;
+        std::memset(kRam + addr + filesz, 0, memsz - filesz);  // .bss stays zero
+        std::memcpy(kRam + addr, f + off, filesz);
     }
     return true;
 }
@@ -188,7 +189,7 @@ void setFrameFloor(uint32_t f) { g_frameFloor = f; }
 
 static uint32_t g_pendingRA = 0;
 uint32_t pendingRA() { return g_pendingRA; }
-void setPendingRA(uint32_t r) { g_pendingRA = r; }
+void setPendingRA(uint32_t r) { g_pendingRA = r + 8u; }  // MIPS return = jal+8 (oracle stack residue: jal@0x2089c0 leaves ra 0x2089c8)
 
 void framePush(uint32_t size) {
     uint32_t base = g_frameTop - size;

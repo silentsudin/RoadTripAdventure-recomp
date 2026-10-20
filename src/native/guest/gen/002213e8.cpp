@@ -22,7 +22,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
   iVar3 = 0;
   uVar2 = (uint32_t)(int)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 6))) * 2 + 0x1c44);
   RT_CALLRA(0x22148c, guest::vifFixedRegs(uVar2 | 0x20138c85dd308000,7,
-               uVar2 | 0x1d408000 | (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 5))) << 0x38 | 0x138c85c0000000,7));
+               uVar2 | 0x1d408000 | (uint64_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_3 + 5))) << 0x38 | 0x138c85c0000000,7)); // UB fix: pseudocode (ulong) (002213e8.c:21)
   RT_CALLRA(0x22149c, guest::vu0UnitMatrix(auStack_90));
   RT_CALLRA(0x2214ac, guest::vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)param_2)),auStack_90,auStack_90));
   RT_CALLRA(0x2214bc, guest::vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint32_t))),auStack_90,auStack_90));

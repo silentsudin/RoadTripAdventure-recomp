@@ -85,7 +85,8 @@ uint32_t puVar7;
       RT_CALLRA(0x2154a8, guest::uiArenaDataTag(iVar5,1));
       (*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) = 0x2000000024;
       (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = 0x6800000098;
-      (*(uint64_t*)rtguest::G((uint32_t)uStack_98)) = (uint32_t)(uint32_t)((iVar2 + -1) * 0x68) << 0x20;
+      // UB fix: pseudocode (ulong)(uint) << 0x20 (00215220.c:85); uint32 shift was UB
+(*(uint64_t*)rtguest::G((uint32_t)uStack_98)) = (uint64_t)(uint32_t)((iVar2 + -1) * 0x68) << 0x20;
       (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = 0;
       RT_CALLRA(0x215508, guest::uiArenaSprites(iVar5,uStack_a0,1,0x78,0x68,0));
     }

@@ -182,9 +182,13 @@ uint32_t sceSifBindRpc(uint32_t clientPtr, uint32_t rpcId, uint64_t mode64, ...)
         // "bound" signal). Not gated on the module table: at boot the game
         // binds SdRpc (0x80000701) before any LoadModule — the oracle serves
         // it from the real IOP's SdServer; we serve it from the host.
-        serverPtr = rtguest::kHeapAlloc(kSdStructSize);
+        // oracle rpcAllocServerAddr (Kernel/Syscalls/Helpers/Runtime.h:99,
+        // State.h:249-252): fixed pool at 0x01F10000, stride 0x80 — NOT the
+        // game heap (that moved the oracle's 0x17874e0 heap node).
+        static uint32_t s_rpcServerIndex = 0;
+        serverPtr = 0x01F10000u + (s_rpcServerIndex++ % 512u) * 0x80u;
         if (serverPtr < RT_GUEST_RAM_SIZE && mem(serverPtr)) {
-            std::memset(mem(serverPtr), 0, kSdStructSize);
+            std::memset(mem(serverPtr), 0, 0x80);
             wrW(serverPtr + kSdSid, rpcId);
             g_rpcServers[rpcId] = serverPtr;
         } else {

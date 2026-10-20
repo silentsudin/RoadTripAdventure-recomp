@@ -654,3 +654,83 @@ Dispatched (claude-code pool): parity-debugger@opus (band chase owner), reverse-
 semantics + card cadence code), bug-tester@sonnet (gates on tree with UB fix), test-engineer@sonnet
 (tests/native_parity/test_text_list_tex2_ram.py pinning slot 0x336370 at RAM level), port-worker@haiku
 (ub-audit.md across gen corpus for the same pseudocode-ulong/uint32-shift UB class).
+
+## W12 2026-10-20 late-6: RE cadence model + UB batch 2 applied; new pacing symptom
+
+RE (verified against pseudocode): 0x335900 is NOT a task-pool header — it is the 0x160-byte gameFrameCtx
+(2nd arg to every task callback). Byte +9 = gsFieldParity = (sceGsSyncV(0)==0) (002003b8.c:52-54). The task
+pool is gs_tasks_pool 0x177A0D0, 48x0x30; slot +8 = frames-run, incremented once per WALKER VISIT, i.e. per
+main-loop ITERATION, not per vblank. The attract "card" = titlePressStart 0x208A88 blink: text only when
+(task+8 & 0x20) && +8 < 0x708, 32 on / 32 off, ends at +8 == 0x718; on-windows 474+64k in vblanks PROVE the
+old build paced iterations 1:1 to vblanks. SyncV ground truth (0026e458.c): returns interlace-env ? CSR FIELD
+bit : 1; native gen/0026e458.cpp reads CSR as *(uint8_t*) at 0x12001000 — byte read, >>0xd&1 == 0 always
+(transliterator MMIO width class, also 0026e250/0026ecb0; oracle pair: native +9 stuck 0 = env interlace 0 or
+FIELD never set). The linked sceGsSyncV is the GEN TU (libs stub in guest_libs_gs.cpp is anonymous-namespace,
+dead for direct calls). The ELF SyncV copy never parks; iteration parking must come from elsewhere — hunt it.
+
+UB batch 2 APPLIED (pseudocode-cited, built clean): 00215220.cpp:88 (ulong)(uint)<<0x20 lost -> sprite-sheet
+stack qword high word; 00221f70/002213e8/00221788x2 (ulong)*(byte)<<0x38 in vifFixedRegs/vifBatchRegs csa
+bits -> attract demo 3D model regs; 00277bc0 copysign params widened (was uint32 vs ulong/long; kernel_rem_pio2
+trig). Band hashes UNCHANGED (old binary post-batch-1 tree: 1300-1304 a7ca7a, 1308-1336 d274e9, 1340+ a7ca7a)
+— these UBs are not the band content fix. NEW SYMPTOM with the rebuilt binary: run ENDS at vblanks=1151
+(running=false, no error, faults=0) instead of 1365: consistent with titlePressStart +8 hitting 0x718 at
+vb~1151 -> iterations free-running (~1.58/vb) once faithful trig/sprite/VIF data changes load+draw mix. Fixing
+iteration parking (1 iteration == 1 vblank like the oracle) is now the primary band-cadence suspect: it gates
+the blink windows AND the title->attract-demo transition timing. Registry updated (gameFrameCtx/gsFieldParity/
+loadInProgressFlag/titlePressStart+sequencer notes). claude RE+test agents closed; parity-debugger still on it.
+
+## W12 2026-10-20 late-7: CARD BAND CLOSED (rgba5551 decode); +9 confirmed real, timing theory dead
+
+Root cause (parity-debugger, coordinator-applied): `rgba5551To8888` in guest_gs.cpp dropped `<<3` on G/B and put
+alpha at bit24 instead of bit31 — oracle gs_cpu_backend.cpp:38-47 expands every channel `<<3` (5→8 bit) and alpha
+`<<7`. Patched native is FULL-FRAME byte-identical to the oracle at every vblank 1297..1360 (not just the band).
+The late-5/late-6 "early swap / corrupted new-card / pacing" symptoms were ALL artifacts of the mis-decode plus
+mislabelled `/tmp/so_o*.raw` frames (old oracle driver advanced 4 labels per 3 vblanks). No GIF-carry or iteration
+parking defect exists; the run ending at vb1151 was the same label artifact. Per-vblank oracle table rebuilt
+correctly (build/scratch/parity/oracle_per_vb_drive.py, dumps /tmp/cbo/f{1296..1359}.raw): new card parks
+1306..1337 → native labels 1308..1336 NEW, 1300/1304/1340..1348 OLD; EXPECTED pinned in
+tests/native_parity/test_card_band_attract.py (GREEN). tex2 RAM test green too. UB batch 1+2 stand (page-0x336
+diff gone in post-fix pair /tmp/eerm_p1305.bin vs /tmp/ram_n1306b.bin).
+
++9 (0x335909) CONFIRMED real: oracle toggles per-vblank (0@parks 1140/1170 even, 1@1305 odd); native stuck 0.
+MIPS ground truth for gsSyncVSetFlagIntc @0x285460 (LE capstone): zeroes sp+0 flag slot, SetVSyncFlag(a0=sp)
+(flagAddr=sp+0, tickAddr=sp+8 — transliterator wrongly used a separate allocFrame(4) slot in gen/00285460.cpp),
+writes INTC_STAT(0x1000f000)=4, polls INTC_STAT&4 / flag(sp+0) until either fires, acks INTC_STAT, returns
+`ld 8($sp)` = u64 tick. Kernel (EeScheduler.cpp:1378/2056): onVblank sets CSR FIELD 0x2000 from tick&1, flag=1,
+u64 m_vsyncTick → tickAddr. CONTRADICTION: (tick>>13)&1 is near-constant while +9 toggles per-vblank → the
+late-6 model "+9 = (SyncV(0)==0)" needs re-derivation; also native lacks the poll/ack and CSR FIELD toggle.
+gen/00285460.cpp is NOT faithful. parity-debugger dispatched (claude-sonnet-5-5, session kept) with this evidence;
+also ranking the 177e/177f/1787 + page clusters and the 3 .reginfo bytes as state-hash blockers vs inert.
+test-engineer (gpt-6.1-sol) writing tests/native_parity/test_ram_parity_attract.py: full-RAM diff-set tripwire
+(diff set must EQUAL the pinned known set — trips on regressions AND on fixes). TEMP probes stripped
+(RT_NATIVE_POKE/RT_NATIVE_DIRECT_LOG gone; GS_DUMP/RAM_DUMP seams stay, w2-13 coverage 83/83). bug-tester
+re-running full closeout (expect 154/154) on the integrated tree pre-commit.
+
+late-8 (2026-10-20, +9 CLOSED + re-pin): +9 fix verified (native 0x335909 = 0/1/0/1 at vb 1141/1142/1171/1306
+= oracle parity per EeScheduler.cpp:1438). Tripwire red revealed the OLD fixture was hooked-oracle
+(progressive-ON forces uiEnvCenterPos parity arg to 0, overrides.cpp:179-183): regenerated it PINNED
+(RT_PROGRESSIVE_FIELDS=0, driver oracle_eerm_pin.py — oracle test socket dies with its parent, drive it from
+a persistent python parent). Repinned via repin_ram_attract.py: 736 B / 12 pages, pages 0x335/0x336 now
+byte-exact. card_band + tex2 + tripwire all green on the fixed binary; test_w12_kernel CHECK 0xFFFFFFFFu -> 1u
+(test pinned pre-fix shim value; contradicts cited oracle, stated in commit). closeout green (154/154, det pair
+identical); matrix re-running. port-worker W12-UB3 triage DONE: 2 signedness FIXS in cap (0021a088
+UpdateSteeringDamping param_2/4 < 0/< 5000 on pseudocode long, caller 0021a310 passes int -> int32_t, coordinator
+spot-verified 0021a088.c:58/64/75; 00217c68 UpdateCarTireSound param_3 signed < 0x41 chain -> int32_t) + 4 real
+64-bit rows out of cap (0027b540 __floatdisf param_1 >> 0x20; 00271cd8 gifEmitBlock8Planes param_5 8-plane mask,
+param_6 &0xffffffff<<9, param_2 Qword addr) to apply once GATES_DONE sentinel lands (post-commit). parity-debugger
+chasing 0x177e camera-matrix cluster + 0x17874e0-vs-0x1f10000 allocator placement.
+
+late-9 (2026-10-20, heap batch landed): parity-debugger HEAP-ROOTCAUSE.md applied. gen fixes (MIPS-cited,
+coordinator verified `sh` stores 00208848 @0x2088ec/0x208988 with capstone, mask word 0x4b864218 present in
+00272a70 body): 00208848 halfword stores (u32 store was zeroing 0x29abe6), 00272a70 vu0SinCos a3 branch +
+dest-mask 0b0110->0b1100 + callers 00272ae8/90/c38 set g_a3SinCos, ClipScreen vsub masks 0b1011->0b1101
+(002732d0/18/78, attract-neutral). Shims applied by hand: guest_libs_sif.cpp SdRpc dummy server from oracle
+fixed pool 0x01F10000 stride 0x80 (rpcAllocServerAddr Runtime.h:99) not game heap; guest_mem.cpp setPendingRA
++8 (MIPS jal return, oracle residue 0x2089c8 for jal@0x2089c0 — sweep caught nothing, det pair identical);
+guest_mem.cpp loadImage now PT_LOAD segment staging (section walk missed .reginfo 0x29a840-47; ELF32 memsz
+at phdr+0x14 — first patch attempt used +0x18=p_flags and failed staging). Census 736/12 -> 498 B / 10 pages
+(pinned repin from /tmp/eerm_p1305pin.bin vs /tmp/p10_1306.bin); tripwire header updated. closeout green on
+integrated tree (154/154, det pair). OPEN: camera view-matrix output (21/25 rows, stack-residue class,
+BuildCameraViewMatrices input probe next), vu0TransformVerts vf0 vsub guard decision (gen/0021d470, needs
+oracle vf0-state probe), pages 0/9/a/e + 1fff=294 mask-policy ledger, oracle thread/stack table words at
+1787 (18). loader patch provenance refreshed at build/scratch/w12-parity/loader-segment-staging.patch.

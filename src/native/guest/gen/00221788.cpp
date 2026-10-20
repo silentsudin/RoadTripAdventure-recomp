@@ -196,7 +196,7 @@ LAB_00221c74:
           RT_CALLRA(0x221d3c, guest::vifObjectMatrix(param_3));
           uVar4 = (uint32_t)(int)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 6))) * 2 + 0x1c44);
           RT_CALLRA(0x221f14, guest::vifBatchRegs(uVar4 | 0x20138c85dd308000,7,
-                       uVar4 | 0x1d408000 | (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 5))) << 0x38 |
+                       uVar4 | 0x1d408000 | (uint64_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 5))) << 0x38 | // UB fix: pseudocode (ulong) (00221788.c:193)
                        0x138c85c0000000,7));
           RT_CALLRA(0x221d54, guest::vifCallModel((*(uint32_t*)rtguest::G(0x177eb04)) + 0x10));
         }
@@ -206,7 +206,7 @@ LAB_00221c74:
         uVar5 = 0;
         RT_CALLRA(0x221e14, guest::vifCallModel((*(uint32_t*)rtguest::G(0x177eaf0)) + 0x10));
         RT_CALLRA(0x221d9c, guest::vifFixedRegs(0x20138c85dd309c44,7,
-                     (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 5))) << 0x38 | 0x138c85dd409c44,7));
+                     (uint64_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar2 + 5))) << 0x38 | 0x138c85dd409c44,7)); // UB fix: pseudocode (ulong) (00221788.c:203)
         RT_CALLRA(0x221da4, guest::vu0UnitMatrix(auStack_b0));
         RT_CALLRA(0x221db4, guest::vu0RotMatrixX((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x80))),auStack_b0,auStack_b0));
         RT_CALLRA(0x221dc4, guest::vu0RotMatrixY((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x84))),auStack_b0,auStack_b0));

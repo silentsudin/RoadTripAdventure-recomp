@@ -687,7 +687,8 @@ void wakeVSyncWaiters() {
     invs.swap(g_vsyncWaiters);
     for (int id : invs) {
         KThread* t = thread(id);
-        if (t && t->waitReason == WaitVSync) makeReady(*t, (int32_t)t->waitId);
+        if (t && t->waitReason == WaitVSync)  // oracle completeVSync (EeScheduler.cpp:1438): fixedResult<0 -> field parity
+            makeReady(*t, t->waitId >= 0 ? (int32_t)t->waitId : (int32_t)((g_vsyncTick - 1u) & 1u));
     }
 }
 

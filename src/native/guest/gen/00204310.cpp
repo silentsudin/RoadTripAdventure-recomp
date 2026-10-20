@@ -1,10 +1,11 @@
 // guest:0x00204310 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
+// param_4 is ulong in pseudocode (dsll32 a3 @0x204364): param_4 << 0x38 needs the full 64-bit value.
 #include "guest_decls.inc"
 
 namespace guest {
 
-uint32_t uiDrawTextCell(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+uint32_t uiDrawTextCell(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
   rtguest::FrameGuard rt_fg(64);
   byte bVar1;
   int iVar2;

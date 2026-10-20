@@ -165,7 +165,7 @@
 0x208270 = { name = "fadeOutTask", note = "task: fade to black over 0x40 / 0x20 ticks" }
 0x2082D8 = { name = "fadeInTask", note = "task: fade in" }
 0x208358 = { name = "flashTask", note = "task: white flash" }
-0x208A88 = { name = "titlePressStart", note = "title picture scene (PRESS START BUTTON)" }
+0x208A88 = { name = "titlePressStart", note = "title PRESS START blink: text only when (task+8 & 0x20) and +8<0x708, fade-in +8<0x10, ends at +8==0x718 setting parent +0x24/+4 (00208a88.c:25-50); draws uiDrawTextCell(10,0xb,str,4) - the only bank-4 caller in the corpus; strings by language 0x2ea090/a8/c8" }
 0x209520 = { name = "titleNewGameContinue", note = "title menu scene (New Game / Continue)" }
 0x20DF50 = { name = "getExtraPacketArea", note = "returns 0x15A7B80 (fatal above 0x180000 bytes)" }
 0x21D470 = { name = "vu0TransformVerts", note = "VU0 macro stream: loads four input qwords from a1 offsets 0/0x10/0x20/0x30 and branches on input bits 8/0x18/0x1A/0x1B" }
@@ -334,7 +334,7 @@
 0x209848 = { name = "RunMenuSelectionTask", note = "Processes menu selection and updates task/input state." }
 0x209CB0 = { name = "RunMenuNavigationTask", note = "Processes menu navigation state and updates menu presentation." }
 0x20A150 = { name = "UpdateMenuOptionTask", note = "Updates a menu option task and dispatches its transition state." }
-0x20A2B0 = { name = "DispatchMenuTask", note = "Selects and spawns the next menu task based on task and mode state." }
+0x20A2B0 = { name = "DispatchMenuTask", note = "title sequencer (alias): state byte +0x25 walks logo 0x2086B0 -> car intro 0x208848 -> titlePressStart 0x208A88 -> attract demo 0x20A150 (0020a2b0.c:63-80)" }
 0x20A520 = { name = "UpdateMenuConfirmTask", note = "Spawns a confirmation task and processes its completion state." }
 0x20A580 = { name = "UpdateMenuScreenTask", note = "Starts a screen task and advances its timer/transition state." }
 0x20A660 = { name = "UpdateMenuInputState", note = "Updates menu input state and associated option records." }
@@ -1254,6 +1254,13 @@
 # --- Agent naming loop, verified wave 1 (2026-10-17): DeepSeek batch proposals; coordinator spot-verified (ELF string reads, pseudocode reads, pointer dereferences). [unclear] notes mark structural-only ids. ---
 0x002732B8 = { name = "sceVu0ScaleVectorXYZ", note = "VU0 leaf: lqc2 vf4,0(a1); mfc1 t0,f12; qmtc2 t0,vf5; vmulx.xyz vf4,vf4,vf5x; sqc2 vf4,0(a0) so dest.xyz=src*f12 and dest.w=src.w. Sibling 0x272988 is the .xyzw sceVu0ScaleVector. Callers 0x2085b0/0x223b30/0x24eb10/0x24ee30/0x251440/0x252540." }
 0x002732D0 = { name = "sceVu0ClipScreen", note = "Screen clip of one vec: builds 4096.0 (lui 0x4580/dsll/ori -> 0x45800000), ctc2 zero,vi16, vsub.xyw (v-0) and vsub.xy (4096-v), returns cfc2(vi16)&0xc0. No callers; 0x48 bytes matches libvu0 sceVu0ClipScreen." }
+0x00208848 = { name = "RunMenuPanelTask", note = "Attract/title menu panel task: spawns gs task 0x20dc50, sets view-distance pair at 0x29abe4/6 via MIPS sh halfword stores (0x2088ec/0x208988), PlayUiSound, SetViewDistanceGlobals." }
+0x0021d470 = { name = "vu0TransformVerts", note = "VU0 vertex transform loop; two vsubs target vf0 (status-flag side effects read by clip test) - oracle vf0-write-guard behavior open question, see w13 ledger late-9." }
+0x00272a70 = { name = "vu0SinCos", note = "VU0 sin/cos Taylor kernel, angle in vf4: branch on $a3 sign at 0x272ac8 (bnez $7): vaddbc vs vsubbc tail (fn/00272a70.c:42); dest mask word 0x4b864218 = xy (was 0110, fixed 2026-10-20)." }
+0x00272ae8 = { name = "vu0RotMatrixZ", note = "VU0 Z-axis rotation matrix builder: angle sign -> g_a3SinCos (1 iff <0, MIPS 0x272bb4/bbc) then calls vu0SinCos." }
+0x00272b90 = { name = "vu0RotMatrixX", note = "VU0 X-axis rotation matrix builder, same a3-sign contract as vu0RotMatrixZ." }
+0x00272c38 = { name = "vu0RotMatrixY", note = "VU0 Y-axis rotation matrix builder, same a3-sign contract as vu0RotMatrixZ." }
+0x002732d0 = { name = "sceVu0ClipScreen", note = "lqc2 point at param, vi16|=4096, two vsubs (masks 0b1101/0b1100 fixed 2026-10-20), returns cfc2&0xc0." }
 0x00273318 = { name = "sceVu0ClipScreen3", note = "Same 4096.0/vi16 test as 0x2732d0 but lqc2 of a0/a1/a2 and three vsub.xyw+vsub.xy pairs, returns cfc2&0xc0. = sceVu0ClipScreen3; no callers." }
 0x00273378 = { name = "sceVu0ClipAll", note = "Loads 4 matrix rows from param_3, loops param_5 verts at param_4 (vmulabc/vmaddabc/vmaddbc), compares to param_1/param_2 scaled by w (vmulbc+vsub); returns 0 if any (cfc2&0xc0)==0 else 1. = sceVu0ClipAll(min,max,mat,verts,n); no callers." }
 0x00273468 = { name = "_send_to_iop", note = "libpad: port*0x70+slot*0x1c; if sceSifDmaStat(DAT_0177321c)<0 increments frame at *DAT_01773214, sceSifWriteBackDCache 8 words, sceSifSetDma 0x20 bytes to IOP DAT_01773218+(frame&1)*0x20; printf 'libpad: sceSifSetDma faild' (0x3311A0) when DAT_002e6ec4!=0. Only caller scePadSetActDirect 0x274198." }
@@ -1389,6 +1396,9 @@
 0x3356F0 = { name = "vifPacketSaved", note = "main-buffer pointer saved while the second buffer is built" }
 0x3356F4 = { name = "vifPacketSecond", note = "1 while building in the second buffer" }
 0x29ED10 = { name = "gifRegListTemplate", note = "GIF tag: NLOOP 1, EOP, REGLIST, NREG 2 (regs patched per call)" }
+0x335900 = { name = "gameFrameCtx", note = "0x160-byte per-frame ctx, 2nd arg to every task callback (gs_tasks_walker 00204f98.c:8); memset by gameMainLoop 002003b8.c:19; +0 frame counter +1/iter (:80), +8 frameParity toggled (:81), +9 gsFieldParity, +0xa game mode, +0xf loadInProgress, +0x28 drive flags, +0x30 pad bits, +0x50 fade colour" }
+0x335909 = { name = "gsFieldParity", note = "= (sceGsSyncV(0)==0) at 002003b8.c:52-54; SyncV (0026e458.c) returns interlace env ? CSR FIELD bit : 1; only consumers: uiEnvCenterPos/B param_4 half-line y (+8) at 0026f340.c:19-23" }
+0x33590F = { name = "loadInProgressFlag", note = "set 1 by loadRequestTask 0020dc50.c:11; gates titleCarIntro (00208848 ctx+0xf==0)" }
 0x29A830 = { name = "elfRegInfo", note = ".reginfo inside the text PT_LOAD (MIPS_REGINFO); +0x14 = ri_gp_value 0x33aaf0 ($gp); no code reads it, but the loader should copy the whole PT_LOAD so RAM matches the oracle" }
 0x177E6D0 = { name = "cameraBlocks", note = "0x190 bytes per viewport" }
 0x177F720 = { name = "sceneParams", note = "3 qw for VU1 0x13: time-of-day weights (x, y, z), fog" }

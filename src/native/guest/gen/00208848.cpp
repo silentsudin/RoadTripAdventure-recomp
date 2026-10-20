@@ -27,7 +27,8 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25))) = 1;
       RT_CALLRA(0x2088cc, guest::gs_tasks_spawn(param_1,0x20dc50,0x310000));
       (*(int16_t*)rtguest::G(0x29abe6)) = 0x1100;
-      (*(uint32_t*)rtguest::G(0x29abe4)) = 0x1c00;
+      // sh 0x1c00,0x14($3) @0x2088ec (MIPS; fn/00208848.c:38 DAT_0029abe4): a HALFWORD store, the u32 store zeroed the 0x29abe6 halfword just set
+      (*(int16_t*)rtguest::G(0x29abe4)) = 0x1c00;
       RT_CALLRA(0x2088e8, guest::PlayUiSound(0x328));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x25)));
     }
@@ -41,7 +42,8 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
       (*(float*)rtguest::G(0x29abe0)) = (float)(0x40 - sVar2) * (*(float*)rtguest::G(0x332b2c)) + (*(float*)rtguest::G(0x332b30));
     }
     else if (sVar2 < 0x81) {
-      (*(uint32_t*)rtguest::G(0x29abe4)) = (0x80 - sVar2) * 0x70;
+      // sh $2,0x14($5) @0x208988 (MIPS; fn/00208848.c:47): halfword store
+      (*(int16_t*)rtguest::G(0x29abe4)) = (0x80 - sVar2) * 0x70;
       (*(int16_t*)rtguest::G(0x29abe6)) = (0x80 - (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 2)))) * 0x44;
     }
     RT_CALLRA(0x2089ac, guest::SetViewDistanceGlobals(0x45000000,0x45000000));
