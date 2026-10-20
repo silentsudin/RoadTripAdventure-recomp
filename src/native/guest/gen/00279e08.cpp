@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t mceIntrReadFixAlign(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t piVar1;
   int iVar2;
   int iVar3;

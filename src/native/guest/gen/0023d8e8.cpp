@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t TestFlagFc68(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   bool bVar1;
   int iVar2;
   int iVar3;

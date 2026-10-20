@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t auditRouletteOutcome(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   if ((*(int32_t*)rtguest::G(0x177fdb4)) < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x800c)))) {
     GetOrSetPresidentRaceResult(1);
     return 0;

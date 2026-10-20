@@ -6,6 +6,7 @@
 namespace guest {
 
 uint32_t sqrtf(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   return __ieee754_sqrtf(param_1);
 }
 

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DispatchTypeSetup(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   switch((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)))) {
   case 0x12:
   case 0x13:

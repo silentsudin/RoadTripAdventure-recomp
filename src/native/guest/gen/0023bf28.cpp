@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t FindFlaggedSlotIndex(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   bool bVar1;
   int iVar2;
   uint uVar3;

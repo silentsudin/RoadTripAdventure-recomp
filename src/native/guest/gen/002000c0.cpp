@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t Ps2InitGsDoubleBuffer(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   syscall(0x23);
   if (param_1 == 0) {
     sceGsResetGraph(0,1,2,1);

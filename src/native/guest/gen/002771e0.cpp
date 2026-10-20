@@ -7,6 +7,7 @@
 namespace guest {
 
 uint32_t __kernel_sinf(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   float x = rtguest::fbits(param_1);
   float y = rtguest::fbits(param_2);
   float fVar1;

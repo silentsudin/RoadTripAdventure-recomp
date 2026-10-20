@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t vifBatchRegs(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t puVar1;
   bool bVar2;
   ulong uVar3;

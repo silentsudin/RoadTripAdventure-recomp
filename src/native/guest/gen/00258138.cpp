@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SndRpcReadBlock1F(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   undefined8 uVar2;
   undefined8 uVar3;

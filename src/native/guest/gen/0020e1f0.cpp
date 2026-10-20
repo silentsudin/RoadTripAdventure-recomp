@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t cdReadEntry(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   
   (*(uint32_t*)rtguest::G(0x3356c8)) = (uint32_t)param_2;

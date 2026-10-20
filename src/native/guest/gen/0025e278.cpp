@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t balloonCourseTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   short sVar1;
   int iVar2;
   undefined4 uVar3;

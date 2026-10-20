@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ApplySoundVolumes(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   iVar1 = (*(int16_t*)rtguest::G(0x1780a3e)) * 0x3fff;

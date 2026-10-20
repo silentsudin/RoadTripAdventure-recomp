@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t loadRequestTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   if ((*(uint32_t*)rtguest::G(0x333370)) == 0) {
     (*(uint32_t*)rtguest::G(0x333370)) = 1;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xf))) = 1;

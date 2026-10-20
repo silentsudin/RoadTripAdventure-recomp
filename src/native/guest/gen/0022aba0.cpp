@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t AdvanceAnimationPhaseState(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   short sVar2;
   

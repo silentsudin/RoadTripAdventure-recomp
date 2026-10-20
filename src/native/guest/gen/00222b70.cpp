@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t drawCarsAction(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_190 = rtguest::allocFrame(60);
     uint32_t fStack_154 = rtguest::allocFrame(4);
 uint32_t acStack_150 = rtguest::allocFrame(32);

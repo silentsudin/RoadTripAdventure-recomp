@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t InitScreenLayout(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   gifBeginSpriteBatch(param_1,0x2015a70e21312cb8);

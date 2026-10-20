@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t scePrintfPutChar(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   iVar1 = (*(int32_t*)rtguest::G(0x2e98f4));

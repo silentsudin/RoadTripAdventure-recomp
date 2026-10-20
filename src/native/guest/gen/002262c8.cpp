@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t GetSceneFogParamsPtr(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   return 0x0177f730;
 }
 

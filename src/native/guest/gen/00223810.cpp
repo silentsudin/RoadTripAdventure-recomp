@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t MakeVifCall15xGif(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   return (long)(param_1 * 10 + 0x1be4) | 0x19308000U | (long)(param_1 * 10 + 0x1bec) << 0x25 |
          0x2010000540000000;
 }

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _localeconv_r(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   return 0x3323d8u;
 }
 

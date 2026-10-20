@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawTextHalfY(uint64_t param_1, uint32_t param_2, uint64_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   uiDrawText(param_1,param_2 / 2,param_3,param_4);
   return 0;
 }

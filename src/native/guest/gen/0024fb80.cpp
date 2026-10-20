@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t InitCameraTransforms(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   ResetVehicleState();
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x1d6))) = 0;
   vu0UnitMatrix(param_2);

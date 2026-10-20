@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t vu0CopyMatrix(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   undefined4 uVar2;
   undefined4 uVar3;

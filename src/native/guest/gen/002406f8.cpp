@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UpdateProximityEvent(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_70 = rtguest::allocFrame(16);
 uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t fStack_5c = rtguest::allocFrame(4);

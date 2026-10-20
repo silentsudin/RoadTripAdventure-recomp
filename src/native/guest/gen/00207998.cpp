@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t uiHideSprite(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) = 0xd;
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x48))) = 0xd;
   return 0;

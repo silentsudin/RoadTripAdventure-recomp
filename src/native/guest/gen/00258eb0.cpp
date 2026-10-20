@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t BgmStop1(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   MusicRpcCmd15(1);
   return 0;
 }

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SetGamePausedState(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   if (param_2 != 0) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) | 0x2000;
     SoundStopAllChannels();

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t drawModelParts(uint32_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   int iVar2;
   int iVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t TestProgressFlag(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   return ((*(uint32_t*)rtguest::G(0x177fdd0)) & 1 << (param_1 & 0x1f)) != 0;
 }
 

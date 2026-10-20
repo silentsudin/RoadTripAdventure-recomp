@@ -9,6 +9,7 @@
 namespace guest {
 
 uint32_t LookupPlayerNameSlot(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   bool bVar1;
   uint64_t idw;
   uint32_t namep;

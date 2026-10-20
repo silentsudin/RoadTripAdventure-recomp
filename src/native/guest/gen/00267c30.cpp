@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t applySlotMaskDefaults(uint32_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   bool bVar2;
 uint32_t puVar3;

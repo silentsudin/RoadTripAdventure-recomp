@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t PopByteQueue(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined1 uVar1;
 uint32_t puVar2;
   int iVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t textEntryExitFade(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   iVar1 = (int)param_1;

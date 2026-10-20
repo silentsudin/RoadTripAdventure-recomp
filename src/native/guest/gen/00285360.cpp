@@ -5,6 +5,7 @@
 namespace guest {
 
 int32_t sceSifSetDma(uint32_t q0, uint32_t q1) {
+  rtguest::FrameGuard rt_fg;
   // W12: sceSifSetDma($4 dmat, $5 count); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x77, q0, q1);

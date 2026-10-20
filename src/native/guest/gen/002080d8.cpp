@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SelectMeshIntersectionRoutine(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   if (param_1 == 0) {
     (*(uint32_t*)rtguest::G(0x335710)) = 0x207280u;
   }

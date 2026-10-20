@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t MatchSlotPairState(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   
   if (((((*(int8_t*)rtguest::G(0x177fdd4)) != param_1) || (uVar1 = 1, (*(int8_t*)rtguest::G(0x177fdd5)) != param_2)) &&

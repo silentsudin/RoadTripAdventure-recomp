@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t sceSifRebootIop(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   uint uVar2;
   undefined8 uVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t textGridDestroy(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   heapFreeBlock((*(uint32_t*)rtguest::G(param_1 + 2 * sizeof(uint32_t))));
   (*(uint32_t*)rtguest::G(param_1 + 1 * sizeof(uint32_t))) = 0;
   (*(uint32_t*)rtguest::G(param_1 + 2 * sizeof(uint32_t))) = 0;

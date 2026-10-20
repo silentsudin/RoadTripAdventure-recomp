@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t fpDoubleToInt(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   ulong uVar2;
   long lVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SpawnRaceRivalTasks(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t pbVar1;
   bool bVar2;
   byte bVar3;

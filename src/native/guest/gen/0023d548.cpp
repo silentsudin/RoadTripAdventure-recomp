@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t TestFlaggedSlotBit(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   if ((param_1 != 0) && (param_1 != 0xf)) {
     return (*(uint32_t*)rtguest::G((uint32_t)0x17803a0 + (uint32_t)(param_1 * 5 + param_3 * 0xd12) * 4)) & 1 << (param_2 & 0x1f);
   }

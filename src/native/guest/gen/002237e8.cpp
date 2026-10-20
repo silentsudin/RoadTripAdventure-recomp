@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t switchD_00223790_selectCarAttachmentCase8(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   int in_a3_lo;
   undefined4 uStack00000004;
   undefined4 uStack00000008;

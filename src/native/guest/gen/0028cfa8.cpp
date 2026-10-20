@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t EIntr(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   EI();
   return (Status & 0x10000) != 0;
 }

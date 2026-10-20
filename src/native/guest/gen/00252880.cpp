@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawGolfHoleIntro(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_130 = rtguest::allocFrame(8);
     uint32_t uStack_128 = rtguest::allocFrame(8);
     uint32_t uStack_120 = rtguest::allocFrame(8);

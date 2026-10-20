@@ -4,6 +4,7 @@
 
 namespace guest {
 uint32_t ResetVehicleState(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   using namespace rtguest::vu0;
   sqc2(param_2 + 0xf0, S.vf[0]);
   *static_cast<uint8_t*>(rtguest::G(param_2 + 0x1ff)) = 1;

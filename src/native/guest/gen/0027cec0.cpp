@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t extract_cie_info(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   int iVar2;
 uint32_t pbVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceGifPkCloseGifTag(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t puVar1;
   ulong uVar2;
 uint32_t puVar3;

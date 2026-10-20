@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ReleaseStampFlag(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   uint uVar2;
   

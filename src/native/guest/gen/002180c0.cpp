@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t LoadCarPerformanceSpecs(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   short sVar2;
   undefined2 uVar3;

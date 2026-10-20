@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UpdateRotatingEffect(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   uint uVar2;
   uint uVar3;

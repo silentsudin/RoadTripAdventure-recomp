@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceRmdir(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   _sceCallCode(param_1,8);
   return 0;
 }

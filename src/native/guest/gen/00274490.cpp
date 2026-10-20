@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t scePadInfoPressMode(uint64_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   bool bVar1;
   uint64_t lVar2;
   

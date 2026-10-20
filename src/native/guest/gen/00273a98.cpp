@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t scePadGetDmaStr(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x01773210 + param_2 * 0x1c + param_1 * 0x70)));

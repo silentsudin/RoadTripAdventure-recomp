@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t townMapTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t afStack_110 = rtguest::allocFrame(40);
     uint32_t fStack_e8 = rtguest::allocFrame(4);
     rtguest::allocFrame(4);  // guest frame gap

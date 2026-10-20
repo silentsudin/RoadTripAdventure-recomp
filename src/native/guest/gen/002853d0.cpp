@@ -5,6 +5,7 @@
 namespace guest {
 
 int32_t Deci2Call(uint32_t q0, uint32_t q1) {
+  rtguest::FrameGuard rt_fg;
   // W12: Deci2Call($4 code, $5 args*); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x7c, q0, q1);

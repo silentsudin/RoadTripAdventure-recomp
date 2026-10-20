@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t StartRaceModeTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t pcVar1;
   char cVar2;
   undefined1 uVar3;

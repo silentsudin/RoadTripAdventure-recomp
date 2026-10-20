@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t endingCreditsScroll(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined2 uVar1;
   undefined4 uVar2;
   char cVar3;

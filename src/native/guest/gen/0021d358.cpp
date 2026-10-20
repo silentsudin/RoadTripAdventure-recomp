@@ -5,6 +5,7 @@
 
 namespace guest {
 uint32_t GetSpeedFromF15Vector(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   using namespace rtguest::vu0;
   S.vf[4] = lqc2(param_1);
   vitof15(0b1111, 4, 4);

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t __divdi3(int64_t param_1, int64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   uint uVar2;
   int iVar3;

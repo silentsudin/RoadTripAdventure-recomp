@@ -4,6 +4,7 @@
 
 namespace guest {
 uint32_t eeQuadBuild(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   using namespace rtguest::vu0;
   S.vf[1] = lqc2(param_2); S.vf[2] = lqc2(param_2 + 16);
   vadd(15, 1, 1, 2);

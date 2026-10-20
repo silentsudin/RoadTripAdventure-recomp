@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifFreeIopHeap(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   long lVar2;
   

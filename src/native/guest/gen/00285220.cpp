@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t FlushCache(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   syscall(100);
   return 0;
 }

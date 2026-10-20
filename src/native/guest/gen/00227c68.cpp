@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t InitControlsBindings(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
 uint32_t puVar2;
 uint32_t puVar3;

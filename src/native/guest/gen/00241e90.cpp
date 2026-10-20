@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t townMapCoins(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   int iVar2;
   long lVar3;

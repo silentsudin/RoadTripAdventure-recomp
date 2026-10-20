@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t fabs(uint32_t __x, ...) {
+  rtguest::FrameGuard rt_fg;
   return (double)((uint32_t)__x & 0xffffffff | ((long)__x >> 0x20 & 0x7fffffffU) << 0x20);
 }
 

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UploadCarColorPalette(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   vifUploadColours(0x29d2d0,0x29d2e0);
   vifDirect(0x29d2f0,2);
   return 0;

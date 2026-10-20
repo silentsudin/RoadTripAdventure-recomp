@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _sbrk_r(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   
   (*(int32_t*)rtguest::G(0x33573c)) = 0;

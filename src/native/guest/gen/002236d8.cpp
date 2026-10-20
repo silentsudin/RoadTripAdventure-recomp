@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawCarVariant0(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   drawCar(0,0,param_1,param_2,0);
   return 0;
 }

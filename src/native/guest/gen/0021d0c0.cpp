@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t TestSegmentInBoxWindow(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t fStack_20 = rtguest::allocFrame(4);
     rtguest::allocFrame(4);  // guest frame gap
     uint32_t fStack_18 = rtguest::allocFrame(4);

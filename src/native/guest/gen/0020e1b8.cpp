@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t AbortCdOperation(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint32_t*)rtguest::G(0x333370)) = 0;
   if (((*(uint32_t*)rtguest::G(0x3356c0)) & 0x8000) != 0) {
     sceCdBreak();

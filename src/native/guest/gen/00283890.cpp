@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _s2b(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   undefined8 uVar2;
   int iVar3;

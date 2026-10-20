@@ -6,6 +6,7 @@
 namespace guest {
 
 uint32_t uiDrawTime(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t puVar1;
   int iVar2;
 uint32_t auStack_30 = rtguest::allocFrame(16);

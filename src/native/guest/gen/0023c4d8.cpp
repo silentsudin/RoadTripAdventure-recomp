@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t switchD_0023c440_setObjectAttributeCase7(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_4 + 6))) = param_3;
   return 0;
 }

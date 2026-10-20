@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t InitSaveSlotDefaults(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   int iVar2;
   undefined1 uVar3;

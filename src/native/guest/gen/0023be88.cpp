@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t dialogueCmdPlaySoundCue(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   int iVar2;
   uint uVar3;

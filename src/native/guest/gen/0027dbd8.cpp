@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t malloc(uint32_t __size, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t pvVar1;
   
   __malloc_lock((*(uint32_t*)rtguest::G(0x002e8cc0)));

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t shopMenuScene(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_f0 = rtguest::allocFrame(64);
     uint32_t uStack_b0 = rtguest::allocFrame(8);
     uint32_t uStack_a8 = rtguest::allocFrame(8);

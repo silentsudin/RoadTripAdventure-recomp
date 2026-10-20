@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t KnockCollectMaskGates(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   
   lVar1 = TestStateBitFc78(0x5c);

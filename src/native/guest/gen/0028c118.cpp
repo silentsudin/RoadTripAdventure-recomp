@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _sceSifLoadModuleBuffer(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
 uint32_t puVar2;
   long lVar3;

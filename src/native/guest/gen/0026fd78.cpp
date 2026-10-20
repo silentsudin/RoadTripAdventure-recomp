@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceGsSetDefClear(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, uint32_t param_9, uint32_t param_10, uint32_t param_11, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint64_t))) = 6;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(5) * sizeof(uint64_t))) = 1;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(4) * sizeof(uint64_t))) = param_7 & 0xff | 0x3f80000000000000 | (uint32_t)param_9 << 0x10 | (param_8 & 0xff) << 8

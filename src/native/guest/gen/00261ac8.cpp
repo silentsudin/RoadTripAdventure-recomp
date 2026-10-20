@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t rouletteBetPickerTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_50 = rtguest::allocFrame(16);
     uint32_t uStack_40 = rtguest::allocFrame(4);
     uint32_t uStack_3c = rtguest::allocFrame(4);

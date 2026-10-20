@@ -7,6 +7,7 @@
 namespace guest {
 
 uint32_t __kernel_cosf(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   float x = rtguest::fbits(param_1);
   float y = rtguest::fbits(param_2);
   uint32_t fVar1 = param_1 & 0x7fffffffu;  // |x| as bit pattern (and 0x7fffffff)

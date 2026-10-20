@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t CalculateSpeedometerDigits(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   float fVar1;
   
   fVar1 = rtguest::fbits(GetSpeedFromF15Vector(param_1 + 0xf0));

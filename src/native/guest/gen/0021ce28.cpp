@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SetAICarController(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   if (param_1 == (uint32_t)0x0) {
     param_1 = 0x21d0b8u;
   }

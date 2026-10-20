@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t dpdiv(uint64_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_60 = rtguest::allocFrame(4);
     uint32_t uStack_5c = rtguest::allocFrame(4);
     uint32_t iStack_58 = rtguest::allocFrame(4);

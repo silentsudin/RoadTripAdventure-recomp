@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gifQuadTag(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint64_t))) = 5;
   (*(uint64_t*)rtguest::G((uint32_t)param_1)) = (*(uint64_t*)rtguest::G(0x29cbf0));
   (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint64_t))) = (*(uint64_t*)rtguest::G(0x29cbf8));

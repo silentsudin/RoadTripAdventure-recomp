@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t vifKick(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   FlushCache(0);
   do {
   } while ((REG_DMAC_1_VIF1_CHCR & 0x100) != 0);

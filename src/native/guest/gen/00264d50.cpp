@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t drawRotatedQuadPair(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t iStack_a0 = rtguest::allocFrame(4);
     uint32_t iStack_9c = rtguest::allocFrame(4);
     rtguest::allocFrame(24);  // guest frame gap

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t iEnableIntc(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   _iEnableIntc();
   SYNC(0);
   return 0;

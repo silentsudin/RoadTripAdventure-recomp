@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _mbtowc_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
 uint32_t puVar2;
 uint32_t auStack_10 = rtguest::allocFrame(16);

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t disableIntc(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   uint uVar2;
   

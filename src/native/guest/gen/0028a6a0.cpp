@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceDopen(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   long lVar2;
 uint32_t piVar3;

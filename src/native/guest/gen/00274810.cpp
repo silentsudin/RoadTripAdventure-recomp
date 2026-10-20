@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t cos(uint32_t __x, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_20 = rtguest::allocFrame(8);
     uint32_t uStack_18 = rtguest::allocFrame(8);
   double dVar1;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t DispatchInputMapping(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   
   if (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) == '\0') && ((*(uint32_t*)rtguest::G(0x3356c0)) == 0)) {

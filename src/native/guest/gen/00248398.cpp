@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UpdateCarouselConfirmDialog(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   bool bVar2;
   uint64_t uVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t uiBatchInit(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint32_t*)rtguest::G(0x335688)) = 0xffffffff;
   (*(uint32_t*)rtguest::G(0x335680)) = 0x3362e0;
   (*(uint32_t*)rtguest::G(0x335684)) = 0;

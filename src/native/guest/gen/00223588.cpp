@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t drawCarShadow(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_80 = rtguest::allocFrame(4);
     uint32_t uStack_7c = rtguest::allocFrame(4);
     uint32_t uStack_78 = rtguest::allocFrame(4);

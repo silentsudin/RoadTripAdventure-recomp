@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t __frame_state_for(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t apcStack_4f0 = rtguest::allocFrame(32);
 uint32_t auStack_4d0 = rtguest::allocFrame(1120);
 uint32_t auStack_70 = rtguest::allocFrame(32);

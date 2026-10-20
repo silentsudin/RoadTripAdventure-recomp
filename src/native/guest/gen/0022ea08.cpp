@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t GetPlayerScoreboardPtr(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   param_1 = param_1 * 4;
   if (((*(uint8_t*)rtguest::G((uint32_t)0x178700b + param_1)) & 0xf0) == 0) {
     return 0x0177fd8c + ((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x178700b + param_1)) & 1) * 0xd12;

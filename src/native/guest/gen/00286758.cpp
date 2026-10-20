@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t fpFormatFloatSci(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   undefined8 uVar2;
   int iVar3;

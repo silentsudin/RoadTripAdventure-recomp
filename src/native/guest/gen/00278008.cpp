@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t cmd_sem_init(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
     // sema struct fields live at guest offsets inside one contiguous block
     uint32_t auStack_50 = rtguest::allocFrame(0x18);
   

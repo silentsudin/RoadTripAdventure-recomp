@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t confirmYesNoMenuTask(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   char cVar2;
   undefined8 uVar3;

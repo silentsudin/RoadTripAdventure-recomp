@@ -39,6 +39,7 @@ constexpr uint32_t THS_RUN = 1, THS_READY = 2, THS_WAIT = 4, THS_SUSPEND = 8,
 constexpr uint32_t TSW_NONE = 0, TSW_SLEEP = 1, TSW_SEMA = 2;
 
 constexpr int kPriorityCount = 128;
+constexpr uint32_t kThreadFrameCap = 0x10000;  // per-task frame region cap (W13 stack model)
 constexpr int kMainThreadId = 1, kFirstThreadId = 2, kLastThreadId = 255;
 constexpr uint64_t kVBlankPeriodUs = 16667;  // oracle kVBlankPeriod
 constexpr uint64_t kAlarmTickUs = 64;        // oracle kAlarmTickMicroseconds
@@ -63,6 +64,7 @@ struct KThread {
     int waitId = 0;
     int32_t resumeResult = 0;
     bool ownsStack = false;
+    uint32_t frameBase = 0, frameTop = 0;  // per-task frame arena (W13 stack model)
     ucontext_t uc{};
     bool ucReady = false;
     std::vector<uint8_t> hostStack;
@@ -218,6 +220,7 @@ int32_t blockCurrent(WaitReason reason, int waitId) {
     self->status = self->suspCount == 0 ? StWaiting : StWaitingSuspended;
     g_cur = 0;
     g_resched = false;  // we leave the CPU anyway; the pump re-decides
+    self->frameTop = frameTop();
     swapcontext(&self->uc, &g_pump);
     const int32_t r = self->resumeResult;
     self->resumeResult = 0;
@@ -233,6 +236,7 @@ void transferIfRequested(bool interruptSafe) {
     enqueueReady(*self, /*front=*/true);
     g_cur = 0;
     g_resched = false;
+    self->frameTop = frameTop();
     swapcontext(&self->uc, &g_pump);
 }
 
@@ -242,12 +246,14 @@ void kExitCurrent(bool deleteRecord) {
     makeDormant(*self);
     g_cur = 0;
     if (deleteRecord && id != kMainThreadId) g_retired.push_back(id);
+    self->frameTop = frameTop();
     swapcontext(&self->uc, &g_pump);
 }
 
 void thunk(int id) {
     KThread* t = thread(id);
     g_cur = t->id;
+    setFrameTop(t->frameTop);
     rtCall(t->entry, t->arg);
     // A returning thread entry is undefined in libkernel (games exit
     // explicitly); retire like ExitDeleteThread rather than zombie the slot.
@@ -398,6 +404,8 @@ int32_t opStartThread(int id, uint32_t arg, bool intr) {
     t->uc.uc_stack.ss_size = t->hostStack.size();
     t->uc.uc_link = nullptr;
     sigemptyset(&t->uc.uc_sigmask);
+    if (t->frameBase == 0) t->frameBase = allocTaskFrameRegion(kThreadFrameCap);
+    t->frameTop = t->frameBase;  // fresh (re)start restarts at region base
     makecontext(&t->uc, (void (*)())&thunk, 1, t->id);
     t->ucReady = true;
     enqueueReady(*t);
@@ -445,6 +453,7 @@ int32_t opSuspendThread(int id, bool intr) {
     if (intr && g_inInterrupt) g_resched = true;
     if (selfSwitch) {  // suspended self: park without re-enqueueing
         g_resched = false;
+        t->frameTop = frameTop();
         swapcontext(&t->uc, &g_pump);
     }
     return KE_OK;
@@ -523,6 +532,7 @@ int32_t opRotateReadyQueue(int prio, bool intr) {
         enqueueReady(*self, /*front=*/false);
         g_cur = 0;
         g_resched = false;
+        self->frameTop = frameTop();
         swapcontext(&self->uc, &g_pump);
     } else {
         auto& q = g_ready[prio];
@@ -676,7 +686,6 @@ void wakeVSyncWaiters() {
 
 // ---- frame-loop driver ----
 void kVblank() {
-    resetFrameArena();  // bump arena lives one vblank (shortcut, W13 stack model)
     g_micro += kVBlankPeriodUs;
     fireDueAlarms();  // shortcut: alarm-vs-vblank tie lands on the vblank
     ++g_vsyncTick;    // boundary (oracle uses cycle deadlines; W13 audit)
@@ -715,6 +724,7 @@ void kPumpToIdle() {
         if (!t) return;
         t->status = StRunning;
         g_cur = t->id;
+        setFrameTop(t->frameTop);
         swapcontext(&g_pump, &t->uc);
     }
 }
@@ -738,6 +748,8 @@ void kBootMainThread(uint32_t entry) {
     m.uc.uc_stack.ss_size = m.hostStack.size();
     m.uc.uc_link = nullptr;
     sigemptyset(&m.uc.uc_sigmask);
+    m.frameBase = allocTaskFrameRegion(kThreadFrameCap);
+    m.frameTop = m.frameBase;
     makecontext(&m.uc, (void (*)())&thunk, 1, kMainThreadId);
     m.ucReady = true;
     enqueueReady(m);

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t fptodp(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
     // __unpack_f's out-words are contiguous (class+0 sign+4 exp+8 frac+0xc)
     uint32_t uStack_30 = rtguest::allocFrame(16);
 uint32_t auStack_20 = rtguest::allocFrame(16);

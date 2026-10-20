@@ -5,6 +5,7 @@ namespace guest {
 using namespace rtguest::vu0;
 
 void vu0Itof0Vector(uint32_t a,uint32_t b) {
+  rtguest::FrameGuard rt_fg;
 S.vf[4]=lqc2(b); vitof0(15,5,4); sqc2(a,S.vf[5]);
 }
 

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gs_options_sub_tasks_vibration(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   byte bVar2;
   int iVar3;

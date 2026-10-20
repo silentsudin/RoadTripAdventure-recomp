@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _cleanup_r(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   _fwalk(param_1,0x2826c0);
   return 0;
 }

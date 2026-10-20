@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t LoadOrCreateCardSlotTask(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   undefined1 uVar2;
   int iVar3;

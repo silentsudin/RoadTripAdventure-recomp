@@ -5,6 +5,7 @@
 namespace guest {
 
 int64_t sceMcGetEntSpace(uint32_t param_1, uint32_t param_2, int64_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   
   lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));

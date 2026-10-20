@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t sioPutChar(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   do {
   } while ((REG_SIO_ISR & 0x8000) != 0);
   REG_SIO_TXFIFO = (char)param_1;

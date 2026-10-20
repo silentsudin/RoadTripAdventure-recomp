@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t HandleNumberSpinner(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
 uint32_t pcVar2;
   ushort uVar3;

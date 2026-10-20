@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ttyRingInit(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint32_t*)rtguest::G(0x1776980)) = param_1;
   (*(uint32_t*)rtguest::G(0x1776988)) = 0x01776990;
   (*(uint32_t*)rtguest::G(0x1776984)) = 0;

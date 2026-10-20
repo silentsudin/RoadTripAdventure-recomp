@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ShowPlayerSelect(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   int iVar2;
   uint uVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceClose(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_90 = rtguest::allocFrame(4);
     uint32_t uStack_8c = rtguest::allocFrame(4);
     uint32_t uStack_88 = rtguest::allocFrame(4);

@@ -6,6 +6,7 @@
 namespace guest {
 
 uint32_t __sfvwrite_r(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   uint32_t piVar1;
   uint32_t pcVar2;
   bool bVar3;

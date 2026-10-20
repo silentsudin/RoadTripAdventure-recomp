@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t BuildDmaPacketSlot4B(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   ulong uVar1;
   ulong uVar2;
   

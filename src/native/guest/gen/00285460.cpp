@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gsSyncVSetFlagIntc(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_20 = rtguest::allocFrame(8);
     uint32_t uStack_18 = rtguest::allocFrame(4);
   

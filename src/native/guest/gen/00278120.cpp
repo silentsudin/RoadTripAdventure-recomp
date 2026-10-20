@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceCdPOffCallback(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   
   if ((*(int32_t*)rtguest::G(0x2e6f3c)) < 0) {

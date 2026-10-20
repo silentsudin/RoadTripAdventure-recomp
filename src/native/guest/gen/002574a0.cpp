@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SoundRpcPlaySequence(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_ac = rtguest::allocFrame(4);
     rtguest::allocFrame(76);  // guest frame gap
     uint32_t uStack_5c = rtguest::allocFrame(4);

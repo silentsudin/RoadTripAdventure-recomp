@@ -7,6 +7,7 @@ namespace guest {
 // Pseudocode carries the GIF register payloads as undefined8; guest_decls truncates them.
 
 uint32_t titlePressStart(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   undefined8 uVar2;
   int iVar3;

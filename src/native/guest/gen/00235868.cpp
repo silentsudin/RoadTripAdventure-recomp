@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t switchD_002357e8_dispatchTypeSetupCase16(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   RunCountdownTimerTask();
   return 0;
 }

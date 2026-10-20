@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifLoadFileReset(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint32_t*)rtguest::G(0x2e99a0)) = 0xffffffff;
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x0177a028)), 0, 4));
   return 0;

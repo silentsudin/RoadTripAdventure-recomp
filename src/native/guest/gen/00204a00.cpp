@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UiDestroyRemovedNodes(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t pbVar1;
 uint32_t pcVar2;
 uint32_t puVar3;

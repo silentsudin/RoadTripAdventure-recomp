@@ -6,6 +6,7 @@
 namespace guest {
 
 uint32_t sifRpcReplyHandler(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   uint32_t uVar1;
   int32_t iVar2;
   uint32_t puVar3;

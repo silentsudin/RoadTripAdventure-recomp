@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SetProgressFlagAndQueue(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   long lVar2;
   uint uVar3;

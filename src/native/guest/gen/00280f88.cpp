@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t exponent(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   char cVar2;
   undefined1 uVar3;

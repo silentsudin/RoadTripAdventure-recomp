@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t raceHudUpdate(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
 uint32_t __s;
   uint uVar2;

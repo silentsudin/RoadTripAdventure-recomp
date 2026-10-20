@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSdRemoteCallbackInit(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_50 = rtguest::allocFrame(4);
 rtguest::allocFrame(8);  // guest frame gap
     uint32_t uStack_44 = rtguest::allocFrame(4);

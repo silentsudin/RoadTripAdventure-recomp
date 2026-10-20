@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t __kernel_cos(uint64_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   undefined8 uVar2;
   undefined8 uVar3;

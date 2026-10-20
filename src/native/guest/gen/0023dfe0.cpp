@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t HasQueuedByteFlag(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   return (*(uint8_t*)rtguest::G((uint32_t)0x177fd08 + (uint32_t)(param_1 & 0xff) * 1)) & 0x80;
 }
 

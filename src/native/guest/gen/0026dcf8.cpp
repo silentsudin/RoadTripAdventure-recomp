@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t PrintXyzRow(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   undefined8 uVar2;
   undefined8 uVar3;

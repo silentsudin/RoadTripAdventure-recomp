@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t __mdiff(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   uint uVar2;
 uint32_t piVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _sdrCBThread(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
 uint32_t auStack_80 = rtguest::allocFrame(32);
 uint32_t auStack_60 = rtguest::allocFrame(80);

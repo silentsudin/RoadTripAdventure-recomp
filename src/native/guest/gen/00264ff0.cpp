@@ -5,6 +5,7 @@
 namespace guest {
 
 void drawBoardSpriteGrid(uint64_t param_1, uint32_t param_2) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_50 = rtguest::allocFrame(4);
     uint32_t uStack_4c = rtguest::allocFrame(4);
     uint32_t uStack_48 = rtguest::allocFrame(4);

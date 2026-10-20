@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t AcquireVehicleInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t psVar1;
   ulong uVar2;
   int iVar3;

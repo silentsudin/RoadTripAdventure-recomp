@@ -9,6 +9,7 @@ namespace {
 // EE MMI 128-bit model for the _pcpyh/_pcpyld ops below (Ghidra's undefined1[16]).
 struct V16 { uint64_t lo, hi; };
 inline V16 _pcpyh(V16 a) {  // broadcast low halfword to all 8 halfwords
+  rtguest::FrameGuard rt_fg;
   uint64_t h = a.lo & 0xffff;
   h |= h << 0x10;
   h |= h << 0x20;
@@ -18,6 +19,7 @@ inline V16 _pcpyld(V16 a, V16 b) { return {a.lo, b.lo}; }  // [rs.lo, rt.lo]
 }  // namespace
 
 uint32_t memset(uint32_t __s, uint32_t __c, uint32_t __n, ...) {
+  rtguest::FrameGuard rt_fg;
   bool bVar1;
   uint32_t puVar2;
   V16 auVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t loadFontTextures(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   // 2026-10-19 MIPS cross-check (0x20dde0-0x20de94): Ghidra's pseudocode
   // halved the chunk walk (qword +0x10 / stride size*8+8). Real MIPS:
   // ld/sd 0x20($s0); addiu $s0,$a0,0x10 with $a0=p+size<<4 → stride

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t WrapCoordinate(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   float fVar1;
   
   fVar1 = (*(float*)rtguest::G((uint32_t)param_1));

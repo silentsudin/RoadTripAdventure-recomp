@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gsSyncVClearIntc(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   REG_INTC_STAT = 4;
   return 0;
 }

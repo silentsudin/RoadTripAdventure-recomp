@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t __sclose(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   _close_r((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x54))),(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe))));
   return 0;
 }

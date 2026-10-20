@@ -6,6 +6,7 @@
 namespace guest {
 
 int32_t CreateThread(uint32_t q0) {
+  rtguest::FrameGuard rt_fg;
   // W12: CreateThread($4 ee_thread_t*); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x20, q0);

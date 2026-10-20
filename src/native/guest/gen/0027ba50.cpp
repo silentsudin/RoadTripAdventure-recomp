@@ -6,6 +6,7 @@ namespace guest {
 
 // pseudocode: void dpadd(undefined8, undefined8); callers use the return (MIPS v0 passthrough from __pack_d)
 uint64_t dpadd(uint64_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_80 = rtguest::allocFrame(32);
 uint32_t auStack_60 = rtguest::allocFrame(32);
 uint32_t auStack_40 = rtguest::allocFrame(32);

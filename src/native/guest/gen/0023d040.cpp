@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t switchD_0023cfc8_checkUnlockGate1c(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   return ((*(uint32_t*)rtguest::G(0x177fdd0)) & 0x20000) == 0;
 }
 

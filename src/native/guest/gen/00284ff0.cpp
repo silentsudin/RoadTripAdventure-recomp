@@ -6,6 +6,7 @@
 namespace guest {
 
 int32_t PollSema(uint32_t q0) {
+  rtguest::FrameGuard rt_fg;
   // W12: PollSema($4 id); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x45, q0);

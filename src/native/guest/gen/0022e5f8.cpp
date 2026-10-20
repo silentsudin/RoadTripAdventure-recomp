@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t AccumulateDistanceTotals(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   if ((*(int32_t*)rtguest::G(0x177ae54)) < 0) {

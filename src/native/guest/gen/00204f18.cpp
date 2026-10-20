@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ClearTaskListFlag(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t pbVar1;
   
   for (pbVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))); pbVar1 != (uint32_t)0x0;

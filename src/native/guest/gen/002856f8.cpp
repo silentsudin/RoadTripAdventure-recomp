@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sysStubEio2(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t puVar1;
   
   puVar1 = (uint32_t)getReent();

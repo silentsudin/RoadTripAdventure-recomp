@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _mprec_log10(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   
   uVar1 = 0x3ff0000000000000;

@@ -6,6 +6,7 @@
 namespace guest {
 
 int32_t _EnableIntc(uint32_t q0) {
+  rtguest::FrameGuard rt_fg;
   // W12: EnableIntc($4 cause); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x14, q0);

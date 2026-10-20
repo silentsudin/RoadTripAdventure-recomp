@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t HandleConfirmationMenuInput(uint64_t param_1, uint64_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   ushort uVar1;
   int iVar2;
   

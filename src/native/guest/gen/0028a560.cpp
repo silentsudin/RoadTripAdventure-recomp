@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceAddDrv(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_80 = rtguest::allocFrame(4);
     uint32_t uStack_7c = rtguest::allocFrame(4);
     uint32_t uStack_78 = rtguest::allocFrame(4);

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawPaintEditorDigits(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t abStack_70 = rtguest::allocFrame(16);
     uint32_t iStack_60 = rtguest::allocFrame(4);
   byte bVar1;

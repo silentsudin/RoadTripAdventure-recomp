@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t vifBeginPacket(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t puVar1;
   
   (*(uint32_t*)rtguest::G(0x3356f4)) = (uint32_t)param_1;

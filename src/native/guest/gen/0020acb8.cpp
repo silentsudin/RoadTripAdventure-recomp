@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gs_controls_rumble_start(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t puVar1;
   
   if ((((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + param_2 + 0xc))) & (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe)))) != 0) && (param_4 != 0)) {

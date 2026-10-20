@@ -6,6 +6,7 @@ namespace guest {
 
 // 2026-10-19 MIPS cross-check 0x0020b348: Ghidra halved chunk walk (qword +0x10 / stride size*8+8); real MIPS qword +0x20, stride size*16+0x10 (see gen/0020dde0.cpp).
 uint32_t loadPoseSet(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   ushort uVar2;
 uint32_t puVar3;

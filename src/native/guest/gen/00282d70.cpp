@@ -6,6 +6,7 @@ namespace guest {
 
 // pseudocode: undefined4 _malloc_trim_r(undefined8, ulong)
 uint32_t _malloc_trim_r(uint32_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
 uint32_t puVar2;
   int iVar3;

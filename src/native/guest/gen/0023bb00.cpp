@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ShowMessageAndWait(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   long lVar2;
   int iVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawWaypointDebugGrid(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   ulong uVar2;
   undefined8 uVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gs_map_draw_functions_race(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   ushort uVar1;
   int iVar2;
 uint32_t pfVar4;

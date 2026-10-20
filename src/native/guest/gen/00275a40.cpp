@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t __kernel_rem_pio2(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_2c4 = rtguest::allocFrame(84);
 uint32_t auStack_270 = rtguest::allocFrame(152);
 uint32_t auStack_1d8 = rtguest::allocFrame(16);

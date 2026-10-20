@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _sceCd_cd_read_intr(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t piVar1;
   int iVar2;
 uint32_t puVar3;

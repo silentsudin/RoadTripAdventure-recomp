@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UpdateNpcTailCarTransform(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
     // alloc order = guest stack layout: &uStack_60 spans _60,_5c,_58 ascending
     // (TransformRectangle writes float3), auStack_50 adjacent above.
     uint32_t uStack_60 = rtguest::allocFrame(4);

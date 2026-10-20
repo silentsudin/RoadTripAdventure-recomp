@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t shopMenuDispatchByContext(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t pcVar1;
   long lVar2;
   int iVar3;

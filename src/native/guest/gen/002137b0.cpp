@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t HandleAudioSettingsMenuInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   ushort uVar1;
   char cVar2;
   short sVar3;

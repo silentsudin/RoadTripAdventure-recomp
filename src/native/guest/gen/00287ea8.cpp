@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifCallRpc(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, uint32_t param_9, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   long lVar2;
   long lVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t RunCarCameraTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_e0 = rtguest::allocFrame(48);
 uint32_t auStack_b0 = rtguest::allocFrame(16);
 uint32_t auStack_a0 = rtguest::allocFrame(64);

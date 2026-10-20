@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceTtyInit(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   bool bVar1;
   
   FlushCache(0);

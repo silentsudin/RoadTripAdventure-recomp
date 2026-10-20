@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t __umoddi3(uint64_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   uint64_t uStack_10;
   long lVar1;
   uint uVar2;

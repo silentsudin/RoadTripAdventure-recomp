@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t fsAllocFd(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   int iVar2;
   uint uVar3;

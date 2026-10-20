@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SoundStopAllChannels(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t piVar1;
   int iVar2;
   

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t PaintEditorConfirmTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined1 uVar1;
   uint uVar2;
   int iVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t read(uint32_t __fd, uint32_t __buf, uint32_t __nbytes, ...) {
+  rtguest::FrameGuard rt_fg;
   ssize_t sVar1;
   long lVar2;
   

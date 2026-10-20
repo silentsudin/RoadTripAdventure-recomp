@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t textEntryMoveCursor(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_20 = rtguest::allocFrame(8);
   bool bVar1;
   byte bVar2;

@@ -181,6 +181,20 @@ static uint32_t g_frameTop = RT_FRAME_BASE;
 // must not outlive their vblank; det pair + soak watch this.
 void resetFrameArena() { g_frameTop = RT_FRAME_BASE; }
 
+uint32_t frameTop() { return g_frameTop; }
+void setFrameTop(uint32_t t) { g_frameTop = t; }
+
+uint32_t allocTaskFrameRegion(uint32_t capBytes) {
+    static uint32_t s_poolTop = RT_FRAME_BASE;
+    uint32_t a = s_poolTop;
+    if (a + capBytes > RT_FRAME_END) {
+        fprintf(stderr, "[rtguest] frame region pool exhausted\n");
+        abort();
+    }
+    s_poolTop = a + capBytes;
+    return a;
+}
+
 uint32_t allocFrame(uint32_t bytes) {
     // 4-byte align only: the transliterator's per-TU gap chunks encode exact
     // guest frame offsets, and adjacent slots (e.g. a float[5] followed by the

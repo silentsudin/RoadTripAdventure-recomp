@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t switchD_002414d4_dispatchCourseEffectKill(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   gs_tasks_kill();
   return 0;
 }

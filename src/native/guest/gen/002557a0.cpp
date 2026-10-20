@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawPaintCursorSprites(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   uint uVar2;
   

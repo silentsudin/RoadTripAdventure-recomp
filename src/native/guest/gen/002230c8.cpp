@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UploadPaintBgColors(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_20 = rtguest::allocFrame(4);
     uint32_t uStack_1c = rtguest::allocFrame(4);
     uint32_t uStack_18 = rtguest::allocFrame(4);

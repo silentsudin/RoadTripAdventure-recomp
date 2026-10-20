@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SumPlayerPoints(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   iVar1 = 0;

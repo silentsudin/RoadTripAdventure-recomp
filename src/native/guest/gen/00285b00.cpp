@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t enableDmac(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   uint uVar2;
   

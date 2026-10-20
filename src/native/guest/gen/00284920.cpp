@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _calloc_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
 uint32_t puVar2;
   ulong __n;

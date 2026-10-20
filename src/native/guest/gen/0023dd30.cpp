@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t RecordTaskResult(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   if ((param_1 != 0) && ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x017870c4 + param_1 * 4))) = (*(uint32_t*)rtguest::G(0x335730)), param_1 == 6))
   {
     (*(uint32_t*)rtguest::G(0x17870e0)) = (*(uint32_t*)rtguest::G(0x17870c8)) + (*(uint32_t*)rtguest::G(0x17870dc)) + (*(uint32_t*)rtguest::G(0x17870d4)) + (*(uint32_t*)rtguest::G(0x17870d0)) +

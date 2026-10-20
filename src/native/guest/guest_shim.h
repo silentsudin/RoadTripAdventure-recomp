@@ -40,16 +40,29 @@ struct Fault { uint32_t addr; uint32_t count; };
 const Fault* faults(size_t* n);
 void noteFault(uint32_t a);
 
-// Bump arena inside guest RAM for transliterated stack arrays (auStack_* locals get
-// guest addresses so they can be passed to other guest fns).
-// shortcut: never freed or unwound; replace with the real EE stack model at W12 boot.
-// shortcut: end moved below the ELF entry's SetupThread stack region
-// [0x1F80000,0x2000000) so the arena never collides with the declared EE stack;
-// re-derive when the real EE stack model lands (W13 hash chase).
+// Frame arena inside guest RAM for transliterated stack arrays (auStack_* locals
+// get guest addresses so they can be passed to other guest fns).
+// Per-task call discipline (W13 stack model): each green thread owns a region;
+// guest function entries push a FrameGuard that unwinds the top on return, so
+// the same call depth reuses the same addresses every invocation and unwritten
+// locals keep their stale bytes — matching the oracle's real-stack residue
+// semantics (the game reads uninitialized frame slots deterministically, e.g.
+// ComposeCameraMatrix's vector sources).
+// shortcut: regions are fixed-size (not the game's own stack allocs) and boot
+// frames share the head of the pool; upgrade if a residue region needs exact
+// oracle addresses (state-hash equality), not just same-bytes-per-depth.
 #define RT_FRAME_BASE 0x01E00000u
 #define RT_FRAME_END  0x01F80000u
 uint32_t allocFrame(uint32_t bytes);
 void resetFrameArena();
+uint32_t frameTop();
+void setFrameTop(uint32_t t);
+uint32_t allocTaskFrameRegion(uint32_t capBytes);
+struct FrameGuard {
+    uint32_t saved;
+    FrameGuard() : saved(frameTop()) {}
+    ~FrameGuard() { setFrameTop(saved); }
+};
 
 // Guest float register bits as float, for float-typed callee params
 // (pseudocode prints raw bits; a plain int literal would value-convert).

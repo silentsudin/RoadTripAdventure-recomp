@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gifTexQuadTag(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   ulong uVar1;
   ulong uVar2;
   

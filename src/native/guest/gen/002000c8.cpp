@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gsInitDisplay(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   if (param_1 == 0) {
     sceGsResetGraph(0,1,2,1);
     sceGsSetDefDBuffDc(0x335c80,0,0x280,0xe0,2,0x31,1);

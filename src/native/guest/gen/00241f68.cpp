@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UpdateNearbyCarEffect(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   char cVar2;
   int iVar3;

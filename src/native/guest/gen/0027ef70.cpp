@@ -13,6 +13,7 @@ inline V16 _pcpyud(V16 a, V16 b) { return {a.hi, b.hi}; }  // [rs.hi, rt.hi]
 inline V16 operator~(V16 a) { return {~a.lo, ~a.hi}; }
 inline V16 _pand(V16 a, V16 b) { return {a.lo & b.lo, a.hi & b.hi}; }
 inline V16 _psubb(V16 a, V16 b) {  // 16 byte-lane subtracts (mod 256)
+  rtguest::FrameGuard rt_fg;
   V16 r{0, 0};
   for (int i = 0; i < 8; ++i) {
     r.lo |= ((a.lo >> (i * 8)) - (b.lo >> (i * 8)) & 0xff) << (i * 8);
@@ -21,11 +22,13 @@ inline V16 _psubb(V16 a, V16 b) {  // 16 byte-lane subtracts (mod 256)
   return r;
 }
 inline V16 ld16(uint32_t a) {
+  rtguest::FrameGuard rt_fg;
   return {*(uint64_t*)rtguest::G(a), *(uint64_t*)rtguest::G(a + 8)};
 }
 }  // namespace
 
 uint32_t strcat(uint32_t __dest, uint32_t __src, ...) {
+  rtguest::FrameGuard rt_fg;
   uint64_t uVar1;
   V16 in_v1_udw{0, 0};    // dead input: _pcpyld reads only lo halves
   V16 in_a0_udw{0, 0};

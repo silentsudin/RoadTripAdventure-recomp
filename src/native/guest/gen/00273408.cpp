@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceVpu0Reset(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   undefined4 in_vc12;
   

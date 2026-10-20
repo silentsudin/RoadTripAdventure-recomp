@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t InitObjectType20(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
 uint32_t puVar2;
   

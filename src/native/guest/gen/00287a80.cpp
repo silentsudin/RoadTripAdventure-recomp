@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifGetOtherData(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint64_t param_5, ...) {
+  rtguest::FrameGuard rt_fg;
   uint32_t uVar2;
   uint32_t lVar3;
   uint32_t lVar4;

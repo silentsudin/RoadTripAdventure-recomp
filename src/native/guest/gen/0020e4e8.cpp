@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ToggleInputFlagWrapper(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   debugScreenRead(param_1 ^ 1);
   return 0;
 }

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SelectAndBuildCamera(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_c0 = rtguest::allocFrame(4);
     uint32_t uStack_bc = rtguest::allocFrame(4);
     uint32_t uStack_b8 = rtguest::allocFrame(4);

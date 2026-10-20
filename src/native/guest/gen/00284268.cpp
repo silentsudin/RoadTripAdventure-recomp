@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _b2d(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   long lVar2;
   ulong uVar3;

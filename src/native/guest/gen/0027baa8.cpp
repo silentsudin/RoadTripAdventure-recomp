@@ -6,6 +6,7 @@ namespace guest {
 
 // pseudocode: void dpsub(undefined8, undefined8); callers use the return (v0 passthrough)
 uint64_t dpsub(uint64_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_80 = rtguest::allocFrame(32);
 uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t uStack_5c = rtguest::allocFrame(4);

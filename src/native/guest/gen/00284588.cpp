@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _ratio(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t iStack_30 = rtguest::allocFrame(4);
   int iVar1;
   ulong uVar2;

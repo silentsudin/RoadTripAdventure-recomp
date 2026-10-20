@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifSetIopAddr(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   uint32_t uVar1;
   uint32_t lVar2;
   

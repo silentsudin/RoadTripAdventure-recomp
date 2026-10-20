@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t TestCarCollisionBox(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t afStack_30 = rtguest::allocFrame(8);
     uint32_t fStack_28 = rtguest::allocFrame(4);
   undefined4 uVar1;

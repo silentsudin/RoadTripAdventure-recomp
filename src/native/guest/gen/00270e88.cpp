@@ -5,6 +5,7 @@
 namespace guest {
 
 void textGridEmitRows(uint32_t param_1, uint64_t param_2) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   int iVar2;
   uint uVar3;

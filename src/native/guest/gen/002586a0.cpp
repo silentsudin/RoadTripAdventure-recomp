@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SndRpcCmd22(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_4c = rtguest::allocFrame(4);
     uint32_t uStack_48 = rtguest::allocFrame(8);
     uint32_t uStack_40 = rtguest::allocFrame(8);

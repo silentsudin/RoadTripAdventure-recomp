@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t textBuildStringGifPacket(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   uint uVar2;
   uint uVar3;

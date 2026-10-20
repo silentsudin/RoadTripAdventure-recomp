@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t RunFadeOutWaitTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   uiFade(0x8000000);

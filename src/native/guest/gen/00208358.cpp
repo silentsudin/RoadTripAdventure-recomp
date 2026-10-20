@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t flashTask(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 8)));

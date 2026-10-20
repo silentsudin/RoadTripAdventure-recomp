@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SetTaskFlag(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(int8_t*)rtguest::G((uint32_t)param_1)) = (*(int8_t*)rtguest::G((uint32_t)param_1)) | 2;
   return 0;
 }

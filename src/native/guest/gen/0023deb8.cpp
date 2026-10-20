@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t IsMapEntryEnabled(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   if ((param_1 != 6) && (param_1 < 0x17)) {
     return ((*(uint32_t*)rtguest::G(0x177fdd0)) & 1 << ((int)(char)(*(uint32_t*)rtguest::G((uint32_t)0x2a2b58 + (uint32_t)(param_1) * 4)) & 0x1fU)) != 0;
   }

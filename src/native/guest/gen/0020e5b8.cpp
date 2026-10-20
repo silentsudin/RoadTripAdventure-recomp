@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SaveAIDataFile(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   int iVar2;
 uint32_t puVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ApplyAdjusterScales(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   ushort uVar1;
   undefined8 uVar2;
   undefined4 uVar3;

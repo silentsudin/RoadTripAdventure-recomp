@@ -5,6 +5,7 @@
 
 namespace guest {
 uint32_t vu0TransformVerts(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   va_list ap; va_start(ap, param_1);
   uint32_t param_2 = va_arg(ap, uint32_t), param_3 = va_arg(ap, uint32_t), param_4 = va_arg(ap, uint32_t); va_end(ap);
   using namespace rtguest::vu0;

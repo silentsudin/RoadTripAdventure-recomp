@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t iSuspendThread(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   ulong in_v0;
   int iVar2;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ScaleShortByMatrix(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_30 = rtguest::allocFrame(16);
 uint32_t aiStack_20 = rtguest::allocFrame(16);
   

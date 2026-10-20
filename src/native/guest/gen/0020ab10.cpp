@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UpdateControllerInput(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_70 = rtguest::allocFrame(4);
     rtguest::allocFrame(12);  // guest frame gap
 uint32_t auStack_60 = rtguest::allocFrame(2);

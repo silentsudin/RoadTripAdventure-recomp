@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t enterShopPartsSellMenu(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = 0x268e40;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) | 2;
   shopPartsSellMenuTask(param_1);  // jalr $3, $4 kept from entry (269e54 move $6,$4)

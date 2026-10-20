@@ -6,6 +6,7 @@
 namespace guest {
 
 int32_t EndOfHeap(uint32_t q0) {
+  rtguest::FrameGuard rt_fg;
   // W12: EndOfHeap($4 inc -> heap limit); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x3e, q0);

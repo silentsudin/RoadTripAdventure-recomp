@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t drawSkyLayers(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint32_t*)rtguest::G(0x29d47c)) = (*(uint32_t*)rtguest::G(0x177f728));
   vifUploadColours(0x29d470,0x29d480);
   vifBatchRegs(0x1fc00000009,9,0x2007df45e9443dfa,7);

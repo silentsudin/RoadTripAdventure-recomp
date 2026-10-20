@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t raceMapPickups(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t afStack_70 = rtguest::allocFrame(40);
     uint32_t fStack_48 = rtguest::allocFrame(4);
     rtguest::allocFrame(4);  // guest frame gap

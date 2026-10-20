@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t RotateObjectByWrappedYaw(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_70 = rtguest::allocFrame(64);
 uint32_t afStack_30 = rtguest::allocFrame(8);
     uint32_t uStack_28 = rtguest::allocFrame(4);

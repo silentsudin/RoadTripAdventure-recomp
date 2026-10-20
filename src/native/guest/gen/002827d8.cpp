@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t std(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0x15) * sizeof(uint32_t))) = param_4;
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 3))) = param_2;
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0xe))) = param_3;

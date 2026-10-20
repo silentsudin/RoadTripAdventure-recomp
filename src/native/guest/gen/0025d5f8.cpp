@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t drawFieldProp27Anim(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   float fVar1;
   int iVar2;
   uint uVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t GetVehicleTransmissionMode(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   
   uVar1 = 1;

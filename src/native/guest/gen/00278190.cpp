@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _sceCd_Poff_Intr(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   if (((*(uint32_t*)rtguest::G(0x1773584)) != (uint32_t)0x0) && ((*(uint32_t*)rtguest::G(0x2e6f24)) == 0)) {
     rtCall((*(uint32_t*)rtguest::G(0x1773584)), (*(uint32_t*)rtguest::G(0x1773588)));
   }

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t GetVehicleGear(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   return (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1ff)));
 }
 

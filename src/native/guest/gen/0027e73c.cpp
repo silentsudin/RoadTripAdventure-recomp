@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t memmove(uint32_t __dest, uint32_t __src, uint32_t __n, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined1 uVar1;
 uint32_t puVar2;
   undefined8 uVar3;

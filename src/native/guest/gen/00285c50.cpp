@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t InitAlarm(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   undefined8 uVar2;
 uint32_t puVar3;

@@ -6,6 +6,7 @@
 namespace guest {
 
 uint32_t fflush(uint32_t __stream, ...) {
+  rtguest::FrameGuard rt_fg;
   ushort uVar1;
   uint32_t puVar2;
   int iVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t xorHighBitPair(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   return (uint16_t)param_1 ^ 0x8080;
 }
 

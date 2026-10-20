@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t __sigtramp_r(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t pcVar1;
   undefined4 uVar2;
   long lVar3;

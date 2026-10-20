@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gifWriteTag(uint32_t param_1, uint64_t param_2, uint64_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t puVar1;
   
   puVar1 = (uint32_t)(*(int32_t*)rtguest::G((uint32_t)param_1));

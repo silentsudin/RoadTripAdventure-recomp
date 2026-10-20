@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t AdvanceOscillatingValue(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   byte bVar2;
   ushort uVar3;

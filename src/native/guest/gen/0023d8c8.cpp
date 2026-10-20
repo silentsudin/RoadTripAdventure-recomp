@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t GetOrSetPresidentRaceResult(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   if (param_1 != -1) {
     (*(uint32_t*)rtguest::G(0x335704)) = param_1;
     return param_1;

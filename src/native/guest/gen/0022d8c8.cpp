@@ -5,6 +5,7 @@
 namespace guest {
 
 void DrawRecordTableRows(uint32_t param_1, uint64_t param_2, uint32_t param_3, uint64_t param_4) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   char cVar2;
   undefined8 uVar3;

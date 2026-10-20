@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t DispatchByIndex15(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   
   if (param_1 < 0xf) {

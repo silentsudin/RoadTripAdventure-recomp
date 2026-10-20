@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t drawFieldProp23Pickup(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   float fVar2;
 uint32_t auStack_80 = rtguest::allocFrame(48);

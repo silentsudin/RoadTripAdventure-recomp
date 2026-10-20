@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SoundFadeOutChannels(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   SoundRpcCmd26(0);
   SoundRpcCmd26(1);
   return 0;

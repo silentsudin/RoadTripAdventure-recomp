@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t vifUploadPacket(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   bool bVar1;
   
   if ((*(uint32_t*)rtguest::G(0x3356ec)) == (uint32_t)0x0) {

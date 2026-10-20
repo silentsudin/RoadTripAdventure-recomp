@@ -6,6 +6,7 @@
 namespace guest {
 
 int32_t GetThreadId() {
+  rtguest::FrameGuard rt_fg;
   // W12: GetThreadId(); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x2f);

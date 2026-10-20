@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ResetMode1E(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t pvVar1;
   
   pvVar1 = (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(param_1)), 0, 0x8cb0));

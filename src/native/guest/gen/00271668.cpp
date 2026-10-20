@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t textGridReadCellAdvance(uint64_t param_1) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   undefined8 uVar2;
 uint32_t puVar3;

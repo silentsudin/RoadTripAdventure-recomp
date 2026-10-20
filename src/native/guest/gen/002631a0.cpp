@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t targetCourseRaceTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
 uint32_t __s;
   int iVar2;

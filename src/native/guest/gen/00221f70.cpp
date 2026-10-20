@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t drawCarShowroom(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_180 = rtguest::allocFrame(52);
     uint32_t fStack_14c = rtguest::allocFrame(4);
     rtguest::allocFrame(8);  // guest frame gap

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifInitRpc(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   
   DIntr();

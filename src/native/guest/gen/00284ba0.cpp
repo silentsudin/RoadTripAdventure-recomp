@@ -6,6 +6,7 @@
 namespace guest {
 
 int32_t SetGsCrt(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4) {
+  rtguest::FrameGuard rt_fg;
   // W12: GsSetCrt($4 ram, $5 voff, $6 reverse, $7 vmode, $8 vwidth-ish shadow); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(2, q0, q1, q2, q3, q4);

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifLoadModule(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   _sceSifLoadModule();
   return 0;
 }

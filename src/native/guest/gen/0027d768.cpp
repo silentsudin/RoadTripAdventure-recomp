@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t __pack_d(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   ulong uVar2;
   ulong uVar3;

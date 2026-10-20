@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t texAnimCopyB(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   short sVar2;
   int iVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SeqIntroFadeTask(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
 uint32_t pvVar2;
   undefined8 uVar3;

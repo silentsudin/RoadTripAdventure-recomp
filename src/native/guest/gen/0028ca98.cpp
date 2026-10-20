@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifLoadElfPart(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   _sceSifLoadElfPart();
   return 0;
 }

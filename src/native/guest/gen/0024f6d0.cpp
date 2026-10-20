@@ -5,6 +5,7 @@
 namespace guest {
 
 void uiArenaSetColour(uint32_t param_1, uint64_t param_2) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   int iVar2;
   

@@ -8,6 +8,7 @@
 namespace guest {
 
 uint32_t UpdateCarControlState(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+  rtguest::FrameGuard rt_fg;
   uint32_t uVar2;
   uint32_t uVar3;
   uint32_t uVar4;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t FindWorldMeshIntersection(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t fStack_80 = rtguest::allocFrame(4);
     uint32_t fStack_7c = rtguest::allocFrame(4);
     uint32_t fStack_78 = rtguest::allocFrame(4);

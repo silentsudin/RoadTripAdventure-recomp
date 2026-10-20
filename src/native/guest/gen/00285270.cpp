@@ -6,6 +6,7 @@
 namespace guest {
 
 int32_t sceSifStopDma(uint32_t q0) {
+  rtguest::FrameGuard rt_fg;
   // W12: sceSifStopDma($4 trid) -> 0; the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x6b, q0);

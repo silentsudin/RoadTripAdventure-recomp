@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t IsPointInsideQuad(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   float fVar2;
   float fVar3;

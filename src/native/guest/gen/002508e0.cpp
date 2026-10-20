@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t CalculateAiSteeringAndThrottle(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   byte bVar2;
   uint uVar3;

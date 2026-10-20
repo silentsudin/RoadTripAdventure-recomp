@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t FindNthSetBit(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   uint uVar2;
   

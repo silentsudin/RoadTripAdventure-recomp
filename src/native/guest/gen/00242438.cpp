@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gs_map_draw_functions_town(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   int iVar2;
 uint32_t auStack_170 = rtguest::allocFrame(48);

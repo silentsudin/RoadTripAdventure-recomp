@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t UpdateAiCourseSteering(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t afStack_70 = rtguest::allocFrame(8);
     uint32_t fStack_68 = rtguest::allocFrame(4);
     rtguest::allocFrame(4);  // guest frame gap

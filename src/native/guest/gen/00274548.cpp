@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t scePadExitPressMode(uint64_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   
   if ((*(uint32_t*)rtguest::G((uint32_t)0x1773220 + (uint32_t)((int)param_1 * 0x1c + param_2 * 7) * 4)) == 0) {

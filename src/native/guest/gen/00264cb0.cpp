@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SubstituteNameTokens(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t __src;
 uint32_t pcVar1;
 uint32_t acStack_50 = rtguest::allocFrame(48);

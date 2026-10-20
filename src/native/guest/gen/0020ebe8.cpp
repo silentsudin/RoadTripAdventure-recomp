@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SpawnGameViewTasks(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   
   if (param_2 != 1) {

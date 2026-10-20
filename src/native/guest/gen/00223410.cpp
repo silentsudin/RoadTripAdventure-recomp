@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t InitCarRenderRegs(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   int iVar2;
   int iVar3;

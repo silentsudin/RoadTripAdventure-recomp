@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t floor(uint64_t __x, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
   long lVar2;
   uint64_t dVar3;  // double bits through uint64 (shim convention)

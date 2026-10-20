@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sysIsatty(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   return 1;
 }
 

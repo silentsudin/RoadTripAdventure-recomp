@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifBindRpc(uint32_t param_1, uint32_t param_2, uint64_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   undefined4 uVar2;
   long lVar3;

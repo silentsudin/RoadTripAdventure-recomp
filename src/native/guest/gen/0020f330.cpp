@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ResetRaceRanks(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
 uint32_t pbVar2;
 uint32_t pbVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t HouseEntryInitTask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   
   lVar1 = MatchSlotPairState(param_3,param_4);

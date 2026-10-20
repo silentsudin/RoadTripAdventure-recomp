@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t GetCarSlotEntry(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   return 0x0029ce00 + param_1 * 0x20;
 }
 

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t InitTuningConstants(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x12e8))) = 0x40;
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x12fa))) = 0x100;
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x12ea))) = 0x80;

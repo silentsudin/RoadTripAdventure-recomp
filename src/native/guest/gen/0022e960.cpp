@@ -5,6 +5,7 @@
 namespace guest {
 
 void DrawTextListRows(uint64_t param_1, uint64_t param_2) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   int iVar2;
   int iVar3;

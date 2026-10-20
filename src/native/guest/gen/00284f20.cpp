@@ -5,6 +5,7 @@
 namespace guest {
 
 int32_t _iSuspendThread(uint32_t q0) {
+  rtguest::FrameGuard rt_fg;
   // W12: iSuspendThread($4 id); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0xffffffffffffffc8, q0);

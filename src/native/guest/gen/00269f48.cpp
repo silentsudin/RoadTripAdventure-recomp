@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t resultsScene(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_110 = rtguest::allocFrame(32);
 uint32_t auStack_f0 = rtguest::allocFrame(20);
 uint32_t aiStack_dc = rtguest::allocFrame(92);

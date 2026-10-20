@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sioPutCharCRLF(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   if (param_1 == 10) {
     sioPutChar(0xd);
     sioPutChar(10);

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawRaceHudNumbers(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   undefined8 uVar2;
   uint uVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t decode_uleb128(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   uint uVar2;
   uint uVar3;

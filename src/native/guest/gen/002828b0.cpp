@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t __sfp(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
 uint32_t puVar2;
 uint32_t puVar3;

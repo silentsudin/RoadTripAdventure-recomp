@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t memclr(uint32_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   iVar1 = (int)param_2 + -1;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gs_options_speaker_set(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_58 = rtguest::allocFrame(8);
     uint32_t uStack_50 = rtguest::allocFrame(8);
     uint32_t uStack_48 = rtguest::allocFrame(8);

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t __malloc_lock(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   iVar1 = GetThreadId();

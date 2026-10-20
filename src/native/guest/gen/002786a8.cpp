@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceCdNcmdDiskReady(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   
   lVar1 = _sceCd_ncmd_prechk(2);

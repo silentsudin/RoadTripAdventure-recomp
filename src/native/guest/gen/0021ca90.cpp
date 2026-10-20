@@ -8,6 +8,7 @@
 namespace guest {
 
 void UpdateObjectPhysicsState(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   using namespace rtguest::vu0;
   ushort uVar1;
   int iVar3;

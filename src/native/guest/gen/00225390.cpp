@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t AdvanceCarEffectSlot(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t fStack_50 = rtguest::allocFrame(4);
     uint32_t fStack_4c = rtguest::allocFrame(4);
     uint32_t fStack_48 = rtguest::allocFrame(4);

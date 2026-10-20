@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t uiDrawNumberAuto(uint32_t param_1, uint64_t param_2, uint64_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   if (param_3 < 1000000000) {

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceFsInit(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   undefined4 uVar2;
   long lVar3;

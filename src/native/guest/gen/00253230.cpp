@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t SetAiSteeringTarget(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined4 uVar1;
   int iVar2;
   undefined4 uVar3;

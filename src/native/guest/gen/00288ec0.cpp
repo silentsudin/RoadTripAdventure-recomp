@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceOpen(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_140 = rtguest::allocFrame(4);
     uint32_t uStack_13c = rtguest::allocFrame(4);
     uint32_t uStack_138 = rtguest::allocFrame(4);

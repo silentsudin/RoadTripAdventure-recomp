@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t gs_stamps_award_function(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   bool bVar2;
   uint uVar3;

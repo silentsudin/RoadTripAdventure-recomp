@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t scePadInit2(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t puVar1;
   undefined4 uVar2;
   long lVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t TransformMatrixAndSubmit(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_50 = rtguest::allocFrame(64);
   
   vu0MulMatrix(auStack_50,0x177f5e0,param_1);

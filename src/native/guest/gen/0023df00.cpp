@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t GetQueuedByte(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   if ((int)(param_1 & 0xff) < (*(int32_t*)rtguest::G(0x177fd88))) {
     return (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)0x177fd08 + (uint32_t)(param_1 & 0xff) * 1)) & 0x7f;
   }

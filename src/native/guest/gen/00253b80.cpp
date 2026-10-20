@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t HandleCarObjectCollisions(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_b0 = rtguest::allocFrame(16);
     uint32_t fStack_a0 = rtguest::allocFrame(4);
     uint32_t fStack_9c = rtguest::allocFrame(4);

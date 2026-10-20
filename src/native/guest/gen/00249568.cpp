@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t CalculateBoostGaugeValue(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x23c)));

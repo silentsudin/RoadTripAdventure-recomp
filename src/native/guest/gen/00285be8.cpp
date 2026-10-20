@@ -6,6 +6,7 @@
 namespace guest {
 
 int32_t setSyscall(uint32_t q0, uint32_t q1) {
+  rtguest::FrameGuard rt_fg;
   // W12: SetSyscall($4 num, $5 handler); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x74, q0, q1);

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t mapDot(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_60 = rtguest::allocFrame(40);
     uint32_t uStack_38 = rtguest::allocFrame(4);
     rtguest::allocFrame(4);  // guest frame gap

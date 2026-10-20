@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t uiFade(uint64_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   (*(uint64_t*)rtguest::G(0x29abb0)) = param_1;
   vifDirect(0x29ab70,6);
   return 0;

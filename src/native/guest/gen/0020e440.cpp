@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t cdReadPoll(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   int iVar2;
   long lVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint64_t sceMcClose(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   long lVar1;
   
   lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));

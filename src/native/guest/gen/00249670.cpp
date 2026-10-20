@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t GetRaceTimeRank(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   undefined4 uVar2;
   

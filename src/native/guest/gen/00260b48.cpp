@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t roulettePlaceBallOnWheel(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_a0 = rtguest::allocFrame(64);
 uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t fStack_5c = rtguest::allocFrame(4);

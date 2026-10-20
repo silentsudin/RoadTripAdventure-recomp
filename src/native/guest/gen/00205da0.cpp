@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t LayoutTextItems(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
   char cVar1;
   short sVar2;
   undefined4 uVar3;

@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawAdjusterDebug(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   undefined8 uVar1;
 uint32_t auStack_40 = rtguest::allocFrame(32);
   

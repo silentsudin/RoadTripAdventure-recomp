@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifExitCmd(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   disableDmac(5);
   RemoveDmacHandler(5,(*(uint32_t*)rtguest::G(0x1776e94)));
   (*(int32_t*)rtguest::G(0x2e98fc)) = 0;

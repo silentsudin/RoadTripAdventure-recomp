@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t _fwalk(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   ulong uVar1;
   int iVar2;
   int iVar3;

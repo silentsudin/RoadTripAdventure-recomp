@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t drawStampCard(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_f0 = rtguest::allocFrame(4);
     uint32_t uStack_ec = rtguest::allocFrame(4);
     uint32_t uStack_e8 = rtguest::allocFrame(4);

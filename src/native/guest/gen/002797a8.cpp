@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceMcInit(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_a0 = rtguest::allocFrame(4);
     uint32_t uStack_9c = rtguest::allocFrame(4);
     uint32_t uStack_98 = rtguest::allocFrame(4);

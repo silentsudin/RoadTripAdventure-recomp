@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t textGridDraw(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_e0 = rtguest::allocFrame(4);
 uint32_t auStack_dc = rtguest::allocFrame(12);
 uint32_t auStack_d0 = rtguest::allocFrame(16);

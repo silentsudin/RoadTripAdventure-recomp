@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawMenuGridBorder(uint64_t param_1, uint32_t param_2, uint32_t param_3, uint64_t param_4, ...) {
+  rtguest::FrameGuard rt_fg;
     uint32_t uStack_80 = rtguest::allocFrame(8);
     uint32_t uStack_78 = rtguest::allocFrame(8);
     uint32_t uStack_70 = rtguest::allocFrame(8);

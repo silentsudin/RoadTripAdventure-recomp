@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t FinishOnCarApproach(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   ushort uVar1;
   uint uVar2;
   int iVar3;

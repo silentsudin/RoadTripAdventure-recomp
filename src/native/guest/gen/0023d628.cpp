@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t TestStateBitFc78(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
   bool bVar1;
   uint uVar2;
   

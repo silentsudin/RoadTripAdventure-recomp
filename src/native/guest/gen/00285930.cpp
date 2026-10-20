@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t sceSifInvalidateDCache(uint64_t param_1, uint64_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   uint uVar1;
   
   uVar1 = Status & 0x10000;

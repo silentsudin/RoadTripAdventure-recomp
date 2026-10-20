@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t rouletteTablePoseUpdate(uint32_t param_1, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_b0 = rtguest::allocFrame(4);
     uint32_t uStack_ac = rtguest::allocFrame(4);
     rtguest::allocFrame(8);  // guest frame gap

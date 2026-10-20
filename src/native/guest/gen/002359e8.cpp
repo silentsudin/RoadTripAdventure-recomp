@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t DrawStandingsEntry(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
+  rtguest::FrameGuard rt_fg;
   byte bVar1;
   undefined8 uVar2;
   int iVar3;

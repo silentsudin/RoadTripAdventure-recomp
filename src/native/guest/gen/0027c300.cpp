@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t end_fde_sort(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
   int iVar1;
   undefined4 uVar2;
   int iVar3;

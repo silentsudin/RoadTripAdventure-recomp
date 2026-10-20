@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t mailCollectMaskThunk(uint32_t q0, ...) {
+  rtguest::FrameGuard rt_fg;
   MailCollectMaskGates(q0);  // tail j 267f2c
   return 0;
 }

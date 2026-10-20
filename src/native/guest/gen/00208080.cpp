@@ -5,6 +5,7 @@
 namespace guest {
 
 uint32_t ApplyMatrixRotation(uint32_t param_1, uint32_t param_2, ...) {
+  rtguest::FrameGuard rt_fg;
 uint32_t auStack_60 = rtguest::allocFrame(64);
   
   vu0UnitMatrix(auStack_60);
