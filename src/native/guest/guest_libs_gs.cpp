@@ -9,6 +9,8 @@
 // with that sink. Nothing here is compiled from ps2xRuntime (decomp rule).
 #include <cstdio>
 #include <cstring>
+#include "guest_vif1.h"
+#include "guest_gs.h"
 #include "guest_kernel.h"
 #include "guest_shim.h"
 #include "guest_decls.inc"
@@ -21,6 +23,10 @@ namespace guest {
             reinterpret_cast<void*>(&name)); } } rt_reg_##addr##_; }
 
 namespace {
+
+// W12 census: which libgraph env entries the game actually calls (RT_VIF_HIST).
+struct GsEnvCalls { uint64_t resetGraph = 0, putDrawEnv = 0, putDispEnv = 0, swapDc = 0,
+                                  setDefDc = 0, loadImg = 0, storeImg = 0, syncV = 0; } g_envCalls;
 
 // oracle GS.cpp:1487 GsGParam (interlace/omode/ffmode set by ResetGraph:848).
 struct GsGParam { uint8_t interlace = 0, omode = 0, ffmode = 0, version = 0; } g_gparam;
@@ -49,9 +55,23 @@ void setDefImage(GsImageMem& img, uint32_t x, uint32_t y, uint32_t w,
 
 }  // namespace
 
+// W12 census: which libgraph env entries the game actually calls at boot.
+void gsEnvCensusDump() {
+    if (!rtguest::vif1HistOn()) return;
+    std::fprintf(stderr, "[gsenv] resetGraph=%llu putDrawEnv=%llu putDispEnv=%llu "
+                         "swapDc=%llu setDefDc=%llu syncV=%llu\n",
+                 (unsigned long long)g_envCalls.resetGraph,
+                 (unsigned long long)g_envCalls.putDrawEnv,
+                 (unsigned long long)g_envCalls.putDispEnv,
+                 (unsigned long long)g_envCalls.swapDc,
+                 (unsigned long long)g_envCalls.setDefDc,
+                 (unsigned long long)g_envCalls.syncV);
+}
+
 // ---- sceGsResetGraph (GS.cpp:833): GParam state; GS-reset packet is the
 // gs-sink deviation. Returns 0 (success path). ----
 uint32_t sceGsResetGraph(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, ...) {
+    ++g_envCalls.resetGraph;
     g_gparam.interlace = (uint8_t)(q1 & 1u);
     g_gparam.omode = (uint8_t)(q2 & 0xFFu);
     g_gparam.ffmode = (uint8_t)(q3 & 1u);
@@ -67,6 +87,7 @@ RT_STUB_FN(0x0026E3F0, guest::sceGsResetPath)
 // ---- sceGsSyncV (GS.cpp:1332): WaitVSyncTick(g_gparam.interlace ? -1 : 1);
 // parks the green thread one vblank (kernel kWaitVSync). ----
 uint32_t sceGsSyncV(uint32_t q0, ...) {
+    ++g_envCalls.syncV;
     const int32_t r = rtguest::kWaitVSync(g_gparam.interlace ? -1 : 1);
     return (uint32_t)r;
 }
@@ -123,13 +144,37 @@ RT_STUB_FN(0x0026ECB0, guest::sceGsExecStoreImage)
 
 // ---- sceGsSetDefDBuffDc (GS.cpp:916): seeds the double-buffer env packet
 // struct (gs-sink deviation: not seeded). Returns 0. ----
-uint32_t sceGsSetDefDBuffDc(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, uint32_t q6, ...) { (void)q1; return 0; }
+uint32_t sceGsSetDefDBuffDc(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, uint32_t q6, ...) { ++g_envCalls.setDefDc; (void)q1; return 0; }
 RT_STUB_FN(0x0026F450, guest::sceGsSetDefDBuffDc)
 
 // ---- sceGsSwapDBuffDc (GS.cpp:1182): parity return which^1 (the game
-// threads its field flag on this); GS apply is the sink deviation. ----
+// threads its field flag on this) + apply the two draw envs and the display
+// env to the native GS model, mirroring readGsDBuffDc/applyGsRegPairs/
+// applyGsDispEnv (Support.h:1839+). The clear-packet framebuffer fill stays
+// with the renderer feed (gs-render TODO above). ----
+namespace {
+constexpr uint32_t kDbDc_draw01 = 96, kDbDc_draw02 = 224, kDbDc_draw11 = 464,
+                   kDbDc_draw12 = 592;
+void applyDrawEnvPairs(const uint8_t* p) {  // GsDrawEnv1Mem: 8 x {value,reg} u64
+    for (int i = 0; i < 8; ++i) {
+        uint64_t value, reg;
+        std::memcpy(&value, p + i * 16u, 8);
+        std::memcpy(&reg, p + i * 16u + 8, 8);
+        rtguest::gsWriteRegister(static_cast<uint8_t>(reg), value);
+    }
+}
+}  // namespace
 uint32_t sceGsSwapDBuffDc(uint32_t envAddr, uint32_t which, ...) {
-    return (which & 1u) ^ 1u;
+    ++g_envCalls.swapDc;
+    const uint8_t* db = static_cast<const uint8_t*>(rtguest::G(envAddr));
+    if (db == rtguest::kScratch) return (uint32_t)-1;
+    const uint32_t w = which & 1u;
+    const bool one = w == 1u;
+    rtguest::gsSetDisplayEnv(db + w * 40u);  // GsDispEnvMem {pmode,smode2,dispfb,display,bgcolor}
+    rtguest::gsClearFrameData();             // buffer flip ends the GS frame
+    applyDrawEnvPairs(db + (one ? kDbDc_draw11 : kDbDc_draw01));
+    applyDrawEnvPairs(db + (one ? kDbDc_draw12 : kDbDc_draw02));
+    return w ^ 1u;
 }
 RT_STUB_FN(0x0026F738, guest::sceGsSwapDBuffDc)
 
@@ -139,7 +184,7 @@ RT_STUB_FN(0x0026F738, guest::sceGsSwapDBuffDc)
 uint32_t sceGsSetDefDispEnv(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, ...) { (void)q1; return 0; }
 RT_STUB_FN(0x0026F798, guest::sceGsSetDefDispEnv)
 
-uint32_t sceGsPutDispEnv(uint32_t q0, ...) { return 0; }
+uint32_t sceGsPutDispEnv(uint32_t q0, ...) { ++g_envCalls.putDispEnv; return 0; }
 RT_STUB_FN(0x0026FA08, guest::sceGsPutDispEnv)
 
 // ---- sceGszbufaddr (GS.cpp:1370): pure block-count math on host-side
@@ -163,7 +208,7 @@ RT_STUB_FN(0x0026FB90, guest::sceGsSetDefDrawEnv)
 uint32_t sceGsSetDefClear(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, uint32_t q6, uint32_t q7, uint32_t q8, uint32_t q9, uint32_t q10, ...) { (void)q1; return 0; }
 RT_STUB_FN(0x0026FD78, guest::sceGsSetDefClear)
 
-uint32_t sceGsPutDrawEnv(uint32_t q0, ...) { return 0; }
+uint32_t sceGsPutDrawEnv(uint32_t q0, ...) { ++g_envCalls.putDrawEnv; return 0; }
 RT_STUB_FN(0x0026FE80, guest::sceGsPutDrawEnv)
 
 uint32_t sceGsSetDefDrawEnv2(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, uint32_t q4, uint32_t q5, ...) { (void)q1; return 0; }

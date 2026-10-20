@@ -134,7 +134,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp/guest_decls.inc")
     # OBJECT (not STATIC): every gen TU's RT_GUEST_FN ctor must be linked into
     # consumers — a static archive would drop unreferenced TUs and empty the
     # call registry (fault 0xF0200008: entry never registered).
-    add_library(rt_guest OBJECT guest/guest_mem.cpp guest/guest_kernel.cpp guest/guest_libs.cpp guest/guest_libs_sif.cpp guest/guest_libs_pad.cpp guest/guest_libs_dma.cpp guest/guest_vif1.cpp guest/guest_gif.cpp guest/guest_vu1.cpp guest/guest_libs_cd.cpp guest/guest_libs_fs.cpp guest/guest_libs_gs.cpp guest/guest_libs_mc.cpp)
+    add_library(rt_guest OBJECT guest/guest_mem.cpp guest/guest_kernel.cpp guest/guest_libs.cpp guest/guest_libs_sif.cpp guest/guest_libs_pad.cpp guest/guest_libs_dma.cpp guest/guest_vif1.cpp guest/guest_gif.cpp guest/guest_gs.cpp guest/guest_vu1.cpp guest/guest_libs_cd.cpp guest/guest_libs_fs.cpp guest/guest_libs_gs.cpp guest/guest_libs_mc.cpp)
     file(GLOB RT_GUEST_GEN CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/guest/gen/*.cpp")
     # W12: the oracle recompiler replaces these 192 guest library functions with host
     # implementations (config/roadtrip.toml stubs list); native mirrors that split —

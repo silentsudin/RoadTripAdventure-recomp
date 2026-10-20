@@ -5,6 +5,7 @@
 // feed. The oracle is the fidelity reference and is NOT linked here.
 #include "guest_gif.h"
 
+#include "guest_gs.h"
 #include "guest_vif1.h"  // shares the RT_VIF_HIST census gate
 
 #include <cstdio>
@@ -23,6 +24,7 @@ uint64_t g_verts = 0, g_kicks = 0, g_imageBytes = 0, g_pre = 0;
 std::map<uint32_t, uint64_t> g_kickPrim;  // prim shape (bits 2:0) -> kicks
 std::map<uint32_t, uint64_t> g_regs;      // REGS code -> data writes
 std::map<uint32_t, uint64_t> g_direct;    // DIRECT (0xE) target GS reg addr
+std::map<uint32_t, uint64_t> g_xyzw;      // probe: XYZF2 fog/flag word histogram
 
 inline uint64_t le64(const uint8_t* p) {
     uint64_t v;
@@ -43,6 +45,7 @@ void countReg(uint8_t reg, uint64_t lo, uint64_t hi, bool adk) {
     case 0x4:  // XYZF2
     case 0x5:  // XYZ2
         ++g_verts;
+        if (reg == 0x4) ++g_xyzw[(hi >> 32) & 0xFFFFu];  // probe: fog/flag word
         if (!adk) {  // ADK clear: oracle vertexKick(!adk)
             ++g_kicks;
             ++g_kickPrim[static_cast<uint32_t>(st.prim & 7u)];
@@ -74,6 +77,7 @@ void gifSink(const uint8_t* data, uint32_t sizeBytes) {
             ++g_pre;
             ++g_regs[0x0];
             st.prim = (lo >> 47) & 0x7FFu;
+            gsWriteRegister(0x00, (lo >> 47) & 0x7FFu);
         }
         uint8_t regs[16];
         for (uint32_t i = 0; i < nreg; ++i)
@@ -81,10 +85,13 @@ void gifSink(const uint8_t* data, uint32_t sizeBytes) {
         if (flg == 0u) {  // PACKED
             const uint64_t bytes = static_cast<uint64_t>(nloop) * nreg * 16u;
             if (off + bytes > sizeBytes) return;  // truncated: oracle stops too
-            for (uint64_t i = 0; i < bytes; i += 16u)
-                countReg(regs[(i / 16u) % nreg], le64(data + off + i),
-                         le64(data + off + i + 8),
-                         ((le64(data + off + i + 8) >> 47) & 1u) != 0u);
+            for (uint64_t i = 0; i < bytes; i += 16u) {
+                const uint64_t rlo = le64(data + off + i),
+                               rhi = le64(data + off + i + 8);
+                countReg(regs[(i / 16u) % nreg], rlo, rhi,
+                         ((rhi >> 47) & 1u) != 0u);
+                gsWritePacked(regs[(i / 16u) % nreg], rlo, rhi);
+            }
             off += static_cast<uint32_t>(bytes);
         } else if (flg == 1u) {  // REGLIST
             const uint64_t n = static_cast<uint64_t>(nloop) * nreg;
@@ -92,12 +99,14 @@ void gifSink(const uint8_t* data, uint32_t sizeBytes) {
             for (uint64_t i = 0; i < n; ++i) {
                 const uint64_t v = le64(data + off + i * 8u);
                 countReg(regs[i % nreg], v, 0u, ((v >> 47) & 1u) != 0u);
+                gsWriteRegister(regs[i % nreg], v);
             }
             off += static_cast<uint32_t>((n + 1u) / 2u * 16u);  // odd n pads 8
         } else if (flg == 2u) {  // IMAGE
             uint32_t bytes = nloop * 16u;
             if (off + bytes > sizeBytes) bytes = sizeBytes - off;
             g_imageBytes += bytes;
+            gsImageTransfer(data + off, bytes);
             off += bytes;
         } else {
             return;  // FLG 3 (reserved): the oracle drops the stream
@@ -122,6 +131,9 @@ void gifCensusDump() {
         std::fprintf(stderr, "  reg=%#x n=%llu\n", r, (unsigned long long)c);
     for (auto& [a, c] : g_direct)
         std::fprintf(stderr, "  gsreg=%#x n=%llu\n", a, (unsigned long long)c);
+    uint32_t shown = 0;
+    for (auto& [w, c] : g_xyzw)
+        if (c > 2000u) { std::fprintf(stderr, "  xyzw=%#x n=%llu\n", w, (unsigned long long)c); if (++shown >= 20u) break; }
     for (auto& [p, c] : g_kickPrim)
         std::fprintf(stderr, "  kickprim=%u n=%llu\n", p, (unsigned long long)c);
 }

@@ -1,0 +1,71 @@
+#ifndef RTGUEST_GUEST_GS_H
+#define RTGUEST_GUEST_GS_H
+// W3 step 3b: native GS device model (docs/native-reference/w13-gs-sink-design.md).
+// Register-file, vertex/batch pipeline, VRAM and IMAGE-transfer semantics mirror
+// the oracle gs_frontend.cpp (writeRegisterUnlocked/writeRegisterPacked/
+// vertexKick/processImageData) + GSCpuBackend (BeginTransfer/UploadImage) +
+// ps2_gs_memory.{h,cpp} (VRAM page addressing). The oracle is the reference and
+// is NOT linked (decomp rule).
+#include <cstdint>
+#include <vector>
+
+namespace rtguest {
+
+// Vertex as the queue carries it (gs_frontend GSVertex fields we model).
+struct GsVertex {
+    float x, y, z;
+    uint8_t r, g, b, a;
+    float q, s, t;
+    uint16_t u, v;
+    uint8_t fog;
+};
+
+// Draw-relevant state snapshot at batch time (buildDrawBatch analogue).
+struct GsDrawState {
+    uint32_t fbp, fbw; uint8_t fpsm;
+    uint32_t zbp; uint8_t zpsm;
+    uint32_t tbp0, cbp; uint8_t tbw, tpsm, tw, th, tcc, tfx, cpsm, csa, cld;
+    uint64_t clamp, alpha, test, tex1;
+    uint16_t ofx, ofy;
+    uint16_t sc0x, sc1x, sc0y, sc1y;
+};
+
+struct GsBatch {
+    uint8_t primType;   // PRIM bits 2:0
+    bool ctx;           // PRIM ctxt (context 0/1)
+    uint8_t vertexCount;
+    GsVertex verts[3];
+    GsDrawState state;
+};
+
+// Every vertex write in stream order (the pgs packet-mirror analogue: the
+// oracle front end batches only ~2.7k/boot; the game's XGKICK geometry flows
+// as PATH1 packets that parallel-gs decodes itself — the native renderer must
+// see the full stream, not just the batch windows).
+struct GsStreamVertex {
+    GsVertex v;
+    uint8_t primType;
+    bool kick;  // drawing flag at this write (ADK clear / XYZF2)
+};
+
+void gsWriteRegister(uint8_t regAddr, uint64_t value);  // writeRegisterUnlocked
+void gsWritePacked(uint8_t regDesc, uint64_t lo, uint64_t hi);  // writeRegisterPacked
+void gsImageTransfer(const uint8_t* data, uint32_t sizeBytes);  // processImageData -> UploadImage
+
+// Display environment (applyGsDispEnv): {pmode,smode2,dispfb,display,bgcolor}
+// u64 x5 — scanout config, not the draw register file.
+void gsSetDisplayEnv(const uint8_t* five);
+const uint64_t* gsDisplayEnv();
+
+uint64_t gsReg(uint8_t addr);              // raw register file
+const uint8_t* gsVram(); uint32_t gsVramSize();
+const std::vector<GsBatch>& gsBatches();
+const std::vector<GsStreamVertex>& gsStream();
+void gsClearFrameData();  // after a frame's batches+stream were consumed
+
+bool gsCensusOn();
+void gsCensusDump();
+uint64_t gsBatchCount();
+
+}  // namespace rtguest
+#endif

@@ -36,9 +36,10 @@
 #include "guest/guest_kernel.h"
 #include "guest/guest_vif1.h"
 #include "guest/guest_gif.h"
+#include "guest/guest_gs.h"
 #include "guest/guest_shim.h"
 
-namespace guest { extern uint64_t g_diagCdReads, g_diagCdSectors; extern uint16_t g_bootButtons; }
+namespace guest { extern uint64_t g_diagCdReads, g_diagCdSectors; extern uint16_t g_bootButtons; void gsEnvCensusDump(); }
 #include "preview/car_mesh.h"
 #include "preview/preview.h"
 #include "preview/race_hud.h"
@@ -3403,6 +3404,8 @@ int main() {
         rtguest::vif1MaybeDumpCode();  // RT_VIF1_CODE_DUMP (W3 step 2 aid)
         if (rtguest::vif1HistOn()) rtguest::vif1HistDump();  // census even for short boots
         if (rtguest::gifCensusOn()) rtguest::gifCensusDump();
+        if (rtguest::gsCensusOn()) rtguest::gsCensusDump();
+        if (rtguest::gifCensusOn()) guest::gsEnvCensusDump();
     }
     if (interpEnabled)
         std::cout << "rt-app interp: steps=" << interpClock.stepsTaken()

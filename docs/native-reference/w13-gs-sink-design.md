@@ -235,3 +235,57 @@ data tags: that is the texture-upload path (837,664 B at boot). FRAME/ZBUF
 never appear via DIRECT: framebuffer switching must arrive another way —
 scope for 3b (PATH3 A+D or reglist tag path in the oracle walk). This is the
 exact GS state surface the native renderer sink must model.
+
+## Step 3b: GS device model (guest_gs) + the frame-switch route
+
+`guest_gs.{h,cpp}` is the native GS device: a raw register file, the draw-context
+state the game writes, a 4 MiB VRAM with the oracle's page-addressing (layout
+table DATA transliterated from ps2_gs_memory.cpp:45-205; PageId/BlockId/
+ColumnId arithmetic inlined), and the vertex queue/batch pipeline. Citations:
+gs_frontend.cpp writeRegisterUnlocked (register switch incl. BITBLT/TRX/
+BeginTransfer), writeRegisterPacked (packed quad decode incl. XYZF3/XYZ3
+no-kick cases), vertexKick (needed/submit/trim), processImageData, and
+GSCpuBackend::UploadImage (host->local pixel copy per PSM). REGLIST entries
+route to gsWriteRegister exactly as the oracle walk does.
+
+gifSink now routes PRE-prim, packed, reglist and IMAGE payloads into it.
+The game's fog word (dword3 = ftoi4(fog)|flag<<15) carries a per-vertex flag
+in the ADK bit position: boot shows only two words, 0x8FF0 (set, 235,620) and
+0x0FF0 (clear, 49,830). The oracle front end treats bit47 clear as the draw
+kick — and with that, its front end itself submits only 2,736 batches at boot
+(55,302 draw kicks, 52,566 below-needed): the game's XGKICK 3D geometry does
+NOT flow through the front end's batch windows. In the oracle those strips
+render as native draws (hwGS) or via the packet mirror (parallel-gs, which
+decodes PATH1 itself — the pgs goldens' path). So the native renderer feed
+must consume the full vertex stream (gsStream: every XYZ(F) write with prim +
+kick flag, 290,922 at boot = 285,450 packed + 5,472 DIRECT 2D verts), the
+register file and VRAM — not only the batched triangles.
+
+Frame/ZBUF switching (the "never via DIRECT" puzzle) resolved: the game calls
+sceGsSwapDBuffDc once per vblank (census 1799) plus sceGsSetDefDBuffDc twice
+and sceGsResetGraph once. In the ELF these are the game's own libgs functions:
+SwapDBuffDc(0x26f738) = sceGsPutDispEnv(env+which*0x28) +
+sceGsPutDrawEnv(env+{0x50,0x1c0}) — 8 {data,command} pairs each, applied to
+the GS. SetDefDBuffDc(0x26f450) seeds the whole 0x330-byte gsDBuffDc struct
+(disp[2]@0, giftag0@0x50, draw01@0x60, draw02@0xE0, clear0@0x160, giftag1@
+0x1C0, draw11@0x1D0, draw12@0x250, clear1@0x2D0) via sceGsSetDefDispEnv/
+DrawEnv/DrawEnv2/Clear + a giftag patch + zbuf-addr patch through
+sceGszbufaddr and the sceGsGetEnv static. The native env struct at 0x335fb0
+is zero where the oracle's holds the seeded values (~124 B — part of the
+0x330000 residual in the W12 RAM parity ledger). Native SwapDBuffDc now
+applies the struct (gsSetDisplayEnv + both draw-env pair sets, frame clear
+seam via gsClearFrameData); the seeding chain transliteration is the next
+3b-2 increment and should close that residual AND land FRAME/ZBUF
+(census wreg 0x4C/0x4E) for the renderer.
+
+Boot census after 3b (RT_VIF_HIST): gs stream 290,922 verts, 2,736 batches,
+96/96 IMAGE uploads completed (trxdir=0 only; 829,088 px, 965,280 vram
+writes), display env still zero (chain not ported yet). RAM@1800 stays
+byte-identical to the pre-sink dump — the model is a pure consumer.
+`gs_test` pins CT32 + P4 upload addressing, the strip queue/trim/ADK batch
+pipeline and the raw reg file.
+
+Next (3b-2/3c): transliterate the game's env-seed chain (0x26f450 +
+0x26f798/0x26fb90/0x26ff68/0x26fd78/0x26fac8 + sceGsGetEnv) so SwapDBuffDc
+carries real FRAME/ZBUF/DISPFB per vblank, then feed gsStream+regs+VRAM to
+the W2 preview renderer and start the scanout goldens.
