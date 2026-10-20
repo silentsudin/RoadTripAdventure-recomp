@@ -37,7 +37,7 @@ uint32_t kSemaCount();
 
 // Boot: install the green boot thread (id 1) for the ELF entry point and
 // leave it ready; the frame loop then pumps per vblank.
-void kBootMainThread(uint32_t entry);
+void kBootMainThread(uint32_t entry, bool bootPhaseGate = true);
 
 // Clear all kernel state (test isolation).
 void kResetKernel();

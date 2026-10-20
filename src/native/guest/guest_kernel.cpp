@@ -42,6 +42,14 @@ constexpr int kPriorityCount = 128;
 constexpr uint32_t kThreadFrameCap = 0x10000;  // per-task frame region cap (W13 stack model)
 constexpr int kMainThreadId = 1, kFirstThreadId = 2, kLastThreadId = 255;
 constexpr uint64_t kVBlankPeriodUs = 16667;  // oracle kVBlankPeriod
+// Oracle boot phase: the interpreted IOP module-load chain (SifLoadModule)
+// burns ~9 guest vblank periods before the game's main thread reaches its
+// first task spawn; native HLEs those loads instantly, so without a gate the
+// whole task chain runs ~9 vblanks early (measured: oracle task pool first
+// active at dump pair vb10 [parks 2..9 empty], native vb2; menu-flow task
+// counters differ by exactly 9 at paired dumps 240/260/280/300). Hold the
+// boot main thread out of the ready queue until the 10th kVblank tick.
+constexpr uint64_t kBootPhaseVblank = 10;
 constexpr uint64_t kAlarmTickUs = 64;        // oracle kAlarmTickMicroseconds
 constexpr uint32_t kDefaultHeapEnd = 0x01F00000u;  // oracle kDefaultGuestHeapEnd
 constexpr uint32_t kSyscallMirrorPhys = 0x11F80u;  // 0x80011F80 & 0x1FFFFFFF
@@ -110,6 +118,7 @@ std::vector<int> g_retired;  // erase-after-swap (can't free a running stack)
 ucontext_t g_pump{};
 bool g_inInterrupt = false, g_resched = false;
 uint64_t g_micro = 0, g_vsyncTick = 0;
+bool g_bootPhasePending = false;
 uint32_t g_vsyncFlagAddr = 0, g_vsyncTickAddr = 0;
 std::vector<int> g_vsyncWaiters;  // WaitVSyncTick parks (Interrupt.cpp:78-82)
 uint32_t g_heapBase = 0, g_heapLimit = 0, g_heapBump = 0;
@@ -687,6 +696,13 @@ void wakeVSyncWaiters() {
 // ---- frame-loop driver ----
 void kVblank() {
     g_micro += kVBlankPeriodUs;
+    ++g_vsyncTick;
+    if (g_bootPhasePending && g_vsyncTick >= kBootPhaseVblank) {
+        g_bootPhasePending = false;
+        auto it = g_threads.find(kMainThreadId);
+        if (it != g_threads.end()) enqueueReady(it->second);
+    }
+    --g_vsyncTick;
     fireDueAlarms();  // shortcut: alarm-vs-vblank tie lands on the vblank
     ++g_vsyncTick;    // boundary (oracle uses cycle deadlines; W13 audit)
     if (g_vsyncFlagAddr != 0) wrU32(g_vsyncFlagAddr, 1);
@@ -734,7 +750,7 @@ int32_t kCurrentThreadId() { return g_cur; }
 uint32_t kThreadCount() { return (uint32_t)g_threads.size(); }
 uint32_t kSemaCount() { return (uint32_t)g_sem.size(); }
 
-void kBootMainThread(uint32_t entry) {
+void kBootMainThread(uint32_t entry, bool bootPhaseGate) {
     kResetKernel();  // boot starts from a fresh kernel incl. the SIF boot-reg seed
     g_threads.erase(kMainThreadId);
     KThread t{};
@@ -752,7 +768,8 @@ void kBootMainThread(uint32_t entry) {
     m.frameFloor = RT_EE_STACK_FLOOR;
     makecontext(&m.uc, (void (*)())&thunk, 1, kMainThreadId);
     m.ucReady = true;
-    enqueueReady(m);
+    if (bootPhaseGate) g_bootPhasePending = true;  // else: kVblank() enqueues at tick kBootPhaseVblank
+    else enqueueReady(m);
 }
 
 void seedSifRegs() {

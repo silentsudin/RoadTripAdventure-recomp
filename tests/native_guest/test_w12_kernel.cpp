@@ -281,7 +281,7 @@ int main() {
     kResetKernel();
     std::memset(kRam, 0, 0x500000);
     registerGuest(0x0F000400, (void*)&t_boot_body);
-    kBootMainThread(0x0F000400);
+    kBootMainThread(0x0F000400, /*bootPhaseGate=*/false);  // primitive test: skip the oracle game-boot phase
     kPumpToIdle();
     CHECK(rd32(0x400A00) == 1);               // GetThreadId() == boot tid 1
     CHECK(guest::WakeupThread(1) == 0);
