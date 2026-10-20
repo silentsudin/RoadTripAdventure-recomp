@@ -96,7 +96,13 @@ def tolerant_difference(a, b, radius: int = 1):
     return np.maximum(da, db)
 
 
-def hw_verdict(expected, actual) -> tuple[bool, str, object]:
+# Frames where the hardware GS matches the software GS (RT_GS_BACKEND=cpu, 1x, checked pixel by pixel in
+# the road region) and paraLLEl-GS is the one that differs (#4: the road decal's edge in River Raceway
+# 2P): the worst-block limit is widened for these (percent of a 32 px block).
+PGS_DIVERGENCE_BLOCK_LIMIT = {"2p_River_Raceway_20s": 50.0}
+
+
+def hw_verdict(expected, actual, name: str = "") -> tuple[bool, str, object]:
     """(passes, detail, difference) for a hardware-GS picture against the paraLLEl-GS one."""
     import numpy as np
 
@@ -108,10 +114,11 @@ def hw_verdict(expected, actual) -> tuple[bool, str, object]:
     blocks = over[:bh * HW_BLOCK, :bw * HW_BLOCK].reshape(bh, HW_BLOCK, bw, HW_BLOCK).mean(axis=(1, 3)) * 100
     worst = float(blocks.max()) if blocks.size else 0.0
     by, bx = np.unravel_index(int(blocks.argmax()), blocks.shape) if blocks.size else (0, 0)
-    ok = percent <= HW_MAX_PERCENT and worst <= HW_BLOCK_MAX_PERCENT
+    block_limit = PGS_DIVERGENCE_BLOCK_LIMIT.get(name, HW_BLOCK_MAX_PERCENT)
+    ok = percent <= HW_MAX_PERCENT and worst <= block_limit
     detail = (f"hardware GS vs paraLLEl-GS: {percent:.2f}% of pixels off by more than {HW_LEVEL} "
               f"(limit {HW_MAX_PERCENT}%), worst {HW_BLOCK}px block {worst:.0f}% at "
-              f"({bx * HW_BLOCK},{by * HW_BLOCK}) (limit {HW_BLOCK_MAX_PERCENT:.0f}%)")
+              f"({bx * HW_BLOCK},{by * HW_BLOCK}) (limit {block_limit:.0f}%)")
     return ok, detail, d
 
 
@@ -138,7 +145,7 @@ def _check_hw(name: str, frame: Frame, test_data: Path, entry: dict):
         frame.image().save(failures / f"{name}.actual.png")
         raise GoldenMismatch(f"frame '{name}': size {frame.width}x{frame.height} (paraLLEl-GS "
                              f"{expected.shape[1]}x{expected.shape[0]}); see {failures}")
-    ok, detail, d = hw_verdict(expected, actual)
+    ok, detail, d = hw_verdict(expected, actual, name)
     if ok:
         return
     failures.mkdir(parents=True, exist_ok=True)
