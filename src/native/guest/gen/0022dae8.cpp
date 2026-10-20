@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t RunCountdownTimerTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   short sVar1;
   undefined4 uVar2;
   uint uVar3;

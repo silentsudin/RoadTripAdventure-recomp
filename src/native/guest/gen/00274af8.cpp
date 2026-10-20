@@ -6,7 +6,7 @@
 namespace guest {
 
 uint32_t atan2f(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   return __ieee754_atan2f(param_1, param_2);
 }
 

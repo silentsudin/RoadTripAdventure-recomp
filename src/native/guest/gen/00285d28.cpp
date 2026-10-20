@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t threadRequestLoop(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
   byte bVar1;
   int iVar2;
 uint32_t puVar3;

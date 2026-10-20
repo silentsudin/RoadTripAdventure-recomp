@@ -64,7 +64,7 @@ struct KThread {
     int waitId = 0;
     int32_t resumeResult = 0;
     bool ownsStack = false;
-    uint32_t frameBase = 0, frameTop = 0;  // per-task frame arena (W13 stack model)
+    uint32_t frameTop = 0, frameFloor = 0;  // EE stack mirror region (W13 stack model)
     ucontext_t uc{};
     bool ucReady = false;
     std::vector<uint8_t> hostStack;
@@ -253,7 +253,7 @@ void kExitCurrent(bool deleteRecord) {
 void thunk(int id) {
     KThread* t = thread(id);
     g_cur = t->id;
-    setFrameTop(t->frameTop);
+    setFrameTop(t->frameTop); setFrameFloor(t->frameFloor);
     rtCall(t->entry, t->arg);
     // A returning thread entry is undefined in libkernel (games exit
     // explicitly); retire like ExitDeleteThread rather than zombie the slot.
@@ -404,8 +404,8 @@ int32_t opStartThread(int id, uint32_t arg, bool intr) {
     t->uc.uc_stack.ss_size = t->hostStack.size();
     t->uc.uc_link = nullptr;
     sigemptyset(&t->uc.uc_sigmask);
-    if (t->frameBase == 0) t->frameBase = allocTaskFrameRegion(kThreadFrameCap);
-    t->frameTop = t->frameBase;  // fresh (re)start restarts at region base
+    if (t->frameFloor == 0) t->frameTop = allocTaskFrameRegion(kThreadFrameCap);
+    t->frameTop = t->frameFloor + kThreadFrameCap;  // (re)start at region top
     makecontext(&t->uc, (void (*)())&thunk, 1, t->id);
     t->ucReady = true;
     enqueueReady(*t);
@@ -724,7 +724,7 @@ void kPumpToIdle() {
         if (!t) return;
         t->status = StRunning;
         g_cur = t->id;
-        setFrameTop(t->frameTop);
+        setFrameTop(t->frameTop); setFrameFloor(t->frameFloor);
         swapcontext(&g_pump, &t->uc);
     }
 }
@@ -748,8 +748,8 @@ void kBootMainThread(uint32_t entry) {
     m.uc.uc_stack.ss_size = m.hostStack.size();
     m.uc.uc_link = nullptr;
     sigemptyset(&m.uc.uc_sigmask);
-    m.frameBase = allocTaskFrameRegion(kThreadFrameCap);
-    m.frameTop = m.frameBase;
+    m.frameTop = RT_EE_STACK_TOP;  // the ELF's declared main stack, like the oracle
+    m.frameFloor = RT_EE_STACK_FLOOR;
     makecontext(&m.uc, (void (*)())&thunk, 1, kMainThreadId);
     m.ucReady = true;
     enqueueReady(m);

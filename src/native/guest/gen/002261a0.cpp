@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t updateLightDirection(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
     uint32_t fStack_20 = rtguest::allocFrame(4);
     uint32_t fStack_1c = rtguest::allocFrame(4);
     uint32_t fStack_18 = rtguest::allocFrame(4);

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t RunSelectionMenuTask(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   char cVar1;
   undefined1 uVar2;
   undefined8 uVar3;

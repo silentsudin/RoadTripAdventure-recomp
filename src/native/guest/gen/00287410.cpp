@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceSifSendCmd(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   _sceSifSendCmd(param_1,0,param_2,param_3,param_4,param_5,param_6);
   return 0;
 }

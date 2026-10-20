@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t gs_music_play_bgm(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   MusicRpcCmd15(0);
   MusicRpcPlayBgm(0,param_1);
   SendMusicPlayRpc((int)param_1 >> 8 & 0xff,

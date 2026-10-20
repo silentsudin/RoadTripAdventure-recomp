@@ -5,7 +5,7 @@
 namespace guest {
 
 uint64_t sceMcFlush(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   long lVar1;
   
   lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));

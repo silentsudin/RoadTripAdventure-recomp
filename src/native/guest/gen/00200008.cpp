@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t entry(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   bool bVar1;
   // W12 fix: the bss-clear loop stores $zero four times per word (disasm
   // 0x200018 dext $zero + sw $zero x4); the Ghidra "in_zero" locals must be 0.

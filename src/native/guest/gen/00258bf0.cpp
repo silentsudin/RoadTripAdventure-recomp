@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SndRpcCmdCStruct(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   (*(uint64_t*)rtguest::G(0x175e880)) = (*(uint64_t*)rtguest::G((uint32_t)param_1));
   (*(uint64_t*)rtguest::G(0x175e888)) = (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint64_t)));
   (*(uint64_t*)rtguest::G(0x175e890)) = (*(uint64_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(uint64_t)));

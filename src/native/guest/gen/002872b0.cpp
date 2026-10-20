@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceSifRemoveCmdHandler(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
   int iVar1;
   
   iVar1 = (*(uint32_t*)rtguest::G(0x1776eac));

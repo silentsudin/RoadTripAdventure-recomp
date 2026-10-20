@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SelectProgressSlot(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   SetFlaggedSlotBit(0,param_1,0);
   (*(uint32_t*)rtguest::G((uint32_t)0x177f760 + 0)) = (*(uint32_t*)rtguest::G((uint32_t)(0x2ed724u + (uint32_t)((int)param_1 * 0x11) * 4)));
   (*(uint32_t*)rtguest::G((uint32_t)0x17804d0 + (uint32_t)((int)param_1) * 4)) = (uint32_t)(*(uint64_t*)rtguest::G(0x177f760));

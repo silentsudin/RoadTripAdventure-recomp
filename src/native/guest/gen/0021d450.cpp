@@ -3,7 +3,7 @@
 
 namespace guest {
 uint32_t vu0LoadVf15Quad(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   rtguest::vu0::S.vf[15] = rtguest::vu0::lqc2(param_1);
   return 0;
 }

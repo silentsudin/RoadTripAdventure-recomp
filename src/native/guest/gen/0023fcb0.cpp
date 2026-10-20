@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SubmitConditionalTexturePackets(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   long lVar1;
   int iVar2;
   int iVar3;

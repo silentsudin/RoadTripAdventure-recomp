@@ -174,39 +174,55 @@ bool loadImage(const uint8_t* f, size_t sz) {
     return true;
 }
 
-static uint32_t g_frameTop = RT_FRAME_BASE;
-
-// shortcut (W12): the bump arena is released wholesale per vblank instead of
-// per function return (real per-thread EE stack model is W13). Arena pointers
-// must not outlive their vblank; det pair + soak watch this.
-void resetFrameArena() { g_frameTop = RT_FRAME_BASE; }
+// EE stack mirror: frames push down from the ELF's declared main-stack top;
+// see guest_shim.h. Per green thread: [frameFloor, frameTop); the game's own
+// tasks run scheduler-level on the main thread's stack like the oracle.
+static uint32_t g_frameTop = RT_EE_STACK_TOP;
+static uint32_t g_frameCursor = RT_EE_STACK_TOP;
+static uint32_t g_frameCeil = RT_EE_STACK_TOP;
+static uint32_t g_frameFloor = RT_EE_STACK_FLOOR;
 
 uint32_t frameTop() { return g_frameTop; }
-void setFrameTop(uint32_t t) { g_frameTop = t; }
+void setFrameTop(uint32_t t) { g_frameTop = t; g_frameCursor = t; g_frameCeil = t; }
+void setFrameFloor(uint32_t f) { g_frameFloor = f; }
 
-uint32_t allocTaskFrameRegion(uint32_t capBytes) {
-    static uint32_t s_poolTop = RT_FRAME_BASE;
-    uint32_t a = s_poolTop;
-    if (a + capBytes > RT_FRAME_END) {
+void framePush(uint32_t size) {
+    uint32_t base = g_frameTop - size;
+    if (size > g_frameTop || base < g_frameFloor) {
+        fprintf(stderr, "[rtguest] EE stack underflow (top=%08x size=%x)\n", g_frameTop, size);
+        abort();
+    }
+    g_frameCeil = g_frameTop;
+    g_frameTop = base;
+    g_frameCursor = base;
+}
+
+void framePop(uint32_t saved) { g_frameTop = saved; g_frameCursor = saved; g_frameCeil = saved; }
+
+uint32_t allocTaskFrameRegion(uint32_t capBytes) {  // returns the region's top
+    static uint32_t s_pool = RT_FRAME_END;
+    if (s_pool < RT_FRAME_BASE + capBytes) {
         fprintf(stderr, "[rtguest] frame region pool exhausted\n");
         abort();
     }
-    s_poolTop = a + capBytes;
-    return a;
+    s_pool -= capBytes;
+    return s_pool + capBytes;
 }
 
 uint32_t allocFrame(uint32_t bytes) {
-    // 4-byte align only: the transliterator's per-TU gap chunks encode exact
-    // guest frame offsets, and adjacent slots (e.g. a float[5] followed by the
-    // scalar matrix elements buildCamera reads as one 4x4) must stay contiguous.
-    // 16-byte padding split them and silently zeroed projection terms.
-    bytes = (bytes + 3) & ~3u;
-    uint32_t a = g_frameTop;
-    if (a + bytes > RT_FRAME_END) {
-        fprintf(stderr, "[rtguest] frame arena exhausted\n");
+    // Chunks carve up from the frame base in emitted (ascending-offset) order;
+    // FrameGuard(size) pre-pushed the exact guest frame size, so slot addresses
+    // equal the oracle's sp+offset. No chunk padding here: the transliterator's
+    // gap chunks encode exact guest frame offsets, and adjacent slots (e.g. a
+    // float[5] followed by the scalar matrix elements buildCamera reads as one
+    // 4x4) must stay contiguous; FrameGuard(size) already carries the frame's
+    // own alignment.
+    uint32_t a = g_frameCursor;
+    g_frameCursor = a + bytes;
+    if (g_frameCursor > g_frameCeil) {
+        fprintf(stderr, "[rtguest] frame chunks overflow pushed frame (%x)\n", bytes);
         abort();
     }
-    g_frameTop = a + bytes;
     return a;
 }
 

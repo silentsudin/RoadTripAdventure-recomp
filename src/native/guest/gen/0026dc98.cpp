@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t PrintUiSlotN(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   undefined8 uVar1;
 uint32_t auStack_40 = rtguest::allocFrame(32);
   

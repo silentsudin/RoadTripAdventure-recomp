@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t scePadGetState(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   char cVar1;
   int iVar2;
   

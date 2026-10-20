@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t textGridInitAttrs(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   (*(uint32_t*)rtguest::G((uint32_t)param_1)) = param_2;
   (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(0xf) * sizeof(uint32_t))) = 0x80ffffff;
   (*(uint32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(uint32_t))) = param_3;

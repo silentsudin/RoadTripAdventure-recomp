@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t initRaceStandings(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   undefined4 uVar1;
 uint32_t puVar2;
 uint32_t puVar3;

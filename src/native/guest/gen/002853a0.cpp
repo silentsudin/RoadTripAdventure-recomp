@@ -6,7 +6,7 @@
 namespace guest {
 
 int32_t sceSifSetReg(uint32_t q0, uint32_t q1) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   // W12: sceSifSetReg($4 reg, $5 val) -> prev; the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x79, q0, q1);

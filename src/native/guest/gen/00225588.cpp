@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ResetCarEffectSlots(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
 uint32_t pvVar1;
   
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x0172ff70)), 0, 0x800));

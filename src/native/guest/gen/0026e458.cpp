@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceGsSyncV(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   ulong uVar1;
 uint32_t psVar2;
   uint uVar3;

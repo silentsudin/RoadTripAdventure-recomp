@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t __main(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   if ((*(int32_t*)rtguest::G(0x1776158)) == 0) {
     (*(int32_t*)rtguest::G(0x1776158)) = 1;
     __do_global_ctors();

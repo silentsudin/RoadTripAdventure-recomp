@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UploadPackedColors(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
     uint32_t uStack_30 = rtguest::allocFrame(4);
     uint32_t uStack_2c = rtguest::allocFrame(4);
     uint32_t uStack_28 = rtguest::allocFrame(4);

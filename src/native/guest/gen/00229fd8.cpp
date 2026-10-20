@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t InitProgressRamDefaults(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
 uint32_t puVar1;
   int iVar2;
 uint32_t ppuVar3;

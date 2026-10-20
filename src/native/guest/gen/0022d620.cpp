@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateZoneFromRects(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   bool bVar1;
   undefined1 uVar2;
 uint32_t pfVar3;

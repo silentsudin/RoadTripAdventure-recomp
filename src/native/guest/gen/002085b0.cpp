@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ReflectVectorVU0(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   float fVar1;
   float fVar2;
 uint32_t auStack_50 = rtguest::allocFrame(16);

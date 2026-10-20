@@ -5,7 +5,7 @@
 namespace guest {
 
 int64_t sceMcMkdir(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   long lVar1;
   
   lVar1 = sceMcOpen();

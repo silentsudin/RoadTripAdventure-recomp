@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ttyRingPush(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   int iVar1;
   
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(int32_t)));

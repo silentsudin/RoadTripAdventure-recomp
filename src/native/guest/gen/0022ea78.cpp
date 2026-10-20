@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UploadVifPacketA(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   (*(uint64_t*)rtguest::G(0x29f540)) = param_1;
   vifDirect(0x29f510,5);
   return 0;

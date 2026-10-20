@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceResetttyinit(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   (*(uint32_t*)rtguest::G(0x2e913c)) = 0;
   return 0;
 }

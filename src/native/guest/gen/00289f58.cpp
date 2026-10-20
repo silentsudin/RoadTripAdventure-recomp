@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _sceCallCode(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(208);
 uint32_t auStack_c0 = rtguest::allocFrame(4);
     uint32_t uStack_bc = rtguest::allocFrame(4);
     uint32_t uStack_b8 = rtguest::allocFrame(4);

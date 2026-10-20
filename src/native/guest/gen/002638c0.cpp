@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t raceToPointTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
     uint32_t uStack_60 = rtguest::allocFrame(8);
     uint32_t uStack_58 = rtguest::allocFrame(8);
 uint32_t auStack_50 = rtguest::allocFrame(16);

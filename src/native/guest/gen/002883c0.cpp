@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceSifExecRequest(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
   undefined4 uVar1;
   long lVar2;
   undefined8 uVar3;

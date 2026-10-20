@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t mceStorePwd(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   size_t sVar1;
   
   if (param_1 != 0) {

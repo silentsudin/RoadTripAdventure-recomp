@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t stampCollectionTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   short sVar1;
   int iVar2;
   undefined2 uVar3;

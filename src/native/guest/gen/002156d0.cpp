@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateAudioSettingsMenuTask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(400);
     uint32_t uStack_190 = rtguest::allocFrame(8);
     uint32_t uStack_188 = rtguest::allocFrame(8);
     uint32_t uStack_180 = rtguest::allocFrame(8);

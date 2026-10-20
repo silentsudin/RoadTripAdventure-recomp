@@ -5,7 +5,7 @@
 namespace guest {
 
 uint64_t sysFstat(uint64_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x48))) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 4))) = 0x2000;
   return 0;

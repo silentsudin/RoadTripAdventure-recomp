@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t BuildCameraViewMatrices(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(208);
 uint32_t auStack_d0 = rtguest::allocFrame(16);
 uint32_t auStack_c0 = rtguest::allocFrame(16);
 uint32_t auStack_b0 = rtguest::allocFrame(16);

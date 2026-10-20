@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateRaceRecords(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   byte bVar1;
   char cVar2;
   short sVar3;

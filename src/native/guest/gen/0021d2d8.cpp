@@ -3,7 +3,7 @@
 
 namespace guest {
 uint32_t TransformVecByF15Matrix(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   using namespace rtguest::vu0;
   S.vf[8] = lqc2(param_3);
   S.vf[4] = lqc2(param_2);

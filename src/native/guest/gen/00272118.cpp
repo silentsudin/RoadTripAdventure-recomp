@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t heapAllocBlock(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   int iVar1;
   uint uVar2;
   uint uVar3;

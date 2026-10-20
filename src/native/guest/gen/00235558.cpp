@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SetObjectField845C(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x845c))) = param_2;
   return 0;
 }

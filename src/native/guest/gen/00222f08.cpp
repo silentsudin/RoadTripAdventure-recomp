@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawRaceProps(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(208);
 uint32_t auStack_d0 = rtguest::allocFrame(64);
 uint32_t auStack_90 = rtguest::allocFrame(52);
     uint32_t fStack_5c = rtguest::allocFrame(4);

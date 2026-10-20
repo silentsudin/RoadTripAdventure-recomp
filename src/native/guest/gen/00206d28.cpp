@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t NavigateGridSelection(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint32_t param_4, uint64_t param_5, uint64_t param_6, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
 uint32_t puVar1;
   int iVar2;
   ushort uVar3;

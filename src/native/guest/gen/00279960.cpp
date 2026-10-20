@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _lmcGetClientPtr(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   (*(uint32_t*)rtguest::G((uint32_t)param_1)) = 0x01776100;
   (*(uint32_t*)rtguest::G((uint32_t)param_2)) = 0x002e89b8;
   (*(uint32_t*)rtguest::G(0x177613c)) = (*(uint32_t*)rtguest::G(0x2e89bc));

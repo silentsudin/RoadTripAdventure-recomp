@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t charCodeToTileCoord(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(160);
   uint uVar1;
   uint uVar2;
   

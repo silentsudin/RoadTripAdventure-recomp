@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t gs_tasks_walker(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   do {
     if ((*(int8_t*)rtguest::G((uint32_t)param_1)) == '\x01') {
       rtCall((*(uint32_t*)rtguest::G((uint32_t)(param_1 + 0xc))), param_1, param_2);

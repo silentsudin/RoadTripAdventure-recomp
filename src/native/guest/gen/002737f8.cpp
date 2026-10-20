@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t scePadPortOpen(uint64_t param_1, uint64_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(176);
   undefined4 uVar1;
   long lVar2;
 uint32_t puVar3;

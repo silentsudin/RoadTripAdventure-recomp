@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceGsExecStoreImage(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(144);
   bool bVar1;
   uint uVar2;
   ulong uVar3;

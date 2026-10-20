@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _sceSifCmdIntrHdlr(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(144);
 uint32_t auStack_90 = rtguest::allocFrame(8);
     uint32_t uStack_88 = rtguest::allocFrame(4);
   byte bVar1;

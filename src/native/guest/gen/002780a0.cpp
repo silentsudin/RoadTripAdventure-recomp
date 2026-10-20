@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t cdvd_exit(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   if ((*(int32_t*)rtguest::G(0x2e6f14)) != 0) {
     (*(int32_t*)rtguest::G(0x2e6f54)) = 0xffffffff;
     SignalSema((*(uint32_t*)rtguest::G(0x2e6f20)));

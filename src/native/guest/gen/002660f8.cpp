@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawStampNumberColumn(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(352);
     uint32_t uStack_160 = rtguest::allocFrame(4);
     uint32_t uStack_15c = rtguest::allocFrame(4);
     uint32_t uStack_158 = rtguest::allocFrame(4);

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t fatal(uint64_t param_1, uint64_t param_2, uint64_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
 uint32_t puVar1;
   char cVar2;
   undefined8 uVar3;

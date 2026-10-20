@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t raceHudElementF(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(288);
     uint32_t uStack_120 = rtguest::allocFrame(8);
     uint32_t uStack_118 = rtguest::allocFrame(8);
     uint32_t uStack_110 = rtguest::allocFrame(8);

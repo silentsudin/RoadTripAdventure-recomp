@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t IntToPackedBCD(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   uint uVar1;
   uint uVar2;
   

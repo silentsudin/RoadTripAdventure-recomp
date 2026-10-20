@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceCdDelayThread(uint16_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   undefined8 uVar1;
   uint32_t auStack_50 = rtguest::allocFrame(0x18);
   uint32_t uStack_4c = auStack_50 + 4;

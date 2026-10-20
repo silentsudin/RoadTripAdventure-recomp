@@ -7,7 +7,7 @@ namespace guest {
 // pseudocode: int isinf(undefined8)
 // W12: int32_t (bare `int` is invisible to refresh_decls sig tracking; same width)
 int32_t isinf(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   uint uVar1;
   
   uVar1 = 0x7ff00000 -

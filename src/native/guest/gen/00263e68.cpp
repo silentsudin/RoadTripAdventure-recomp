@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t distanceGoalRaceTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
 uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t fStack_5c = rtguest::allocFrame(4);
     rtguest::allocFrame(8);  // guest frame gap

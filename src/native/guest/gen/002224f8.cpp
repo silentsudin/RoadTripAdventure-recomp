@@ -13,12 +13,12 @@ using namespace rtguest::vu0;
 // one column-major 4x4 * vector transform, vf4..7 = columns, vf8 = point,
 // result vf9 (oracle encodings 0x4be821bc..0x4be83a4b)
 static inline void xform9() {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   vmulabc(15,0,4,8); vmaddabc(15,1,5,8); vmaddabc(15,2,6,8); vmaddbc(15,3,9,7,8);
 }
 
 void drawArcRibbon(uint32_t param_1, long param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(208);
   int iVar1;
   int iVar2;
   float fVar4;

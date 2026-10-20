@@ -5,7 +5,7 @@
 namespace guest {
 
 void textBufferBlendPixel16(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint16_t param_4, int16_t param_5) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint8_t bVar1;
 uint32_t puVar2;
   

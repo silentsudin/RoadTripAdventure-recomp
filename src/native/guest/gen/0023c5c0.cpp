@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t gs_photos_take_function(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   undefined4 uVar1;
   int iVar2;
   ulong uVar3;

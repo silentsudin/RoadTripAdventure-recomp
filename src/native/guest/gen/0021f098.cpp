@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t BuildMenuSceneCamera(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   int iVar1;
 uint32_t auStack_60 = rtguest::allocFrame(48);
 uint32_t auStack_30 = rtguest::allocFrame(16);

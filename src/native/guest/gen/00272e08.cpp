@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t vu0NormalLightMatrix(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   int iVar1;
 uint32_t auStack_60 = rtguest::allocFrame(16);
   

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _sceCd_ncmd_prechk(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   int iVar1;
   long lVar2;
   

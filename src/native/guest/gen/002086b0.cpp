@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t InitializeMenuPanelTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   short sVar1;
   char cVar2;
 uint32_t pcVar3;

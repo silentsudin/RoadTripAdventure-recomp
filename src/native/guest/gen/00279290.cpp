@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceSdRemoteInit(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   int iVar1;
   long lVar2;
   

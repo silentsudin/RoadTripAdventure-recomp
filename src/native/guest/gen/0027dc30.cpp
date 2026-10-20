@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t free(uint32_t __ptr, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   __malloc_lock((*(uint32_t*)rtguest::G(0x002e8cc0)));
   _free_r((*(uint32_t*)rtguest::G(0x002e8cc0)),__ptr);
   __malloc_unlock((*(uint32_t*)rtguest::G(0x002e8cc0)));

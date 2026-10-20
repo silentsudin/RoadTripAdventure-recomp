@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceDmaPutStallAddr(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   undefined4 uVar1;
   
   uVar1 = REG_DMAC_STADR;

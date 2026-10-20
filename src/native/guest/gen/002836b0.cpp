@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _Balloc(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   int iVar1;
 uint32_t piVar2;
 uint32_t piVar3;

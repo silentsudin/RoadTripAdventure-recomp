@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t copysignf(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   return param_1 & 0x7fffffff | param_2 & 0x80000000;
 }
 

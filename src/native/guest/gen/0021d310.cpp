@@ -6,7 +6,7 @@
 
 namespace guest {
 uint32_t VecSubtractAndLength(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   using namespace rtguest::vu0;
   uint16_t a[8], b[8], difference[8];
   std::memcpy(a, rtguest::G(param_2), 16);

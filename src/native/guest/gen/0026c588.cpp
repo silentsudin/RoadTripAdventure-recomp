@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t creditsScene(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   gifBeginSpriteBatch(0x1772670,0x2003fbce21311f2e);
   gifSetSpriteCount(0x17726d0,0x1e);
   uiSpriteWriteWrap(0x17726e0,0,0,0x80,0x80,0x280,0x1c0,0x40);

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t stampBookBuild(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
 uint32_t puVar1;
 uint32_t puVar2;
 uint32_t puVar3;

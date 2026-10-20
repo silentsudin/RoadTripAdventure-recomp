@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t abort(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   int iVar1;
 uint32_t puVar2;
   undefined4 extraout_a0_lo;

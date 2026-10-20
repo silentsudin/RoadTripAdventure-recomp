@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t AiCarControlDefault(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   return 0;
 }
 

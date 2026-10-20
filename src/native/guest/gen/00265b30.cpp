@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t notebookStampListTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
     uint32_t uStack_50 = rtguest::allocFrame(8);
     uint32_t uStack_48 = rtguest::allocFrame(8);
     uint32_t uStack_40 = rtguest::allocFrame(8);

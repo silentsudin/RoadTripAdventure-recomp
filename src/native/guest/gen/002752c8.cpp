@@ -10,7 +10,7 @@
 namespace guest {
 
 uint32_t __ieee754_rem_pio2f(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
     uint32_t fStack_40 = rtguest::allocFrame(4);
   int iVar1;
 uint32_t pfVar2;

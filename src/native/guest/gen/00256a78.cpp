@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SlideInPaintEditorWindow(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   short sVar1;
   
   sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) + 4;

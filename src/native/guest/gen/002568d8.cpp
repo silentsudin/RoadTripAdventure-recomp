@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ClosePaintEditorWindow(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   short sVar1;
   int iVar2;
   

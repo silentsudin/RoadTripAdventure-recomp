@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t scePadSetActDirect(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   int iVar1;
 uint32_t puVar2;
   undefined4 uVar3;

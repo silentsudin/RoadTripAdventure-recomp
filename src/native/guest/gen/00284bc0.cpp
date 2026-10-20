@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _Exit(uint32_t __status, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   syscall(4);
   return 0;
 }

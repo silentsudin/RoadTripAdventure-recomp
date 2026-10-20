@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t GetLabelEntry_eca70(uint64_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   return (*(uint32_t*)rtguest::G((uint32_t)(0x2eca70u + (uint32_t)(param_2 * 7) * 4)));
 }
 

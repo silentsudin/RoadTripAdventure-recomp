@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t gs_options_settings_page(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(560);
     uint32_t uStack_230 = rtguest::allocFrame(4);
     uint32_t uStack_22c = rtguest::allocFrame(4);
     uint32_t iStack_228 = rtguest::allocFrame(4);

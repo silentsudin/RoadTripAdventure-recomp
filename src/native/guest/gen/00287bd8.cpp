@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sifFindRpcServer(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   int iVar1;
 uint32_t piVar2;
   int iVar3;

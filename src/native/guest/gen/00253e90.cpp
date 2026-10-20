@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ApplyArenaWallCollisions(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   bool bVar1;
   float fVar2;
   float fVar3;

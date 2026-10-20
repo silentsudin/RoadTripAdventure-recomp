@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t uiFlatVertexWrite(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   int iVar1;
   
   (*(uint8_t*)rtguest::G((uint32_t)param_1)) = param_5;

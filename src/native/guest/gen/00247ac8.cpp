@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t DrawCarouselStatBars(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   byte bVar1;
 uint32_t pbVar2;
   int iVar3;

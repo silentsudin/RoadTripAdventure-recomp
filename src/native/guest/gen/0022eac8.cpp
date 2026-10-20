@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t RunFadeOutExitTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   int iVar1;
   
   iVar1 = (int)param_1;

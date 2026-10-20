@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t malloc_extend_top(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
 uint32_t puVar1;
 uint32_t puVar2;
 uint32_t puVar3;

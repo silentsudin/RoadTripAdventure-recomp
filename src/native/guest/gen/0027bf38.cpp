@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t dpcmp(uint64_t param_1, uint64_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
 uint32_t auStack_60 = rtguest::allocFrame(32);
 uint32_t auStack_40 = rtguest::allocFrame(32);
     uint32_t uStack_20 = rtguest::allocFrame(8);

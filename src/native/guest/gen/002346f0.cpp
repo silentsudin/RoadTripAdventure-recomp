@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SetTrackData(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x849c))) = param_2;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8490))) = param_3;
   return 0;

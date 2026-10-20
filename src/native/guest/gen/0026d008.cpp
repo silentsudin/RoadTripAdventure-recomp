@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t houseVisitedMenuEntry(uint32_t q0, uint32_t q1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   HouseVisitedMenuTask(q0,q1);  // tail j 26d014, $4/$5 passthrough; callee reads both
   return 0;
 }

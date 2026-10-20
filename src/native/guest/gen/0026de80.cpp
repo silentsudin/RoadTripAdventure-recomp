@@ -6,7 +6,7 @@
 namespace guest {
 
 uint32_t DrawMapCoordinateValues(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
   uint64_t uVar1;
   uint64_t uVar2;
   uint64_t uVar3;

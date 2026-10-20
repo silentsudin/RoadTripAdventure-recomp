@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SpawnTasksFromResidentTable(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
 uint32_t pcVar1;
   char cVar2;
   byte bVar3;

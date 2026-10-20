@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t getReent(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   return (*(uint32_t*)rtguest::G(0x002e8cc0));
 }
 

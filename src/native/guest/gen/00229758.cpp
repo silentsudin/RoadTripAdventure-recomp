@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t CommitSaveSlotTask(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   char cVar1;
 uint32_t puVar2;
 uint32_t puVar3;

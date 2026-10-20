@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t PlayTaskSound(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   PlayUiSound((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) + 0x8000);
   return 0;
 }

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sendTexturePackets(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   undefined8 uVar1;
   
   uVar1 = sceDmaGetChan(2);

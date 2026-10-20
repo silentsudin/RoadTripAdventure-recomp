@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _sceFsSigSema(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   SignalSema((*(uint32_t*)rtguest::G(0x2e998c)));
   return 0;
 }

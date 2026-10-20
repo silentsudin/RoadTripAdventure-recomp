@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t InitPlayerSlotStrings(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   (*(uint8_t*)rtguest::G((uint32_t)0x0177fd8c + 0)) = 'P';
   (*(uint8_t*)rtguest::G((uint32_t)0x0177fd8c + 1)) = 'L';
   (*(uint8_t*)rtguest::G((uint32_t)0x0177fd8c + 2)) = 'A';

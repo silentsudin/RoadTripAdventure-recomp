@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sifCmdGetFlag(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   return (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x01776fc0 + param_1 * 4)));
 }
 

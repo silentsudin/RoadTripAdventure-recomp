@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _i2b(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   int iVar1;
   
   iVar1 = _Balloc(param_1,1);

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _sceRpcGetFPacket2(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   int iVar1;
   
   if (((int32_t)param_2 < 0) || ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x20))) <= (int32_t)param_2)) {

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t KickVifPacket(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   vifKick(0x28e730);
   return 0;
 }

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t PowerOffCB(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   (*(uint32_t*)rtguest::G(0x2e6f24)) = 1;
   DIntr();
   sceSifAddCmdHandler(0xffffffff80000012,0x278190,0);

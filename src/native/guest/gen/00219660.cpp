@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ApplyCollisionImpulse(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint32_t param_4, uint32_t param_5, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(144);
     uint32_t iStack_90 = rtguest::allocFrame(4);
     uint32_t iStack_8c = rtguest::allocFrame(4);
     uint32_t iStack_88 = rtguest::allocFrame(4);

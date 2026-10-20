@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateSuspensionFlex(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   float fVar1;
   float fVar2;
   float fVar3;

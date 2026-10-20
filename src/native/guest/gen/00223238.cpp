@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t DrawShowroomCarModel(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   vifUploadLightMatrix(0x177f620);
   vifObjectMatrix(param_2);
   vifBatchRegs((long)(param_3 * 0x44 + 0x243e) | 0x1d308000U |

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawModelAt177F358(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   undefined8 uVar1;
 uint32_t auStack_60 = rtguest::allocFrame(64);
   

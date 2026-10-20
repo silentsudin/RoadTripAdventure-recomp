@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t KillHookClear198(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x28))) + 0x198))) = 0;
   return 0;
 }

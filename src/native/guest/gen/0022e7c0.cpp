@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t DrawScoreCounter(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   DrawDialogTextLine(0x1b8,0x1a,(*(uint32_t*)rtguest::G(0x177fdb4)),0x177fd9f);
   return 0;
 }

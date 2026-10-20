@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t mceGetInfoApdx(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
 uint32_t puVar1;
   
   puVar1 = (uint32_t)(param_1 | 0x20000000);

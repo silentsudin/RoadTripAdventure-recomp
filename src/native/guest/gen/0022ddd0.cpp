@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t raceHudTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   char cVar1;
   undefined4 uVar2;
   byte bVar3;

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t switchD_00223790_selectCarAttachmentCase7(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   vu0ApplyMatrix();
   return 0;
 }

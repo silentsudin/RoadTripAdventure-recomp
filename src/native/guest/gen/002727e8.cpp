@@ -5,7 +5,7 @@ namespace guest {
 using namespace rtguest::vu0;
 
 void vecNormalizeVu0(uint32_t a,uint32_t b) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
 S.vf[4]=lqc2(b); vmul(14,5,4,4); vaddbc(8,1,5,5,5); vaddbc(8,2,5,5,5); vsqrt(0,5); vwaitq(); vaddq(8,5,0); vdiv(3,0,0,5); vsub(15,6,0,0); vwaitq(); vmulq(14,6,4); sqc2(a,S.vf[6]);
 }
 

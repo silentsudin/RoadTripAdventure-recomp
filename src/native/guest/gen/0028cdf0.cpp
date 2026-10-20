@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceSifIsAliveIop(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   ulong uVar1;
   
   uVar1 = sceSifGetReg(4);

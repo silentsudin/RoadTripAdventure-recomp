@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t PlayUiSound(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   SndRpcPlayOrStop(param_1 | 0x40400000);
   return 0;
 }

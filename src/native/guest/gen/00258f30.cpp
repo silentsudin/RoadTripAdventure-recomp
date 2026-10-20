@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t PlayBgmSlot1(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   MusicRpcPlayBgm(1,0);
   return 0;
 }

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t decode_stack_op(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   byte bVar1;
   long lVar2;
   long extraout_a0;

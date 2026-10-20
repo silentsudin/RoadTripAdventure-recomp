@@ -3,7 +3,7 @@
 
 namespace guest {
 uint32_t vu0LoadStateAndConstants(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   using namespace rtguest::vu0;
   S.vf[4] = lqc2(param_1); S.vf[5] = lqc2(param_1 + 16);
   S.vf[6] = lqc2(param_1 + 32); S.vf[7] = lqc2(param_1 + 48);

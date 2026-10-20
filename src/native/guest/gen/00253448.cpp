@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SteerAiToDefaultWaypoint(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
 uint32_t afStack_60 = rtguest::allocFrame(24);
     uint32_t fStack_48 = rtguest::allocFrame(4);
   short sVar1;

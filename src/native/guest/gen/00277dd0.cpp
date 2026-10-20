@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _Cdvd_cbLoop(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(160);
   do {
     WaitSema((*(uint32_t*)rtguest::G(0x2e6f20)));
     if ((*(int32_t*)rtguest::G(0x2e6f54)) == -1) {

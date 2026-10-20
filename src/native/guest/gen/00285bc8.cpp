@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t iDisableDmac(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   _iDisableDmac();
   SYNC(0);
   return 0;

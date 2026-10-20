@@ -6,7 +6,7 @@ namespace guest {
 
 // pseudocode: cvt(ptr, long, int, ulong, ptr, ptr, long, int*)
 uint32_t cvt(uint32_t param_1, uint64_t param_2, uint32_t param_3, uint64_t param_4, uint32_t param_5, uint32_t param_6, uint64_t param_7, uint32_t param_8, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   long lVar1;
 uint32_t pcVar2;
   int iVar3;

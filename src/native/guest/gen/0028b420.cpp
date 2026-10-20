@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceUmount(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   _sceCallCode(param_1,0x15);
   return 0;
 }

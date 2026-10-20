@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t gameMainLoop(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(176);
 uint32_t auStack_b0 = rtguest::allocFrame(16);
     uint32_t uStack_a0 = rtguest::allocFrame(8);
   undefined8 uVar1;

@@ -5,7 +5,7 @@
 namespace guest {
 
 void textGridScrollUp(uint64_t param_1, uint32_t param_2) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   uint uVar1;
   undefined4 uVar2;
   int iVar3;

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceGsResetPath(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   undefined8 uVar1;
   undefined4 in_vc12;
   

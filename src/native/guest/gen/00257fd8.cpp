@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t MusicRpcCmd15(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(112);
   uint32_t frame = rtguest::allocFrame(0x3c);
   uint32_t uStack_5c = frame;
   uint32_t uStack_58 = frame + 4;

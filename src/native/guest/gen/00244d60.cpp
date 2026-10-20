@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawCarouselCells(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
 uint32_t afStack_40 = rtguest::allocFrame(8);
     uint32_t fStack_38 = rtguest::allocFrame(4);
   bool bVar1;

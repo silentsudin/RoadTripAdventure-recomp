@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateWorldMapMenuTask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
 uint32_t auStack_50 = rtguest::allocFrame(16);
     uint32_t uStack_40 = rtguest::allocFrame(4);
     uint32_t uStack_3c = rtguest::allocFrame(4);

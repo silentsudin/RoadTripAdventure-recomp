@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceDmaGetChan(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   if (param_1 < 10) {
     return (*(uint32_t*)rtguest::G((uint32_t)(0x2dcdc0u + (uint32_t)((int)param_1) * 4)));
   }

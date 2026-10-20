@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SpawnCarSparks(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(176);
 uint32_t afStack_b0 = rtguest::allocFrame(12);
     uint32_t uStack_a4 = rtguest::allocFrame(4);
     uint32_t uStack_a0 = rtguest::allocFrame(4);

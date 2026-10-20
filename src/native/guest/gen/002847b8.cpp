@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t __swrite(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   undefined4 uVar1;
   
   if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) & 0x100) != 0) {

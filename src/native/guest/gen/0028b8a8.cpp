@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceSymlink(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(192);
 uint32_t auStack_b0 = rtguest::allocFrame(4);
     uint32_t uStack_ac = rtguest::allocFrame(4);
     uint32_t uStack_a8 = rtguest::allocFrame(4);

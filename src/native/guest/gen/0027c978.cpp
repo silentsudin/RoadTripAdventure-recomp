@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t __register_frame_table(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
 uint32_t pvVar1;
   
   pvVar1 = malloc(0x18);

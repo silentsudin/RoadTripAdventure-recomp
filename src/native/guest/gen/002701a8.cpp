@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceDmaReset(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
 uint32_t puVar1;
 uint32_t ppuVar2;
   int iVar3;

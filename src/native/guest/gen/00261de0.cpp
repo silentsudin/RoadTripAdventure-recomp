@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t roulettePayoutTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(160);
     uint32_t uStack_a0 = rtguest::allocFrame(8);
     uint32_t uStack_98 = rtguest::allocFrame(8);
     uint32_t uStack_90 = rtguest::allocFrame(8);

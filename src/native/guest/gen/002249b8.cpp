@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SpawnCarDebrisCycle(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(176);
 uint32_t auStack_b0 = rtguest::allocFrame(48);
 uint32_t auStack_80 = rtguest::allocFrame(12);
     uint32_t fStack_74 = rtguest::allocFrame(4);

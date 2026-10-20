@@ -7,12 +7,12 @@ namespace guest {
 // PS2 SIMD on lo/hi uint64 pairs (V16 convention, strcmp TU precedent).
 struct V16 { uint64_t lo, hi; };
 static inline V16 qextl(V16 a, V16 b) {  // _pextlw: interlace lower 32-bit words
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   return { (a.lo & 0xffffffff) | (b.lo << 32),
            (a.lo >> 32) | (b.hi & 0xffffffff00000000ULL) };
 }
 static inline V16 qextu(V16 a, V16 b) {  // _pextuw: interlace upper 32-bit words
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   return { (a.hi & 0xffffffff) | (b.hi << 32),
            (a.hi >> 32) | (b.hi >> 32 << 32) };
 }
@@ -20,7 +20,7 @@ static inline V16 qpyld(V16 a, V16 b) { return { a.lo, b.lo }; }  // _pcpyld
 static inline V16 qpyud(V16 a, V16 b) { return { a.hi, b.hi }; }  // _pcpyud
 
 uint32_t mat4Transpose(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   auto row = [](uint32_t a) {
     return V16{ *(uint64_t*)rtguest::G(a), *(uint64_t*)rtguest::G(a + 8) };
   };

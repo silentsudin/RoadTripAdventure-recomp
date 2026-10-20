@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t initRouletteMachineState(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8008))) = 0x15;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x800c))) = (*(uint32_t*)rtguest::G(0x177fdb4));
   return 0;

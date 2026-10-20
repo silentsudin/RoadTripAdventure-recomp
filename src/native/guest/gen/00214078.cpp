@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SetControllerButtonConfig(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   undefined2 uVar1;
   int iVar2;
   int iVar3;

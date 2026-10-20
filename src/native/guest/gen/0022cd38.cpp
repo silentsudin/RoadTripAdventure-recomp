@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t RunCourseSelectHubTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(112);
   undefined1 uVar1;
   int iVar2;
   char cVar3;

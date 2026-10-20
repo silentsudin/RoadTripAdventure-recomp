@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t renderInitNoOp(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(208);
   return 0;
 }
 

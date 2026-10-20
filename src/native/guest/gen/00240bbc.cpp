@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t switchD_002407e4_proximityEventNoOpCase(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   return 0;
 }
 

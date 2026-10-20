@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t uiMoveSprite(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   param_2 = param_2 * 0x20;
   if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + param_1 + 0x30))) = param_3 * 0x10 + 0x6c00;

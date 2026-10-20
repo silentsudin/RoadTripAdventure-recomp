@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t printf__00286e88(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(144);
     // spill area must be one contiguous block: _printf walks it 8 bytes per arg
     uint32_t uStack_38 = rtguest::allocFrame(0x38);
   

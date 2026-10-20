@@ -5,7 +5,7 @@
 namespace guest {
 
 uint64_t _fpadd_parts(uint64_t param_1, uint64_t param_2, uint64_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   bool bVar1;
   int iVar2;
   undefined8 uVar3;

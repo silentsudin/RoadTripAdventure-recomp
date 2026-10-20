@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t initFieldProp17(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   (*(uint64_t*)rtguest::G(0x177ea48)) = 0x20079f05e1413cb8;
   vu0UnitMatrix(0x177ebd0);
   tileSlotOrigin(0x177ec00,0x2a2bd0,3);

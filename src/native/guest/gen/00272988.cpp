@@ -5,7 +5,7 @@ namespace guest {
 using namespace rtguest::vu0;
 
 void vu0ScaleVector(float a,uint32_t b,uint32_t c) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
 S.vf[4]=lqc2(c); S.vf[5]={{a,0.f,0.f,0.f}}; vmulbc(15,0,6,4,5); sqc2(b,S.vf[6]);
 }
 

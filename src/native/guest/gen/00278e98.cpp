@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceCdMmode(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   long lVar1;
   
   lVar1 = _sceCd_scmd_prechk(0x22);

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t PlayEventSoundStub(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   PlayUiSound(0x8035);
   return 0;
 }

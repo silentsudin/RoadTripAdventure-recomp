@@ -11,7 +11,7 @@
 namespace guest {
 
 uint64_t __moddi3(uint64_t param_1, uint64_t param_2) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   if (param_2 == 0) {
     trap(7);
     return 0;

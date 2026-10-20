@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateInputDeviceState(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) == 0) {
     // pseudocode stores the code pointer AbortCdOperation (guest fn @0x20e1b8)
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x2c))) = 0x0020e1b8;

@@ -5,7 +5,7 @@
 namespace guest {
 
 int64_t __fixunsdfdi(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   long lVar1;
   long lVar2;
   undefined8 uVar3;

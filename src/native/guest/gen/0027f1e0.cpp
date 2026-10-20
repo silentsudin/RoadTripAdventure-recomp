@@ -6,7 +6,7 @@ namespace guest {
 
 // SIMD (_psubb/_pand zero-detect) byte-exact: 0x80 bit per zero byte.
 static inline uint64_t zdet(uint64_t x) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint64_t m = 0;
   for (int s = 0; s < 64; s += 8)
     if (((x >> s) & 0xff) == 0) m |= 0x80ULL << s;
@@ -14,7 +14,7 @@ static inline uint64_t zdet(uint64_t x) {
 }
 
 uint32_t strcpy(uint32_t __dest, uint32_t __src, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint8_t cVar1;
   uint32_t puVar6;
   uint32_t uVar8;

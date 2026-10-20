@@ -9,7 +9,7 @@ namespace guest {
 // carry param_2/3/4 live — Ghidra's 1-arg call site dropped them. Same clobber
 // at jal 0x21f6f4: vu0CopyVector #1 copies param_2 -> auStack_1d0.
 uint32_t buildCamera(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(464);
 uint32_t auStack_1d0 = rtguest::allocFrame(16);
 uint32_t auStack_1c0 = rtguest::allocFrame(16);
 uint32_t auStack_1b0 = rtguest::allocFrame(16);

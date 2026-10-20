@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SpawnDoorMenuEntity(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
     uint32_t fStack_80 = rtguest::allocFrame(4);
     uint32_t fStack_7c = rtguest::allocFrame(4);
     uint32_t fStack_78 = rtguest::allocFrame(4);

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceSifAllocIopHeap(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   long lVar1;
   
   if ((-1 < (*(uint32_t*)rtguest::G(0x2e999c))) &&

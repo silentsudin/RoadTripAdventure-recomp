@@ -5,7 +5,7 @@
 namespace guest {
 
 uint64_t __kernel_sin(uint64_t param_1, uint64_t param_2, uint64_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   long lVar1;
   undefined8 uVar2;
   undefined8 uVar3;

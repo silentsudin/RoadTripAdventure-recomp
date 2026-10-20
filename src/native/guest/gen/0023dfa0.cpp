@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SubmitMessage31(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   FindIndexByMaskedByte(0x1f,0x31,param_1);
   return 0;
 }

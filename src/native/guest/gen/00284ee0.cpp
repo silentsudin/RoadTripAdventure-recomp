@@ -5,7 +5,7 @@
 namespace guest {
 
 int32_t _iWakeupThread(uint32_t q0) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   // W12: iWakeupThread($4 id); the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0xffffffffffffffcc, q0);

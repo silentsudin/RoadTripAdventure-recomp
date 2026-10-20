@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t uiSetPaletteBank(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
 uint32_t puVar1;
   
   if ((long)(*(uint32_t*)rtguest::G(0x335688)) != (param_1 & 0xffff)) {

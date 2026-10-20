@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t switchD_0020101c_uiKanaGlyphUvCase81a0(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
 uint32_t in_t0_lo;
 uint32_t in_t1_lo;
   

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t dptoul(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
     // __unpack_d's out-struct is contiguous: class+0, sign+4, exp+8, pad+0xc, u64 mantissa+0x10
     uint32_t uStack_40 = rtguest::allocFrame(0x18);
   undefined4 uVar1;

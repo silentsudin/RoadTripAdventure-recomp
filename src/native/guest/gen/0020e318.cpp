@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t cdReadEntryWait(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   bool bVar1;
   long lVar2;
   

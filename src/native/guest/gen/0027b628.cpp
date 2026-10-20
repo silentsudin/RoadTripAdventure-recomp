@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t __do_global_dtors(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   int iVar1;
 uint32_t puVar2;
   

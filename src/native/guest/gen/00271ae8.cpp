@@ -5,7 +5,7 @@
 namespace guest {
 
 void textGridDrawFrame(uint64_t param_1, uint64_t param_2, uint64_t param_3, uint32_t param_4, uint32_t param_5) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
   uint uVar1;
   uint uVar2;
   uint uVar3;

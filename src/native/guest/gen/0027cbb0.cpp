@@ -7,7 +7,7 @@
 namespace guest {
 
 uint32_t frame_init(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   int32_t iVar1;
   int32_t lVar2;
   int32_t iVar3;

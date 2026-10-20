@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ResetRecordTables(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   byte bVar1;
 uint32_t puVar2;
   int iVar3;

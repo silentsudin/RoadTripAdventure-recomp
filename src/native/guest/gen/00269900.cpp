@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t shopBodySellMenuTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   byte bVar1;
   int iVar2;
   undefined1 uVar3;

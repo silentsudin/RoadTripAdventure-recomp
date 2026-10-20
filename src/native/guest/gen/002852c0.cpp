@@ -6,7 +6,7 @@
 namespace guest {
 
 int32_t GsGetIMR() {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   // W12: GsGetIMR() -> IMR; the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0x70);

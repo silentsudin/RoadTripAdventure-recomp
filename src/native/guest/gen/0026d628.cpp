@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ApplyRacePlayerMode(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24))) != '\0') {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x21))) = 9;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) = 8;

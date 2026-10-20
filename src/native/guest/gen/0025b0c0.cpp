@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t raceResultPanelTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(272);
     uint32_t uStack_110 = rtguest::allocFrame(8);
     uint32_t uStack_108 = rtguest::allocFrame(8);
     uint32_t uStack_100 = rtguest::allocFrame(8);

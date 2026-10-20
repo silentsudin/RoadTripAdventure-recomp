@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t RankCarsByProgress(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   byte bVar1;
   byte bVar2;
   bool bVar3;

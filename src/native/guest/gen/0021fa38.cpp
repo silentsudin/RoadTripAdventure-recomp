@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t cellVisible(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   long lVar1;
   
   lVar1 = TestSegmentInBoxWindow(param_3 + 0x100,param_3 + 0x120);

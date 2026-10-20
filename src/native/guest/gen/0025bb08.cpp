@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawTextEntrySlots(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   short sVar1;
   bool bVar2;
   undefined2 uVar3;

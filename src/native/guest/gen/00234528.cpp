@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ResetStateBlock(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(param_1)), 0, 0x8cb0));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x8004))) = 0;
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x80a4))) = 0x6400000001;

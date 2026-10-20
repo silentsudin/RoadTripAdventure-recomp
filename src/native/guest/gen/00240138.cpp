@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SubmitSingleTexturePacketF(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
 uint32_t puVar1;
   int iVar2;
   int iVar3;

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawCarWheelsNear(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(288);
 uint32_t auStack_120 = rtguest::allocFrame(48);
 uint32_t auStack_f0 = rtguest::allocFrame(16);
 uint32_t auStack_e0 = rtguest::allocFrame(64);

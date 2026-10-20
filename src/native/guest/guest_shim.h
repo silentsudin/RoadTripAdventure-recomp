@@ -40,28 +40,30 @@ struct Fault { uint32_t addr; uint32_t count; };
 const Fault* faults(size_t* n);
 void noteFault(uint32_t a);
 
-// Frame arena inside guest RAM for transliterated stack arrays (auStack_* locals
-// get guest addresses so they can be passed to other guest fns).
-// Per-task call discipline (W13 stack model): each green thread owns a region;
-// guest function entries push a FrameGuard that unwinds the top on return, so
-// the same call depth reuses the same addresses every invocation and unwritten
-// locals keep their stale bytes — matching the oracle's real-stack residue
-// semantics (the game reads uninitialized frame slots deterministically, e.g.
-// ComposeCameraMatrix's vector sources).
-// shortcut: regions are fixed-size (not the game's own stack allocs) and boot
-// frames share the head of the pool; upgrade if a residue region needs exact
-// oracle addresses (state-hash equality), not just same-bytes-per-depth.
-#define RT_FRAME_BASE 0x01E00000u
-#define RT_FRAME_END  0x01F80000u
+// Frame arena = the EE's own stack, mirrored: the ELF declares the main
+// thread stack as [0x1F80000,0x2000000); transliterated frames push down from
+// its top with the guest's exact frame sizes (FrameGuard(size) at each
+// generated function entry, allocFrame carving the emitted slot chunks).
+// Absolute frame addresses then match the oracle's real stack, so residue-
+// reading code (the attract camera chain reads aliased slots written by other
+// frames at the same depth) and stack pointers stored in RAM agree bit-exactly.
+// Extra green threads get pool regions below the main stack (the game's own
+// tasks run scheduler-level on the main stack, like the oracle).
+#define RT_EE_STACK_TOP   0x02000000u
+#define RT_EE_STACK_FLOOR 0x01F80000u
+#define RT_FRAME_BASE     0x01E00000u  // thread pool low bound
+#define RT_FRAME_END      0x01F80000u  // thread pool high bound
 uint32_t allocFrame(uint32_t bytes);
-void resetFrameArena();
 uint32_t frameTop();
 void setFrameTop(uint32_t t);
-uint32_t allocTaskFrameRegion(uint32_t capBytes);
+void setFrameFloor(uint32_t f);
+void framePush(uint32_t size);
+void framePop(uint32_t saved);
+uint32_t allocTaskFrameRegion(uint32_t capBytes);  // returns region end (top)
 struct FrameGuard {
     uint32_t saved;
-    FrameGuard() : saved(frameTop()) {}
-    ~FrameGuard() { setFrameTop(saved); }
+    explicit FrameGuard(uint32_t size) : saved(frameTop()) { framePush(size); }
+    ~FrameGuard() { framePop(saved); }
 };
 
 // Guest float register bits as float, for float-typed callee params

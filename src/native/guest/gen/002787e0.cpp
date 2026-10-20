@@ -5,7 +5,7 @@
 namespace guest {
 
 uint64_t sceCdSyncS(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   long lVar1;
   undefined8 uVar2;
   

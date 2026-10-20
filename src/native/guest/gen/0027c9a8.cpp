@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t __deregister_frame_info(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
 uint32_t __ptr;
   int iVar1;
 uint32_t piVar2;

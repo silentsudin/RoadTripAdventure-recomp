@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawSkyDome(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
 uint32_t auStack_60 = rtguest::allocFrame(48);
 uint32_t auStack_30 = rtguest::allocFrame(4);
     uint32_t uStack_2c = rtguest::allocFrame(4);

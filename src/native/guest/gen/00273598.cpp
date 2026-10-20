@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t scePadInit(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   ulong uVar1;
   undefined8 uVar2;
   int iVar3;

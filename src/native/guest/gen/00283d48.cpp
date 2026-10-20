@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _pow5mult(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   uint uVar1;
 uint32_t puVar2;
 uint32_t puVar3;

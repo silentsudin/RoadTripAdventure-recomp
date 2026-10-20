@@ -5,7 +5,7 @@
 namespace guest {
 
 int64_t sceMcDelete(uint32_t param_1, uint32_t param_2, int64_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
   long lVar1;
   
   lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));

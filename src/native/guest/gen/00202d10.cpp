@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t DrawDialogTextLine(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   byte bVar1;
   undefined2 uVar2;
 uint32_t puVar3;

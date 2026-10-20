@@ -5,7 +5,7 @@
 namespace guest {
 
 void PrintVec2Short(uint32_t param_1, int param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(112);
   undefined8 uVar1;
   undefined8 uVar2;
   uint32_t auStack_70 = rtguest::allocFrame(64);

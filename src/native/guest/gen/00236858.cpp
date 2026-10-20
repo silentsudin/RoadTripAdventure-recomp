@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateRankingsAndAdvance(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
 uint32_t asStack_80 = rtguest::allocFrame(32);
     uint32_t uStack_60 = rtguest::allocFrame(4);
 uint32_t pcVar1;

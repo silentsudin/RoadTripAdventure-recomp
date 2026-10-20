@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t uiKanjiGlyphUV(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   undefined2 uVar1;
   
   (*(int16_t*)rtguest::G((uint32_t)param_2)) = param_4;

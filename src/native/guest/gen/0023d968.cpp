@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t CountBitsFca8Fcb0(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   ulong uVar1;
   int iVar2;
   

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SetStateBitFc88(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint uVar1;
   
   uVar1 = (param_1 & 0xff) + 0xff;

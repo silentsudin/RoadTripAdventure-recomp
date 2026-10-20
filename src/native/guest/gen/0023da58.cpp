@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t InitActorSlot(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
 uint32_t puVar1;
   
   puVar1 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)0x177ea50 + (uint32_t)((int)param_1) * 4));

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t uiTextWidth(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   byte bVar1;
   uint uVar2;
 uint32_t pbVar3;

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t mcDelayThread(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   undefined8 uVar1;
   
   uVar1 = GetThreadId();

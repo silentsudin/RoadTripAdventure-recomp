@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t GetSceneCamLookatIndex(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   if (param_1 != 1) {
     return 0x0029e9b0;
   }

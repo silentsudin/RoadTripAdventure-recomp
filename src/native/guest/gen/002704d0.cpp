@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceDmaSend(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   int iVar1;
   
   if (((*(uint32_t*)rtguest::G((uint32_t)param_1)) & 0x100) != 0) {

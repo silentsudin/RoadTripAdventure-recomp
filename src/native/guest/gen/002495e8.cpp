@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t GetVehicleRaceTime(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   return (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x14)));
 }
 

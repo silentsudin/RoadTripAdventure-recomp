@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t tileSlotOrigin(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   char cVar1;
   
   cVar1 = (*(uint8_t*)rtguest::G((uint32_t)0x3335b8 + (uint32_t)(param_3) * 1));

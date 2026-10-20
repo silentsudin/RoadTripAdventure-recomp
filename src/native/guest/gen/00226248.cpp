@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t setFixedLight(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   param_2 = param_2 * 0x10;
   (*(uint32_t*)rtguest::G(0x177f738)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0029ea18 + param_2)));
   (*(uint32_t*)rtguest::G(0x177f73c)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x29ea1c)));

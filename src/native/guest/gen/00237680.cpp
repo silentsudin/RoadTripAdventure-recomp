@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t DrawShopRow(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   int iVar1;
 uint32_t puVar2;
   int iVar3;

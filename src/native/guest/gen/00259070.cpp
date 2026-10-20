@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SoundStopVoiceByHandle(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   if ((*(uint32_t*)rtguest::G((uint32_t)0x335728 + (uint32_t)(param_1) * 4)) != 0) {
     SendRpcCmd9Value((*(uint32_t*)rtguest::G((uint32_t)0x335728 + (uint32_t)(param_1) * 4)));
     return 0;

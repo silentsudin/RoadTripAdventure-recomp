@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceSifLoadElf(uint64_t param_1, uint64_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   _sceSifLoadElfPart(param_1,0x3327b8,param_2,1);
   return 0;
 }

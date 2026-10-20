@@ -9,7 +9,7 @@
 namespace guest {
 
 uint32_t __ieee754_atan2f(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   int iVar1;
   uint32_t uVar2;
   uint32_t puVar3;

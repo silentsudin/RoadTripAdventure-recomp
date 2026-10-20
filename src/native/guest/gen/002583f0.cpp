@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SetVolumeDgaRegs(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   sceSdRemote(1,0x8010,0x981,param_1);
   sceSdRemote(1,0x8010,0xa81,param_2);
   return 0;

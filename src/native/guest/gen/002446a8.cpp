@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t BuildCarouselQuadC(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   short sVar1;
   int iVar2;
 uint32_t puVar3;

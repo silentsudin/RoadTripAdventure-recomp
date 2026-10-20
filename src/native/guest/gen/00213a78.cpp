@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t HandleToggleMenuInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   ushort uVar1;
   int iVar2;
   

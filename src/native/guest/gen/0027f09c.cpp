@@ -14,7 +14,7 @@ inline V16 _pcpyud(V16 a, V16 b) { return {a.hi, b.hi}; }
 inline V16 operator~(V16 a) { return {~a.lo, ~a.hi}; }
 inline V16 _pand(V16 a, V16 b) { return {a.lo & b.lo, a.hi & b.hi}; }
 inline V16 _psubb(V16 a, V16 b) {  // 16 byte-lane subtracts (mod 256)
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   V16 r{0, 0};
   for (int i = 0; i < 8; ++i) {
     r.lo |= ((a.lo >> (i * 8)) - (b.lo >> (i * 8)) & 0xff) << (i * 8);
@@ -23,7 +23,7 @@ inline V16 _psubb(V16 a, V16 b) {  // 16 byte-lane subtracts (mod 256)
   return r;
 }
 inline V16 _psubw(V16 a, V16 b) {  // 8 word-lane subtracts (mod 65536)
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   V16 r{0, 0};
   for (int i = 0; i < 4; ++i) {
     r.lo |= ((a.lo >> (i * 16)) - (b.lo >> (i * 16)) & 0xffff) << (i * 16);
@@ -32,13 +32,13 @@ inline V16 _psubw(V16 a, V16 b) {  // 8 word-lane subtracts (mod 65536)
   return r;
 }
 inline V16 ld16(uint32_t a) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   return {*(uint64_t*)rtguest::G(a), *(uint64_t*)rtguest::G(a + 8)};
 }
 }  // namespace
 
 uint32_t strcmp(uint32_t __s1, uint32_t __s2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint8_t bVar1;
   int8_t cVar4;
   uint64_t uVar5;

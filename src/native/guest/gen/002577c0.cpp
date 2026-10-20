@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t CallRpcCmd1(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   sceSifCallRpc(0x175e840,1,0,0,0,0,0,0);
   return 0;
 }

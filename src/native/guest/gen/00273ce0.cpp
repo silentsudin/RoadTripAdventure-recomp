@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t scePadGetReqState(uint64_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   undefined1 uVar1;
   int iVar2;
   

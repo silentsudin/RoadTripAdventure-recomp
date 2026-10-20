@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ResolveGroundContact(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(272);
 uint32_t auStack_110 = rtguest::allocFrame(32);
 uint32_t aiStack_f0 = rtguest::allocFrame(32);
     uint32_t fStack_d0 = rtguest::allocFrame(4);

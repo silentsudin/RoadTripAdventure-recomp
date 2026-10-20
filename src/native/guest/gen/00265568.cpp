@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t HouseVisitedMenuTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(112);
   short sVar1;
   undefined1 uVar2;
   byte bVar3;

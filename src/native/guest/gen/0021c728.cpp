@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ToRelativeVec4(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   float fVar1;
   uint uVar2;
   uint uVar3;

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t vu0LightColorMatrix(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   vu0CopyVector();
   vu0CopyVector(param_1 + 0x10,param_3);
   vu0CopyVector(param_1 + 0x20,param_4);

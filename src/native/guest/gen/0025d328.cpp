@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawFieldProp16(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   long lVar1;
 uint32_t auStack_50 = rtguest::allocFrame(48);
 uint32_t auStack_20 = rtguest::allocFrame(16);

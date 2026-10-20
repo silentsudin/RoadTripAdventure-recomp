@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SubmitAnimatedTextureLayout(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(112);
 uint32_t puVar1;
   uint uVar2;
   int iVar3;

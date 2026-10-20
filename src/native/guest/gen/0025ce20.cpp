@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawFieldProp2aBatch(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(160);
   int iVar1;
   byte bVar2;
   uint uVar3;

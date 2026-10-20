@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t TestFlagBitFc98(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   return ((*(uint64_t*)rtguest::G((uint32_t)0x177fc98 + (uint32_t)(((uint32_t)param_1 & 0xff) >> 6) * 8)) & 1L << (param_1 & 0x3f)) != 0;
 }
 

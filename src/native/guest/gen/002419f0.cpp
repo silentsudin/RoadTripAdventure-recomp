@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SubmitCounterTexturePacketB(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   int iVar1;
   
   iVar1 = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 2))) * (int)(*(int16_t*)rtguest::G(0x2a33aa));

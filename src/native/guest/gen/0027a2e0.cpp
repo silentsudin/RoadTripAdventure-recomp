@@ -5,7 +5,7 @@
 namespace guest {
 
 uint64_t sceMcGetInfo(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(160);
   long lVar1;
   
   lVar1 = PollSema((*(uint32_t*)rtguest::G(0x2e89bc)));

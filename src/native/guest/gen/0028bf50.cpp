@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _lf_bind(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   undefined4 uVar1;
   int iVar2;
   long lVar3;

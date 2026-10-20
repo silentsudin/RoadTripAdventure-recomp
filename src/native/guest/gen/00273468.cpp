@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _send_to_iop(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(368);
     uint32_t iStack_16c = rtguest::allocFrame(4);
     uint32_t uStack_168 = rtguest::allocFrame(4);
     uint32_t uStack_164 = rtguest::allocFrame(4);

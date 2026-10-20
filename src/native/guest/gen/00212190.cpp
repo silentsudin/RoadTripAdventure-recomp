@@ -5,7 +5,7 @@
 namespace guest {
 
 void DrawMenuGridBackground(uint64_t param_1, uint64_t param_2, uint32_t param_3, uint64_t param_4) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   int iVar1;
   int iVar2;
   int iVar3;

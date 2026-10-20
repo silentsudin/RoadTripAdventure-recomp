@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t shopNoBodiesLeftDialog(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   undefined8 uVar1;
   long lVar2;
   int iVar3;

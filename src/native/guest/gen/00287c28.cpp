@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sifRpcBindRequest(uint32_t param_1, uint64_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   undefined4 uVar1;
   undefined8 uVar2;
   long lVar3;

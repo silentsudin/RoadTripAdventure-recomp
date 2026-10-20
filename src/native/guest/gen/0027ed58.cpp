@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t raise(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   _raise_r((*(uint32_t*)rtguest::G(0x002e8cc0)),param_1);
   return 0;
 }

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t __sinit(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   int iVar1;
   
   iVar1 = (int)param_1;

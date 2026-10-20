@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t search_fdes(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
   int iVar1;
   
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)param_1));

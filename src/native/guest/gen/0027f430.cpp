@@ -7,7 +7,7 @@ namespace guest {
 // pseudocode's first 16-byte check uses _psubb(~x,ones) & ~x & highs:
 // flags every byte <= 0x7e (superset of zero bytes -> conservative early exit only).
 static inline uint64_t zdet_inv(uint64_t x) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint64_t m = 0;
   for (int s = 0; s < 64; s += 8) {
     uint64_t c = (~x >> s) & 0xff;
@@ -18,7 +18,7 @@ static inline uint64_t zdet_inv(uint64_t x) {
 
 // standard _psubb(x,ones) & ~x & highs: 0x80 bit per zero byte.
 static inline uint64_t zdet(uint64_t x) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint64_t m = 0;
   for (int s = 0; s < 64; s += 8)
     if (((x >> s) & 0xff) == 0) m |= 0x80ULL << s;
@@ -26,7 +26,7 @@ static inline uint64_t zdet(uint64_t x) {
 }
 
 uint32_t strncpy(uint32_t __dest, uint32_t __src, uint32_t __n, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   bool bVar1;
   uint8_t cVar2;
   uint32_t uVar7;

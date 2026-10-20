@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SpawnTownDialogueTasks(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   long lVar1;
   
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) == '\0') {

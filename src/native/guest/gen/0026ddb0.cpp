@@ -6,7 +6,7 @@
 namespace guest {
 
 void PrintXyzTable(uint32_t param_1, int param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
   undefined8 uVar2;
   undefined8 uVar3;
   undefined8 uVar4;

@@ -7,7 +7,7 @@ namespace guest {
 
 // pseudocode returns long; narrowed to the decl's uint32_t (value is a 32-bit int count / -1)
 uint32_t __sbprintf(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(1152);
   int iVar1;
   long lVar2;
   // FILE aFStack_480[7]: 0x480-byte frame; Ghidra field offsets as in 002826c0,

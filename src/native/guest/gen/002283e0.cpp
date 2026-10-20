@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t MemcardReadFlushHandler(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   long lVar1;
   int iVar2;
 uint32_t auStack_30 = rtguest::allocFrame(4);

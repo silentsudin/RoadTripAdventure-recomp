@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _printf_r(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
     uint32_t uStack_30 = rtguest::allocFrame(8);
     uint32_t uStack_28 = rtguest::allocFrame(8);
     uint32_t uStack_20 = rtguest::allocFrame(8);

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawCarEffectB(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(224);
   ulong uVar1;
   long lVar2;
 uint32_t auStack_e0 = rtguest::allocFrame(16);

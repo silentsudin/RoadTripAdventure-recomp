@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t __smakebuf(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(144);
 uint32_t auStack_90 = rtguest::allocFrame(4);
     uint32_t uStack_8c = rtguest::allocFrame(4);
   bool bVar1;

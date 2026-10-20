@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceCdDiskReady(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(160);
   int iVar1;
   undefined4 uVar2;
   long lVar3;

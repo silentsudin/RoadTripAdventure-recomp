@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t scePadGetModVersion(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   undefined4 uVar1;
   long lVar2;
   

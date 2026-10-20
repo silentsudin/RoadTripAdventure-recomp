@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t GetIntField_f0800(uint64_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   return (*(uint32_t*)rtguest::G((uint32_t)(0x002f0800 + param_2 * 0xc)));
 }
 

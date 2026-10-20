@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t halfPlaneCourseTask(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   int iVar1;
   uint uVar2;
   undefined4 uVar3;

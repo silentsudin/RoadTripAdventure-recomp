@@ -5,7 +5,7 @@
 namespace guest {
 
 uint64_t int64ToDouble(int64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   undefined8 uVar1;
   undefined8 uVar2;
   

@@ -10,7 +10,7 @@
 namespace guest {
 
 void UpdateVehiclePhysics(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(736);
   using namespace rtguest::vu0;
   int iVar1;
   ushort uVar2;

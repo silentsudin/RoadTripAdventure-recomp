@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateMaxCounter847C(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   if ((*(uint32_t*)rtguest::G(0x1780a28)) < (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x847c)))) {
     (*(uint32_t*)rtguest::G(0x1780a28)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x847c)));
     return 1;

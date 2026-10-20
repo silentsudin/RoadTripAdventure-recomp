@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _sdrCB(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
 uint32_t pcVar1;
   
   switch((*(uint32_t*)rtguest::G((uint32_t)param_2))) {

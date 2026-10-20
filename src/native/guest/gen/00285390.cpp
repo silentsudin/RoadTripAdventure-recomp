@@ -6,7 +6,7 @@
 namespace guest {
 
 int32_t isceSifSetDChain(uint32_t q0) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   // W12: isceSifSetDChain($4 ptr) -> 0; the raw li-v0 number travels to the host
   // dispatcher (guest_kernel.cpp), which models the kernel side.
   return syscall(0xffffffffffffff88, q0);

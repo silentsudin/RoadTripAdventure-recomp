@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t raceMapMarkers(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(368);
 uint32_t afStack_170 = rtguest::allocFrame(40);
     uint32_t fStack_148 = rtguest::allocFrame(4);
     rtguest::allocFrame(4);  // guest frame gap

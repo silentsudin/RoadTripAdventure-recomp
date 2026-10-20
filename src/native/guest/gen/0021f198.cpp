@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ApplyFreeCameraInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   ushort uVar1;
   char cVar2;
 uint32_t pcVar3;

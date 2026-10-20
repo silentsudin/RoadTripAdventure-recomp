@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ResetShowroomLighting(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   vifDirect(0x29d240,5);
   vifUploadLightAt16(0x177f5e0);
   (*(uint32_t*)rtguest::G(0x3356e8)) = 0;

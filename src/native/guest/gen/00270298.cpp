@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceDmaPutEnv(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint uVar1;
   
   if (9 < (*(uint8_t*)rtguest::G((uint32_t)param_1))) {

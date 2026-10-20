@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateTimeOfDayCounter(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   int iVar1;
 uint32_t piVar2;
   

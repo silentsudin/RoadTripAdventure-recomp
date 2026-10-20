@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t dptoli(uint64_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(64);
     uint32_t uStack_40 = rtguest::allocFrame(4);
     uint32_t iStack_3c = rtguest::allocFrame(4);
     uint32_t iStack_38 = rtguest::allocFrame(4);

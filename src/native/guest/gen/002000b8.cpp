@@ -6,7 +6,7 @@
 namespace guest {
 
 int32_t Ps2ExitThreadId(uint32_t q0) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   // W12: ExitThread() [pseudocode comment]; call sites carry a leftover $4
   // (abort 0027db20 passes 1) which the stub forwards and the kernel ignores.
   return syscall(4, q0);

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SndRpcCmdCArgs(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, uint32_t param_9, uint32_t param_10, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
     uint32_t uStack_44 = rtguest::allocFrame(4);
     uint32_t uStack_40 = rtguest::allocFrame(8);
   

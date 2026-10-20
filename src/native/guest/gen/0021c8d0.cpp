@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ComputeGridCellIndex(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint uVar1;
   
   if (param_2 < 0) {

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SoundInitVolumes(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   SoundRpcStopAll();
   SoundRpcSetVolume(0,0x1ccc,0x1ccc);
   SoundRpcSetVolume(1,0x1ccc,0x1ccc);

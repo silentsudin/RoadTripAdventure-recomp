@@ -5,7 +5,7 @@
 namespace guest {
 
 uint64_t dpmul(uint64_t param_1, uint64_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(176);
     uint32_t uStack_b0 = rtguest::allocFrame(4);
     uint32_t uStack_ac = rtguest::allocFrame(4);
     uint32_t iStack_a8 = rtguest::allocFrame(4);

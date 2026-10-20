@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ClassifyObjectContext(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   char cVar1;
   char cVar2;
   undefined4 uVar3;

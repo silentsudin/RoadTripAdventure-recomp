@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t switchD_0023c440_setObjectAttrFlag0x1000(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   if (param_3 != 0) {
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_4 + 8))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_4 + 8))) | 0x1000;
     return 0;

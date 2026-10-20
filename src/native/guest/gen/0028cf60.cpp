@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t DIntr(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   if ((Status & 0x10000) != 0) {
     do {
       DI();

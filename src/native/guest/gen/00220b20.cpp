@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawSceneCloudHill(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   undefined4 uVar1;
   long lVar2;
   undefined8 uVar3;

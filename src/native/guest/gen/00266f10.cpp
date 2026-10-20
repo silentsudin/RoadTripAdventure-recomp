@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t raceSummaryDrawFigure8Row(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(176);
   int iVar1;
   int iVar2;
   uint uVar3;

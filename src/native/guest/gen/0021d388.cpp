@@ -3,7 +3,7 @@
 
 namespace guest {
 uint32_t vu0StoreMatrixQuads(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   using namespace rtguest::vu0;
   S.vf[1] = lqc2(param_1);
   S.vf[2] = lqc2(param_1 + 16);

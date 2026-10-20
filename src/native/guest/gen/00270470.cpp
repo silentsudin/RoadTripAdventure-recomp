@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceDmaGetEnv(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   undefined8 uVar1;
   undefined4 uVar2;
 uint32_t puVar3;

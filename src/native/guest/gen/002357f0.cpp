@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t switchD_002357e8_dispatchTypeSetupCase12(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   UpdateTimedPhaseTask(param_1,param_2,0,0,0);
   return 0;
 }

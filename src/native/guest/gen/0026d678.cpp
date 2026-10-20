@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t FinishBootPhase(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x10))) == 0) {
     (*(uint32_t*)rtguest::G(0x177ea50)) = 0x177f760;
     (*(uint32_t*)rtguest::G(0x177ea58)) = 0x0177f798;

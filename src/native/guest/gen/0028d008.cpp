@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t _InitSys(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   supplement_crt0();
   InitAlarm();
   InitThread();

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SetTaskListFlag(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
 uint32_t pbVar1;
   
   pbVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10)));

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t BuildCarouselSlotPackets(uint32_t param_1, uint64_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   short sVar1;
 uint32_t puVar2;
   long lVar3;

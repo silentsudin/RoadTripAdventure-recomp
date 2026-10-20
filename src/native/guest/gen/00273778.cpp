@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t scePadEnd(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   int iVar1;
   long lVar2;
   

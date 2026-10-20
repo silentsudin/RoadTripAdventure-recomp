@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SpawnCarDustPuffs(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(112);
 uint32_t afStack_70 = rtguest::allocFrame(12);
     uint32_t uStack_64 = rtguest::allocFrame(4);
     uint32_t uStack_60 = rtguest::allocFrame(4);

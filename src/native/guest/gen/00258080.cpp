@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SndRpcQueryCmd10(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
     uint32_t uStack_6c = rtguest::allocFrame(4);
     uint32_t uStack_68 = rtguest::allocFrame(8);
     uint32_t uStack_60 = rtguest::allocFrame(8);

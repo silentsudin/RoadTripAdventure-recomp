@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawTextEntryGrid(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
     uint32_t bStack_50 = rtguest::allocFrame(1);
     uint32_t bStack_4f = rtguest::allocFrame(1);
   byte bVar1;

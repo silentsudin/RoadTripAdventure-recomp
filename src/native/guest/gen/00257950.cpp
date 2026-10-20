@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t SendRpcWithStringArg(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(112);
   uint32_t frame = rtguest::allocFrame(0x40);
   uint32_t uStack_60 = frame;
   uint32_t uStack_5c = frame + 4;

@@ -9,7 +9,7 @@ namespace {
 // EE MMI 128-bit model for the packed ops below (Ghidra's undefined1[16]).
 struct V16 { uint64_t lo, hi; };
 inline V16 _pcpyh(V16 a) {  // broadcast low halfword to all 8 halfwords
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   uint64_t h = a.lo & 0xffff;
   h |= h << 0x10;
   h |= h << 0x20;
@@ -19,7 +19,7 @@ inline V16 _pcpyld(V16 a, V16 b) { return {a.lo, b.lo}; }  // [rs.lo, rt.lo]
 inline V16 _pcpyud(V16 a, V16 b) { return {a.hi, b.hi}; }  // [rs.hi, rt.hi]
 inline V16 _pxor(V16 a, V16 b) { return {a.lo ^ b.lo, a.hi ^ b.hi}; }
 inline V16 _psubb(V16 a, V16 b) {  // modular per-byte subtract (EE PSUBB)
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   V16 r;
   for (int i = 0; i < 8; i++) {
     ((uint8_t*)&r.lo)[i] = (uint8_t)(((uint8_t*)&a.lo)[i] - ((uint8_t*)&b.lo)[i]);
@@ -32,7 +32,7 @@ inline V16 _pnot(V16 a) { return {~a.lo, ~a.hi}; }  // Ghidra ~ on a 16-byte var
 }  // namespace
 
 uint32_t memchr(uint32_t __s, uint32_t __c, uint32_t __n, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   V16 auVar1;
   V16 auVar2;
   int iVar3;

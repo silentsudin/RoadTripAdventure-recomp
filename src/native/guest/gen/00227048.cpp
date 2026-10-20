@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t vifCallModel(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   bool bVar1;
   
   if ((*(uint32_t*)rtguest::G(0x3356ec)) == (uint32_t)0x0) {

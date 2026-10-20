@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t vifObjectMatrixSky(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   bool bVar1;
 uint32_t puVar2;
   

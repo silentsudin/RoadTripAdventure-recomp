@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t InitThread(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(128);
 uint32_t auStack_80 = rtguest::allocFrame(4);
 rtguest::allocFrame(8);  // guest frame gap
     uint32_t uStack_74 = rtguest::allocFrame(4);

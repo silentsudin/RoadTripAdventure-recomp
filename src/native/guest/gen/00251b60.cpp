@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t UpdateGolfMiniGame(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(336);
 uint32_t aiStack_150 = rtguest::allocFrame(48);
 uint32_t aiStack_120 = rtguest::allocFrame(48);
 uint32_t auStack_f0 = rtguest::allocFrame(4);

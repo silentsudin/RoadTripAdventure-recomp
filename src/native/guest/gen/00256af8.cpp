@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t InitSoundRpcDriver(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(1120);
     uint32_t uStack_250 = rtguest::allocFrame(4);
     uint32_t uStack_24c = rtguest::allocFrame(4);
     uint32_t uStack_248 = rtguest::allocFrame(2);

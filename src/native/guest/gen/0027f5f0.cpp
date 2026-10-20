@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t __sprint_r(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(16);
   undefined8 uVar1;
   
   uVar1 = 0;

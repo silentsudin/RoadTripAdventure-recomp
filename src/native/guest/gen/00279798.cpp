@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t switchD_002796f4__sdrCB_case4(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(176);
   return 0;
 }
 

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t MemcardChooserDialogHandler(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   char cVar1;
   undefined8 uVar2;
   long lVar3;

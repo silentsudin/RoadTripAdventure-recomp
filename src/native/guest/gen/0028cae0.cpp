@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceSifGetIopAddr(uint32_t param_1, uint32_t param_2, uint64_t param_3, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
   undefined4 uVar1;
   long lVar2;
   

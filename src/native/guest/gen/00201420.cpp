@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t uiDrawGlyphScaled(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(112);
     uint32_t uStack_70 = rtguest::allocFrame(2);
 uint32_t auStack_6e = rtguest::allocFrame(14);
     uint32_t iStack_60 = rtguest::allocFrame(4);

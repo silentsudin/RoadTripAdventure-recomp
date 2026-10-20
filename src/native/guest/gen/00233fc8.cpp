@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t InitHudConfig2(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(0);
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8078))) = 0x2800000001;
   (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8080))) = 0x29f6a800000014;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x8088))) = 2;

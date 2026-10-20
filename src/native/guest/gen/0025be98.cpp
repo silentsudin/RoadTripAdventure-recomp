@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t drawProximityEventProp(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(112);
   long lVar1;
   float fVar2;
 uint32_t auStack_70 = rtguest::allocFrame(48);

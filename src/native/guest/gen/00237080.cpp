@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t DrawEntryRowsForState(uint32_t param_1, uint32_t param_2, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   byte bVar1;
   uint uVar2;
   uint uVar3;

@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t sceMcGetSlotMax(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(80);
   int iVar1;
   long lVar2;
   

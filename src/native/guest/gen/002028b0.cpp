@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t uiDrawDialogueFrameA(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(48);
   int iVar1;
 uint32_t puVar2;
   int iVar3;

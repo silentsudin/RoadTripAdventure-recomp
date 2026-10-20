@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t ApplyCupAttraction(uint32_t param_1, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(96);
     uint32_t uStack_60 = rtguest::allocFrame(4);
     uint32_t uStack_5c = rtguest::allocFrame(4);
     uint32_t uStack_58 = rtguest::allocFrame(4);

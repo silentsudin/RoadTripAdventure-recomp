@@ -5,7 +5,7 @@
 namespace guest {
 
 uint32_t Ps2InitSystem(uint32_t q0, ...) {
-  rtguest::FrameGuard rt_fg;
+  rtguest::FrameGuard rt_fg(32);
   long lVar1;
   
   rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2e9a18u)));
