@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t UpdateSteeringDamping(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, ...) {
+// sig: param_2/param_4 are pseudocode long (fn/0021a088.c:8; param_2 < 0 at :64 dead as uint32), int32_t keeps sign
+uint32_t UpdateSteeringDamping(uint32_t param_1, int32_t param_2, uint32_t param_3, int32_t param_4, uint32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(0);
   bool bVar1;
   int iVar2;

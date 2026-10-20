@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t UpdateCarTireSound(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
+// sig: param_3 is pseudocode long (fn/00217c68.c: param_3 < 0x41 / < 8 chain), int32_t keeps sign
+uint32_t UpdateCarTireSound(uint32_t param_1, uint32_t param_2, int32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(80);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;

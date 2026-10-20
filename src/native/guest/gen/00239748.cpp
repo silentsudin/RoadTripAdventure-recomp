@@ -21,7 +21,7 @@ uint32_t ShowSequencedMessages(uint32_t param_1, uint32_t param_2, ...) {
   
   iVar8 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) == 0) {
-    uVar5 = RT_CALLRA(0x23976c, guest::uiMenuCreate());
+    uVar5 = RT_CALLRA(0x23976c, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x23976c); pseudocode dropped the live arg */);
     cVar4 = RT_CALLRA(0x239774, guest::CheckSlotPresence());
     (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))) = cVar4;
     if (cVar4 != '\0') {

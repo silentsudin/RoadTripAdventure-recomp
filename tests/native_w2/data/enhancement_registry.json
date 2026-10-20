@@ -828,6 +828,18 @@
     "notes": "W12: native-boot diag holds Start on port 0 for 3 vblanks at the given vblank (title->menu probes)"
   },
   {
+    "id": "pad_script",
+    "ledger": "-",
+    "env_vars": ["RT_PAD_SCRIPT"],
+    "persisted_keys": [],
+    "default": "unset",
+    "gating": "diagnostic (W13)",
+    "owners": ["src/native/app/main.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/w13-gs-sink-design.md"],
+    "status": "wired",
+    "notes": "W13: native-boot scripted pad schedule 'vb:hexmask[:hold],...' replays a lockstep pad plan (parity fixtures)"
+  },
+  {
     "id": "cd_trace",
     "ledger": "-",
     "env_vars": ["RT_CD_TRACE"],

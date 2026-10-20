@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t __floatdisf(uint32_t param_1, ...) {
+// sig: param_1 ulong (fn/0027b540.c:13-14 (long)param_1 >> 0x20 reads the high word), uint64_t
+uint32_t __floatdisf(uint64_t param_1, ...) {
   rtguest::FrameGuard rt_fg(32);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;

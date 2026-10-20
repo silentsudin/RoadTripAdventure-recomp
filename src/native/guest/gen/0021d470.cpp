@@ -16,7 +16,10 @@ uint32_t vu0TransformVerts(uint32_t param_1, ...) {
     vdiv(3,0,3,12); --param_3;
     vmulabc(15,0,17,24); vmaddabc(15,1,18,24); vmaddbc(15,2,24,19,24); vmaxbc(14,0,24,24,0);
     vwaitq(); vmulq(14,12,12); vftoi4(15,13,12); ctc2(16,0);
-    // VU0 ignores the vf0 destinations at 0x21d4c4/0x21d4c8.
+    // MIPS 0x21d4c4 vsub.xyw vf0,vf12,vf0 / 0x21d4c8 vsub.xy vf0,vf29,vf12: a flag-only clip test. VF0 stays
+    // (0,0,0,1) but the MAC/status flags ARE set and feed the cfc2 status test below (oracle
+    // ps2xRecomp vu_translator.cpp:44-60: ps2_vu0_fmac_flags from the result, then vf0 reset).
+    { const Vu4 vf0 = S.vf[0]; vsub(0b1101,0,12,0); S.vf[0] = vf0; vsub(0b1100,0,29,12); S.vf[0] = vf0; }
     vior(10,0,0);
     const uint32_t index = uVar4 & 3; uVar4 = index << 1;
     if ((cfc2(16) & 0xc0) == 0) {

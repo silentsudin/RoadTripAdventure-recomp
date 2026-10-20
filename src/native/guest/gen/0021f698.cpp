@@ -69,7 +69,9 @@ uint32_t auStack_c0 = rtguest::allocFrame(64);
   }
   uVar5 = (*(uint32_t*)rtguest::G(0x3356e0));
   RT_CALLRA(0x21f7b0, guest::vu0UnitMatrix(afStack_140));
-  (*(float*)rtguest::G((uint32_t)fStack_12c)) = (*(float*)rtguest::G((uint32_t)afStack_180 + (uint32_t)(0) * 4)) * (*(float*)rtguest::G((uint32_t)fStack_12c));
+  // MIPS 0x21f7b8 mul.s $f20,$f21,$f20: fov * DAT_00332c88 held in REGISTERS across vu0UnitMatrix(afStack_140)
+  // (Ghidra's fStack_12c/afStack_180[0] memory form reads values the unit matrix just overwrote).
+  (*(float*)rtguest::G((uint32_t)fStack_12c)) = (*(float*)rtguest::G((uint32_t)(param_2 + 0x10))) * (*(float*)rtguest::G(0x332c88));
   (*(float*)rtguest::G((uint32_t)afStack_140 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_180 + (uint32_t)(0) * 4)) * fVar6;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_118)) = (*(uint32_t*)rtguest::G(0x332c8c));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_108)) = (*(uint32_t*)rtguest::G(0x332c90));
@@ -78,7 +80,9 @@ uint32_t auStack_c0 = rtguest::allocFrame(64);
   (*(uint32_t*)rtguest::G((uint32_t)uStack_104)) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_120)) = uVar5;
   RT_CALLRA(0x21f7f0, guest::vu0UnitMatrix(afStack_180));
-  (*(float*)rtguest::G((uint32_t)afStack_180 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_180 + (uint32_t)(0) * 4)) * 0.001953125;
+  // MIPS 0x21f808 mul.s $f21,$f21,$f1 ($f21 = fov from 0x21f794, $f1 = 1/512), stored to afStack_180[0] and [5] after
+  // vu0UnitMatrix(afStack_180): fov/512, not unit[0]/512.
+  (*(float*)rtguest::G((uint32_t)afStack_180 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)(param_2 + 0x10))) * 0.001953125f;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_158)) = (*(uint32_t*)rtguest::G(0x332c94));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_148)) = (*(uint32_t*)rtguest::G(0x332c98));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_154)) = 0x3f800000;

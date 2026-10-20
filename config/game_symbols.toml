@@ -1261,6 +1261,9 @@
 0x00272b90 = { name = "vu0RotMatrixX", note = "VU0 X-axis rotation matrix builder, same a3-sign contract as vu0RotMatrixZ." }
 0x00272c38 = { name = "vu0RotMatrixY", note = "VU0 Y-axis rotation matrix builder, same a3-sign contract as vu0RotMatrixZ." }
 0x002732d0 = { name = "sceVu0ClipScreen", note = "lqc2 point at param, vi16|=4096, two vsubs (masks 0b1101/0b1100 fixed 2026-10-20), returns cfc2&0xc0." }
+0x00272e08 = { name = "vu0NormalLightMatrix", note = "VU0 normal/light matrix builder (camera cluster, W12 parity-debugger lane 2); see HEAP2 report for decode evidence." }
+0x0021f340 = { name = "ComposeCameraMatrix", note = "Composes the camera world matrix from position/axes (calls vu0UnitMatrix/vecCrossProductVu0/vecNormalizeVu0, fov float math); W12 camera cluster." }
+0x0021f698 = { name = "buildCamera", note = "Builds player camera view/projection: frame sizes match machine prologues, saved $ra at 0x1fffe48 in both builds (oracle EERM); the recomp's widescreen hook wraps 0x21F698. W12 camera cluster." }
 0x00273318 = { name = "sceVu0ClipScreen3", note = "Same 4096.0/vi16 test as 0x2732d0 but lqc2 of a0/a1/a2 and three vsub.xyw+vsub.xy pairs, returns cfc2&0xc0. = sceVu0ClipScreen3; no callers." }
 0x00273378 = { name = "sceVu0ClipAll", note = "Loads 4 matrix rows from param_3, loops param_5 verts at param_4 (vmulabc/vmaddabc/vmaddbc), compares to param_1/param_2 scaled by w (vmulbc+vsub); returns 0 if any (cfc2&0xc0)==0 else 1. = sceVu0ClipAll(min,max,mat,verts,n); no callers." }
 0x00273468 = { name = "_send_to_iop", note = "libpad: port*0x70+slot*0x1c; if sceSifDmaStat(DAT_0177321c)<0 increments frame at *DAT_01773214, sceSifWriteBackDCache 8 words, sceSifSetDma 0x20 bytes to IOP DAT_01773218+(frame&1)*0x20; printf 'libpad: sceSifSetDma faild' (0x3311A0) when DAT_002e6ec4!=0. Only caller scePadSetActDirect 0x274198." }

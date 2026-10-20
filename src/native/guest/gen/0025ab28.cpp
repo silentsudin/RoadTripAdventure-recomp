@@ -47,7 +47,7 @@ uint32_t puVar15;
   (*(int32_t*)rtguest::G((uint32_t)iStack_60)) = param_2;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar14 + 8))) == 0) {
     iVar11 = 0;
-    uVar6 = RT_CALLRA(0x25ab68, guest::uiMenuCreate());
+    uVar6 = RT_CALLRA(0x25ab68, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x25ab68); pseudocode dropped the live arg */);
     iVar9 = 0;
     do {
       iVar11 = iVar11 + 1;

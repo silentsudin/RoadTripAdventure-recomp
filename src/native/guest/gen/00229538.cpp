@@ -54,7 +54,7 @@ uint32_t ShowSaveCreateSpinner(uint32_t param_1, uint32_t param_2, ...) {
     RT_CALLRA(0x229730, guest::gs_tasks_kill(param_1));
     return 0;
   }
-  uVar3 = RT_CALLRA(0x229560, guest::uiMenuCreate());
+  uVar3 = RT_CALLRA(0x229560, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x229560); pseudocode dropped the live arg */);
   if ((*(uint32_t*)rtguest::G(0x333284)) == 1) {
     RT_CALLRA(0x2295b8, guest::uiMenuAddItem(uVar3,0x333648,0x10));
     uVar5 = 0x333650;

@@ -4,7 +4,8 @@
 
 namespace guest {
 
-uint32_t gifEmitBlock8Planes(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
+// sig: param_2/5/6 long/ulong (fn/00271cd8.c:8-9; param_5 >> 8 loop :19, (param_6 & 0xffffffff) << 9 :25), uint64_t
+uint32_t gifEmitBlock8Planes(uint32_t param_1, uint64_t param_2, uint32_t param_3, uint32_t param_4, uint64_t param_5, uint64_t param_6, ...) {
   rtguest::FrameGuard rt_fg(160);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x90) = rt_fg.rtRA;
@@ -14,11 +15,11 @@ uint32_t gifEmitBlock8Planes(uint32_t param_1, uint32_t param_2, uint32_t param_
   int iVar2;
   
   if (param_5 != 0) {
-    param_2 = param_2 - (uint32_t)(param_3 * 0x10000 + 0x40000);
+    param_2 = param_2 - (uint64_t)(int32_t)(param_3 * 0x10000 + 0x40000);
     iVar2 = 7;
     do {
       uVar1 = param_5 & 0xff;
-      param_2 = param_2 + (uint32_t)(uint32_t)(param_3 * 0x10000);
+      param_2 = param_2 + (uint64_t)(uint32_t)(param_3 * 0x10000);
       param_5 = param_5 >> 8;
       if (uVar1 != 0) {
         RT_CALLRA(0x271d7c, guest::gifWriteTag(param_1,0xc400000000008000,(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x003309a0 + (int)uVar1 * 8)))));

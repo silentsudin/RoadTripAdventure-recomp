@@ -4,47 +4,15 @@
 
 namespace guest {
 
-// PS2 SIMD on lo/hi uint64 pairs (V16 convention, strcmp TU precedent).
-struct V16 { uint64_t lo, hi; };
-static inline V16 qextl(V16 a, V16 b) {  // _pextlw: interlace lower 32-bit words
-  rtguest::FrameGuard rt_fg(0);
-  return { (a.lo & 0xffffffff) | (b.lo << 32),
-           (a.lo >> 32) | (b.hi & 0xffffffff00000000ULL) };
-}
-static inline V16 qextu(V16 a, V16 b) {  // _pextuw: interlace upper 32-bit words
-  rtguest::FrameGuard rt_fg(0);
-  return { (a.hi & 0xffffffff) | (b.hi << 32),
-           (a.hi >> 32) | (b.hi >> 32 << 32) };
-}
-static inline V16 qpyld(V16 a, V16 b) { return { a.lo, b.lo }; }  // _pcpyld
-static inline V16 qpyud(V16 a, V16 b) { return { a.hi, b.hi }; }  // _pcpyud
-
+// MIPS 0x272820..0x272860 (MMI decoded): lq r0..r3; PEXTLW $12=(r0.x,r1.x,r0.y,r1.y), PEXTUW $13=(r0.z,r1.z,r0.w,r1.w),
+// PEXTLW $14=(r2.x,r3.x,r2.y,r3.y), PEXTUW $15=(r2.z,r3.z,r2.w,r3.w); PCPYLD/PCPYUD give the 4 columns; sq to out.
+// i.e. a plain 4x4 transpose (fn/00272820.c). The earlier V16 helpers interleaved the wrong words.
 uint32_t mat4Transpose(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(0);
-  auto row = [](uint32_t a) {
-    return V16{ *(uint64_t*)rtguest::G(a), *(uint64_t*)rtguest::G(a + 8) };
-  };
-  V16 r0 = row(param_2), r1 = row(param_2 + 0x10);
-  V16 r2 = row(param_2 + 0x20), r3 = row(param_2 + 0x30);
-
-  V16 t2 = qextl(r1, r0);
-  V16 t3 = qextu(r1, r0);
-  V16 t4 = qextl(r3, r2);
-  V16 t5 = qextu(r3, r2);
-  V16 o1 = qpyld(t4, t2);
-  V16 o2 = qpyud(t2, t4);
-  V16 o4 = qpyld(t5, t3);
-  V16 o3 = qpyud(t3, t5);
-
-  const uint32_t* w;
-  w = (const uint32_t*)&o1;  // little-endian lane order == memory order
-  for (int i = 0; i < 4; i++) *(uint32_t*)rtguest::G((uint32_t)(param_1 + i * 4)) = w[i];
-  w = (const uint32_t*)&o2;
-  for (int i = 0; i < 4; i++) *(uint32_t*)rtguest::G((uint32_t)(param_1 + (4 + i) * 4)) = w[i];
-  w = (const uint32_t*)&o4;
-  for (int i = 0; i < 4; i++) *(uint32_t*)rtguest::G((uint32_t)(param_1 + (8 + i) * 4)) = w[i];
-  w = (const uint32_t*)&o3;
-  for (int i = 0; i < 4; i++) *(uint32_t*)rtguest::G((uint32_t)(param_1 + (0xc + i) * 4)) = w[i];
+  uint32_t m[16];
+  for (int i = 0; i < 16; i++) m[i] = *(uint32_t*)rtguest::G(param_2 + 4u * i);  // all lq before any sq (in-place safe)
+  for (int r = 0; r < 4; r++)
+    for (int c = 0; c < 4; c++) *(uint32_t*)rtguest::G(param_1 + 4u * (r * 4 + c)) = m[c * 4 + r];
   return 0;
 }
 

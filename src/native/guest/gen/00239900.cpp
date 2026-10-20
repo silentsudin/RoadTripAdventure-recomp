@@ -20,7 +20,7 @@ uint32_t ShowPlayerSelect(uint32_t param_1, ...) {
   
   iVar7 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8))) == 0) {
-    uVar4 = RT_CALLRA(0x239924, guest::uiMenuCreate());
+    uVar4 = RT_CALLRA(0x239924, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x239924); pseudocode dropped the live arg */);
     uVar5 = RT_CALLRA(0x239934, guest::GetSlotDataPtr(0,0));
     RT_CALLRA(0x239944, guest::uiMenuAddItem(uVar4,uVar5,0x10));
     if ((*(int8_t*)rtguest::G(0x177fdd4)) != '\0') {

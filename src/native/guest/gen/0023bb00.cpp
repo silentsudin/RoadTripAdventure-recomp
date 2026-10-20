@@ -16,7 +16,7 @@ uint32_t ShowMessageAndWait(uint32_t param_1, ...) {
   
   iVar3 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) == 0) {
-    uVar1 = RT_CALLRA(0x23bb1c, guest::uiMenuCreate());
+    uVar1 = RT_CALLRA(0x23bb1c, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x23bb1c); pseudocode dropped the live arg */);
     RT_CALLRA(0x23bb2c, guest::uiMenuAddItem(uVar1,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x1c))),0));
     PlayUiSound(0x1e);
     return 0;

@@ -2298,6 +2298,23 @@ int main() {
             // semantics: alarms/vsync flag/intc fire) + green-thread pump per
             // 60 Hz logic step. Flag-gated: the default loop is untouched.
             if (nativeBoot.ok) {
+                // The oracle runs guest code in EE float mode (RZ + flush,
+                // ps2_ee_fpu_mode.h:36-39); our guest TUs run on this thread,
+                // so adopt the same sticky mode (W12 177e/177f 1-ulp class).
+                static const struct EEFloatMode {
+                    EEFloatMode() {
+#if defined(__aarch64__)
+                        uint64_t fpcr;
+                        __asm__ volatile("mrs %0, fpcr" : "=r"(fpcr));
+                        fpcr = (fpcr & ~(3ull << 22)) | (3ull << 22) | (1ull << 24);  // RMode=RZ, FZ
+                        __asm__ volatile("msr fpcr, %0" : : "r"(fpcr));
+#elif defined(__x86_64__)
+                        unsigned csr = _mm_getcsr();
+                        csr = (csr & ~0x6000u) | 0x6000u | 0x8040u;  // RC + FTZ + DAZ
+                        _mm_setcsr(csr);
+#endif
+                    }
+                } g_eeFloatMode;
                 static FILE* hashLog = [] {
                     const char* p = std::getenv("RT_STATE_HASH");
                     return p ? std::fopen(p, "w") : nullptr;
@@ -2310,19 +2327,42 @@ int main() {
                 // vblanks, for byte diffing against the oracle's EERM chunk.
                 static const std::vector<std::pair<uint64_t, std::string>> ramDumps =
                     parseVbPaths(std::getenv("RT_RAM_DUMP"));
-                // RT_BOOT_START=N: scripted pad script (temporary probe:
-                // Up@N, Cross@N+120, Start@N+240 — each held 3 vblanks).
-                static const long bootStart = [] {
-                    const char* e = std::getenv("RT_BOOT_START");
-                    return e ? std::atol(e) : -1L;
+                // RT_PAD_SCRIPT="vb:hexmask[:hold],...": active-low button presses,
+                // window vb..vb+hold inclusive (default hold 2 = 3 vblanks).
+                // RT_BOOT_START=N keeps the legacy Up/Cross/Start ladder.
+                struct Press { long at; uint16_t mask; int hold; };
+                static const std::vector<Press> padScript = [] {
+                    std::vector<Press> v;
+                    if (const char* e = std::getenv("RT_PAD_SCRIPT"); e && *e) {
+                        for (const char* p = e; p && *p;) {
+                            const long vb = std::strtol(p, nullptr, 10);
+                            const char* c1 = strchr(p, ':');
+                            if (!c1) break;
+                            const uint16_t mask = (uint16_t)std::strtoul(c1 + 1, nullptr, 16);
+                            int hold = 2;
+                            const char* c2 = strchr(c1 + 1, ':');
+                            const char* comma = strchr(c1 + 1, ',');
+                            if (c2 && (!comma || c2 < comma)) hold = std::atoi(c2 + 1);
+                            v.push_back({vb, mask, hold});
+                            p = comma ? comma + 1 : nullptr;
+                        }
+                    } else if (const char* e = std::getenv("RT_BOOT_START"); e && *e) {
+                        const long n = std::atol(e);
+                        v = {{n, (uint16_t)~0x0010u, 2},
+                             {n + 120, (uint16_t)~0x4000u, 2},
+                             {n + 240, (uint16_t)~0x0008u, 2}};
+                    }
+                    return v;
                 }();
-                auto inWin = [v = nativeBoot.vblanks](long at) {
-                    return at >= 0 && v >= at && v <= at + 2;
-                };
                 uint16_t btn = 0xFFFFu;
-                if (inWin(bootStart)) btn = (uint16_t)(~0x0010u);          // Up
-                else if (inWin(bootStart + 120)) btn = (uint16_t)(~0x4000u); // Cross
-                else if (inWin(bootStart + 240)) btn = (uint16_t)(~0x0008u); // Start
+                for (const Press& s : padScript)
+                    if (nativeBoot.vblanks >= s.at && nativeBoot.vblanks <= s.at + s.hold) {
+                        btn = s.mask;
+                        break;
+                    }
+                // An attached lockstep socket drives the guest pad directly (rtharness),
+                // overriding the script; it idles at 0xffff so an idle socket changes nothing.
+                if (testSocket.lockstep()) btn = testSocket.pad().buttons;
                 guest::g_bootButtons = btn;
                 rtguest::kVblank();
                 rtguest::kPumpToIdle();

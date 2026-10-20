@@ -21,7 +21,7 @@ uint32_t RunSelectionMenuTask(uint32_t param_1, ...) {
   
   iVar8 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) == 0) {
-    uVar3 = RT_CALLRA(0x22c8c4, guest::uiMenuCreate());
+    uVar3 = RT_CALLRA(0x22c8c4, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x22c8c4); pseudocode dropped the live arg */);
     iVar7 = 0;
     do {
       lVar5 = RT_CALLRA(0x22c8dc, guest::GetFlaggedSlotCount(0xf,iVar7,0));

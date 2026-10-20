@@ -70,14 +70,15 @@ bool dmaTrace() {
     return on;
 }
 
+// The oracle keeps DMA registers in its own tables (ps2_memory.cpp:1269).
+// Masking them into kRam leaked chcr/qwc words into pages 9/a/e (W12 census);
+// keep the reg file in a side table instead.
+static std::unordered_map<uint32_t, uint32_t> g_dmaRegs;
 uint32_t dmaRead(uint32_t reg) {
-    uint32_t v = 0;
-    std::memcpy(&v, rtguest::kRam + (reg & 0x01FFFFFFu), 4);
-    return v;
+    const auto it = g_dmaRegs.find(reg & 0x01FFFFFFu);
+    return it == g_dmaRegs.end() ? 0u : it->second;
 }
-void dmaWrite(uint32_t reg, uint32_t v) {
-    std::memcpy(rtguest::kRam + (reg & 0x01FFFFFFu), &v, 4);
-}
+void dmaWrite(uint32_t reg, uint32_t v) { g_dmaRegs[reg & 0x01FFFFFFu] = v; }
 
 uint32_t resolveDmaChannelBase(uint32_t chanArg) {  // Support.h:1298
     for (uint32_t b : kDmaChannelBases)

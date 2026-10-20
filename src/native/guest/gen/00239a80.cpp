@@ -26,7 +26,7 @@ uint32_t pbVar12;
   iVar10 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 8))) == 0) {
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2))) = (short)(char)(*(uint32_t*)rtguest::G((uint32_t)0x2be000 + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) * 2) * 4));
-    uVar6 = RT_CALLRA(0x239adc, guest::uiMenuCreate());
+    uVar6 = RT_CALLRA(0x239adc, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x239adc); pseudocode dropped the live arg */);
     sVar3 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 2)));
     lVar11 = (long)sVar3;
     if (lVar11 < (int)sVar3 + (int)(char)(*(uint32_t*)rtguest::G((uint32_t)0x2be001 + (uint32_t)((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x23))) * 2) * 4))) {

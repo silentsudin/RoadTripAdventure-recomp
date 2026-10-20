@@ -21,7 +21,7 @@ uint32_t piVar6;
   
   iVar8 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) == 0) {
-    uVar2 = RT_CALLRA(0x23952c, guest::uiMenuCreate());
+    uVar2 = RT_CALLRA(0x23952c, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x23952c); pseudocode dropped the live arg */);
     RT_CALLRA(0x239544, guest::uiMenuAddItem(uVar2,0x2ec598,0));
     uVar3 = RT_CALLRA(0x239550, guest::GetSlotDataPtr((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x26))),0));
     RT_CALLRA(0x239560, guest::uiMenuAddItem(uVar2,uVar3,0x80));

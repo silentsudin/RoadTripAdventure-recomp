@@ -34,10 +34,9 @@ uint32_t pfVar4;
   RT_CALLRA(0x21f4a8, guest::vu0UnitMatrix(auStack_c0));
   RT_CALLRA(0x21f4b8, guest::vecCrossProductVu0(auStack_d0,param_6,param_5));
   RT_CALLRA(0x21f4c4, guest::vecNormalizeVu0(auStack_c0,auStack_d0));
-  // Machine dst (disasm 0x21f4d4: $4 at jal is still $23=auStack_c0; the
-  // addiu $16,$sp,0x30 belongs to the NEXT call's setup — delay-slot lag again):
-  // normalize writes +0x10 (overwriting side), leaving +0x30 never written.
-  RT_CALLRA(0x21f4d4, guest::vecNormalizeVu0(auStack_c0,param_5));
+  // fn/0021f450.c:34 vecNormalizeVu0(auStack_a0,param_5): MIPS 0x21f4d0 addiu $16,$sp,0x30; jal 0x2727e8 @0x21f4d4
+  // with delay slot 0x21f4d8 `move $4,$16` (runs before the callee) => $4 = sp+0x30 = auStack_a0, as the pseudocode says.
+  RT_CALLRA(0x21f4d4, guest::vecNormalizeVu0(auStack_a0,param_5));
   RT_CALLRA(0x21f4e4, guest::vecCrossProductVu0(auStack_b0,auStack_a0,auStack_c0));
   float fParam1;
   __builtin_memcpy(&fParam1, &param_1, sizeof(fParam1));
@@ -60,12 +59,12 @@ uint32_t pfVar4;
         (*(float*)rtguest::G((uint32_t)fStack_80)) = ((*(float*)rtguest::G((uint32_t)pfVar4)) * (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)))) / (fParam1 * fVar8);
       }
       (*(float*)rtguest::G((uint32_t)fStack_78)) = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)));
-      pfVar1 = pfVar4 + 1;
+      pfVar1 = pfVar4 + 4;  // fn/0021f450.c:54 pfVar1 = pfVar4 + 1 is float* arithmetic (+4 bytes; MIPS lwc1 $f1,0x4($16) @0x21f598)
       pfVar4 = pfVar4 + 0x10;  // T* element step
       iVar3 = (int)param_7 + iVar6;
       iVar6 = iVar6 + 0x10;
       iVar5 = iVar5 + -1;
-      (*(float*)rtguest::G((uint32_t)fStack_7c)) = ((*(float*)rtguest::G((uint32_t)pfVar1)) * (*(float*)rtguest::G((uint32_t)fStack_78))) / (param_1 * fVar2);
+      (*(float*)rtguest::G((uint32_t)fStack_7c)) = ((*(float*)rtguest::G((uint32_t)pfVar1)) * (*(float*)rtguest::G((uint32_t)fStack_78))) / (fParam1 * fVar2);  // fn/0021f450.c:61 param_1 is the FLOAT fov ($f20, MIPS mul.s $f2,$f20,$f22 @0x21f594); u32 param_1 int-converted the raw bits
       (*(uint32_t*)rtguest::G((uint32_t)uStack_74)) = uVar7;
       RT_CALLRA(0x21f5cc, guest::vu0ApplyMatrix(iVar3,auStack_c0,fStack_80));
     } while (-1 < iVar5);

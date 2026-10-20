@@ -40,7 +40,7 @@ uint32_t pcVar6;
     gs_tasks_kill(param_1);
     return 0;
   }
-  uVar4 = RT_CALLRA(0x228118, guest::uiMenuCreate());
+  uVar4 = RT_CALLRA(0x228118, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x228118); pseudocode dropped the live arg */);
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) & 0x100) == 0) {
     if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) & 0x200) == 0) {
       RT_CALLRA(0x228154, guest::uiMenuAddItem(uVar4,0x2eb4f8,0));

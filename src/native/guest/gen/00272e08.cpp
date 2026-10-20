@@ -13,7 +13,9 @@ uint32_t vu0NormalLightMatrix(uint32_t param_1, uint32_t param_2, uint32_t param
   int iVar1;
 uint32_t auStack_60 = rtguest::allocFrame(16);
   
-  RT_CALLRA(0x272e38, guest::vu0ScaleVector(rtguest::fbits(0xbf800000),auStack_60));
+  // MIPS 0x272e38 jal vu0ScaleVector: $f12=-1 (0x272e30), $4=sp (delay 0x272e3c), $5 = param_2 untouched since entry
+  // (Ghidra dropped the live $a1); same shape as the two calls below.
+  RT_CALLRA(0x272e38, guest::vu0ScaleVector(rtguest::fbits(0xbf800000),auStack_60,param_2));
   RT_CALLRA(0x272e44, guest::vecNormalizeVu0(param_1,auStack_60));
   RT_CALLRA(0x272e54, guest::vu0ScaleVector(rtguest::fbits(0xbf800000),auStack_60,param_3));
   iVar1 = (int)param_1;

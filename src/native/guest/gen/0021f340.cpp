@@ -28,25 +28,19 @@ uint32_t auStack_60 = rtguest::allocFrame(32);
     RT_CALLRA(0x21f3f0, guest::vu0CopyVector(param_1,param_2,auStack_c0));
   }
   else {
-    // Machine args (disasm 0x21f3bc/0x21f3c8 + delay slots): jal #1 carries
-    // $4=$17 (param_1), $5=$16 (param_3), delay $6=auStack_c0; jal #2's $5 is
-    // still $16 (param_3, not param_4). Ghidra dropped the register state.
-    RT_CALLRA(0x21f3bc, guest::vu0MulMatrix(param_1,param_3,auStack_c0));
-    RT_CALLRA(0x21f3cc, guest::vu0MulMatrix(auStack_80,param_3,auStack_80));
+    // fn/0021f340.c:27-28 as Ghidra wrote it. MIPS: jal 0x272758 @0x21f3bc delay `move $4,$18` => (c0, $5=$16 param_3,
+    // $6=$18 c0 from 0x21f3b8); jal @0x21f3cc: $4=$19 (sp+0x50), $6=$4, delay `move $5,$21` => (80, param_4, 80).
+    // Delay-slot instructions execute BEFORE the callee, so they define the args.
+    RT_CALLRA(0x21f3bc, guest::vu0MulMatrix(auStack_c0,param_3,auStack_c0));
+    RT_CALLRA(0x21f3cc, guest::vu0MulMatrix(auStack_80,param_4,auStack_80));
     RT_CALLRA(0x21f3dc, guest::vu0ApplyMatrix(param_1,auStack_c0,param_2));
   }
   iVar1 = (int)param_1;
-  // Machine-exact tail copies (full disasm 0x21f3fc-0x21f424, delay-slot args
-  // run BEFORE the callee so they ARE the callee's args):
-  //   jal#2 21f3fc: $4=$17+0x00, $5=+0x20 (b-delay 21f3e8)
-  //   jal#3 21f408: $4=$17+0x10 (21f404), $5=+0x30 (21f40c delay)
-  //   jal#4 21f414: $4=$17+0x30 (21f410), $5=+0x60 (21f418 delay)
-  //   jal#5 21f420: $4=$17+0x40 (21f41c), $5=+0x70 (21f424 delay)
-  // dsts are +0x00/+0x10/+0x30/+0x40: column +0x20 keeps the mulMatrix/
-  // applyMatrix write. Attract V is stack feedback through these aliased
-  // slots, not live camera math.
-  RT_CALLRA(0x21f3fc, guest::vu0CopyVector(iVar1,auStack_b0));
-  RT_CALLRA(0x21f408, guest::vu0CopyVector(iVar1 + 0x10,auStack_a0));
+  // fn/0021f340.c:35-38 (Ghidra was right): MIPS 0x21f3fc..0x21f424, each jal's delay slot sets $4 (dst) and the
+  // preceding addiu sets $5: (+0x10,sp+0x20) (+0x20,sp+0x30) (+0x30,sp+0x60) (+0x40,sp+0x70); out+0x00 keeps
+  // vu0ApplyMatrix's (or the copy's) result.
+  RT_CALLRA(0x21f3fc, guest::vu0CopyVector(iVar1 + 0x10,auStack_b0));
+  RT_CALLRA(0x21f408, guest::vu0CopyVector(iVar1 + 0x20,auStack_a0));
   RT_CALLRA(0x21f414, guest::vu0CopyVector(iVar1 + 0x30,auStack_70));
   RT_CALLRA(0x21f420, guest::vu0CopyVector(iVar1 + 0x40,auStack_60));
   return 0;

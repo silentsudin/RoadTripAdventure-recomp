@@ -23,7 +23,7 @@ uint32_t gs_options_sub_tasks_vibration(uint32_t param_1, uint32_t param_2, ...)
   
   iVar10 = (int)param_1;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x25))) == '\0') {
-    uVar5 = RT_CALLRA(0x208cc0, guest::uiMenuCreate());
+    uVar5 = RT_CALLRA(0x208cc0, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x208cc0); pseudocode dropped the live arg */);
     RT_CALLRA(0x208cec, guest::uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac40u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0));
     RT_CALLRA(0x208d10, guest::uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac44u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));
     RT_CALLRA(0x208d34, guest::uiMenuAddItem(uVar5,(*(uint32_t*)rtguest::G((uint32_t)(0x29ac48u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 5) * 4))),0x10));

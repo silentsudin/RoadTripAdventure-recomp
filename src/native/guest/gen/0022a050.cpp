@@ -16,7 +16,7 @@ uint32_t RunConfirmDialogTask(uint32_t param_1, uint32_t param_2, ...) {
   
   iVar3 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 8))) == 0) {
-    uVar1 = RT_CALLRA(0x22a078, guest::uiMenuCreate());
+    uVar1 = RT_CALLRA(0x22a078, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x22a078); pseudocode dropped the live arg */);
     RT_CALLRA(0x22a090, guest::uiMenuAddItem(uVar1,0x2eb518,0));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)uVar1 + 0xc))) = 2;
     if ('\x03' < (*(int8_t*)rtguest::G(0x17831f9))) {

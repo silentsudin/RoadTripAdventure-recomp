@@ -18,7 +18,7 @@ uint32_t DisplayTextDialog(uint32_t param_1, uint32_t param_2, ...) {
   
   iVar5 = (int)param_1;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) == 0) {
-    uVar3 = RT_CALLRA(0x239174, guest::uiMenuCreate());
+    uVar3 = RT_CALLRA(0x239174, guest::uiMenuCreate(param_1) /* $a0 = entry $a0 at the jal (MIPS: no $4 write/jal before 0x239174); pseudocode dropped the live arg */);
     RT_CALLRA(0x23918c, guest::uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))),0));
     RT_CALLRA(0x2391ac, guest::uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af0u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10));
     RT_CALLRA(0x2391c8, guest::uiMenuAddItem(uVar3,(*(uint32_t*)rtguest::G((uint32_t)(0x2a2af4u + (uint32_t)((*(uint32_t*)rtguest::G(0x333284)) * 2) * 4))),0x10));
