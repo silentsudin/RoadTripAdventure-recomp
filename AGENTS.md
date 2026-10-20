@@ -310,7 +310,9 @@ Claude Code pool (user-approved 2026-10-20): `claude-code/claude-opus-5-5`,
 `claude-code/claude-sonnet-5-5`, `claude-code/claude-haiku-5-5`,
 `claude-code/claude-fable-5-1`, `claude-code/claude-mythos-5-1` — runs via the
 opencode-claude-code-plugin; its quota is NOT visible to quota_status (user
-says ample). Still pass `model:` + `background: true` per the gate.
+says ample). Roles (user directive 2026-10-20): claude-opus-5-5 = frontier tier,
+claude-sonnet-5-5 = workhorse tier, claude-haiku-5-5 = mechanical grunt work.
+Still pass `model:` + `background: true` per the gate.
 Before EVERY subagent dispatch, run quota_status and verify the target pool
 has meaningful headroom in BOTH windows. A pool with Weekly=0% is DEAD even
 if its 5h window shows 100% (opencode-go incident: dispatched twice into

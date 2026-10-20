@@ -630,3 +630,27 @@ two sites (lines 19, 33) where the game writes the TEXA constant AND a COMPUTED 
 state with psm forced 0x14). RE subagent dispatched to cite the pseudocode derivation; fix goes
 into the gen TU with that citation. test-engineer dispatched to pin the band contract
 (oracle band sha table: vb1308 a7ca7a63d3c7a0c7; vb1312..1348 static 3e45c5141106e978).
+
+## W12 2026-10-20 late-5: UB fix landed; band timeline now: swap early + corrupted new-card + early revert
+
+Fix applied (uncommitted): gen/00204310.cpp uiDrawTextCell + gen/002046c0.cpp uiDrawNumberFixed 4th param
+uint32_t -> uint64_t. Ground truth: pseudocode `ulong param_4` (00204310.c:5, 002046c0.c:7) and ELF 0x204364
+`dsll32 $2,$7,0x18` (full 64-bit a3). `param_4 << 0x38` on uint32 was UB; clang DROPPED the TEX2_1 value store,
+leaving the stale TEXA constant at slot 0x336370. Forward decls in build/decomp/guest_decls.inc patched to match
+(refresh_decls.py regenerates from defs, so widening survives regen). RE answer: the qword is NOT canvas-derived —
+it is `bank<<56 | 0x13780001400000` (TEX2 PSMT4, CBP 0x1BC0, CT16, CSA=bank), emitted by uiSetPaletteBank
+@0x2039e8 pattern in 11 UI text fns; bank arg for the card is 4. uiBatchFlush TU 00203810 was ported correctly.
+Also RE-proven: 0x29a840..44 oracle bytes are ELF .reginfo ($gp 0x33aaf0) inside PT_LOAD — our loader doesn't copy
+them; inert for GS; loader-side follow-up: copy whole first PT_LOAD.
+
+Post-fix band hashes (native): 1300-1304 a7ca7a (= oracle OLD card, byte-exact!), 1308-1336 d274e9 (neither card),
+1340-1364 a7ca7a again. Oracle: old through 1308, 3e45c5 NEW card 1312-1348+. So per-draw old-card rendering is now
+proven identical; remaining defect is card STATE machinery: swap starts ~2 vb early in native, new-card content
+corrupted (d274e9), and reverts to old ~40 vb early. RAM pairing at native1306/oracle1305 now shows only: byte
+0x335909 (task pool 0x335900 header, pool qword 0x335908 = n 0x0002070700000000 vs o 0x0002070700000100), the
+.reginfo 3 bytes, and 64B diff blocks at pages 0,9,a,e,175e,1773,177e(7),177f(2),1787(3),1f10,1fff (stack) —
+0x177e/177f/1787 cluster = prime suspect for the attract card/photo task timer state.
+Dispatched (claude-code pool): parity-debugger@opus (band chase owner), reverse-engineer@sonnet (pool byte +9
+semantics + card cadence code), bug-tester@sonnet (gates on tree with UB fix), test-engineer@sonnet
+(tests/native_parity/test_text_list_tex2_ram.py pinning slot 0x336370 at RAM level), port-worker@haiku
+(ub-audit.md across gen corpus for the same pseudocode-ulong/uint32-shift UB class).
