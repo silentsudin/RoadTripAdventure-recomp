@@ -182,7 +182,11 @@ static uint32_t g_frameTop = RT_FRAME_BASE;
 void resetFrameArena() { g_frameTop = RT_FRAME_BASE; }
 
 uint32_t allocFrame(uint32_t bytes) {
-    bytes = (bytes + 15) & ~15u;
+    // 4-byte align only: the transliterator's per-TU gap chunks encode exact
+    // guest frame offsets, and adjacent slots (e.g. a float[5] followed by the
+    // scalar matrix elements buildCamera reads as one 4x4) must stay contiguous.
+    // 16-byte padding split them and silently zeroed projection terms.
+    bytes = (bytes + 3) & ~3u;
     uint32_t a = g_frameTop;
     if (a + bytes > RT_FRAME_END) {
         fprintf(stderr, "[rtguest] frame arena exhausted\n");
