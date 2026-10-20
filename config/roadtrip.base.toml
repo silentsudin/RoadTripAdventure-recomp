@@ -24,6 +24,9 @@ entry_points = [
   "__ieee754_rem_pio2f@0x002752C8",
   "__kernel_cosf@0x002767C8",
   "__kernel_sinf@0x002771E0",
+  # SetVifFillDirect: only ever reached by function pointer (oracle trace
+  # 0x21a088 -> 0x221788 -> 0x225988 -> 0x2212c8), so the analyzer never sees a jal to it.
+  "SetVifFillDirect@0x002212C8",
 ]
 
 # Names to remove from the analyzer's suggestions.
