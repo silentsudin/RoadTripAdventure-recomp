@@ -580,3 +580,26 @@ EE-RAM FNV (RT_STATE_HASH); a temp emitter for native VU0 micro memory + key MMI
 the cheap probe. The old 3c-2 note "oracle processes 9 fewer CLEARs by vb650" is the same
 phenomenon: per-vblank GIF emission differs while EE RAM agrees -- an emission-decision input
 outside EERM, not a GS defect.
+
+## W12 2026-10-20 late-3: card-band is a fade-accumulation canvas; composite source selection diverges
+
+RT_GS_BATCH_LOG vs the temp [band] probe (RT_NATIVE_DIRECT_LOG="lo,hi" windows [band] in
+guest_gs.cpp kick dispatch + [direct] in guest_vif1 kDirect) over vb1303-1312:
+
+- Draw SCHEDULE identical: card activity windows (474,505)(538,569)...(1242,1273)(1306,1312+) on
+  both sides; 64-vb cadence, 34-vb idle gaps; text batch = 16 sprites (oracle n=32 vertices).
+- Text PACKETS identical: 16 sprites tbp0=6720 psm=20, UV/color/cbp byte-identical at boot (474),
+  steady-A (1272) and post-transition (1307). All texture pages (6720/7566/2240/8690) and the CLUT
+  page are byte-static across the transition (native VRAM dumps every 3 vb).
+- What differs: the full-screen COMPOSITE copies. Oracle per vb: ONE source page copied to BOTH
+  fb pages (even vb: page 2240; odd vb: page 0 = fb-self-echo), second copy fst=0 (often ctx=1);
+  plus 7566 overlay + 8690 photo. Native: BOTH pages (0 and 2240) each once per frame. The band is
+  a fade-accumulation canvas, so native accumulates ~2x and its band flips 4-6 vb early (1306) and
+  garbled; oracle flips 1309-1312. Band fb writes land at fb0 y~138 rows (byte 0x56600 region) and
+  the same rows of fb1 (base 0x8C000).
+- Poke-interpretation refinement: the card task REWRITES its display lists every frame, so poking
+  oracle list bytes at 1305 gets overwritten -> "all RAM diffs inert" does NOT exonerate the ported
+  card/fade task gen TU (list WRITER). Discriminator: raw DIRECT qword stream at one card vb —
+  one copy-pair per frame in the bytes (native parse defect) vs two (gen TU writer defect).
+- Frontier parity agent (openai/gpt-6.1-sol, background) dispatched on exactly this discriminator;
+  full handoff + repro commands in build/scratch/w12-parity/HANDOFF-cardband.md.
