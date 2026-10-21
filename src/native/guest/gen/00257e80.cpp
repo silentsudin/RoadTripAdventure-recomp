@@ -6,12 +6,12 @@ namespace guest {
 
 uint32_t SndRpcCmdB(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(112);
+    rtguest::allocFrame(28);  // guest frame gap (sp+0x0..0x1b)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x10) = (uint32_t)(int32_t)param_1;
     *(uint32_t*)rtguest::G(rt_sv+0x14) = (uint32_t)(int32_t)param_2;
     *(uint32_t*)rtguest::G(rt_sv+0x18) = (uint32_t)(int32_t)param_3;
   }
-    rtguest::allocFrame(28);  // guest frame gap (sp+0x0..0x1b)
     uint32_t uStack_54 = rtguest::allocFrame(4);  // sp+0x1c (Ghidra entry-sp -0x54, frame 0x70)
     uint32_t uStack_50 = rtguest::allocFrame(8);  // sp+0x20 (Ghidra entry-sp -0x50, frame 0x70)
     uint32_t uStack_48 = rtguest::allocFrame(8);  // sp+0x28 (Ghidra entry-sp -0x48, frame 0x70)

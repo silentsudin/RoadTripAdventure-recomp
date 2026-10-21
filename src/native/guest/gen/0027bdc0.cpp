@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t dpdiv(uint64_t param_1, uint64_t param_2, ...) {
+uint64_t dpdiv(uint64_t param_1, uint64_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x40) = (uint32_t)(int32_t)param_1;
@@ -94,8 +94,8 @@ uint32_t puVar3;
     }
   }
   (*(uint64_t*)rtguest::G((uint32_t)uStack_50)) = uVar4;
-  RT_CALLRA(0x27bf1c, guest::__pack_d(puVar3));
-  return 0;
+  return RT_CALLRA(0x27bf1c, guest::__pack_d(puVar3));  // MIPS 0x27bf1c: jal __pack_d then jr ra, $v0 (double bits) passes through
+
 }
 
 

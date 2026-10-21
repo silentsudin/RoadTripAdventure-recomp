@@ -71,7 +71,7 @@ uint32_t pbVar12;
     return 0;
   }
   if (lVar11 == -2) {
-    gs_tasks_kill(param_1);
+    RT_CALLRA(0x23a110, guest::gs_tasks_kill(param_1));
     return 0;
   }
   if (lVar11 == -1) {

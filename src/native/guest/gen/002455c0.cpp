@@ -7,12 +7,12 @@ namespace guest {
 
 uint32_t drawCarouselScene(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(160);
+    rtguest::allocFrame(16);  // guest frame gap (sp+0x0..0xf)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_2;
   }
-    rtguest::allocFrame(16);  // guest frame gap (sp+0x0..0xf)
     uint32_t iStack_90 = rtguest::allocFrame(4);  // sp+0x10 (Ghidra entry-sp -0x90, frame 0xa0)
     rtguest::allocFrame(4);  // guest frame gap (sp+0x14..0x17)
     uint32_t iStack_88 = rtguest::allocFrame(4);  // sp+0x18 (Ghidra entry-sp -0x88, frame 0xa0)

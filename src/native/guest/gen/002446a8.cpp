@@ -26,6 +26,7 @@ uint32_t puVar3;
     iVar2 = 0x80;
   }
   else {
+    // MIPS 0x2446e0: jal cos with $a0 = raw $4; result unused, f0 stays 0.0
     RT_CALLRA(0x2446e0, guest::cos(param_2));
     iVar2 = (int)(fVar8 * 16.0) + 0x60;
   }

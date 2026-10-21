@@ -29,8 +29,7 @@ uint32_t auStack_20 = rtguest::allocFrame(16);
   if (((*(uint64_t*)rtguest::G((uint32_t)uStack_30)) & 0x3fffffff) == 0) {
     uVar2 = uVar1;
   }
-  RT_CALLRA(0x27c150, guest::__make_fp((*(uint32_t*)rtguest::G((uint32_t)uStack_40)),(*(uint32_t*)rtguest::G((uint32_t)uStack_3c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_38)),uVar2));
-  return 0;
+  return RT_CALLRA(0x27c150, guest::__make_fp((*(uint32_t*)rtguest::G((uint32_t)uStack_40)),(*(uint32_t*)rtguest::G((uint32_t)uStack_3c)),(*(uint32_t*)rtguest::G((uint32_t)uStack_38)),uVar2));  // MIPS 0x27c150: jal __make_fp then jr ra (tail); float bits pass through $f0
 }
 
 

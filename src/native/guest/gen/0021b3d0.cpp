@@ -115,7 +115,8 @@ uint32_t pfVar11;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0xa4))) = iVar6;
   }
 LAB_0021b6a0:
-  fVar13 = (*(uint32_t*)rtguest::G(0x332c00));
+  // fn/0021b3d0.c:114: DAT_00332c00 is a float (lwc1 $f0,-0x7ef0($gp) @0x21b6a0, =1.35f); was read as u32 bits and value-converted.
+  fVar13 = (*(float*)rtguest::G(0x332c00));
   if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G(0x177ea50)) + 8))) & 0x400) == 0) {
     fVar13 = 0.5;
   }
@@ -200,7 +201,8 @@ LAB_0021b85c:
   else {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 500))) = 0;
   }
-  fVar13 = (*(uint32_t*)rtguest::G(0x332c04));
+  // fn/0021b3d0.c:199: DAT_00332c04 is a float (lwc1 $f22,-0x7eec($gp) @0x21b94c, =pi); was read as u32 bits -> yaw ~8e7 rad.
+  fVar13 = (*(float*)rtguest::G(0x332c04));
   uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1f8))) & 1;
   if ((uVar12 & 0x78) != 0) {
     uVar2 = 1;
@@ -217,7 +219,7 @@ LAB_0021b85c:
   (*(float*)rtguest::G((uint32_t)fStack_bc)) = (float)((*(int32_t*)rtguest::G((uint32_t)aiStack_f0 + (uint32_t)(2) * 4)) - (*(int32_t*)rtguest::G((uint32_t)aiStack_f0 + (uint32_t)(0) * 4))) * 3.0517578e-05;
   (*(float*)rtguest::G((uint32_t)fStack_ac)) = (float)((*(int32_t*)rtguest::G((uint32_t)aiStack_f0 + (uint32_t)(1) * 4)) - (*(int32_t*)rtguest::G((uint32_t)aiStack_f0 + (uint32_t)(2) * 4))) * 3.0517578e-05;
   (*(float*)rtguest::G((uint32_t)fStack_b8)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x138))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x118)));
-  fVar14 = (float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1d4))) * (*(uint32_t*)rtguest::G(0x332c04)) * 3.0517578e-05;
+  fVar14 = (float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1d4))) * (*(float*)rtguest::G(0x332c04)) * 3.0517578e-05;  // fn/0021b3d0.c:216: float DAT_00332c04 (see :199)
   (*(float*)rtguest::G((uint32_t)fStack_b0)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x120))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x130)));
   (*(float*)rtguest::G((uint32_t)fStack_a8)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x128))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x138)));
   RT_CALLRA(0x21b9b0, guest::vecCrossProductVu0(auStack_a0,fStack_c0,fStack_b0));

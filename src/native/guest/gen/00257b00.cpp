@@ -6,10 +6,10 @@ namespace guest {
 
 uint32_t gs_options_speaker_set(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(112);
+    rtguest::allocFrame(24);  // guest frame gap (sp+0x0..0x17)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x14) = (uint32_t)(int32_t)param_1;
   }
-    rtguest::allocFrame(24);  // guest frame gap (sp+0x0..0x17)
     uint32_t uStack_58 = rtguest::allocFrame(8);  // sp+0x18 (Ghidra entry-sp -0x58, frame 0x70)
     uint32_t uStack_50 = rtguest::allocFrame(8);  // sp+0x20 (Ghidra entry-sp -0x50, frame 0x70)
     uint32_t uStack_48 = rtguest::allocFrame(8);  // sp+0x28 (Ghidra entry-sp -0x48, frame 0x70)

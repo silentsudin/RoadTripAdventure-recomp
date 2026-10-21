@@ -110,16 +110,23 @@ def symbols() -> list[tuple[int, str, str, str]]:
 def function_starts() -> list[int]:
     if os.environ.get("RT_GHIDRA_NOSEED"):
         return []  # an independent analysis (docs/recompiler-accuracy.md compares it with the recompiler's set)
+    starts = set()
+    # table-called handlers the recompiler found as code pointers (e.g. the HUD
+    # dispatch tables); Ghidra alone leaves them inside their neighbours.
+    rt = tomllib.loads((ROOT / "config/roadtrip.toml").read_text())
+    for s in rt.get("general", {}).get("entry_points", []):
+        name, _, a = s.partition("@")
+        if name.startswith("codeptr_"):
+            starts.add(int(a, 16))
     for base in (ROOT, main_checkout()):
         gen = base / "generated"
         if gen.is_dir():
-            starts = set()
             for p in gen.glob("*.cpp"):
                 m = re.search(r"_0x([0-9a-fA-F]+)\.cpp$", p.name)
                 if m:
                     starts.add(int(m.group(1), 16))
             return sorted(starts)
-    return []
+    return sorted(starts)
 
 
 def main() -> None:

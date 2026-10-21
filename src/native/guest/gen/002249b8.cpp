@@ -4,7 +4,7 @@
 
 namespace guest {
 
-uint32_t SpawnCarDebrisCycle(uint32_t param_1, uint32_t param_2, ...) {
+uint32_t SpawnCarDebrisCycle(uint32_t param_1, uint32_t param_2, uint64_t param_3, ...) {  // param_3 = $a2 (move $18,$6 at 0x2249d4; caller 0x225120 passes it, Ghidra dropped it)
   rtguest::FrameGuard rt_fg(176);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x98) = rt_fg.rtRA;
@@ -37,15 +37,15 @@ uint32_t pfVar1;
     if (1.0 < fVar5 / 300.0) {
       fVar4 = 1.0;
     }
-    fVar5 = (float)__floatdisf();
+    fVar5 = rtguest::fbits(RT_CALLRA(0x224a94, guest::__floatdisf(((param_3 + 4) & 0xf))));  // MIPS daddiu $16,$18,4 @0x224a84; andi $4,$16,0xf @0x224a88
     (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) = (*(uint32_t*)rtguest::G(0x332d80)) - fVar5 * 0.0625;
-    fVar5 = (float)__floatdisf();
+    fVar5 = rtguest::fbits(RT_CALLRA(0x224adc, guest::__floatdisf((param_3 & 0xf))));  // MIPS andi $4,$18,0xf @0x224ac4
     (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(1) * 4)) = 0.5;
     (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(1) * 4)) = 0.5;
     (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) = fVar5 * 0.0625 + (*(uint32_t*)rtguest::G(0x332d84));
-    fVar5 = (float)__floatdisf();
+    fVar5 = rtguest::fbits(RT_CALLRA(0x224b38, guest::__floatdisf(((param_3 + 4) & 7))));  // MIPS andi $4,$16,7 @0x224b0c
     (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(2) * 4)) = 1.5 - fVar5 * 0.375;
-    fVar5 = (float)__floatdisf();
+    fVar5 = rtguest::fbits(RT_CALLRA(0x224b84, guest::__floatdisf((param_3 & 7))));  // MIPS andi $4,$18,7 @0x224b64
     (*(uint32_t*)rtguest::G((uint32_t)uStack_64)) = 0x3f800000;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_54)) = 0x3f800000;
     (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(2) * 4)) = 1.5 - fVar5 * 0.375;

@@ -82,6 +82,11 @@ inline float fbits(uint32_t b) { float f; __builtin_memcpy(&f, &b, 4); return f;
 // C++ float params would truncate, so callers carry bits through uint32_t.
 inline uint32_t f2bits(float f) { uint32_t b; __builtin_memcpy(&b, &f, 4); return b; }
 
+// Same pair for doubles ($f12/$f13 = 64-bit bit pattern): math TUs carry
+// doubles as uint64_t bits, never as C++ double params/returns.
+inline double dbits(uint64_t b) { double d; __builtin_memcpy(&d, &b, 8); return d; }
+inline uint64_t d2bits(double d) { uint64_t b; __builtin_memcpy(&b, &d, 8); return b; }
+
 // Translate a guest address to a host pointer (cached/uncached aliases, scratchpad).
 inline void* G(uint32_t a) {
     if (a >= 0x80000000u) a -= 0x80000000u;      // KSEG1 uncached alias

@@ -21,8 +21,7 @@ uint32_t puStack_14;
   puStack_14 = 0x2177a0a8;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_1c)) = param_2;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_18)) = param_3;
-  RT_CALLRA(0x28d060, guest::Deci2Call(1,uStack_20));
-  return 0;
+  return RT_CALLRA(0x28d060, guest::Deci2Call(1,uStack_20));  // MIPS 0x28d060: jal Deci2Call then jr ra (tail); $v0 passes through
 }
 
 

@@ -15,14 +15,14 @@ uint32_t fadeOutTask(uint32_t param_1, ...) {
   iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8)));
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1c))) == 0) {
     if (iVar1 < 0x40) {
-      uiFade((0x40 - iVar1) * 0x2000000);
+      uiFade((int)((uint32_t)(0x40 - iVar1) * 0x2000000u));  // pseudocode 0x208270: mul wraps mod 2^32 on the guest
       return 0;
     }
     gs_tasks_kill(param_1); // arg-drop fix: j 0x204de8 @0x2082a8/0x2082d0 keeps $a0=node (capstone)
     return 0;
   }
   if (iVar1 < 0x20) {
-    uiFade((0x20 - iVar1) * 0x4000000);
+    uiFade((int)((uint32_t)(0x20 - iVar1) * 0x4000000u));  // pseudocode 0x208270: mul wraps mod 2^32 on the guest
     return 0;
   }
   gs_tasks_kill(param_1); // arg-drop fix: j 0x204de8 @0x2082a8/0x2082d0 keeps $a0=node (capstone)

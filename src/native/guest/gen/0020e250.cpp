@@ -1,6 +1,7 @@
 // guest:0x0020e250 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+typedef uint64_t rt_u64u __attribute__((aligned(1)));  // unaligned guest access: defined behavior, LE result unchanged
 
 namespace guest {
 
@@ -19,7 +20,7 @@ uint32_t cdReadEntryPart(uint32_t param_1, uint32_t param_2, uint32_t param_3, u
   iVar3 = (param_3 & 0xfffff800) + 0x7ff;
   uVar4 = (param_3 & 0x7ff) + param_4 + 0x7ff & 0xfffff800;
   iVar2 = uVar4 + 0x7ff;
-  (*(uint32_t*)rtguest::G((uint32_t)0x01727b80 + 4)) = (int)((*(uint64_t*)rtguest::G((uint32_t)param_1)) >> 0x20);
+  (*(uint32_t*)rtguest::G((uint32_t)0x01727b80 + 4)) = (int)((*(rt_u64u*)rtguest::G((uint32_t)param_1)) >> 0x20);
   if (iVar3 < 0) {
     iVar3 = (param_3 & 0xfffff800) + 0xffe;
   }
@@ -28,7 +29,7 @@ uint32_t cdReadEntryPart(uint32_t param_1, uint32_t param_2, uint32_t param_3, u
   }
   (*(uint32_t*)rtguest::G(0x1727b88)) = iVar2 >> 0xb;
   iVar3 = (*(uint32_t*)rtguest::G((uint32_t)0x01727b80 + 4)) + (iVar3 >> 0xb);
-  (*(uint64_t*)rtguest::G(0x1727b80)) = CONCAT44(iVar3,(int)(*(uint64_t*)rtguest::G((uint32_t)param_1)));
+  (*(rt_u64u*)rtguest::G(0x1727b80)) = CONCAT44(iVar3,(int)(*(rt_u64u*)rtguest::G((uint32_t)param_1)));
   (*(uint32_t*)rtguest::G(0x3356cc)) = 0x01727b80;
   (*(uint32_t*)rtguest::G(0x3356c8)) = (uint32_t)param_2;
   lVar1 = RT_CALLRA(0x20e2e8, guest::sceCdRead(iVar3,(*(uint32_t*)rtguest::G(0x1727b88)),param_2,0x333380));

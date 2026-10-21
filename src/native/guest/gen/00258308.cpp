@@ -6,11 +6,11 @@ namespace guest {
 
 uint32_t SndRpcPlayOrStop(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(112);
+    rtguest::allocFrame(20);  // guest frame gap (sp+0x0..0x13)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
   }
-    rtguest::allocFrame(20);  // guest frame gap (sp+0x0..0x13)
     uint32_t uStack_5c = rtguest::allocFrame(4);  // sp+0x14 (Ghidra entry-sp -0x5c, frame 0x70)
     uint32_t uStack_58 = rtguest::allocFrame(8);  // sp+0x18 (Ghidra entry-sp -0x58, frame 0x70)
     uint32_t uStack_50 = rtguest::allocFrame(8);  // sp+0x20 (Ghidra entry-sp -0x50, frame 0x70)

@@ -25,8 +25,7 @@ uint32_t __floatdisf(uint64_t param_1, ...) {
     uVar2 = RT_CALLRA(0x27b5ec, guest::dpadd(uVar2,0x41f0000000000000));
   }
   uVar1 = RT_CALLRA(0x27b5fc, guest::dpadd(uVar1,uVar2));
-  RT_CALLRA(0x27b608, guest::dptofp(uVar1));
-  return 0;
+  return RT_CALLRA(0x27b608, guest::dptofp(uVar1));  // MIPS 0x27b608: jal dptofp then jr ra (tail); float bits via $f0
 }
 
 

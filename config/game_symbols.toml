@@ -1394,6 +1394,31 @@
 0x002848C0 = { name = "_write_r", note = "newlib _write_r: clears errno 0x33573c, calls write 0x2854c0(fd,buf,cnt), and if the result is -1 and errno!=0 stores it in reent->_errno; returns the write count in v0. Sole caller __swrite 0x2847b8." }
 0x002849D8 = { name = "_close_r", note = "newlib _close_r: clears errno 0x33573c, calls sysClose 0x2855e0, copies errno into reent->_errno when the result is -1, and returns that result in v0. Sole caller __sclose 0x2848a0 (tail call)." }
 
+
+# --- Agent naming loop, verified wave 1 (2026-10-17): DeepSeek batch proposals; coordinator spot-verified (ELF string reads, pseudocode reads, pointer dereferences). [unclear] notes mark structural-only ids. ---
+0x002010A0 = { name = "uiKanaGlyphUvCase8176", note = "jump-table case 0x8176 of uiKanaGlyphUV(0x200FE8): *u=0, *v+=0xb4 (pseudocode lines 9-10)" }
+0x00201118 = { name = "uiKanaGlyphUvCase818b", note = "jump-table case 0x818b of uiKanaGlyphUV(0x200FE8): *u=0xc0, *v+=0x60 (pseudocode lines 9-10)" }
+0x00201130 = { name = "uiKanaGlyphUvCase8143", note = "case 0x8143 of uiKanaGlyphUV(0x200FE8): SJIS ranges split at 0x825f/0x829e/0x833f/0x8753, grid 0x19 wide, 0x14 px cells" }
+0x0021FE70 = { name = "drawFieldTilesCellLoop", note = "tail of drawFieldTiles(0x21FB38): 64-cell cellVisible->vifCallModel loop; slot==0xB adds a 26-model pass per visible cell" }
+0x002335A8 = { name = "setShadowConfigCaseSel2", note = "switch arm (caseD_fffffffe) of SetShadowConfig(0x233338): fills config block, asset 0x29fb88, 2.0f scale, life 0x1e" }
+0x00234524 = { name = "resetStateBlockEntryAlias", note = "entry 4 bytes before ResetStateBlock(0x234528) with identical pseudocode (memset 0x8cb0, init +0x80a4..0x80cc)" }
+0x0023C498 = { name = "setObjectAttributeCase1", note = "case 1 of SetObjectAttribute(0x23C418): sets/clears flag 0x400 in ushort obj+8 from table 0x2eca8a[id*0x1c] != 0" }
+0x0023C558 = { name = "setObjectAttrFlagGroup11", note = "case 0xb of SetObjectAttribute(0x23C418): obj+7=byte tbl 0x2f03f0[id*5]; obj+8=(obj+8&0xfcdb)|ushort tbl 0x2f03ec[id*0x14]" }
+0x00243540 = { name = "getPadPresetNameCase", note = "table arm near DispatchByIndex16: returns string ptr at 0x2ed5d0[idx*0x2c] (first entry s_Normal_Pad)" }
+0x00243730 = { name = "getPadPresetValueCase", note = "table arm near DispatchByIndex15: returns word at 0x2ed5d8[idx*0x2c], +8 of the Normal_Pad-style record" }
+0x002496C8 = { name = "drawRaceHudSkin0", note = "race HUD gauge skin 0 (table 0x2a8fb0 idx 0): tex 0x2a9008, boost gauge, gear, speedo digits, rank/time, tacho needle" }
+0x00249FA0 = { name = "drawRaceHudSkin1", note = "race HUD gauge skin 1 (table 0x2a8fb0 idx 1): tex 0x2a9050, gear, speedo digits, rotated tacho/boost/time/speed needles" }
+0x0024A6A8 = { name = "drawRaceHudSkin2", note = "race HUD gauge skin 2 (table 0x2a8fb0 idx 2): tex 0x2a9078, gear, 3 speedo digits, tacho sprites, transmission quad, boost bar" }
+0x0024AB38 = { name = "drawRaceHudSkin3", note = "race HUD gauge skin 3 (table 0x2a8fb0 idx 3): tex 0x2a9230, rank-0 banner via GetRaceTimeRank, boost gauge + rotated quads" }
+0x0024B3A0 = { name = "drawRaceHudSkin4", note = "race HUD gauge skin 4 (table 0x2a8fb0 idx 4): tex 0x2a9278, boost(0xf), tacho sprites, speedo digits, transmission mode" }
+0x0024BA78 = { name = "drawRaceHudSkin5", note = "race HUD gauge skin 5 (table 0x2a8fb0 idx 5): tex 0x2a9490, tacho(9), speedo digits, gear, transmission, boost(0xb)" }
+0x0024C320 = { name = "drawRaceHudSkin6", note = "race HUD gauge skin 6 (table 0x2a8fb0 idx 6): tex 0x2a9678, gear, boost, tacho, speedo digits, transmission mode" }
+0x0024CB70 = { name = "drawRaceHudSkin7", note = "race HUD gauge skin 7 (table 0x2a8fb0 idx 7): tex 0x2a9790, tacho, boost(0x10), speedo digits, gear, blink by frame>>3" }
+0x0024D3E0 = { name = "drawRaceHudSkin8", note = "race HUD gauge skin 8 (table 0x2a8fb0 idx 8): tex 0x2a9868, boost(0xd), speedo digits, gear, transmission, tacho(10)" }
+0x0024DA50 = { name = "drawRaceHudSkin9", note = "race HUD gauge skin 9 (table 0x2a8fb0 idx 9): tex 0x2a9ad0, speedo digits, gear, transmission, tacho(0xe), boost(0xd)" }
+0x00280400 = { name = "vfprintfZeroPadTail", note = "carved block inside _vfprintf_r(0x27f768): %g/%f zero-value tail, emits 0/. pieces via __sprint_r then resumes format scan" }
+0x00280800 = { name = "vfprintfPadLoopTail", note = "carved block inside _vfprintf_r(0x27f768): zero/space padding emit loop and width flush, then back to format scan" }
+
 [data]
 0x3356EC = { name = "vifPacketPtr", note = "write pointer of the VIF1 packet being built" }
 0x3356F0 = { name = "vifPacketSaved", note = "main-buffer pointer saved while the second buffer is built" }

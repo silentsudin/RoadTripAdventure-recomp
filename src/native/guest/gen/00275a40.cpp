@@ -28,7 +28,7 @@ rtguest::allocFrame(8);  // guest frame gap
   uint uVar4;
   int iVar5;
   int iVar6;
-  double dVar7;
+  uint64_t dVar7;  // pseudocode 0x275a40: double as bits; floor() takes bits
   long lVar8;
 uint32_t puVar9;
   int iVar10;
@@ -121,7 +121,7 @@ LAB_00275bc8:
     uVar21 = RT_CALLRA(0x275c54, guest::dpadd(uVar21,uVar11));
   }
   uVar21 = RT_CALLRA(0x275c6c, guest::scalbn(uVar21,(*(int32_t*)rtguest::G((uint32_t)iStack_70))));
-  dVar7 = (double)RT_CALLRA(0x275c84, guest::dpmul(uVar21,0x3fc0000000000000));
+  dVar7 = RT_CALLRA(0x275c84, guest::dpmul(uVar21,0x3fc0000000000000));
   dVar7 = RT_CALLRA(0x275c90, guest::floor(dVar7));
   uVar11 = RT_CALLRA(0x275ca4, guest::dpmul(dVar7,0x4020000000000000));
   uVar21 = dpsub(uVar21,uVar11);
@@ -321,7 +321,7 @@ LAB_00276234:
           uVar12 = (*(uint64_t*)rtguest::G((uint32_t)puVar15));
           puVar15 = puVar15 + 0x8;  // T* element step
           (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (uint32_t)lVar8;
-          (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint32_t)lVar8 >> 0x20);
+          (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = (uint32_t)((uint64_t)lVar8 >> 0x20);
           iVar14 = iVar14 + 1;
           uVar11 = RT_CALLRA(0x2761ec, guest::dpmul(uVar11,uVar12));
           uVar21 = RT_CALLRA(0x2761fc, guest::dpadd(uVar21,uVar11));

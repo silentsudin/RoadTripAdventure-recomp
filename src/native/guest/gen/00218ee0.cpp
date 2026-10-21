@@ -6,12 +6,12 @@ namespace guest {
 
 uint32_t AdvanceVehicleMotion(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, ...) {
   rtguest::FrameGuard rt_fg(224);
+    rtguest::allocFrame(4);  // guest frame gap (sp+0x0..0x3)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0xc8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xcc) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x30) = (uint32_t)(int32_t)param_1;
   }
-    rtguest::allocFrame(4);  // guest frame gap (sp+0x0..0x3)
     uint32_t iStack_dc = rtguest::allocFrame(4);  // sp+0x4 (Ghidra entry-sp -0xdc, frame 0xe0)
 rtguest::allocFrame(8);  // guest frame gap (sp+0x8..0xf)
 uint32_t auStack_d0 = rtguest::allocFrame(32);  // sp+0x10 (Ghidra entry-sp -0xd0, frame 0xe0)

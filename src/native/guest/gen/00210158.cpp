@@ -1,6 +1,7 @@
 // guest:0x00210158 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+typedef uint32_t rt_u32u __attribute__((aligned(1)));  // unaligned guest access: defined behavior, LE result unchanged
 
 namespace guest {
 
@@ -40,7 +41,7 @@ uint32_t puVar7;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_4 + 0x22))) != -1) {
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_4 + 0x54))) = 0x40;
   }
-  cVar2 = (*(uint32_t*)rtguest::G(0x2be486));
+  cVar2 = (*(rt_u32u*)rtguest::G(0x2be486));
   cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_4 + 0x23)));
   iVar3 = cVar1 * 8;
   if (cVar1 == '\0') {
@@ -65,7 +66,7 @@ uint32_t puVar7;
     RT_CALLRA(0x2102c8, guest::gs_tasks_spawn(param_3,0x20dc50,uVar9 | 0x370400));
   }
   else {
-    uVar9 = (uint32_t)(char)(*(uint32_t*)rtguest::G((uint32_t)0x2be43f + (uint32_t)(iVar3) * 4));
+    uVar9 = (uint32_t)(char)(*(rt_u32u*)rtguest::G((uint32_t)0x2be43f + (uint32_t)(iVar3) * 4));
     if (uVar9 != 0) {
       cVar2 = (*(uint8_t*)rtguest::G((uint32_t)0x2be43e + (uint32_t)(iVar3) * 1));
       lVar8 = 0;

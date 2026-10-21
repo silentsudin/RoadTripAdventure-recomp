@@ -693,7 +693,9 @@ bool gsScanoutRgba(std::vector<uint8_t>& out, uint32_t* outW, uint32_t* outH,
             }
             uint8_t* p = out.data() + (size_t(y) * w + x) * 4u;
             p[0] = r; p[1] = g; p[2] = b;
-            p[3] = uint8_t(a >= 0x80u ? 0xFFu : a * 2u);  // GS alpha 0..128 -> 0..255
+            // single-CRT presentation copies with preserveAlpha=false and then
+            // normalizePresentationAlpha forces 255 (gs_cpu_backend.cpp:1861,1969,415).
+            (void)a; p[3] = 0xFFu;
         }
     *outW = w; *outH = h;
     return true;

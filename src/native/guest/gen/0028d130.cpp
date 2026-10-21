@@ -19,8 +19,7 @@ uint32_t sceDeci2ExSend(uint32_t param_1, uint32_t param_2, uint32_t param_3, ..
   (*(uint32_t*)rtguest::G((uint32_t)uStack_18)) = param_3 & 0xffff;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_20)) = param_1;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_1c)) = param_2;
-  RT_CALLRA(0x28d150, guest::Deci2Call(0xfffffffffffffffa,uStack_20));
-  return 0;
+  return RT_CALLRA(0x28d150, guest::Deci2Call(0xfffffffffffffffa,uStack_20));  // MIPS 0x28d150: jal Deci2Call then jr ra (tail); $v0 passes through
 }
 
 

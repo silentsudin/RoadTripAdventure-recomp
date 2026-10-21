@@ -1,6 +1,7 @@
 // guest:0x00244988 transliterated from Ghidra pseudocode — DO NOT hand-edit
 #include "../guest_shim.h"
 #include "guest_decls.inc"
+typedef uint32_t rt_u32u __attribute__((aligned(1)));  // unaligned guest access: defined behavior, LE result unchanged
 
 namespace guest {
 
@@ -67,7 +68,7 @@ uint32_t auStack_80 = rtguest::allocFrame(64);
     else {
       (*(uint32_t*)rtguest::G(0x2a8b64)) = 0x1300;
     }
-    (*(uint32_t*)rtguest::G(0x2a8b66)) = (uint32_t)(iVar4 << 5);
+    (*(rt_u32u*)rtguest::G(0x2a8b66)) = (uint32_t)(iVar4 << 5);
     if (param_6 < 0x14) {
       (*(uint32_t*)rtguest::G(0x2a8b54)) = rtguest::f2bits((float)iVar4);
     }
@@ -79,7 +80,7 @@ uint32_t auStack_80 = rtguest::allocFrame(64);
     (*(uint32_t*)rtguest::G(0x2a8b54)) = 0;
     (*(float*)rtguest::G(0x2a8b60)) = 440.0;
     (*(uint32_t*)rtguest::G(0x2a8b64)) = 0x4000;
-    (*(uint32_t*)rtguest::G(0x2a8b66)) = 0;
+    (*(rt_u32u*)rtguest::G(0x2a8b66)) = 0;
   }
   if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
     RT_CALLRA(0x244cc4, guest::SetViewDistanceGlobals(rtguest::f2bits((float)(param_3 + 0x6c0)),rtguest::f2bits((float)((param_4 + param_5 / 2) / 2 + 0x790))));

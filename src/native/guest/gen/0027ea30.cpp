@@ -6,11 +6,11 @@ namespace guest {
 
 uint32_t printf(uint32_t __format, ...) {
   rtguest::FrameGuard rt_fg(112);
+    rtguest::allocFrame(56);  // guest frame gap (sp+0x0..0x37)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
   }
-    rtguest::allocFrame(56);  // guest frame gap (sp+0x0..0x37)
     uint32_t uStack_38 = rtguest::allocFrame(8);  // sp+0x38 (Ghidra entry-sp -0x38, frame 0x70)
     uint32_t uStack_30 = rtguest::allocFrame(8);  // sp+0x40 (Ghidra entry-sp -0x30, frame 0x70)
     uint32_t uStack_28 = rtguest::allocFrame(8);  // sp+0x48 (Ghidra entry-sp -0x28, frame 0x70)

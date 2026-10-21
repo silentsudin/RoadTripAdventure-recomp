@@ -384,7 +384,7 @@ LAB_0021bed8:
       uVar2 = (*(uint16_t*)rtguest::G((uint32_t)(iVar21 + 8)));
       goto LAB_0021c1b4;
     }
-    fVar25 = (float)RT_CALLRA(0x21c138, guest::GetSpeedFromF15Vector(pauVar23));
+    fVar25 = rtguest::fbits(RT_CALLRA(0x21c138, guest::GetSpeedFromF15Vector(pauVar23)));  // callee ends mul.s $f0 / jr ra (0x21d37c): float bits
     iVar21 = (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0x184)));
     if (fVar25 < 300.0f) {
       (*(uint16_t*)rtguest::G((uint32_t)(iVar21 + 8))) =
@@ -392,7 +392,7 @@ LAB_0021bed8:
     }
   }
   else {
-    fVar25 = (float)RT_CALLRA(0x21c17c, guest::GetSpeedFromF15Vector(pauVar23));
+    fVar25 = rtguest::fbits(RT_CALLRA(0x21c17c, guest::GetSpeedFromF15Vector(pauVar23)));  // callee ends mul.s $f0 / jr ra (0x21d37c): float bits
     iVar21 = (*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0x184)));
     if (300.0f < fVar25) {
       (*(uint16_t*)rtguest::G((uint32_t)(iVar21 + 8))) =

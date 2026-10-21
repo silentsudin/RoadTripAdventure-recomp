@@ -6,10 +6,10 @@ namespace guest {
 
 uint32_t SoundRpcGetStatus(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(128);
+    rtguest::allocFrame(20);  // guest frame gap (sp+0x0..0x13)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x10) = 0x00000001u;
   }
-    rtguest::allocFrame(20);  // guest frame gap (sp+0x0..0x13)
     uint32_t uStack_6c = rtguest::allocFrame(4);  // sp+0x14 (Ghidra entry-sp -0x6c, frame 0x80)
     uint32_t uStack_68 = rtguest::allocFrame(8);  // sp+0x18 (Ghidra entry-sp -0x68, frame 0x80)
     uint32_t uStack_60 = rtguest::allocFrame(8);  // sp+0x20 (Ghidra entry-sp -0x60, frame 0x80)

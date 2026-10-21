@@ -2,6 +2,7 @@
 #include "../guest_shim.h"
 #include "guest_decls.inc"
 #include "w13_float_args.h"
+typedef uint32_t rt_u32u __attribute__((aligned(1)));  // unaligned guest access: defined behavior, LE result unchanged
 
 namespace guest {
 
@@ -126,7 +127,7 @@ LAB_002107f4:
     if (0x34bc0 < iVar6) {
       (*(int32_t*)rtguest::G((uint32_t)piVar11)) = iVar6 + -0x34bbf;
     }
-    if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) & 0x1000) != 0) {
+    if (((*(rt_u32u*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5))) & 0x1000) != 0) {
       (*(int32_t*)rtguest::G(0x335730)) = (*(int32_t*)rtguest::G(0x335730)) + 1;
     }
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x24))) == '\0') {

@@ -56,11 +56,11 @@ uint32_t piVar12;
       lVar5 = RT_CALLRA(0x25dcd4, guest::__umoddi3(uVar4,0xa0));
       uVar6 = lVar5 + 0x2d0;
       if ((long)uVar6 < 0) {
-        fVar15 = (float)RT_CALLRA(0x25dce8, guest::__floatdisf(uVar6 & 1 | uVar6 >> 1));
+        fVar15 = rtguest::fbits(RT_CALLRA(0x25dce8, guest::__floatdisf(uVar6 & 1 | uVar6 >> 1)));
         (*(float*)rtguest::G((uint32_t)pfVar9)) = fVar15 + fVar15;
       }
       else {
-        fVar15 = (float)RT_CALLRA(0x25dcfc, guest::__floatdisf());
+        fVar15 = rtguest::fbits(RT_CALLRA(0x25dcfc, guest::__floatdisf(uVar6)));  // MIPS 0x25dcdc daddiu $4,$2,0x2d0 (= uVar6) feeds the jal directly
         (*(float*)rtguest::G((uint32_t)pfVar9)) = fVar15;
       }
       uVar4 = RT_CALLRA(0x25dd14, guest::__muldi3((*(uint64_t*)rtguest::G((uint32_t)param_2)),lVar13));
@@ -68,12 +68,12 @@ uint32_t piVar12;
       lVar5 = RT_CALLRA(0x25dd30, guest::__umoddi3(uVar4,0xa0));
       uVar6 = lVar5 + 0x2d0;
       if ((long)uVar6 < 0) {
-        fVar15 = (float)RT_CALLRA(0x25dd44, guest::__floatdisf(uVar6 & 1 | uVar6 >> 1));
+        fVar15 = rtguest::fbits(RT_CALLRA(0x25dd44, guest::__floatdisf(uVar6 & 1 | uVar6 >> 1)));
         fVar15 = fVar15 + fVar15;
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar9 + 0x21))) = (char)uVar14;
       }
       else {
-        fVar15 = (float)RT_CALLRA(0x25dd5c, guest::__floatdisf());
+        fVar15 = rtguest::fbits(RT_CALLRA(0x25dd5c, guest::__floatdisf(uVar6)));  // MIPS 0x25dd38 daddiu $4,$2,0x2d0 (= uVar6) feeds the jal directly
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar9 + 0x21))) = (char)uVar14;
       }
       uVar14 = uVar14 + 1;

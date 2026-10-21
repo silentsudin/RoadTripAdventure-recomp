@@ -6,11 +6,11 @@ namespace guest {
 
 uint32_t SoundRpcRegisterFiles(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(144);
+    rtguest::allocFrame(28);  // guest frame gap (sp+0x0..0x1b)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
   }
-    rtguest::allocFrame(28);  // guest frame gap (sp+0x0..0x1b)
     uint32_t uStack_74 = rtguest::allocFrame(4);  // sp+0x1c (Ghidra entry-sp -0x74, frame 0x90)
     uint32_t uStack_70 = rtguest::allocFrame(8);  // sp+0x20 (Ghidra entry-sp -0x70, frame 0x90)
     uint32_t uStack_68 = rtguest::allocFrame(8);  // sp+0x28 (Ghidra entry-sp -0x68, frame 0x90)

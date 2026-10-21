@@ -43,7 +43,7 @@ uint32_t pbVar5;
   lVar4 = RT_CALLRA(0x2091bc, guest::uiMenuRun(iVar6,param_2));
   if (lVar4 != 0) {
     if (lVar4 == -2) {
-      gs_tasks_kill(param_1);
+      RT_CALLRA(0x209408, guest::gs_tasks_kill(param_1));
       return 0;
     }
     if (lVar4 == -1) {

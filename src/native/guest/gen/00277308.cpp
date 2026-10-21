@@ -4,9 +4,9 @@
 
 namespace guest {
 
-uint32_t fabs(uint32_t __x, ...) {
+uint64_t fabs(uint64_t __x, ...) {  // double as bits (pseudocode 0x277308: double fabs(double))
   rtguest::FrameGuard rt_fg(0);
-  return (double)((uint32_t)__x & 0xffffffff | ((long)__x >> 0x20 & 0x7fffffffU) << 0x20);
+  return (uint64_t)((uint32_t)__x & 0xffffffff | ((long)__x >> 0x20 & 0x7fffffffU) << 0x20);
 }
 
 

@@ -29,8 +29,7 @@ uint32_t scalbnf(uint32_t param_1, uint32_t param_2, ...) {
     else {
       fVar2 = 1e+30;
     }
-    param_1 = (float)RT_CALLRA(0x277ba4, guest::copysignf(fVar2,param_1));
-    param_1 = param_1 * fVar2;
+    param_1 = rtguest::f2bits(rtguest::fbits(RT_CALLRA(0x277ba4, guest::copysignf(rtguest::f2bits(fVar2),param_1))) * fVar2);  // copysignf ends mtc1 $2,$f0 / jr ra (0x277c38): float bits; param_1 is a bits param
   }
   return param_1;
 }
