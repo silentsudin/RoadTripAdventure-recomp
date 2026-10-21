@@ -67,7 +67,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(96);
   }
   else {
     iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
-    lVar6 = RT_CALLRA(0x22cb7c, guest::uiMenuWindow(iVar4,param_2,auStack_a0));
+    lVar6 = (int32_t)RT_CALLRA(0x22cb7c, guest::uiMenuWindow(iVar4,param_2,auStack_a0));
     if (lVar6 != 0) {
       if (lVar6 == -2) {
         RT_CALLRA(0x22cbd0, guest::gs_tasks_kill(param_1));

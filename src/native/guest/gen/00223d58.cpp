@@ -23,9 +23,9 @@ uint32_t puVar3;
     puVar3 = 0x0172ff70 + iVar1;
     fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1)));
     if (0.0 < fVar5) {
-      if (7 < (int)(char)(*(uint32_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar4) * 4)) - 1U) goto switchD_00223df4_caseD_4;
+      if (7 < (int)(char)(*(uint8_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar4))) - 1U) goto switchD_00223df4_caseD_4;
       uVar2 = param_1 >> 2;
-      switch((*(uint32_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar4) * 4))) {
+      switch((*(uint8_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar4)))) {
       case 1:
         RT_CALLRA(0x223e18, guest::drawCarEffectB((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))),fVar5,uVar2 & 3,param_3,puVar3,1));
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) == 0) {
@@ -36,7 +36,7 @@ LAB_00223ee4:
           if (fVar6 - fVar5 < 0.0) {
             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1))) = 0;
 LAB_00223f04:
-            (*(uint32_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar4) * 4)) = 0;
+            (*(uint8_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar4))) = 0;
           }
 LAB_00223f0c:
           (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar1))) + 0.0625;
@@ -81,7 +81,7 @@ LAB_00223f0c:
             fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff74 + iVar1)));
             (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1))) = 0;
 LAB_00224004:
-            (*(uint32_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar4) * 4)) = 0;
+            (*(uint8_t*)rtguest::G((uint32_t)0x1730770 + (uint32_t)(iVar4))) = 0;
           }
           (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff74 + iVar1))) = fVar5 + 0.0625;
           (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff84 + iVar1))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff84 + iVar1))) + 0.0625;
@@ -92,7 +92,7 @@ LAB_00224004:
         if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) == 0) {
           RT_CALLRA(0x223f38, guest::AdvanceCarEffectSlot(iVar4));
           fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)((int)0x0172ff7c + iVar1)));
-          if ((*(uint32_t*)rtguest::G((uint32_t)0x17307f4 + (uint32_t)(iVar4 * 8) * 4)) != '\0') {
+          if ((*(uint8_t*)rtguest::G((uint32_t)0x17307f4 + (uint32_t)(iVar4 * 8))) != '\0') {
             (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x017307f0 + iVar4 * 8))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x017307f0 + iVar4 * 8))) + 1;
           }
         }

@@ -180,7 +180,7 @@ uint32_t puVar10;
   }
 LAB_00269460:
   cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xd)));
-  lVar9 = RT_CALLRA(0x269468, guest::uiMenuWindow(iVar13,param_2,0x2dc870));
+  lVar9 = (int32_t)RT_CALLRA(0x269468, guest::uiMenuWindow(iVar13,param_2,0x2dc870));
   if (lVar9 != -1) {
     if (cVar1 != (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xd)))) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x27))) = 0;

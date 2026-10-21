@@ -35,7 +35,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
   fVar1 = (*(float*)rtguest::G(0x333178));
   sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe)));
   (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = sVar2;
-  (*(float*)rtguest::G((uint32_t)fStack_7c)) = (float)(int)sVar2 * fVar1 * 3.0517578e-05;
+  (*(float*)rtguest::G((uint32_t)fStack_7c)) = (float)(int)sVar2 * fVar1 * 3.0517578e-05f;
   RT_CALLRA(0x260a90, guest::vu0UnitMatrix(auStack_70));
   RT_CALLRA(0x260aa0, guest::vu0RotMatrix(auStack_70,auStack_70,auStack_80));
   RT_CALLRA(0x260ab0, guest::vu0ApplyMatrix(auStack_a0,auStack_70,auStack_a0));

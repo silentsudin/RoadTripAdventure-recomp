@@ -88,7 +88,7 @@ LAB_0022a570:
         (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = 0;
         (*(float*)rtguest::G((uint32_t)fStack_68)) = rtguest::fdiv((float)(int)(*(int16_t*)rtguest::G((uint32_t)psVar8)), fVar11);
         RT_CALLRA(0x22a5a4, guest::vu0UnitMatrix(param_1));
-        RT_CALLRA(0x22a5d4, guest::vu0RotMatrixY((float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x8e))) * 3.0517578e-05 * (*(float*)rtguest::G(0x332de8)),param_1,
+        RT_CALLRA(0x22a5d4, guest::vu0RotMatrixY((float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x8e))) * 3.0517578e-05f * (*(float*)rtguest::G(0x332de8)),param_1,
                       param_1));
         RT_CALLRA(0x22a5e4, guest::vu0ApplyMatrix(uStack_70,param_1,uStack_70));
         RT_CALLRA(0x22a5f4, guest::vu0AddVector(iVar6 + 0x30,auStack_60,uStack_70));

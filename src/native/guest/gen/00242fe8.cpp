@@ -61,7 +61,7 @@ uint32_t psVar6;
       RT_CALLRA(0x243100, guest::vu0UnitMatrix(afStack_110));
       (*(float*)rtguest::G((uint32_t)afStack_110 + (uint32_t)(0) * 4)) = fVar9;
       (*(float*)rtguest::G((uint32_t)fStack_e8)) = fVar9;
-      RT_CALLRA(0x243118, guest::vu0RotMatrixY(fVar10 * 3.0517578e-05,afStack_110,afStack_110));
+      RT_CALLRA(0x243118, guest::vu0RotMatrixY(fVar10 * 3.0517578e-05f,afStack_110,afStack_110));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_e0)) = (*(uint32_t*)rtguest::G(0x177ace0));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_d8)) = (*(uint32_t*)rtguest::G(0x177ace8));
       RT_CALLRA(0x243130, guest::vifObjectMatrix(afStack_110));

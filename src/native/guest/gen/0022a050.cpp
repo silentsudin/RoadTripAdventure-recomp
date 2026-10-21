@@ -29,7 +29,7 @@ uint32_t RunConfirmDialogTask(uint32_t param_1, uint32_t param_2, ...) {
   else {
     RT_CALLRA(0x22a0f4, guest::DrawSaveSlotEntry(0x177f760,2,1));
     RT_CALLRA(0x22a104, guest::DrawSaveSlotEntry(0x1782ba8,10,2));
-    lVar2 = RT_CALLRA(0x22a110, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))),param_2));
+    lVar2 = (int32_t)RT_CALLRA(0x22a110, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))),param_2));
     if (lVar2 == 1) {
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;

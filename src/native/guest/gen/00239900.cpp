@@ -38,7 +38,7 @@ uint32_t ShowPlayerSelect(uint32_t param_1, uint32_t param_2, ...) {
     return 0;
   }
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28)));
-  lVar6 = RT_CALLRA(0x2399d0, guest::uiMenuRun(iVar2,param_2));
+  lVar6 = (int32_t)RT_CALLRA(0x2399d0, guest::uiMenuRun(iVar2,param_2));
   if (lVar6 == 0) {
     return 0;
   }

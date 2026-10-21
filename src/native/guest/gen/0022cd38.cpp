@@ -121,7 +121,7 @@ LAB_0022d0a8:
   RT_CALLRA(0x22d0a8, guest::drawModelAt177F358((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x20)))));
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) == '\x01') {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
-    lVar5 = RT_CALLRA(0x22d0c8, guest::uiMenuRun(iVar2,param_2));
+    lVar5 = (int32_t)RT_CALLRA(0x22d0c8, guest::uiMenuRun(iVar2,param_2));
     if (lVar5 != 0) {
       if (lVar5 == -2) {
         iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x18)));

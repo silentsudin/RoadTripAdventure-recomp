@@ -41,7 +41,7 @@ uint32_t ShowSequencedMessages(uint32_t param_1, uint32_t param_2, ...) {
   }
   else {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
-    lVar7 = RT_CALLRA(0x23982c, guest::uiMenuRun(iVar2,param_2));
+    lVar7 = (int32_t)RT_CALLRA(0x23982c, guest::uiMenuRun(iVar2,param_2));
     if (lVar7 != 0) {
       if (lVar7 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xb))) + -1;

@@ -54,7 +54,7 @@ uint32_t gs_options_sub_tasks_vibration(uint32_t param_1, uint32_t param_2, ...)
     else if (bVar2 == 4) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x51))) = bVar8 | 2;
     }
-    lVar6 = RT_CALLRA(0x208e28, guest::uiMenuRun(iVar3,param_2));
+    lVar6 = (int32_t)RT_CALLRA(0x208e28, guest::uiMenuRun(iVar3,param_2));
     if (lVar6 == 1) {
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd)));
       if (cVar1 == '\x01') {

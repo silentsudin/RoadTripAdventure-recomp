@@ -58,7 +58,7 @@ uint32_t debugMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   }
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x50))) = 0x8033cc66;
-  lVar4 = RT_CALLRA(0x26ba3c, guest::uiMenuRun(iVar2,param_2));
+  lVar4 = (int32_t)RT_CALLRA(0x26ba3c, guest::uiMenuRun(iVar2,param_2));
   if (lVar4 != 1) {
     return 0;
   }

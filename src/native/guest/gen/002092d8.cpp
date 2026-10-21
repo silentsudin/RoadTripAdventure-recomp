@@ -33,7 +33,7 @@ uint32_t gs_options_options_task(uint32_t param_1, uint32_t param_2, ...) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x24))) != '\0') {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xe))) & 0x7f;
     }
-    lVar4 = RT_CALLRA(0x2093d4, guest::uiMenuRun(iVar3,param_2));
+    lVar4 = (int32_t)RT_CALLRA(0x2093d4, guest::uiMenuRun(iVar3,param_2));
     if (lVar4 != 0) {
       if (lVar4 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd))) = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xb))) + -1;

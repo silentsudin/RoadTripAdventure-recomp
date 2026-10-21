@@ -57,7 +57,7 @@ uint32_t UpdateCarouselConfirmDialog(uint32_t param_1, uint32_t param_2, ...) {
       cVar5 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25)));
       if (cVar5 == '\0') {
         iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x28)));
-        lVar4 = RT_CALLRA(0x24849c, guest::uiMenuRun(iVar1,param_2));
+        lVar4 = (int32_t)RT_CALLRA(0x24849c, guest::uiMenuRun(iVar1,param_2));
         if (lVar4 == 1) {
           RT_CALLRA(0x2484c0, guest::gs_tasks_spawn(param_1,0x269e50,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd)))));
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 0x25))) = 1;

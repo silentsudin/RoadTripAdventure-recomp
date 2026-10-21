@@ -3,7 +3,7 @@
 // contiguous 16-byte fixed-point vectors (address-taken by callees) -> RAM slots.
 // CONCAT44(s>>0xf, s)==0/k==2 checks are direct comparisons on the short.
 // Ghidra double literals in float context render the guest single-precision
-// constants (0.0, 300.0, -3.0517578e-05 == -2^-15 exactly) -> float suffixes.
+// constants (0.0, 300.0, -3.0517578e-05f == -2^-15 exactly) -> float suffixes.
 #include "../guest_vu0.h"
 #include "guest_decls.inc"
 

@@ -50,7 +50,7 @@ uint32_t pcVar5;
   if (cVar1 == '\0') {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x50))) = 0x8033cc66;
-    lVar4 = RT_CALLRA(0x26ce64, guest::uiMenuRun(iVar2,param_2));
+    lVar4 = (int32_t)RT_CALLRA(0x26ce64, guest::uiMenuRun(iVar2,param_2));
     if (lVar4 == 1) {
       RT_CALLRA(0x26ce78, guest::PlayUiSound(0x1a));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 1;

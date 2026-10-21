@@ -13,6 +13,8 @@
 
 #include <ucontext.h>
 
+#include <cfenv>
+
 #include <algorithm>
 #include <csignal>
 #include <cstdio>
@@ -695,7 +697,20 @@ void wakeVSyncWaiters() {
 }  // namespace
 
 // ---- frame-loop driver ----
+// The oracle's EE thread runs its recompiled code in round-toward-zero mode
+// (ps2_ee_fpu_mode.h via EeScheduler::run); gen TU float add/sub/mul must round
+// the same way (W13: 1-ulp packet floats in the VIF buffers at 0x1730bf0/0x1750bf0).
+// ucontext saves MXCSR, so guest-thread contexts created under this guard run RZ
+// across swapcontext; every entry into guest code crosses one of these three drivers.
+namespace {
+struct EeRoundingGuard {
+    const int old = std::fegetround();
+    EeRoundingGuard() { std::fesetround(FE_TOWARDZERO); }
+    ~EeRoundingGuard() { std::fesetround(old); }
+};
+}  // namespace
 void kVblank() {
+    EeRoundingGuard eeRounding;
     g_micro += kVBlankPeriodUs;
     ++g_vsyncTick;
     if (g_bootPhasePending && g_vsyncTick >= kBootPhaseVblank) {
@@ -717,6 +732,7 @@ void kVblank() {
 int32_t kWaitVSync(int fixedResult) { return opWaitVSync(fixedResult); }
 
 void kPumpToIdle() {
+    EeRoundingGuard eeRounding;
     getcontext(&g_pump);
     for (;;) {
         for (const int id : g_retired) g_threads.erase(id);
@@ -752,6 +768,7 @@ uint32_t kThreadCount() { return (uint32_t)g_threads.size(); }
 uint32_t kSemaCount() { return (uint32_t)g_sem.size(); }
 
 void kBootMainThread(uint32_t entry, bool bootPhaseGate) {
+    EeRoundingGuard eeRounding;  // contexts created here must capture MXCSR=RZ
     kResetKernel();  // boot starts from a fresh kernel incl. the SIF boot-reg seed
     g_threads.erase(kMainThreadId);
     KThread t{};

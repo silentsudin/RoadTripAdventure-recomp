@@ -45,7 +45,7 @@ uint32_t auStack_80 = rtguest::allocFrame(96);
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x50))) = 0x8033cc66;
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x25)));
     }
-    if ((cVar1 == '\0') && (lVar4 = uiMenuWindow(iVar5,param_2,auStack_80), lVar4 != 0)) {
+    if ((cVar1 == '\0') && (lVar4 = (int32_t)uiMenuWindow(iVar5,param_2,auStack_80), lVar4 != 0)) {
       if (lVar4 == -1) {
         iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x18)));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x24))) = 1;

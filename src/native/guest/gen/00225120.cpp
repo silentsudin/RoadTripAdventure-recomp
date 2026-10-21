@@ -24,8 +24,9 @@ uint32_t puVar4;
   RT_CALLRA(0x22515c, guest::vifUploadAt16(0x177f5e0));
   RT_CALLRA(0x22516c, guest::vifDirect(0x29d3b0,4));
   puVar3 = 0x177ac50;
+    // W13 fix: puVar3 is undefined8* in fn/00225120.c:30,38,45,60 (puVar3 + 0x33/0x41/0x3f) => 8-byte stride (+0x198/+0x208/+0x1f8)
   do {
-    if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x33))) != 0) {
+    if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x33 * 8))) != 0) {
       if (iVar6 < 3) {
         if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x20e))) != 0) {
           RT_CALLRA(0x2251a4, guest::drawCarEffectA(puVar3,(*(int16_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x20e))),(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x194)))
@@ -38,29 +39,29 @@ uint32_t puVar4;
       }
       uVar2 = iVar1 >> 8 & 7;
       if (uVar2 == 1) {
-        if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) != 0) {
-          RT_CALLRA(0x22523c, guest::SpawnCarSmoke(puVar3,param_2,iVar5,puVar3 + 0x41,(int)puVar3 + 0x20c,param_1));
+        if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41 * 8))) != 0) {
+          RT_CALLRA(0x22523c, guest::SpawnCarSmoke(puVar3,param_2,iVar5,puVar3 + 0x41 * 8,(int)puVar3 + 0x20c,param_1));
         }
       }
       else if (uVar2 < 2) {
         if (uVar2 == 0) {
-          if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) != 0) {
-            RT_CALLRA(0x22520c, guest::SpawnCarDustPuffs(puVar3,param_2,iVar5,puVar3 + 0x41,(int)puVar3 + 0x20c));
+          if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41 * 8))) != 0) {
+            RT_CALLRA(0x22520c, guest::SpawnCarDustPuffs(puVar3,param_2,iVar5,puVar3 + 0x41 * 8,(int)puVar3 + 0x20c));
           }
         }
         else {
-          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) = 0;
+          (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41 * 8))) = 0;
         }
       }
       else if (uVar2 == 2) {
-        if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) != 0) {
-          RT_CALLRA(0x22526c, guest::SpawnCarSparks(puVar3,param_2,iVar5,puVar3 + 0x41,(int)puVar3 + 0x20c,param_1));
+        if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41 * 8))) != 0) {
+          RT_CALLRA(0x22526c, guest::SpawnCarSparks(puVar3,param_2,iVar5,puVar3 + 0x41 * 8,(int)puVar3 + 0x20c,param_1));
         }
       }
       else if (uVar2 == 6) {
-        if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) != 0) {
-          if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x3f))) & 0x40) == 0) {
-            RT_CALLRA(0x225334, guest::AdvanceCarEmitterStep((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x11c))),puVar3,param_2,iVar5,puVar3 + 0x41,
+        if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41 * 8))) != 0) {
+          if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x3f * 8))) & 0x40) == 0) {
+            RT_CALLRA(0x225334, guest::AdvanceCarEmitterStep((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar3 + 0x11c))),puVar3,param_2,iVar5,puVar3 + 0x41 * 8,
                        (int)puVar3 + 0x20c,param_1));
           }
           else {
@@ -78,7 +79,7 @@ uint32_t puVar4;
         }
       }
       else {
-        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41))) = 0;
+        (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar3 + 0x41 * 8))) = 0;
       }
     }
     iVar6 = iVar6 + 1;

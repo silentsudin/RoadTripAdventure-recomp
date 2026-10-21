@@ -69,7 +69,7 @@ uint32_t RunMenuNavigationTask(uint32_t param_1, uint32_t param_2, ...) {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x26))) = 0;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xe))) & 0x7f;
   }
-  lVar4 = RT_CALLRA(0x209f54, guest::uiMenuRun(iVar2,param_2));
+  lVar4 = (int32_t)RT_CALLRA(0x209f54, guest::uiMenuRun(iVar2,param_2));
   if (lVar4 != 1) {
     return 0;
   }

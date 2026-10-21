@@ -35,7 +35,7 @@ uint32_t pbVar4;
     }
   }
   iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
-  lVar3 = RT_CALLRA(0x208ffc, guest::uiMenuRun(iVar5,param_2));
+  lVar3 = (int32_t)RT_CALLRA(0x208ffc, guest::uiMenuRun(iVar5,param_2));
   if (lVar3 != 0) {
     if (lVar3 == -2) {
       gs_tasks_kill(param_1);

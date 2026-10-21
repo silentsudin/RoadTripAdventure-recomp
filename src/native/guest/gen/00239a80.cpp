@@ -66,7 +66,7 @@ uint32_t pbVar12;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x24))) != '\0') {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xe))) & 0x7f;
   }
-  lVar11 = RT_CALLRA(0x239c50, guest::uiMenuRun(iVar4,param_2));
+  lVar11 = (int32_t)RT_CALLRA(0x239c50, guest::uiMenuRun(iVar4,param_2));
   if (lVar11 == 0) {
     return 0;
   }

@@ -94,7 +94,7 @@ uint32_t puVar10;
   bVar8 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x25)));
   if ((bVar8 == 0) && (0x10 < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 8))))) {
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28)));
-    lVar6 = RT_CALLRA(0x2487bc, guest::uiMenuRun(iVar1,param_2));
+    lVar6 = (int32_t)RT_CALLRA(0x2487bc, guest::uiMenuRun(iVar1,param_2));
     bVar8 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd)));
     if (lVar6 == 1) {
       if ((char)bVar8 < '\x03') {

@@ -34,7 +34,7 @@ uint32_t pbVar5;
   else if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) == '\0') {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x50))) = 0x8033cc66;
-    lVar4 = RT_CALLRA(0x26b52c, guest::uiMenuRun(iVar2,param_2));
+    lVar4 = (int32_t)RT_CALLRA(0x26b52c, guest::uiMenuRun(iVar2,param_2));
     if (lVar4 == 1) {
       RT_CALLRA(0x26b540, guest::PlayUiSound(0x1a));
       RT_CALLRA(0x26b558, guest::gs_tasks_spawn(param_1,0x20f950,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) + 0x1c));

@@ -58,7 +58,7 @@ LAB_00260c44:
     iVar4 = iVar2;
   }
   RT_CALLRA(0x260cf8, guest::vu0ScaleVector(0,auStack_60,auStack_60));
-  (*(float*)rtguest::G((uint32_t)fStack_5c)) = (float)((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe))) + iVar4) * (*(float*)rtguest::G(0x333188)) * 3.0517578e-05;
+  (*(float*)rtguest::G((uint32_t)fStack_5c)) = (float)((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe))) + iVar4) * (*(float*)rtguest::G(0x333188)) * 3.0517578e-05f;
   RT_CALLRA(0x260d2c, guest::vu0UnitMatrix(auStack_a0));
   RT_CALLRA(0x260d3c, guest::vu0RotMatrix(auStack_a0,auStack_a0,auStack_60));
   RT_CALLRA(0x260d4c, guest::vu0ApplyMatrix(uStack_50,auStack_a0,uStack_50));

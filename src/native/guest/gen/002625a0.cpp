@@ -26,7 +26,7 @@ uint32_t psVar4;
     (*(int16_t*)rtguest::G((uint32_t)psVar4)) = 0x140 - (short)((int)((int)(*(int16_t*)rtguest::G((uint32_t)psVar4 + (uint32_t)(2) * sizeof(int16_t))) + (uint32_t)((uint32_t)(*(int16_t*)rtguest::G((uint32_t)psVar4 + (uint32_t)(2) * sizeof(int16_t))) >> 0xf)) >> 1);
   }
   else {
-    lVar2 = RT_CALLRA(0x262628, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))),param_2));
+    lVar2 = (int32_t)RT_CALLRA(0x262628, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))),param_2));
     if (lVar2 != 0) {
       RT_CALLRA(0x262638, guest::PlayUiSound(0x1a));
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));

@@ -220,7 +220,7 @@ LAB_0026c234:
       puVar11 = puVar11 + 1;
     } while (iVar14 < (int)(uint32_t)bVar1);
   }
-  lVar5 = RT_CALLRA(0x26c318, guest::uiMenuWindow(iVar2,param_2,auStack_440));
+  lVar5 = (int32_t)RT_CALLRA(0x26c318, guest::uiMenuWindow(iVar2,param_2,auStack_440));
   if (lVar5 == 0) {
     return 0;
   }

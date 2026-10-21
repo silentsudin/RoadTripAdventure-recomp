@@ -28,7 +28,7 @@ uint32_t confirmDialogTask(uint32_t param_1, uint32_t param_2, ...) {
   }
   else {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)));
-    lVar4 = RT_CALLRA(0x23bc24, guest::uiMenuRun(iVar2,param_2));
+    lVar4 = (int32_t)RT_CALLRA(0x23bc24, guest::uiMenuRun(iVar2,param_2));
     if (lVar4 != 0) {
       if (lVar4 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = 1;

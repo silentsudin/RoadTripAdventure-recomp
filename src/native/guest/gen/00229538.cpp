@@ -32,7 +32,7 @@ uint32_t ShowSaveCreateSpinner(uint32_t param_1, uint32_t param_2, ...) {
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 0;
       }
     }
-    lVar4 = RT_CALLRA(0x2296b8, guest::uiMenuRun(iVar1,param_2));
+    lVar4 = (int32_t)RT_CALLRA(0x2296b8, guest::uiMenuRun(iVar1,param_2));
     if (lVar4 == 1) {
       RT_CALLRA(0x2296d0, guest::PlayUiSound(0x1a));
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 1;

@@ -66,7 +66,7 @@ uint32_t piVar9;
   do {
     if ((*(int32_t*)rtguest::G((uint32_t)piVar7)) + iVar2 < (int)((*(float*)rtguest::G((uint32_t)pfVar5)) * 32768.0)) {
       uVar11 = uVar11 | 1 << (uVar10 & 0x1f);
-      (*(float*)rtguest::G((uint32_t)pfVar5)) = (float)(*(int32_t*)rtguest::G((uint32_t)piVar7)) * 3.0517578e-05;
+      (*(float*)rtguest::G((uint32_t)pfVar5)) = (float)(*(int32_t*)rtguest::G((uint32_t)piVar7)) * 3.0517578e-05f;
       if ((int)uVar10 < 5) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1c0))) = 0;
       }

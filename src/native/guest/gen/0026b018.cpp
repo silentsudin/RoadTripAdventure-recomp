@@ -42,7 +42,7 @@ uint32_t puVar2;
     }
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c))) = puVar2;
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xe))) = 0;
-    lVar4 = RT_CALLRA(0x26b0f4, guest::uiMenuRun(iVar5,param_2));
+    lVar4 = (int32_t)RT_CALLRA(0x26b0f4, guest::uiMenuRun(iVar5,param_2));
     if (lVar4 != 0) {
       if (lVar4 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xd))) = 0;

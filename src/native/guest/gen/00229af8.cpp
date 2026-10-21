@@ -128,7 +128,7 @@ LAB_00229cf4:
   if (bVar3 < 2) {
     return 0;
   }
-  lVar5 = RT_CALLRA(0x229ec0, guest::uiMenuRun(iVar1,param_2));
+  lVar5 = (int32_t)RT_CALLRA(0x229ec0, guest::uiMenuRun(iVar1,param_2));
   if (lVar5 != 1) {
     return 0;
   }

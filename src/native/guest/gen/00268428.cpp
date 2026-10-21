@@ -135,7 +135,7 @@ uint32_t psVar12;
              (short)((int)((int)(*(int16_t*)rtguest::G((uint32_t)psVar12 + (uint32_t)(2) * sizeof(int16_t))) + (uint32_t)((uint32_t)(*(int16_t*)rtguest::G((uint32_t)psVar12 + (uint32_t)(2) * sizeof(int16_t))) >> 0xf)) >> 1)) + 0x140;
   if (iVar11 != 0) {
     psVar12 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_70)) + 0x28)));
-    lVar5 = RT_CALLRA(0x268774, guest::uiMenuRun(psVar12,(*(uint32_t*)rtguest::G((uint32_t)uStack_6c))));
+    lVar5 = (int32_t)RT_CALLRA(0x268774, guest::uiMenuRun(psVar12,(*(uint32_t*)rtguest::G((uint32_t)uStack_6c))));
     if ((((*(uint32_t*)rtguest::G((uint32_t)uStack_60)) == 0) && (5 < uVar14)) && (uVar14 < 7)) {
       iVar11 = RT_CALLRA(0x2687a0, guest::CountDecimalDigits((*(uint32_t*)rtguest::G((uint32_t)uStack_64))));
       iVar3 = RT_CALLRA(0x2687bc, guest::uiTextWidth(0x0177fd9f + uVar13 * 0xd12));

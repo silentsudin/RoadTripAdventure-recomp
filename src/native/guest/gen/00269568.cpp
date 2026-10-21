@@ -94,7 +94,7 @@ uint32_t shopPartsBuyMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   }
 LAB_00269804:
   cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xd)));
-  lVar10 = RT_CALLRA(0x26980c, guest::uiMenuWindow(iVar13,param_2,0x2dc8e0));
+  lVar10 = (int32_t)RT_CALLRA(0x26980c, guest::uiMenuWindow(iVar13,param_2,0x2dc8e0));
   if (lVar10 != -1) {
     if (cVar1 != (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0xd)))) {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x27))) = 0;

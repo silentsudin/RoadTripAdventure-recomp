@@ -80,7 +80,7 @@ uint32_t UpdateCarouselSubMenu(uint32_t param_1, uint32_t param_2, ...) {
       }
     }
   }
-  lVar5 = RT_CALLRA(0x248d78, guest::uiMenuRun(iVar6,param_2));
+  lVar5 = (int32_t)RT_CALLRA(0x248d78, guest::uiMenuRun(iVar6,param_2));
   iVar8 = (int)param_2;
   if (lVar5 == 1) {
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0xd))) != '\x02') {

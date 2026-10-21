@@ -101,7 +101,7 @@ LAB_00209b18:
   iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar7 + 8)));
 LAB_00209b1c:
   if (iVar4 != 0) {
-    lVar6 = RT_CALLRA(0x209b24, guest::uiMenuRun(iVar3,param_2));
+    lVar6 = (int32_t)RT_CALLRA(0x209b24, guest::uiMenuRun(iVar3,param_2));
     if (lVar6 == 1) {
       RT_CALLRA(0x209b3c, guest::PlayUiSound(0x1a));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xd)));

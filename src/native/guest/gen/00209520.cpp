@@ -61,7 +61,7 @@ uint32_t titleNewGameContinue(uint32_t param_1, uint32_t param_2, ...) {
   }
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 8))) != 0) {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)));
-    lVar4 = RT_CALLRA(0x20971c, guest::uiMenuRun(iVar2,param_2));
+    lVar4 = (int32_t)RT_CALLRA(0x20971c, guest::uiMenuRun(iVar2,param_2));
     if (lVar4 == 1) {
       RT_CALLRA(0x209730, guest::PlayUiSound(0x1a));
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd)));

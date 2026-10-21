@@ -28,7 +28,7 @@ uint32_t DisplayMenuMessage(uint32_t param_1, uint32_t param_2, ...) {
   }
   else {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28)));
-    lVar5 = RT_CALLRA(0x2392e8, guest::uiMenuRun(iVar2,param_2));
+    lVar5 = (int32_t)RT_CALLRA(0x2392e8, guest::uiMenuRun(iVar2,param_2));
     if (lVar5 != 0) {
       if (lVar5 == -1) {
         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0xd))) = 1;

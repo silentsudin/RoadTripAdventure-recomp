@@ -56,7 +56,7 @@ uint32_t atanf(uint32_t param_1, ...) {
     }
     else {
       iVar1 = 3;
-      fVar5 = -1.0f / fVar6;
+      fVar5 = rtguest::fdiv(-1.0f, fVar6);  // div.s (round-nearest)
     }
   }
   fVar6 = fVar5 * fVar5;

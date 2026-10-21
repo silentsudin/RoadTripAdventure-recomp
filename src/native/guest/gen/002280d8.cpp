@@ -23,7 +23,7 @@ uint32_t pcVar6;
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 8))) != 0) {
     RT_CALLRA(0x228240, guest::DrawSaveSlotEntry(0x177f760 + ((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x1c))) & 0xf) * 0x689,4,0));
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
-    lVar5 = RT_CALLRA(0x228250, guest::uiMenuRun(iVar7,param_2));
+    lVar5 = (int32_t)RT_CALLRA(0x228250, guest::uiMenuRun(iVar7,param_2));
     if (lVar5 == 0) {
       return 0;
     }

@@ -45,7 +45,7 @@ uint32_t vu0DropShadowMatrix(uint32_t rt_bits_1, uint32_t rt_bits_2, uint32_t rt
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(7) * sizeof(float))) = 0.0;
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0xb) * sizeof(float))) = 0.0;
   fVar2 = param_1 * fVar3 + param_2 * fVar4 + param_3 * fVar5;
-  fVar1 = -1.0 / fVar2;
+  fVar1 = rtguest::fdiv(-1.0f, fVar2);  // W13 parity: fn/00273038.c `fVar1 = -1.0 / fVar2` is MIPS div.s (round-nearest), missed by rewrite_fdiv (flagged "0 / fVar2")
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0xf) * sizeof(float))) = fVar1 * -fVar2;
   (*(float*)rtguest::G((uint32_t)param_4)) = fVar1 * (param_1 * fVar3 - fVar2);
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(4) * sizeof(float))) = fVar1 * param_2 * fVar3;

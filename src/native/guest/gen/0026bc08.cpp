@@ -39,7 +39,7 @@ uint32_t pauseMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   else {
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xe))) = 0;
     if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x25))) == '\0') {
-      lVar3 = RT_CALLRA(0x26bce0, guest::uiMenuRun(iVar1,param_2));
+      lVar3 = (int32_t)RT_CALLRA(0x26bce0, guest::uiMenuRun(iVar1,param_2));
       if (lVar3 != 0) {
         if (lVar3 == -1) {
           (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0xd))) = 0;

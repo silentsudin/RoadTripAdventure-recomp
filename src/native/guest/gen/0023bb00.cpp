@@ -21,7 +21,7 @@ uint32_t ShowMessageAndWait(uint32_t param_1, uint32_t param_2, ...) {
     PlayUiSound(0x1e);
     return 0;
   }
-  lVar2 = RT_CALLRA(0x23bb48, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))),param_2));
+  lVar2 = (int32_t)RT_CALLRA(0x23bb48, guest::uiMenuRun((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))),param_2));
   if (lVar2 != 0) {
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x18)));
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x24))) = 1;
