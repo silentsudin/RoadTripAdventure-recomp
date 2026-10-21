@@ -16,6 +16,12 @@
 #include "guest_decls.inc"
 
 namespace guest {
+namespace {  // packet helpers are defined below (sceGsSetDefDBuffDc section)
+uint64_t makePmode(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+uint64_t makeDispFb(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+uint64_t makeLibgraphDisplay(uint32_t, uint32_t, uint32_t, uint32_t);
+uint64_t makeGiftagAplusD(uint32_t);
+}  // namespace
 
 #define RT_STUB_FN(addr, name)                                       \
     namespace { struct RtReg_##addr { RtReg_##addr() {               \
@@ -68,17 +74,40 @@ void gsEnvCensusDump() {
                  (unsigned long long)g_envCalls.syncV);
 }
 
-// ---- sceGsResetGraph (GS.cpp:833): GParam state; GS-reset packet is the
-// gs-sink deviation. Returns 0 (success path). ----
+// ---- sceGsResetGraph (GS.cpp:833): GParam state + the 128B GIF init packet
+// libgraph mallocs, writes and frees (mode==0 path). The freed block stays in
+// RAM (census class 0x17874e0). shortcut: the GIF kick itself is still the
+// gs-sink deviation (no PATH3 register-mode consumer); when one lands, feed
+// the packet through it like oracle processPendingTransfers. Returns 0. ----
 uint32_t sceGsResetGraph(uint32_t q0, uint32_t q1, uint32_t q2, uint32_t q3, ...) {
     ++g_envCalls.resetGraph;
-    g_gparam.interlace = (uint8_t)(q1 & 1u);
-    g_gparam.omode = (uint8_t)(q2 & 0xFFu);
-    g_gparam.ffmode = (uint8_t)(q3 & 1u);
-    g_gparam.version = 0x12;  // GS12 (oracle writeGsGParamToScratch)
-    // oracle writeGsGParamToScratch (Support.h:1953): 4-byte GParam at
-    // scratchpad 0x100; sceGszbufaddr (GS.cpp:1400) reads it back as u64.
-    std::memcpy(rtguest::kScratch + 0x100, &g_gparam, sizeof(g_gparam));
+    if (q0 == 0u) {  // oracle does all of this on the mode==0 (reset) path only
+        g_gparam.interlace = (uint8_t)(q1 & 1u);
+        g_gparam.omode = (uint8_t)(q2 & 0xFFu);
+        g_gparam.ffmode = (uint8_t)(q3 & 1u);
+        g_gparam.version = 0x12;  // GS12 (oracle writeGsGParamToScratch)
+        // oracle writeGsGParamToScratch (Support.h:1953): 4-byte GParam at
+        // scratchpad 0x100; sceGszbufaddr (GS.cpp:1400) reads it back as u64.
+        std::memcpy(rtguest::kScratch + 0x100, &g_gparam, sizeof(g_gparam));
+        // oracle GS.cpp:856-897: guestMalloc(128,16), GIFtag A+D x7 with
+        // PMODE/SMODE2/DISPFB x2/DISPLAY x2/BGCOL, then guestFree.
+        const uint32_t pktAddr = rtguest::kHeapAlloc(128u);
+        if (pktAddr != 0u) {
+            if (uint64_t* q = reinterpret_cast<uint64_t*>(rtguest::G(pktAddr))) {
+                const uint64_t pmode = makePmode(1u, 0u, 0u, 0u, 0u, 0x80u);
+                const uint64_t smode2 = (q1 & 1u) | ((q3 & 1u) << 1);
+                const uint64_t dispfb = makeDispFb(0u, 10u, 0u, 0u, 0u);
+                const uint64_t display = makeLibgraphDisplay(0u, 0u, 640u, 448u);
+                q[0] = makeGiftagAplusD(7u);
+                q[1] = 0xEull;   q[2] = pmode;   q[3] = 0x41ull;
+                q[4] = smode2;   q[5] = 0x42ull; q[6] = dispfb;
+                q[7] = 0x59ull;  q[8] = display; q[9] = 0x5Aull;
+                q[10] = dispfb;  q[11] = 0x5Bull; q[12] = display;
+                q[13] = 0x5Cull; q[14] = 0ull;   q[15] = 0x5Full;
+            }
+            rtguest::kHeapFree(pktAddr);  // oracle frees; contents stay in RAM
+        }
+    }
     return 0;
 }
 RT_STUB_FN(0x0026E250, guest::sceGsResetGraph)
@@ -116,8 +145,11 @@ uint32_t sceGsSetDefLoadImage(uint32_t imgAddr, uint32_t q1, uint32_t q2,
                               uint32_t q6, uint32_t q7, ...) {
     void* dst = rtguest::G(imgAddr);
     if (dst == rtguest::kScratch) return (uint32_t)-1;  // quarantine: bad addr
+    // Guest ABI is (img, vramAddr, vramWidth, psm, x, y, w, h): fn/0026e808.c
+    // switches size on param_4=psm and writes param_5/6 -> TRXPOS,
+    // param_7/8 -> TRXREG. q1..q3 = a1..a3, q4..q7 = t0..t3.
     GsImageMem img{};
-    setDefImage(img, q1, q2, q3, q4, q5, q6, q7);
+    setDefImage(img, q4, q5, q6, q7, q1, q2, q3);
     std::memcpy(dst, &img, sizeof(img));
     return 0;
 }

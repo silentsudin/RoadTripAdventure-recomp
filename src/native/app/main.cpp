@@ -682,16 +682,22 @@ rt::native::assets::NativeModel demoCar() {
 }
 int envFrames() { const char* value = std::getenv("RT_APP_FRAMES"); return value ? std::max(0, std::atoi(value)) : 0; }
 
-// Parses "vb:path,vb:path" (RT_RAM_DUMP, RT_NATIVE_GS_DUMP).
+// Parses "vb:path,vb:path" (RT_RAM_DUMP, RT_NATIVE_GS_DUMP). Keys must be bare
+// numbers: strtoull("vb1372") returns 0 silently, which dumped at VB0 (cycle-16).
 static std::vector<std::pair<uint64_t, std::string>> parseVbPaths(const char* e) {
     std::vector<std::pair<uint64_t, std::string>> v;
     for (const char* p = e; p && *p;) {
+        const char* key = p;
         const uint64_t vb = std::strtoull(p, nullptr, 10);
         p = strchr(p, ':');
         if (!p) break;
         ++p;
         const char* q = strchr(p, ',');
-        v.emplace_back(vb, q ? std::string(p, q) : std::string(p));
+        if (!(key[0] >= '0' && key[0] <= '9'))
+            std::fprintf(stderr, "[vbpaths] ignored '%.*s:' (vblank keys are bare numbers)\n",
+                         (int)(p - key - 1), key);
+        else
+            v.emplace_back(vb, q ? std::string(p, q) : std::string(p));
         p = q ? q + 1 : nullptr;  // past the comma: strtoull(",123") silently returned 0
     }
     return v;

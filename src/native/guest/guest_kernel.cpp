@@ -123,7 +123,7 @@ uint64_t g_micro = 0, g_vsyncTick = 0;
 bool g_bootPhasePending = false;
 uint32_t g_vsyncFlagAddr = 0, g_vsyncTickAddr = 0;
 std::vector<int> g_vsyncWaiters;  // WaitVSyncTick parks (Interrupt.cpp:78-82)
-uint32_t g_heapBase = 0, g_heapLimit = 0, g_heapBump = 0;
+uint32_t g_heapBase = 0, g_heapLimit = 0;
 uint32_t g_gsImr = 0, g_gsCrt[5] = {};
 uint64_t g_sifTransferId = 1;
 std::map<uint32_t, uint32_t> g_sifRegs;
@@ -326,15 +326,45 @@ void fireDueAlarms() {
         g_invoc.push_back(Invocation{a.handler, (uint32_t)a.id, a.ticks, a.argument});
 }
 
-// ---- heap (oracle SetupHeap/EndOfHeap + guestMalloc for stacks) ----
+// ---- heap (oracle guestMalloc model, ps2_runtime.cpp:2200: first-fit block
+// list, 16B align, free + coalesce). The bump-only version diverged after the
+// first guestFree (libgraph ResetGraph's GIF packet block, census 0x17874e0).
+// Limit stays under the frame arena; Road Trip's SetupHeap bounds it lower. ----
+struct HeapBlock { uint32_t addr, size; bool free; };
+std::vector<HeapBlock> g_heapBlocks;
+void heapReset(uint32_t base, uint32_t limit) {
+    g_heapBase = base; g_heapLimit = limit;
+    g_heapBlocks.clear();
+    if (limit > base) g_heapBlocks.push_back({base, limit - base, true});
+}
 uint32_t heapAlloc(uint32_t bytes) {
-    if (g_heapBump == 0) { g_heapBase = 0x01000000u; g_heapLimit = 0x01E00000u;
-                           g_heapBump = g_heapBase; }  // default region stays
-    bytes = (bytes + 15u) & ~15u;                       // below the frame arena
-    if (g_heapBump + bytes > g_heapLimit) return 0;
-    const uint32_t a = g_heapBump;
-    g_heapBump += bytes;
-    return a;
+    if (g_heapBlocks.empty())
+        heapReset(0x01000000u, 0x01E00000u);            // default region stays
+    bytes = (bytes + 15u) & ~15u;
+    if (bytes == 0) return 0;
+    for (size_t i = 0; i < g_heapBlocks.size(); ++i) {  // oracle first-fit order
+        const HeapBlock b = g_heapBlocks[i];
+        if (!b.free || b.size < bytes) continue;
+        const uint32_t prefix = b.size - bytes;
+        g_heapBlocks[i] = {b.addr, bytes, false};
+        if (prefix) g_heapBlocks.insert(g_heapBlocks.begin() + i + 1,
+                                        {b.addr + bytes, prefix, true});
+        return b.addr;
+    }
+    return 0;
+}
+void heapFree(uint32_t addr) {                          // oracle guestFree
+    const uint32_t a = addr & 0x01FFFFFFu;
+    for (auto& b : g_heapBlocks)
+        if (!b.free && b.addr == a) { b.free = true; break; }
+    for (size_t i = 1; i < g_heapBlocks.size();) {      // oracle coalesce
+        HeapBlock& p = g_heapBlocks[i - 1];
+        HeapBlock& c = g_heapBlocks[i];
+        if (p.free && c.free && p.addr + p.size == c.addr) {
+            p.size += c.size;
+            g_heapBlocks.erase(g_heapBlocks.begin() + (long)i);
+        } else ++i;
+    }
 }
 
 // ---- SifSetDma model: apply transfers now, fire dmac cause 5 (oracle) ----
@@ -810,7 +840,7 @@ void kResetKernel() {
     g_nextIrqId = 1; g_intcHead = 0; g_intcTail = 1000; g_dmacHead = 0;
     g_dmacTail = 1000; g_intcMask = 0; g_dmacMask = 0; g_inInterrupt = false;
     g_resched = false; g_micro = 0; g_vsyncTick = 0; g_vsyncFlagAddr = 0;
-    g_vsyncTickAddr = 0; g_heapBase = 0; g_heapLimit = 0; g_heapBump = 0;
+    g_vsyncTickAddr = 0; g_heapBase = 0; g_heapLimit = 0; g_heapBlocks.clear();
     g_gsImr = 0; g_sifTransferId = 1;
 }
 
@@ -819,6 +849,7 @@ void kResetKernel() {
 // Syscalls/RPC.cpp).
 int32_t kSignalSema(int id, bool intr) { return opSignalSema(id, intr); }
 uint32_t kHeapAlloc(uint32_t bytes) { return heapAlloc(bytes); }
+void kHeapFree(uint32_t addr) { heapFree(addr); }
 void kResetSifRegs() { seedSifRegs(); }
 void kSetCmdHandler(uint32_t cid, uint32_t fn, uint32_t arg) {
     g_sifCmdHandlers[cid] = {fn, arg};
@@ -894,7 +925,7 @@ int32_t syscall(uint64_t num, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3
             limit = cand < limit ? cand : limit;
         }
         if (limit <= base) limit = kDefaultHeapEnd;
-        g_heapBase = base; g_heapLimit = (uint32_t)limit; g_heapBump = base;
+        heapReset(base, (uint32_t)limit);
         return (int32_t)base;
     }
     case 0x3e: return (int32_t)(g_heapLimit ? g_heapLimit : kDefaultHeapEnd);

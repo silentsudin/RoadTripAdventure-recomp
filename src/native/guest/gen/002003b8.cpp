@@ -9,6 +9,11 @@ uint32_t gameMainLoop(uint32_t q0, ...) {
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0xa8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xac) = 0x00000000u;
+    // sd $s0..$s7,$fp, 0x60..0xa0($sp) (words ffb00060 ffb10068 ffb20070 ffb30078 ffb40080
+    // ffb50088 ffb60090 ffb70098 ffbe00a0 @0x2003bc..0x2003f4) spill the boot thread's entry
+    // registers: crt0 0x200008..0x2000a4 writes none of s0-s7/fp, so they hold the reset
+    // context's 0 (oracle R5900Context zero-init). This frame never pops, so the slots keep it.
+    for (uint32_t o = 0x60; o <= 0xa0; o += 8) *(uint64_t*)rtguest::G(rt_sv+o) = 0;
   }
 uint32_t auStack_b0 = rtguest::allocFrame(16);
     uint32_t uStack_a0 = rtguest::allocFrame(8);

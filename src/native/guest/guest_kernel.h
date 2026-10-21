@@ -46,6 +46,7 @@ void kResetKernel();
 // mirroring how the oracle's ps2_stubs/ps2_syscalls call EeScheduler ops.
 int32_t kSignalSema(int id, bool intr);
 uint32_t kHeapAlloc(uint32_t bytes);  // oracle guestMalloc region (RPC dummy servers)
+void kHeapFree(uint32_t addr);        // oracle guestFree (first-fit reuse + coalesce)
 void kResetSifRegs();                 // oracle seedDefaultSifRegsLocked
 void kSetCmdHandler(uint32_t cid, uint32_t fn, uint32_t arg);
 void kEraseCmdHandler(uint32_t cid);
