@@ -22,8 +22,8 @@ uint32_t sifRpcReplyHandler(uint32_t param_1, ...) {
       iVar2 = (int32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * 4));
       goto LAB_002879ec;
     }
-    rtCall((*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(7) * 4)),
-           (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(8) * 4)));
+    RT_CALLRA(0x002879c0, rtCall((*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(7) * 4)),
+           (*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(8) * 4))));
     puVar3 = (*(uint32_t*)rtguest::G((uint32_t)param_1 + 0x1c));
   }
   else if (uVar1 < 0x8000000b) {

@@ -35,7 +35,7 @@ uint32_t auStack_60 = rtguest::allocFrame(16);
     iVar16 = 0;
   }
   iVar14 = (*(uint32_t*)rtguest::G((uint32_t)param_5 + (uint32_t)(1) * sizeof(uint32_t)));
-  uVar3 = rtCall((*(uint32_t*)rtguest::G(0x3356d8)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1ff))), (*(uint32_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint32_t))), param_4, iVar13 + 0x22c, (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1d0))));
+  uVar3 = RT_CALLRA(0x0021a380, rtCall((*(uint32_t*)rtguest::G(0x3356d8)), (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1ff))), (*(uint32_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint32_t))), param_4, iVar13 + 0x22c, (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1d0)))));
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 0x1ff))) = uVar3;
   iVar15 = (*(uint32_t*)rtguest::G((uint32_t)param_3 + (uint32_t)(2) * sizeof(uint32_t)));
   if (iVar15 < 0) {

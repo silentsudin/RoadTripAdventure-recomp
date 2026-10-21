@@ -190,6 +190,10 @@ void setFrameFloor(uint32_t f) { g_frameFloor = f; }
 static uint32_t g_pendingRA = 0;
 uint32_t pendingRA() { return g_pendingRA; }
 void setPendingRA(uint32_t r) { g_pendingRA = r + 8u; }  // MIPS return = jal+8 (oracle stack residue: jal@0x2089c0 leaves ra 0x2089c8)
+// MIPS epilogue lw $ra, slot; jr $ra leaves $ra = the frame's entry RA: the
+// callee's return restores it, so later $ra saves read it back (town vb2681
+// camera-hold: oracle held 0x1667240, native moved while stale pendingRA leaked).
+void restorePendingRA(uint32_t ra) { g_pendingRA = ra; }
 
 void framePush(uint32_t size) {
     uint32_t base = g_frameTop - size;

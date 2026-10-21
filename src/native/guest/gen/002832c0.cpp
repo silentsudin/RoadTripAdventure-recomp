@@ -24,7 +24,7 @@ uint32_t piVar4;
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)piVar4 + (uint32_t)(2) * sizeof(int32_t)));
       while (iVar2 = iVar2 + -1, -1 < iVar2) {
         if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc))) != 0) {
-          uVar1 = rtCall(param_2, iVar3);
+          uVar1 = RT_CALLRA(0x0028330c, rtCall(param_2, iVar3));
           uVar5 = uVar5 | uVar1;
         }
         iVar3 = iVar3 + 0x58;

@@ -90,7 +90,7 @@ uint32_t puVar14;
     RT_CALLRA(0x21e880, guest::InitializeTask(param_1,0x21ed90,(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1c)))));
     pcVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0xc)));
 LAB_0021e8cc:
-    rtCall(pcVar3, param_1,param_2);
+    RT_CALLRA(0x0021e8cc, rtCall(pcVar3, param_1,param_2));
     return 0;
   }
   if ((((*(uint16_t*)rtguest::G((uint32_t)0x177ade8 + (uint32_t)(uVar13 * 0x138) * 2)) & 0x200) != 0) && (((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 10))) & 2) == 0)) {

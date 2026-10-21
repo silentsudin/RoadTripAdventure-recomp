@@ -65,12 +65,13 @@ uint32_t allocTaskFrameRegion(uint32_t capBytes);  // returns region end (top)
 // the oracle's saved-return-address residue in frame slots.
 uint32_t pendingRA();
 void setPendingRA(uint32_t r);
+void restorePendingRA(uint32_t ra);  // epilogue lw $ra: restore the frame's entry RA
 #define RT_CALLRA(pc, ...) (rtguest::setPendingRA(pc), (__VA_ARGS__))
 struct FrameGuard {
     uint32_t saved;
     uint32_t rtRA;  // guest return address of the call that entered this frame
     explicit FrameGuard(uint32_t size) : saved(frameTop()), rtRA(pendingRA()) { framePush(size); }
-    ~FrameGuard() { framePop(saved); }
+    ~FrameGuard() { restorePendingRA(rtRA); framePop(saved); }
 };
 
 // Guest float register bits as float, for float-typed callee params

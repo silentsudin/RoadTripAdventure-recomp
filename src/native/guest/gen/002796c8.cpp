@@ -25,23 +25,23 @@ LAB_0027971c:
     if (pcVar1 == (uint32_t)0x0) {
       return 0;
     }
-    rtCall(pcVar1);
+    RT_CALLRA(0x00279724, rtCall(pcVar1));
     return 0;
   case 0xb:
     if ((*(uint32_t*)rtguest::G(0x2e8990)) != (uint32_t)0x0) {
-      rtCall((*(uint32_t*)rtguest::G(0x2e8990)), 0, (*(uint32_t*)rtguest::G(0x2e899c)));
+      RT_CALLRA(0x00279748, rtCall((*(uint32_t*)rtguest::G(0x2e8990)), 0, (*(uint32_t*)rtguest::G(0x2e899c))));
       return 0;
     }
     break;
   case 0xc:
     if ((*(uint32_t*)rtguest::G(0x2e8994)) != (uint32_t)0x0) {
-      rtCall((*(uint32_t*)rtguest::G(0x2e8994)), 1, (*(uint32_t*)rtguest::G(0x2e89a0)));
+      RT_CALLRA(0x0027976c, rtCall((*(uint32_t*)rtguest::G(0x2e8994)), 1, (*(uint32_t*)rtguest::G(0x2e89a0))));
       return 0;
     }
     break;
   case 0xd:
     if ((*(uint32_t*)rtguest::G(0x2e8998)) != (uint32_t)0x0) {
-      rtCall((*(uint32_t*)rtguest::G(0x2e8998)), (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint32_t))), (*(uint32_t*)rtguest::G(0x2e89a4)));
+      RT_CALLRA(0x00279790, rtCall((*(uint32_t*)rtguest::G(0x2e8998)), (*(uint32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(uint32_t))), (*(uint32_t*)rtguest::G(0x2e89a4))));
     }
   }
   return 0;

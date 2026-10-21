@@ -41,7 +41,7 @@ uint32_t pcVar1;
   }
   pcVar1 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xc)));
 LAB_00269f28:
-  rtCall(pcVar1, param_1,param_2);
+  RT_CALLRA(0x00269f28, rtCall(pcVar1, param_1,param_2));
   return 0;
 }
 

@@ -34,7 +34,7 @@ uint32_t puVar8;
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 8))) == '\0') {
     puVar8 = (uint32_t)param_2;
     if (((*(uint64_t*)rtguest::G((uint32_t)puVar8 + (uint32_t)(5) * sizeof(uint64_t))) & 0x8000) == 0) {
-      rtCall((*(uint32_t*)rtguest::G(0x335710)), pfVar2, auStack_40, auStack_3c, 0, param_2);
+      RT_CALLRA(0x0025d834, rtCall((*(uint32_t*)rtguest::G(0x335710)), pfVar2, auStack_40, auStack_3c, 0, param_2));
       (*(float*)rtguest::G((uint32_t)pfVar2 + (uint32_t)(1) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar2 + (uint32_t)(1) * sizeof(float))) + 1.0;
       if (((uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 9))) - (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x2a)))) + 0x3ff < 0x7ff) {
         (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(pfVar2 + 9))) = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((int)pfVar2 + 0x2a)));

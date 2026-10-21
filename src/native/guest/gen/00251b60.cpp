@@ -335,7 +335,7 @@ LAB_00252384:
   RT_CALLRA(0x2523c4, guest::vu0CopyVectorXYZ(0x177eb40,iVar1 + 0x8d10));
   RT_CALLRA(0x2523d0, guest::vu0CopyVector(auStack_a0,iVar1 + 0x8d10));
   (*(uint32_t*)rtguest::G((uint32_t)apuStack_7c + (uint32_t)(0) * 4)) = (uint32_t)0x0;
-  lVar5 = rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_a0, auStack_80, apuStack_7c, 2, param_2);
+  lVar5 = RT_CALLRA(0x002523f0, rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_a0, auStack_80, apuStack_7c, 2, param_2));
   if (lVar5 != -1) {
     (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)apuStack_7c + (uint32_t)(0) * 4))));
     (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = (*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)apuStack_7c + (uint32_t)(0) * 4)) + (uint32_t)(1) * 4));

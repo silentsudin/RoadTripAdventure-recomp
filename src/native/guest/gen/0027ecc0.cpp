@@ -32,7 +32,7 @@ uint32_t puVar4;
     if (((pcVar1 != (uint32_t)0x0) && (uVar2 = 2, pcVar1 != (uint32_t)0xffffffff)) &&
        (uVar2 = 3, pcVar1 != (uint32_t)0x1)) {
       (*(uint32_t*)rtguest::G((uint32_t)puVar4)) = 0;
-      rtCall(pcVar1, param_2);
+      RT_CALLRA(0x0027ed38, rtCall(pcVar1, param_2));
       uVar2 = 0;
     }
   }

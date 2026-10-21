@@ -309,8 +309,8 @@ LAB_00218a10:
 LAB_00218a34:
     (*(uint32_t*)rtguest::G((uint32_t)(0x00177ace8 + iVar9))) = rtguest::f2bits(fVar20);
   }
-  rtCall((*(uint32_t*)rtguest::G(0x00335710)), 0x00177ace0 + iVar9, auStack_30, auStack_2c, 2,
-         param_2);
+  RT_CALLRA(0x00218a4c, rtCall((*(uint32_t*)rtguest::G(0x00335710)), 0x00177ace0 + iVar9, auStack_30, auStack_2c, 2,
+         param_2));
   uVar14 = (uint)(ushort)(*(int16_t*)rtguest::G((uint32_t)(0x00177ade8 + iVar9)));
   if ((((*(uint16_t*)rtguest::G((uint32_t)(0x00177ade8 + iVar9))) & 0x33) == 0) &&
       ((*(int8_t*)rtguest::G((uint32_t)(0x00177add0 + iVar9))) != '\0')) {

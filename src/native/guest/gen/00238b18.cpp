@@ -83,15 +83,15 @@ LAB_00238cc4:
     else {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x27))) = (char)uVar12;
       (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)pfVar10)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)pfVar11));
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177e9f8 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 2)));
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea00 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 4)));
-      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea08 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 6)));
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177e9f8 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 8)));  // pseudocode float* +2 (MIPS lwc1 8($s1) @0x238cd8)
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea00 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 16))); // float* +4 (0x238ce0)
+      (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea08 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 24))); // float* +6 (0x238ce8)
       uVar7 = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)pfVar11));
     }
     (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)pfVar10)) = uVar7;
-    (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177e9f8 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 2)));
-    (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea00 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 4)));
-    (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea08 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 6)));
+    (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177e9f8 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 8)));
+    (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea00 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 16)));
+    (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea08 + iVar9))) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(pfVar11 + 24)));
     fVar6 = (*(float*)rtguest::G(0x332e38));
     uVar12 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0177ea0c + iVar9)));
     if ((uVar12 & 2) != 0) {

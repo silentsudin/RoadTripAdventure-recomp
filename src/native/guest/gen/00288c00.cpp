@@ -7,8 +7,8 @@ namespace guest {
 uint32_t _sceFs_Poff_Intr(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(16);
   if ((*(uint32_t*)rtguest::G((uint32_t)param_2)) != 0) {
-    rtCall(*(uint32_t*)rtguest::G((uint32_t)param_2),
-           *(uint32_t*)rtguest::G((uint32_t)(param_2 + 4)));
+    RT_CALLRA(0x00288c10, rtCall(*(uint32_t*)rtguest::G((uint32_t)param_2),
+           *(uint32_t*)rtguest::G((uint32_t)(param_2 + 4))));
   }
   SYNC(0);
   EI();

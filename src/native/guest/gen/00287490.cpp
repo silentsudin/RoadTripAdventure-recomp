@@ -44,7 +44,7 @@ uint32_t pbVar8;
         puVar4 = (uint32_t)((*(uint32_t*)rtguest::G((uint32_t)uStack_88)) * 8 + (*(int32_t*)rtguest::G(0x1776ea4)));
         pcVar2 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar4));
         if (pcVar2 != (uint32_t)0x0) {
-          rtCall(pcVar2, auStack_90,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t))));
+          RT_CALLRA(0x00287558, rtCall(pcVar2, auStack_90,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t)))));
         }
       }
     }
@@ -52,7 +52,7 @@ uint32_t pbVar8;
       puVar4 = (uint32_t)((*(uint32_t*)rtguest::G((uint32_t)uStack_88)) * 8 + (*(uint32_t*)rtguest::G(0x1776eac)));
       pcVar2 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar4));
       if (pcVar2 != (uint32_t)0x0) {
-        rtCall(pcVar2, auStack_90,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t))));
+        RT_CALLRA(0x00287594, rtCall(pcVar2, auStack_90,(*(uint32_t*)rtguest::G((uint32_t)puVar4 + (uint32_t)(1) * sizeof(uint32_t)))));
       }
     }
     SYNC(0);

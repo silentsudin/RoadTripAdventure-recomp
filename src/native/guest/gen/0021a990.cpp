@@ -51,7 +51,7 @@ uint32_t puVar10;
       uVar8 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198)));
     }
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198))) = uVar8 | 0x400;
-    uVar13 = rtCall((*(uint32_t*)rtguest::G(0x3356dc)), param_2, param_3, uVar14, 0);
+    uVar13 = RT_CALLRA(0x0021aa64, rtCall((*(uint32_t*)rtguest::G(0x3356dc)), param_2, param_3, uVar14, 0));
     uVar13 = uVar13 & 0xfffffffffffffff7;
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x23c))) + 0x200;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x23c))) = iVar3;
@@ -71,7 +71,7 @@ LAB_0021aa98:
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198))) = uVar8;
     if ((uVar2 & 0x33) == 0) {
       if ((uVar2 & 0x80) != 0) {
-        uVar13 = rtCall((*(uint32_t*)rtguest::G(0x3356dc)), param_2, param_3, uVar14, 0);
+        uVar13 = RT_CALLRA(0x0021ab74, rtCall((*(uint32_t*)rtguest::G(0x3356dc)), param_2, param_3, uVar14, 0));
         uVar11 = (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar12 + 0x198)));
       }
       goto LAB_0021ac54;
@@ -89,7 +89,7 @@ LAB_0021aa98:
         if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0xb))) == '\0') {
           uVar9 = uVar8 & 0x30;
         }
-        uVar13 = rtCall((*(uint32_t*)rtguest::G(0x3356dc)), param_2, param_3, uVar14, uVar9);
+        uVar13 = RT_CALLRA(0x0021ac38, rtCall((*(uint32_t*)rtguest::G(0x3356dc)), param_2, param_3, uVar14, uVar9));
         uVar5 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28)));
       }
     }

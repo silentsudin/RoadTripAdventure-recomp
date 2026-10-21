@@ -79,7 +79,7 @@ LAB_002830a0:
               iVar4 = (*(int32_t*)rtguest::G(param_1)) + iVar6;
               goto LAB_002830f4;
             }
-            uVar12 = rtCall((*(uint32_t*)rtguest::G(param_1 + 0x24)),(*(uint32_t*)rtguest::G(param_1 + 0x1c)),unaff_s3_lo,(long)(int)pcVar9);
+            uVar12 = RT_CALLRA(0x00282f98, rtCall((*(uint32_t*)rtguest::G(param_1 + 0x24)),(*(uint32_t*)rtguest::G(param_1 + 0x1c)),unaff_s3_lo,(long)(int)pcVar9));
             if ((long)uVar12 < 1) {
               uVar8 = (*(uint16_t*)rtguest::G(param_1 + 0xc));
               goto LAB_00283288;
@@ -159,7 +159,7 @@ LAB_002830f4:
             __n = uVar12;
           }
           else {
-            __n = rtCall((*(uint32_t*)rtguest::G(param_1 + 0x24)),(*(uint32_t*)rtguest::G(param_1 + 0x1c)),unaff_s3_lo,(long)(int)pcVar2);
+            __n = RT_CALLRA(0x002830b8, rtCall((*(uint32_t*)rtguest::G(param_1 + 0x24)),(*(uint32_t*)rtguest::G(param_1 + 0x1c)),unaff_s3_lo,(long)(int)pcVar2));
             unaff_s5 = (ulong)(iVar6 - (int)__n);
             if ((long)__n < 1) {
               uVar8 = (*(uint16_t*)rtguest::G(param_1 + 0xc));
@@ -197,7 +197,7 @@ LAB_002830f4:
         if (__n_00 < 0x401) {
           uVar12 = __n_00;
         }
-        lVar7 = (long)rtCall((*(uint32_t*)rtguest::G(param_1 + 0x24)),(*(uint32_t*)rtguest::G(param_1 + 0x1c)),unaff_s3_lo,uVar12);
+        lVar7 = (long)RT_CALLRA(0x00283204, rtCall((*(uint32_t*)rtguest::G(param_1 + 0x24)),(*(uint32_t*)rtguest::G(param_1 + 0x1c)),unaff_s3_lo,uVar12));
         if (lVar7 < 1) {
           uVar8 = (*(uint16_t*)rtguest::G(param_1 + 0xc));
 LAB_00283288:

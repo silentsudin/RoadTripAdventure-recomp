@@ -60,7 +60,7 @@ LAB_002413d4:
         lVar2 = RT_CALLRA(0x241434, guest::tileSlotLoaded(param_2,(*(uint32_t*)rtguest::G((uint32_t)puVar7))));
         if (lVar2 != 0) {
           // MIPS 0x241448: lw $v0,4($s1); jalr $v0 — table holds the handler directly; Ghidra's code** model double-derefs
-          rtCall((*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(1) * sizeof(uint32_t))), param_1, param_2);
+          RT_CALLRA(0x0024144c, rtCall((*(uint32_t*)rtguest::G((uint32_t)puVar7 + (uint32_t)(1) * sizeof(uint32_t))), param_1, param_2));
         }
         iVar6 = iVar6 + -1;
         puVar7 = puVar7 + 0x8;  // T* element step

@@ -54,7 +54,7 @@ uint32_t fflush(uint32_t __stream, ...) {
       }
       (*(uint32_t*)rtguest::G(__stream + 8)) = pcVar6;
       while (0 < iVar3) {
-        lVar4 = (long)rtCall((*(uint32_t*)rtguest::G(__stream + 0x24)),(*(uint32_t*)rtguest::G(__stream + 0x1c)),pcVar7,iVar3);
+        lVar4 = (long)RT_CALLRA(0x0028279c, rtCall((*(uint32_t*)rtguest::G(__stream + 0x24)),(*(uint32_t*)rtguest::G(__stream + 0x1c)),pcVar7,iVar3));
         iVar3 = iVar3 - (int)lVar4;
         if (lVar4 < 1) {
           (*(uint16_t*)rtguest::G(__stream + 0xc)) = (*(uint16_t*)rtguest::G(__stream + 0xc)) | 0x40;

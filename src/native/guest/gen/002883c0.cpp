@@ -20,7 +20,7 @@ uint32_t sceSifExecRequest(uint32_t param_1, ...) {
 uint32_t aiStack_80 = rtguest::allocFrame(32);
   
   iVar5 = 0;
-  lVar2 = rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4))))), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24))), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))));
+  lVar2 = RT_CALLRA(0x002883f0, rtCall((*(uint32_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 4))))), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x24))), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))), (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc)))));
   if (lVar2 != 0) {
     iVar5 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x2c)));
   }

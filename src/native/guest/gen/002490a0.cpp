@@ -41,7 +41,7 @@ uint32_t puVar7;
             uVar3 = (uint32_t)(*(int8_t*)rtguest::G((uint32_t)pbVar6));
           }
           // MIPS 0x2491b4: lw table[idx]; jalr $v1 — single deref; Ghidra's code** model double-derefs
-          rtCall((*(uint32_t*)rtguest::G((uint32_t)(0x2a8fb0u + (uint32_t)(uVar3) * 4))), param_1, param_2, puVar7, bVar2, iVar5, (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)piVar4)) + 8))) >> 0xc & 1, uVar8);
+          RT_CALLRA(0x002491b4, rtCall((*(uint32_t*)rtguest::G((uint32_t)(0x2a8fb0u + (uint32_t)(uVar3) * 4))), param_1, param_2, puVar7, bVar2, iVar5, (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)piVar4)) + 8))) >> 0xc & 1, uVar8));
         }
         iVar5 = iVar5 + 1;
         puVar7 = puVar7 + 0x1010;

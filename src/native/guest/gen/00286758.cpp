@@ -18,7 +18,7 @@ uint32_t fpFormatFloatSci(uint64_t param_1, ...) {
   lVar1 = dpcmp(param_1,0);
   if (lVar1 < 0) {
     param_1 = RT_CALLRA(0x286788, guest::dpsub(0,param_1));
-    rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x2d);  // PTR_ global holds the sink fn address
+    RT_CALLRA(0x0028679c, rtCall((*(uint32_t*)rtguest::G(0x002e98f8)), 0x2d));  // PTR_ global holds the sink fn address
   }
   lVar1 = dpcmp(param_1,0x3fb999999999999a);
   if (lVar1 < 0) {

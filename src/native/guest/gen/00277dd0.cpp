@@ -23,7 +23,7 @@ uint32_t _Cdvd_cbLoop(uint32_t q0, ...) {
       RT_CALLRA(0x277e5c, guest::scePrintf(0x331ba0,(*(uint32_t*)rtguest::G(0x1773580)),(*(uint32_t*)rtguest::G(0x2e6f58))));
     }
     if (((*(uint32_t*)rtguest::G(0x1773580)) != (uint32_t)0x0) && ((*(uint32_t*)rtguest::G(0x2e6f58)) != 0)) {
-      rtCall((*(uint32_t*)rtguest::G(0x1773580)), (*(uint32_t*)rtguest::G(0x2e6f58)));
+      RT_CALLRA(0x00277e7c, rtCall((*(uint32_t*)rtguest::G(0x1773580)), (*(uint32_t*)rtguest::G(0x2e6f58))));
     }
     (*(uint32_t*)rtguest::G(0x2e6f30)) = 0;
   } while( true );

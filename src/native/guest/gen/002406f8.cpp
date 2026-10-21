@@ -33,7 +33,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) = 1;
   }
   RT_CALLRA(0x240758, guest::vu0CopyVector(auStack_60,0x2a2bc0));
-  rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_60, auStack_50, auStack_4c, 3, param_2);
+  RT_CALLRA(0x00240774, rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_60, auStack_50, auStack_4c, 3, param_2));
   if ((*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x27))) == '\0') {
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x20))) + 1;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x20))) = iVar2;
@@ -99,7 +99,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     if (bVar1 == 0) {
       (*(float*)rtguest::G(0x2a2bc8)) = (*(float*)rtguest::G(0x2a2bc8)) + (*(float*)rtguest::G(0x332ecc));
       RT_CALLRA(0x240a0c, guest::vu0CopyVector(auStack_60,0x2a2bc0));
-      lVar3 = rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_60, auStack_50, auStack_4c, 3, param_2);
+      lVar3 = RT_CALLRA(0x00240a28, rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_60, auStack_50, auStack_4c, 3, param_2));
       if (lVar3 == 0x100651) {
         bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26)));
       }
@@ -116,7 +116,7 @@ uint32_t auStack_4c = rtguest::allocFrame(12);
     if (bVar1 == 1) {
       (*(float*)rtguest::G(0x2a2bc8)) = (*(float*)rtguest::G(0x2a2bc8)) - (*(float*)rtguest::G(0x332ed0));
       RT_CALLRA(0x240a9c, guest::vu0CopyVector(auStack_60,0x2a2bc0));
-      lVar3 = rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_60, auStack_50, auStack_4c, 3, param_2);
+      lVar3 = RT_CALLRA(0x00240ab8, rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_60, auStack_50, auStack_4c, 3, param_2));
       if ((lVar3 != 0x100651) && (lVar3 != 0x101651)) {
         (*(float*)rtguest::G(0x2a2bc8)) = (*(float*)rtguest::G(0x2a2bc8)) + fVar6;
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x26))) ^ 1;

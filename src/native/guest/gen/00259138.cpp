@@ -79,7 +79,7 @@ LAB_00259274:
                       (*(float*)rtguest::G((uint32_t)fStack_80)) = (fVar10 + fVar11) * 0.5;
                       (*(float*)rtguest::G((uint32_t)fStack_7c)) = -20.0;
                       (*(float*)rtguest::G((uint32_t)fStack_78)) = ((*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(5) * sizeof(float))) + (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(7) * sizeof(float)))) * 0.5;
-                      rtCall((*(uint32_t*)rtguest::G(0x335710)), fStack_80, auStack_70, auStack_6c, (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x54))) & 3, param_2);
+                      RT_CALLRA(0x00259398, rtCall((*(uint32_t*)rtguest::G(0x335710)), fStack_80, auStack_70, auStack_6c, (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x54))) & 3, param_2));
                       if ((*(float*)rtguest::G(0x177ace4)) < (*(float*)rtguest::G((uint32_t)fStack_7c)) + 1.0) {
                         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x23))) = (char)uVar6;
                         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x21))) = (char)lVar7;

@@ -58,7 +58,7 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
       }
     }
     else if (bVar2 == 2) {
-      rtCall((*(uint32_t*)rtguest::G(0x335710)), puVar3, auStack_40, auStack_3c, 0, param_2);
+      RT_CALLRA(0x0025e084, rtCall((*(uint32_t*)rtguest::G(0x335710)), puVar3, auStack_40, auStack_3c, 0, param_2));
       // float domain (lwc1/swc1, disasm 0x25e0c8-0x25e0f8; fn:56-57)
       fVar13 = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(1) * sizeof(uint32_t))) + rtguest::fbits(*(uint32_t*)rtguest::G(0x3330f8));
       bVar4 = rtguest::fbits(*(uint32_t*)rtguest::G((uint32_t)puVar3 + (uint32_t)(2) * sizeof(uint32_t))) - rtguest::fbits(*(uint32_t*)rtguest::G(0x3330f4)) < rtguest::fbits(*(uint32_t*)rtguest::G(0x3330fc));

@@ -44,8 +44,8 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x94))) = 0xc1a00000;
     (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x1d4))) = (short)(int)(fVar7 - 16384.0);
     (*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x98))) = (fVar6 + fVar8) * 0.5;
-    rtCall(pcVar3, param_2 + 0x90,auStack_40,auStack_3c,
-              (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x23))) * 8))) & 3,param_1);
+    RT_CALLRA(0x002183f8, rtCall(pcVar3, param_2 + 0x90,auStack_40,auStack_3c,
+              (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x23))) * 8))) & 3,param_1));
   }
   uVar4 = (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(0x002be43c + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x23))) * 8)));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0xa0))) = (uVar4 & 0xf) << 0x18;

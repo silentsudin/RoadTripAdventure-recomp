@@ -53,7 +53,7 @@ uint32_t puVar2;
   RT_CALLRA(0x251488, guest::vu0AddVector(iVar4,iVar4,param_1 + 0x70));
   RT_CALLRA(0x251494, guest::vu0CopyVector(auStack_120,iVar4));
   (*(uint32_t*)rtguest::G((uint32_t)apuStack_6c + (uint32_t)(0) * 4)) = (uint32_t)0x0;
-  uVar3 = rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_120, auStack_70, apuStack_6c, 2, param_2);
+  uVar3 = RT_CALLRA(0x002514b4, rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_120, auStack_70, apuStack_6c, 2, param_2));
   if ((*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 100))) < (*(float*)rtguest::G((uint32_t)fStack_114))) {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x90))) == 0) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x90))) = 1;
@@ -170,7 +170,7 @@ LAB_0025186c:
 LAB_00251920:
   RT_CALLRA(0x25192c, guest::vu0ScaleVector(0,afStack_b0,afStack_b0));
   pfVar1 = (uint32_t)(param_1 + 0x70);
-  for ((*(float*)rtguest::G((uint32_t)fStack_a8)) = -(*(float*)rtguest::G((uint32_t)pfVar1)) / (*(float*)rtguest::G(0x333000)); (*(float*)rtguest::G((uint32_t)fStack_a8)) < (*(float*)rtguest::G(0x333004));
+  for ((*(float*)rtguest::G((uint32_t)fStack_a8)) = rtguest::fdiv(-(*(float*)rtguest::G((uint32_t)pfVar1)), (*(float*)rtguest::G(0x333000))); (*(float*)rtguest::G((uint32_t)fStack_a8)) < (*(float*)rtguest::G(0x333004));
       (*(float*)rtguest::G((uint32_t)fStack_a8)) = (*(float*)rtguest::G((uint32_t)fStack_a8)) + (*(float*)rtguest::G(0x333008))) {
   }
   if ((*(float*)rtguest::G(0x33300c)) < (*(float*)rtguest::G((uint32_t)fStack_a8))) {

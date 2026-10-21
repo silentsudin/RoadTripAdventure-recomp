@@ -82,7 +82,7 @@ uint32_t pfVar11;
     RT_CALLRA(0x21b538, guest::vu0AddVector(pfVar7,pfVar7,fStack_d0));
     iVar6 = uVar9 * 4;
     (*(int32_t*)rtguest::G((uint32_t)aiStack_f0 + (uint32_t)(uVar9) * 4)) = (int)((*(float*)rtguest::G((uint32_t)pfVar7 + (uint32_t)(1) * sizeof(float))) * 32768.0);
-    lVar3 = rtCall((*(uint32_t*)rtguest::G(0x335710)), pfVar7, auStack_110 + iVar6, auStack_90, (*(int32_t*)rtguest::G((uint32_t)iStack_78)), param_1);
+    lVar3 = RT_CALLRA(0x0021b570, rtCall((*(uint32_t*)rtguest::G(0x335710)), pfVar7, auStack_110 + iVar6, auStack_90, (*(int32_t*)rtguest::G((uint32_t)iStack_78)), param_1));
     uVar2 = uVar9 & 0x1f;
     uVar9 = uVar9 + 1;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + (*(int32_t*)rtguest::G((uint32_t)iStack_7c))))) = (int)lVar3;

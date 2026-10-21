@@ -42,7 +42,7 @@ uint32_t puVar6;
       }
       else {
         (*(uint32_t*)rtguest::G((uint32_t)puVar5)) = 0;
-        rtCall(pcVar1, param_2);
+        RT_CALLRA(0x0027eca0, rtCall(pcVar1, param_2));
         uVar2 = 0;
       }
     }

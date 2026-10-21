@@ -55,7 +55,7 @@ uint32_t puVar9;
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8)));
     if (iVar7 == 1) {
       RT_CALLRA(0x264038, guest::vu0CopyVector(auStack_60,0x177ace0));
-      rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_60, auStack_50, auStack_4c, 0, param_2);
+      RT_CALLRA(0x00264054, rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_60, auStack_50, auStack_4c, 0, param_2));
       bVar3 = (*(float*)rtguest::G(0x177ace4)) <= (*(float*)rtguest::G((uint32_t)fStack_5c));
       (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) = (int)((*(float*)rtguest::G(0x3331e4)) - (*(float*)rtguest::G(0x177ace8)));
       if (bVar3) {

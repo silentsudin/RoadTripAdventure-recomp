@@ -37,7 +37,7 @@ uint32_t puVar5;
     while( true ) {
       puVar5 = puVar5 + -1;
       iVar6 = iVar6 + -1;
-      rtCall(pcVar3);
+      RT_CALLRA(0x0027b74c, rtCall(pcVar3));
       if (iVar6 == 0) break;
       pcVar3 = (uint32_t)(*(uint32_t*)rtguest::G((uint32_t)puVar5));
     }
