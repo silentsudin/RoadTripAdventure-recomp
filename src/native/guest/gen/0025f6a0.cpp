@@ -45,14 +45,14 @@ uint32_t puVar11;
     (*(int32_t*)rtguest::G((uint32_t)piVar9)) = 0xb4;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4))) = 1;
   case 1:
-    if ((((0.0 < ((*(uint32_t*)rtguest::G(0x2c4f5c)) - (*(float*)rtguest::G(0x2c4f54))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2c4f58))) -
-                 ((*(uint32_t*)rtguest::G(0x2c4f58)) - (*(uint32_t*)rtguest::G(0x2c4f50))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2c4f5c)))) &&
-         (0.0 < ((*(uint32_t*)rtguest::G(0x2c4f64)) - (*(uint32_t*)rtguest::G(0x2c4f5c))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2c4f60))) -
-                ((*(uint32_t*)rtguest::G(0x2c4f60)) - (*(uint32_t*)rtguest::G(0x2c4f58))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2c4f64))))) &&
-        (0.0 < ((*(uint32_t*)rtguest::G(0x2c4f6c)) - (*(uint32_t*)rtguest::G(0x2c4f64))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2c4f68))) -
-               ((*(uint32_t*)rtguest::G(0x2c4f68)) - (*(uint32_t*)rtguest::G(0x2c4f60))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2c4f6c))))) &&
-       (0.0 < ((*(float*)rtguest::G(0x2c4f54)) - (*(uint32_t*)rtguest::G(0x2c4f6c))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2c4f50))) -
-              ((*(uint32_t*)rtguest::G(0x2c4f50)) - (*(uint32_t*)rtguest::G(0x2c4f68))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2c4f54))))) {
+    if ((((0.0 < ((*(float*)rtguest::G(0x2c4f5c)) - (*(float*)rtguest::G(0x2c4f54))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2c4f58))) -
+                 ((*(float*)rtguest::G(0x2c4f58)) - (*(float*)rtguest::G(0x2c4f50))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2c4f5c)))) &&
+         (0.0 < ((*(float*)rtguest::G(0x2c4f64)) - (*(float*)rtguest::G(0x2c4f5c))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2c4f60))) -
+                ((*(float*)rtguest::G(0x2c4f60)) - (*(float*)rtguest::G(0x2c4f58))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2c4f64))))) &&
+        (0.0 < ((*(float*)rtguest::G(0x2c4f6c)) - (*(float*)rtguest::G(0x2c4f64))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2c4f68))) -
+               ((*(float*)rtguest::G(0x2c4f68)) - (*(float*)rtguest::G(0x2c4f60))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2c4f6c))))) &&
+       (0.0 < ((*(float*)rtguest::G(0x2c4f54)) - (*(float*)rtguest::G(0x2c4f6c))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2c4f50))) -
+              ((*(float*)rtguest::G(0x2c4f50)) - (*(float*)rtguest::G(0x2c4f68))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2c4f54))))) {
       RT_CALLRA(0x25f880, guest::PlayUiSound(0x14));
       RT_CALLRA(0x25f890, guest::SetRoadData((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))),0,1));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4))) = 2;
@@ -65,9 +65,9 @@ uint32_t puVar11;
         RT_CALLRA(0x25f8f0, guest::GetOrSetPresidentRaceResult(1));
       }
     }
-    if (44.0 <= (*(uint32_t*)rtguest::G(0x177ace0))) {
-      if ((*(uint32_t*)rtguest::G(0x177ace0)) <= 56.0) {
-        if ((*(uint32_t*)rtguest::G(0x177ace8)) <= 12.0) {
+    if (44.0 <= (*(float*)rtguest::G(0x177ace0))) {
+      if ((*(float*)rtguest::G(0x177ace0)) <= 56.0) {
+        if ((*(float*)rtguest::G(0x177ace8)) <= 12.0) {
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4))) = 3;
           (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
           RT_CALLRA(0x25f96c, guest::GetOrSetPresidentRaceResult(0));
@@ -128,7 +128,7 @@ LAB_0025f998:
   }
   iVar8 = 0;
   iVar7 = 0;
-  fVar12 = (*(uint32_t*)rtguest::G(0x333134));
+  fVar12 = (*(float*)rtguest::G(0x333134));
   puVar11 = 0x002c4f20;
   while( true ) {
     puVar6 = 0x0177eb10 + iVar7;

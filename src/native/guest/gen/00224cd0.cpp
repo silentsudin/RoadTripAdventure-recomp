@@ -27,7 +27,7 @@ uint32_t pfVar1;
   
   iVar4 = 0;
   pfVar1 = 0x0172ff7c;
-  if (0.0 < (*(uint32_t*)rtguest::G(0x172ff7c))) {
+  if (0.0 < (*(float*)rtguest::G(0x172ff7c))) {
     iVar4 = 2;
     while ((pfVar1 = pfVar1 + 0x20, iVar4 < 0x80 && (0.0 < (*(float*)rtguest::G((uint32_t)pfVar1))))) {
       iVar4 = iVar4 + 2;
@@ -58,7 +58,7 @@ uint32_t pfVar1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x017307f0 + iVar2))) = 0;
       RT_CALLRA(0x224e64, guest::vu0CopyVectorXYZ(0x0172ff70 + iVar3,uStack_70));
       RT_CALLRA(0x224e74, guest::vu0CopyVectorXYZ(iVar3 + 0x172ff80,auStack_60));
-      (*(uint32_t*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(iVar4 * 4) * 4)) = fVar6 + 0.5;
+      (*(float*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(iVar4 * 4) * 4)) = fVar6 + 0.5;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar3))) = 0x3e800000;
     }
   }

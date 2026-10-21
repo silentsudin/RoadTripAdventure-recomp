@@ -44,15 +44,15 @@ uint32_t piVar7;
     goto LAB_0025e724;
   case 1:
 LAB_0025e724:
-    if ((((169.0 <= (*(uint32_t*)rtguest::G(0x177ace4))) && ((*(uint32_t*)rtguest::G(0x177ace4)) < 171.0)) &&
-        (0.0 < ((*(uint32_t*)rtguest::G(0x2c4c4c)) - (*(uint32_t*)rtguest::G(0x2c4c44))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2c4c48))) -
-               ((*(uint32_t*)rtguest::G(0x2c4c48)) - (*(uint32_t*)rtguest::G(0x2c4c40))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2c4c4c))))) &&
-       (((0.0 < ((*(uint32_t*)rtguest::G(0x2c4c54)) - (*(uint32_t*)rtguest::G(0x2c4c4c))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2c4c50))) -
-                ((*(uint32_t*)rtguest::G(0x2c4c50)) - (*(uint32_t*)rtguest::G(0x2c4c48))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2c4c54))) &&
-         (0.0 < ((*(uint32_t*)rtguest::G(0x2c4c5c)) - (*(uint32_t*)rtguest::G(0x2c4c54))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2c4c58))) -
-                ((*(uint32_t*)rtguest::G(0x2c4c58)) - (*(uint32_t*)rtguest::G(0x2c4c50))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2c4c5c))))) &&
-        (0.0 < ((*(uint32_t*)rtguest::G(0x2c4c44)) - (*(uint32_t*)rtguest::G(0x2c4c5c))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2c4c40))) -
-               ((*(uint32_t*)rtguest::G(0x2c4c40)) - (*(uint32_t*)rtguest::G(0x2c4c58))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2c4c44))))))) {
+    if ((((169.0 <= (*(float*)rtguest::G(0x177ace4))) && ((*(float*)rtguest::G(0x177ace4)) < 171.0)) &&
+        (0.0 < ((*(float*)rtguest::G(0x2c4c4c)) - (*(float*)rtguest::G(0x2c4c44))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2c4c48))) -
+               ((*(float*)rtguest::G(0x2c4c48)) - (*(float*)rtguest::G(0x2c4c40))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2c4c4c))))) &&
+       (((0.0 < ((*(float*)rtguest::G(0x2c4c54)) - (*(float*)rtguest::G(0x2c4c4c))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2c4c50))) -
+                ((*(float*)rtguest::G(0x2c4c50)) - (*(float*)rtguest::G(0x2c4c48))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2c4c54))) &&
+         (0.0 < ((*(float*)rtguest::G(0x2c4c5c)) - (*(float*)rtguest::G(0x2c4c54))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2c4c58))) -
+                ((*(float*)rtguest::G(0x2c4c58)) - (*(float*)rtguest::G(0x2c4c50))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2c4c5c))))) &&
+        (0.0 < ((*(float*)rtguest::G(0x2c4c44)) - (*(float*)rtguest::G(0x2c4c5c))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2c4c40))) -
+               ((*(float*)rtguest::G(0x2c4c40)) - (*(float*)rtguest::G(0x2c4c58))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2c4c44))))))) {
       RT_CALLRA(0x25e84c, guest::PlayUiSound(0x14));
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffffefb;
@@ -72,13 +72,13 @@ LAB_0025e724:
       }
       RT_CALLRA(0x25e8c8, guest::SetRoadData(uVar6,0,1));
     }
-    if ((*(uint32_t*)rtguest::G(0x177ace4)) <= 100.0) {
+    if ((*(float*)rtguest::G(0x177ace4)) <= 100.0) {
       RT_CALLRA(0x25e8f8, guest::SetRoadData4((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),0,1));
       RT_CALLRA(0x25e900, guest::GetOrSetPresidentRaceResult(0));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cb4))) = 3;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
     }
-    if ((*(uint32_t*)rtguest::G(0x177ace0)) <= 110.0) {
+    if ((*(float*)rtguest::G(0x177ace0)) <= 110.0) {
       RT_CALLRA(0x25e93c, guest::GetOrSetPresidentRaceResult(0));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cb4))) = 3;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
@@ -102,7 +102,7 @@ LAB_0025e97c:
     break;
   case 2:
     iVar2 = (*(int32_t*)rtguest::G((uint32_t)piVar7));
-    (*(float*)rtguest::G(0x2c4c34)) = (*(float*)rtguest::G(0x2c4c34)) + (*(uint32_t*)rtguest::G(0x333120));
+    (*(float*)rtguest::G(0x2c4c34)) = (*(float*)rtguest::G(0x2c4c34)) + (*(float*)rtguest::G(0x333120));
     (*(int32_t*)rtguest::G((uint32_t)piVar7)) = iVar2 + 1;
     if (iVar2 + 1 == 0xe1) {
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x8cb4))) = 3;

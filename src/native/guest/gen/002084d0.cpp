@@ -20,7 +20,7 @@ uint32_t afStack_28 = rtguest::allocFrame(8);
   pfVar3 = (uint32_t)param_1;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_2c)) = (*(uint32_t*)rtguest::G(0x332b24));
   (*(float*)rtguest::G((uint32_t)afStack_28 + (uint32_t)(0) * 4)) = 0.0;
-  (*(float*)rtguest::G((uint32_t)fStack_30)) = (*(uint32_t*)rtguest::G(0x332b28));
+  (*(float*)rtguest::G((uint32_t)fStack_30)) = (*(float*)rtguest::G(0x332b28));
   iVar1 = ((int)((*(float*)rtguest::G((uint32_t)pfVar3)) / 100.0) & 0xfU) + ((int)((*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(2) * sizeof(float))) / 100.0) & 0xfU) * 0x10;
   lVar2 = RT_CALLRA(0x208578, guest::IntersectPointWithMesh((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 * 4 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_5 + 0x78)))))),param_1,param_3,
                      (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 * 2 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_5 + 0x78))) + 0x400))),fStack_30,

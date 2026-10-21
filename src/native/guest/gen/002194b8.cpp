@@ -13,7 +13,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
   
   pfVar1 = (uint32_t)param_2;
   if ((*(float*)rtguest::G((uint32_t)pfVar1 + (uint32_t)(1) * sizeof(float))) < (*(float*)rtguest::G(0x332b84))) {
-    (*(float*)rtguest::G((uint32_t)pfVar1 + (uint32_t)(1) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar1 + (uint32_t)(1) * sizeof(float))) + (*(uint32_t*)rtguest::G(0x332b88));
+    (*(float*)rtguest::G((uint32_t)pfVar1 + (uint32_t)(1) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar1 + (uint32_t)(1) * sizeof(float))) + (*(float*)rtguest::G(0x332b88));
   }
   RT_CALLRA(0x219500, guest::vu0UnitMatrix(auStack_70));
   RT_CALLRA(0x219510, guest::vu0RotMatrixY(rtguest::f2bits(-rtguest::fbits(param_1)),auStack_b0,auStack_70));

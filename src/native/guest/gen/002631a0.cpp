@@ -65,7 +65,7 @@ LAB_002632d8:
         RT_CALLRA(0x263318, guest::PlayBgmSlot1());
       }
     }
-    if (700.0 < (*(uint32_t*)rtguest::G(0x177ace8))) {
+    if (700.0 < (*(float*)rtguest::G(0x177ace8))) {
       uVar3 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x28)));
       goto LAB_00263684;
     }

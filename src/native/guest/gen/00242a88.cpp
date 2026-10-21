@@ -49,14 +49,14 @@ uint32_t auStack_30 = rtguest::allocFrame(16);
       uVar2 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x32)));
     }
     else {
-      (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(2) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(2) * sizeof(float))) / (*(uint32_t*)rtguest::G(0x332f20));
+      (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(2) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(2) * sizeof(float))) / (*(float*)rtguest::G(0x332f20));
       uVar2 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x32)));
     }
     if ((uVar2 & 4) != 0) {
-      (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(3) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(3) * sizeof(float))) + (*(uint32_t*)rtguest::G(0x332f24));
+      (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(3) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(3) * sizeof(float))) + (*(float*)rtguest::G(0x332f24));
     }
     if ((uVar2 & 1) != 0) {
-      (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(3) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(3) * sizeof(float))) - (*(uint32_t*)rtguest::G(0x332f28));
+      (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(3) * sizeof(float))) = (*(float*)rtguest::G((uint32_t)pfVar3 + (uint32_t)(3) * sizeof(float))) - (*(float*)rtguest::G(0x332f28));
     }
     RT_CALLRA(0x242c0c, guest::DrawMapCoordinateValues(pfVar3,0x1a));
   }

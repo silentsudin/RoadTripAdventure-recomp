@@ -37,16 +37,16 @@ uint32_t UpdateCameraTransition(uint32_t param_1, uint32_t param_2, ...) {
   }
   switch((*(uint8_t*)rtguest::G(0x335738))) {
   case 0:
-    (*(uint32_t*)rtguest::G(0x2a2bb4)) = (*(uint32_t*)rtguest::G(0x2a2bb4)) - (*(uint32_t*)rtguest::G(0x332e84));
-    if ((*(uint32_t*)rtguest::G(0x2a2bb4)) <= 25.0) {
+    (*(float*)rtguest::G(0x2a2bb4)) = (*(float*)rtguest::G(0x2a2bb4)) - (*(float*)rtguest::G(0x332e84));
+    if ((*(float*)rtguest::G(0x2a2bb4)) <= 25.0) {
       (*(uint8_t*)rtguest::G(0x335738)) = 1;
       EmptyStub();
       return 0;
     }
     break;
   case 1:
-    if (((*(uint32_t*)rtguest::G(0x332e88)) < (*(uint32_t*)rtguest::G(0x2a2bb8))) &&
-       ((*(uint32_t*)rtguest::G(0x2a2bb8)) = (*(uint32_t*)rtguest::G(0x2a2bb8)) - (*(uint32_t*)rtguest::G(0x332e8c)), (*(uint32_t*)rtguest::G(0x2a2bb8)) <= (*(uint32_t*)rtguest::G(0x332e88)))) {
+    if (((*(float*)rtguest::G(0x332e88)) < (*(float*)rtguest::G(0x2a2bb8))) &&
+       ((*(float*)rtguest::G(0x2a2bb8)) = (*(float*)rtguest::G(0x2a2bb8)) - (*(float*)rtguest::G(0x332e8c)), (*(float*)rtguest::G(0x2a2bb8)) <= (*(float*)rtguest::G(0x332e88)))) {
       (*(uint32_t*)rtguest::G(0x2a2bb8)) = (*(uint32_t*)rtguest::G(0x332e88));
       (*(uint8_t*)rtguest::G(0x335738)) = 2;
     }
@@ -92,8 +92,8 @@ LAB_00240450:
 LAB_00240454:
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x20)));
     }
-    (*(uint32_t*)rtguest::G(0x2a2bb8)) = (*(uint32_t*)rtguest::G(0x2a2bb8)) + ((float)(iVar2 + -0xb4) * (*(uint32_t*)rtguest::G(0x332e90))) / 720.0;
-    (*(uint32_t*)rtguest::G(0x2a2bb0)) = (*(uint32_t*)rtguest::G(0x2a2bb0)) + ((float)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) + -0xb4) * (*(uint32_t*)rtguest::G(0x332e90))) / 720.0;
+    (*(float*)rtguest::G(0x2a2bb8)) = (*(float*)rtguest::G(0x2a2bb8)) + ((float)(iVar2 + -0xb4) * (*(float*)rtguest::G(0x332e90))) / 720.0;
+    (*(float*)rtguest::G(0x2a2bb0)) = (*(float*)rtguest::G(0x2a2bb0)) + ((float)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) + -0xb4) * (*(float*)rtguest::G(0x332e90))) / 720.0;
     if (0x2770d < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x14)))) {
       (*(uint8_t*)rtguest::G(0x335738)) = 3;
       EmptyStub();
@@ -101,23 +101,23 @@ LAB_00240454:
     }
     break;
   case 3:
-    if (((*(uint32_t*)rtguest::G(0x2a2bb0)) < 900.0) &&
-       ((*(uint32_t*)rtguest::G(0x2a2bb0)) = (*(uint32_t*)rtguest::G(0x2a2bb0)) + (*(uint32_t*)rtguest::G(0x332e94)), 900.0 <= (*(uint32_t*)rtguest::G(0x2a2bb0)))) {
+    if (((*(float*)rtguest::G(0x2a2bb0)) < 900.0) &&
+       ((*(float*)rtguest::G(0x2a2bb0)) = (*(float*)rtguest::G(0x2a2bb0)) + (*(float*)rtguest::G(0x332e94)), 900.0 <= (*(float*)rtguest::G(0x2a2bb0)))) {
       (*(uint32_t*)rtguest::G(0x2a2bb0)) = rtguest::f2bits(900.0f);
     }
-    if ((900.0 < (*(uint32_t*)rtguest::G(0x2a2bb0))) &&
-       ((*(uint32_t*)rtguest::G(0x2a2bb0)) = (*(uint32_t*)rtguest::G(0x2a2bb0)) - (*(uint32_t*)rtguest::G(0x332e98)), (*(uint32_t*)rtguest::G(0x2a2bb0)) <= 900.0)) {
+    if ((900.0 < (*(float*)rtguest::G(0x2a2bb0))) &&
+       ((*(float*)rtguest::G(0x2a2bb0)) = (*(float*)rtguest::G(0x2a2bb0)) - (*(float*)rtguest::G(0x332e98)), (*(float*)rtguest::G(0x2a2bb0)) <= 900.0)) {
       (*(uint32_t*)rtguest::G(0x2a2bb0)) = rtguest::f2bits(900.0f);
     }
-    if (((*(uint32_t*)rtguest::G(0x2a2bb8)) < 300.0) &&
-       ((*(uint32_t*)rtguest::G(0x2a2bb8)) = (*(uint32_t*)rtguest::G(0x2a2bb8)) + (*(uint32_t*)rtguest::G(0x332e9c)), 300.0 <= (*(uint32_t*)rtguest::G(0x2a2bb8)))) {
+    if (((*(float*)rtguest::G(0x2a2bb8)) < 300.0) &&
+       ((*(float*)rtguest::G(0x2a2bb8)) = (*(float*)rtguest::G(0x2a2bb8)) + (*(float*)rtguest::G(0x332e9c)), 300.0 <= (*(float*)rtguest::G(0x2a2bb8)))) {
       (*(uint32_t*)rtguest::G(0x2a2bb8)) = rtguest::f2bits(300.0f);
     }
-    if ((300.0 < (*(uint32_t*)rtguest::G(0x2a2bb8))) &&
-       ((*(uint32_t*)rtguest::G(0x2a2bb8)) = (*(uint32_t*)rtguest::G(0x2a2bb8)) - (*(uint32_t*)rtguest::G(0x332ea0)), (*(uint32_t*)rtguest::G(0x2a2bb8)) <= 300.0)) {
+    if ((300.0 < (*(float*)rtguest::G(0x2a2bb8))) &&
+       ((*(float*)rtguest::G(0x2a2bb8)) = (*(float*)rtguest::G(0x2a2bb8)) - (*(float*)rtguest::G(0x332ea0)), (*(float*)rtguest::G(0x2a2bb8)) <= 300.0)) {
       (*(uint32_t*)rtguest::G(0x2a2bb8)) = rtguest::f2bits(300.0f);
     }
-    if (((*(uint32_t*)rtguest::G(0x2a2bb0)) == 900.0) && ((*(uint32_t*)rtguest::G(0x2a2bb8)) == 300.0)) {
+    if (((*(float*)rtguest::G(0x2a2bb0)) == 900.0) && ((*(float*)rtguest::G(0x2a2bb8)) == 300.0)) {
       (*(uint8_t*)rtguest::G(0x335738)) = 4;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x20))) = 0xb4;
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x27))) = 5;
@@ -132,8 +132,8 @@ LAB_00240454:
     }
     break;
   case 5:
-    (*(uint32_t*)rtguest::G(0x2a2bb4)) = (*(uint32_t*)rtguest::G(0x2a2bb4)) + (*(uint32_t*)rtguest::G(0x332ea4));
-    if (100.0 <= (*(uint32_t*)rtguest::G(0x2a2bb4))) {
+    (*(float*)rtguest::G(0x2a2bb4)) = (*(float*)rtguest::G(0x2a2bb4)) + (*(float*)rtguest::G(0x332ea4));
+    if (100.0 <= (*(float*)rtguest::G(0x2a2bb4))) {
       (*(uint8_t*)rtguest::G(0x335738)) = 6;
       EmptyStub();
       return 0;

@@ -147,7 +147,7 @@ LAB_00259790:
   else {
     bVar6 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 10)));
   }
-  if (((bVar6 & 2) == 0) && ((*(uint32_t*)rtguest::G(0x177af50)) < 231.0)) {
+  if (((bVar6 & 2) == 0) && ((*(float*)rtguest::G(0x177af50)) < 231.0)) {
     (*(uint32_t*)rtguest::G(0x177afb0)) = 0;
     (*(uint32_t*)rtguest::G(0x177b058)) = (*(uint32_t*)rtguest::G(0x177b058)) | 0x800;
     (*(uint32_t*)rtguest::G(0x177afb8)) = 0;

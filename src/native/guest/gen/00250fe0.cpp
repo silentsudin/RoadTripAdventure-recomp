@@ -34,10 +34,10 @@ uint32_t auStack_30 = rtguest::allocFrame(4);
     else {
       fVar3 = fVar3 - (*(float*)rtguest::G(0x332fb4));
       RT_CALLRA(0x251118, guest::vu0ScaleVector((*(float*)rtguest::G(0x332fc0)),auStack_30,auStack_30));
-      (*(float*)rtguest::G((uint32_t)fStack_2c)) = (*(uint32_t*)rtguest::G(0x332fcc));
-      fVar1 = (*(uint32_t*)rtguest::G(0x332fc8));
-      if ((*(uint32_t*)rtguest::G(0x332fc4)) <= fVar3) {
-        fVar3 = (*(uint32_t*)rtguest::G(0x332fc4));
+      (*(float*)rtguest::G((uint32_t)fStack_2c)) = (*(float*)rtguest::G(0x332fcc));
+      fVar1 = (*(float*)rtguest::G(0x332fc8));
+      if ((*(float*)rtguest::G(0x332fc4)) <= fVar3) {
+        fVar3 = (*(float*)rtguest::G(0x332fc4));
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x84))) = 0x317;
       (*(float*)rtguest::G((uint32_t)fStack_2c)) = ((fVar3 * 180.0) / fVar1) * (*(float*)rtguest::G((uint32_t)fStack_2c));

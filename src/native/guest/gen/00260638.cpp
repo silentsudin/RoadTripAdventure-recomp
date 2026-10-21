@@ -43,7 +43,7 @@ uint32_t puVar6;
     RT_CALLRA(0x260740, guest::StoreIndexedPosition((*(uint32_t*)rtguest::G(0x33316c)),uVar8,0x43c20000,1,0));
     (*(uint32_t*)rtguest::G((uint32_t)puVar6)) = 1;
   case 1:
-    if ((((*(uint32_t*)rtguest::G(0x177ace0)) < 410.0) || (430.0 < (*(uint32_t*)rtguest::G(0x177ace0)))) || ((*(uint32_t*)rtguest::G(0x177ace8)) < 370.0)
+    if ((((*(float*)rtguest::G(0x177ace0)) < 410.0) || (430.0 < (*(float*)rtguest::G(0x177ace0)))) || ((*(float*)rtguest::G(0x177ace8)) < 370.0)
        ) {
       RT_CALLRA(0x2607b0, guest::GetOrSetPresidentRaceResult(0));
       RT_CALLRA(0x2607c0, guest::SetRoadData5((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),0,1));
@@ -51,16 +51,16 @@ uint32_t puVar6;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffffeff;
     }
-    fVar3 = (*(uint32_t*)rtguest::G(0x177af58));
-    fVar7 = (*(uint32_t*)rtguest::G(0x333170));
-    if ((*(uint32_t*)rtguest::G(0x333170)) < (*(uint32_t*)rtguest::G(0x177ace8))) {
+    fVar3 = (*(float*)rtguest::G(0x177af58));
+    fVar7 = (*(float*)rtguest::G(0x333170));
+    if ((*(float*)rtguest::G(0x333170)) < (*(float*)rtguest::G(0x177ace8))) {
       (*(uint32_t*)rtguest::G((uint32_t)puVar6)) = 2;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0xfffffeff;
       if (fVar7 < fVar3) {
         RT_CALLRA(0x26083c, guest::GetOrSetPresidentRaceResult(1));
         RT_CALLRA(0x26084c, guest::SetWheelSprite2((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))),0,1));
-        fVar7 = (*(uint32_t*)rtguest::G(0x333174));
+        fVar7 = (*(float*)rtguest::G(0x333174));
       }
       else {
         if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8))) < 0x1e1) {
@@ -72,10 +72,10 @@ uint32_t puVar6;
           uVar8 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28)));
         }
         RT_CALLRA(0x260890, guest::SetWheelSprite(uVar8,0,1));
-        fVar7 = (*(uint32_t*)rtguest::G(0x333174));
+        fVar7 = (*(float*)rtguest::G(0x333174));
       }
     }
-    if (fVar7 < (*(uint32_t*)rtguest::G(0x177af58))) {
+    if (fVar7 < (*(float*)rtguest::G(0x177af58))) {
       (*(uint32_t*)rtguest::G(0x177b058)) = (*(uint32_t*)rtguest::G(0x177b058)) | 0x800;
       uVar2 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28)));
     }

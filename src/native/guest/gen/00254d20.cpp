@@ -51,12 +51,12 @@ uint32_t piVar5;
     RT_CALLRA(0x254e40, guest::StoreIndexedPosition((*(uint32_t*)rtguest::G(0x3330a0)),0x43c80000,(*(uint32_t*)rtguest::G(0x3330a4)),0,0x4000));
     (*(uint32_t*)rtguest::G((uint32_t)puVar4)) = 1;
   case 1:
-    if ((*(uint32_t*)rtguest::G(0x177ace4)) < (*(uint32_t*)rtguest::G(0x3330a8))) {
+    if ((*(float*)rtguest::G(0x177ace4)) < (*(float*)rtguest::G(0x3330a8))) {
       RT_CALLRA(0x254e70, guest::SetRoadData4(iVar2,0,1));
       RT_CALLRA(0x254e78, guest::GetOrSetPresidentRaceResult(1));
       (*(uint32_t*)rtguest::G((uint32_t)puVar4)) = 2;
     }
-    else if (((((*(uint32_t*)rtguest::G(0x177ace4)) < 350.0) &&
+    else if (((((*(float*)rtguest::G(0x177ace4)) < 350.0) &&
               (iVar1 = ::memcmp((char *)rtguest::G((uint32_t)((uint32_t)(iVar2 + 0x8cc0))), (char *)rtguest::G((uint32_t)(0x177ace0)), 0x10), iVar1 == 0)) &&
              (CONCAT44((*(uint32_t*)rtguest::G(0x177ad44)),(*(uint32_t*)rtguest::G(0x177ad40))) == 0)) && ((*(uint32_t*)rtguest::G(0x177ad48)) == 0)) {
       RT_CALLRA(0x254ee8, guest::SetRoadData(iVar2,0,1));

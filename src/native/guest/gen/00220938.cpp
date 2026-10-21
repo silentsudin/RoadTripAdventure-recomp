@@ -20,10 +20,11 @@ uint32_t drawSceneField(uint32_t param_1, uint32_t param_2, ...) {
   }
   RT_CALLRA(0x220980, guest::updateLightDirection((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x28))) + 0x180));
   (*(uint8_t*)rtguest::G(0x3335b8)) = 0xff;
-  (*(uint32_t*)rtguest::G(0x3335bb)) = 0xff;
-  (*(uint32_t*)rtguest::G(0x3335ba)) = 0xff;
-  (*(uint32_t*)rtguest::G(0x3335b9)) = 0xff;
-  iVar1 = RT_CALLRA(0x2209b4, guest::GetGridCellIndex(0x0177acf0 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))) * 0x9c));
+  // fn/00220938.c:18-20: byte stores (MIPS 0x220990..0x220998 sb $v1,3/2/1($s1)); u32 stores clobbered 0x3335bc..be.
+  (*(uint8_t*)rtguest::G(0x3335bb)) = 0xff;
+  (*(uint8_t*)rtguest::G(0x3335ba)) = 0xff;
+  (*(uint8_t*)rtguest::G(0x3335b9)) = 0xff;
+  iVar1 = RT_CALLRA(0x2209b4, guest::GetGridCellIndex(0x0177acf0 + (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))) * 0x9c * 4));  // fn/00220938.c:21 int* DAT_0177acf0: x0x270 bytes (MIPS 0x2209a0..0x2209b8)
   (*(uint8_t*)rtguest::G((uint32_t)0x3335b8 + (uint32_t)(iVar1) * 1)) = 3;
   RT_CALLRA(0x220a04, guest::DrawFieldTerrainTiles((*(int32_t*)rtguest::G((uint32_t)0x177acf0 + (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))) * 0x9c) * 4)),
              (*(uint32_t*)rtguest::G((uint32_t)0x177acf8 + (uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x20))) * 0x9c) * 4)),param_1,param_2));

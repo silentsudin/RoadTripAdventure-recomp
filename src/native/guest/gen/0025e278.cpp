@@ -80,7 +80,7 @@ uint32_t puVar8;
       RT_CALLRA(0x25e44c, guest::SelectMeshIntersectionRoutine(1));
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x90b4))) = 1;
     case 1:
-      if ((*(uint32_t*)rtguest::G(0x33311c)) <= (*(uint32_t*)rtguest::G(0x177ace8))) {
+      if ((*(float*)rtguest::G(0x33311c)) <= (*(float*)rtguest::G(0x177ace8))) {
         RT_CALLRA(0x25e480, guest::SetRoadData((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x28))),0,1));
         RT_CALLRA(0x25e488, guest::GetOrSetPresidentRaceResult(1));
         (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)param_2 + 0x21))) = 0xd;

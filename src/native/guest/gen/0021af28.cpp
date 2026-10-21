@@ -78,7 +78,7 @@ uint32_t piVar9;
     else {
       fVar13 = (*(float*)rtguest::G((uint32_t)param_4));
     }
-    param_4 = param_4 + 1;
+    param_4 = param_4 + 4;  // fn/0021af28.c:79 float* step (MIPS 0x21b098 addiu $a3,$a3,4); was +1 byte
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)piVar7));
     piVar7 = piVar7 + 0x4;  // T* element step
     uVar10 = uVar10 + 1;
@@ -198,7 +198,7 @@ LAB_0021b310:
     piVar8 = piVar8 + 0x4;  // T* element step
     piVar7 = piVar7 + 0x4;  // T* element step
     piVar9 = piVar9 + 0x4;  // T* element step
-    param_3 = param_3 + 1;
+    param_3 = param_3 + 4;  // fn/0021af28.c:199 int* step (MIPS 0x21b380..0x21b390 addiu +4); was +1 byte
     pfVar5 = pfVar5 + 0x10;  // T* element step
     if (2 < (int)uVar10) {
       return uVar11;

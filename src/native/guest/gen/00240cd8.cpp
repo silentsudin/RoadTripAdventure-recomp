@@ -30,12 +30,12 @@ uint32_t puVar6;
   }
   iVar5 = (int)param_2;
   if ((*(int8_t*)rtguest::G(0x335739)) == 1) {
-    if ((*(uint32_t*)rtguest::G(0x2a2bd8)) <= (*(uint32_t*)rtguest::G(0x332ee4))) {
+    if ((*(float*)rtguest::G(0x2a2bd8)) <= (*(float*)rtguest::G(0x332ee4))) {
       (*(int8_t*)rtguest::G(0x335739)) = 2;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) & 0xf7ff;
     }
     else {
-      (*(uint32_t*)rtguest::G(0x2a2bd8)) = (*(uint32_t*)rtguest::G(0x2a2bd8)) - (*(uint32_t*)rtguest::G(0x332ee8));
+      (*(float*)rtguest::G(0x2a2bd8)) = (*(float*)rtguest::G(0x2a2bd8)) - (*(float*)rtguest::G(0x332ee8));
     }
   }
   else if ((*(int8_t*)rtguest::G(0x335739)) < 2) {
@@ -44,7 +44,7 @@ uint32_t puVar6;
       if (((lVar4 == 0) &&
           (((lVar4 = RT_CALLRA(0x240dc4, guest::TestStateBitFc78(0x11)), lVar4 == 0 &&
             (0x2327f < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14))) - 54000U)) &&
-           (lVar4 = IsPointInsideQuad(0x2a3880,0x177ac50), lVar4 != 0)))) && ((*(uint32_t*)rtguest::G(0x177ace4)) < 50.0))
+           (lVar4 = IsPointInsideQuad(0x2a3880,0x177ac50), lVar4 != 0)))) && ((*(float*)rtguest::G(0x177ace4)) < 50.0))
       {
         (*(int8_t*)rtguest::G(0x335739)) = 1;
         (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
@@ -83,7 +83,7 @@ uint32_t puVar6;
         (*(uint32_t*)rtguest::G(0x177acf8)) = (*(uint32_t*)rtguest::G(0x177acf8)) + iVar7 * 2 & 0xfffffff;
       }
       lVar4 = IsPointInsideQuad(0x2a3900,0x177ac50);
-      if ((lVar4 != 0) && ((*(uint32_t*)rtguest::G(0x177ace4)) < 50.0)) {
+      if ((lVar4 != 0) && ((*(float*)rtguest::G(0x177ace4)) < 50.0)) {
         (*(uint32_t*)rtguest::G(0x177acf8)) = 0x74429c9;
         (*(int32_t*)rtguest::G(0x177acf0)) = 0x7af65a1;
         (*(uint32_t*)rtguest::G(0x177acf4)) = 0x000f5bf5;

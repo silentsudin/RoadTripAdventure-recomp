@@ -106,7 +106,7 @@ switchD_00260e9c_caseD_2:
     RT_CALLRA(0x26108c, guest::vu0SubVector(auStack_50,0x177ace0,auStack_50));
     (*(uint64_t*)rtguest::G((uint32_t)auStack_50 + (uint32_t)(0) * 8)) = (*(uint64_t*)rtguest::G((uint32_t)auStack_50 + (uint32_t)(0) * 8)) & 0xffffffff;
     fVar12 = rtguest::fbits(RT_CALLRA(0x26109c, guest::vecDotProductVu0(auStack_50,auStack_50)));
-    if ((*(uint32_t*)rtguest::G(0x33318c)) < SQRT(fVar12)) {
+    if ((*(float*)rtguest::G(0x33318c)) < SQRT(fVar12)) {
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar10 + 5))) = (uint32_t)(*(uint64_t*)rtguest::G((uint32_t)puVar10 + (uint32_t)(5) * sizeof(uint64_t))) | 0x80010000;
       (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = 5;
@@ -116,14 +116,14 @@ switchD_00260e9c_caseD_2:
   case 5:
     uVar5 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbe))) - 3;
     (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbe))) = uVar5;
-    fVar12 = (*(uint32_t*)rtguest::G(0x177ace0));
+    fVar12 = (*(float*)rtguest::G(0x177ace0));
     if ((int)((uint32_t)uVar5 << 0x10) < 0) {
-      fVar13 = (*(uint32_t*)rtguest::G(0x177ace8)) - 400.0;
+      fVar13 = (*(float*)rtguest::G(0x177ace8)) - 400.0;
       (*(uint32_t*)rtguest::G((uint32_t)puVar8)) = 6;
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbe))) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 0;
       fVar12 = rtguest::fbits(RT_CALLRA(0x26115c, guest::atan2f(rtguest::f2bits(fVar12 - 400.0f),rtguest::f2bits(fVar13))));
-      RT_CALLRA(0x2611c0, guest::setRouletteReelResult(iVar11,(short)((((int)(short)(int)((fVar12 / (*(uint32_t*)rtguest::G(0x333190))) * 32768.0) -
+      RT_CALLRA(0x2611c0, guest::setRouletteReelResult(iVar11,(short)((((int)(short)(int)((fVar12 / (*(float*)rtguest::G(0x333190))) * 32768.0) -
                                  (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc)))) + 0x666 & 0xffff) / 0xccc)));
     }
     RT_CALLRA(0x2611c8, guest::roulettePlaceBallOnWheel(puVar8));

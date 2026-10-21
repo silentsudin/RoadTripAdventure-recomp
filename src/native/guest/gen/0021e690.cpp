@@ -126,7 +126,7 @@ LAB_0021e8cc:
       RT_CALLRA(0x21e9b0, guest::LoadCameraPreset(puVar14,uVar2));
     }
     RT_CALLRA(0x21e9bc, guest::vu0CopyVector(afStack_60,0x0177ac60 + uVar13 * 0x4e));
-    fVar18 = (float)(int)(short)(*(uint32_t*)rtguest::G((uint32_t)0x177ae24 + (uint32_t)(uVar13 * 0x138) * 4)) * rtguest::fbits(*(uint32_t*)rtguest::G(0x332c50)) * 3.0517578e-05f;  // DAT_00332c50 float const (lwc1 -0x7ea4(gp), disasm 0x21e840); f suffix = mul.s not double
+    fVar18 = (float)(int)(*(int16_t*)rtguest::G((uint32_t)0x177ae24 + (uint32_t)(uVar13 * 0x138) * 2)) * rtguest::fbits(*(uint32_t*)rtguest::G(0x332c50)) * 3.0517578e-05f;  // fn/0021e690.c:125 (short) index; MIPS 0x21e9c4 lh 0x1d4($19) (0x138*2 = 0x270 car stride); DAT_00332c50 lwc1 (0x21e9c8)
     fVar16 = rtguest::fbits(RT_CALLRA(0x21e9ec, guest::sinf(rtguest::f2bits(fVar18))));
     fVar18 = rtguest::fbits(RT_CALLRA(0x21e9f8, guest::cosf(rtguest::f2bits(fVar18))));
     fVar17 = (*(float*)rtguest::G((uint32_t)fStack_58)) * fVar16;
@@ -174,7 +174,7 @@ LAB_0021eb08:
     }
     sVar1 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x14)));
     lVar11 = (long)sVar1;
-    if (((*(uint32_t*)rtguest::G((uint32_t)0x177ae63 + (uint32_t)(uVar13 * 0x270) * 4)) != '\0') &&
+    if (((*(uint8_t*)rtguest::G((uint32_t)0x177ae63 + (uint32_t)(uVar13 * 0x270))) != '\0') &&  // fn/0021e690.c:173 byte index n*0x270, unscaled
        (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(uint32_t*)rtguest::G((uint32_t)0x177add4 + (uint32_t)(uVar13 * 0x9c) * 4)) + 8))) & 0x100) != 0)) {
       lVar11 = (long)(sVar1 + 0x500);
     }
@@ -204,7 +204,7 @@ LAB_0021eb74:
   }
 LAB_0021eb8c:
   RT_CALLRA(0x21eba0, guest::ComputeChaseCameraBasis(auStack_e0,auStack_a0,puVar14,0x177ac50 + uVar13 * 0x4e));
-  RT_CALLRA(0x21ebac, guest::FixedPosToFloatVec4(auStack_b0,0x0177acf0 + uVar13 * 0x9c));
+  RT_CALLRA(0x21ebac, guest::FixedPosToFloatVec4(auStack_b0,0x0177acf0 + (uint32_t)(uVar13 * 0x9c) * 4));  // fn/0021e690.c:203 int* DAT_0177acf0: 0x270-byte car stride
   RT_CALLRA(0x21ebc0, guest::buildCamera(0x177e6d0 + uVar13 * 400,puVar14,auStack_e0,auStack_a0));
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x28))) & 0x8000) != 0) {
     return 0;
@@ -216,7 +216,7 @@ LAB_0021eb8c:
     return 0;
   }
   if ((*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x22))) == -1) {
-    uVar7 = RT_CALLRA(0x21ec00, guest::GetGridCellIndex(0x0177acf0 + uVar13 * 0x9c));
+    uVar7 = RT_CALLRA(0x21ec00, guest::GetGridCellIndex(0x0177acf0 + (uint32_t)(uVar13 * 0x9c) * 4));  // fn/0021e690.c:215 int*: 0x270-byte car stride
   }
   else {
     uVar7 = 2;

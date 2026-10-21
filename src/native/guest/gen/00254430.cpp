@@ -264,7 +264,7 @@ LAB_00254994:
   }
   else {
     fVar12 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8d08)));
-    fVar13 = (*(uint32_t*)rtguest::G(0x33309c));
+    fVar13 = (*(float*)rtguest::G(0x33309c));
   }
   (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8d00))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8d00))) * fVar13;
   (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x8d08))) = fVar12 * fVar13;

@@ -199,7 +199,7 @@ uint32_t puStack_6c;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_90)) = 0x40400000;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_88)) = 0;
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(uStack_80)), 0, 0x10));
-  (*(float*)rtguest::G((uint32_t)fStack_78)) = (float)(int)(*(uint32_t*)rtguest::G((uint32_t)puStack_6c + (uint32_t)(4) * sizeof(uint32_t))) * (*(uint32_t*)rtguest::G(0x332b34)) * 0.0078125 + (*(uint32_t*)rtguest::G(0x332b38));
+  (*(float*)rtguest::G((uint32_t)fStack_78)) = (float)(int)(*(uint32_t*)rtguest::G((uint32_t)puStack_6c + (uint32_t)(4) * sizeof(uint32_t))) * (*(float*)rtguest::G(0x332b34)) * 0.0078125 + (*(float*)rtguest::G(0x332b38));
   puVar7 = uStack_e0;
   puVar5 = auStack_170;
   do {

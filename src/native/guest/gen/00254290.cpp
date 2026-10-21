@@ -17,21 +17,21 @@ uint32_t afStack_30 = rtguest::allocFrame(8);
   
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(afStack_30)), 0, 0x10));
   iVar1 = (int)param_1;
-  for ((*(uint32_t*)rtguest::G((uint32_t)uStack_28)) = -(*(float*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x30))); (*(uint32_t*)rtguest::G((uint32_t)uStack_28)) < (*(float*)rtguest::G(0x333078));
-      (*(uint32_t*)rtguest::G((uint32_t)uStack_28)) = (*(uint32_t*)rtguest::G((uint32_t)uStack_28)) + (*(uint32_t*)rtguest::G(0x33307c))) {
+  for ((*(float*)rtguest::G((uint32_t)uStack_28)) = -(*(float*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x30))); (*(float*)rtguest::G((uint32_t)uStack_28)) < (*(float*)rtguest::G(0x333078));
+      (*(float*)rtguest::G((uint32_t)uStack_28)) = (*(float*)rtguest::G((uint32_t)uStack_28)) + (*(float*)rtguest::G(0x33307c))) {
   }
-  if ((*(uint32_t*)rtguest::G(0x333080)) < (*(uint32_t*)rtguest::G((uint32_t)uStack_28))) {
+  if ((*(float*)rtguest::G(0x333080)) < (*(float*)rtguest::G((uint32_t)uStack_28))) {
     do {
-      (*(uint32_t*)rtguest::G((uint32_t)uStack_28)) = (*(uint32_t*)rtguest::G((uint32_t)uStack_28)) - (*(uint32_t*)rtguest::G(0x333084));
-    } while ((*(uint32_t*)rtguest::G(0x333080)) < (*(uint32_t*)rtguest::G((uint32_t)uStack_28)));
+      (*(float*)rtguest::G((uint32_t)uStack_28)) = (*(float*)rtguest::G((uint32_t)uStack_28)) - (*(float*)rtguest::G(0x333084));
+    } while ((*(float*)rtguest::G(0x333080)) < (*(float*)rtguest::G((uint32_t)uStack_28)));
     (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x38)));
   }
   else {
     (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x38)));
   }
-  for (; (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) < (*(uint32_t*)rtguest::G(0x333088)); (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) + (*(uint32_t*)rtguest::G(0x33308c))) {
+  for (; (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) < (*(float*)rtguest::G(0x333088)); (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G(0x33308c))) {
   }
-  for (; (*(uint32_t*)rtguest::G(0x333090)) < (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)); (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) - (*(uint32_t*)rtguest::G(0x333094))) {
+  for (; (*(float*)rtguest::G(0x333090)) < (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)); (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G(0x333094))) {
   }
   iVar1 = iVar1 + 0x10;
   RT_CALLRA(0x2543c4, guest::vu0UnitMatrix(auStack_70));

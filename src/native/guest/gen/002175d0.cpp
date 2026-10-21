@@ -19,20 +19,20 @@ uint32_t afStack_30 = rtguest::allocFrame(8);
   param_2 = param_2 + 0xb0;
   RT_CALLRA(0x2175fc, guest::vu0SubVector(afStack_30,param_1 + 0x140,iVar2));
   RT_CALLRA(0x21760c, guest::vu0ApplyMatrix(afStack_30,param_2,afStack_30));
-  if (((((*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) < (*(float*)rtguest::G(0x332b4c))) || ((*(uint32_t*)rtguest::G(0x332b50)) < (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)))) || ((*(float*)rtguest::G((uint32_t)fStack_28)) < -1.5)) ||
+  if (((((*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) < (*(float*)rtguest::G(0x332b4c))) || ((*(float*)rtguest::G(0x332b50)) < (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)))) || ((*(float*)rtguest::G((uint32_t)fStack_28)) < -1.5)) ||
      (uVar1 = 1, 1.5 < (*(float*)rtguest::G((uint32_t)fStack_28)))) {
     RT_CALLRA(0x217684, guest::vu0SubVector(afStack_30,param_1 + 0x150,iVar2));
     RT_CALLRA(0x217694, guest::vu0ApplyMatrix(afStack_30,param_2,afStack_30));
-    if ((((*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) < (*(uint32_t*)rtguest::G(0x332b54))) || ((*(uint32_t*)rtguest::G(0x332b58)) < (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)))) ||
+    if ((((*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) < (*(float*)rtguest::G(0x332b54))) || ((*(float*)rtguest::G(0x332b58)) < (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)))) ||
        (((*(float*)rtguest::G((uint32_t)fStack_28)) < -1.5 || (uVar1 = 1, 1.5 < (*(float*)rtguest::G((uint32_t)fStack_28)))))) {
       RT_CALLRA(0x21770c, guest::vu0SubVector(afStack_30,param_1 + 0x160,iVar2));
       RT_CALLRA(0x21771c, guest::vu0ApplyMatrix(afStack_30,param_2,afStack_30));
-      if ((((*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) < (*(uint32_t*)rtguest::G(0x332b5c))) || ((*(uint32_t*)rtguest::G(0x332b60)) < (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)))) ||
+      if ((((*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) < (*(float*)rtguest::G(0x332b5c))) || ((*(float*)rtguest::G(0x332b60)) < (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)))) ||
          (((*(float*)rtguest::G((uint32_t)fStack_28)) < -1.5 || (uVar1 = 1, 1.5 < (*(float*)rtguest::G((uint32_t)fStack_28)))))) {
         RT_CALLRA(0x217794, guest::vu0SubVector(afStack_30,param_1 + 0x170,iVar2));
         RT_CALLRA(0x2177a4, guest::vu0ApplyMatrix(afStack_30,param_2,afStack_30));
         uVar1 = 0;
-        if (((((*(uint32_t*)rtguest::G(0x332b64)) <= (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4))) && ((*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) <= (*(uint32_t*)rtguest::G(0x332b68)))) &&
+        if (((((*(float*)rtguest::G(0x332b64)) <= (*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4))) && ((*(float*)rtguest::G((uint32_t)afStack_30 + (uint32_t)(0) * 4)) <= (*(float*)rtguest::G(0x332b68)))) &&
             (-1.5 <= (*(float*)rtguest::G((uint32_t)fStack_28)))) && (uVar1 = 1, 1.5 < (*(float*)rtguest::G((uint32_t)fStack_28)))) {
           uVar1 = 0;
         }

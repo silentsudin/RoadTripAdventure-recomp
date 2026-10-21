@@ -49,7 +49,7 @@ uint32_t puVar1;
   fVar5 = (*(float*)rtguest::G(0x332f34));
   RT_CALLRA(0x242db0, guest::vifUploadColours(0x2a4370,0x2a4360));
   puVar1 = 0x0177aec0;
-  iVar3 = (int)(*(uint32_t*)rtguest::G(0x177ae24));
+  iVar3 = (int)(*(int16_t*)rtguest::G(0x177ae24));  // heading halfword table: MIPS 0x242db8 lh 0x1d4($18)
   RT_CALLRA(0x242dcc, guest::vu0UnitMatrix(afStack_170));
   (*(float*)rtguest::G((uint32_t)afStack_170 + (uint32_t)(0) * 4)) = fVar4;
   (*(float*)rtguest::G((uint32_t)fStack_148)) = fVar4;

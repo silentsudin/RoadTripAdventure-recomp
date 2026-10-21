@@ -28,7 +28,7 @@ uint32_t pfVar3;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_64)) = 0;
     if (param_5 != -1) {
       (*(float*)rtguest::G((uint32_t)fStack_70)) = (*(float*)rtguest::G((uint32_t)param_2));
-      fVar5 = (*(uint32_t*)rtguest::G(0x332b90));
+      fVar5 = (*(float*)rtguest::G(0x332b90));
       fVar6 = (*(float*)rtguest::G(0x332b8c));
       while( true ) {
         pfVar1 = param_2 + 1 * sizeof(float);  // fn:29 float* elem steps (sig :29)

@@ -57,7 +57,7 @@ uint32_t psVar6;
       psVar6 = 0x0177b058;
       iVar8 = 0x270;
       iVar7 = 0x16;
-      fVar10 = (float)(int)(*(uint32_t*)rtguest::G(0x177ae24)) * rtguest::fbits(*(uint32_t*)rtguest::G(0x332f38));  // DAT_00332f38 float const (lwc1 -0x7bb8(gp), disasm 0x2430d4)
+      fVar10 = (float)(int)(*(int16_t*)rtguest::G(0x177ae24)) * rtguest::fbits(*(uint32_t*)rtguest::G(0x332f38));  // heading is a signed halfword: MIPS 0x2430cc lh; DAT_00332f38 float const (lwc1 -0x7bb8(gp), disasm 0x2430d4)
       RT_CALLRA(0x243100, guest::vu0UnitMatrix(afStack_110));
       (*(float*)rtguest::G((uint32_t)afStack_110 + (uint32_t)(0) * 4)) = fVar9;
       (*(float*)rtguest::G((uint32_t)fStack_e8)) = fVar9;

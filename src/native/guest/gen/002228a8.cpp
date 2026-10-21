@@ -74,7 +74,7 @@ uint32_t puVar6;
   } while (-1 < iVar7);
   RT_CALLRA(0x222a20, guest::vifDirect(0x29d240,5));
   RT_CALLRA(0x222a28, guest::vifUploadLightAt16(0x177f5e0));
-  fVar1 = (*(uint32_t*)rtguest::G(0x332cf4));
+  fVar1 = (*(float*)rtguest::G(0x332cf4));
   (*(uint32_t*)rtguest::G(0x3356e8)) = 0;
   puVar6 = 0x177ac50;
   iVar7 = 0;

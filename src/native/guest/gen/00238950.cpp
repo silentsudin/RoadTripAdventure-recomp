@@ -25,10 +25,10 @@ uint32_t AwardRaceResult(uint32_t param_1, ...) {
     cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x20)));
   }
   if (cVar1 == '(') {
-    if (((*(uint32_t*)rtguest::G(0x177ace4)) < 280.0) && ((*(uint32_t*)rtguest::G(0x177af54)) < 280.0)) {
+    if (((*(float*)rtguest::G(0x177ace4)) < 280.0) && ((*(float*)rtguest::G(0x177af54)) < 280.0)) {
       GetOrSetPresidentRaceResult(3);
     }
-    if ((280.0 <= (*(uint32_t*)rtguest::G(0x177ace4))) && (280.0 <= (*(uint32_t*)rtguest::G(0x177af54)))) {
+    if ((280.0 <= (*(float*)rtguest::G(0x177ace4))) && (280.0 <= (*(float*)rtguest::G(0x177af54)))) {
       if ((*(int8_t*)rtguest::G(0x177ae97)) != '\0') {
         GetOrSetPresidentRaceResult(1);
         return 0;

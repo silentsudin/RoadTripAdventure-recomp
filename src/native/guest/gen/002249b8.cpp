@@ -25,7 +25,7 @@ uint32_t pfVar1;
   
   iVar3 = 0;
   pfVar1 = 0x0172ff7c;
-  if (0.0 < (*(uint32_t*)rtguest::G(0x172ff7c))) {
+  if (0.0f < (*(float*)rtguest::G(0x172ff7c))) {
     iVar3 = 2;
     while ((pfVar1 = pfVar1 + 0x20, iVar3 < 0x80 && (0.0 < (*(float*)rtguest::G((uint32_t)pfVar1))))) {
       iVar3 = iVar3 + 2;
@@ -38,11 +38,11 @@ uint32_t pfVar1;
       fVar4 = 1.0;
     }
     fVar5 = rtguest::fbits(RT_CALLRA(0x224a94, guest::__floatdisf(((param_3 + 4) & 0xf))));  // MIPS daddiu $16,$18,4 @0x224a84; andi $4,$16,0xf @0x224a88
-    (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) = (*(uint32_t*)rtguest::G(0x332d80)) - fVar5 * 0.0625;
+    (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G(0x332d80)) - fVar5 * 0.0625;
     fVar5 = rtguest::fbits(RT_CALLRA(0x224adc, guest::__floatdisf((param_3 & 0xf))));  // MIPS andi $4,$18,0xf @0x224ac4
     (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(1) * 4)) = 0.5;
     (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(1) * 4)) = 0.5;
-    (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) = fVar5 * 0.0625 + (*(uint32_t*)rtguest::G(0x332d84));
+    (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(0) * 4)) = fVar5 * 0.0625 + (*(float*)rtguest::G(0x332d84));
     fVar5 = rtguest::fbits(RT_CALLRA(0x224b38, guest::__floatdisf(((param_3 + 4) & 7))));  // MIPS andi $4,$16,7 @0x224b0c
     (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(2) * 4)) = 1.5 - fVar5 * 0.375;
     fVar5 = rtguest::fbits(RT_CALLRA(0x224b84, guest::__floatdisf((param_3 & 7))));  // MIPS andi $4,$18,7 @0x224b64
@@ -61,7 +61,7 @@ uint32_t pfVar1;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x017307f0 + iVar3 * 8))) = 0;
       RT_CALLRA(0x224c70, guest::vu0CopyVector(0x0172ff70 + iVar2,afStack_70));
       RT_CALLRA(0x224c80, guest::vu0CopyVector(iVar2 + 0x172ff80,afStack_60));
-      (*(uint32_t*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(iVar3 * 4) * 4)) = fVar4 + 0.25;
+      (*(uint32_t*)rtguest::G((uint32_t)0x172ff7c + (uint32_t)(iVar3 * 4) * 4)) = rtguest::f2bits(fVar4 + 0.25f);
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x0172ff8c + iVar2))) = 0x3f000000;
     }
   }

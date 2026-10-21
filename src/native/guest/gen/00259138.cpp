@@ -64,23 +64,23 @@ LAB_00259274:
               fVar11 = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(2) * sizeof(float)));
               fVar9 = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(3) * sizeof(float)));
               fVar13 = (*(float*)rtguest::G((uint32_t)pfVar4));
-              if (0.0 < (fVar9 - fVar12) * ((*(uint32_t*)rtguest::G(0x177ace0)) - fVar11) -
-                        (fVar11 - fVar13) * ((*(uint32_t*)rtguest::G(0x177ace8)) - fVar9)) {
+              if (0.0 < (fVar9 - fVar12) * ((*(float*)rtguest::G(0x177ace0)) - fVar11) -
+                        (fVar11 - fVar13) * ((*(float*)rtguest::G(0x177ace8)) - fVar9)) {
                 fVar10 = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(4) * sizeof(float)));
                 fVar8 = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(5) * sizeof(float)));
-                if (0.0 < (fVar8 - fVar9) * ((*(uint32_t*)rtguest::G(0x177ace0)) - fVar10) -
-                          (fVar10 - fVar11) * ((*(uint32_t*)rtguest::G(0x177ace8)) - fVar8)) {
+                if (0.0 < (fVar8 - fVar9) * ((*(float*)rtguest::G(0x177ace0)) - fVar10) -
+                          (fVar10 - fVar11) * ((*(float*)rtguest::G(0x177ace8)) - fVar8)) {
                   fVar11 = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(6) * sizeof(float)));
                   fVar9 = (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(7) * sizeof(float)));
-                  if (0.0 < (fVar9 - fVar8) * ((*(uint32_t*)rtguest::G(0x177ace0)) - fVar11) -
-                            (fVar11 - fVar10) * ((*(uint32_t*)rtguest::G(0x177ace8)) - fVar9)) {
-                    if (0.0 < (fVar12 - fVar9) * ((*(uint32_t*)rtguest::G(0x177ace0)) - fVar13) -
-                              (fVar13 - fVar11) * ((*(uint32_t*)rtguest::G(0x177ace8)) - fVar12)) {
+                  if (0.0 < (fVar9 - fVar8) * ((*(float*)rtguest::G(0x177ace0)) - fVar11) -
+                            (fVar11 - fVar10) * ((*(float*)rtguest::G(0x177ace8)) - fVar9)) {
+                    if (0.0 < (fVar12 - fVar9) * ((*(float*)rtguest::G(0x177ace0)) - fVar13) -
+                              (fVar13 - fVar11) * ((*(float*)rtguest::G(0x177ace8)) - fVar12)) {
                       (*(float*)rtguest::G((uint32_t)fStack_80)) = (fVar10 + fVar11) * 0.5;
                       (*(float*)rtguest::G((uint32_t)fStack_7c)) = -20.0;
                       (*(float*)rtguest::G((uint32_t)fStack_78)) = ((*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(5) * sizeof(float))) + (*(float*)rtguest::G((uint32_t)pfVar4 + (uint32_t)(7) * sizeof(float)))) * 0.5;
                       rtCall((*(uint32_t*)rtguest::G(0x335710)), fStack_80, auStack_70, auStack_6c, (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x54))) & 3, param_2);
-                      if ((*(uint32_t*)rtguest::G(0x177ace4)) < (*(float*)rtguest::G((uint32_t)fStack_7c)) + 1.0) {
+                      if ((*(float*)rtguest::G(0x177ace4)) < (*(float*)rtguest::G((uint32_t)fStack_7c)) + 1.0) {
                         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x23))) = (char)uVar6;
                         (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x21))) = (char)lVar7;
                         if ((((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))) & 0x1000) == 0) ||

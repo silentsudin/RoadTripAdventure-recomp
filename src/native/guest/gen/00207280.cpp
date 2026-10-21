@@ -101,7 +101,8 @@ LAB_00207404:
     }
     else {
       iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_4 * 4 + param_5 + 0x70)));
-      (*(float*)rtguest::G((uint32_t)fStack_64)) = (*(uint32_t*)rtguest::G(0x332b08));
+      // fn/00207280.c:102 fStack_64 = DAT_00332b08 (float -10000.0; MIPS 0x207550 lwc1 $f1,-0x7fe8($gp) -> swc1 0x1c($sp)); was u32-value-converted to 3.3e9.
+      (*(float*)rtguest::G((uint32_t)fStack_64)) = (*(float*)rtguest::G(0x332b08));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (*(uint32_t*)rtguest::G(0x332b0c));
       (*(float*)rtguest::G((uint32_t)afStack_5c + (uint32_t)(0) * 4)) = 0.0;
       lVar1 = RT_CALLRA(0x207588, guest::IntersectPointWithMesh((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 * 4 + iVar4))),fStack_80,param_3,

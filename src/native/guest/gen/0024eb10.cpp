@@ -71,7 +71,7 @@ LAB_0024ec9c:
       RT_CALLRA(0x24ecb0, guest::vu0CopyVector(param_2 + 0x18,afStack_80));
       RT_CALLRA(0x24ecc0, guest::sceVu0ScaleVectorXYZ((*(float*)rtguest::G(0x332f84)),afStack_80,afStack_80));
       RT_CALLRA(0x24ecd0, guest::vu0RotMatrix(auStack_d0,auStack_d0,afStack_80));
-      (*(float*)rtguest::G((uint32_t)fStack_98)) = ((*(uint32_t*)rtguest::G(0x332f88)) - (float)((*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(6) * sizeof(int32_t))) + param_6)) * 0.0625;
+      (*(float*)rtguest::G((uint32_t)fStack_98)) = ((*(float*)rtguest::G(0x332f88)) - (float)((*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(6) * sizeof(int32_t))) + param_6)) * 0.0625;
       (*(float*)rtguest::G((uint32_t)fStack_cc)) = (*(float*)rtguest::G((uint32_t)fStack_cc)) * 0.5;
       (*(float*)rtguest::G((uint32_t)fStack_bc)) = (*(float*)rtguest::G((uint32_t)fStack_bc)) * 0.5;
       (*(float*)rtguest::G((uint32_t)fStack_ac)) = (*(float*)rtguest::G((uint32_t)fStack_ac)) * 0.5;

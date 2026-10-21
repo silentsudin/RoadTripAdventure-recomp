@@ -72,8 +72,8 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
   }
   if (cVar3 == '\0') {
     if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 8))) < 0x32) {
-      (*(float*)rtguest::G(0x1752690)) = (*(float*)rtguest::G(0x1752690)) + (*(uint32_t*)rtguest::G(0x332e2c));
-      (*(uint32_t*)rtguest::G(0x1752698)) = (*(uint32_t*)rtguest::G(0x1752698)) + (*(uint32_t*)rtguest::G(0x332e30));
+      (*(float*)rtguest::G(0x1752690)) = (*(float*)rtguest::G(0x1752690)) + (*(float*)rtguest::G(0x332e2c));
+      (*(float*)rtguest::G(0x1752698)) = (*(float*)rtguest::G(0x1752698)) + (*(float*)rtguest::G(0x332e30));
     }
     else {
       (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x25))) = 1;

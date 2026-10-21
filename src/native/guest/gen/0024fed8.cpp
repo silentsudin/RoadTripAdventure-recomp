@@ -17,7 +17,7 @@ uint32_t ComputeWaypointTargetAngle(uint32_t param_1, uint32_t param_2, uint32_t
   float fVar3;
   float fVar4;
   
-  fVar4 = (*(uint32_t*)rtguest::G(0x332fa0));
+  fVar4 = (*(float*)rtguest::G(0x332fa0));
   if (param_3 == 1) {
     fVar3 = ((*(float*)rtguest::G((uint32_t)param_1)) + (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(float)))) * 0.5 - (*(float*)rtguest::G((uint32_t)param_2));
     fVar2 = ((*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(float))) + (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(float)))) * 0.5 - (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(float)));
@@ -33,7 +33,7 @@ uint32_t ComputeWaypointTargetAngle(uint32_t param_1, uint32_t param_2, uint32_t
     }
     fVar3 = (*(float*)rtguest::G((uint32_t)param_1)) - (*(float*)rtguest::G((uint32_t)param_2));
     fVar2 = (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(1) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(float)));
-    fVar4 = (*(uint32_t*)rtguest::G(0x332fa4));
+    fVar4 = (*(float*)rtguest::G(0x332fa4));
   }
   fVar1 = rtguest::fbits(RT_CALLRA(0x24ffd0, guest::atan2f(rtguest::f2bits(fVar3),rtguest::f2bits(fVar2))));
   fVar2 = (*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(3) * sizeof(float))) - (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(float)));

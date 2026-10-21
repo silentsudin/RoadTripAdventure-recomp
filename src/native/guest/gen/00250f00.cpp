@@ -23,7 +23,7 @@ uint32_t InitMiniGameBallState(uint32_t param_1, uint32_t param_2, ...) {
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)((uint32_t)(param_1 + 0x40))), 0, 0x60));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x58))) = 0x3f800000;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x44))) = 0x3f800000;
-  fVar1 = (*(uint32_t*)rtguest::G(0x332fb0));
+  fVar1 = (*(float*)rtguest::G(0x332fb0));
   iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x10))) * 0x40;
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x60))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ac0c0 + iVar2)));
   (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 100))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x2ac0c4))) + fVar1;

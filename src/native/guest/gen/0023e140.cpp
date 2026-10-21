@@ -69,7 +69,7 @@ uint32_t texAnimCopyA(uint32_t param_1, ...) {
   uVar10 = (*(uint32_t*)rtguest::G(0x332e44));
   RT_CALLRA(0x23e440, guest::gifChainEndTag(0x2a3490,0xd));
   RT_CALLRA(0x23e448, guest::sendTexturePackets(0x2a3490));
-  fVar9 = (float)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x168 + -0xb4) * (*(uint32_t*)rtguest::G(0x332e50));
+  fVar9 = (float)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x168 + -0xb4) * (*(float*)rtguest::G(0x332e50));
   RT_CALLRA(0x23e4a4, guest::vu0UnitMatrix(0x177eb10));
   RT_CALLRA(0x23e4b4, guest::vu0RotMatrixX(fVar9 / 180.0,0x177eb10,0x177eb10));
   (*(uint32_t*)rtguest::G(0x177eb40)) = uVar10;

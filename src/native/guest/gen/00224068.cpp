@@ -38,9 +38,9 @@ uint32_t pfVar2;
     RT_CALLRA(0x2240f4, guest::vu0ApplyMatrix(afStack_70,param_1,afStack_70));
     RT_CALLRA(0x224108, guest::vu0ApplyMatrix(uStack_60,param_1,uStack_60));
     fVar5 = (float)((*(int32_t*)rtguest::G((uint32_t)param_4)) + -0x10);
-    (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(2) * 4)) = (*(uint32_t*)rtguest::G(0x332d18)) - fVar5 * (*(uint32_t*)rtguest::G(0x332d10));
+    (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(2) * 4)) = (*(float*)rtguest::G(0x332d18)) - fVar5 * (*(float*)rtguest::G(0x332d10));
     (*(float*)rtguest::G((uint32_t)fStack_58)) = (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(2) * 4));
-    RT_CALLRA(0x22416c, guest::drawCarEffectB(fVar5 * 0.03125 + (*(uint32_t*)rtguest::G(0x332d14)),fVar5 * 0.015625,param_2 >> 2 & 3,param_3,
+    RT_CALLRA(0x22416c, guest::drawCarEffectB(fVar5 * 0.03125 + (*(float*)rtguest::G(0x332d14)),fVar5 * 0.015625,param_2 >> 2 & 3,param_3,
                    afStack_70,1));
     iVar3 = (*(int32_t*)rtguest::G((uint32_t)param_4));
   }
@@ -48,20 +48,20 @@ uint32_t pfVar2;
     (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0;
     fVar5 = (float)iVar3;
     fVar6 = fVar5 * -0.015625;
-    (*(float*)rtguest::G((uint32_t)fStack_58)) = fVar5 * (*(uint32_t*)rtguest::G(0x332d28)) + (*(uint32_t*)rtguest::G(0x332d2c));
-    fVar5 = fVar5 * -0.03125 + (*(uint32_t*)rtguest::G(0x332d30));
+    (*(float*)rtguest::G((uint32_t)fStack_58)) = fVar5 * (*(float*)rtguest::G(0x332d28)) + (*(float*)rtguest::G(0x332d2c));
+    fVar5 = fVar5 * -0.03125 + (*(float*)rtguest::G(0x332d30));
   }
   else {
     fVar5 = (float)iVar3;
     fVar6 = fVar5 * 0.015625;
-    (*(float*)rtguest::G((uint32_t)fStack_58)) = (*(uint32_t*)rtguest::G(0x332d20)) - fVar5 * (*(uint32_t*)rtguest::G(0x332d1c));
-    fVar5 = fVar5 * 0.03125 + (*(uint32_t*)rtguest::G(0x332d24));
+    (*(float*)rtguest::G((uint32_t)fStack_58)) = (*(float*)rtguest::G(0x332d20)) - fVar5 * (*(float*)rtguest::G(0x332d1c));
+    fVar5 = fVar5 * 0.03125 + (*(float*)rtguest::G(0x332d24));
     if (iVar3 == 0x20) {
       (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0x10;
     }
   }
   (*(uint32_t*)rtguest::G((uint32_t)uStack_64)) = 0x3f800000;
-  (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) = (*(uint32_t*)rtguest::G(0x332d34));
+  (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G(0x332d34));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_60)) = (*(uint32_t*)rtguest::G(0x332d38));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_54)) = 0x3f800000;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_5c)) = 0;
@@ -78,7 +78,7 @@ uint32_t pfVar2;
                  ((*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(2) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x0172ff78 + (*(int16_t*)rtguest::G((uint32_t)param_5)) * 0x10)))))) {
     pfVar2 = 0x0172ff7c;
     iVar3 = 0;
-    if (0.0 < (*(uint32_t*)rtguest::G(0x172ff7c))) {
+    if (0.0 < (*(float*)rtguest::G(0x172ff7c))) {
       iVar3 = 2;
       while ((pfVar2 = pfVar2 + 0x20, iVar3 < 0x80 && (0.0 < (*(float*)rtguest::G((uint32_t)pfVar2))))) {
         iVar3 = iVar3 + 2;

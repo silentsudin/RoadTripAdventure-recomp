@@ -111,9 +111,9 @@ uint32_t pfStack_70;
       (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = (int)fVar20;
       puVar9 = puVar9 + 0x4;  // T* element step
     }
-    fVar22 = rtguest::fbits(RT_CALLRA(0x276ae8, guest::scalbnf(fVar22,iVar16)));
+    fVar22 = rtguest::fbits(RT_CALLRA(0x276ae8, guest::scalbnf(rtguest::f2bits(fVar22),iVar16)));
     iVar13 = 0;
-    fVar20 = rtguest::fbits(RT_CALLRA(0x276b00, guest::floorf(fVar22 * 0.125)));
+    fVar20 = rtguest::fbits(RT_CALLRA(0x276b00, guest::floorf(rtguest::f2bits(fVar22 * 0.125f))));
     fVar22 = fVar22 - fVar20 * 8.0;
     uVar21 = (uint32_t)fVar22;
     fVar22 = fVar22 - (float)(int)uVar21;
@@ -171,7 +171,7 @@ LAB_00276bec:
       }
 LAB_00276c54:
       if ((iVar13 == 2) && (fVar22 = 1.0 - fVar22, bVar15)) {
-        fVar20 = rtguest::fbits(RT_CALLRA(0x276c6c, guest::scalbnf(iVar16)));
+        fVar20 = rtguest::fbits(RT_CALLRA(0x276c6c, guest::scalbnf(0x3f800000,iVar16)));
         fVar22 = fVar22 - fVar20;
       }
     }
@@ -190,7 +190,7 @@ LAB_00276dd8:
         }
       }
       else {
-        fVar22 = rtguest::fbits(RT_CALLRA(0x276e28, guest::scalbnf(fVar22,-iVar16)));
+        fVar22 = rtguest::fbits(RT_CALLRA(0x276e28, guest::scalbnf(rtguest::f2bits(fVar22),-iVar16)));
         if (256.0 <= fVar22) {
           iVar18 = iVar11 + 1;
           (*(uint32_t*)rtguest::G((uint32_t)auStack_1b4 + (uint32_t)(iVar11 + 1) * 4)) = (int)(fVar22 - (float)(int)(fVar22 * 0.00390625) * 256.0);

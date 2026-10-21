@@ -80,8 +80,8 @@ uint32_t puVar9;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) = 0;
     RT_CALLRA(0x251c64, guest::SetBaseValue(iVar1,0));
   }
-  fVar2 = (*(uint32_t*)rtguest::G(0x333030));
-  fVar15 = (*(uint32_t*)rtguest::G(0x33302c));
+  fVar2 = (*(float*)rtguest::G(0x333030));
+  fVar15 = (*(float*)rtguest::G(0x33302c));
   switch((*(uint32_t*)rtguest::G((uint32_t)puVar9))) {
   case 0:
     fVar16 = 0.0;
@@ -128,8 +128,8 @@ uint32_t puVar9;
     (*(uint32_t*)rtguest::G((uint32_t)uStack_cc)) = 0;
     (*(float*)rtguest::G((uint32_t)fStack_c4)) = rtguest::fbits(RT_CALLRA(0x251e54, guest::vecDotProductVu0(auStack_d0,auStack_d0)));
     (*(float*)rtguest::G((uint32_t)fStack_c4)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_c4)));
-    if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_c4)) - (*(uint32_t*)rtguest::G(0x333034))) {
-      fVar15 = ((*(float*)rtguest::G((uint32_t)fStack_c4)) - (*(uint32_t*)rtguest::G(0x333034))) / (*(uint32_t*)rtguest::G(0x333038));
+    if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_c4)) - (*(float*)rtguest::G(0x333034))) {
+      fVar15 = ((*(float*)rtguest::G((uint32_t)fStack_c4)) - (*(float*)rtguest::G(0x333034))) / (*(float*)rtguest::G(0x333038));
       iVar13 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cc0)));
     }
     else {
@@ -225,8 +225,8 @@ LAB_0025200c:
     (*(uint32_t*)rtguest::G((uint32_t)uStack_ac)) = 0;
     (*(float*)rtguest::G((uint32_t)fStack_a4)) = rtguest::fbits(RT_CALLRA(0x252168, guest::vecDotProductVu0(auStack_b0,auStack_b0)));
     (*(float*)rtguest::G((uint32_t)fStack_a4)) = SQRT((*(float*)rtguest::G((uint32_t)fStack_a4)));
-    if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_a4)) - (*(uint32_t*)rtguest::G(0x33303c))) {
-      fVar15 = ((*(float*)rtguest::G((uint32_t)fStack_a4)) - (*(uint32_t*)rtguest::G(0x33303c))) / (*(uint32_t*)rtguest::G(0x333040));
+    if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_a4)) - (*(float*)rtguest::G(0x33303c))) {
+      fVar15 = ((*(float*)rtguest::G((uint32_t)fStack_a4)) - (*(float*)rtguest::G(0x33303c))) / (*(float*)rtguest::G(0x333040));
     }
     else {
       fVar15 = 0.0;
@@ -342,7 +342,7 @@ LAB_00252384:
     RT_CALLRA(0x252418, guest::vecNormalizeVu0(uStack_90,uStack_90));
     RT_CALLRA(0x252424, guest::BuildYawTransform(0x177eb50,uStack_90));
     RT_CALLRA(0x252430, guest::vu0CopyVectorXYZ(0x177eb80,auStack_a0));
-    (*(uint32_t*)rtguest::G(0x177eb84)) = (*(uint32_t*)rtguest::G(0x177eb84)) + (*(uint32_t*)rtguest::G(0x333044));
+    (*(float*)rtguest::G(0x177eb84)) = (*(float*)rtguest::G(0x177eb84)) + (*(float*)rtguest::G(0x333044));
   }
   if ((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8d30))) != 0) {
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8d30))) = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8d30))) + -1;

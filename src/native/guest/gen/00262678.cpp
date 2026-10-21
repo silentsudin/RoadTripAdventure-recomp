@@ -94,11 +94,11 @@ uint32_t puVar18;
     (*(uint32_t*)rtguest::G((uint32_t)puVar18)) = 2;
     (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb8))) = (int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(0x002d9f40 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 2)));
 LAB_002628dc:
-    fVar5 = (*(uint32_t*)rtguest::G(0x177ace8));
-    fVar4 = (*(uint32_t*)rtguest::G(0x177ace0));
+    fVar5 = (*(float*)rtguest::G(0x177ace8));
+    fVar4 = (*(float*)rtguest::G(0x177ace0));
     bVar1 = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbd)));
     if (bVar1 == 1) {
-      if (432.0 <= (*(uint32_t*)rtguest::G(0x177ace8))) {
+      if (432.0 <= (*(float*)rtguest::G(0x177ace8))) {
         RT_CALLRA(0x262af0, guest::SetRoadData((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28))),0,1));
 LAB_00262b5c:
         (*(uint32_t*)rtguest::G((uint32_t)puVar18)) = 3;
@@ -112,9 +112,9 @@ LAB_00262b5c:
       if (bVar1 == 0) {
         iVar8 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 0x10;
         if (0.0 <= ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e4c + iVar8))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e44 + iVar8)))) *
-                   ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e48 + iVar8)))) -
+                   ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e48 + iVar8)))) -
                    ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e48 + iVar8))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e40 + iVar8)))) *
-                   ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e4c + iVar8))))) {
+                   ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e4c + iVar8))))) {
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 40))) = (uint32_t)(*(uint64_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(5) * sizeof(uint64_t))) & 0xfffffeff;
           iVar8 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cbe))) * 0x10;
           if (0.0 <= (((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e1c + iVar8))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002d9e14 + iVar8)))) *
@@ -162,7 +162,7 @@ LAB_00262b5c:
       RT_CALLRA(0x262b04, guest::SetRoadData4((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x28))),0,1));
       (*(uint32_t*)rtguest::G(0x177ad48)) = 0x23a0;
       (*(uint32_t*)rtguest::G(0x177ad40)) = 0;
-      if (((*(uint32_t*)rtguest::G(0x177ace4)) <= 80.0) || (100.0 <= (*(uint32_t*)rtguest::G(0x177ace8)))) goto LAB_00262b5c;
+      if (((*(float*)rtguest::G(0x177ace4)) <= 80.0) || (100.0 <= (*(float*)rtguest::G(0x177ace8)))) goto LAB_00262b5c;
       uVar12 = (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x26)));
     }
     else {

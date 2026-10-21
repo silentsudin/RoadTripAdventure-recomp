@@ -15,7 +15,7 @@ uint32_t mapViewMatrix(uint32_t rt_bits_1, uint32_t rt_bits_2, uint32_t rt_bits_
   float fVar4;
 uint32_t auStack_90 = rtguest::allocFrame(64);
   
-  fVar2 = (*(uint32_t*)rtguest::G(0x332cac));
+  fVar2 = (*(float*)rtguest::G(0x332cac));
   fVar4 = (*(float*)rtguest::G(0x332ca8));
   if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
     fVar4 = 1.0;
@@ -31,8 +31,8 @@ uint32_t auStack_90 = rtguest::allocFrame(64);
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0xb) * sizeof(float))) = 1.0;
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0xf) * sizeof(float))) = 0.0;
   RT_CALLRA(0x21f9bc, guest::vu0UnitMatrix(param_4 + 0x40));  // MIPS 0x21f934 addiu $s1,$s0,0x40; call 0x21f9bc — pseudocode float* 0x10 = 64B
-  fVar2 = (*(uint32_t*)rtguest::G(0x332cb8));
-  (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0x1a) * sizeof(float))) = (*(uint32_t*)rtguest::G(0x332cb4));
+  fVar2 = (*(float*)rtguest::G(0x332cb8));
+  (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0x1a) * sizeof(float))) = (*(float*)rtguest::G(0x332cb4));
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0x1e) * sizeof(float))) = fVar2;
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0x1b) * sizeof(float))) = 1.0;
   (*(float*)rtguest::G((uint32_t)param_4 + (uint32_t)(0x15) * sizeof(float))) = param_3 * 0.001953125;

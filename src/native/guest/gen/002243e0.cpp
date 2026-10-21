@@ -35,19 +35,19 @@ uint32_t pfVar1;
     (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0;
     fVar4 = (float)iVar2;
     fVar6 = fVar4 * -0.015625;
-    (*(float*)rtguest::G((uint32_t)fStack_a8)) = fVar4 * (*(uint32_t*)rtguest::G(0x332d4c)) + (*(uint32_t*)rtguest::G(0x332d50));
-    fVar4 = fVar4 * -0.03125 + (*(uint32_t*)rtguest::G(0x332d54));
+    (*(float*)rtguest::G((uint32_t)fStack_a8)) = fVar4 * (*(float*)rtguest::G(0x332d4c)) + (*(float*)rtguest::G(0x332d50));
+    fVar4 = fVar4 * -0.03125 + (*(float*)rtguest::G(0x332d54));
   }
   else {
     fVar6 = (float)iVar2 * 0.03125;
-    (*(float*)rtguest::G((uint32_t)fStack_a8)) = (*(uint32_t*)rtguest::G(0x332d44)) - (float)iVar2 * (*(float*)rtguest::G(0x332d40));
-    fVar4 = fVar6 + (*(uint32_t*)rtguest::G(0x332d48));
+    (*(float*)rtguest::G((uint32_t)fStack_a8)) = (*(float*)rtguest::G(0x332d44)) - (float)iVar2 * (*(float*)rtguest::G(0x332d40));
+    fVar4 = fVar6 + (*(float*)rtguest::G(0x332d48));
     if (iVar2 == 0x10) {
       (*(int32_t*)rtguest::G((uint32_t)param_4)) = 0;
     }
   }
   fVar5 = 1.0;
-  (*(float*)rtguest::G((uint32_t)afStack_c0 + (uint32_t)(0) * 4)) = (*(uint32_t*)rtguest::G(0x332d58));
+  (*(float*)rtguest::G((uint32_t)afStack_c0 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G(0x332d58));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_b0)) = (*(uint32_t*)rtguest::G(0x332d5c));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_a4)) = 0x3f800000;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_b4)) = 0x3f800000;
@@ -68,7 +68,7 @@ uint32_t pfVar1;
     if (0.0 < (*(float*)rtguest::G((uint32_t)fStack_64))) {
       pfVar1 = 0x0172ff7c;
       iVar2 = 0;
-      if (0.0 < (*(uint32_t*)rtguest::G(0x172ff7c))) {
+      if (0.0 < (*(float*)rtguest::G(0x172ff7c))) {
         iVar2 = 2;
         while ((pfVar1 = pfVar1 + 0x20, iVar2 < 0x80 && (0.0 < (*(float*)rtguest::G((uint32_t)pfVar1))))) {
           iVar2 = iVar2 + 2;

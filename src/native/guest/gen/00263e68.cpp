@@ -51,13 +51,13 @@ uint32_t puVar9;
     (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 1;
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8))) = 0;
   case 1:
-    fVar11 = (*(uint32_t*)rtguest::G(0x177ace8));
+    fVar11 = (*(float*)rtguest::G(0x177ace8));
     iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8)));
     if (iVar7 == 1) {
       RT_CALLRA(0x264038, guest::vu0CopyVector(auStack_60,0x177ace0));
       rtCall((*(uint32_t*)rtguest::G(0x335710)), auStack_60, auStack_50, auStack_4c, 0, param_2);
-      bVar3 = (*(uint32_t*)rtguest::G(0x177ace4)) <= (*(float*)rtguest::G((uint32_t)fStack_5c));
-      (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) = (int)((*(uint32_t*)rtguest::G(0x3331e4)) - (*(uint32_t*)rtguest::G(0x177ace8)));
+      bVar3 = (*(float*)rtguest::G(0x177ace4)) <= (*(float*)rtguest::G((uint32_t)fStack_5c));
+      (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) = (int)((*(float*)rtguest::G(0x3331e4)) - (*(float*)rtguest::G(0x177ace8)));
       if (bVar3) {
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8))) = 2;
         (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar10 + 0x28))) & 0xfffffeff;
@@ -71,15 +71,15 @@ uint32_t puVar9;
     }
     else if (iVar7 < 2) {
       if (iVar7 == 0) {
-        if ((*(uint32_t*)rtguest::G(0x177ace8)) <= (*(uint32_t*)rtguest::G(0x3331d8))) {
+        if ((*(float*)rtguest::G(0x177ace8)) <= (*(float*)rtguest::G(0x3331d8))) {
           (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb8))) = 1;
         }
-        if ((1280.0 <= fVar11) && ((*(uint32_t*)rtguest::G(0x177ace0)) <= (*(uint32_t*)rtguest::G(0x3331dc)))) {
+        if ((1280.0 <= fVar11) && ((*(float*)rtguest::G(0x177ace0)) <= (*(float*)rtguest::G(0x3331dc)))) {
           RT_CALLRA(0x263fe0, guest::GetOrSetPresidentRaceResult(0));
           (*(uint32_t*)rtguest::G((uint32_t)puVar9)) = 2;
           (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
         }
-        RT_CALLRA(0x2640a4, guest::SetObjectFields847C8470((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),(int)((*(uint32_t*)rtguest::G(0x3331e0)) - (*(uint32_t*)rtguest::G(0x177ace8))),1));
+        RT_CALLRA(0x2640a4, guest::SetObjectFields847C8470((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28))),(int)((*(float*)rtguest::G(0x3331e0)) - (*(float*)rtguest::G(0x177ace8))),1));
         iVar7 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar8 + 0x28)));
       }
       else {

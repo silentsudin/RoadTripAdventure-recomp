@@ -38,7 +38,7 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
     RT_CALLRA(0x242570, guest::mapViewMatrix(((*(float*)rtguest::G((uint32_t)(uint32_t)(0x2a42c0 + iVar2))) + 1728.0) -
                   ((*(float*)rtguest::G((uint32_t)param_1)) * (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + iVar2)))) / 200.0,
                   (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x2a42c4))) + 1936.0 +
-                  ((*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(float))) * (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + iVar2))) * (*(uint32_t*)rtguest::G(0x332efc))) / 200.0,0x1752700))
+                  ((*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(float))) * (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + iVar2))) * (*(float*)rtguest::G(0x332efc))) / 200.0,0x1752700))
     ;
   }
   else {
@@ -47,11 +47,11 @@ uint32_t auStack_40 = rtguest::allocFrame(16);
     RT_CALLRA(0x242610, guest::mapViewMatrix(((*(float*)rtguest::G((uint32_t)(uint32_t)(0x2a42c0 + iVar2))) * (*(float*)rtguest::G(0x332ef4)) + 1792.0) -
                   ((*(float*)rtguest::G((uint32_t)param_1)) * (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + iVar2))) * (*(float*)rtguest::G(0x332ef4))) / 200.0,
                   (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar2 + 0x2a42c4))) + 1920.0 +
-                  ((*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(float))) * (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + iVar2))) * (*(uint32_t*)rtguest::G(0x332ef8))) / 200.0,0x1752700))
+                  ((*(float*)rtguest::G((uint32_t)param_1 + (uint32_t)(2) * sizeof(float))) * (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + iVar2))) * (*(float*)rtguest::G(0x332ef8))) / 200.0,0x1752700))
     ;
   }
-  (*(uint32_t*)rtguest::G(0x1752740)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + param_2 * 0x10))) / 768.0;
-  (*(uint32_t*)rtguest::G(0x1752754)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + param_2 * 0x10))) * 0.001953125;
+  (*(float*)rtguest::G(0x1752740)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + param_2 * 0x10))) / 768.0;
+  (*(float*)rtguest::G(0x1752754)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + param_2 * 0x10))) * 0.001953125;
   RT_CALLRA(0x242650, guest::vu0UnitMatrix(auStack_170));
   RT_CALLRA(0x242660, guest::vu0CopyVectorXYZ(auStack_140,0x2a43e0));
   RT_CALLRA(0x242670, guest::vu0RotMatrixX((*(uint32_t*)rtguest::G(0x00332f00)),auStack_170,auStack_170));

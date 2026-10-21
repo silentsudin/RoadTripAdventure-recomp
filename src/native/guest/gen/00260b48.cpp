@@ -32,12 +32,12 @@ uint32_t auStack_60 = rtguest::allocFrame(4);
   fVar5 = SQRT(fVar5);
   RT_CALLRA(0x260be0, guest::vecNormalizeVu0(uStack_50,uStack_50));
   if (fVar5 < 15.0) {
-    fVar5 = fVar5 + (*(uint32_t*)rtguest::G(0x33317c));
+    fVar5 = fVar5 + (*(float*)rtguest::G(0x33317c));
     bVar1 = 15.0 < fVar5;
   }
   else {
     if (fVar5 <= 15.0) goto LAB_00260c44;
-    fVar5 = fVar5 - (*(uint32_t*)rtguest::G(0x333180));
+    fVar5 = fVar5 - (*(float*)rtguest::G(0x333180));
     bVar1 = fVar5 < 15.0;
   }
   if (bVar1) {
@@ -47,7 +47,7 @@ LAB_00260c44:
   RT_CALLRA(0x260c48, guest::vu0ScaleVector(fVar5,uStack_50,uStack_50));
   fVar5 = rtguest::fbits(RT_CALLRA(0x260c64, guest::atan2f(rtguest::f2bits((*(float*)rtguest::G(0x177ace0)) - 400.0f),rtguest::f2bits((*(float*)rtguest::G(0x177ace8)) - 400.0f))));
   iVar2 = -10;
-  iVar3 = (int)(((((int)(short)(int)((fVar5 / (*(uint32_t*)rtguest::G(0x333184))) * 32768.0) -
+  iVar3 = (int)(((((int)(short)(int)((fVar5 / (*(float*)rtguest::G(0x333184))) * 32768.0) -
                   (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc)))) + 0x666 & 0xffff) % 0xccc + 0xf99a) * 0x10000)
           >> 0x10;
   if (iVar3 < 0xb) {
@@ -58,7 +58,7 @@ LAB_00260c44:
     iVar4 = iVar2;
   }
   RT_CALLRA(0x260cf8, guest::vu0ScaleVector(0,auStack_60,auStack_60));
-  (*(float*)rtguest::G((uint32_t)fStack_5c)) = (float)((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe))) + iVar4) * (*(uint32_t*)rtguest::G(0x333188)) * 3.0517578e-05;
+  (*(float*)rtguest::G((uint32_t)fStack_5c)) = (float)((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe))) + iVar4) * (*(float*)rtguest::G(0x333188)) * 3.0517578e-05;
   RT_CALLRA(0x260d2c, guest::vu0UnitMatrix(auStack_a0));
   RT_CALLRA(0x260d3c, guest::vu0RotMatrix(auStack_a0,auStack_a0,auStack_60));
   RT_CALLRA(0x260d4c, guest::vu0ApplyMatrix(uStack_50,auStack_a0,uStack_50));

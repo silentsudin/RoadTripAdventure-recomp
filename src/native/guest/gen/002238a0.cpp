@@ -34,7 +34,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(64);
   if (param_2 < 0) {
     fVar5 = (float)param_2;
     param_2 = 0x14 - param_2;
-    (*(uint32_t*)rtguest::G(0x29d37c)) = fVar5 * (*(float*)rtguest::G(0x332d00));
+    (*(float*)rtguest::G(0x29d37c)) = fVar5 * (*(float*)rtguest::G(0x332d00));
   }
   else {
     (*(uint32_t*)rtguest::G(0x29d37c)) = rtguest::f2bits(0.5f);
@@ -50,7 +50,7 @@ uint32_t auStack_a0 = rtguest::allocFrame(64);
   iVar1 = (param_2 % 6) * 5;
   iVar4 = -4;
   iVar3 = (param_2 % 6 & 1U) - 8;
-  fVar5 = (*(uint32_t*)rtguest::G(0x332d04));
+  fVar5 = (*(float*)rtguest::G(0x332d04));
   do {
     fVar6 = (float)iVar3;
     iVar3 = iVar3 + 2;

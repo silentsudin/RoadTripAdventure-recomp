@@ -42,8 +42,8 @@ uint32_t puVar6;
             if ((((*(float*)rtguest::G((uint32_t)fStack_64)) != fVar9) && ((*(float*)rtguest::G((uint32_t)fStack_64)) < (*(float*)rtguest::G(0x332b6c)))) &&
                ((lVar3 = TestCarCollisionBox(puVar5,puVar6), lVar3 != 0 ||
                 (lVar3 = TestCarCollisionBox(puVar6,puVar5), lVar3 != 0)))) {
-              fVar10 = ((*(uint32_t*)rtguest::G(0x332b70)) - (*(float*)rtguest::G((uint32_t)fStack_64))) / (*(float*)rtguest::G((uint32_t)fStack_64));
-              fVar11 = (*(uint32_t*)rtguest::G(0x332b74));
+              fVar10 = ((*(float*)rtguest::G(0x332b70)) - (*(float*)rtguest::G((uint32_t)fStack_64))) / (*(float*)rtguest::G((uint32_t)fStack_64));
+              fVar11 = (*(float*)rtguest::G(0x332b74));
               if (fVar9 <= fVar10) {
                 fVar11 = fVar10;
               }

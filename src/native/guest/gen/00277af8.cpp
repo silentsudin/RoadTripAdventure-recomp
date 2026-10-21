@@ -13,21 +13,21 @@ uint32_t scalbnf(uint32_t param_1, uint32_t param_2, ...) {
   int iVar1;
   float fVar2;
   
-  iVar1 = ((uint32_t)ABS(param_1) >> 0x17) + (int)param_2;
-  if (0x7fffff < (uint32_t)ABS(param_1)) {
+  iVar1 = ((param_1 & 0x7fffffffu) >> 0x17) + (int)param_2;  // MIPS and $2,$6,0x7fffffff @0x277b14: ABS on the f12 bits
+  if (0x7fffff < (param_1 & 0x7fffffffu)) {
     if (iVar1 < 0x100) {
       if (0 < iVar1) {
-        return (float)((uint32_t)param_1 & 0x807fffff | iVar1 * 0x800000);
+        return (param_1 & 0x807fffffu) | ((uint32_t)iVar1 << 23);  // mtc1 $2,$f12 @0x277b6c: result bits
       }
-      if (param_2 < 0xc351) {
-        fVar2 = 1e-30;
+      if ((int)param_2 < 0xc351) {  // MIPS slt (signed) @0x277b78
+        fVar2 = 1e-30f;
       }
       else {
-        fVar2 = 1e+30;
+        fVar2 = 1e+30f;
       }
     }
     else {
-      fVar2 = 1e+30;
+      fVar2 = 1e+30f;
     }
     param_1 = rtguest::f2bits(rtguest::fbits(RT_CALLRA(0x277ba4, guest::copysignf(rtguest::f2bits(fVar2),param_1))) * fVar2);  // copysignf ends mtc1 $2,$f0 / jr ra (0x277c38): float bits; param_1 is a bits param
   }

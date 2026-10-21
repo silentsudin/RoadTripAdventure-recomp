@@ -149,14 +149,14 @@ LAB_00221c74:
       }
       if (iVar12 == 0) {
         iVar7 = 0;
-        fVar13 = (*(uint32_t*)rtguest::G(0x332cc4));
+        fVar13 = (*(float*)rtguest::G(0x332cc4));
         RT_CALLRA(0x221bc8, guest::vifCallModel((*(uint32_t*)rtguest::G(0x177eae0)) + 0x10));
         fVar14 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar11 + 0x88)));
         RT_CALLRA(0x221bd8, guest::vu0UnitMatrix(auStack_170));
         RT_CALLRA(0x221be8, guest::vu0RotMatrixZ(rtguest::f2bits(-fVar14),auStack_170,auStack_170));
         (*(uint32_t*)rtguest::G((uint32_t)uStack_13c)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ed748 + iVar3)));
         (*(uint32_t*)rtguest::G((uint32_t)uStack_138)) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002ed74c + iVar3)));
-        (*(float*)rtguest::G((uint32_t)fStack_140)) = (*(uint32_t*)rtguest::G(0x332cc8));
+        (*(float*)rtguest::G((uint32_t)fStack_140)) = (*(float*)rtguest::G(0x332cc8));
         (*(uint32_t*)rtguest::G((uint32_t)uStack_134)) = 0x3f800000;
         do {
           iVar7 = iVar7 + 1;

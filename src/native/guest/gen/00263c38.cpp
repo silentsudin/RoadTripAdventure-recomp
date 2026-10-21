@@ -34,12 +34,12 @@ uint32_t puVar5;
     RT_CALLRA(0x263d08, guest::StoreIndexedPosition(uVar6,0x43960000,0x442f0000,1,0xffffffffffffc000));
     (*(uint32_t*)rtguest::G((uint32_t)puVar5)) = 1;
   case 1:
-    if ((*(uint32_t*)rtguest::G(0x177ace4)) < 280.0) {
+    if ((*(float*)rtguest::G(0x177ace4)) < 280.0) {
       RT_CALLRA(0x263d3c, guest::GetOrSetPresidentRaceResult(1));
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       (*(uint32_t*)rtguest::G((uint32_t)puVar5)) = 2;
     }
-    if (280.0 <= (*(uint32_t*)rtguest::G(0x177af54))) {
+    if (280.0 <= (*(float*)rtguest::G(0x177af54))) {
       iVar3 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar3 + 0x8cb4)));
       goto LAB_00263e04;
     }

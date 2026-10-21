@@ -37,8 +37,8 @@ uint32_t puVar7;
   case 0:
     (*(uint32_t*)rtguest::G((uint32_t)puVar7)) = 1;
   case 1:
-    if (0.0 <= ((*(float*)rtguest::G(0x2d9944)) - (*(uint32_t*)rtguest::G(0x2d993c))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2d9940))) -
-               ((*(uint32_t*)rtguest::G(0x2d9940)) - (*(uint32_t*)rtguest::G(0x2d9938))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2d9944)))) {
+    if (0.0 <= ((*(float*)rtguest::G(0x2d9944)) - (*(float*)rtguest::G(0x2d993c))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2d9940))) -
+               ((*(float*)rtguest::G(0x2d9940)) - (*(float*)rtguest::G(0x2d9938))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2d9944)))) {
       if (((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc))) < 0x1c21) && (lVar4 = TestStateBitFc78(0x39), lVar4 != 0)) {
         RT_CALLRA(0x25fd38, guest::GetOrSetPresidentRaceResult(2));
       }
@@ -50,8 +50,8 @@ uint32_t puVar7;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;
       RT_CALLRA(0x25fd7c, guest::SetRoadData3((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x28))),0,1));
     }
-    if (0.0 <= ((*(uint32_t*)rtguest::G(0x2d9934)) - (*(uint32_t*)rtguest::G(0x2d992c))) * ((*(uint32_t*)rtguest::G(0x177ace0)) - (*(uint32_t*)rtguest::G(0x2d9930))) -
-               ((*(uint32_t*)rtguest::G(0x2d9930)) - (*(uint32_t*)rtguest::G(0x2d9928))) * ((*(uint32_t*)rtguest::G(0x177ace8)) - (*(uint32_t*)rtguest::G(0x2d9934)))) {
+    if (0.0 <= ((*(float*)rtguest::G(0x2d9934)) - (*(float*)rtguest::G(0x2d992c))) * ((*(float*)rtguest::G(0x177ace0)) - (*(float*)rtguest::G(0x2d9930))) -
+               ((*(float*)rtguest::G(0x2d9930)) - (*(float*)rtguest::G(0x2d9928))) * ((*(float*)rtguest::G(0x177ace8)) - (*(float*)rtguest::G(0x2d9934)))) {
       RT_CALLRA(0x25fdd8, guest::GetOrSetPresidentRaceResult(0));
       (*(uint32_t*)rtguest::G((uint32_t)puVar7)) = 2;
       (*(uint16_t*)rtguest::G(0x177ade8)) = (*(uint16_t*)rtguest::G(0x177ade8)) | 0x800;

@@ -32,7 +32,7 @@ uint32_t auStack_70 = rtguest::allocFrame(64);
   (*(uint64_t*)rtguest::G((uint32_t)uStack_90)) = 0x43c80000;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_88)) = 0x43c80000;
   RT_CALLRA(0x260a48, guest::vu0ScaleVector(0,auStack_80,auStack_80));
-  fVar1 = (*(uint32_t*)rtguest::G(0x333178));
+  fVar1 = (*(float*)rtguest::G(0x333178));
   sVar2 = (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) + (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xe)));
   (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc))) = sVar2;
   (*(float*)rtguest::G((uint32_t)fStack_7c)) = (float)(int)sVar2 * fVar1 * 3.0517578e-05;
