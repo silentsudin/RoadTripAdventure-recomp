@@ -13,7 +13,7 @@ uint32_t CalculateSpeedometerDigits(uint32_t param_1, ...) {
   float fVar1;
   
   fVar1 = rtguest::fbits(RT_CALLRA(0x2494f0, guest::GetSpeedFromF15Vector(param_1 + 0xf0)));
-  IntToPackedBCD((int)(fVar1 / (*(float*)rtguest::G(0x332f48))));
+  IntToPackedBCD((int)(rtguest::fdiv(fVar1, (*(float*)rtguest::G(0x332f48)))));
   return 0;
 }
 

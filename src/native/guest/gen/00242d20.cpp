@@ -45,7 +45,7 @@ uint32_t puVar1;
   float fVar5;
   
   uVar2 = 1;
-  fVar4 = 50.0 / (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a4058 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x22))) * 0x10)));
+  fVar4 = rtguest::fdiv(50.0, (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a4058 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x22))) * 0x10))));
   fVar5 = (*(float*)rtguest::G(0x332f34));
   RT_CALLRA(0x242db0, guest::vifUploadColours(0x2a4370,0x2a4360));
   puVar1 = 0x0177aec0;

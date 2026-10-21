@@ -31,8 +31,8 @@ void PrintVec3Norm(uint32_t param_1, int param_2, ...) {
     uVar3 = RT_CALLRA(0x26e030, guest::fptodp((*(uint32_t*)rtguest::G((uint32_t)(param_1)))));
     uVar4 = RT_CALLRA(0x26e04c, guest::fptodp((*(uint32_t*)rtguest::G((uint32_t)(param_1 + 4)))));
     uVar5 = RT_CALLRA(0x26e088, guest::fptodp(rtguest::f2bits(fVar6)));
-    uVar1 = RT_CALLRA(0x26e094, guest::fptodp(rtguest::f2bits((*(float*)rtguest::G((uint32_t)(param_1))) / fVar6)));
-    uVar2 = RT_CALLRA(0x26e0a0, guest::fptodp(rtguest::f2bits((*(float*)rtguest::G((uint32_t)(param_1 + 4))) / fVar6)));
+    uVar1 = RT_CALLRA(0x26e094, guest::fptodp(rtguest::f2bits(rtguest::fdiv((*(float*)rtguest::G((uint32_t)(param_1))), fVar6))));
+    uVar2 = RT_CALLRA(0x26e0a0, guest::fptodp(rtguest::f2bits(rtguest::fdiv((*(float*)rtguest::G((uint32_t)(param_1 + 4))), fVar6))));
     ::sprintf((char *)rtguest::G((uint32_t)(auStack_90)), (char *)rtguest::G((uint32_t)(0x32fbe0)),
               uVar3, uVar4, uVar5, uVar1, uVar2);
   }

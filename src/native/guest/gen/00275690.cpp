@@ -38,7 +38,7 @@ uint32_t __ieee754_sqrtf(uint32_t param_1, ...) {
       // mtc1 of the re-encoded integer into f0
       return (uint32_t)(((int32_t)uVar4 >> 1) + 0x3f000000 + ((int32_t)uVar5 >> 1) * 0x800000);
     }
-    param_1 = rtguest::f2bits(0.0f / 0.0f);  // div.s 0/0 quiet NaN
+    param_1 = rtguest::f2bits(rtguest::fdiv(0.0f, 0.0f));  // div.s 0/0 quiet NaN
   }
   return param_1;
 }

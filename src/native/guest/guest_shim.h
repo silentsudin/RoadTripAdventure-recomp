@@ -87,6 +87,16 @@ inline uint32_t f2bits(float f) { uint32_t b; __builtin_memcpy(&b, &f, 4); retur
 inline double dbits(uint64_t b) { double d; __builtin_memcpy(&d, &b, 8); return d; }
 inline uint64_t d2bits(double d) { uint64_t b; __builtin_memcpy(&b, &d, 8); return b; }
 
+// DIV.S rounds to NEAREST on the oracle (ps2xRuntime ps2_runtime_macros.h:872-889):
+// under the thread's round-toward-zero FPCR the double quotient is truncated;
+// adding half a float ulp to the double's bits and truncating to float gives the
+// correctly-rounded float result. ADD/SUB/MUL stay RZ plain operators.
+inline float f_round_nearest(double d) {
+  uint64_t u; __builtin_memcpy(&u, &d, 8); u += (1ull << 28); __builtin_memcpy(&d, &u, 8);
+  return static_cast<float>(d);
+}
+inline float fdiv(float a, float b) { return f_round_nearest((double)a / (double)b); }
+
 // Translate a guest address to a host pointer (cached/uncached aliases, scratchpad).
 inline void* G(uint32_t a) {
     if (a >= 0x80000000u) a -= 0x80000000u;      // KSEG1 uncached alias

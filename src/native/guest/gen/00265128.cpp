@@ -37,7 +37,7 @@ uint32_t auStack_50 = rtguest::allocFrame(16);
   (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = (long)(param_2 * 9 + 0x1fe2) | 0x19408000U | (long)(param_2 * 9 + 0x1fea) << 0x25;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_38)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) | 0x2000000d80000000;
   (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) = (*(uint64_t*)rtguest::G((uint32_t)uStack_40)) | 0xd80000000;
-  fVar2 = ((float)param_3 / 5.0 + 1.0) * 64.0;
+  fVar2 = (rtguest::fdiv((float)param_3, 5.0) + 1.0) * 64.0;
   RT_CALLRA(0x2651d8, guest::uiArenaSetTexture(param_1,uStack_40,0,0));
   (*(float*)rtguest::G((uint32_t)fStack_90)) = -fVar2;
   (*(int32_t*)rtguest::G((uint32_t)aiStack_b0 + (uint32_t)(5) * 4)) = 0x40;

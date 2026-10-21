@@ -133,7 +133,7 @@ LAB_0025e97c:
   RT_CALLRA(0x25ea54, guest::vu0UnitMatrix(0x177eb10));
   RT_CALLRA(0x25ea60, guest::vu0CopyVector(0x177eb40,0x2c4c10));
   RT_CALLRA(0x25ea68, guest::vu0UnitMatrix(0x177eb50));
-  RT_CALLRA(0x25eabc, guest::vu0RotMatrixX(((float)((*(int32_t*)rtguest::G((uint32_t)piVar7)) % 0x168 + -0xb4) * (*(float*)rtguest::G(0x333124))) / 180.0,0x177eb50,0x177eb50));
+  RT_CALLRA(0x25eabc, guest::vu0RotMatrixX(rtguest::fdiv(((float)((*(int32_t*)rtguest::G((uint32_t)piVar7)) % 0x168 + -0xb4) * (*(float*)rtguest::G(0x333124))), 180.0),0x177eb50,0x177eb50));
   RT_CALLRA(0x25eac8, guest::vu0CopyVector(0x177eb80,0x2c4c20));
   RT_CALLRA(0x25ead0, guest::vu0UnitMatrix(0x177eb90));
   RT_CALLRA(0x25eadc, guest::vu0CopyVector(0x177ebc0,0x2c4c30));

@@ -73,7 +73,7 @@ uint32_t puVar5;
       cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xb)));
     }
     else {
-      (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(4) * sizeof(float))) = fVar6 / (*(float*)rtguest::G(0x332c78));
+      (*(float*)rtguest::G((uint32_t)param_2 + (uint32_t)(4) * sizeof(float))) = rtguest::fdiv(fVar6, (*(float*)rtguest::G(0x332c78)));
       cVar2 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0xb)));
     }
   }

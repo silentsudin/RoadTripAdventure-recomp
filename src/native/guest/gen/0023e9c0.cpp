@@ -43,7 +43,7 @@ uint32_t ppuVar10;
   puVar5 = 0x0177eb10;
   do {
     iVar4 = iVar7 * 0x40;
-    fVar13 = ((float)((int)(short)(int)(*(float*)rtguest::G((uint32_t)pfVar8)) % 0x168 + -0xb4) * (*(float*)rtguest::G(0x332e68))) / 180.0;
+    fVar13 = rtguest::fdiv(((float)((int)(short)(int)(*(float*)rtguest::G((uint32_t)pfVar8)) % 0x168 + -0xb4) * (*(float*)rtguest::G(0x332e68))), 180.0);
     iVar7 = iVar7 + 1;
     RT_CALLRA(0x23eac8, guest::vu0UnitMatrix(puVar5));
     RT_CALLRA(0x23ead8, guest::vu0RotMatrixX(fVar13,puVar5,puVar5));

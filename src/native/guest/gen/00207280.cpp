@@ -72,7 +72,7 @@ LAB_00207404:
   iVar4 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_4 * 4 + param_5 + 0x60)));
   lVar1 = -1;
   if (-1 < iVar4) {
-    iVar3 = ((int)((*(float*)rtguest::G((uint32_t)fStack_80)) / 100.0) & 0xfU) + ((int)((*(float*)rtguest::G((uint32_t)fStack_78)) / 100.0) & 0xfU) * 0x10;
+    iVar3 = ((int)(rtguest::fdiv((*(float*)rtguest::G((uint32_t)fStack_80)), 100.0)) & 0xfU) + ((int)(rtguest::fdiv((*(float*)rtguest::G((uint32_t)fStack_78)), 100.0)) & 0xfU) * 0x10;
     if (iVar4 == 0xb) {
       (*(float*)rtguest::G((uint32_t)fStack_70)) = (*(float*)rtguest::G(0x332b00));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_6c)) = (*(uint32_t*)rtguest::G(0x332b04));

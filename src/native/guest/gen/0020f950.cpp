@@ -53,7 +53,7 @@ uint32_t puVar16;
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x20))) = (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar17 + 0x1c)));
   uVar3 = (*(uint8_t*)rtguest::G((uint32_t)(*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10)))));
   (*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) = uVar3;
-  RT_CALLRA(0x20fa58, guest::UpdateSceneLightsAndFog(0,uVar3));
+  RT_CALLRA(0x20fa58, guest::UpdateSceneLightsAndFog(0,(int8_t)uVar3));  // MIPS 0x20fa50/5c sll+sra sign-extends the lbu byte
   uVar5 = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))) + 0xc)));
   (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x14))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(0x002a88e8 + (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22))) * 8)));
   RT_CALLRA(0x20fa7c, guest::SetAICarController(uVar5));

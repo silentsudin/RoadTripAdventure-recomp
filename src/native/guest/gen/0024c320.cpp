@@ -143,7 +143,7 @@ uint32_t puVar16;
   }
   iVar15 = (int)param_3;
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) & 0x8000) == 0) {
-    fVar18 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1000))) + ((float)iVar12 / (*(float*)rtguest::G(0x332f78))) * 0.125f;
+    fVar18 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1000))) + (rtguest::fdiv((float)iVar12, (*(float*)rtguest::G(0x332f78)))) * 0.125f;
     (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar15 + 0x1000))) = fVar18;
   }
   else {

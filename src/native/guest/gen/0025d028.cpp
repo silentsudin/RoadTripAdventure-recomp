@@ -34,9 +34,9 @@ uint32_t pfVar6;
       iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4b40 + (uVar5 & 0x1f) * 4))) * 0x1000 + uVar5;
       uVar5 = uVar5 + 1;
       fVar8 = ABS((float)(iVar1 % 0x6b));
-      (*(float*)rtguest::G((uint32_t)pfVar6)) = -(fVar8 / (*(float*)rtguest::G(0x2c43b0)));
-      (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(1) * sizeof(float))) = -(fVar8 / (*(float*)rtguest::G(0x2c43b4)));
-      (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(2) * sizeof(float))) = -(fVar8 / (*(float*)rtguest::G(0x2c43b8)));
+      (*(float*)rtguest::G((uint32_t)pfVar6)) = -(rtguest::fdiv(fVar8, (*(float*)rtguest::G(0x2c43b0))));
+      (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(1) * sizeof(float))) = -(rtguest::fdiv(fVar8, (*(float*)rtguest::G(0x2c43b4))));
+      (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(2) * sizeof(float))) = -(rtguest::fdiv(fVar8, (*(float*)rtguest::G(0x2c43b8))));
       pfVar6 = pfVar6 + 0xc;  // T* element step
     } while ((int)uVar5 < 0x6b);
     pfVar6 = (uint32_t)0x01760dd8;
@@ -52,9 +52,9 @@ uint32_t pfVar6;
       iVar1 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(0x002c4b40 + (uVar5 & 0x1f) * 4))) * 0x1000 + uVar5;
       uVar5 = uVar5 + 1;
       fVar8 = ABS((float)(iVar1 % 6));
-      (*(float*)rtguest::G((uint32_t)pfVar6)) = -(fVar8 / (*(float*)rtguest::G(0x2c43b0)));
-      (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(1) * sizeof(float))) = -(fVar8 / (*(float*)rtguest::G(0x2c43b4)));
-      (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(2) * sizeof(float))) = -(fVar8 / (*(float*)rtguest::G(0x2c43b8)));
+      (*(float*)rtguest::G((uint32_t)pfVar6)) = -(rtguest::fdiv(fVar8, (*(float*)rtguest::G(0x2c43b0))));
+      (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(1) * sizeof(float))) = -(rtguest::fdiv(fVar8, (*(float*)rtguest::G(0x2c43b4))));
+      (*(float*)rtguest::G((uint32_t)pfVar6 + (uint32_t)(2) * sizeof(float))) = -(rtguest::fdiv(fVar8, (*(float*)rtguest::G(0x2c43b8))));
       pfVar6 = pfVar6 + 0xc;  // T* element step
     } while ((int)uVar5 < 6);
   }

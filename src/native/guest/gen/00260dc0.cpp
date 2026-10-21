@@ -123,7 +123,7 @@ switchD_00260e9c_caseD_2:
       (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbe))) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cb4))) = 0;
       fVar12 = rtguest::fbits(RT_CALLRA(0x26115c, guest::atan2f(rtguest::f2bits(fVar12 - 400.0f),rtguest::f2bits(fVar13))));
-      RT_CALLRA(0x2611c0, guest::setRouletteReelResult(iVar11,(short)((((int)(short)(int)((fVar12 / (*(float*)rtguest::G(0x333190))) * 32768.0) -
+      RT_CALLRA(0x2611c0, guest::setRouletteReelResult(iVar11,(short)((((int)(short)(int)((rtguest::fdiv(fVar12, (*(float*)rtguest::G(0x333190)))) * 32768.0) -
                                  (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar1 + 0x8cbc)))) + 0x666 & 0xffff) / 0xccc)));
     }
     RT_CALLRA(0x2611c8, guest::roulettePlaceBallOnWheel(puVar8));

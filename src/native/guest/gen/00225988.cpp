@@ -45,7 +45,7 @@ uint32_t updateTimeOfDayLight(uint32_t param_1, uint32_t param_2, uint32_t param
     goto LAB_00225ed4;
   }
   if ((int32_t)param_3 < 0xe484) {
-    fVar10 = (float)(int)(param_3 - 0xc15cU) / rtguest::fbits(*(uint32_t*)rtguest::G(0x332dac));
+    fVar10 = rtguest::fdiv((float)(int)(param_3 - 0xc15cU), rtguest::fbits(*(uint32_t*)rtguest::G(0x332dac)));
     fVar11 = 0.0f;
     fVar9 = rtguest::fbits(*(uint32_t*)rtguest::G(0x332db0)) - fVar10;
     uVar1 = (uint8_t)(int)(fVar10 * 255.0f);
@@ -118,7 +118,7 @@ LAB_00225ecc:
     }
     if (0x278cf < (int32_t)param_3) {
       fVar10 = 0.0f;
-      fVar9 = (float)(int)(param_3 + -0x278d0) / rtguest::fbits(*(uint32_t*)rtguest::G(0x332dc0)) +
+      fVar9 = rtguest::fdiv((float)(int)(param_3 + -0x278d0), rtguest::fbits(*(uint32_t*)rtguest::G(0x332dc0))) +
               rtguest::fbits(*(uint32_t*)rtguest::G(0x332dc4));
       fVar11 = rtguest::fbits(*(uint32_t*)rtguest::G(0x332dc8)) - fVar9;
       uVar1 = (uint8_t)(int)(fVar11 * 255.0f);
@@ -148,7 +148,7 @@ LAB_00225ecc:
       }
       goto LAB_00225ecc;
     }
-    fVar11 = (float)(int)(param_3 + -0x255a8) / rtguest::fbits(*(uint32_t*)rtguest::G(0x332db8));
+    fVar11 = rtguest::fdiv((float)(int)(param_3 + -0x255a8), rtguest::fbits(*(uint32_t*)rtguest::G(0x332db8)));
     fVar9 = 0.0f;
     fVar10 = rtguest::fbits(*(uint32_t*)rtguest::G(0x332dbc)) - fVar11;
     uVar1 = (uint8_t)(int)(255.0f - fVar11 * 94.0f);

@@ -195,7 +195,7 @@ LAB_00238cc4:
       else {
         fVar15 = fVar15 + fVar14;
       }
-      (*(float*)rtguest::G((uint32_t)fStack_ac)) = (*(float*)rtguest::G((uint32_t)fStack_ac)) / (*(float*)rtguest::G((uint32_t)fStack_88));
+      (*(float*)rtguest::G((uint32_t)fStack_ac)) = rtguest::fdiv((*(float*)rtguest::G((uint32_t)fStack_ac)), (*(float*)rtguest::G((uint32_t)fStack_88)));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_c0)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_9c)) = 0x3f800000;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_bc)) = 0x3f800000;
@@ -203,9 +203,9 @@ LAB_00238cc4:
       (*(uint32_t*)rtguest::G((uint32_t)uStack_a0)) = 0;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_98)) = 0;
       (*(float*)rtguest::G((uint32_t)fStack_90)) = 0.0;
-      (*(float*)rtguest::G((uint32_t)fStack_b0)) = (*(float*)rtguest::G((uint32_t)fStack_b0)) / (*(float*)rtguest::G((uint32_t)fStack_88));
-      (*(float*)rtguest::G((uint32_t)fStack_a8)) = (*(float*)rtguest::G((uint32_t)fStack_a8)) / (*(float*)rtguest::G((uint32_t)fStack_88));
-      (*(float*)rtguest::G((uint32_t)fStack_88)) = SQRT(fVar15) / (*(float*)rtguest::G((uint32_t)fStack_88));
+      (*(float*)rtguest::G((uint32_t)fStack_b0)) = rtguest::fdiv((*(float*)rtguest::G((uint32_t)fStack_b0)), (*(float*)rtguest::G((uint32_t)fStack_88)));
+      (*(float*)rtguest::G((uint32_t)fStack_a8)) = rtguest::fdiv((*(float*)rtguest::G((uint32_t)fStack_a8)), (*(float*)rtguest::G((uint32_t)fStack_88)));
+      (*(float*)rtguest::G((uint32_t)fStack_88)) = rtguest::fdiv(SQRT(fVar15), (*(float*)rtguest::G((uint32_t)fStack_88)));
       (*(float*)rtguest::G((uint32_t)fStack_8c)) = (*(float*)rtguest::G((uint32_t)fStack_ac));
       RT_CALLRA(0x239100, guest::buildCamera(puVar13,pfVar10,uStack_c0,0));
     }

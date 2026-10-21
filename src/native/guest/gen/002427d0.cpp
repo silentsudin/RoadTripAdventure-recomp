@@ -45,7 +45,7 @@ uint32_t auStack_30 = rtguest::allocFrame(16);
       uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x32)));
     }
     else {
-      (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a4058 + iVar2))) = (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a4058 + iVar2))) / (*(float*)rtguest::G(0x332f08));
+      (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a4058 + iVar2))) = rtguest::fdiv((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a4058 + iVar2))), (*(float*)rtguest::G(0x332f08)));
       uVar1 = (*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x32)));
     }
     if ((uVar1 & 4) != 0) {

@@ -47,7 +47,7 @@ LAB_00260c44:
   RT_CALLRA(0x260c48, guest::vu0ScaleVector(fVar5,uStack_50,uStack_50));
   fVar5 = rtguest::fbits(RT_CALLRA(0x260c64, guest::atan2f(rtguest::f2bits((*(float*)rtguest::G(0x177ace0)) - 400.0f),rtguest::f2bits((*(float*)rtguest::G(0x177ace8)) - 400.0f))));
   iVar2 = -10;
-  iVar3 = (int)(((((int)(short)(int)((fVar5 / (*(float*)rtguest::G(0x333184))) * 32768.0) -
+  iVar3 = (int)(((((int)(short)(int)((rtguest::fdiv(fVar5, (*(float*)rtguest::G(0x333184)))) * 32768.0) -
                   (uint32_t)(*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0xc)))) + 0x666 & 0xffff) % 0xccc + 0xf99a) * 0x10000)
           >> 0x10;
   if (iVar3 < 0xb) {

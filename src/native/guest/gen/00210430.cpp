@@ -17,7 +17,7 @@ uint32_t StartTownModeTask(uint32_t param_1, uint32_t param_2, uint32_t param_3,
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x28))) = 0x00080404;
   }
   RT_CALLRA(0x21046c, guest::SelectScene3dHandler(0));
-  RT_CALLRA(0x210478, guest::UpdateSceneLightsAndFog(0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)))));
+  RT_CALLRA(0x210478, guest::UpdateSceneLightsAndFog(0,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x22)))));
   if (param_3 == 0) {
     RT_CALLRA(0x210488, guest::ApplySoundVolumes((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x14))),2));
   }

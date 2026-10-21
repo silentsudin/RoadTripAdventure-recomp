@@ -135,7 +135,7 @@ LAB_0025f998:
     RT_CALLRA(0x25fa6c, guest::vu0UnitMatrix(puVar6));
     RT_CALLRA(0x25fa7c, guest::vu0RotMatrixY((*(uint32_t*)rtguest::G(0x00333138)),puVar6,puVar6));
     if (iVar8 == 1) {
-      RT_CALLRA(0x25facc, guest::vu0RotMatrixZ(((float)((*(int32_t*)rtguest::G((uint32_t)piVar9)) % 0x168 + -0xb4) * fVar12) / 180.0,0x177eb50,puVar6));
+      RT_CALLRA(0x25facc, guest::vu0RotMatrixZ(rtguest::fdiv(((float)((*(int32_t*)rtguest::G((uint32_t)piVar9)) % 0x168 + -0xb4) * fVar12), 180.0),0x177eb50,puVar6));
     }
     iVar8 = iVar8 + 1;
     RT_CALLRA(0x25fae8, guest::vu0CopyVector((int)0x0177eb40 + iVar7,puVar11));

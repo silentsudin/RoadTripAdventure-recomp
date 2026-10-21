@@ -222,7 +222,7 @@ uint32_t puStack_64;
     RT_CALLRA(0x249db8, guest::uiArenaSprites(param_3,uStack_100,1,uVar1,uVar2,1));
   }
   iVar10 = RT_CALLRA(0x249dd0, guest::CalculateTachometerValue(puStack_64,0,1));
-  fVar17 = (float)iVar10 / (*(float*)rtguest::G(0x332f50)) + (*(float*)rtguest::G(0x332f54));
+  fVar17 = rtguest::fdiv((float)iVar10, (*(float*)rtguest::G(0x332f50))) + (*(float*)rtguest::G(0x332f54));
   RT_CALLRA(0x249e08, guest::uiArenaSetTexture(param_3,0x2a9008,1,0xc));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_e0 + 4)) = 0x44;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_d8)) = 3;

@@ -20,7 +20,7 @@ uint32_t auStack_30 = rtguest::allocFrame(16);
       (*(float*)rtguest::G(0x29ccd0)) = (*(float*)rtguest::G(0x332c54));
     }
     if (500.0 < (*(float*)rtguest::G(0x29ccd0))) {
-      (*(float*)rtguest::G(0x29ccd0)) = (*(float*)rtguest::G(0x29ccd0)) / (*(float*)rtguest::G(0x332c58));
+      (*(float*)rtguest::G(0x29ccd0)) = rtguest::fdiv((*(float*)rtguest::G(0x29ccd0)), (*(float*)rtguest::G(0x332c58)));
     }
     if (iVar1 < 0x101) {
       (*(uint32_t*)rtguest::G(0x29ccd4)) = (short)iVar1 * 5 + 0x380;

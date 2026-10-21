@@ -496,9 +496,9 @@ LAB_0021c1b4:
   fVar25 = (*(float*)rtguest::G(0x00332c0c));
   (*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0x9c))) = 0x3f800000;
   (*(float*)rtguest::G((uint32_t)(iVar3 + 0x94))) =
-      (float)(*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa4))) / fVar25;
+      rtguest::fdiv((float)(*(int32_t*)rtguest::G((uint32_t)(iVar3 + 0xa4))), fVar25);
   (*(float*)rtguest::G((uint32_t)(iVar3 + 0x98))) =
-      (float)(*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0xa8)) & 0x1ffffff) / fVar25;
+      rtguest::fdiv((float)(*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0xa8)) & 0x1ffffff), fVar25);
   (*(float*)rtguest::G((uint32_t)(iVar3 + 0x90))) =
       (float)(((*(uint32_t*)rtguest::G((uint32_t)puVar22)) +
                ((int)((*(uint32_t*)rtguest::G((uint32_t)(iVar3 + 0xa8))) & 0x2000000) >> 1)) &

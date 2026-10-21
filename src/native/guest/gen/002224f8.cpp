@@ -67,7 +67,7 @@ void drawArcRibbon(uint32_t param_1, long param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(0x00299e54 + iVar2))) = rtguest::f2bits(S.vf[9].v[0]);
     (*(uint32_t*)rtguest::G((uint32_t)(0x00299e58 + iVar2))) = rtguest::f2bits(S.vf[9].v[1]);
     (*(uint32_t*)rtguest::G((uint32_t)(0x00299e5c + iVar2))) = rtguest::f2bits(S.vf[9].v[2]);
-    fVar7 = ((float)(iVar1 + -10) * fVar5) / 10.0f;
+    fVar7 = rtguest::fdiv(((float)(iVar1 + -10) * fVar5), 10.0f);
     fVar4 = rtguest::fbits(RT_CALLRA(0x222678, guest::sinf(rtguest::f2bits(fVar7))));
     (*(float*)rtguest::G(0x0029d320)) = fVar4 * fVar6 + 0.5 + fVar9;
     fVar4 = rtguest::fbits(RT_CALLRA(0x222690, guest::cosf(rtguest::f2bits(fVar7))));
@@ -103,7 +103,7 @@ void drawArcRibbon(uint32_t param_1, long param_2, ...) {
     (*(uint32_t*)rtguest::G((uint32_t)(0x00299458 + iVar2))) = rtguest::f2bits(S.vf[9].v[0]);
     (*(uint32_t*)rtguest::G((uint32_t)(0x0029945c + iVar2))) = rtguest::f2bits(S.vf[9].v[1]);
     (*(uint32_t*)rtguest::G((uint32_t)(0x00299460 + iVar2))) = rtguest::f2bits(S.vf[9].v[2]);
-    fVar7 = ((float)(iVar1 + -10) * fVar4) / 10.0f;
+    fVar7 = rtguest::fdiv(((float)(iVar1 + -10) * fVar4), 10.0f);
     fVar5 = rtguest::fbits(RT_CALLRA(0x2227b0, guest::sinf(rtguest::f2bits(fVar7))));
     (*(float*)rtguest::G(0x0029d320)) = (fVar5 * fVar6 - 0.5) - fVar9;
     fVar5 = rtguest::fbits(RT_CALLRA(0x2227c8, guest::cosf(rtguest::f2bits(fVar7))));

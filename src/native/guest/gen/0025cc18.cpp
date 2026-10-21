@@ -39,7 +39,7 @@ LAB_0025cc88:
       bVar2 = (*(int8_t*)rtguest::G((uint32_t)pbVar5));
       fVar11 = (*(float*)rtguest::G((uint32_t)pfVar6));
       if ((bVar2 & 0x80) == 0) {
-        fVar10 = (*(float*)rtguest::G((uint32_t)pfVar4)) - fVar11 / 30.0;
+        fVar10 = (*(float*)rtguest::G((uint32_t)pfVar4)) - rtguest::fdiv(fVar11, 30.0);
         (*(float*)rtguest::G((uint32_t)pfVar4)) = fVar10;
         if (fVar10 < -fVar11) {
           bVar2 = bVar2 | 0x80;
@@ -48,7 +48,7 @@ LAB_0025cc88:
         if ((bVar2 & 0x80) == 0) goto LAB_0025cd60;
         fVar11 = (*(float*)rtguest::G((uint32_t)pfVar6));
       }
-      fVar11 = (*(float*)rtguest::G((uint32_t)pfVar4)) + fVar11 / 30.0;
+      fVar11 = (*(float*)rtguest::G((uint32_t)pfVar4)) + rtguest::fdiv(fVar11, 30.0);
       (*(float*)rtguest::G((uint32_t)pfVar4)) = fVar11;
       if (0.0 <= fVar11) {
         (*(int8_t*)rtguest::G((uint32_t)pbVar5)) = (*(int8_t*)rtguest::G((uint32_t)pbVar5)) & 0x7f;
@@ -61,7 +61,7 @@ LAB_0025cd60:
     pbVar5 = pbVar5 + 1;
     pfVar6 = pfVar6 + 0x4;  // T* element step
     pfVar4 = pfVar4 + 0x4;  // T* element step
-    RT_CALLRA(0x25cd98, guest::vu0RotMatrixX((fVar11 * (*(float*)rtguest::G(0x3330d4))) / 180.0,auStack_a0,auStack_a0));
+    RT_CALLRA(0x25cd98, guest::vu0RotMatrixX(rtguest::fdiv((fVar11 * (*(float*)rtguest::G(0x3330d4))), 180.0),auStack_a0,auStack_a0));
     RT_CALLRA(0x25cdb0, guest::tileSlotOrigin(auStack_70,iVar8 * 0x10 + 0x2c43c0,0));
     RT_CALLRA(0x25cdb8, guest::vifObjectMatrix(auStack_a0));
     iVar1 = (*(int32_t*)rtguest::G((uint32_t)piVar7));

@@ -136,7 +136,7 @@ uint32_t piVar2;
           }
           else {
             iVar5 = (*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(7) * sizeof(int32_t)));
-            (*(float*)rtguest::G((uint32_t)fStack_6c)) = ((float)(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(10) * sizeof(int32_t))) * (float)iVar5) / (float)iVar4;
+            (*(float*)rtguest::G((uint32_t)fStack_6c)) = rtguest::fdiv(((float)(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(10) * sizeof(int32_t))) * (float)iVar5), (float)iVar4);
             if (iVar5 < iVar4) {
               (*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(7) * sizeof(int32_t))) = iVar5 + 1;
 LAB_0022f200:

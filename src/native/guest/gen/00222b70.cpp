@@ -88,7 +88,7 @@ uint32_t puVar5;
     iVar6 = iVar6 + 1;
     if ((*(int16_t*)rtguest::G((uint32_t)(uint32_t)(puVar5 + 0x33))) != 0) {
       RT_CALLRA(0x222d48, guest::vu0MulMatrix(auStack_190,param_1,puVar5));
-      fVar7 = (*(float*)rtguest::G((uint32_t)fStack_154)) / (*(float*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x18c)));
+      fVar7 = rtguest::fdiv((*(float*)rtguest::G((uint32_t)fStack_154)), (*(float*)rtguest::G((uint32_t)(uint32_t)((int)param_1 + 0x18c))));
       if ((*(float*)rtguest::G(0x332cf8)) <= fVar7) {
         RT_CALLRA(0x222d7c, guest::vu0CopyMatrix(auStack_d0,puVar5));
         (*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 4))) = -(*(float*)rtguest::G((uint32_t)(uint32_t)((int)puVar5 + 4)));

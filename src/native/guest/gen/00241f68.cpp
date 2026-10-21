@@ -39,7 +39,7 @@ uint32_t pfVar6;
     iVar7 = iVar7 + -1;
     puVar4 = puVar4 + 0x270;
   } while (-1 < iVar7);
-  fVar11 = (fVar8 - 5.0) / 15.0;
+  fVar11 = rtguest::fdiv((fVar8 - 5.0), 15.0);
   if (fVar8 < 5.0) {
     fVar11 = 0.0;
   }

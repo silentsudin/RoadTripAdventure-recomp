@@ -52,7 +52,7 @@ uint32_t psVar6;
     }
     if (cVar1 == -1) {
       RT_CALLRA(0x243084, guest::gs_map_draw_functions_town(0x177ace0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))),param_2));
-      fVar9 = 50.0 / (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) * 0x10)));
+      fVar9 = rtguest::fdiv(50.0, (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a42c8 + (uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x25))) * 0x10))));
       RT_CALLRA(0x2430c4, guest::vifUploadColours(0x2a4370,0x2a4360));
       psVar6 = 0x0177b058;
       iVar8 = 0x270;

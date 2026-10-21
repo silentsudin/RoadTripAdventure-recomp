@@ -33,8 +33,8 @@ uint32_t pfVar1;
   }
   if (iVar3 != 0x80) {
     fVar5 = rtguest::fbits(RT_CALLRA(0x224a48, guest::GetSpeedFromF15Vector((int)param_1 + 0xf0)));
-    fVar4 = fVar5 / 300.0;
-    if (1.0 < fVar5 / 300.0) {
+    fVar4 = rtguest::fdiv(fVar5, 300.0);
+    if (1.0 < rtguest::fdiv(fVar5, 300.0)) {
       fVar4 = 1.0;
     }
     fVar5 = rtguest::fbits(RT_CALLRA(0x224a94, guest::__floatdisf(((param_3 + 4) & 0xf))));  // MIPS daddiu $16,$18,4 @0x224a84; andi $4,$16,0xf @0x224a88

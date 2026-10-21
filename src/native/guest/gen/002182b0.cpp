@@ -35,7 +35,7 @@ uint32_t auStack_3c = rtguest::allocFrame(12);
                           (*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x1c))) -
                           (*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x14)))))));
     pcVar3 = (*(uint32_t*)rtguest::G(0x335710));
-    fVar7 = (fVar6 * 32768.0) / (*(float*)rtguest::G(0x332b78));
+    fVar7 = rtguest::fdiv((fVar6 * 32768.0), (*(float*)rtguest::G(0x332b78)));
     (*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x90))) =
          ((*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x10))) +
          (*(float*)rtguest::G((uint32_t)(uint32_t)(puVar2 + (uint32_t)bVar1 * 0x20 + 0x18)))) * 0.5;

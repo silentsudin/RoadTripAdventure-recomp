@@ -182,7 +182,7 @@ LAB_00251920:
   else {
     (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x78)));
   }
-  for ((*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) / (*(float*)rtguest::G(0x333014)); (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) < (*(float*)rtguest::G(0x333018));
+  for ((*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) = rtguest::fdiv((*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)), (*(float*)rtguest::G(0x333014))); (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) < (*(float*)rtguest::G(0x333018));
       (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G(0x33301c))) {
   }
   for (; (*(float*)rtguest::G(0x333020)) < (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)); (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) = (*(float*)rtguest::G((uint32_t)afStack_b0 + (uint32_t)(0) * 4)) - (*(float*)rtguest::G(0x333024))) {

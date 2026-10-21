@@ -28,7 +28,7 @@ void PrintDoorParams(uint32_t param_1, uint32_t param_2, ...) {
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_40)), (char *)rtguest::G((uint32_t)(0x335660)), uVar2);
   RT_CALLRA(0x26d930, guest::uiDebugText8(0x10, 0x60, auStack_40, 0xf));
   uVar2 = RT_CALLRA(0x26d93c, guest::fptodp((*(uint32_t*)rtguest::G((uint32_t)(param_2 + 0x10)))));
-  uVar3 = RT_CALLRA(0x26d970, guest::fptodp(rtguest::f2bits((*(float*)rtguest::G((uint32_t)(param_2 + 0x10))) * 18.0f / 320.0f)));
+  uVar3 = RT_CALLRA(0x26d970, guest::fptodp(rtguest::f2bits((*(float*)rtguest::G((uint32_t)(param_2 + 0x10))) * rtguest::fdiv(18.0f, 320.0f))));
   ::sprintf((char *)rtguest::G((uint32_t)(auStack_40)), (char *)rtguest::G((uint32_t)(0x32fb48)), uVar2, uVar3);
   RT_CALLRA(0x26d998, guest::uiDebugText8(0x10, 0x68, auStack_40, 0xf));
   iVar1 = ((int)(*(int16_t*)rtguest::G((uint32_t)(param_2 + 0x14)))) * 0xb4;

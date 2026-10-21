@@ -40,7 +40,7 @@ uint32_t auStack_30 = rtguest::allocFrame(4);
         fVar3 = (*(float*)rtguest::G(0x332fc4));
       }
       (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x84))) = 0x317;
-      (*(float*)rtguest::G((uint32_t)fStack_2c)) = ((fVar3 * 180.0) / fVar1) * (*(float*)rtguest::G((uint32_t)fStack_2c));
+      (*(float*)rtguest::G((uint32_t)fStack_2c)) = (rtguest::fdiv((fVar3 * 180.0), fVar1)) * (*(float*)rtguest::G((uint32_t)fStack_2c));
     }
     RT_CALLRA(0x25116c, guest::vu0CopyVector(param_1 + 0x70,auStack_30));
     uVar2 = 1;

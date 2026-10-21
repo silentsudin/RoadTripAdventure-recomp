@@ -171,7 +171,7 @@ LAB_00219210:
         (*(int32_t*)rtguest::G((uint32_t)iStack_dc)) = iVar13;
       }
     }
-    (*(uint32_t*)rtguest::G((uint32_t)iStack_9c)) = (int)(fVar16 / (float)iVar10);
+    (*(uint32_t*)rtguest::G((uint32_t)iStack_9c)) = (int)(rtguest::fdiv(fVar16, (float)iVar10));
   }
   iVar8 = 0;
   iVar13 = (*(int32_t*)rtguest::G((uint32_t)iStack_98));

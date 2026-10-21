@@ -77,7 +77,7 @@ uint32_t puVar12;
     RT_CALLRA(0x2106b0, guest::ClearTaskListFlag());
     RT_CALLRA(0x2106b8, guest::SoundFadeOutChannels());
     RT_CALLRA(0x2106c0, guest::ApplySoundVolumes((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x14)))));
-    RT_CALLRA(0x2106cc, guest::UpdateSceneLightsAndFog(0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x22)))));
+    RT_CALLRA(0x2106cc, guest::UpdateSceneLightsAndFog(0,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x22)))));
     return 0;
   }
   if (cVar1 == '\x06') {
@@ -116,7 +116,7 @@ LAB_002107f4:
     RT_CALLRA(0x2107b8, guest::ClearTaskListFlag());
     RT_CALLRA(0x2107c0, guest::SoundFadeOutChannels());
     RT_CALLRA(0x2107c8, guest::ApplySoundVolumes((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x14)))));
-    RT_CALLRA(0x2107d4, guest::UpdateSceneLightsAndFog(0,(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x22)))));
+    RT_CALLRA(0x2107d4, guest::UpdateSceneLightsAndFog(0,(*(int8_t*)rtguest::G((uint32_t)(uint32_t)((int)puVar12 + 0x22)))));
     (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5 * 8))) = (*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(puVar12 + 5 * 8))) | 0x404;
     goto LAB_002107f4;
   }

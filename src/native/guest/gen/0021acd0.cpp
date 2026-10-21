@@ -17,7 +17,7 @@ uint32_t UpdateSuspensionFlex(uint32_t param_1, ...) {
   fVar3 = (*(float*)rtguest::G(0x332bb8));
   fVar2 = (*(float*)rtguest::G(0x332bb4));
   if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x184))) + 8))) & 0x400) == 0) {
-    fVar3 = ((float)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1b8))) * 3.0517578e-05) / (*(float*)rtguest::G(0x332bc0));
+    fVar3 = rtguest::fdiv(((float)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1b8))) * 3.0517578e-05), (*(float*)rtguest::G(0x332bc0)));
     fVar2 = (*(float*)rtguest::G(0x332bc4));
     if ((fVar3 <= (*(float*)rtguest::G(0x332bc4))) && (fVar2 = fVar3, fVar3 < (*(float*)rtguest::G(0x332bc8)))) {
       fVar2 = (*(float*)rtguest::G(0x332bc8));
@@ -30,14 +30,14 @@ uint32_t UpdateSuspensionFlex(uint32_t param_1, ...) {
       fVar2 = fVar2 - (*(float*)rtguest::G(0x332bd8));
     }
     (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x80))) = fVar2;
-    fVar2 = ((float)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1bc))) * 3.0517578e-05) / fVar4;
+    fVar2 = rtguest::fdiv(((float)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1bc))) * 3.0517578e-05), fVar4);
     fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x88)));
     fVar4 = (*(float*)rtguest::G(0x332be4));
     fVar3 = fVar1;
     if (fVar2 <= fVar1) goto LAB_0021aea4;
   }
   else {
-    fVar1 = ((float)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1b8))) * 3.0517578e-05) / (*(float*)rtguest::G(0x332b98));
+    fVar1 = rtguest::fdiv(((float)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1b8))) * 3.0517578e-05), (*(float*)rtguest::G(0x332b98)));
     fVar4 = (*(float*)rtguest::G(0x332b9c));
     if ((fVar1 <= (*(float*)rtguest::G(0x332b9c))) && (fVar4 = fVar1, fVar1 < (*(float*)rtguest::G(0x332ba0)))) {
       fVar4 = (*(float*)rtguest::G(0x332ba0));
@@ -50,7 +50,7 @@ uint32_t UpdateSuspensionFlex(uint32_t param_1, ...) {
       fVar4 = fVar4 - (*(float*)rtguest::G(0x332bb0));
     }
     (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x80))) = fVar4;
-    fVar2 = ((float)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1bc))) * 3.0517578e-05) / fVar2;
+    fVar2 = rtguest::fdiv(((float)(*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1bc))) * 3.0517578e-05), fVar2);
     fVar5 = (*(float*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x88)));
     fVar4 = (*(float*)rtguest::G(0x332bbc));
     if (fVar2 <= fVar3) {

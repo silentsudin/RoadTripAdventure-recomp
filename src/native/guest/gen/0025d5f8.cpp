@@ -27,7 +27,7 @@ uint32_t auStack_70 = rtguest::allocFrame(16);
     if ((uVar3 & 3) == 0) {
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x168 + -0xb4;
 LAB_0025d6e8:
-      RT_CALLRA(0x25d704, guest::vu0RotMatrixZ(((float)iVar2 * fVar1) / fVar4,auStack_a0,auStack_a0));
+      RT_CALLRA(0x25d704, guest::vu0RotMatrixZ(rtguest::fdiv(((float)iVar2 * fVar1), fVar4),auStack_a0,auStack_a0));
     }
     else {
       if ((uVar3 & 3) == 1) {
@@ -35,7 +35,7 @@ LAB_0025d6e8:
         iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x5a0 + -0x2d0;
         goto LAB_0025d6e8;
       }
-      RT_CALLRA(0x25d74c, guest::vu0RotMatrixZ(((float)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x2d0 + -0x168) * fVar1) / 360.0,auStack_a0,
+      RT_CALLRA(0x25d74c, guest::vu0RotMatrixZ(rtguest::fdiv(((float)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 8))) % 0x2d0 + -0x168) * fVar1), 360.0),auStack_a0,
                     auStack_a0));
     }
     iVar2 = uVar3 * 0x10;

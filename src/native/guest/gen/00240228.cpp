@@ -92,8 +92,8 @@ LAB_00240450:
 LAB_00240454:
       iVar2 = (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x20)));
     }
-    (*(float*)rtguest::G(0x2a2bb8)) = (*(float*)rtguest::G(0x2a2bb8)) + ((float)(iVar2 + -0xb4) * (*(float*)rtguest::G(0x332e90))) / 720.0;
-    (*(float*)rtguest::G(0x2a2bb0)) = (*(float*)rtguest::G(0x2a2bb0)) + ((float)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) + -0xb4) * (*(float*)rtguest::G(0x332e90))) / 720.0;
+    (*(float*)rtguest::G(0x2a2bb8)) = (*(float*)rtguest::G(0x2a2bb8)) + rtguest::fdiv(((float)(iVar2 + -0xb4) * (*(float*)rtguest::G(0x332e90))), 720.0);
+    (*(float*)rtguest::G(0x2a2bb0)) = (*(float*)rtguest::G(0x2a2bb0)) + rtguest::fdiv(((float)((*(int32_t*)rtguest::G((uint32_t)(uint32_t)(iVar4 + 0x1c))) + -0xb4) * (*(float*)rtguest::G(0x332e90))), 720.0);
     if (0x2770d < (*(int32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x14)))) {
       (*(uint8_t*)rtguest::G(0x335738)) = 3;
       EmptyStub();

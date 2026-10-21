@@ -60,7 +60,7 @@ uint32_t piVar10;
     fVar11 = rtguest::fbits(RT_CALLRA(0x2538cc, guest::atan2f(rtguest::f2bits((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a0 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x90)))),rtguest::f2bits(
                            (*(float*)rtguest::G((uint32_t)(uint32_t)(0x002ac4a8 + uVar8 * 0x40))) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x98)))))));
     uVar3 = (uint32_t)
-            (int)((fVar11 / (*(float*)rtguest::G(0x333050))) * 32768.0 - (float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x1d4))));
+            (int)((rtguest::fdiv(fVar11, (*(float*)rtguest::G(0x333050)))) * 32768.0 - (float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar9 + 0x1d4))));
     RT_CALLRA(0x253818, guest::vu0SubVector(afStack_50,0x002ac4a0 + uVar8 * 0x40,iVar9 + 0x90));
     RT_CALLRA(0x253828, guest::vu0MulVector(afStack_50,afStack_50,afStack_50));
     if (SQRT((*(float*)rtguest::G((uint32_t)afStack_50 + (uint32_t)(0) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_48))) < 20.0) {

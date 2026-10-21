@@ -42,16 +42,16 @@ uint32_t atanf(uint32_t param_1, ...) {
     fVar6 = rtguest::fbits(RT_CALLRA(0x277800, guest::fabsf(param_1)));
     if (puVar2 < 0x3f980000u) {
       if (puVar2 < 0x3f300000u) {
-        fVar5 = ((fVar6 + fVar6) - 1.0f) / (fVar6 + 2.0f);
+        fVar5 = rtguest::fdiv(((fVar6 + fVar6) - 1.0f), (fVar6 + 2.0f));
         iVar1 = 0;
       }
       else {
-        fVar5 = (fVar6 - 1.0f) / (fVar6 + 1.0f);
+        fVar5 = rtguest::fdiv((fVar6 - 1.0f), (fVar6 + 1.0f));
         iVar1 = 1;
       }
     }
     else if (puVar2 < 0x401c0000u) {
-      fVar5 = (fVar6 - 1.5f) / (fVar6 * 1.5f + 1.0f);
+      fVar5 = rtguest::fdiv((fVar6 - 1.5f), (fVar6 * 1.5f + 1.0f));
       iVar1 = 2;
     }
     else {

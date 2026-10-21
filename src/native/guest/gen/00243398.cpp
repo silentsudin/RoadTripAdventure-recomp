@@ -29,8 +29,8 @@ uint32_t puVar1;
       (*(uint32_t*)rtguest::G((uint32_t)uStack_40)) = (*(uint32_t*)rtguest::G((uint32_t)puVar1));
       (*(uint32_t*)rtguest::G((uint32_t)uStack_38)) = (*(uint32_t*)rtguest::G((uint32_t)puVar1 + (uint32_t)(2) * sizeof(uint32_t)));
       puVar1 = puVar1 + 0x40;  // T* element step
-      (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) = 50.0 / fVar2;
-      (*(float*)rtguest::G((uint32_t)fStack_48)) = 50.0 / fVar2;
+      (*(float*)rtguest::G((uint32_t)afStack_70 + (uint32_t)(0) * 4)) = rtguest::fdiv(50.0, fVar2);
+      (*(float*)rtguest::G((uint32_t)fStack_48)) = rtguest::fdiv(50.0, fVar2);
       RT_CALLRA(0x243434, guest::vifObjectMatrix(afStack_70));
       RT_CALLRA(0x24343c, guest::vifCallModel(0x290940));
     } while (param_2 != 0);

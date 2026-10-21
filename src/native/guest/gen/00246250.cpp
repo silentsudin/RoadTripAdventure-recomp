@@ -527,7 +527,7 @@ LAB_00246d18:
         (*(uint64_t*)rtguest::G((uint32_t)uStack_b0)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar28 + 0x2a8cf0)));
         (*(uint64_t*)rtguest::G((uint32_t)uStack_a0)) = (*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(iVar28 + 0x2a8d00)));
         (*(uint64_t*)rtguest::G((uint32_t)uStack_a8)) = CONCAT44((int)(*(uint64_t*)rtguest::G((uint32_t)(uint32_t)(0x002a8cf8 + iVar28)) >> 0x20),
-                             ((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a8cf8 + iVar28))) * 256.0) / (float)iVar29);
+                             rtguest::fdiv(((*(float*)rtguest::G((uint32_t)(uint32_t)(0x002a8cf8 + iVar28))) * 256.0), (float)iVar29));
         if ((*(uint32_t*)rtguest::G(0x333288)) == 0) {
           RT_CALLRA(0x247010, guest::SetViewDistanceGlobals(rtguest::f2bits((float)((*(int32_t*)rtguest::G((uint32_t)iStack_74)) + 0x7b0)),rtguest::f2bits((float)((iVar33 + iVar29 / 2) / 2 + 0x790))));
         }

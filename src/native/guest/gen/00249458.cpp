@@ -14,7 +14,7 @@ uint32_t CalculateSpeedometerValue(uint32_t param_1, uint32_t param_2, uint32_t 
   float fVar2;
   
   fVar2 = rtguest::fbits(RT_CALLRA(0x249470, guest::GetSpeedFromF15Vector(param_1 + 0xf0)));
-  iVar1 = (int)(fVar2 / (*(float*)rtguest::G(0x332f44)));
+  iVar1 = (int)(rtguest::fdiv(fVar2, (*(float*)rtguest::G(0x332f44))));
   if (((param_2 != 0) || (param_3 != 0)) && (0xba < iVar1)) {
     iVar1 = 0xba;
   }

@@ -169,7 +169,7 @@ LAB_0025058c:
     bVar1 = (*(int8_t*)rtguest::G((uint32_t)pbVar12 + (uint32_t)(5) * sizeof(int8_t)));
   }
   iVar13 = iVar13 + (uint32_t)bVar1 * 8;
-  fVar21 = (float)(int)uVar8 / rtguest::fbits(*(uint32_t*)rtguest::G(0x332fac));  // DAT_00332fac float const in the 0x332cXX..0x332fXX float block (used bare in fn:168 float div)
+  fVar21 = rtguest::fdiv((float)(int)uVar8, rtguest::fbits(*(uint32_t*)rtguest::G(0x332fac)));  // DAT_00332fac float const in the 0x332cXX..0x332fXX float block (used bare in fn:168 float div)
   fVar18 = (*(float*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x98)));
   pfVar5 = (uint32_t)((uint32_t)(*(uint8_t*)rtguest::G((uint32_t)(uint32_t)(iVar13 + 1))) * 0x18 + iVar2);
   fVar16 = (*(float*)rtguest::G((uint32_t)pfVar5 + (uint32_t)(3) * sizeof(float)));

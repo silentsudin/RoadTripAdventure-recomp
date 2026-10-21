@@ -123,7 +123,7 @@ uint32_t puVar7;
   iVar5 = (int)param_3;
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)((*(int32_t*)rtguest::G((uint32_t)iStack_90)) + 0x28))) & 0x8000) == 0) {
     iVar6 = RT_CALLRA(0x24a28c, guest::CalculateTachometerValue(puVar7,0,0));
-    fVar8 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1000))) + ((float)iVar6 / (*(float*)rtguest::G(0x332f58))) * 0.125f;
+    fVar8 = (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1000))) + (rtguest::fdiv((float)iVar6, (*(float*)rtguest::G(0x332f58)))) * 0.125f;
     (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x1000))) = fVar8;
   }
   else {
@@ -189,7 +189,7 @@ uint32_t puVar7;
   RT_CALLRA(0x24a484, guest::uiArenaRotQuads(param_3,uStack_100,1,uVar1,uVar2,1));
   iVar5 = RT_CALLRA(0x24a48c, guest::GetVehicleRaceTime((*(int32_t*)rtguest::G((uint32_t)iStack_90))));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_100)) = 0x46;
-  fVar8 = (float)iVar5 / (*(float*)rtguest::G(0x332f5c));
+  fVar8 = rtguest::fdiv((float)iVar5, (*(float*)rtguest::G(0x332f5c)));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_f4)) = 0x3d;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_f0)) = 0x12;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_ec)) = 6;
@@ -226,7 +226,7 @@ uint32_t puVar7;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_b4)) = 0x3f800000;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_a4)) = 0x3f800000;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_f4)) = 0x30;
-  fVar8 = ((float)iVar5 / (*(float*)rtguest::G(0x332f60))) * 1.5f + (*(float*)rtguest::G(0x332f64));
+  fVar8 = (rtguest::fdiv((float)iVar5, (*(float*)rtguest::G(0x332f60)))) * 1.5f + (*(float*)rtguest::G(0x332f64));
   (*(uint32_t*)rtguest::G((uint32_t)uStack_f0)) = 0x39;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_e8)) = 0;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_e4)) = 0;
