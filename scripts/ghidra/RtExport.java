@@ -56,6 +56,12 @@ public class RtExport extends GhidraScript {
         FunctionManager fm = currentProgram.getFunctionManager();
         Path globalsPath = out.resolve("globals.tsv");
         BufferedWriter globals = new BufferedWriter(Files.newBufferedWriter(globalsPath, StandardCharsets.UTF_8));
+        // fnaddr  varname  register  size  -- callee-saved storage the decompiler
+        // attributes to a variable (s0..s7/fp, f20..f31). The gen layer binds these
+        // names to the shadow register file so machine sd/swc1 spill stores carry the
+        // caller's values (see scripts/native/emit_prologue_saves.py).
+        Path regsPath = out.resolve("regstore.tsv");
+        BufferedWriter regw = new BufferedWriter(Files.newBufferedWriter(regsPath, StandardCharsets.UTF_8));
         StringBuilder graph = new StringBuilder("{\n");
         int n = 0, failed = 0;
         boolean first = true;
@@ -85,6 +91,24 @@ public class RtExport extends GhidraScript {
                     } catch (Exception ge) {
                         println("RtExport: globals skipped at 0x" + hex(ep) + ": " + ge);
                     }
+                    try {
+                        HashSet<String> seen = new HashSet<>();
+                        java.util.Iterator<HighSymbol> ls = r.getHighFunction().getLocalSymbolMap().getSymbols();
+                        while (ls.hasNext()) {
+                            HighSymbol hs = ls.next();
+                            VariableStorage st = hs.getStorage();
+                            if (st == null || !st.isRegisterStorage() || st.getRegister() == null) continue;
+                            String reg = st.getRegister().getName();
+                            reg = reg.toLowerCase();
+                            if (!(reg.matches("s[0-7]") || reg.equals("fp")
+                                    || reg.matches("f(2[0-9]|3[01])"))) continue;
+                            if (!seen.add(hs.getName() + "\t" + reg)) continue;
+                            regw.write(hex(ep) + "\t" + hs.getName() + "\t" + reg + "\t" + hs.getSize());
+                            regw.newLine();
+                        }
+                    } catch (Exception re) {
+                        println("RtExport: regstore skipped at 0x" + hex(ep) + ": " + re);
+                    }
                 } else {
                     code = "/* decompilation failed: " + (r == null ? "?" : r.getErrorMessage()) + " */\n";
                     failed++;
@@ -112,6 +136,8 @@ public class RtExport extends GhidraScript {
         }
         graph.append("\n}\n");
         Files.write(out.resolve("callgraph.json"), graph.toString().getBytes(StandardCharsets.UTF_8));
+        globals.close();
+        regw.close();
         dec.dispose();
         println("RtExport: " + n + " functions written (" + failed + " failed) to " + out);
     }

@@ -8,8 +8,20 @@ namespace guest {
 uint32_t shopMenuScene(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(240);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0xb0, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0xc0, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x98, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0xa0, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0xa8, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0xb8, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0xc8, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0xd0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xd8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xdc) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xe0);
+    rtguest::setS32(4, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[6] = 0x0000000001752780ull;  // walk const
   }
 uint32_t auStack_f0 = rtguest::allocFrame(64);
     uint32_t uStack_b0 = rtguest::allocFrame(8);

@@ -12,6 +12,10 @@ namespace guest {
 
 uint64_t __moddi3(uint64_t param_1, uint64_t param_2) {
   rtguest::FrameGuard rt_fg(32);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x10, 8);
+    rtguest::gS[0] = 0xffffffffffffffffull;  // walk const
+  }
   if (param_2 == 0) {
     trap(7);
     return 0;

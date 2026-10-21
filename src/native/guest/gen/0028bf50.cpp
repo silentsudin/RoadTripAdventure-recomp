@@ -7,8 +7,10 @@ namespace guest {
 uint32_t _lf_bind(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(80);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x30, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+    rtguest::gS[2] = 0x00000000002f0000ull;  // walk const
   }
   undefined4 uVar1;
   int iVar2;

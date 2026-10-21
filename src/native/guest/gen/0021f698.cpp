@@ -12,8 +12,25 @@ namespace guest {
 uint32_t buildCamera(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(464);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x150, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x158, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x160, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x168, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x170, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x178, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x180, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x188, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x190, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x198) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x19c) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 9, rt_sv, 0x1c8);
+    rtguest::rtSpillF(rt_fg, 8, rt_sv, 0x1c0);
+    rtguest::rtSpillF(rt_fg, 7, rt_sv, 0x1b8);
+    rtguest::rtSpillF(rt_fg, 6, rt_sv, 0x1b0);
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0x1a8);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x1a0);
+    rtguest::setS32(0, (uint32_t)param_3);  // walk: = param_3
+    rtguest::setS32(2, (uint32_t)param_2);  // walk: = param_2
   }
 uint32_t auStack_1d0 = rtguest::allocFrame(16);
 uint32_t auStack_1c0 = rtguest::allocFrame(16);
@@ -60,18 +77,20 @@ uint32_t auStack_c0 = rtguest::allocFrame(64);
   }
   iVar4 = (int)param_1;
   fVar6 = (*(float*)rtguest::G(0x332c84));
-  { // Callee-saved s0..s7 live in this frame's registers at jal 0x21f784; BuildCameraViewMatrices' prologue
-    // `sd $s0..$s7,0x60..0x98($sp)` (words 0xffb00060 0xffb10068 0xffb20070 0xffb30078 0xffb40080 0xffb50088
-    // 0xffb60090 0xffb70098 @0x21f454..0x21f484; opcode 0x3f = SD, plain MIPS, NOT a PQ quad op) stores them into the
-    // callee frame (callee sp = frameTop-0xd0). The gen callee has no register model, so the caller seeds the slots.
-    // Values from this fn's prologue: s0=a2 (0x21f6a0), s1=a0 (0x21f6f0), s2=a1 (0x21f6ac), s3=sp+0x10, s6=sp+0x20,
+  { // Callee-saved s0..s7 live in this frame's registers at jal 0x21f784; BuildCameraViewMatrices'
+    // prologue `sd $s0..$s7,0x60..0x98($sp)` (words @0x21f454..0x21f484, plain MIPS SD) stores the
+    // shadow register file into its frame slots — seed the file here. Values from this fn's prologue:
+    // s0=a2 (0x21f6a0), s1=a0 (0x21f6f0), s2=a1 (0x21f6ac), s3=sp+0x10, s6=sp+0x20,
     // s7=sp+0x30, s5=sp+0x40, s4=sp+0xd0 (0x21f700..0x21f740 / 0x21f750..0x21f760, both branches).
-    uint32_t sp = rtguest::frameTop(), csp = sp - 208;
-    const uint32_t sv[8] = {param_3, param_1, param_2, sp + 0x10, sp + 0xd0, sp + 0x40, sp + 0x20, sp + 0x30};
-    for (int i = 0; i < 8; i++) {
-      *(uint32_t*)rtguest::G(csp + 0x60 + 8 * i) = sv[i];
-      *(uint32_t*)rtguest::G(csp + 0x64 + 8 * i) = 0;
-    }
+    uint32_t sp = rtguest::frameTop();
+    rtguest::gS[0] = param_3;
+    rtguest::gS[1] = param_1;
+    rtguest::gS[2] = param_2;
+    rtguest::gS[3] = sp + 0x10;
+    rtguest::gS[4] = sp + 0xd0;
+    rtguest::gS[5] = sp + 0x40;
+    rtguest::gS[6] = sp + 0x20;
+    rtguest::gS[7] = sp + 0x30;
   }
   RT_CALLRA(0x21f784, guest::BuildCameraViewMatrices((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(param_2 + 0x10))),auStack_100,auStack_c0,auStack_1d0,auStack_1b0,
              auStack_1c0,iVar4 + 0x100));

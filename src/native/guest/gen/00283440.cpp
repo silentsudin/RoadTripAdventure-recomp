@@ -7,8 +7,12 @@ namespace guest {
 uint32_t __smakebuf(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(144);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x80, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
+    rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
   }
 uint32_t auStack_90 = rtguest::allocFrame(4);
     uint32_t uStack_8c = rtguest::allocFrame(4);

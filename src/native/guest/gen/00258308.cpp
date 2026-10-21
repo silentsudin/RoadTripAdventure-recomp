@@ -8,6 +8,9 @@ uint32_t SndRpcPlayOrStop(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(112);
     rtguest::allocFrame(20);  // guest frame gap (sp+0x0..0x13)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x58, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x60, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
   }

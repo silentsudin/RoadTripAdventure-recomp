@@ -8,8 +8,13 @@ uint32_t ComputeWaypointTargetAngle(uint32_t param_1, uint32_t param_2, uint32_t
   rtguest::FrameGuard rt_fg(48);
     rtguest::allocFrame(2);  // guest frame gap (sp+0x0..0x1)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x18, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x28);
+    rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
+    rtguest::setS32(1, (uint32_t)param_2);  // walk: = param_2
   }
     uint32_t uStack_2e = rtguest::allocFrame(2);  // sp+0x2 (Ghidra entry-sp -0x2e, frame 0x30)
   float fVar1;

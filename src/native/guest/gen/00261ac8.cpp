@@ -7,8 +7,15 @@ namespace guest {
 uint32_t rouletteBetPickerTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x28, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x38, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+    rtguest::setS32(2, (uint32_t)param_1);  // walk: = param_1
+    rtguest::setS32(4, (uint32_t)param_2);  // walk: = param_2
   }
 uint32_t auStack_50 = rtguest::allocFrame(16);
     uint32_t uStack_40 = rtguest::allocFrame(4);

@@ -7,8 +7,18 @@ namespace guest {
 uint32_t BuildPaintEditorMenuSprites(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x18, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x28, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x38, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+    rtguest::gS[1] = 0x000000000000004eull;  // walk const
+    rtguest::gS[2] = 0x0000000000000001ull;  // walk const
+    rtguest::gS[3] = 0x0000000000000028ull;  // walk const
+    rtguest::setS32(4, (uint32_t)param_1);  // walk: = param_1
   }
 uint32_t puVar1;
   int iVar2;

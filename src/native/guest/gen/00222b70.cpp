@@ -8,8 +8,21 @@ namespace guest {
 uint32_t drawCarsAction(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(400);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x170, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x148, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x150, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x158, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x160, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x168, 8);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x188);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x140, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x178, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x180) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x184) = 0x00000000u;
+    rtguest::gS[2] = 0x0000000000000017ull;  // walk const
+    rtguest::setS32(3, (uint32_t)param_2);  // walk: = param_2
+    rtguest::gS[4] = 0x0000000000290000ull;  // walk const
+    rtguest::gS[6] = 0x0000000001780000ull;  // walk const
   }
 uint32_t auStack_190 = rtguest::allocFrame(60);
     uint32_t fStack_154 = rtguest::allocFrame(4);

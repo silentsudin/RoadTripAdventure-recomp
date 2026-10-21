@@ -7,8 +7,10 @@ namespace guest {
 uint32_t InitThread(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(128);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x50, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+    rtguest::gS[0] = 0x00000000002f0000ull;  // walk const
   }
 uint32_t auStack_80 = rtguest::allocFrame(4);
 rtguest::allocFrame(8);  // guest frame gap

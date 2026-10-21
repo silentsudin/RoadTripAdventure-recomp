@@ -7,6 +7,9 @@ namespace guest {
 uint32_t SetDashConfig(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(32);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x10, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
   }

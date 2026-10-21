@@ -8,8 +8,18 @@ namespace guest {
 uint32_t RenderShowcaseView(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(128);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x48, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x58, 8);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x70);
     *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+    rtguest::gS[0] = 0x00000000017525d0ull;  // walk const
+    rtguest::gS[1] = 0x000000000029f320ull;  // walk const
+    rtguest::gS[2] = 0x000000000177e6d0ull;  // walk const
+    rtguest::gS[4] = 0x0000000001750000ull;  // walk const
   }
 uint32_t auStack_80 = rtguest::allocFrame(64);
   

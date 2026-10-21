@@ -6,6 +6,15 @@ namespace guest {
 
 uint32_t UpdateMenuInputState(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x18, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x28, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x30, 8);
+  }
   char cVar1;
   byte bVar2;
   byte bVar3;

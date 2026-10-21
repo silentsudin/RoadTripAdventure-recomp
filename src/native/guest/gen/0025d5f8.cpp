@@ -8,8 +8,25 @@ namespace guest {
 uint32_t drawFieldProp27Anim(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(160);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x48, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x58, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x68, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x80, 8);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x90);
     *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
+    rtguest::setS32(1, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[2] = 0x00000000000002d0ull;  // walk const
+    rtguest::gS[3] = 0x00000000000005a0ull;  // walk const
+    rtguest::gS[4] = 0x0000000000000168ull;  // walk const
+    rtguest::gS[5] = 0x0000000000000001ull;  // walk const
+    rtguest::gS[6] = 0x0000000001780000ull;  // walk const
+    rtguest::gS[7] = 0x00000000002c0000ull;  // walk const
   }
   float fVar1;
   int iVar2;

@@ -7,8 +7,10 @@ namespace guest {
 uint32_t initFieldProp17(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(16);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+    rtguest::gS[0] = 0x000000000177ebd0ull;  // walk const
   }
   (*(uint64_t*)rtguest::G(0x177ea48)) = 0x20079f05e1413cb8;
   RT_CALLRA(0x25d2fc, guest::vu0UnitMatrix(0x177ebd0));

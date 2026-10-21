@@ -7,8 +7,20 @@ namespace guest {
 uint32_t DrawGolfHoleIntro(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(304);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0xe0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0xe8, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0xf8, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x100, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x110, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x118, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0xf0, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x108, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x120) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x124) = 0x00000000u;
+    rtguest::setS32(3, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[4] = 0x0000000000000000ull;  // walk const
+    rtguest::gS[6] = 0x00000000002b0000ull;  // walk const
+    rtguest::setS32(7, (uint32_t)param_2);  // walk: = param_2
   }
     uint32_t uStack_130 = rtguest::allocFrame(8);
     uint32_t uStack_128 = rtguest::allocFrame(8);

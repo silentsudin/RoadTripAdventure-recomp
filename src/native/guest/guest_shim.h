@@ -33,6 +33,18 @@ typedef uint32_t code;  // Ghidra's function-pointer type: guest code = u32 addr
 namespace rtguest {
 
 extern uint8_t kRam[RT_GUEST_RAM_SIZE];
+
+// Shadow callee-saved register file (machine model). Ghidra binds some pseudocode
+// variables to $s0..$s7/$fp/$f20..$f31 storage (build/decomp/regstore.tsv); the
+// emitter spills this file on machine sd/swc1 prologue stores and the FrameGuard
+// dtor restores it, standing in for epilogue ld/lw. Hand-cited seeds at hot jal
+// sites (gen TUs) keep it live where pseudocode demoted the regs to locals.
+// Index: gS[0..7]=$16..$23, gS[8]=$30 (fp); gFS[k] = raw bits of $(16+k).
+// Boot state: all zero (R5900 reset context, crt0 writes no callee-saved regs).
+extern uint64_t gS[9];
+extern uint32_t gFS[16];
+inline uint32_t getS32(int k) { return (uint32_t)gS[k]; }
+inline void setS32(int k, uint32_t v) { gS[k] = (uint64_t)(int64_t)(int32_t)v; }  // EE 32-bit ops sign-extend
 extern uint8_t kScratch[RT_SCRATCH_SIZE];
 
 // One fault counter per unmapped address class; G() never traps the host.
@@ -67,11 +79,29 @@ uint32_t pendingRA();
 void setPendingRA(uint32_t r);
 void restorePendingRA(uint32_t ra);  // epilogue lw $ra: restore the frame's entry RA
 #define RT_CALLRA(pc, ...) (rtguest::setPendingRA(pc), (__VA_ARGS__))
+inline void* G(uint32_t a);  // defined below; FrameGuard's restore path uses it
+
 struct FrameGuard {
     uint32_t saved;
-    uint32_t rtRA;  // guest return address of the call that entered this frame
-    explicit FrameGuard(uint32_t size) : saved(frameTop()), rtRA(pendingRA()) { framePush(size); }
-    ~FrameGuard() { restorePendingRA(rtRA); framePop(saved); }
+    uint32_t rtRA;    // guest return address of the call that entered this frame
+    uint64_t rtSv[9];    // gS as the caller left it (this frame's entry state)
+    uint32_t rtFv[16];   // gFS likewise
+    explicit FrameGuard(uint32_t size) : saved(frameTop()), rtRA(pendingRA()) {
+        for (int i = 0; i < 9; ++i) rtSv[i] = gS[i];
+        for (int i = 0; i < 16; ++i) rtFv[i] = gFS[i];
+        framePush(size);
+    }
+    ~FrameGuard() {
+        // epilogue fidelity: a faithful callee's ld $sN,slot(sp) reads back the
+        // value its own prologue sd stored = the value at entry, so restoring the
+        // entry snapshot is machine-equivalent. shortcut: reading the SLOT back
+        // instead would poison the file where the transliterator modelled locals
+        // over dropped-save slots (measured: walker recursion residue), until gen
+        // TUs model save slots as reserved; entry snapshot covers all faithful fns.
+        for (int i = 0; i < 9; ++i) gS[i] = rtSv[i];
+        for (int i = 0; i < 16; ++i) gFS[i] = rtFv[i];
+        restorePendingRA(rtRA); framePop(saved);
+    }
 };
 
 // Guest float register bits as float, for float-typed callee params
@@ -109,6 +139,18 @@ inline void* G(uint32_t a) {
         return kScratch + (a - 0x70000000u);
     noteFault(a);
     return kScratch;  // quarantine: reads stay deterministic, hashes will expose it
+}
+
+// Prologue sd/sw $sN and swc1 $fN spill stores (emit_prologue_saves.py emits
+// these; values come from the shadow register file, seeded at hand-cited call
+// sites or left at boot 0). Pure stores: the FrameGuard restores the file from
+// its entry snapshot, standing in for the machine's epilogue ld/lw.
+inline void rtSpillS(FrameGuard&, int k, uint32_t sv, uint32_t off, int width) {
+    if (width == 8) *(uint64_t*)G(sv + off) = gS[k];
+    else *(uint32_t*)G(sv + off) = (uint32_t)gS[k];
+}
+inline void rtSpillF(FrameGuard&, int k, uint32_t sv, uint32_t off) {
+    *(uint32_t*)G(sv + off) = gFS[k];
 }
 
 // Load the boot ELF's sections into the image (user's own file; never committed).

@@ -7,8 +7,21 @@ namespace guest {
 uint32_t UpdateControllerInput(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(112);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x30, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x38, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x48, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x58, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x60, 8);
+    rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[2] = 0x0000000000000000ull;  // walk const
+    rtguest::gS[3] = rt_sv + -0x70ull;  // walk: sp+-0x70
+    rtguest::gS[4] = 0x0000000000000000ull;  // walk const
+    rtguest::gS[5] = 0x00000000002a0000ull;  // walk const
+    rtguest::gS[6] = rt_sv + 0x10ull;  // walk: sp+0x10
   }
     uint32_t uStack_70 = rtguest::allocFrame(4);
     rtguest::allocFrame(12);  // guest frame gap

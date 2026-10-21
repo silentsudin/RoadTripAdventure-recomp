@@ -8,8 +8,19 @@ uint32_t SoundRpcRegisterFiles(uint32_t param_1, uint32_t param_2, uint32_t para
   rtguest::FrameGuard rt_fg(144);
     rtguest::allocFrame(28);  // guest frame gap (sp+0x0..0x1b)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x58, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x68, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x80, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
+    rtguest::gS[0] = 0x000000000175e880ull;  // walk const
+    rtguest::gS[1] = 0x000000000175e840ull;  // walk const
+    rtguest::setS32(3, (uint32_t)param_3);  // walk: = param_3
+    rtguest::gS[6] = rt_sv + 0x1cull;  // walk: sp+0x1c
   }
     uint32_t uStack_74 = rtguest::allocFrame(4);  // sp+0x1c (Ghidra entry-sp -0x74, frame 0x90)
     uint32_t uStack_70 = rtguest::allocFrame(8);  // sp+0x20 (Ghidra entry-sp -0x70, frame 0x90)

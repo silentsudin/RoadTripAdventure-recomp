@@ -7,8 +7,22 @@ namespace guest {
 uint32_t UpdateGarageMenuTask(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(2480);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x968, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x970, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x978, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x988, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x990, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x960, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x980, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x998, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x9a0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x9a8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x9ac) = 0x00000000u;
+    rtguest::gS[1] = 0x0000000000000000ull;  // walk const
+    rtguest::setS32(2, (uint32_t)param_3);  // walk: = param_3
+    rtguest::setS32(3, (uint32_t)param_4);  // walk: = param_4
+    rtguest::setS32(5, (uint32_t)param_1);  // walk: = param_1
+    rtguest::setS32(6, (uint32_t)param_2);  // walk: = param_2
   }
 uint32_t puVar1;
   bool bVar2;

@@ -7,8 +7,13 @@ namespace guest {
 uint32_t RequestLocationAssetLoad(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(128);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x70, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x78) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x7c) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x68, 8);
+    rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
+    rtguest::setS32(1, (uint32_t)param_2);  // walk: = param_2
   }
   char cVar1;
 uint32_t puVar2;

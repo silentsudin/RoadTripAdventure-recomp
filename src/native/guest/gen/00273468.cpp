@@ -8,8 +8,18 @@ uint32_t _send_to_iop(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(368);
     rtguest::allocFrame(4);  // guest frame gap (sp+0x0..0x3)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x140, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x130, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x150, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x120, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x100, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x160) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x164) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x110, 8);
+    rtguest::gS[2] = 0x0000000001773210ull;  // walk const
+    rtguest::setS32(3, (uint32_t)param_2);  // walk: = param_2
+    rtguest::setS32(4, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[5] = 0x0000000001770000ull;  // walk const
   }
     uint32_t iStack_16c = rtguest::allocFrame(4);  // sp+0x4 (Ghidra entry-sp -0x16c, frame 0x170)
     uint32_t uStack_168 = rtguest::allocFrame(4);  // sp+0x8 (Ghidra entry-sp -0x168, frame 0x170)

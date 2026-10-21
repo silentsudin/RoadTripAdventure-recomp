@@ -8,8 +8,14 @@ uint32_t sceAddDrv(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(144);
 rtguest::allocFrame(16);  // guest frame gap (sp+0x0..0xf)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x40, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x80) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x84) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x60, 8);
+    rtguest::setS32(1, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[3] = 0x0000000001780000ull;  // walk const
   }
 uint32_t auStack_80 = rtguest::allocFrame(4);  // sp+0x10 (Ghidra entry-sp -0x80, frame 0x90)
     uint32_t uStack_7c = rtguest::allocFrame(4);  // sp+0x14 (Ghidra entry-sp -0x7c, frame 0x90)

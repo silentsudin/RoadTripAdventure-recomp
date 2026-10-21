@@ -6,6 +6,12 @@ namespace guest {
 
 uint32_t find_fde(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x18, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x10, 8);
+    rtguest::setS32(2, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[3] = 0x00000000002f0000ull;  // walk const
+  }
   int iVar1;
 uint32_t piVar2;
   int iVar3;

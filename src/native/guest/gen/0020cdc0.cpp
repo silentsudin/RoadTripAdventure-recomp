@@ -22,6 +22,13 @@ static void rebaseTexWalk(uint32_t p, uint64_t keep, int32_t tbpAdd, uint32_t fa
 uint64_t DispatchInputMapping(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x18, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x28, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x30, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
   }

@@ -8,8 +8,18 @@ uint32_t textGridDraw(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(224);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x20) = (uint32_t)(int32_t)param_1;
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0xa0, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x80, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xd0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xd4) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0xc0, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0xb0, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x40, 8);
+    rtguest::gS[4] = 0x0000000000000000ull;  // walk const
   }
 uint32_t auStack_e0 = rtguest::allocFrame(4);
 uint32_t auStack_dc = rtguest::allocFrame(12);

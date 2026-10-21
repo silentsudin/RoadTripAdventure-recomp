@@ -8,8 +8,27 @@ namespace guest {
 uint32_t raceMapMarkers(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(368);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x100, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x108, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x110, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x118, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x120, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x128, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x130, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x138, 8);
+    rtguest::rtSpillF(rt_fg, 7, rt_sv, 0x160);
+    rtguest::rtSpillF(rt_fg, 6, rt_sv, 0x158);
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0x150);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x148);
     *(uint32_t*)rtguest::G(rt_sv+0x140) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x144) = 0x00000000u;
+    rtguest::gS[0] = 0x000000000177ace0ull;  // walk const
+    rtguest::setS32(1, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[2] = 0x000000000177ac50ull;  // walk const
+    rtguest::gS[3] = 0x0000000000000001ull;  // walk const
+    rtguest::gS[4] = 0x00000000002a4360ull;  // walk const
+    rtguest::gS[6] = 0x00000000002a0000ull;  // walk const
+    rtguest::gS[7] = 0x00000000002a0000ull;  // walk const
   }
 uint32_t afStack_170 = rtguest::allocFrame(40);
     uint32_t fStack_148 = rtguest::allocFrame(4);

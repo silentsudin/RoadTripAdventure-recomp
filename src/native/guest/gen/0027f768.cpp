@@ -7,10 +7,21 @@ namespace guest {
 uint32_t _vfprintf_r(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(656);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x240, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x270, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x1e4) = (uint32_t)(int32_t)param_1;
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x248, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x250, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x258, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x260, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x268, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x278, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x280, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x288) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x28c) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x1e8) = (uint32_t)(int32_t)param_2;
+    rtguest::setS32(0, (uint32_t)param_3);  // walk: = param_3
+    rtguest::setS32(6, (uint32_t)param_4);  // walk: = param_4
   }
 uint32_t auStack_290 = rtguest::allocFrame(16);
 rtguest::allocFrame(4);  // guest frame gap

@@ -11,6 +11,9 @@ uint32_t SndRpcCmdA(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x10) = (uint32_t)(int32_t)param_1;
     *(uint32_t*)rtguest::G(rt_sv+0x14) = (uint32_t)(int32_t)param_2;
     *(uint32_t*)rtguest::G(rt_sv+0x18) = (uint32_t)(int32_t)param_3;
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x58, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x60, 8);
   }
     uint32_t uStack_54 = rtguest::allocFrame(4);  // sp+0x1c (Ghidra entry-sp -0x54, frame 0x70)
     uint32_t uStack_50 = rtguest::allocFrame(8);  // sp+0x20 (Ghidra entry-sp -0x50, frame 0x70)

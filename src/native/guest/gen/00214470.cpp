@@ -7,8 +7,17 @@ namespace guest {
 uint32_t HandleControllerConfigMenuInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(160);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x68, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x88, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x70, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x90) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x94) = 0x00000000u;
+    rtguest::setS32(0, (uint32_t)param_3);  // walk: = param_3
+    rtguest::setS32(1, (uint32_t)param_4);  // walk: = param_4
+    rtguest::setS32(3, (uint32_t)param_1);  // walk: = param_1
   }
     uint32_t uStack_a0 = rtguest::allocFrame(8);
     uint32_t uStack_98 = rtguest::allocFrame(8);

@@ -7,8 +7,21 @@ namespace guest {
 uint32_t SetupCarouselSlotTransforms(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x20, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x48) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4c) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x18, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x28, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x38, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x40, 8);
+    rtguest::setS32(3, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[5] = 0x0000000000000000ull;  // walk const
+    rtguest::gS[6] = 0x0000000000000ff0ull;  // walk const
+    rtguest::gS[8] = 0x0000000021310000ull;  // walk const
   }
   int iVar1;
 uint32_t puVar2;

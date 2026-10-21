@@ -7,8 +7,10 @@ namespace guest {
 uint32_t cmd_sem_init(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(80);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x30, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+    rtguest::gS[1] = 0x00000000002e0000ull;  // walk const
   }
     // sema struct fields live at guest offsets inside one contiguous block
     uint32_t auStack_50 = rtguest::allocFrame(0x18);

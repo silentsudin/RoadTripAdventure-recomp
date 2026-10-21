@@ -8,8 +8,27 @@ namespace guest {
 uint32_t BuildCameraViewMatrices(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
   rtguest::FrameGuard rt_fg(208);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x98, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x68, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x90, 8);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xa8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x88, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 7, rt_sv, 0xc0);
+    rtguest::rtSpillF(rt_fg, 6, rt_sv, 0xb8);
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0xb0);
+    rtguest::setS32(0, (uint32_t)param_5);  // walk: = param_5
+    rtguest::setS32(1, (uint32_t)param_4);  // walk: = param_4
+    rtguest::setS32(2, (uint32_t)param_1);  // walk: = param_1
+    rtguest::setS32(3, (uint32_t)param_2);  // walk: = param_2
+    rtguest::setS32(4, (uint32_t)param_3);  // walk: = param_3
+    rtguest::setS32(6, (uint32_t)param_6);  // walk: = param_6
+    rtguest::gS[7] = rt_sv + 0x10ull;  // walk: sp+0x10
   }
 uint32_t auStack_d0 = rtguest::allocFrame(16);
 uint32_t auStack_c0 = rtguest::allocFrame(16);

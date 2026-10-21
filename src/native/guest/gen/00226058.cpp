@@ -8,6 +8,8 @@ uint32_t ScaleCarLightMatrix(uint32_t rt_bits_1, uint32_t param_2, ...) {
   float param_1 = rtguest::fbits(rt_bits_1);  // f12.. float arg carried as bits (W13 float-param fix)
   rtguest::FrameGuard rt_fg(112);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x58, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x50, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x64) = 0x00000000u;
   }

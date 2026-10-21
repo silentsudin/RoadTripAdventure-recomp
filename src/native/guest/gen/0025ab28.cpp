@@ -7,9 +7,19 @@ namespace guest {
 uint32_t raceStandingsMenuTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(256);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0xd0, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0xb0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0xb8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0xc0, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0xc8, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0xd8, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0xe0, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0xe8, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0xf0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xf8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xfc) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0xa0) = (uint32_t)(int32_t)param_2;
+    rtguest::setS32(4, (uint32_t)param_1);  // walk: = param_1
   }
     uint32_t uStack_100 = rtguest::allocFrame(8);
     uint32_t uStack_f8 = rtguest::allocFrame(8);

@@ -9,6 +9,8 @@ uint32_t scePadInit2(uint32_t q0, ...) {
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x10, 8);
+    rtguest::gS[0] = 0x0000000001773500ull;  // walk const
   }
 uint32_t puVar1;
   undefined4 uVar2;

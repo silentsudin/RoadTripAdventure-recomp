@@ -8,8 +8,18 @@ namespace guest {
 void PrintXyzTable(uint32_t param_1, int param_2, ...) {
   rtguest::FrameGuard rt_fg(128);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x48, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x50, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x78) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x7c) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x58, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x68, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x70, 8);
+    rtguest::setS32(3, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[5] = 0x0000000000000003ull;  // walk const
+    rtguest::gS[6] = 0x0000000000330000ull;  // walk const
   }
   undefined8 uVar2;
   undefined8 uVar3;

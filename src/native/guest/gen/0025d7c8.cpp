@@ -8,8 +8,15 @@ namespace guest {
 uint32_t collectionNpcUpdate(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x48, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x38, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
+    rtguest::setS32(3, (uint32_t)param_2);  // walk: = param_2
+    rtguest::setS32(4, (uint32_t)param_1);  // walk: = param_1
   }
 uint32_t auStack_60 = rtguest::allocFrame(4);
     uint32_t uStack_5c = rtguest::allocFrame(4);

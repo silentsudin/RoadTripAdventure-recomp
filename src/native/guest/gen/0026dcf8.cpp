@@ -7,8 +7,16 @@ namespace guest {
 uint32_t PrintXyzRow(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(128);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x68);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x48, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x58, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x60) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x64) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 6, rt_sv, 0x78);
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0x70);
+    rtguest::gS[0] = 0x000000000032fba8ull;  // walk const
   }
   undefined8 uVar1;
   undefined8 uVar2;

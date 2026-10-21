@@ -9,6 +9,7 @@ uint32_t scalbnf(uint32_t param_1, uint32_t param_2, ...) {
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x8);
   }
   int iVar1;
   float fVar2;

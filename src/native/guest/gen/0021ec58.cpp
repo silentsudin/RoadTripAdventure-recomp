@@ -7,6 +7,10 @@ namespace guest {
 uint32_t RunCameraZoomTransition(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(176);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x88, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x98, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x80, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
   }

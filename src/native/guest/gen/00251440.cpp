@@ -11,8 +11,20 @@ void sceVu0ScaleVectorXYZ(float, uint32_t, uint32_t);
 uint32_t UpdateBallPhysics(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(288);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0xf0, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0xc0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0xc8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0xd0, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0xe8, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0xd8, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0xe0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xf8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xfc) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 6, rt_sv, 0x110);
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0x108);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x100);
+    rtguest::setS32(1, (uint32_t)param_2);  // walk: = param_2
+    rtguest::setS32(6, (uint32_t)param_1);  // walk: = param_1
   }
 uint32_t auStack_120 = rtguest::allocFrame(4);
     uint32_t fStack_11c = rtguest::allocFrame(4);

@@ -6,6 +6,19 @@ namespace guest {
 
 uint32_t InitPlayerSlotStrings(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x18, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x28, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x38, 8);
+    rtguest::gS[0] = 0x0000000000000004ull;  // walk const
+    rtguest::gS[6] = 0x0000000000000007ull;  // walk const
+  }
   (*(uint8_t*)rtguest::G((uint32_t)0x0177fd8c + 0)) = 'P';
   (*(uint8_t*)rtguest::G((uint32_t)0x0177fd8c + 1)) = 'L';
   (*(uint8_t*)rtguest::G((uint32_t)0x0177fd8c + 2)) = 'A';

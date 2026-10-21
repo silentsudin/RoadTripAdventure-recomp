@@ -8,8 +8,16 @@ namespace guest {
 uint32_t UpdateRotatingEffect(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x18, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x28, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0x48);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x40);
+    rtguest::setS32(4, (uint32_t)param_1);  // walk: = param_1
   }
   uint uVar1;
   uint uVar2;

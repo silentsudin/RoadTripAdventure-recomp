@@ -7,7 +7,16 @@ namespace guest {
 uint32_t shopPartDialogYesNo(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(512);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x1b8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x1c0, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x1c8, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x1e0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x1a0) = (uint32_t)(int32_t)param_1;
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x1b0, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x1d0, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x1d8, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x1e8, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x1f0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x1f8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x1fc) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x1a4) = (uint32_t)(int32_t)param_2;

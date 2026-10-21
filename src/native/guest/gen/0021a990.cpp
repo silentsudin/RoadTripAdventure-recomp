@@ -7,8 +7,17 @@ namespace guest {
 uint32_t AcquireVehicleInput(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(48);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x18, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x20, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+    rtguest::setS32(0, (uint32_t)param_3);  // walk: = param_3
+    rtguest::setS32(1, (uint32_t)param_2);  // walk: = param_2
+    rtguest::gS[2] = 0x0000000000000000ull;  // walk const
+    rtguest::gS[3] = 0x0000000000000000ull;  // walk const
   }
 uint32_t psVar1;
   ulong uVar2;

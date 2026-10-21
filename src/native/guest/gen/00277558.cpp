@@ -7,8 +7,12 @@ namespace guest {
 uint64_t scalbn(uint64_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(32);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x8, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+    rtguest::setS32(0, (uint32_t)param_2);  // walk: = param_2
+    rtguest::gS[1] = 0x000000007ff00000ull;  // walk const
   }
   undefined8 uVar1;
   int iVar2;

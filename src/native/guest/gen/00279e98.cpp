@@ -6,6 +6,15 @@ namespace guest {
 
 uint64_t sceMcRead(uint32_t param_1, uint64_t param_2, uint64_t param_3, ...) {
   rtguest::FrameGuard rt_fg(144);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x30, 8);
+    rtguest::setS32(3, (uint32_t)param_3);  // walk: = param_3
+    rtguest::setS32(4, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[5] = 0x00000000002f0000ull;  // walk const
+  }
   long lVar1;
   
   lVar1 = RT_CALLRA(0x279ecc, guest::PollSema((*(uint32_t*)rtguest::G(0x2e89bc))));

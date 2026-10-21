@@ -7,8 +7,12 @@ namespace guest {
 uint32_t textGridPrintf(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
   rtguest::FrameGuard rt_fg(1216);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x410, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x490) = (uint32_t)(int32_t)param_3;
     *(uint32_t*)rtguest::G(rt_sv+0x494) = (uint32_t)((int64_t)(int32_t)param_3 >> 32);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x430, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x420, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x400, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x440) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x444) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x498) = (uint32_t)(int32_t)param_4;
@@ -17,6 +21,9 @@ uint32_t textGridPrintf(uint32_t param_1, uint32_t param_2, uint64_t param_3, ui
     *(uint32_t*)rtguest::G(rt_sv+0x4a4) = (uint32_t)((int64_t)(int32_t)param_5 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0x4a8) = (uint32_t)(int32_t)param_6;
     *(uint32_t*)rtguest::G(rt_sv+0x4ac) = (uint32_t)((int64_t)(int32_t)param_6 >> 32);
+    rtguest::setS32(1, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[2] = 0x0000000000000000ull;  // walk const
+    rtguest::gS[3] = 0x0000000000000000ull;  // walk const
   }
     uint32_t bStack_4c0 = rtguest::allocFrame(1);
 uint32_t abStack_4bf = rtguest::allocFrame(1023);

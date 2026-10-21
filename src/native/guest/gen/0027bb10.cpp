@@ -11,6 +11,13 @@ uint64_t dpmul(uint64_t param_1, uint64_t param_2, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x64) = (uint32_t)((int64_t)(int32_t)param_1 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0x68) = (uint32_t)(int32_t)param_2;
     *(uint32_t*)rtguest::G(rt_sv+0x6c) = (uint32_t)((int64_t)(int32_t)param_2 >> 32);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x88, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x98, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0xa0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xa8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xac) = 0x00000000u;
   }

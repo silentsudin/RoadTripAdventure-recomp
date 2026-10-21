@@ -7,8 +7,15 @@ namespace guest {
 uint32_t __frame_state_for(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(1264);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x4c0, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x4c8, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x4d8, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x4b0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x4b8, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x4d0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x4e0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x4e4) = 0x00000000u;
+    rtguest::setS32(3, (uint32_t)param_1);  // walk: = param_1
   }
 uint32_t apcStack_4f0 = rtguest::allocFrame(32);
 uint32_t auStack_4d0 = rtguest::allocFrame(1120);

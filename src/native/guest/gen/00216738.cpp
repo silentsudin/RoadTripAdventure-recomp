@@ -8,8 +8,20 @@ namespace guest {
 uint32_t gs_options_settings_page(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(560);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x1e8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x1f0, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x200, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x210, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x1e0, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x1f8, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x208, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x218, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x220, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x228) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x22c) = 0x00000000u;
+    rtguest::setS32(1, (uint32_t)param_2);  // walk: = param_2
+    rtguest::setS32(2, (uint32_t)param_1);  // walk: = param_1
+    rtguest::setS32(4, (uint32_t)param_3);  // walk: = param_3
   }
     uint32_t uStack_230 = rtguest::allocFrame(4);
     uint32_t uStack_22c = rtguest::allocFrame(4);

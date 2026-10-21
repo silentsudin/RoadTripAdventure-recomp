@@ -7,8 +7,14 @@ namespace guest {
 uint32_t HandleCarObjectCollisions(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(176);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x50, 8);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xa0);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x58, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x68, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x98) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x9c) = 0x00000000u;
+    rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
   }
 uint32_t auStack_b0 = rtguest::allocFrame(16);
     uint32_t fStack_a0 = rtguest::allocFrame(4);

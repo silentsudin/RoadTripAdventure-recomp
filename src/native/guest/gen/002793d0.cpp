@@ -7,18 +7,21 @@ namespace guest {
 uint32_t sceSdRemote(uint64_t param_1, uint32_t param_2, uint64_t param_3, uint64_t param_4, uint64_t param_5, uint64_t param_6, uint64_t param_7, uint64_t param_8, ...) {
   rtguest::FrameGuard rt_fg(208);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x20, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x98) = (uint32_t)(int32_t)param_2;
     *(uint32_t*)rtguest::G(rt_sv+0x9c) = (uint32_t)((int64_t)(int32_t)param_2 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0xa0) = (uint32_t)(int32_t)param_3;
     *(uint32_t*)rtguest::G(rt_sv+0xa4) = (uint32_t)((int64_t)(int32_t)param_3 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0x40) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x44) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x30, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xa8) = (uint32_t)(int32_t)param_4;
     *(uint32_t*)rtguest::G(rt_sv+0xac) = (uint32_t)((int64_t)(int32_t)param_4 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0xb0) = (uint32_t)(int32_t)param_5;
     *(uint32_t*)rtguest::G(rt_sv+0xb4) = (uint32_t)((int64_t)(int32_t)param_5 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0xb8) = (uint32_t)(int32_t)param_6;
     *(uint32_t*)rtguest::G(rt_sv+0xbc) = (uint32_t)((int64_t)(int32_t)param_6 >> 32);
+    rtguest::gS[0] = 0x0000000001770000ull;  // walk const
   }
   uint32_t uStack_30 = rtguest::allocFrame(0x38);
   uint32_t uStack_28 = uStack_30 + 8;

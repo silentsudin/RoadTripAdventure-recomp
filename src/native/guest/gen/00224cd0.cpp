@@ -7,8 +7,20 @@ namespace guest {
 uint32_t SpawnCarEmitterEntry(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(176);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x68, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x88, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x80, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x98) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x9c) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xa0);
+    rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
+    rtguest::setS32(1, (uint32_t)param_2);  // walk: = param_2
+    rtguest::gS[2] = 0x0000000000000000ull;  // walk const
+    rtguest::gS[6] = 0x0000000001730000ull;  // walk const
   }
 uint32_t auStack_b0 = rtguest::allocFrame(48);
 uint32_t auStack_80 = rtguest::allocFrame(12);

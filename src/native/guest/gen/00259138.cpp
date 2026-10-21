@@ -7,8 +7,19 @@ namespace guest {
 uint32_t SpawnDoorMenuEntity(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(128);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x28, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x38, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x48, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x58, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x68) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x6c) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x70);
+    rtguest::setS32(1, (uint32_t)param_2);  // walk: = param_2
   }
     uint32_t fStack_80 = rtguest::allocFrame(4);
     uint32_t fStack_7c = rtguest::allocFrame(4);

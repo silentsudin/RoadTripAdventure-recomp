@@ -6,6 +6,11 @@ namespace guest {
 
 uint32_t scePrintfPutChar(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(64);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
+    rtguest::gS[1] = 0x00000000002f0000ull;  // walk const
+  }
   int iVar1;
   
   iVar1 = (*(int32_t*)rtguest::G(0x2e98f4));

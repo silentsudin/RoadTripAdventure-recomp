@@ -8,6 +8,14 @@ namespace guest {
 uint32_t BuildCarouselDrawPacket(uint32_t rt_bits_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   float param_1 = rtguest::fbits(rt_bits_1);  // f12.. float arg carried as bits (W13 float-param fix)
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x48, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x58, 8);
+    rtguest::setS32(1, (uint32_t)param_4);  // walk: = param_4
+    rtguest::setS32(2, (uint32_t)param_2);  // walk: = param_2
+    rtguest::setS32(3, (uint32_t)param_3);  // walk: = param_3
+  }
   uint uVar1;
   ushort uVar2;
   ushort uVar3;

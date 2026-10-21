@@ -8,8 +8,18 @@ namespace guest {
 uint32_t drawRaceProps(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(208);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x88, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x98, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0xa0, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0xa8, 8);
+    rtguest::rtSpillF(rt_fg, 6, rt_sv, 0xc8);
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0xc0);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xb8);
     *(uint32_t*)rtguest::G(rt_sv+0xb0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xb4) = 0x00000000u;
+    rtguest::gS[1] = 0x0000000000000000ull;  // walk const
   }
 uint32_t auStack_d0 = rtguest::allocFrame(64);
 uint32_t auStack_90 = rtguest::allocFrame(52);

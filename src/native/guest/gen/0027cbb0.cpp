@@ -9,8 +9,12 @@ namespace guest {
 uint32_t frame_init(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(64);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x28, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+    rtguest::setS32(2, (uint32_t)param_1);  // walk: = param_1
   }
   int32_t iVar1;
   int32_t lVar2;

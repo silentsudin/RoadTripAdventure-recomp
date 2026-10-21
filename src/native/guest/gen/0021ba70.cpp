@@ -12,8 +12,19 @@ namespace guest {
 void UpdateVehiclePhysics(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(736);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x2a0, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x2a8, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x280, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x288, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x290, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x298, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x2b0, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x2b8, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x2c0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x2c8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x2cc) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x2d0);
+    rtguest::setS32(5, (uint32_t)param_2);  // walk: = param_2
   }
   using namespace rtguest::vu0;
   int iVar1;

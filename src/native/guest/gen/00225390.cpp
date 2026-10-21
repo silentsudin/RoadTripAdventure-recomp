@@ -7,8 +7,12 @@ namespace guest {
 uint32_t AdvanceCarEffectSlot(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(80);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x28, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x20, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x38) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x3c) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x40);
   }
     uint32_t fStack_50 = rtguest::allocFrame(4);
     uint32_t fStack_4c = rtguest::allocFrame(4);

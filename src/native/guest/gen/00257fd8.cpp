@@ -9,6 +9,9 @@ uint32_t MusicRpcCmd15(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(112);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x10) = (uint32_t)(int32_t)param_1;
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x58, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x60, 8);
   }
   uint32_t frame = rtguest::allocFrame(0x3c);
   uint32_t uStack_5c = frame;

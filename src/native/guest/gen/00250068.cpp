@@ -7,8 +7,20 @@ namespace guest {
 uint32_t UpdateVehicleWaypointProgress(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(192);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x68, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x98, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x88, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x90, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 6, rt_sv, 0xb8);
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0xb0);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xa8);
+    rtguest::setS32(1, (uint32_t)param_2);  // walk: = param_2
   }
   byte bVar1;
   int iVar2;

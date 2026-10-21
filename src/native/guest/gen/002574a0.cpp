@@ -8,7 +8,13 @@ uint32_t SoundRpcPlaySequence(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(192);
     rtguest::allocFrame(20);  // guest frame gap (sp+0x0..0x13)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0xb0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x10) = (uint32_t)(int32_t)param_1;
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0xa0, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0xa8, 8);
+    rtguest::gS[0] = 0x000000000175e880ull;  // walk const
+    rtguest::setS32(4, (uint32_t)param_1);  // walk: = param_1
   }
     uint32_t uStack_ac = rtguest::allocFrame(4);  // sp+0x14 (Ghidra entry-sp -0xac, frame 0xc0)
     rtguest::allocFrame(76);  // guest frame gap (sp+0x18..0x63)

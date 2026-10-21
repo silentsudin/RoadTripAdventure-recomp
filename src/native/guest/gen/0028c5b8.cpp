@@ -7,6 +7,7 @@ namespace guest {
 uint32_t sceSifSearchModuleByName(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x10, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
   }

@@ -7,8 +7,16 @@ namespace guest {
 uint32_t raceHudElementA(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(176);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x88, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x98, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xa8);
+    rtguest::setS32(0, (uint32_t)param_2);  // walk: = param_2
+    rtguest::setS32(1, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[3] = 0x00000000002a0000ull;  // walk const
   }
     uint32_t uStack_b0 = rtguest::allocFrame(4);
     uint32_t uStack_ac = rtguest::allocFrame(4);

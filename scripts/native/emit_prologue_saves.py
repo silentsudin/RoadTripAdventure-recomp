@@ -50,6 +50,11 @@ def split_regs(rest):
 STOP_OPS = {"jal", "jalr", "jr", "j", "beq", "bne", "bgtz", "blez", "bltz",
             "bgezal", "bgtzal", "bltzal", "blezal", "beql", "bnel"}
 SAVE_OPS = {"sd", "sw"}
+# Callee-saved shadow-file slots: sd/sw $16..$23 (and $fp) spill gS[k],
+# swc1 $f20..$f31 spills gFS[k] (k = regnum - 16).
+SREGS = {f"${r}": r - 16 for r in range(16, 24)}
+SREGS["$fp"] = 8
+FREGS = {f"$f{r}": r - 16 for r in range(20, 32)}
 
 def parse_tu(path):
     """Return (guard_size, {int param names}) for a gen TU, or None."""
@@ -81,7 +86,8 @@ def strip_block(src):
 
 def prologue_emits(prog, idx, addr, size, params, stats):
     """Symbolic prologue walk; returns [(pc, op, off, kind, val)]."""
-    consts, pmap = {}, {}
+    consts, pmap, spk = {}, {}, {}
+    snap = None  # fold state frozen at the first call/load (see seeds below)
     for r in range(4, 10):
         pmap[f"${r}"] = r - 3
     emits = []
@@ -97,12 +103,56 @@ def prologue_emits(prog, idx, addr, size, params, stats):
             emits.append((pc, op, off, "P", f"param_{pmap[reg]}"))
         elif reg in consts:
             emits.append((pc, op, off, "C", consts[reg]))
+        elif reg in spk:
+            emits.append((pc, op, off, "VS", spk[reg]))
         elif reg == "$ra":
             emits.append((pc, op, off, "RA", 0))
-        elif reg in ("$fp",):
-            stats["fp-opaque"] += 1
+        elif reg in SREGS:
+            emits.append((pc, op, off, "S", SREGS[reg]))
+            stats["s-spill"] += 1
         else:
             stats["opaque"] += 1
+    def try_save_f(pc, rest):
+        m = re.match(r'\$(\w+), (0x[0-9a-f]+|-0x[0-9a-f]+)\(\$sp\)$', rest)
+        if m:
+            reg, off = "$" + m.group(1), int(m.group(2), 0)
+            if reg in FREGS and 0 <= off < size:
+                emits.append((pc, "swc1", off, "F", FREGS[reg]))
+                stats["f-spill"] += 1
+                return
+        stats["swc1"] += 1
+
+    MASK64 = 0xFFFFFFFFFFFFFFFF
+
+    def apply_const(op, ops):
+        """One instruction of the symbolic const/pmap walk; True if consumed."""
+        if op in ("move", "daddu") and len(ops) == 2 and ops[1] == "$zero":
+            consts[ops[0]] = 0
+        elif op == "move" and len(ops) == 2:
+            s, d = ops[1], ops[0]
+            consts.pop(d, None); pmap.pop(d, None); spk.pop(d, None)
+            if s in consts: consts[d] = consts[s]
+            if s in pmap: pmap[d] = pmap[s]
+            if s in spk: spk[d] = spk[s]
+        elif op in ("addiu", "daddiu") and len(ops) == 3 and ops[1] == "$zero":
+            consts[ops[0]] = int(ops[2], 0) & MASK64
+        elif op in ("addiu", "daddiu") and len(ops) == 3 and ops[1] == "$sp":
+            spk[ops[0]] = int(ops[2], 0)  # frame-relative value (camera s7=sp+0x10)
+            consts.pop(ops[0], None); pmap.pop(ops[0], None)
+        elif op in ("addiu", "daddiu") and len(ops) == 3 and ops[1] in consts:
+            consts[ops[0]] = (consts[ops[1]] + int(ops[2], 0)) & MASK64
+            pmap.pop(ops[0], None); spk.pop(ops[0], None)
+        elif op == "lui" and len(ops) == 2:
+            consts[ops[0]] = (int(ops[1], 0) << 16) & 0xFFFFFFFF
+            pmap.pop(ops[0], None); spk.pop(ops[0], None)
+        elif op == "ori" and len(ops) == 3 and ops[1] in consts:
+            consts[ops[0]] = consts[ops[1]] | int(ops[2], 0)
+            pmap.pop(ops[0], None); spk.pop(ops[0], None)
+        elif ops and ops[0].startswith('$'):  # unknown def
+            consts.pop(ops[0], None); pmap.pop(ops[0], None); spk.pop(ops[0], None)
+        else:
+            return False
+        return True
     i = idx[addr]
     end = min(len(prog), i + 64)
     while i < end:
@@ -114,56 +164,70 @@ def prologue_emits(prog, idx, addr, size, params, stats):
             try_save(pc, op, rest)
             i += 1
             continue
-        if op in ("swc1", "sqc2"):
+        if op == "swc1":
+            try_save_f(pc, rest)
+            i += 1
+            continue
+        if op == "sqc2":
             stats["swc1"] += 1
             i += 1
             continue
-        if op in ("move", "daddu") and len(ops) == 2 and ops[1] == "$zero":
-            consts[ops[0]] = 0
-            i += 1; continue
-        if op == "move" and len(ops) == 2:
-            s, d = ops[1], ops[0]
-            consts.pop(d, None); pmap.pop(d, None)
-            if s in consts: consts[d] = consts[s]
-            if s in pmap: pmap[d] = pmap[s]
-            i += 1; continue
-        if op in ("addiu", "daddiu") and len(ops) == 3 and ops[1] == "$zero":
-            consts[ops[0]] = int(ops[2], 0) & 0xFFFFFFFFFFFFFFFF
-            i += 1; continue
-        if op in ("addiu", "daddiu") and len(ops) == 3 and ops[1] in consts:
-            consts[ops[0]] = (consts[ops[1]] + int(ops[2], 0)) & 0xFFFFFFFFFFFFFFFF
-            pmap.pop(ops[0], None)
-            i += 1; continue
-        if op == "lui" and len(ops) == 2:
-            consts[ops[0]] = (int(ops[1], 0) << 16) & 0xFFFFFFFF
-            pmap.pop(ops[0], None)
-            i += 1; continue
-        if op == "ori" and len(ops) == 3 and ops[1] in consts:
-            consts[ops[0]] = consts[ops[1]] | int(ops[2], 0)
-            pmap.pop(ops[0], None)
-            i += 1; continue
         if op in STOP_OPS:
+            # Seeds freeze at the first call: only defs in the straight-line
+            # window before it are provably live for the callee's spills. A
+            # folded value is visible there, so the delay slot itself is not
+            # folded (gameMainLoop's loop folds would seed stale values).
+            snap = (dict(consts), dict(pmap), dict(spk))
             i += 1
-            if i < end:  # delay slot executes with pre-callee state
-                pc2, op2, rest2 = prog[i]
+            if i < end:  # delay slot executes with pre-callee state, BEFORE the
+                pc2, op2, rest2 = prog[i]  # callee's first spill
                 if op2 in SAVE_OPS:
                     try_save(pc2, op2, rest2)
-                elif op2 in ("swc1", "sqc2"):
+                elif op2 == "swc1":
+                    try_save_f(pc2, rest2)
+                elif op2 == "sqc2":
                     stats["swc1"] += 1
             break
         if op.startswith("l") and op != "lui":  # any load: value unknowable
+            snap = (dict(consts), dict(pmap), dict(spk))
             break
-        if ops and ops[0].startswith('$'):  # unknown def
-            consts.pop(ops[0], None); pmap.pop(ops[0], None)
+        if apply_const(op, ops):
+            i += 1
+            continue
         i += 1
-    return emits
+    if snap is None:  # window exhausted: everything folded is live straight-line
+        snap = (consts, pmap, spk)
+    c_s, p_s, k_s = snap
+    # Seeds: callee-saved regs the walk proved constant/param/frame-relative in
+    # the pre-call window. The ambient shadow file propagates these to every
+    # callee's spill (and jalr-dispatched task fns) until this frame's epilogue
+    # restores what its prologue spilled.
+    seeds = []
+    for reg, k in SREGS.items():
+        if reg in c_s:
+            seeds.append((k, "C", c_s[reg]))
+        elif reg in p_s and f"param_{p_s[reg]}" in params:
+            seeds.append((k, "P", f"param_{p_s[reg]}"))
+        elif reg in k_s:
+            seeds.append((k, "SP", k_s[reg]))
+    return emits, seeds
 
-def emit_block(emits, has_guard):
+def emit_block(emits, seeds, has_guard):
     lines = [BLOCK_START]
     for pc, op, off, kind, val in emits:
-        if kind == "RA" and not has_guard:
+        if kind in ("RA", "S", "F") and not has_guard:
             continue
-        if op == "sw":
+        if kind == "S":
+            w = 8 if op == "sd" else 4
+            lines.append(f"    rtguest::rtSpillS(rt_fg, {val}, rt_sv, {off:#x}, {w});")
+        elif kind == "F":
+            lines.append(f"    rtguest::rtSpillF(rt_fg, {val}, rt_sv, {off:#x});")
+        elif kind == "VS":
+            if op == "sd":
+                lines.append(f"    *(uint64_t*)rtguest::G(rt_sv+{off:#x}) = rt_sv + {val:#x}ull;")
+            else:
+                lines.append(f"    *(uint32_t*)rtguest::G(rt_sv+{off:#x}) = rt_sv + {val:#x}u;")
+        elif op == "sw":
             if kind == "P":
                 lines.append(f"    *(uint32_t*)rtguest::G(rt_sv+{off:#x}) = (uint32_t)(int32_t){val};")
             elif kind == "RA":
@@ -180,6 +244,13 @@ def emit_block(emits, has_guard):
             else:
                 lines.append(f"    *(uint32_t*)rtguest::G(rt_sv+{off:#x}) = {val & 0xFFFFFFFF:#010x}u;")
                 lines.append(f"    *(uint32_t*)rtguest::G(rt_sv+{off+4:#x}) = {(val >> 32) & 0xFFFFFFFF:#010x}u;")
+    for k, kind, val in seeds:
+        if kind == "C":
+            lines.append(f"    rtguest::gS[{k}] = {val & 0xFFFFFFFFFFFFFFFF:#018x}ull;  // walk const")
+        elif kind == "SP":
+            lines.append(f"    rtguest::gS[{k}] = rt_sv + {val:#x}ull;  // walk: sp+{val:#x}")
+        else:
+            lines.append(f"    rtguest::setS32({k}, (uint32_t){val});  // walk: = {val}")
     lines.append("  }")
     return "\n".join(lines) + "\n"
 
@@ -257,8 +328,8 @@ def main():
             continue
         size, params = parsed
         if size:
-            emits = prologue_emits(prog, idx, addr, size, params, stats)
-            if emits:
+            emits, seeds = prologue_emits(prog, idx, addr, size, params, stats)
+            if emits or seeds:
                 anchor_re = re.compile(r'^[ ]*(rtguest::FrameGuard[^\n]*|[a-zA-Z0-9_ ]*rtguest::allocFrame\([^\n]*)\n', re.M)
                 last, ran = None, 0
                 for m in anchor_re.finditer(src):
@@ -269,10 +340,11 @@ def main():
                     stats["no-anchor"] += 1
                 else:
                     has_guard = "FrameGuard rt_fg(" in src
-                    src = src[:last.end()] + emit_block(emits, has_guard) + src[last.end():]
+                    src = src[:last.end()] + emit_block(emits, seeds, has_guard) + src[last.end():]
                     stats["touched"] += 1
                     stats["stores"] += sum(1 for e in emits if e[3] != "RA")
                     stats["ra-stores"] += sum(1 for e in emits if e[3] == "RA")
+                    stats["seeds"] += len(seeds)
         # caller rewrite: jal sites -> source calls (ordered, exact count)
         jals = collections.defaultdict(list)
         for pc, op, rest in prog[idx[addr]:]:

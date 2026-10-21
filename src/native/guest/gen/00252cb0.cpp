@@ -7,9 +7,23 @@ namespace guest {
 uint32_t DrawGolfScorecard(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(304);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0xe0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0xe8, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0xf8, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x108, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x110, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x120, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xd0) = (uint32_t)(int32_t)param_2;
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0xf0, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x100, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x118, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x128) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x12c) = 0x00000000u;
+    rtguest::gS[0] = 0x00000000002ac330ull;  // walk const
+    rtguest::gS[3] = 0x0000000000000000ull;  // walk const
+    rtguest::setS32(5, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[6] = 0x00000000000000b4ull;  // walk const
+    rtguest::gS[8] = 0x0000000000330000ull;  // walk const
   }
     uint32_t uStack_130 = rtguest::allocFrame(8);
     uint32_t uStack_128 = rtguest::allocFrame(8);

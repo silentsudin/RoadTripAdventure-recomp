@@ -8,9 +8,23 @@ namespace guest {
 uint32_t texAnimCopyA(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(272);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0xc0, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0xc8, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0xd0, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0xd8, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xe8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xec) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 7, rt_sv, 0x108);
+    rtguest::rtSpillF(rt_fg, 6, rt_sv, 0x100);
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0xf8);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xf0);
     *(uint32_t*)rtguest::G(rt_sv+0x0) = (uint32_t)(int32_t)param_1;
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0xa0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0xa8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0xb0, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0xb8, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0xe0, 8);
+    rtguest::gS[5] = 0x00000000002a2c30ull;  // walk const
   }
   undefined4 uVar1;
   uint uVar2;

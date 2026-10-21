@@ -7,6 +7,8 @@ namespace guest {
 uint32_t sceTtyInit(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(48);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
   }

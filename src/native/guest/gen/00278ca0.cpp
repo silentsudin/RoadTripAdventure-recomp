@@ -6,6 +6,11 @@ namespace guest {
 
 uint32_t sceCdDiskReady(uint64_t param_1, ...) {
   rtguest::FrameGuard rt_fg(160);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x30, 8);
+    rtguest::gS[6] = 0x00000000002e0000ull;  // walk const
+  }
   int iVar1;
   undefined4 uVar2;
   long lVar3;

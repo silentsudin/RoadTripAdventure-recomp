@@ -8,9 +8,21 @@ uint32_t AdvanceVehicleMotion(uint32_t param_1, uint32_t param_2, uint32_t param
   rtguest::FrameGuard rt_fg(224);
     rtguest::allocFrame(4);  // guest frame gap (sp+0x0..0x3)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x88, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x98, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0xa0, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0xa8, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0xb0, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0xb8, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0xc0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xc8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xcc) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0xd8);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xd0);
     *(uint32_t*)rtguest::G(rt_sv+0x30) = (uint32_t)(int32_t)param_1;
+    rtguest::setS32(2, (uint32_t)param_2);  // walk: = param_2
   }
     uint32_t iStack_dc = rtguest::allocFrame(4);  // sp+0x4 (Ghidra entry-sp -0xdc, frame 0xe0)
 rtguest::allocFrame(8);  // guest frame gap (sp+0x8..0xf)

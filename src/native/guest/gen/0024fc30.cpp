@@ -9,6 +9,8 @@ uint32_t LoadAndTransformVec4(uint32_t param_1, uint32_t param_2, ...) {
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x18) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x1c) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x10, 8);
+    rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
   }
   short sVar1;
   int iVar2;

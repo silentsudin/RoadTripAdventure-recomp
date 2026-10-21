@@ -8,8 +8,20 @@ namespace guest {
 uint32_t drawCarEffectA(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(352);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x100, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x108, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x110, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x118, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x120, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x128, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x130, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x138, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x140, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x148) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x14c) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0x158);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x150);
+    rtguest::setS32(0, (uint32_t)param_2);  // walk: = param_2
   }
 uint32_t auStack_160 = rtguest::allocFrame(48);
     uint32_t fStack_130 = rtguest::allocFrame(4);

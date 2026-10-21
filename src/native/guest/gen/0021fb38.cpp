@@ -6,6 +6,9 @@ namespace guest {
 
 uint32_t drawFieldTiles(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(80);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x8, 8);
+  }
   int iVar1;
   long lVar2;
   int iVar3;

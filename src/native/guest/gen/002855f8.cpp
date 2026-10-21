@@ -9,6 +9,10 @@ uint32_t sysSbrk(uint32_t param_1, ...) {
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
+    rtguest::gS[2] = 0x00000000002f0000ull;  // walk const
   }
 uint32_t puVar1;
 uint32_t puVar2;

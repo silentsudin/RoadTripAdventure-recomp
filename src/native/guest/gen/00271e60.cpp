@@ -7,8 +7,21 @@ namespace guest {
 int32_t textEmitGlyphsToGs(uint64_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6) {
   rtguest::FrameGuard rt_fg(176);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x10, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xa0) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xa4) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x60, 8);
+    rtguest::setS32(0, (uint32_t)param_5);  // walk: = param_5
+    rtguest::setS32(2, (uint32_t)param_2);  // walk: = param_2
+    rtguest::setS32(7, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[8] = 0x0000000000000000ull;  // walk const
   }
   ushort uVar1;
   int iVar2;

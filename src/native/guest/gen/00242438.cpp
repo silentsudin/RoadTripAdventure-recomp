@@ -8,8 +8,14 @@ namespace guest {
 uint32_t gs_map_draw_functions_town(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...) {
   rtguest::FrameGuard rt_fg(368);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x148, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x150, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x140, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x158, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x160) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x164) = 0x00000000u;
+    rtguest::setS32(1, (uint32_t)param_1);  // walk: = param_1
+    rtguest::setS32(2, (uint32_t)param_3);  // walk: = param_3
   }
   long lVar1;
   int iVar2;

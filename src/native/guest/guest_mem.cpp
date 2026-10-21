@@ -15,6 +15,10 @@
 namespace rtguest {
 
 uint8_t kRam[RT_GUEST_RAM_SIZE] = {};
+
+// Shadow callee-saved register file (see guest_shim.h): boot state all zero.
+uint64_t gS[9] = {};
+uint32_t gFS[16] = {};
 uint8_t kScratch[RT_SCRATCH_SIZE] = {};
 
 // printf shim for the corpus (see guest_shim.h): %s args are guest addresses.

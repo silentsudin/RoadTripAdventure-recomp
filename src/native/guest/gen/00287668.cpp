@@ -9,6 +9,9 @@ uint32_t sceSifInitRpc(uint32_t q0, ...) {
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
   }
   long lVar1;
   

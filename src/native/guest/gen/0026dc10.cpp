@@ -7,8 +7,11 @@ namespace guest {
 uint32_t PrintCamProj(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(64);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x20, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x28) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x2c) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x30);
+    rtguest::gS[0] = 0x0000000000330000ull;  // walk const
   }
   undefined8 uVar1;
 uint32_t auStack_40 = rtguest::allocFrame(32);

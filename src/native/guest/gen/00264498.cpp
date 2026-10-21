@@ -7,9 +7,19 @@ namespace guest {
 uint32_t emailBoxTask(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(928);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x380, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x350, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x358, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x360, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x368, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x370, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x378, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x388, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x390, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x398) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x39c) = 0x00000000u;
     *(uint32_t*)rtguest::G(rt_sv+0x340) = (uint32_t)(int32_t)param_2;
+    rtguest::setS32(6, (uint32_t)param_1);  // walk: = param_1
   }
     uint32_t iStack_3a4 = rtguest::allocFrame(4);
 uint32_t auStack_3a0 = rtguest::allocFrame(512);

@@ -7,9 +7,24 @@ namespace guest {
 uint32_t FUN_0024a6a8(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(256);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0xa0, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0xa8, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0xb0, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0xb8, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0xc0, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0xd8, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0xe0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x90) = (uint32_t)(int32_t)param_6;
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0xc8, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0xd0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xe8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xec) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0xf0);
+    rtguest::gS[0] = 0x00000000002a9078ull;  // walk const
+    rtguest::setS32(2, (uint32_t)param_3);  // walk: = param_3
+    rtguest::gS[3] = 0x0000000000000007ull;  // walk const
+    rtguest::gS[4] = 0x000000000000007bull;  // walk const
+    rtguest::gS[8] = 0x00000000002b0000ull;  // walk const
   }
   const uint32_t rt_sp = rtguest::frameTop();
     uint32_t iStack_70 = rt_sp + (0x100 - 0x70);  // sp+0x90

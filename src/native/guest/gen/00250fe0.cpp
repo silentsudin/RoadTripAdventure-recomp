@@ -7,8 +7,12 @@ namespace guest {
 uint32_t CalculateBallLaunchImpulse(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(48);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x18, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x10, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x20) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x24) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x28);
+    rtguest::gS[1] = 0x000000000177ac50ull;  // walk const
   }
 uint32_t auStack_30 = rtguest::allocFrame(4);
     uint32_t fStack_2c = rtguest::allocFrame(4);

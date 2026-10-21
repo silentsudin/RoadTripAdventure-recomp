@@ -8,8 +8,22 @@ uint32_t InitSoundRpcDriver(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(1120);
     rtguest::allocFrame(528);  // guest frame gap (sp+0x0..0x20f)
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x430, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x410, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x418, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x420, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x428, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x438, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x440, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x448, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0x450, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x458) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x45c) = 0x00000000u;
+    rtguest::gS[0] = 0x000000000175e880ull;  // walk const
+    rtguest::gS[3] = 0x000000000000003full;  // walk const
+    rtguest::gS[4] = 0x000000000175e840ull;  // walk const
+    rtguest::gS[5] = 0x0000000000003fffull;  // walk const
+    rtguest::gS[6] = 0x0000000000160000ull;  // walk const
   }
     uint32_t uStack_250 = rtguest::allocFrame(4);  // sp+0x210 (Ghidra entry-sp -0x250, frame 0x460)
     uint32_t uStack_24c = rtguest::allocFrame(4);  // sp+0x214 (Ghidra entry-sp -0x24c, frame 0x460)

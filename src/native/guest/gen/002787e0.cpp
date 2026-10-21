@@ -9,6 +9,7 @@ uint64_t sceCdSyncS(uint64_t param_1, ...) {
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x10) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x14) = 0x00000000u;
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
   }
   long lVar1;
   undefined8 uVar2;

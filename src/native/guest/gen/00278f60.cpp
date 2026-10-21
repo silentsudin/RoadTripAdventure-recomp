@@ -6,6 +6,11 @@ namespace guest {
 
 uint32_t sceCdRead(uint32_t param_1, uint32_t param_2, uint64_t param_3, uint32_t param_4, ...) {
   rtguest::FrameGuard rt_fg(128);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x50, 8);
+    rtguest::gS[5] = 0x00000000002e0000ull;  // walk const
+  }
   byte bVar1;
   long lVar2;
   int iVar3;

@@ -8,8 +8,17 @@ namespace guest {
 uint32_t roulettePlaceBallOnWheel(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(160);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x68, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x88) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x8c) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x90);
+    rtguest::gS[2] = rt_sv + 0x50ull;  // walk: sp+0x50
+    rtguest::setS32(3, (uint32_t)param_1);  // walk: = param_1
+    rtguest::gS[4] = 0x000000000177ac50ull;  // walk const
   }
 uint32_t auStack_a0 = rtguest::allocFrame(64);
 uint32_t auStack_60 = rtguest::allocFrame(4);

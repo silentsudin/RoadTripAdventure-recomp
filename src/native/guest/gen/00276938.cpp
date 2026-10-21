@@ -8,7 +8,9 @@ namespace guest {
 uint32_t __kernel_rem_pio2f(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, ...) {
   rtguest::FrameGuard rt_fg(432);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x188, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x144) = (uint32_t)(int32_t)param_5;
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x170, 8);
   }
 uint32_t auStack_1b4 = rtguest::allocFrame(84);
 uint32_t afStack_160 = rtguest::allocFrame(76);

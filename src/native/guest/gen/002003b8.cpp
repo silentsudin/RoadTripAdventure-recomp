@@ -7,13 +7,18 @@ namespace guest {
 uint32_t gameMainLoop(uint32_t q0, ...) {
   rtguest::FrameGuard rt_fg(176);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x68, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x70, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x78, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x80, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x88, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x90, 8);
+    rtguest::rtSpillS(rt_fg, 7, rt_sv, 0x98, 8);
+    rtguest::rtSpillS(rt_fg, 8, rt_sv, 0xa0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0xa8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xac) = 0x00000000u;
-    // sd $s0..$s7,$fp, 0x60..0xa0($sp) (words ffb00060 ffb10068 ffb20070 ffb30078 ffb40080
-    // ffb50088 ffb60090 ffb70098 ffbe00a0 @0x2003bc..0x2003f4) spill the boot thread's entry
-    // registers: crt0 0x200008..0x2000a4 writes none of s0-s7/fp, so they hold the reset
-    // context's 0 (oracle R5900Context zero-init). This frame never pops, so the slots keep it.
-    for (uint32_t o = 0x60; o <= 0xa0; o += 8) *(uint64_t*)rtguest::G(rt_sv+o) = 0;
+    rtguest::gS[1] = 0x0000000000000000ull;  // walk const
   }
 uint32_t auStack_b0 = rtguest::allocFrame(16);
     uint32_t uStack_a0 = rtguest::allocFrame(8);
@@ -25,6 +30,11 @@ uint32_t auStack_b0 = rtguest::allocFrame(16);
   uVar3 = 0;
   uVar4 = 0;
   RT_CALLRA(0x2003fc, guest::__main());
+  // Machine s-register seeds for this frame (gameMainLoop never pops): the
+  // shadow file then flows into every callee's prologue sd spills. Each site
+  // cited from machine words; a def in a call's delay slot is seeded BEFORE
+  // that call (the delay slot runs before the callee's first spill).
+  rtguest::gS[0] = 0x335900ull;  // 0x20040c addiu $16,$2,0x5900 (delay of jal 0x200408)
   RT_CALLRA(0x200408, guest::Ps2InitSystem());
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(0x00335900)), 0, 0x160));
   (*(uint8_t*)rtguest::G(0x33590e)) = 2;
@@ -42,10 +52,18 @@ uint32_t auStack_b0 = rtguest::allocFrame(16);
     RT_CALLRA(0x2004a8, guest::sceGsExecLoadImage(auStack_b0,0x100000));
     RT_CALLRA(0x2004b4, guest::sceGsSyncPath(0,0));
   } while (uVar4 < 0x15);
+  rtguest::gS[7] = 0x1780000ull;  // 0x2004cc lui $23,0x178
+  rtguest::gS[8] = 0x330000ull;   // 0x2004d0 lui $fp,0x33
+  rtguest::gS[6] = 0x330000ull;   // 0x2004d8 lui $22,0x33 (delay of jal 0x2004d4)
   RT_CALLRA(0x2004d4, guest::gsInitDisplay((*(uint32_t*)rtguest::G(0x333288))));
+  rtguest::gS[5] = 0x10000000ull;  // 0x2004e8 lui $21,0x1000 (delay of jal 0x2004e4)
   rtguest::rtPrintf((char *)rtguest::G((uint32_t)(0x2e9b58u)));
   RT_CALLRA(0x2004ec, guest::ClearTaskPool(0x335900));
   RT_CALLRA(0x200500, guest::gs_tasks_spawn(0,0x2052d0,0));
+  rtguest::gS[2] = 0x336180ull;  // 0x200514 addiu $18,$2,0x6180
+  rtguest::gS[1] = 0x335e50ull;  // 0x200518 addiu $17,$3,0x5e50
+  rtguest::gS[4] = 0x336010ull;  // 0x20051c addiu $20,$18,-0x170
+  rtguest::gS[3] = 0x335ce0ull;  // 0x200520 addiu $19,$17,-0x170
   (*(uint8_t*)rtguest::G(0x335908)) = 0;
   do {
     RT_CALLRA(0x200528, guest::vifBeginPacket(0));

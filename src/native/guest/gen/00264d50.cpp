@@ -9,6 +9,11 @@ uint32_t drawRotatedQuadPair(uint32_t param_1, uint32_t param_2, ...) {
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
     *(uint32_t*)rtguest::G(rt_sv+0x78) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x7c) = 0x00000000u;
+    rtguest::rtSpillF(rt_fg, 6, rt_sv, 0x90);
+    rtguest::rtSpillF(rt_fg, 5, rt_sv, 0x88);
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x80);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x70, 8);
+    rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
   }
     uint32_t iStack_a0 = rtguest::allocFrame(4);
     uint32_t iStack_9c = rtguest::allocFrame(4);

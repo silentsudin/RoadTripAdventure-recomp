@@ -7,8 +7,20 @@ namespace guest {
 uint32_t sceSifRegisterRpc(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, ...) {
   rtguest::FrameGuard rt_fg(128);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x60, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x50, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x10, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x70) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x74) = 0x00000000u;
+    rtguest::setS32(1, (uint32_t)param_3);  // walk: = param_3
+    rtguest::setS32(2, (uint32_t)param_4);  // walk: = param_4
+    rtguest::setS32(3, (uint32_t)param_5);  // walk: = param_5
+    rtguest::setS32(4, (uint32_t)param_6);  // walk: = param_6
+    rtguest::setS32(5, (uint32_t)param_1);  // walk: = param_1
   }
   int iVar1;
   int iVar2;

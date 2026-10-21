@@ -11,6 +11,7 @@ uint64_t dpdiv(uint64_t param_1, uint64_t param_2, ...) {
     *(uint32_t*)rtguest::G(rt_sv+0x44) = (uint32_t)((int64_t)(int32_t)param_1 >> 32);
     *(uint32_t*)rtguest::G(rt_sv+0x48) = (uint32_t)(int32_t)param_2;
     *(uint32_t*)rtguest::G(rt_sv+0x4c) = (uint32_t)((int64_t)(int32_t)param_2 >> 32);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x50, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
   }

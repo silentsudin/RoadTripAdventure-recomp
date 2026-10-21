@@ -7,8 +7,12 @@ namespace guest {
 uint32_t DrawAdjusterDebug(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(64);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x28, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x30) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x34) = 0x00000000u;
+    rtguest::gS[0] = 0x0000000000335488ull;  // walk const
+    rtguest::setS32(1, (uint32_t)param_1);  // walk: = param_1
   }
   undefined8 uVar1;
 uint32_t auStack_40 = rtguest::allocFrame(32);

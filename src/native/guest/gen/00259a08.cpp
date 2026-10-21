@@ -8,8 +8,16 @@ namespace guest {
 uint32_t UpdateNpcTailCarTransform(uint32_t param_1, uint32_t param_2, ...) {
   rtguest::FrameGuard rt_fg(96);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 2, rt_sv, 0x30, 8);
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x20, 8);
+    rtguest::rtSpillS(rt_fg, 1, rt_sv, 0x28, 8);
+    rtguest::rtSpillS(rt_fg, 3, rt_sv, 0x38, 8);
+    rtguest::rtSpillS(rt_fg, 4, rt_sv, 0x40, 8);
+    rtguest::rtSpillS(rt_fg, 5, rt_sv, 0x48, 8);
+    rtguest::rtSpillS(rt_fg, 6, rt_sv, 0x50, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x58) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0x5c) = 0x00000000u;
+    rtguest::setS32(2, (uint32_t)param_1);  // walk: = param_1
   }
     // alloc order = guest stack layout: &uStack_60 spans _60,_5c,_58 ascending
     // (TransformRectangle writes float3), auStack_50 adjacent above.

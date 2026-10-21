@@ -7,8 +7,10 @@ namespace guest {
 uint32_t SelectProgressSlot(uint32_t param_1, ...) {
   rtguest::FrameGuard rt_fg(16);
   { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillS(rt_fg, 0, rt_sv, 0x0, 8);
     *(uint32_t*)rtguest::G(rt_sv+0x8) = rt_fg.rtRA;
     *(uint32_t*)rtguest::G(rt_sv+0xc) = 0x00000000u;
+    rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
   }
   RT_CALLRA(0x229f88, guest::SetFlaggedSlotBit(0,param_1,0));
   (*(uint32_t*)rtguest::G((uint32_t)0x177f760 + 0)) = (*(uint32_t*)rtguest::G((uint32_t)(0x2ed724u + (uint32_t)((int)param_1 * 0x11) * 4)));

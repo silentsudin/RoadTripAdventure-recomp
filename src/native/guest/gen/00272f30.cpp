@@ -6,6 +6,9 @@ namespace guest {
 
 uint32_t vu0ViewScreenMatrix(uint32_t param_1, uint32_t param_2, uint32_t param_3, uint32_t param_4, uint32_t param_5, uint32_t param_6, uint32_t param_7, uint32_t param_8, uint32_t param_9, ...) {
   rtguest::FrameGuard rt_fg(160);
+  { uint32_t rt_sv = rtguest::frameTop();  // PROLOGUE-SAVES
+    rtguest::rtSpillF(rt_fg, 4, rt_sv, 0x60);
+  }
 uint32_t auStack_a0 = rtguest::allocFrame(20);
     uint32_t uStack_8c = rtguest::allocFrame(4);
     rtguest::allocFrame(16);  // guest frame gap
