@@ -1008,6 +1008,42 @@
     "notes": "W3-3c: native scanout RGBA ('RGBS'+w,h+rows) at vblank list; graded against oracle socket frame captures"
   },
   {
+    "id": "watch",
+    "ledger": "-",
+    "env_vars": ["RT_WATCH"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W13)",
+    "owners": ["src/native/app/main.cpp", "src/native/guest/guest_shim.h"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/compiled-game-plan.md"],
+    "status": "oracle-only",
+    "notes": "W13: \"startvb:lo:hi:budget\" logs [watch] jal/addr for every guest access in the range, tagged with the last RT_CALLRA site (census diff writer localization)"
+  },
+  {
+    "id": "ram_patch",
+    "ledger": "-",
+    "env_vars": ["RT_RAM_PATCH"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W13)",
+    "owners": ["src/native/app/main.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/compiled-game-plan.md"],
+    "status": "oracle-only",
+    "notes": "W13 cycle-19 A/B: \"vb:path\" overlays an oracle 32MB image over kRam after that vblank's dump (tests whether a fork is state residue or code)"
+  },
+  {
+    "id": "app_menu_screen",
+    "ledger": "-",
+    "env_vars": ["RT_APP_MENU_SCREEN"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W14.1b)",
+    "owners": ["src/native/app/main.cpp", "src/native/preview/ui_menu.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/ui-parity.md"],
+    "status": "oracle-only",
+    "notes": "W14.1b: headless menu shot: MENU state + MENU_SCREEN=options|controllers renders the parity panel to RT_APP_SNAPSHOT (native twin of the recomp RT_MENU_SHOT)"
+  },
+  {
     "id": "vif_hist",
     "ledger": "-",
     "env_vars": ["RT_VIF_HIST"],

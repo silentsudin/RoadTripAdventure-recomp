@@ -33,7 +33,7 @@ uint32_t auStack_80 = rtguest::allocFrame(16);
 uint32_t auStack_70 = rtguest::allocFrame(16);
 uint32_t auStack_60 = rtguest::allocFrame(16);
   
-  RT_CALLRA(0x223b70, guest::vu0SubVector(auStack_60));
+  RT_CALLRA(0x223b70, guest::vu0SubVector(auStack_60, param_2, param_3));  // W13c19: fn/00223b30.c:21 drops a1/a2; MIPS 0x223b44 move $4,$16 only; $5,$6 (move $20,$6 @0x223b58) pass through to jal 0x272958 @0x223b70
   RT_CALLRA(0x223b7c, guest::vecNormalizeVu0(auStack_60,auStack_60));
   RT_CALLRA(0x223b90, guest::BuildTransformMatrix(auStack_e0,0x29d3a0,auStack_60));
   (*(uint32_t*)rtguest::G(0x29d37c)) = param_2;

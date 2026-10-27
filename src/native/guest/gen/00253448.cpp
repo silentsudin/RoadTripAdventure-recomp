@@ -54,7 +54,7 @@ uint32_t pfVar5;
                         (*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(2) * 4)) - (*(float*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x98)))))));
   uVar4 = (uint32_t)(int)((rtguest::fdiv(fVar8, fVar3)) * fVar9 - (float)(int)(*(int16_t*)rtguest::G((uint32_t)(uint32_t)(iVar6 + 0x1d4))));
   if ((uint32_t)((short)(int)(fVar7 - (float)(int)sVar1) + 0x7ffU) < 0xfff) {
-    RT_CALLRA(0x2535d0, guest::SetAiSteeringTarget(param_1,uVar4));
+    RT_CALLRA(0x2535d0, guest::SetAiSteeringTarget(param_1,uVar4,0x64));  // W13c19: fn/00253448.c:47 shows 2 args (Ghidra dropped a2); MIPS 0x2535a0 addiu $6,$zero,0x64 live to jal 0x253230 @0x2535d0
   }
   else if (20.0 < SQRT((*(float*)rtguest::G((uint32_t)afStack_60 + (uint32_t)(4) * 4)) + (*(float*)rtguest::G((uint32_t)fStack_48)))) {
     RT_CALLRA(0x253634, guest::SetAiSteeringTarget(param_1,uVar4,0));

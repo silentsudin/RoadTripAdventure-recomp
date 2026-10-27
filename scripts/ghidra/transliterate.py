@@ -40,17 +40,49 @@ REPORT_KEYS = ("unpaired", "no_signature", "no_body", "needs_struct",
                "dup_def", "stage_collision", "skip_packed_vec", "skip_named_field",
                "skip_wide_field", "strlit", "strlit_unresolved", "stack_redecl",
                "stack_frame_ref", "deep_deref", "skip_arrow_field",
-               "skip_array_cast", "hex_subscript", "amp_local", "hand_protected")
+               "skip_array_cast", "hex_subscript", "amp_local", "hand_protected", "argfill")
 
 # Live TUs carrying hand-verified semantics the regex pass cannot emit (9th
 # sceSifCallRpc end_param arg, sb byte-table stores, the 0x20cdc0 jump table lost at 0x20ce1c,
 # 0x23bcd0 uiMenuRun a1 pass-through):
 # regen never overwrites.
 # Evidence: build/scratch/parity/w13flow/CENSUS.md.
-PROTECTED_HAND = {"002793d0", "0020ed30", "0020cdc0", "002092d8", "002173d0", "0022c8a0", "00239150", "00239260", "00239508", "00239748", "00239900", "00239a80", "00239f68", "0023bb00", "0023bb88", "0023bc90", "0023bcd0", "00261508", "002624b8", "002625a0", "00269d50", "0026b848", "0026bc08", "002412e0", "00243468", "00243670", "002490a0", "0025d028", "0027b628"}
+PROTECTED_HAND = {"002793d0", "0020ed30", "0020cdc0", "002092d8", "002173d0", "0022c8a0", "00239150", "00239260", "00239508", "00239748", "00239900", "00239a80", "00239f68", "0023bb00", "0023bb88", "0023bc90", "0023bcd0", "00261508", "002624b8", "002625a0", "00269d50", "0026b848", "0026bc08", "002412e0", "00243468", "00243670", "002490a0", "0025d028", "0027b628",
+                   # W13c19: Ghidra-dropped pass-through args + one delay-slot store; regen would
+                   # reintroduce the defects (see build/scratch/parity/w-c18wave/CYCLE19.md).
+                   "00207f88", "002085b0", "0021ca90", "00223b30", "00242fe8", "002496c8",
+                   "0024eb10", "0024ee30", "00253448", "00272ce0"}
 
 def new_report() -> dict:
     return {k: ([] if k != "names" else {}) for k in REPORT_KEYS}
+
+def load_callargs() -> dict:
+    path = ROOT / "build/decomp/callargs.tsv"
+    rows = defaultdict(list)
+    if path.exists():
+        for line in path.read_text().splitlines()[1:]:
+            caller, callee, occurrence, argc, declared, jal, verdict = line.split("\t")
+            if verdict.startswith("fill="):
+                rows[caller].append((callee, int(occurrence), int(argc),
+                                     verdict[5:].split(","), jal))
+    return rows
+
+def fill_callargs(body: str, addr: str, rows: list, report: dict) -> str:
+    for callee, occurrence, argc, fill, jal in rows:
+        masked = mask_calls(body)
+        sites = list(re.finditer(r"(?<![\w])" + re.escape(callee) + r"\s*\(", masked))
+        if occurrence >= len(sites):
+            continue
+        m = sites[occurrence]
+        end = match_bal(masked, m.end() - 1)
+        if end < 0:
+            continue
+        args = split_args(masked[m.end():end - 1])
+        if len(args) != argc:
+            continue
+        body = body[:end - 1] + (", " if args else "") + ", ".join(fill) + body[end - 1:]
+        report["argfill"].append({"caller": addr, "callee": callee, "jal": jal})
+    return body
 
 # ---------------------------------------------------------------- globals types
 def load_globals() -> tuple[dict[str, dict[int, tuple[str, int]]], dict[int, tuple[str, int]]]:
@@ -142,6 +174,12 @@ def split_args(argstr: str) -> list[str]:
     if cur.strip():
         args.append(cur)
     return [a.strip() for a in args]
+
+def mask_calls(text: str) -> str:
+    # Keep positions and string-argument arity, but never match calls in comments/strings.
+    return re.sub(r"""/\*.*?\*/|//[^\n]*|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'""",
+                  lambda m: ("0" if m[0][0] in "\"'" else " ") + " " * (len(m[0]) - 1),
+                  text, flags=re.S)
 
 def sig_name_args(sig: str) -> tuple[str, str]:
     """Flattened definition signature (multi-line, brace-terminated ok) ->
@@ -409,7 +447,7 @@ def transliterate(path: Path, report: dict,
                   fn_globals: dict[int, tuple[str, int]],
                   dom: dict[int, tuple[str, int]],
                   named_data: dict[str, int],
-                  def_alias: str = "") -> tuple[str, str, str]:
+                  def_alias: str = "", callargs: dict | None = None) -> tuple[str, str, str]:
     text = path.read_text()
     addr = path.stem
     lines = text.splitlines(keepends=True)
@@ -442,6 +480,10 @@ def transliterate(path: Path, report: dict,
         return addr, "", ""
     sig = "".join(lines[sig_start:sig_end + 1]).rstrip()   # includes the opening brace
     body = "".join(lines[sig_end + 1:])
+    # Before the array-cast gate: an omitted-args call like f(p[2]) also
+    # resembles that gate's array-type pattern until its verified args are added.
+    if callargs:
+        body = fill_callargs(body, addr, callargs.get(addr, []), report)
 
     # Ghidra prints boot-ELF strings as C literals: replace each with its vaddr so
     # char* locals and libc fmt args take plain u32 addresses like everything else.
@@ -1001,10 +1043,14 @@ def main() -> None:
     ap.add_argument("--out", type=Path)
     ap.add_argument("--decls", action="store_true")
     ap.add_argument("--report", type=Path)
+    ap.add_argument("--force", action="store_true", help="allow protected TUs only in a scratch output directory")
     a = ap.parse_args()
+    if a.force and (a.out is None or not a.out.resolve().is_relative_to(ROOT / "build/scratch")):
+        ap.error("--force requires --out under build/scratch")
 
     fn_globals_all, dom = load_globals()
     named_data = load_named_data()
+    callargs = load_callargs()
     all_files = sorted(FN.glob("*.c"))
 
     # pass 1: transliterate every TU once; a fn NAME defined in >1 TU (the game's
@@ -1016,14 +1062,14 @@ def main() -> None:
     aliased: set[str] = set()
     for f in all_files:
         g = fn_globals_all.get(f.stem, {})
-        res[f.stem] = r = transliterate(f, report, g, dom, named_data)
+        res[f.stem] = r = transliterate(f, report, g, dom, named_data, callargs=callargs)
         if r[2]:
             nm = decl_name(r[2])
             if nm in owner:
                 report["dup_def"].append(f"{nm}:{owner[nm]}+{f.stem}")
                 aliased.add(f.stem)
                 res[f.stem] = transliterate(f, report, g, dom, named_data,
-                                            def_alias=f"{nm}__{f.stem}")
+                                            def_alias=f"{nm}__{f.stem}", callargs=callargs)
             else:
                 owner[nm] = f.stem
 
@@ -1106,13 +1152,16 @@ def main() -> None:
 
     files = a.files or all_files
     a.out.mkdir(parents=True, exist_ok=True)
+    emitted = set()
     for f in files:
         addr, tu, _ = res[f.stem]
-        if f.stem in PROTECTED_HAND:
+        if f.stem in PROTECTED_HAND and not a.force:
             report["hand_protected"].append(addr)
             continue
         if tu:
             (a.out / f"{addr}.cpp").write_text(tu)
+            emitted.add(addr)
+    report["argfill"] = [row for row in report["argfill"] if row["caller"] in emitted]
     if a.report:
         a.report.parent.mkdir(parents=True, exist_ok=True)
         a.report.write_text(json.dumps(report, indent=1))

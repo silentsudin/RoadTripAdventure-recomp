@@ -23,7 +23,7 @@ uint32_t ReflectVectorVU0(uint32_t param_1, uint32_t param_2, uint32_t param_3, 
 uint32_t auStack_50 = rtguest::allocFrame(16);
 uint32_t auStack_40 = rtguest::allocFrame(16);
   
-  RT_CALLRA(0x2085dc, guest::vecNormalizeVu0(auStack_40));
+  RT_CALLRA(0x2085dc, guest::vecNormalizeVu0(auStack_40, param_2));  // W13c19: fn/002085b0.c:15 drops a1; MIPS 0x2085cc move $4,$19 only, $5 untouched until jal 0x2727e8 @0x2085dc (move $18,$5 in delay slot)
   fVar1 = rtguest::fbits(RT_CALLRA(0x2085e8, guest::vecDotProductVu0(param_3,param_3)));
   fVar1 = SQRT(fVar1);
   if (fVar1 == 0.0) {

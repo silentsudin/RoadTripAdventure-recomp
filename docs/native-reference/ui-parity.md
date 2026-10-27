@@ -6,7 +6,7 @@
 
 - Render replacement UI in the recomp vocabulary: chunky outlined type, orange/olive dialogs, sky-blue lists, blue selection capsule, animated gold horn. Never expose OS, ImGui, or native diagnostic UI.
 - Recomp design scale is `S=max(.5,H/1080*handheldBoost)` (`src/ui/Theme.cpp:68-101`); use it for all listed design pixels.
-- FONTE/game UI coordinates are 640x448, top-left. Native maps them as `x'=x*W/640`, `y'=(y+16)*H/480` (`src/native/preview/race_hud.h:87-112`, `docs/native-reference/hud-layout.md:11-17`). This keeps a centered 4:3 field: at 1080p factors are 1.6875x/2.25x, at 4K 6x/4.5x. Do not stretch.
+- FONTE/game UI coordinates are 640x448, top-left. Native maps them with one uniform factor and letterbox centring: `s=min(W/640,H/480)`, `x'=(W-640s)/2+x*s`, `y'=(H-480s)/2+(y+16)*s` (`src/native/preview/race_hud.h:87-112`, `docs/native-reference/hud-layout.md:11-17`). This keeps a centered 4:3 field: at 1080p the factor is 2.25. Do not stretch.
 - This branch contains no `output-modes.md`; the preceding mapping is the available source of truth. Pause/setup chrome is viewport-relative and scales by `S`.
 
 ## Screen inventory
@@ -135,7 +135,7 @@ Only these are allowed. **Anything not here is a defect.**
 
 ### Dual-run pixels (user machine and ROM)
 
-Fix resolution, aspect, settings, locale, controller family, state, and vblank. Recomp capture: `RT_MENU_SHOT` (`root|display|graphics|controllers|device|buttons|quit|reset`), `RT_MENU_AT`, and `RT_FRAME_DUMP` (`CLAUDE.md:87-88`). Native capture: `RT_APP_SNAPSHOT` after the equivalent deterministic state. Convert only for comparison. Commit **hashes and metadata, never PNG goldens**.
+Fix resolution, aspect, settings, locale, controller family, state, and vblank. Recomp capture: `RT_MENU_SHOT` (`root|display|graphics|controllers|device|buttons|quit|reset`), `RT_MENU_AT`, and `RT_FRAME_DUMP` (`CLAUDE.md:87-88`). Native capture: `RT_APP_SNAPSHOT` after the equivalent deterministic state, or headless `RT_APP_STATE=MENU RT_APP_MENU_SCREEN=options|controllers RT_APP_HEADLESS=1 RT_APP_SNAPSHOT=…`. Convert only for comparison. Commit **hashes and metadata, never PNG goldens**.
 
 Tolerance: **T0** exact manifest/row/order/coordinates/flat colors; **T1** one-pixel AA fringe and <=2 channel levels; **T2** bounded AA/filter variance only in renderer-marked image regions; **T3** masks only ledgered progressive/widescreen/setup-compile regions. New hash requires a linked ledger rationale and reviewed metric.
 

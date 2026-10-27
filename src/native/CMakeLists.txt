@@ -920,3 +920,11 @@ add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test assert
     target_compile_features(w3_script_bridge_test PRIVATE cxx_std_20)
     target_compile_options(w3_script_bridge_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 endif()
+
+# W14.0 manual-only red parity tripwire: no _test suffix, so closeout sweeps skip it.
+add_executable(w14_ui_parity "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_ui/w14_ui_parity.cpp")
+target_link_libraries(w14_ui_parity PRIVATE rt_native_assets)
+target_include_directories(w14_ui_parity PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_features(w14_ui_parity PRIVATE cxx_std_20)
+target_compile_definitions(w14_ui_parity PRIVATE RT_W14_REPO_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/../..")
+target_compile_options(w14_ui_parity PRIVATE ${RT_NATIVE_WARN_OPTIONS} -UNDEBUG)

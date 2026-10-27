@@ -17,9 +17,13 @@
 // (ui-parity.md deviation 3). On 16:9 the two formulas match.
 
 #include "preview/preview.h"
+#include "preview/ui_theme.h"
+#include "gameplay/settings.h"
 
 #include <algorithm>
 #include <array>
+#include <string>
+#include <vector>
 
 namespace rt::native::preview {
 
@@ -34,15 +38,15 @@ inline float uiDesignScale(int height) {
 }
 
 // Theme.h:17-50, required identical by ui-parity.md:105-111.
-inline constexpr std::array<float, 4> kUiPrompt{0x30 / 255.f, 0x40 / 255.f, 0x90 / 255.f, 0xF2 / 255.f};
-inline constexpr std::array<float, 4> kUiPromptRimOuter{0x91 / 255.f, 0xD2 / 255.f, 0xE8 / 255.f, 1.f};
-inline constexpr std::array<float, 4> kUiPromptRimInner{0x1C / 255.f, 0xA1 / 255.f, 0xE6 / 255.f, 1.f};
-inline constexpr std::array<float, 4> kUiFrame{0xF8 / 255.f, 0x60 / 255.f, 0x18 / 255.f, 1.f};
-inline constexpr std::array<float, 4> kUiSelectionTop{0x2C / 255.f, 0x6C / 255.f, 0xE8 / 255.f, 1.f};
-inline constexpr std::array<float, 4> kUiSelectionBottom{0x08 / 255.f, 0x38 / 255.f, 0xB0 / 255.f, 1.f};
-inline constexpr std::array<float, 4> kUiCapGold{0xF8 / 255.f, 0xC8 / 255.f, 0x38 / 255.f, 1.f};
+inline constexpr std::array<float, 4> kUiPrompt = theme::rgba(theme::kPrompt);
+inline constexpr std::array<float, 4> kUiPromptRimOuter = theme::rgba(theme::kPromptRimOuter);
+inline constexpr std::array<float, 4> kUiPromptRimInner = theme::rgba(theme::kPromptRimInner);
+inline constexpr std::array<float, 4> kUiFrame = theme::rgba(theme::kFrame);
+inline constexpr std::array<float, 4> kUiSelectionTop = theme::rgba(theme::kSelectionTop);
+inline constexpr std::array<float, 4> kUiSelectionBottom = theme::rgba(theme::kSelectionBottom);
+inline constexpr std::array<float, 4> kUiCapGold = theme::rgba(theme::kCapGold);
 inline constexpr std::array<float, 4> kUiCapShine{0xFF / 255.f, 0xF0 / 255.f, 0xA0 / 255.f, 1.f};
-inline constexpr std::array<float, 4> kUiHorn{0xF2 / 255.f, 0xC2 / 255.f, 0x30 / 255.f, 1.f};
+inline constexpr std::array<float, 4> kUiHorn = theme::rgba(theme::kHorn);
 inline constexpr std::array<float, 4> kUiHornShade{0xC0 / 255.f, 0x8A / 255.f, 0x18 / 255.f, 1.f};
 inline constexpr std::array<float, 4> kUiHornLine{0x4A / 255.f, 0x30 / 255.f, 0x00 / 255.f, 1.f};
 
@@ -56,5 +60,43 @@ const char* optionsRowLabel(int index);
 UiScreen buildTitleScreen(int w, int h, bool pressVisible);
 UiScreen buildMainMenu(int w, int h, int focusIndex);
 UiScreen buildOptionsScreen(int w, int h, int focusIndex);
+
+// ---------------------------------------------------------------------------
+// Recomp-parity Pause panel (ui-parity.md "Pause Options" / "Controllers").
+// One headed list: non-focusable Heading/Note rows, selectable Item rows with a
+// right-aligned value. Geometry is viewport-relative (S = uiDesignScale(h)):
+// 880*S wide (capped 92%), rows 80*S, pad 30*S, margin 24*S, name tab above.
+enum class PanelRowKind { Heading, Item, Note };
+struct PanelRow {
+    PanelRowKind kind = PanelRowKind::Item;
+    std::string label;
+    std::string value;
+    bool enabled = true;
+};
+struct PausePanel {
+    std::string title;
+    std::vector<PanelRow> rows;
+    int focus = 0;       // row index of an Item
+    bool wide = true;    // 880*S, else the 520*S root width
+};
+UiScreen buildPausePanelScreen(int w, int h, const PausePanel& panel);
+
+// Options + Controllers children driven by OptionsModel / SettingsStore.
+struct OptionsPanelState {
+    bool controllers = false;  // false: the Display/Sound/Graphics page
+    int focus = -1;            // row index; -1 = first selectable row
+};
+PausePanel buildOptionsPanel(const gameplay::OptionsModel& model, const gameplay::SettingsStore& store,
+                             const gameplay::MenuContext& context, OptionsPanelState& state);
+// Return true when something changed. Adjust/confirm persist via store.save().
+bool optionsPanelMove(OptionsPanelState& state, const gameplay::OptionsModel& model, gameplay::SettingsStore& store,
+                      const gameplay::MenuContext& context, int direction);
+bool optionsPanelAdjust(OptionsPanelState& state, const gameplay::OptionsModel& model, gameplay::SettingsStore& store,
+                        const gameplay::MenuContext& context, int direction);
+// Confirm on the Controllers link row opens the child page.
+bool optionsPanelConfirm(OptionsPanelState& state, const gameplay::OptionsModel& model, gameplay::SettingsStore& store,
+                         const gameplay::MenuContext& context);
+// Controllers -> Options. False when already on Options (caller leaves the screen).
+bool optionsPanelBack(OptionsPanelState& state);
 
 }  // namespace rt::native::preview

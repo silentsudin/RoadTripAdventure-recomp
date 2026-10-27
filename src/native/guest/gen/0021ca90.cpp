@@ -22,7 +22,7 @@ void UpdateObjectPhysicsState(uint32_t param_1, uint32_t param_2, ...) {
   float fVar4;
   float fVar5;
 
-  RT_CALLRA(0x21caa4, guest::SpawnCarAtDoor());
+  RT_CALLRA(0x21caa4, guest::SpawnCarAtDoor(param_1, param_2));  // W13c19: fn/0021ca90.c:16 shows SpawnCarAtDoor() (Ghidra dropped a0/a1; callee fn/002182b0.c takes (param_1,param_2)); MIPS 0x21ca98 move $17,$5 / 0x21caa8 move $16,$4 delay slot: a0,a1 untouched at jal 0x2182b0 @0x21caa4
   iVar3 = (int)param_2;
   fVar4 = (*(float*)rtguest::G((uint32_t)(iVar3 + 0x90))) * (*(float*)rtguest::G(0x00332c28));
   fVar5 = (*(float*)rtguest::G((uint32_t)(iVar3 + 0x98))) * (*(float*)rtguest::G(0x00332c28));

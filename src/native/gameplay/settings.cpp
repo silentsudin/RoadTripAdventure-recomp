@@ -342,6 +342,8 @@ const char* const kPages[static_cast<int>(OptionPage::Count)] = {
 }  // namespace
 
 bool optionAvailable(const OptionSpec& spec, const MenuContext& context) {
+    // Retail: only recomp-catalog rows, never previews of GPU features not built yet.
+    if (!context.diagnostics && (!spec.retail || spec.status == OptionStatus::GpuWavePending)) return false;
     switch (spec.availability) {
     case OptionAvailability::Always:
         return true;
@@ -363,6 +365,14 @@ bool optionAvailable(const OptionSpec& spec, const MenuContext& context) {
         return context.audioAvailable;
     case OptionAvailability::RequiresAdventure:
         return context.adventure;
+    case OptionAvailability::RequiresDesktop:
+        return !context.android;
+    case OptionAvailability::RequiresDesktopWindow:
+        return !context.android && context.windowed;
+    case OptionAvailability::RequiresMapRow:
+        return context.hardwareGs && !(context.secondScreenSupported && context.secondScreenOn);
+    case OptionAvailability::RequiresFrameGenWarp:
+        return context.frameGenWarp;
     case OptionAvailability::RequiresSaveState:
         // The sibling rule (CLAUDE.md:90): Save state / Load state rows only in
         // an Adventure or a race of the player's, no movie, and a GS that can
@@ -395,6 +405,7 @@ const char* optionStatusName(OptionStatus status) {
     switch (status) {
     case OptionStatus::WiredNow: return "wired-now";
     case OptionStatus::GpuWavePending: return "gpu-wave-pending";
+    case OptionStatus::HostGluePending: return "host-glue-pending";
     }
     return "unknown";
 }
@@ -438,9 +449,6 @@ OptionsModel::OptionsModel() {
     options_.push_back(enumOpt("display.map_mode", "Map mode", P::Display,
         {"game", "enhanced"}, A::Always, S::GpuWavePending, {},
         kPreviewNote));
-    options_.push_back(toggle("display.second_screen", "Second screen", P::Display, true,
-        A::RequiresSecondScreen, S::GpuWavePending, {},
-        "hidden unless a presentation display exists; GPU wave - currently preview"));
 
     // ---- Graphics --------------------------------------------------------
     options_.push_back(toggle("graphics.terrain", "Disc terrain", P::Graphics, false,
@@ -496,7 +504,7 @@ OptionsModel::OptionsModel() {
     options_.push_back(toggle("sound.bgm_tsq", "Use TSQ BGM (else VAG)", P::Sound, true,
         A::RequiresAudio, S::WiredNow, {"RT_APP_BGM_TSQ"}, "off forces the VAG path"));
     options_.push_back(enumOpt("sound.radio_station", "Radio station", P::Sound,
-        {"off", "peach_fm", "e_radio"}, A::RequiresAdventure, S::GpuWavePending, {},
+        {"off", "peach_fm", "e_radio"}, A::RequiresAdventure, S::HostGluePending, {},
         "AUTHORED: save +0x12DD (0/1/2, PROVEN); the host BGM path does not consume the station yet"));
 
     // ---- Save ------------------------------------------------------------
@@ -506,6 +514,46 @@ OptionsModel::OptionsModel() {
         A::RequiresSaveState, S::WiredNow, "GameSession::save(card, slot) -> slot<N>.sav"));
     options_.push_back(action("save.load_state", "Load state", P::Save,
         A::RequiresSaveState, S::WiredNow, "GameSession::load(card, slot) <- slot<N>.sav"));
+
+    // ---- Recomp catalog (retail) -------------------------------------------
+    // Order and strings: docs/native-reference/ui-parity.md "Pause Options"; source
+    // src/ui/PauseMenu.cpp:397-542, 813-872. The first row of each page is its first retail row.
+    const std::string kGlue = "recomp catalog row; persisted, host consumer lands with the window/audio/input glue";
+    options_.push_back(enumOpt("display.window_mode", "Display mode", P::Display,
+        {"Window", "Borderless fullscreen", "Fullscreen"}, A::RequiresDesktop, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("display.window_size", "Window size", P::Display,
+        {"Medium (960x672)", "Small (640x448)", "Large (1280x896)"}, A::RequiresDesktopWindow, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("display.aspect", "Aspect ratio", P::Display,
+        {"4:3 (original)", "16:10", "16:9", "21:9", "32:9"}, A::Always, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("display.hud_position", "HUD position", P::Display,
+        {"4:3 centred", "Screen edges"}, A::Always, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("display.map", "Map", P::Display,
+        {"Enhanced", "Original"}, A::RequiresMapRow, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("display.frame_rate", "Frame rate", P::Display,
+        {"60 fps (original)", "120 fps (generated)", "240 fps (generated)"}, A::Always, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("display.frame_generation", "Frame generation", P::Display,
+        {"Re-rendered (no added latency)", "Warped, interpolated (+1 refresh latency)", "Warped, extrapolated (edge artefacts)"},
+        A::RequiresFrameGenWarp, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("display.frame_skip", "Frame skip", P::Display,
+        {"Auto", "Off"}, A::Always, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("display.perf_overlay", "Performance overlay", P::Display,
+        {"Off", "Frame rate", "Detailed"}, A::Always, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("display.second_screen", "Second screen", P::Display,
+        {"Off", "On"}, A::RequiresSecondScreen, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("sound.volume", "Volume", P::Sound,
+        {"100%", "Off", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%"}, A::Always, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("sound.speaker", "Speaker", P::Sound,
+        {"Stereo", "Mono"}, A::Always, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("controllers.controls", "Controls", P::Controllers,
+        {"Modern", "Classic", "Custom"}, A::RequiresGamepad, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("controllers.vibration", "Vibration", P::Controllers,
+        {"Dynamic", "Classic", "Off"}, A::RequiresGamepad, S::HostGluePending, {}, kGlue));
+    options_.push_back(enumOpt("controllers.strength", "Strength", P::Controllers,
+        {"100%", "75%", "50%", "25%", "Off"}, A::RequiresGamepad, S::HostGluePending, {}, kGlue));
+
+    // Retail rows: the recomp catalog above, the Adventure-only radio, and the state actions.
+    for (OptionSpec& spec : options_)
+        spec.retail = spec.status == S::HostGluePending || spec.id == "save.save_state" || spec.id == "save.load_state";
 }
 
 const OptionSpec* OptionsModel::find(std::string_view id) const {
@@ -672,6 +720,8 @@ MenuContext MenuNavigator::effectiveContext() const {
     c.routeEnabled = store_.getBool("graphics.route", false);
     c.interpEnabled = store_.getBool("display.interp", false);
     c.audioAvailable = store_.getBool("sound.audio", true);
+    c.windowed = store_.getEnum("display.window_mode", "Window", {"Window", "Borderless fullscreen", "Fullscreen"}) == "Window";
+    c.secondScreenOn = store_.getEnum("display.second_screen", "Off", {"On", "Off"}) == "On";
     return c;
 }
 

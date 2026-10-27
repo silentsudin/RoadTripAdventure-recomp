@@ -31,6 +31,20 @@ on a PS2** as measured by our emulator (rt-app-oracle / goldens / state hashes).
    ps2_ee_fpu_mode trick) so translated FPU ops round exactly as the EE; Ghidra's
    truncating-div/mul idioms map to the ee_math helpers (already proven in W9-03).
 
+5. **Shadow register file for callee-saved regs (cycle-18, 2026-10-21).** Ghidra models
+   locals over the dropped save slots, so caller→callee `$16..$23,$30` and `$f16..$f31`
+   values have no home in a transliterated TU. The shim keeps `gS[9]`/`gFS[16]`
+   (`guest_shim.h`), boot zero; `emit_prologue_saves.py` emits the game's real prologue
+   spill stores from the file (`rtSpillS`/`rtSpillF`) and walk-derived entry SEEDS. Seed
+   rule (hard): const/param/sp+K folds only inside the straight-line window, snapshotted
+   at the first call/load BEFORE the delay slot; loop-body folds are excluded
+   (gameMainLoop mis-fold lesson). `FrameGuard` restores the entry-C snapshot on exit —
+   slot readback was tried and poisoned gS with walker residue (+41B census regression).
+   Parity impact: the file is census-invisible; wrong state leaks into RAM only through
+   spill stores and register-derived args, and the game's reads of uninitialized stack
+   slots make that residue observable late (town vb2679 fork, see
+   `build/scratch/parity/w13flow/CENSUS.md` cycle-18/19).
+
 ## Bit-perfect ladder (gates, in order — each one measurable)
 
 - G0 **compile**: transliterated TU builds (`rt_guest` static lib). Denominator 1542.

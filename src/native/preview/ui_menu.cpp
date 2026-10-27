@@ -340,4 +340,227 @@ UiScreen buildOptionsScreen(int w, int h, int focusIndex, const PreviewTexture* 
     return screen;
 }
 
+
+namespace {
+
+using gameplay::OptionPage;
+using gameplay::OptionSpec;
+
+struct BuiltPanel {
+    PausePanel panel;
+    std::vector<const OptionSpec*> spec;  // parallel to panel.rows; nullptr = not a model row
+    int linkRow = -1;                     // the Options -> Controllers row
+};
+
+// PauseMenu.cpp:813-872 language for the Controllers child page.
+constexpr const char* kDevices = "Devices";
+constexpr const char* kNoPadNote = "Connect a controller and it appears here.";
+constexpr const char* kDriving = "Driving";
+constexpr const char* kVibrationHeading = "Vibration";
+constexpr const char* kPlayer1 = "Player 1";
+
+void addRow(BuiltPanel& b, PanelRowKind kind, std::string label, std::string value, bool enabled,
+            const OptionSpec* spec) {
+    b.panel.rows.push_back(PanelRow{kind, std::move(label), std::move(value), enabled});
+    b.spec.push_back(spec);
+}
+
+BuiltPanel buildRows(const gameplay::OptionsModel& model, const gameplay::SettingsStore& store,
+                     const gameplay::MenuContext& context, const OptionsPanelState& state) {
+    BuiltPanel b;
+    const auto item = [&](const OptionSpec* spec, bool enabled = true) {
+        addRow(b, PanelRowKind::Item, spec->label, model.valueOf(*spec, store), enabled, spec);
+    };
+    if (!state.controllers) {
+        b.panel.title = "Options";
+        for (OptionPage page : {OptionPage::Display, OptionPage::Sound, OptionPage::Graphics}) {
+            const auto rows = model.pageRows(page, context);
+            if (rows.empty()) continue;
+            addRow(b, PanelRowKind::Heading, gameplay::optionPageName(page), {}, false, nullptr);
+            for (const OptionSpec* spec : rows) item(spec);
+        }
+        b.linkRow = static_cast<int>(b.panel.rows.size());
+        addRow(b, PanelRowKind::Item, "Controllers", {}, true, nullptr);
+    } else {
+        b.panel.title = "Controllers";
+        addRow(b, PanelRowKind::Heading, kDevices, {}, false, nullptr);
+        if (context.gamepadPresent)
+            addRow(b, PanelRowKind::Item, "Gamepad", kPlayer1, false, nullptr);
+        else
+            addRow(b, PanelRowKind::Note, kNoPadNote, {}, false, nullptr);
+        addRow(b, PanelRowKind::Heading, kDriving, {}, false, nullptr);
+        if (const OptionSpec* controls = model.find("controllers.controls")) item(controls);
+        if (context.gamepadPresent) {
+            addRow(b, PanelRowKind::Heading, kVibrationHeading, {}, false, nullptr);
+            const OptionSpec* vibration = model.find("controllers.vibration");
+            const OptionSpec* strength = model.find("controllers.strength");
+            if (vibration) item(vibration);
+            if (strength) item(strength, !vibration || model.valueOf(*vibration, store) != "Off");
+        }
+    }
+    return b;
+}
+
+bool selectable(const BuiltPanel& b, int i) {
+    return i >= 0 && i < static_cast<int>(b.panel.rows.size()) &&
+           b.panel.rows[static_cast<std::size_t>(i)].kind == PanelRowKind::Item &&
+           b.panel.rows[static_cast<std::size_t>(i)].enabled;
+}
+
+void settleFocus(const BuiltPanel& b, OptionsPanelState& state) {
+    if (selectable(b, state.focus)) return;
+    state.focus = -1;
+    for (int i = 0; i < static_cast<int>(b.panel.rows.size()); ++i)
+        if (selectable(b, i)) { state.focus = i; break; }
+}
+
+}  // namespace
+
+PausePanel buildOptionsPanel(const gameplay::OptionsModel& model, const gameplay::SettingsStore& store,
+                             const gameplay::MenuContext& context, OptionsPanelState& state) {
+    BuiltPanel b = buildRows(model, store, context, state);
+    settleFocus(b, state);
+    b.panel.focus = state.focus;
+    return std::move(b.panel);
+}
+
+bool optionsPanelMove(OptionsPanelState& state, const gameplay::OptionsModel& model, gameplay::SettingsStore& store,
+                      const gameplay::MenuContext& context, int direction) {
+    const BuiltPanel b = buildRows(model, store, context, state);
+    settleFocus(b, state);
+    const int n = static_cast<int>(b.panel.rows.size());
+    if (n == 0 || state.focus < 0 || direction == 0) return false;
+    int i = state.focus;
+    for (int step = 0; step < n; ++step) {
+        i = ((i + (direction > 0 ? 1 : -1)) % n + n) % n;
+        if (selectable(b, i)) { const bool moved = i != state.focus; state.focus = i; return moved; }
+    }
+    return false;
+}
+
+bool optionsPanelAdjust(OptionsPanelState& state, const gameplay::OptionsModel& model, gameplay::SettingsStore& store,
+                        const gameplay::MenuContext& context, int direction) {
+    const BuiltPanel b = buildRows(model, store, context, state);
+    settleFocus(b, state);
+    if (!selectable(b, state.focus)) return false;
+    const OptionSpec* spec = b.spec[static_cast<std::size_t>(state.focus)];
+    if (!spec || !model.adjustValue(*spec, store, direction)) return false;
+    (void)store.save();
+    return true;
+}
+
+bool optionsPanelConfirm(OptionsPanelState& state, const gameplay::OptionsModel& model, gameplay::SettingsStore& store,
+                         const gameplay::MenuContext& context) {
+    const BuiltPanel b = buildRows(model, store, context, state);
+    settleFocus(b, state);
+    if (!state.controllers && state.focus >= 0 && state.focus == b.linkRow) {
+        state.controllers = true;
+        state.focus = -1;
+        return true;
+    }
+    return optionsPanelAdjust(state, model, store, context, 1);
+}
+
+bool optionsPanelBack(OptionsPanelState& state) {
+    if (!state.controllers) return false;
+    state.controllers = false;
+    state.focus = -1;
+    return true;
+}
+
+UiScreen buildPausePanelScreen(int w, int h, const PausePanel& panel) {
+    UiScreen screen;
+    if (!valid(w, h)) return screen;
+    const Map m = frameMap(w, h);
+    const float S = uiDesignScale(h);
+    // Window pixels -> UI640 placement units (inverse of px()/py()).
+    const auto ux = [&](float pix) { return (pix - m.ox) / m.scale; };
+    const auto uy = [&](float pix) { return (pix - m.oy) / m.scale - kFrameYOffset; };
+    const auto us = [&](float pix) { return pix / m.scale; };
+    const auto rect = [&](float x, float y, float rw, float rh, const std::array<float, 4>& c) {
+        addRect(screen.quads, m, ux(x), uy(y), us(rw), us(rh), c);
+    };
+
+    // PauseMenu.cpp:1838-1887.
+    const float rowH = 80.f * S, pad = 30.f * S, margin = 24.f * S, tabH = 44.f * S, promptsH = 90.f * S;
+    const float width = std::min((panel.wide ? 880.f : 520.f) * S, static_cast<float>(w) * 0.92f);
+    const float chrome = pad + pad * 0.6f;
+    const float avail = static_cast<float>(h) - 2.f * margin - tabH - promptsH - chrome;
+    const int fit = std::max(1, static_cast<int>(avail / rowH));
+    const int cap = std::min(fit, std::max(1, static_cast<int>(static_cast<float>(h) * 0.62f / rowH)));
+    const int n = static_cast<int>(panel.rows.size());
+    const int visible = std::max(1, panel.wide ? cap : std::min(n, cap));
+    const float bodyH = rowH * static_cast<float>(visible);
+    const float height = bodyH + chrome;
+    const float px0 = (static_cast<float>(w) - width) * 0.5f;
+    const float py0 = std::clamp((static_cast<float>(h) - height - promptsH * 0.5f) * 0.5f, margin + tabH,
+                                 std::max(margin + tabH, static_cast<float>(h) - margin - promptsH - height));
+
+    addWindowRect(screen.quads, 0.f, 0.f, static_cast<float>(w), static_cast<float>(h), theme::rgba(theme::kScrim));
+    // Theme.cpp:162-200: list body, 3 px bevel at 12*S, then the 3/6/3 frame.
+    rect(px0, py0, width, height, theme::rgba(theme::kFrameOuter));
+    rect(px0 + 3.f * S, py0 + 3.f * S, width - 6.f * S, height - 6.f * S, theme::rgba(theme::kFrame));
+    rect(px0 + 9.f * S, py0 + 9.f * S, width - 18.f * S, height - 18.f * S, theme::rgba(theme::kFrameLight));
+    rect(px0 + 12.f * S, py0 + 12.f * S, width - 24.f * S, height - 24.f * S, theme::rgba(theme::kListBody));
+    const float in = 12.f * S, bv = 3.f * S;
+    rect(px0 + in, py0 + in, width - 2.f * in, bv, theme::rgba(theme::kListBevelLight));
+    rect(px0 + in, py0 + in, bv, height - 2.f * in, theme::rgba(theme::kListBevelLight));
+    rect(px0 + in, py0 + height - in - bv, width - 2.f * in, bv, theme::rgba(theme::kListBevelDark));
+    rect(px0 + width - in - bv, py0 + in, bv, height - 2.f * in, theme::rgba(theme::kListBevelDark));
+
+    const float glyphH = 36.f * S;
+    const float cellH = static_cast<float>(rt::native::assets::kGlyphCellHeight);
+    const float cellW = static_cast<float>(rt::native::assets::kGlyphCellWidth);
+    const float scaleY = us(glyphH) / cellH;
+    const float scaleXBase = scaleY * 0.77f;
+    const auto textAt = [&](const std::string& t, float xPix, float yPix, float sx, float sy,
+                            const std::array<float, 4>& c) { appendText(screen.text, t.c_str(), ux(xPix), uy(yPix), sx, sy, c, m); };
+    const auto pixWidth = [&](const std::string& t, float sx) { return static_cast<float>(t.size()) * cellW * sx * m.scale; };
+
+    // Name tab (Theme.cpp:131-141).
+    if (!panel.title.empty()) {
+        const float tabPad = 26.f * S, th = 52.f * S;
+        const float tw = pixWidth(panel.title, scaleXBase) + 2.f * tabPad;
+        const float tx = px0 + 40.f * S, ty = py0 - th * 0.55f;
+        rect(tx, ty, tw, th, theme::rgba(theme::kFrameOuter));
+        rect(tx + 3.f * S, ty + 3.f * S, tw - 6.f * S, th - 6.f * S, theme::rgba(theme::kFrame));
+        textAt(panel.title, tx + tabPad, ty + (th - glyphH) * 0.5f, scaleXBase, scaleY, theme::rgba(theme::kListSelected));
+    }
+
+    // Keep the cursor (and its heading) in view.
+    int first = 0;
+    if (panel.focus >= visible) first = panel.focus - visible + 1;
+    first = std::clamp(first, 0, std::max(0, n - visible));
+    if (panel.focus >= 0 && panel.focus - 1 >= 0 && panel.focus == first &&
+        panel.rows[static_cast<std::size_t>(panel.focus - 1)].kind == PanelRowKind::Heading && first > 0)
+        --first;
+
+    const float innerX = px0 + pad + 30.f * S;  // 30*S inner side inset past the pad
+    const float innerW = width - 2.f * (pad + 30.f * S);
+    for (int r = 0; r < visible && first + r < n; ++r) {
+        const PanelRow& row = panel.rows[static_cast<std::size_t>(first + r)];
+        const float top = py0 + pad + rowH * static_cast<float>(r);
+        const bool focused = first + r == panel.focus && row.kind == PanelRowKind::Item;
+        std::array<float, 4> ink = theme::rgba(row.kind == PanelRowKind::Heading ? theme::kFrameLight
+                                               : row.kind == PanelRowKind::Note   ? theme::kListBevelLight
+                                               : focused                          ? theme::kListSelected
+                                                                                   : theme::kListText);
+        if (!row.enabled && row.kind == PanelRowKind::Item) ink[3] = 0.5f;
+        if (focused) {
+            const float bx = px0 + pad + 6.f * S, bw = width - 2.f * (pad + 6.f * S);
+            const float bh = rowH - 8.f * S, by = top + 4.f * S;
+            addSelection(screen.quads, m, ux(bx), uy(by), us(bw), us(bh));
+            addHorn(screen.quads, m, ux(bx), uy(by + bh * 0.5f), us(bh * 0.6f));
+        }
+        float sx = scaleXBase;
+        const float need = pixWidth(row.label, sx) + (row.value.empty() ? 0.f : pixWidth(row.value, sx) + 40.f * S);
+        if (need > innerW) sx *= innerW / need;
+        const float ty = top + (rowH - glyphH) * 0.5f;
+        textAt(row.label, innerX, ty, sx, scaleY, ink);
+        if (!row.value.empty())
+            textAt(row.value, innerX + innerW - pixWidth(row.value, sx), ty, sx, scaleY, ink);
+    }
+    return screen;
+}
+
 }  // namespace rt::native::preview

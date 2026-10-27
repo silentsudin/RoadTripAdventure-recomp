@@ -54,7 +54,7 @@ uint32_t psVar6;
   
   iVar5 = (int)param_2;
   if (((*(uint32_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x28))) & 0x10000) == 0) {
-    RT_CALLRA(0x243034, guest::townMapBezel());
+    RT_CALLRA(0x243034, guest::townMapBezel(param_1, param_2));  // W13c19: fn/00242fe8.c:34 shows townMapBezel() with no args (Ghidra dropped pass-through a0/a1); MIPS 0x243030 move $22,$4 / 0x243034 jal 0x249208 leave a0=param_1, a1=param_2 (0x242ff4 move $18,$5) untouched.
     if (((*(uint16_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x30))) & (*(uint16_t*)rtguest::G(0x1780a5a))) == 0) {
       cVar1 = (*(int8_t*)rtguest::G((uint32_t)(uint32_t)(iVar5 + 0x22)));
     }

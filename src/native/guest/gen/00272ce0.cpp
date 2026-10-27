@@ -15,7 +15,7 @@ uint32_t vu0RotMatrix(uint32_t param_1, uint32_t param_2, uint32_t param_3, ...)
     rtguest::setS32(0, (uint32_t)param_1);  // walk: = param_1
     rtguest::setS32(1, (uint32_t)param_3);  // walk: = param_3
   }
-  RT_CALLRA(0x272cf8, guest::vu0RotMatrixZ(*(uint32_t*)rtguest::G((uint32_t)(param_3 + 8)), param_2, param_3));  // disasm: a1/a2 untouched entry->jal 0x272cf8; callee sqc2's 4x16B through o/i — 0 defaults wrote guest addr 0
+  RT_CALLRA(0x272cf8, guest::vu0RotMatrixZ(*(uint32_t*)rtguest::G((uint32_t)(param_3 + 8)), param_1, param_2));  // W13c19: a0/a1 pass through untouched from entry (disasm 0x272ce0..0x272cfc: only $4->$16, $6->$17 moved; fn/00272ae8.c reads extraout_a0/a1 = caller's a0/a1). Was (param_2,param_3): mapped out=in-matrix, in=angle vector.
   RT_CALLRA(0x272d08, guest::vu0RotMatrixY(*(uint32_t*)rtguest::G((uint32_t)(param_3 + 4)), param_1, param_1));
   vu0RotMatrixX(*(uint32_t*)rtguest::G((uint32_t)param_3), param_1, param_1);
   return 0;

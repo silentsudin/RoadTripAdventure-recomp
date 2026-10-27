@@ -151,7 +151,10 @@ enum class OptionType : int { Toggle, Enum, Integer, Float, String, Action };
 // GpuWavePending = the row is present but honest about its state: the value is
 //                persisted and shown, but nothing consumes it yet (the sibling
 //                "preview" row). The note string carries the reason.
-enum class OptionStatus : int { WiredNow, GpuWavePending };
+// HostGluePending = a recomp-catalog row (ui-parity.md "Pause Options"): shown in the
+//                retail menu and persisted, its native consumer lands with the host
+//                window/audio/input glue (the value is not read by the app yet).
+enum class OptionStatus : int { WiredNow, GpuWavePending, HostGluePending };
 
 // When a row may be shown. Predicates are evaluated against a MenuContext so a
 // device fact (no gamepad), a capability (no second screen) or a session state
@@ -168,6 +171,10 @@ enum class OptionAvailability : int {
     RequiresAudio,          // audio on -> BGM rows shown
     RequiresAdventure,      // radio: Adventure only (sibling rule)
     RequiresSaveState,      // save/load: Adventure or the player's race, no movie
+    RequiresDesktop,        // recomp: not Android (window rows)
+    RequiresDesktopWindow,  // recomp: not Android and Display mode = Window
+    RequiresMapRow,         // recomp: hardware GS and not (second display + enabled)
+    RequiresFrameGenWarp,   // recomp: >60 fps and RT_FRAME_GEN=1 (comparison modes)
 };
 
 struct OptionSpec {
@@ -184,6 +191,7 @@ struct OptionSpec {
     double step = 1.0;                  // Integer/Float adjust step
     std::vector<std::string> envFlags;  // RT_APP_* (or RT_DISC) rows this stands in for
     std::string note;                   // honest status note (e.g. preview reason)
+    bool retail = false;                // a row of the recomp Pause > Options catalog
 };
 
 // The facts an availability predicate needs beyond the settings themselves
@@ -197,6 +205,12 @@ struct MenuContext {
     bool playerRace = true;             // the race belongs to the player
     bool moviePlaying = false;          // attract demo / movie: no save states
     bool gsCanSaveStates = true;        // the renderer can snapshot (sibling Capabilities)
+    // Retail menu = the recomp catalog only (ui-parity.md:54); native-only diagnostic rows and
+    // GPU-wave-pending previews show only when a harness asks for them.
+    bool diagnostics = false;
+    bool android = false;               // handhelds are always fullscreen: no window rows
+    bool hardwareGs = true;             // recomp Capabilities::hardwareGs (Map row)
+    bool frameGenWarp = false;          // RT_FRAME_GEN=1 and rate > 60 (Frame generation row)
     // Derived from the store at evaluation time (see MenuNavigator::effectiveContext):
     bool terrainEnabled = false;
     bool streamEnabled = false;
@@ -204,6 +218,8 @@ struct MenuContext {
     bool routeEnabled = false;
     bool interpEnabled = false;
     bool audioAvailable = true;
+    bool windowed = true;               // display.window_mode == Window
+    bool secondScreenOn = false;        // display.second_screen == On
 };
 
 [[nodiscard]] bool optionAvailable(const OptionSpec& spec, const MenuContext& context);

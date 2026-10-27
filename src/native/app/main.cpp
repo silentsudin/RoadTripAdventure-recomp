@@ -1462,7 +1462,8 @@ std::vector<rt::native::preview::ScreenQuad> menuQuads(
 // back to 0. PRESS START blinks on a 32-tick phase of the host frame counter.
 rt::native::preview::UiScreen buildLiveMenuScreen(
     AppState state, const rt::native::gameplay::MenuFlow& flow,
-    const rt::native::preview::TitleUiState& titleUi, int frames, int width, int height) {
+    const rt::native::preview::TitleUiState& titleUi, int frames, int width, int height,
+    const rt::native::preview::PausePanel* optionsPanel = nullptr) {
     if (state == AppState::LOAD) {
         auto draw = titleUi.emit(width, height);
         return {std::move(draw.quads), std::move(draw.text)};
@@ -1471,6 +1472,8 @@ rt::native::preview::UiScreen buildLiveMenuScreen(
         const bool pressVisible = (frames / 32) % 2 == 0;
         return rt::native::preview::buildTitleScreen(width, height, pressVisible);
     }
+    if (flow.screen == rt::native::gameplay::MenuScreen::OPTIONS && optionsPanel)
+        return rt::native::preview::buildPausePanelScreen(width, height, *optionsPanel);
     if (flow.screen == rt::native::gameplay::MenuScreen::OPTIONS)
         return rt::native::preview::buildOptionsScreen(width, height, 0);
     int focus = 0;
@@ -2069,6 +2072,17 @@ int main() {
         directStartRace = false;
     rt::native::gameplay::MenuFlow menuFlow;
     if (state == AppState::MENU) menuFlow.screen = rt::native::gameplay::MenuScreen::MODE_SELECT;
+    // Recomp-parity Pause > Options / Controllers panel (retail catalog, diagnostics off).
+    rt::native::gameplay::SettingsStore optionsStore(rt::native::gameplay::defaultSettingsPath(appDataDirectory()));
+    (void)optionsStore.load();
+    const rt::native::gameplay::OptionsModel optionsModel;
+    rt::native::preview::OptionsPanelState optionsPanelState;
+    // RT_APP_MENU_SCREEN=options|controllers opens that panel (screenshot/harness hook).
+    if (const char* screen = std::getenv("RT_APP_MENU_SCREEN");
+        screen && (std::strcmp(screen, "options") == 0 || std::strcmp(screen, "controllers") == 0)) {
+        menuFlow.screen = rt::native::gameplay::MenuScreen::OPTIONS;
+        optionsPanelState.controllers = std::strcmp(screen, "controllers") == 0;
+    }
     rt::native::preview::TitleAction titleAction = rt::native::preview::TitleAction::None;
     bool loggedAppState = false, loggedSessionState = false;
     AppState lastLoggedAppState = state;
@@ -2256,6 +2270,8 @@ int main() {
                 if (state == AppState::MENU || state == AppState::LOAD) {
                     menuInput.up = menuInput.up || event.key.scancode == SDL_SCANCODE_UP;
                     menuInput.down = menuInput.down || event.key.scancode == SDL_SCANCODE_DOWN;
+                    menuInput.left = menuInput.left || event.key.scancode == SDL_SCANCODE_LEFT;
+                    menuInput.right = menuInput.right || event.key.scancode == SDL_SCANCODE_RIGHT;
                     menuInput.confirm = menuInput.confirm || event.key.scancode == SDL_SCANCODE_RETURN;
                     menuInput.cancel = menuInput.cancel || event.key.scancode == SDL_SCANCODE_ESCAPE;
                 }
@@ -2289,6 +2305,19 @@ int main() {
             (void)rt::native::gameplay::tickMenuFlow(menuFlow, {.confirm = true}, dt);
             state = AppState::MENU;
         } else if (state == AppState::MENU) {
+            if (menuFlow.screen == rt::native::gameplay::MenuScreen::OPTIONS) {
+                using namespace rt::native::preview;
+                rt::native::gameplay::MenuContext optionsContext;
+                optionsContext.gamepadPresent = gamepad != nullptr;
+                if (menuInput.up) (void)optionsPanelMove(optionsPanelState, optionsModel, optionsStore, optionsContext, -1);
+                if (menuInput.down) (void)optionsPanelMove(optionsPanelState, optionsModel, optionsStore, optionsContext, 1);
+                if (menuInput.left) (void)optionsPanelAdjust(optionsPanelState, optionsModel, optionsStore, optionsContext, -1);
+                if (menuInput.right) (void)optionsPanelAdjust(optionsPanelState, optionsModel, optionsStore, optionsContext, 1);
+                if (menuInput.confirm) (void)optionsPanelConfirm(optionsPanelState, optionsModel, optionsStore, optionsContext);
+                // Cancel leaves Controllers for Options first; flow cancel only from Options.
+                if (menuInput.cancel && optionsPanelBack(optionsPanelState)) menuInput.cancel = false;
+                menuInput.up = menuInput.down = menuInput.left = menuInput.right = menuInput.confirm = false;
+            }
             const auto menuEvent = rt::native::gameplay::tickMenuFlow(menuFlow, menuInput, dt);
             if (menuEvent.type == rt::native::gameplay::MenuEventType::MODE_SELECTED) {
                 if (menuEvent.mode == rt::native::gameplay::MenuMode::ADVENTURE) {
@@ -2380,6 +2409,27 @@ int main() {
                 // vblanks, for byte diffing against the oracle's EERM chunk.
                 static const std::vector<std::pair<uint64_t, std::string>> ramDumps =
                     parseVbPaths(std::getenv("RT_RAM_DUMP"));
+                // RT_WATCH="startvb:lo:hi:budget": trace G() accesses in a range,
+                // tagged with the last RT_CALLRA site (identifies the gen TU).
+                static uint32_t s_watchStartVb = 0, s_watchLo = 0, s_watchHi = 0, s_watchBudget = 0;
+                static bool s_watchArmed = false;
+                static const bool watchParsed = [] {
+                    if (const char* e = std::getenv("RT_WATCH"); e && *e) {
+                        uint32_t st = 0, lo = 0, hi = 0, bud = 400;
+                        if (std::sscanf(e, "%u:%x:%x:%u", &st, &lo, &hi, &bud) >= 3 && hi > lo) {
+                            s_watchLo = lo; s_watchHi = hi; s_watchBudget = bud;
+                            s_watchStartVb = st;
+                            return true;
+                        }
+                    }
+                    return false;
+                }();
+                if (watchParsed && !s_watchArmed && nativeBoot.vblanks >= s_watchStartVb) {
+                    rtguest::gWatchLo = s_watchLo;
+                    rtguest::gWatchSpan = s_watchHi - s_watchLo;
+                    rtguest::gWatchBudget = s_watchBudget;
+                    s_watchArmed = true;
+                }
                 // RT_PAD_SCRIPT="vb:hexmask[:hold],...": active-low button presses,
                 // window vb..vb+hold inclusive (default hold 2 = 3 vblanks).
                 // RT_BOOT_START=N keeps the legacy Up/Cross/Start ladder.
@@ -2441,6 +2491,20 @@ int main() {
                     if (FILE* f = std::fopen(path.c_str(), "wb")) {
                         std::fwrite(rtguest::kRam, 1, RT_GUEST_RAM_SIZE, f);
                         std::fclose(f);
+                    }
+                }
+                // RT_RAM_PATCH="vb:path,...": overlay an oracle EE-RAM image at
+                // that vblank (parity bisect: if the fork dies, the cause was a
+                // census residual; if it lives, state outside EE RAM).
+                static const std::vector<std::pair<uint64_t, std::string>> ramPatches =
+                    parseVbPaths(std::getenv("RT_RAM_PATCH"));
+                for (const auto& [vb, path] : ramPatches) {
+                    if (uint64_t(nativeBoot.vblanks) != vb) continue;
+                    if (FILE* f = std::fopen(path.c_str(), "rb")) {
+                        const size_t n = std::fread(rtguest::kRam, 1, RT_GUEST_RAM_SIZE, f);
+                        std::fclose(f);
+                        std::fprintf(stderr, "[rampatch] vb=%llu bytes=%zu %s\n",
+                                     (unsigned long long)vb, n, path.c_str());
                     }
                 }
                 // RT_NATIVE_GS_DUMP="vb:path,...": W3 3c scanout readback —
@@ -3384,6 +3448,10 @@ int main() {
                     const int menuW = static_cast<int>(presenter.extent.width);
                     const int menuH = static_cast<int>(presenter.extent.height);
                     const std::array<float, 4> menuClear{.025f, .035f, .075f, 1.f};
+                    rt::native::gameplay::MenuContext panelContext;
+                    panelContext.gamepadPresent = gamepad != nullptr;
+                    const auto optionsPanel = rt::native::preview::buildOptionsPanel(
+                        optionsModel, optionsStore, panelContext, optionsPanelState);
                     if (fontAtlas.width > 0) {
                         // SYS/TITLE.GSL unit 0 is the shipped 640x448 plate,
                         // cars, road and sky.  Its runtime-only decoder is
@@ -3402,7 +3470,7 @@ int main() {
                                 // Rebind FONTE after the backdrop: the same
                                 // 2D textured pass then keeps the blink and
                                 // publisher/copyright text over the art.
-                                const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH);
+                                const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH, &optionsPanel);
                                 const rt::native::preview::PreviewTexture atlasTex{
                                     fontAtlas.width, fontAtlas.height, fontAtlas.pixels};
                                 if (!ui.text.empty() &&
@@ -3446,7 +3514,7 @@ int main() {
                         auto backdrop = menuQuads(state, menuFlow, menuW, menuH);
                         std::vector<rt::native::preview::ScreenQuad> quads;
                         if (!backdrop.empty() && !backdropDrawn) quads.push_back(backdrop.front());
-                        const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH);
+                        const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH, &optionsPanel);
                         quads.insert(quads.end(), ui.quads.begin(), ui.quads.end());
                         if (backdropDrawn) {
                             std::vector<std::uint8_t> panelPixels;

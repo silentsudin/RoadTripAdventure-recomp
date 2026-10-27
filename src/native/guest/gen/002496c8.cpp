@@ -115,7 +115,7 @@ uint32_t puStack_64;
   (*(uint64_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)(4) * sizeof(uint64_t))) = 0;
   (*(uint64_t*)rtguest::G((uint32_t)puVar9 + (uint32_t)(5) * sizeof(uint64_t))) = uVar11;
   RT_CALLRA(0x249830, guest::uiArenaRotQuads(param_3,uStack_e0,1,uVar1,uVar2,1));
-  (*(float*)rtguest::G((uint32_t)fStack_78)) = -(float)(int)lVar8 * 3.8146973e-06f * (*(float*)rtguest::G(0x332f4c));
+  float fF20 = -(float)(int)lVar8 * 3.8146973e-06f * (*(float*)rtguest::G(0x332f4c));  // $f20 (mul.s @0x249864); stored at 0x24996c, see below
   if (lVar8 == 0) {
     uVar11 = 5;
   }
@@ -153,6 +153,8 @@ uint32_t puStack_64;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_84)) = 0x3f800000;
   (*(uint32_t*)rtguest::G((uint32_t)uStack_88)) = 0;
   (uint32_t)(uintptr_t)(::memset((char *)rtguest::G((uint32_t)(auStack_80)), 0, 0x10));
+  // W13c19: fn/002496c8.c:~83 puts `fStack_78 = ...` before the memset(auStack_80,0,0x10) that overlaps it; MIPS 0x249944 jal memset, then `swc1 $f20,0x88($sp)` sits in the delay slot of jal 0x24eb10 @0x24996c, so the angle survives the memset.
+  (*(float*)rtguest::G((uint32_t)fStack_78)) = fF20;
   RT_CALLRA(0x249968, guest::uiArenaRotQuads(param_3,uStack_e0,1,uVar1,uVar2,1));
   RT_CALLRA(0x24997c, guest::uiArenaSetTexture(param_3,0x2a9008,0,0));
   RT_CALLRA(0x249988, guest::uiArenaDataTag(param_3,1));

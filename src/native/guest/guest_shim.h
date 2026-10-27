@@ -52,6 +52,11 @@ struct Fault { uint32_t addr; uint32_t count; };
 const Fault* faults(size_t* n);
 void noteFault(uint32_t a);
 
+// Diagnostic env RT_WATCH (main.cpp): logs G() accesses into [gWatchLo,
+// gWatchLo+gWatchSpan) with the last RT_CALLRA site (identifies the gen TU).
+extern uint32_t gWatchLo, gWatchSpan, gWatchBudget, gLastCallPc;
+void noteWatch(uint32_t a);
+
 // Frame arena = the EE's own stack, mirrored: the ELF declares the main
 // thread stack as [0x1F80000,0x2000000); transliterated frames push down from
 // its top with the guest's exact frame sizes (FrameGuard(size) at each
@@ -134,6 +139,7 @@ inline void* G(uint32_t a) {
     // R5900 uncached-low alias: 0x2000_0000-0x3FFF_FFFF is physical & 0x1FFF_FFFF
     // (0x2177xxxx = FS RPC bufs; 0x3F80xxxx = DMAC regs → same kRam holes).
     if (a >= 0x20000000u && a < 0x40000000u) a &= 0x1FFFFFFFu;
+    if (gWatchSpan && a - gWatchLo < gWatchSpan) noteWatch(a);
     if (a < RT_GUEST_RAM_SIZE) return kRam + a;
     if (a >= 0x70000000u && a < 0x70000000u + RT_SCRATCH_SIZE)
         return kScratch + (a - 0x70000000u);

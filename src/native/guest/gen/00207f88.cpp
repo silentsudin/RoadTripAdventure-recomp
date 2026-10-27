@@ -20,7 +20,7 @@ uint32_t BuildTransformMatrix(uint32_t param_1, uint32_t param_2, uint32_t param
   int iVar1;
   
   iVar1 = (int)param_1 + 0x10;
-  RT_CALLRA(0x207fac, guest::vu0UnitMatrix());
+  RT_CALLRA(0x207fac, guest::vu0UnitMatrix(param_1));  // W13c19: fn/00207f88.c:11 shows vu0UnitMatrix() (Ghidra dropped a0); MIPS 0x207f90 move $16,$4 / jal 0x272a48 @0x207fac leaves a0=param_1
   vecCrossProductVu0(param_1,param_2,param_3);
   RT_CALLRA(0x207fc8, guest::vecNormalizeVu0(param_1,param_1));
   RT_CALLRA(0x207fd4, guest::vu0CopyVector(iVar1,param_2));

@@ -63,7 +63,7 @@ uint32_t pfVar1;
       RT_CALLRA(0x24eef0, guest::uiSetSpriteClamp(iVar3 + 0x10,(short)(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(4) * sizeof(int32_t))),(short)(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(5) * sizeof(int32_t))),(short)(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(2) * sizeof(int32_t))),
                        (short)(*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(3) * sizeof(int32_t)))));
       RT_CALLRA(0x24eef8, guest::vu0UnitMatrix(fStack_d0));
-      RT_CALLRA(0x24ef08, guest::vu0CopyVector(afStack_80,param_2 + 0x1c));
+      RT_CALLRA(0x24ef08, guest::vu0CopyVector(afStack_80,param_2 + (0x1c * sizeof(int32_t))));
       iVar2 = 2;
       pfVar1 = afStack_80;
       do {
@@ -89,13 +89,13 @@ LAB_0024efbc:
       (*(float*)rtguest::G((uint32_t)fStack_d0)) = (*(float*)rtguest::G((uint32_t)fStack_d0)) + (*(float*)rtguest::G((uint32_t)fStack_d0));
       (*(float*)rtguest::G((uint32_t)fStack_a0)) = (float)((*(int32_t*)rtguest::G((uint32_t)param_2)) + (*(int32_t*)rtguest::G((uint32_t)iStack_70)) + 0x6c0);
       (*(float*)rtguest::G((uint32_t)fStack_9c)) = (float)(((*(int32_t*)rtguest::G((uint32_t)param_2 + (uint32_t)(1) * sizeof(int32_t))) + param_5) / 2 + 0x790);
-      RT_CALLRA(0x24f098, guest::vu0ApplyMatrix(auStack_90,fStack_d0,param_2 + 0xc));
+      RT_CALLRA(0x24f098, guest::vu0ApplyMatrix(auStack_90,fStack_d0,param_2 + (0xc * sizeof(int32_t))));
       RT_CALLRA(0x24f0a4, guest::vu0Ftoi4Vector(iVar3 + 0x30,auStack_90));
-      RT_CALLRA(0x24f0b4, guest::vu0ApplyMatrix(auStack_90,fStack_d0,param_2 + 0x10));
+      RT_CALLRA(0x24f0b4, guest::vu0ApplyMatrix(auStack_90,fStack_d0,param_2 + (0x10 * sizeof(int32_t))));
       RT_CALLRA(0x24f0c0, guest::vu0Ftoi4Vector(iVar3 + 0x50,auStack_90));
-      RT_CALLRA(0x24f0d0, guest::vu0ApplyMatrix(auStack_90,fStack_d0,param_2 + 0x14));
+      RT_CALLRA(0x24f0d0, guest::vu0ApplyMatrix(auStack_90,fStack_d0,param_2 + (0x14 * sizeof(int32_t))));
       RT_CALLRA(0x24f0dc, guest::vu0Ftoi4Vector(iVar3 + 0x70,auStack_90));
-      RT_CALLRA(0x24f0ec, guest::vu0ApplyMatrix(auStack_90,fStack_d0,param_2 + 0x18));
+      RT_CALLRA(0x24f0ec, guest::vu0ApplyMatrix(auStack_90,fStack_d0,param_2 + (0x18 * sizeof(int32_t))));
       param_2 = param_2 + 0x20 * sizeof(int32_t);  // fn:74 int* elem step
       RT_CALLRA(0x24f0fc, guest::vu0Ftoi4Vector(iVar3 + 0x90,auStack_90));
       if (param_3 < 5) {

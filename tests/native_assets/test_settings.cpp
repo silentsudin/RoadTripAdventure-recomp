@@ -195,6 +195,7 @@ static void testAvailabilityGamepadHiddenTriggers() {
 
     // No gamepad: the trigger and rumble rows are hidden (not shown dead).
     MenuContext noPad;
+    noPad.diagnostics = true;  // pin predates the retail catalog (W14.1a): navigate the diagnostic rows
     noPad.gamepadPresent = false;
     CHECK(!optionAvailable(*triggers, noPad));
     CHECK(!optionAvailable(*rumble, noPad));
@@ -255,6 +256,7 @@ static void testAvailabilityGamepadHiddenTriggers() {
 static MenuContext richContext(SettingsStore& store) {
     store.setBool("graphics.terrain", true);
     MenuContext c;
+    c.diagnostics = true;  // pins predate the W14.1a retail catalog: navigate the diagnostic rows
     c.gamepadPresent = true;
     c.secondScreenSupported = true;
     c.adventure = true;
@@ -329,6 +331,7 @@ static void testNavigatorSkipsUnavailableAndAdjustDomain() {
     // and Controllers page is empty. Turning interp on should reveal its
     // dependent rows.
     MenuContext ctx;
+    ctx.diagnostics = true;  // pin predates the W14.1a retail catalog
     ctx.gamepadPresent = false;
     MenuNavigator nav(model, store, ctx);
     nav.open();
@@ -438,6 +441,7 @@ static void testNavigatorActionRows() {
     SettingsStore store{dir / "settings.toml"};
     OptionsModel model;
     MenuContext ctx;
+    ctx.diagnostics = true;  // pin predates the W14.1a retail catalog
     ctx.adventure = true;  // save rows available
     MenuNavigator nav(model, store, ctx);
     nav.open();
