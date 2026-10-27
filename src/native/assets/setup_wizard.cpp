@@ -2,6 +2,8 @@
 
 #include "iso_extract.h"
 
+#include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -146,39 +148,142 @@ bool isSetupManifestValid(const std::filesystem::path& assetsRoot) {
     return checkManifestFiles(assetsRoot, true);
 }
 
-bool RunFirstRunSetupIfRequired() {
+SetupScreenText describeSetupScreen(const SetupScreenView& v) {
+    SetupScreenText t;
+    switch (v.kind) {
+    case SetupScreenView::Kind::Failed:
+        t.heading = "Setup didn't finish";
+        t.body = v.error + (v.logTail.empty() ? " Try again." : " Try again; if it keeps failing, the details below are "
+                                                                "saved in the app's build log.");
+        t.buttons = {"Close", "Try again"};
+        t.defaultFocus = 1;
+        break;
+    case SetupScreenView::Kind::Welcome:
+        t.heading = "Welcome!";
+        t.body = "Road Trip needs your own copy of the game. Choose the disc image you made from it "
+                 "(.bin, .iso or .chd).";
+        t.footer = v.note;
+        t.buttons = {"Choose disc image"};
+        break;
+    case SetupScreenView::Kind::Warning:
+        t.heading = "This disc image looks different";
+        t.body = "It isn't the usual copy of Road Trip (USA), so it may be damaged or from another release. "
+                 "It might still work.";
+        t.buttons = {"Use it anyway", "Choose another"};
+        t.defaultFocus = 1;
+        if (v.warning == SetupWarning::Damaged) {
+            t.heading = "This disc image is damaged";
+            t.body = "Part of this .chd no longer matches what was recorded when it was made. Make a new one from your disc "
+                     "if you can.";
+        } else if (v.warning == SetupWarning::Unverified) {
+            t.heading = "This .chd can't be checked";
+            t.body = "It isn't damaged, but it was made in a way that can't be compared with the known good copy. It will "
+                     "most likely work.";
+            t.buttons = {"Choose another", "Use it"};
+        }
+        break;
+    case SetupScreenView::Kind::Progress: {
+        t.heading = v.heading.empty() ? "Getting Road Trip ready" : v.heading;
+        char step[64] = "";
+        if (v.steps > 1) std::snprintf(step, sizeof(step), "Step %d of %d: ", std::max(1, v.step), v.steps);
+        t.phaseLine = step + v.phase;
+        char pct[32];
+        if (v.fraction >= 0.0) std::snprintf(pct, sizeof(pct), "%d%%", static_cast<int>(std::min(1.0, v.fraction) * 100.0));
+        else std::snprintf(pct, sizeof(pct), "%d:%02d", v.elapsedSeconds / 60, v.elapsedSeconds % 60);
+        t.percent = pct;
+        if (v.fraction < 1.0 && v.etaSeconds >= 0.0) {
+            const double s = v.etaSeconds;
+            if (s < 10.0) t.eta = "Almost done";
+            else if (s < 55.0) t.eta = "About " + std::to_string((static_cast<int>(s) + 5) / 10 * 10) + " seconds left";
+            else {
+                const int minutes = static_cast<int>(s / 60.0 + 0.5);
+                t.eta = minutes <= 1 ? "About a minute left" : "About " + std::to_string(minutes) + " minutes left";
+            }
+        }
+        if (t.eta.empty() && v.fraction < 0.0) t.eta = "Working...";
+        t.footer = v.detail.empty() ? "This only happens once. You can switch to other apps meanwhile." : v.detail;
+        if (v.skippable) t.buttons = {v.skipLabel};
+        break;
+    }
+    }
+    return t;
+}
+
+namespace {
+// failure = real work failed (worth a visible Failed screen); a missing disc is not, the app runs on without it.
+struct Attempt { bool ok = false; bool failure = false; std::string error; };
+
+double secondsSince(std::chrono::steady_clock::time_point t) {
+    return std::chrono::duration<double>(std::chrono::steady_clock::now() - t).count();
+}
+
+Attempt runAttempt(SetupHost* host) {
+    Attempt result;
+    const auto started = std::chrono::steady_clock::now();
     const auto assets = std::getenv("RT_ASSET_DIR") ? std::filesystem::path(std::getenv("RT_ASSET_DIR")) : dataRoot() / "assets";
     // Startup fast path: existence+size (see checkManifestFiles note above).
     // Full validation still runs once right after extraction and on demand
     // via RT_APP_SETUP_VERIFY=full.
     const char* verify = std::getenv("RT_APP_SETUP_VERIFY");
-    if (checkManifestFiles(assets, verify && std::string(verify) == "full")) { log("assets: ready"); return true; }
+    if (checkManifestFiles(assets, verify && std::string(verify) == "full")) { log("assets: ready"); result.ok = true; return result; }
     std::filesystem::path disc;
     if (const char* image = std::getenv("RT_DISC"); image && *image && std::filesystem::is_regular_file(image)) {
         // RT_DISC names an .iso/.bin/.cue file: extract the needed tree (gated on the boot-ELF CRC inside
         // iso_extract) into <data>/disc, then continue exactly as for a pre-extracted directory.
         disc = dataRoot() / "disc";
         FirstRunExtraction flow;
-        if (!flow.run(image, disc)) { log("rom: " + flow.snapshot().message); return false; }
+        bool extracted = false;
+        if (!host) extracted = flow.run(image, disc);
+        else {
+            // The flow blocks and is polled through snapshot(): run it aside so the host can keep drawing.
+            std::atomic<bool> done{false};
+            std::thread worker([&] { extracted = flow.run(image, disc); done = true; });
+            while (!done) {
+                const auto s = flow.snapshot();
+                SetupScreenView view; view.kind = SetupScreenView::Kind::Progress;
+                view.step = s.stepIndex + 1; view.steps = s.stepCount; view.fraction = s.fraction; view.etaSeconds = s.etaSeconds;
+                view.elapsedSeconds = static_cast<int>(secondsSince(started));
+                if (host->pump(view) == SetupInput::Close) { host->closed = true; flow.requestStop(); }
+                std::this_thread::sleep_for(std::chrono::milliseconds(8));
+            }
+            worker.join();
+            if (host->closed) return result;
+        }
+        if (!extracted) {
+            SetupScreenView failed; failed.kind = SetupScreenView::Kind::Failed; failed.error = flow.snapshot().message;
+            log("rom: " + flow.snapshot().message);
+            log("setup: " + describeSetupScreen(failed).heading + " - " + describeSetupScreen(failed).body);
+            result.failure = true; result.error = failed.error;
+            return result;
+        }
         setenv("RT_DISC", disc.c_str(), 1);  // every later disc reader expects the extracted directory
     } else disc = findDisc();
-    if (disc.empty() || !hasExpectedBootElfCrc(disc / "SLUS_203.98")) { log("rom: invalid"); return false; }
+    if (disc.empty() || !hasExpectedBootElfCrc(disc / "SLUS_203.98")) { log("rom: invalid"); return result; }
 
     std::vector<std::pair<std::filesystem::path, std::filesystem::path>> files;
     collect(disc, "SYS/FONTE.GSL", "fonts", files);
     collect(disc, "FLD", "textures/FLD", files);
     for (const char* dir : {"CAR0", "CAR1", "CAR2", "CAR3", "CAR4", "CAR5", "CARS"}) collect(disc, dir, (std::string("cars/") + dir).c_str(), files);
     collect(disc, "SOUND", "audio/SOUND", files);
-    if (files.empty()) { log("rom: invalid"); return false; }
+    if (files.empty()) { log("rom: invalid"); return result; }
 
     SetupManifest manifest;
+    auto lastPump = std::chrono::steady_clock::time_point{};
     for (std::size_t i = 0; i < files.size(); ++i) {
+        if (host && (i + 1 == files.size() || secondsSince(lastPump) >= 0.033)) {
+            lastPump = std::chrono::steady_clock::now();
+            SetupScreenView view; view.kind = SetupScreenView::Kind::Progress;
+            view.fraction = static_cast<double>(i) / static_cast<double>(files.size());
+            view.elapsedSeconds = static_cast<int>(secondsSince(started));
+            if (view.fraction >= 0.05) view.etaSeconds = secondsSince(started) * (1.0 - view.fraction) / view.fraction;
+            if (host->pump(view) == SetupInput::Close) { host->closed = true; return result; }
+        }
         const auto& [source, relative] = files[i]; const auto destination = assets / relative;
         std::error_code ec; std::filesystem::create_directories(destination.parent_path(), ec);
         const auto expectedSize = std::filesystem::file_size(source, ec); const auto expectedCrc = crcFile(source);
         if (!std::filesystem::is_regular_file(destination, ec) || std::filesystem::file_size(destination, ec) != expectedSize || crcFile(destination) != expectedCrc) {
             std::filesystem::copy_file(source, destination, std::filesystem::copy_options::overwrite_existing, ec);
-            if (ec) { log("extract: failed " + relative.string()); return false; }
+            if (ec) { log("extract: failed " + relative.string()); result.failure = true; result.error = "Couldn't write " + relative.string() + "."; return result; }
         }
         manifest.files.push_back({relative.generic_string(), expectedSize, expectedCrc});
         const unsigned percent = static_cast<unsigned>((i + 1) * 100 / files.size());
@@ -186,8 +291,29 @@ bool RunFirstRunSetupIfRequired() {
         log(std::string("extract: ") + kind + " " + std::to_string(percent) + "%");
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    if (!writeSetupManifest(assets / "manifest.json", manifest) || !checkManifestFiles(assets, true)) { log("extract: manifest failed"); return false; }
+    if (!writeSetupManifest(assets / "manifest.json", manifest) || !checkManifestFiles(assets, true)) {
+        log("extract: manifest failed");
+        result.failure = true; result.error = "The extracted files didn't check out.";
+        return result;
+    }
     log("assets: ready");
-    return true;
+    result.ok = true;
+    return result;
+}
+} // namespace
+
+bool RunFirstRunSetupIfRequired(SetupHost* host) {
+    for (;;) {
+        const Attempt attempt = runAttempt(host);
+        if (attempt.ok || !host || host->closed || !attempt.failure) return attempt.ok;
+        SetupScreenView failed; failed.kind = SetupScreenView::Kind::Failed; failed.error = attempt.error;
+        for (;;) {  // the failure stays on screen until the user acts
+            const SetupInput input = host->pump(failed);
+            if (input == SetupInput::Close) { host->closed = true; return false; }
+            if (input == SetupInput::Continue) return false;
+            if (input == SetupInput::TryAgain) break;
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        }
+    }
 }
 } // namespace rt::native::assets

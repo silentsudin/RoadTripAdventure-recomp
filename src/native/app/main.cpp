@@ -1526,7 +1526,8 @@ int main() {
                                                rt::native::preview::RendererMode::Gl;
     if (headlessApp && !headlessGl) SDL_SetHint("SDL_VIDEO_DRIVER", "dummy");  // SDL3: no macro
     bootstrapSettings();
-    (void)rt::native::assets::RunFirstRunSetupIfRequired();
+    // Headless keeps the log-only setup here; windowed runs set up after the presenter exists (draws the panel).
+    if (headlessApp) (void)rt::native::assets::RunFirstRunSetupIfRequired();
     // W3-06 enhancement registry (RT_ENHANCE_*): parsed once at startup; every
     // default equals the legacy behaviour, so an unset environment is a no-op.
     // Applied here: target_hz (render cap fallback), fps_display, log_fps.
@@ -1659,6 +1660,76 @@ int main() {
     bool scoreHudMeter = false;
     bool hudTextWarned = false;
     rt::native::assets::GlyphAtlas fontAtlas;
+    if (!headlessApp) {
+        // First-run setup on screen: the 2D setup panel is drawn through the already-open presenter/renderer
+        // once per progress callback (the wizard's work stays off the draw path via its own thread or per-file pumps).
+        rt::native::assets::SetupHost setupHost;
+        using rt::native::assets::SetupInput;
+        using rt::native::assets::SetupScreenView;
+        int setupFocus = -1, setupFrames = 0;
+        SetupScreenView::Kind setupKind = SetupScreenView::Kind::Welcome;
+        setupHost.pump = [&](const SetupScreenView& view) -> SetupInput {
+            const auto text = rt::native::assets::describeSetupScreen(view);
+            if (setupFocus < 0 || view.kind != setupKind) setupFocus = text.defaultFocus;
+            setupKind = view.kind;
+            SetupInput out = SetupInput::None;
+            const int count = static_cast<int>(text.buttons.size());
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_EVENT_QUIT || event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) out = SetupInput::Close;
+                else if (event.type == SDL_EVENT_KEY_DOWN && count > 0) {
+                    const SDL_Keycode key = event.key.key;
+                    if (key == SDLK_ESCAPE) out = SetupInput::Close;
+                    else if (key == SDLK_LEFT || key == SDLK_UP) setupFocus = (setupFocus + count - 1) % count;
+                    else if (key == SDLK_RIGHT || key == SDLK_DOWN || key == SDLK_TAB) setupFocus = (setupFocus + 1) % count;
+                    else if (key == SDLK_RETURN || key == SDLK_SPACE) {
+                        const std::string& label = text.buttons[static_cast<std::size_t>(setupFocus % count)];
+                        out = label == "Close" ? SetupInput::Close : label == "Try again" ? SetupInput::TryAgain : out;
+                    }
+                }
+            }
+            // The font comes from the disc/extract, which may not exist yet: retry while it is missing.
+            if (fontAtlas.width == 0 && setupFrames % 60 == 0) { fonteDecodeAttempted = false; (void)loadFonteAtlas(fontAtlas); }
+            const int w = static_cast<int>(presenter.extent.width), h = static_cast<int>(presenter.extent.height);
+            if (w > 0 && h > 0) {
+                const auto ui = rt::native::preview::buildSetupScreen(w, h, text, view.fraction, setupFocus);
+                std::vector<std::uint8_t> frame, glyphs; std::string err;
+                bool ok = rt::native::preview::previewRender2D(renderer, ui.quads, {.025f, .035f, .075f, 1.f}, frame, err);
+                if (ok && !ui.text.empty() && fontAtlas.width > 0) {
+                    const rt::native::preview::PreviewTexture atlasTex{fontAtlas.width, fontAtlas.height, fontAtlas.pixels};
+                    if (rt::native::preview::previewUploadFontAtlas(renderer, atlasTex, err) &&
+                        rt::native::preview::previewRender2DTextured(renderer, ui.text, {0.f, 0.f, 0.f, 0.f}, glyphs, err))
+                        compositeOver(frame, glyphs);
+                }
+                bool retry = false;
+                if (ok) ok = glPresenter ? rt::native::preview::glPresent(glPresenter, frame, err) : present(presenter, frame, retry, err);
+                if (!ok) std::cerr << "setup render: " << err << "\n";
+                if (ok && std::getenv("RT_APP_SNAPSHOT")) {  // RT_APP_SNAPSHOT + ".setup" holds the setup frame (the game loop overwrites the base file)
+                    std::ofstream snap(std::string(std::getenv("RT_APP_SNAPSHOT")) + ".setup", std::ios::binary);
+                    snap << "P6\n" << w << ' ' << h << "\n255\n";
+                    for (std::size_t i = 0; i + 3 < frame.size(); i += 4) snap.write(reinterpret_cast<const char*>(&frame[i]), 3);
+                }
+                if (retry && !headlessApp) {
+                    int newW = 0, newH = 0; SDL_GetWindowSizeInPixels(window, &newW, &newH);
+                    if (newW > 0 && newH > 0 && makeSwapchain(presenter, window, err)) {
+                        rt::native::preview::previewDestroy(renderer);
+                        renderer = rt::native::preview::previewInit(presenter.extent.width, presenter.extent.height, err, nullptr);
+                    }
+                }
+            }
+            ++setupFrames;
+            // Frame-limited runs (tests) must not block on the Failed screen.
+            if (view.kind == SetupScreenView::Kind::Failed && maxFrames > 0 && setupFrames > 1) return SetupInput::Continue;
+            return out;
+        };
+        (void)rt::native::assets::RunFirstRunSetupIfRequired(&setupHost);
+        if (setupHost.closed || !renderer) {
+            rt::native::preview::previewDestroy(renderer); destroy(presenter);
+            rt::native::preview::glPresenterDestroy(glPresenter); SDL_DestroyWindow(window); SDL_Quit();
+            return 0;
+        }
+        if (fontAtlas.width == 0) fonteDecodeAttempted = false;  // let the app's own load retry after setup
+    }
     auto initSceneAssets = [&]() {
 #ifdef __ANDROID__
         androidLog(ANDROID_LOG_INFO, "scene: assets init begin");

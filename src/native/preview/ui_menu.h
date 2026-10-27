@@ -19,6 +19,7 @@
 #include "preview/preview.h"
 #include "preview/ui_theme.h"
 #include "gameplay/settings.h"
+#include "assets/setup_wizard.h"
 
 #include <algorithm>
 #include <array>
@@ -80,6 +81,10 @@ struct PausePanel {
     bool wide = true;    // 880*S, else the 520*S root width
 };
 UiScreen buildPausePanelScreen(int w, int h, const PausePanel& panel);
+
+// First-run setup dialog (SetupScreen.cpp:36-62,264-405): centred "Road Trip" panel,
+// width min(w-80*S, 1.2*h), pad 56*S, 44*S gold bar, right-aligned pill buttons.
+UiScreen buildSetupScreen(int w, int h, const assets::SetupScreenText& text, double fraction, int focus);
 
 // Options + Controllers children driven by OptionsModel / SettingsStore.
 struct OptionsPanelState {

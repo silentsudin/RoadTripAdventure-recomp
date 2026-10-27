@@ -563,4 +563,111 @@ UiScreen buildPausePanelScreen(int w, int h, const PausePanel& panel) {
     return screen;
 }
 
+UiScreen buildSetupScreen(int w, int h, const assets::SetupScreenText& t, double fraction, int focus) {
+    UiScreen screen;
+    if (!valid(w, h)) return screen;
+    const Map m = frameMap(w, h);
+    const float S = uiDesignScale(h);
+    const auto ux = [&](float pix) { return (pix - m.ox) / m.scale; };
+    const auto uy = [&](float pix) { return (pix - m.oy) / m.scale - kFrameYOffset; };
+    const auto us = [&](float pix) { return pix / m.scale; };
+    const auto rect = [&](float x, float y, float rw, float rh, const std::array<float, 4>& c) {
+        addRect(screen.quads, m, ux(x), uy(y), us(rw), us(rh), c);
+    };
+    const float cellH = static_cast<float>(rt::native::assets::kGlyphCellHeight);
+    const float cellW = static_cast<float>(rt::native::assets::kGlyphCellWidth);
+    const auto glyphScale = [&](float glyphPx) { return us(glyphPx) / cellH; };
+    const auto pixWidth = [&](const std::string& s, float sx) { return static_cast<float>(s.size()) * cellW * sx * m.scale; };
+    const auto textAt = [&](const std::string& s, float x, float y, float sx, float sy, const std::array<float, 4>& c) {
+        appendText(screen.text, s.c_str(), ux(x), uy(y), sx, sy, c, m);
+    };
+
+    const float width = std::min(static_cast<float>(w) - 80.f * S, static_cast<float>(h) * 1.2f);
+    const float pad = 56.f * S, inner = width - 2.f * pad;
+    const float bodyPx = 36.f * S, hintPx = 27.f * S, headPx = 52.f * S, lineGap = 1.25f;
+    const float bodySy = glyphScale(bodyPx), bodySx = bodySy * 0.77f;
+    const float hintSy = glyphScale(hintPx), hintSx = hintSy * 0.77f;
+    const auto wrap = [&](const std::string& s, float sx) {
+        std::vector<std::string> lines; std::string line, word;
+        const auto flush = [&] {
+            if (word.empty()) return;
+            if (!line.empty() && pixWidth(line + " " + word, sx) > inner) { lines.push_back(line); line.clear(); }
+            line += (line.empty() ? "" : " ") + word; word.clear();
+        };
+        for (char c : s) { if (c == ' ') flush(); else word += c; }
+        flush(); if (!line.empty()) lines.push_back(line);
+        return lines;
+    };
+    const auto body = wrap(t.body, bodySx), phase = wrap(t.phaseLine, bodySx), foot = wrap(t.footer, hintSx);
+    const bool progress = !t.percent.empty();
+    const float buttonsH = t.buttons.empty() ? 0.f : 110.f * S;
+    float content = 68.f * S;
+    if (progress) content += 56.f * S + 44.f * S + 18.f * S + 40.f * S + 30.f * S + hintPx * lineGap * static_cast<float>(foot.size());
+    else {
+        content += bodyPx * lineGap * static_cast<float>(body.size());
+        if (!foot.empty()) content += 24.f * S + hintPx * lineGap * static_cast<float>(foot.size());
+    }
+    content += buttonsH;
+    const float height = content + 2.f * pad;
+    const float px0 = (static_cast<float>(w) - width) * 0.5f;
+    const float py0 = std::max(24.f * S, (static_cast<float>(h) - height) * 0.5f - static_cast<float>(h) * 0.04f);
+
+    addWindowRect(screen.quads, 0.f, 0.f, static_cast<float>(w), static_cast<float>(h), theme::rgba(theme::kScrim));
+    rect(px0, py0, width, height, theme::rgba(theme::kFrameOuter));
+    rect(px0 + 3.f * S, py0 + 3.f * S, width - 6.f * S, height - 6.f * S, theme::rgba(theme::kFrame));
+    rect(px0 + 9.f * S, py0 + 9.f * S, width - 18.f * S, height - 18.f * S, theme::rgba(theme::kFrameLight));
+    rect(px0 + 12.f * S, py0 + 12.f * S, width - 24.f * S, height - 24.f * S, theme::rgba(theme::kListBody));
+    {   // name tab "Road Trip"
+        const std::string name = "Road Trip";
+        const float tabPad = 26.f * S, th = 52.f * S, sy = glyphScale(36.f * S), sx = sy * 0.77f;
+        const float tw = pixWidth(name, sx) + 2.f * tabPad, tx = px0 + 40.f * S, ty = py0 - th * 0.55f;
+        rect(tx, ty, tw, th, theme::rgba(theme::kFrameOuter));
+        rect(tx + 3.f * S, ty + 3.f * S, tw - 6.f * S, th - 6.f * S, theme::rgba(theme::kFrame));
+        textAt(name, tx + tabPad, ty + (th - 36.f * S) * 0.5f, sx, sy, theme::rgba(theme::kListSelected));
+    }
+
+    const std::array<float, 4> white = theme::rgba(theme::kListSelected), ink = theme::rgba(theme::kListText);
+    float y = py0 + pad;
+    textAt(t.heading, px0 + pad, y, glyphScale(headPx) * 0.77f, glyphScale(headPx), theme::rgba(theme::kCapGold));
+    y += 68.f * S;
+    const float x0 = px0 + pad;
+    const auto lines = [&](const std::vector<std::string>& ls, float sx, float sy, float px, const std::array<float, 4>& c) {
+        for (const auto& l : ls) { textAt(l, x0, y, sx, sy, c); y += px * lineGap; }
+    };
+    if (progress) {
+        for (const auto& l : phase) textAt(l, x0, y, bodySx, bodySy, white);
+        y += 56.f * S;
+        // 44*S gold pill; fraction < 0 = unmeasured, empty track.
+        rect(x0, y, inner, 44.f * S, theme::rgba(theme::kOutlineBlue));
+        rect(x0 + 2.f * S, y + 2.f * S, inner - 4.f * S, 40.f * S, theme::rgba(theme::kListBevelDark));
+        if (fraction > 0.0) {
+            const float fw = std::max(2.f * S, (inner - 4.f * S) * static_cast<float>(std::min(1.0, fraction)));
+            rect(x0 + 2.f * S, y + 2.f * S, fw, 40.f * S, theme::rgba(theme::kCapGold));
+            rect(x0 + 2.f * S, y + 2.f * S, fw, 20.f * S, kUiCapShine);
+        }
+        y += 44.f * S + 18.f * S;
+        textAt(t.percent, x0, y, bodySx, bodySy, white);
+        if (!t.eta.empty()) textAt(t.eta, x0 + inner - pixWidth(t.eta, bodySx), y, bodySx, bodySy, white);
+        y += 40.f * S + 30.f * S;
+        lines(foot, hintSx, hintSy, hintPx, white);
+    } else {
+        lines(body, bodySx, bodySy, bodyPx, white);
+        if (!foot.empty()) { y += 24.f * S; lines(foot, hintSx, hintSy, hintPx, ink); }
+    }
+    // Pill buttons, right-aligned; the focused one has the selection fill and the horn.
+    const int n = static_cast<int>(t.buttons.size());
+    float bx = px0 + width - pad;
+    const float bh = 68.f * S, gap = 40.f * S, padX = 40.f * S, by = py0 + height - pad + 10.f * S - bh;
+    for (int i = n - 1; i >= 0; --i) {
+        const float bw = pixWidth(t.buttons[static_cast<std::size_t>(i)], bodySx) + 2.f * padX;
+        const bool f = i == focus;
+        rect(bx - bw, by, bw, bh, theme::rgba(f ? theme::kSelectionTop : theme::kPrompt));
+        rect(bx - bw, by + bh * 0.5f, bw, bh * 0.5f, theme::rgba(f ? theme::kSelectionBottom : theme::kPrompt));
+        if (f) addHorn(screen.quads, m, ux(bx - bw - 10.f * S), uy(by + bh * 0.5f), us(28.f * S));
+        textAt(t.buttons[static_cast<std::size_t>(i)], bx - bw + padX, by + (bh - bodyPx) * 0.5f, bodySx, bodySy, white);
+        bx -= bw + gap;
+    }
+    return screen;
+}
+
 }  // namespace rt::native::preview
