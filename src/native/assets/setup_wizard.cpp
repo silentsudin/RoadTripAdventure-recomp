@@ -48,17 +48,15 @@ const Crc32Table kCrc32;
 } // namespace
 
 std::uint32_t crcFile(const std::filesystem::path& path) {
-    if (FILE* f = std::fopen(path.c_str(), "rb")) {
+    if (std::ifstream f{path, std::ios::binary}; f) {
         std::uint32_t crc = 0xFFFFFFFFu;
         // Heap, never stack: SDL's Android thread stacks are small and a 1 MiB
         // stack buffer overflowed crcFile at boot (Thor crash: "stack pointer
         // is in a non-existent map"). Desktop survived only on its 8 MB stack.
         thread_local std::vector<unsigned char> buffer(1u << 20);
-        std::size_t n;
-        while ((n = std::fread(buffer.data(), 1, buffer.size(), f)) != 0)
-            for (std::size_t i = 0; i < n; ++i)
+        while (f.read(reinterpret_cast<char*>(buffer.data()), buffer.size()) || f.gcount() != 0)
+            for (std::size_t n = static_cast<std::size_t>(f.gcount()), i = 0; i < n; ++i)
                 crc = (crc >> 8) ^ kCrc32.v[(crc ^ buffer[i]) & 0xFFu];
-        std::fclose(f);
         return crc ^ 0xFFFFFFFFu;
     }
     return 0xFFFFFFFFu;
@@ -256,7 +254,11 @@ Attempt runAttempt(SetupHost* host) {
             result.failure = true; result.error = failed.error;
             return result;
         }
-        setenv("RT_DISC", disc.c_str(), 1);  // every later disc reader expects the extracted directory
+#ifdef _WIN32
+        _putenv_s("RT_DISC", disc.string().c_str());
+#else
+        setenv("RT_DISC", disc.c_str(), 1);
+#endif
     } else disc = findDisc();
     if (disc.empty() || !hasExpectedBootElfCrc(disc / "SLUS_203.98")) { log("rom: invalid"); return result; }
 

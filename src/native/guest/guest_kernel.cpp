@@ -35,10 +35,12 @@ namespace {
 using UContext = ucontext_shim::Context;
 using ucontext_shim::getcontext;
 using ucontext_shim::makecontext;
+using ucontext_shim::releaseContext;
 using ucontext_shim::sigemptyset;
 using ucontext_shim::swapcontext;
 #else
 using UContext = ucontext_t;
+inline void releaseContext(UContext&) {}  // a system context owns no extra resource
 #endif
 
 // ---- KE_* codes and thread-status/wait-type bytes (oracle EeScheduler +
@@ -132,6 +134,18 @@ uint32_t g_intcMask = 0, g_dmacMask = 0;
 std::deque<Invocation> g_invoc;
 std::vector<int> g_retired;  // erase-after-swap (can't free a running stack)
 UContext g_pump{};
+// Thread records own a host context; releasing it where the record goes keeps
+// the Windows fibers finite over a session (a no-op with a system ucontext).
+void eraseThread(int id) {
+    auto it = g_threads.find(id);
+    if (it == g_threads.end()) return;
+    releaseContext(it->second.uc);
+    g_threads.erase(it);
+}
+void eraseAllThreads() {
+    for (auto& kv : g_threads) releaseContext(kv.second.uc);
+    g_threads.clear();
+}
 bool g_inInterrupt = false, g_resched = false;
 uint64_t g_micro = 0, g_vsyncTick = 0;
 bool g_bootPhasePending = false;
@@ -474,7 +488,7 @@ int32_t opDeleteThread(int id) {
     auto it = g_threads.find(id);
     if (it == g_threads.end()) return KE_UNKNOWN_THID;
     if (it->second.status != StDormant) return KE_NOT_DORMANT;
-    g_threads.erase(it);
+    eraseThread(id);
     return KE_OK;
 }
 
@@ -779,7 +793,7 @@ void kPumpToIdle() {
     EeRoundingGuard eeRounding;
     getcontext(&g_pump);
     for (;;) {
-        for (const int id : g_retired) g_threads.erase(id);
+        for (const int id : g_retired) eraseThread(id);
         g_retired.clear();
         if (!g_invoc.empty()) {
             // Handlers run on the pump stack with the would-be-next thread as
@@ -814,7 +828,7 @@ uint32_t kSemaCount() { return (uint32_t)g_sem.size(); }
 void kBootMainThread(uint32_t entry, bool bootPhaseGate) {
     EeRoundingGuard eeRounding;  // contexts created here must capture MXCSR=RZ
     kResetKernel();  // boot starts from a fresh kernel incl. the SIF boot-reg seed
-    g_threads.erase(kMainThreadId);
+    eraseThread(kMainThreadId);
     KThread t{};
     t.id = kMainThreadId; t.entry = entry;
     t.initPri = t.curPri = 127;  // idle-class like the oracle main thread
@@ -844,7 +858,7 @@ void seedSifRegs() {
 }
 
 void kResetKernel() {
-    g_threads.clear(); g_retired.clear(); g_sem.clear(); g_alarm.clear();
+    eraseAllThreads(); g_retired.clear(); g_sem.clear(); g_alarm.clear();
     g_intc.clear(); g_dmac.clear(); g_invoc.clear(); g_installs.clear();
     g_vsyncWaiters.clear();
     g_sifRegs.clear(); g_syscallOverride.clear(); g_sifCmdHandlers.clear();

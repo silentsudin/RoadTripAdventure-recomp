@@ -372,3 +372,34 @@ captures hash exactly like the system-ucontext build (`build/scratch/w16-linux/U
 The `RT_FAULT_BT` backtrace diagnostic is compiled out on Android. `gradlew assembleDebug` now
 produces an APK. Not verified: guest wait/resume and FP-sensitive code on real hardware — that needs
 the Thor.
+
+The shim also saves/restores **FPSR** (system ucontext does), and `guest_libs_mc`/`guest_mem` fall
+back to a portable path instead of `localtime_r`/`execinfo`. It is deterministic run to run, but not
+byte-identical to the system-ucontext build in the town census: 31 bytes differ at vb2679/2680, of
+which 27 lie inside the bytes the default build already mismatches against the oracle and 4 do not
+(two 16-bit words, the same value, at 0x40 and 0x54). Saving FPSR, preserving x18, and mirroring
+Darwin's 32-byte stack reserve each changed 0 of the 31, so the difference is not in the switch's
+saved register set; the town parity ledger stays on the system-ucontext build.
+
+## 8j. Windows x64 cross-build (2026-10-28) — compiles and links
+
+`scripts/native/windows_cross.sh` fetches the pinned llvm-mingw for the *host* (`scripts/fetch_llvm_mingw.py`
+picks the macOS/Linux/Windows release), builds SDL 3.4.18 static with
+`cmake/toolchains/llvm-mingw.cmake`, generates a `vulkan-1.dll` import archive from the app's
+undefined `vk*` symbols, and produces `rt-app.exe` (11 MB) with **both** renderers compiled in
+(`preview_vk.cpp`, `preview_vk`/`preview_gl.cpp`; the choice stays the runtime `RT_APP_RENDERER`).
+
+Windows has no `<ucontext.h>`, so `guest/ucontext_shim` grows a Win32 branch: one **fiber** per guest
+thread (`ConvertThreadToFiberEx`/`CreateFiberEx` with `FIBER_FLAG_FLOAT_SWITCH`, so MXCSR switches
+with the context as the system ucontext did), restarted threads get a fresh fiber. `guest_kernel.cpp`
+needs no change - the shim is force-enabled for Android and Windows.
+
+Two portability traps the script now handles: the host's `LDFLAGS` (Homebrew sets
+`-L.../lib/c++`) is baked into `CMAKE_EXE_LINKER_FLAGS` ahead of the mingw runtimes, so `-lc++`
+resolved to the host's Mach-O archive and the C++ runtime never linked (the toolchain clears the
+environment's `LDFLAGS`); and Ghidra's gen TUs spell `ssize_t`, which mingw only declares in
+`sys/types.h` (forced include `guest/win32_compat.h`).
+
+Not done: no Windows executable has been *run* here (no Wine on this host, and a cross Wine in a
+container would emulate x86-64 on arm64). Packaging (data dir, Vulkan loader policy) and a runtime
+`race@110` comparison against the macOS snapshot are still open.

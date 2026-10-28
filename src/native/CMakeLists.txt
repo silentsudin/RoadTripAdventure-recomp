@@ -19,9 +19,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(RT_GUEST_UCONTEXT_SHIM "Use the in-tree AArch64 guest ucontext shim" OFF)
-if(ANDROID)
-    set(RT_GUEST_UCONTEXT_SHIM ON CACHE BOOL "Use the in-tree AArch64 guest ucontext shim" FORCE)
+option(RT_GUEST_UCONTEXT_SHIM "Use the in-tree guest context shim (AArch64 asm, Win32 fibers)" OFF)
+if(ANDROID OR WIN32)
+    set(RT_GUEST_UCONTEXT_SHIM ON CACHE BOOL "Use the in-tree guest context shim (AArch64 asm, Win32 fibers)" FORCE)
 endif()
 
 # ---------------------------------------------------------------- warnings
@@ -145,6 +145,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp/guest_decls.inc")
     if(RT_GUEST_UCONTEXT_SHIM)
         target_sources(rt_guest PRIVATE guest/ucontext_shim.cpp)
         target_compile_definitions(rt_guest PRIVATE RT_GUEST_UCONTEXT_SHIM=1)
+    endif()
+    if(WIN32)
+        target_compile_options(rt_guest PRIVATE -include ${CMAKE_CURRENT_SOURCE_DIR}/guest/win32_compat.h)
     endif()
     file(GLOB RT_GUEST_GEN CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/guest/gen/*.cpp")
     # W12: the oracle recompiler replaces these 192 guest library functions with host

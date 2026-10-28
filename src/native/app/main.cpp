@@ -82,13 +82,26 @@ namespace guest { extern uint64_t g_diagCdReads, g_diagCdSectors; extern uint16_
 #include <sstream>
 #include <string_view>
 #include <string>
+#ifdef _WIN32
+#include <processthreadsapi.h>
+#else
 #include <sys/resource.h>
+#endif
 #include <thread>
 #include <unordered_map>
 #include <vector>
 
 namespace {
 constexpr VkMemoryPropertyFlags kHostMemory = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+int setEnv(const char* name, const char* value, int overwrite) {
+#ifdef _WIN32
+    if (!overwrite && std::getenv(name)) return 0;
+    return _putenv_s(name, value);
+#else
+    return setenv(name, value, overwrite);
+#endif
+}
 
 // The resolved family is app-global so future prompt renderers in this host
 // can read appGlyphFamily() at draw time rather than cache a stale pad family.
@@ -193,7 +206,7 @@ void androidBootstrapEnvironment() {
         if (split == std::string::npos || split == 0) continue;
         const std::string key = line.substr(0, split);
         if (key.find_first_of(" \t") != std::string::npos) continue;
-        (void)setenv(key.c_str(), line.substr(split + 1).c_str(), 1);
+        (void)setEnv(key.c_str(), line.substr(split + 1).c_str(), 1);
         ++loaded;
     }
     androidLog(ANDROID_LOG_INFO, "native env: " + std::to_string(loaded) + " entries from files/env.txt");
@@ -202,7 +215,7 @@ void androidBootstrapEnvironment() {
 
 void setDefaultEnv(const char* name, const std::string& value) {
     // Environment has precedence over settings.toml; only fill an absent key.
-    if (!std::getenv(name)) (void)setenv(name, value.c_str(), 0);
+    (void)setEnv(name, value.c_str(), 0);
 }
 
 void bootstrapSettings() {
@@ -264,12 +277,22 @@ void bootstrapSettings() {
 }
 
 double processCpuSeconds() {
+#ifdef _WIN32
+    FILETIME created{}, exited{}, kernel{}, user{};
+    if (!GetProcessTimes(GetCurrentProcess(), &created, &exited, &kernel, &user)) return 0.0;
+    const auto seconds = [](FILETIME value) {
+        ULARGE_INTEGER ticks{}; ticks.LowPart = value.dwLowDateTime; ticks.HighPart = value.dwHighDateTime;
+        return static_cast<double>(ticks.QuadPart) / 10'000'000.0;
+    };
+    return seconds(kernel) + seconds(user);
+#else
     rusage usage{};
     if (getrusage(RUSAGE_SELF, &usage) != 0) return 0.0;
     const auto seconds = [](const timeval& value) {
         return static_cast<double>(value.tv_sec) + static_cast<double>(value.tv_usec) / 1'000'000.0;
     };
     return seconds(usage.ru_utime) + seconds(usage.ru_stime);
+#endif
 }
 
 struct Presenter {
@@ -1609,7 +1632,7 @@ int main() {
             std::cerr << "Vulkan init: " << error << " -- retrying with GL presenter\n";
             SDL_DestroyWindow(window); window = createWindow(true);
             error.clear();
-            (void)setenv("RT_APP_RENDERER", "gl", 1);  // Vulkan is unusable: the scene renderer must be GL too, not a second Vulkan attempt
+            (void)setEnv("RT_APP_RENDERER", "gl", 1);  // Vulkan is unusable: the scene renderer must be GL too, not a second Vulkan attempt
             glPresenter = window ? rt::native::preview::glPresenterCreate(window, error) : nullptr;
             if (!glPresenter) { std::cerr << "GL init: " << (window ? error : SDL_GetError()) << "\n"; if (window) SDL_DestroyWindow(window); SDL_Quit(); return 1; }
             rt::native::preview::glPresenterResize(glPresenter, presenter.extent.width, presenter.extent.height);

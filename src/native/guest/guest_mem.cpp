@@ -9,8 +9,8 @@
 #include <unordered_map>
 #include <vector>
 
+#if !defined(__ANDROID__) && !defined(_WIN32)
 #include <dlfcn.h>   // RT_FAULT_BT symbolization (same as cd_trace_bt)
-#if !defined(__ANDROID__)
 #include <execinfo.h>
 #endif
 
@@ -118,9 +118,9 @@ void noteFault(uint32_t a) {
     uint32_t& c = ++faultMap()[a];
     if (c == 1 && std::getenv("RT_FAULT_BT")) {
         std::fprintf(stderr, "[faultbt] key=0x%x\n", a);
-#if defined(__ANDROID__)
-        // Android's bionic has no execinfo; faults remain counted and visible.
-        std::fprintf(stderr, "    <backtrace unavailable on Android>\n");
+#if defined(__ANDROID__) || defined(_WIN32)
+        // bionic and Windows have no execinfo; faults remain counted and visible.
+        std::fprintf(stderr, "    <backtrace unavailable on this platform>\n");
 #else
         void* frames[14];
         const int nFr = backtrace(frames, 14);

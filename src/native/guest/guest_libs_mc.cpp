@@ -157,7 +157,11 @@ static_assert(sizeof(McTblGetDir) == 64, "sceMcTblGetDir size mismatch");
 
 void writeMcDateTime(McDateTime& out, std::time_t v) {  // :280
     std::tm tm{};
+#if defined(_WIN32)
+    if (localtime_s(&tm, &v) != 0) { std::memset(&out, 0, sizeof(out)); return; }
+#else
     if (localtime_r(&v, &tm) == nullptr) { std::memset(&out, 0, sizeof(out)); return; }
+#endif
     out = McDateTime{0, (uint8_t)tm.tm_sec, (uint8_t)tm.tm_min, (uint8_t)tm.tm_hour,
                      (uint8_t)tm.tm_mday, (uint8_t)(tm.tm_mon + 1), (uint16_t)(tm.tm_year + 1900)};
 }

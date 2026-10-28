@@ -4,6 +4,7 @@
 #include "gameplay/camera.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <cstdio>
 
 namespace rt::native::gameplay {
