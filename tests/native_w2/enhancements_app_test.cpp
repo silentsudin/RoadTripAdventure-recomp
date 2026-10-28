@@ -22,11 +22,13 @@ int main() {
     const std::array<std::pair<const char*, int>, 3> ints{{
         {"RT_ENHANCE_SSAA", 4}, {"RT_ENHANCE_TARGET_HZ", 120}, {"RT_ENHANCE_PHYSICS_HZ", 30}}};
     for (const auto& [name, value] : ints) {
-        auto env = std::map<std::string, std::string>{{name, std::to_string(value)}};
-        ok &= check(env, [&](const EnhancementOptions& o) {
-            return o.ssaa == (name == std::string("RT_ENHANCE_SSAA") ? value : 1) &&
-                   o.target_hz == (name == std::string("RT_ENHANCE_TARGET_HZ") ? value : 0) &&
-                   o.physics_hz == (name == std::string("RT_ENHANCE_PHYSICS_HZ") ? value : 60) &&
+        const std::string key = name;  // clang 14 forbids capturing structured bindings; copies keep the checks identical
+        const int want = value;
+        auto env = std::map<std::string, std::string>{{key, std::to_string(want)}};
+        ok &= check(env, [&, key, want](const EnhancementOptions& o) {
+            return o.ssaa == (key == std::string("RT_ENHANCE_SSAA") ? want : 1) &&
+                   o.target_hz == (key == std::string("RT_ENHANCE_TARGET_HZ") ? want : 0) &&
+                   o.physics_hz == (key == std::string("RT_ENHANCE_PHYSICS_HZ") ? want : 60) &&
                    !o.log_fps && !o.fps_display;
         });
     }

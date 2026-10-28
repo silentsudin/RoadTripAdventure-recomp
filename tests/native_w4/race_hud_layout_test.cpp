@@ -76,11 +76,14 @@ struct Json {
     bool b = false;
     std::string str;
     std::vector<Json> arr;
-    std::vector<std::pair<std::string, Json>> obj;
+    // Parallel vectors: libstdc++ refuses std::pair with an incomplete element
+    // inside the type's own definition (libc++ tolerates it).
+    std::vector<std::string> objKeys;
+    std::vector<Json> objVals;
 
     const Json* get(const std::string& k) const {
-        for (const auto& kv : obj)
-            if (kv.first == k) return &kv.second;
+        for (std::size_t i = 0; i < objKeys.size(); ++i)
+            if (objKeys[i] == k) return &objVals[i];
         return nullptr;
     }
     const Json& operator[](const std::string& k) const {
@@ -120,7 +123,8 @@ struct JsonParser {
                 if (p >= s.size() || s[p] != ':') { ok = false; break; }
                 ++p;
                 Json v = value();
-                j.obj.emplace_back(k.str, std::move(v));
+                j.objKeys.push_back(k.str);
+                j.objVals.push_back(std::move(v));
                 ws();
                 if (p < s.size() && s[p] == ',') { ++p; continue; }
                 if (p < s.size() && s[p] == '}') { ++p; break; }

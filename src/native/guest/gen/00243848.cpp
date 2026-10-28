@@ -43,7 +43,7 @@ uint32_t pcVar2;
     break;
   case 0xf:
     pcVar2 = (*(uint32_t*)rtguest::G((uint32_t)(0x2f0814u + (uint32_t)(param_2 * 2) * 4)));
-  default:
+  default: ;
   }
   param_3 = param_3 + -1;
   if (param_3 == -1) {

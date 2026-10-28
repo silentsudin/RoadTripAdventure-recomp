@@ -22,6 +22,7 @@
 #include <cstring>
 #include <deque>
 #include <map>
+#include <unordered_map>  // diagnostics only (RT_FAULT_BT); no iteration, so determinism is untouched
 #include <vector>
 
 namespace rtguest {

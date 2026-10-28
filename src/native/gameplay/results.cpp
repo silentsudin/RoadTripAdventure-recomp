@@ -1,5 +1,6 @@
 #include "gameplay/results.h"
 
+#include <algorithm>
 #include <limits>
 
 namespace rt::native::gameplay {

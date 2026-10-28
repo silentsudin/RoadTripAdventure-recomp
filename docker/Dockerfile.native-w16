@@ -1,0 +1,23 @@
+FROM debian:bookworm
+
+ARG SDL_VERSION=3.4.18
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    ca-certificates clang cmake git make ninja-build pkg-config \
+    libasound2-dev libdbus-1-dev libdecor-0-dev libegl1-mesa-dev libgl1-mesa-dev \
+    libibus-1.0-dev libpulse-dev libwayland-dev libx11-dev libxcursor-dev libxext-dev \
+    libxfixes-dev libxi-dev libxkbcommon-dev libxrandr-dev libxss-dev libxtst-dev \
+    libvulkan-dev mesa-utils mesa-vulkan-drivers vulkan-tools wayland-protocols xvfb \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN git clone --depth 1 --branch release-${SDL_VERSION} https://github.com/libsdl-org/SDL.git /tmp/SDL \
+ && cmake -S /tmp/SDL -B /tmp/SDL-build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=/opt/sdl3 -DSDL_TEST_LIBRARY=OFF \
+ && cmake --build /tmp/SDL-build -j2 \
+ && cmake --install /tmp/SDL-build \
+ && rm -rf /tmp/SDL /tmp/SDL-build
+
+ENV PATH=/opt/sdl3/bin:$PATH \
+    PKG_CONFIG_PATH=/opt/sdl3/lib/pkgconfig \
+    CMAKE_PREFIX_PATH=/opt/sdl3 \
+    LD_LIBRARY_PATH=/opt/sdl3/lib

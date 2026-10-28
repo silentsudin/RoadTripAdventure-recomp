@@ -310,3 +310,32 @@ screen), GL4.5-only features (`glClipControl`, DSA, `GL_ARB_buffer_storage`: kee
   Resize follows the existing `SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED` -> `recreateSwapchain` path on both presenters.
 - Shaders (desktop 330 core and ES 300 prologues) validated with glslc via a location/version shim (`build/scratch/w16-gl/es-check/`);
   Android CMake branch now builds `present_gl.cpp`/`preview_gl.cpp` and links `GLESv3` + `EGL`. No NDK build/device run.
+
+## 8g. Linux build (2026-10-28) — first verified Linux compile and run
+
+Recipe: `scripts/native/linux_w16.sh` + `docker/Dockerfile.native-w16` (Debian bookworm, clang,
+CMake/Ninja, SDL 3.4.18 built from source, Vulkan loader/headers, Mesa lavapipe and Mesa GL/EGL,
+X11 + Xvfb). The host's extracted disc folder is mounted read-only at `/disc` and passed as
+`RT_DISC` — no game data is baked into the image, as everywhere else.
+
+Verified: the app, `rt_guest` (all 1542 translated TUs) and the test binaries build with clang 14 /
+libstdc++ 12; 8/8 disc-free tests pass (`native_assets_settings_test`, `w14_ui_parity`, …); the
+headless race smoke runs on lavapipe and is run-to-run byte-identical; the Vulkan presenter and the
+GL presenter both come up under Xvfb with software Mesa (`RT_APP_RENDERER=vulkan|gl`).
+
+Cross-platform picture, with the same disc: vs the macOS golden `closeout-a.ppm` 1,403 of 480,000
+pixels differ (0.29 %, worst 245 on thin glyph/needle edges; the differing cells are the HUD text,
+the speedometer ticks and the horizon edge). That is FONTE/gauge quad rounding and float codegen,
+not structure — the same class as the GL-vs-Vulkan ledger in 8a. Linux run-to-run is exact.
+
+Portability fixes the Linux lane forced (each fixes a clang 14 / libstdc++ error): `<unordered_map>`
+in `guest_kernel.cpp`; a bare label ending a block needed a statement in three translated TUs
+(`transliterate.py` now emits the `;` so a regen keeps it); `<cstdio>` and `<algorithm>` in
+`gameplay/camera.cpp` and `gameplay/results.cpp`; structured-binding lambda captures replaced with
+copies in `tests/native_w2/enhancements_app_test.cpp`; and parallel key/value vectors in
+`tests/native_w4/race_hud_layout_test.cpp` (libstdc++ rejects `std::pair` with an incomplete
+element inside its own struct).
+
+Not covered by the container: physical Linux GPU drivers, handheld GLES behaviour, audio devices
+and the second-screen presentation display. `RT_NATIVE_VULKAN`/`RT_NATIVE_GL` CMake options from
+§ 8 do not exist; renderer choice is the runtime `RT_APP_RENDERER`, which is what the lanes test.

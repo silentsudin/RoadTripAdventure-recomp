@@ -113,7 +113,7 @@ LAB_00224004:
       }
     }
     else {
-switchD_00223df4_caseD_4:
+switchD_00223df4_caseD_4: ;
     }
     iVar4 = iVar4 + 2;
     if (0x7f < iVar4) {

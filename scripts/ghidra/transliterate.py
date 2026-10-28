@@ -987,6 +987,10 @@ def transliterate(path: Path, report: dict,
             if not re.search(r"@@\d+@@", body):
                 break
 
+    # Ghidra can end a block with a bare label (a switch case whose body is empty);
+    # C++20 needs a statement after it, so clang 14+ (Linux) rejects `label:\n}`.
+    body = re.sub(r"(?m)^(\s*)(\w+):[ \t]*\n(\s*)\}", r"\1\2: ;\n\3}", body)
+
     m = re.search(r"(\w+)\s*\(", sig.split("\n", 1)[0])
     fname = m.group(1) if m else "sub_" + addr
     report["names"][addr] = fname

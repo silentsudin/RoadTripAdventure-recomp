@@ -50,7 +50,7 @@ uint32_t auStack_70 = rtguest::allocFrame(32);
         param_2 = param_2 + 1;
         bVar2 = (*(int8_t*)rtguest::G((uint32_t)param_2));
         if (bVar2 == 10) break;
-LAB_0023a988:
+LAB_0023a988: ;
       } while (bVar2 < 0x20);
       iVar7 = iVar7 + -1;
     } while (iVar7 != -1);
