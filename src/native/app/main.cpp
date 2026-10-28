@@ -2265,8 +2265,7 @@ int main() {
                                           .resultsHoldFrames = autopilotHoldFrames});
     if (autopilotEnabled)
         std::cout << "rt-app autopilot: enabled results-hold=" << autopilotHoldFrames << "\n";
-    rt::native::gameplay::OverlayModel perfOverlay(true);
-    std::string perfOverlayText;
+    std::vector<rt::native::gameplay::OverlaySegment> perfSegments;
     double nextPerfWindow = monotonicSeconds() + perf.windowSeconds();
     auto lastPresent = std::chrono::steady_clock::now();
     int effectiveInterpRenderRate = interpRenderRate;
@@ -3493,12 +3492,45 @@ int main() {
                                                : (hudArt.speedDial
                                                       ? std::vector<rt::native::preview::HudQuad>{}
                                                       : rt::native::preview::townClockTextQuads(snapshot.clock, w, h));
-                                if (perfOverlayEnabled && !perfOverlayText.empty()) {
-                                    // The HUD's ground-level overlay precedent uses UI y=6;
-                                    // keep this opt-in row in that slot and create no quads
-                                    // unless both FONTE HUD text and the perf overlay are live.
-                                    rt::native::preview::appendFonteText(textQuads, perfOverlayText.c_str(), 6.f, 6.f,
-                                                                         {1.f, 1.f, 1.f, .95f}, w, h);
+                                if (!perfSegments.empty()) {
+                                    // Recomp pill (PerfOverlay.cpp:64-95): bottom-left, x=16*S,
+                                    // bottom=12*S, rounded corners approximated by square ones.
+                                    const float S = std::max(.5f, static_cast<float>(h) / 1080.f);
+                                    const float padX = 14.f * S, gap = 22.f * S, rim = std::max(1.f, 2.f * S);
+                                    std::vector<rt::native::preview::HudQuad> row;
+                                    float cursor = 0.f, rowH = 0.f;
+                                    for (std::size_t i = 0; i < perfSegments.size(); ++i) {
+                                        const auto& seg = perfSegments[i];
+                                        const std::array<float, 4> colour =
+                                            seg.warn ? std::array<float, 4>{1.f, .541f, .239f, 1.f}
+                                                     : (i == 0 ? std::array<float, 4>{.973f, .784f, .22f, 1.f}
+                                                               : std::array<float, 4>{1.f, 1.f, 1.f, 1.f});
+                                        auto q = rt::native::preview::fonteTextQuads(seg.text.c_str(), 0.f, 0.f, colour, w, h);
+                                        if (q.empty()) continue;
+                                        const float x0 = q.front().x, y0 = q.front().y;
+                                        const float end = q.back().x + q.back().width;
+                                        for (auto& g : q) { g.x += cursor - x0; g.y -= y0; }
+                                        rowH = q.front().height;
+                                        cursor += (end - x0) + gap;
+                                        row.insert(row.end(), q.begin(), q.end());
+                                    }
+                                    if (!row.empty()) {
+                                        const float textW = cursor - gap;
+                                        const float pillW = textW + 2.f * padX, pillH = rowH + 16.f * S;
+                                        const float px = 16.f * S, py = static_cast<float>(h) - 12.f * S - pillH;
+                                        for (auto& g : row) { g.x += px + padX; g.y += py + (pillH - rowH) * .5f; }
+                                        const std::array<float, 4> navy{.043f, .071f, .251f, .72f}, blue{.173f, .424f, .91f, 1.f};
+                                        const std::vector<rt::native::preview::ScreenQuad> pill{
+                                            {px, py, pillW, pillH, blue},
+                                            {px + rim, py + rim, pillW - 2.f * rim, pillH - 2.f * rim, navy}};
+                                        std::vector<std::uint8_t> pillPixels;
+                                        if (rt::native::preview::previewRender2D(renderer, pill, {0.f, 0.f, 0.f, 0.f}, pillPixels, error))
+                                            compositeOver(pixels, pillPixels);
+                                        // previewRender2D may have unbound the glyph atlas.
+                                        std::string atlasErr;
+                                        (void)rt::native::preview::previewUploadFontAtlas(renderer, atlasTex, atlasErr);
+                                        textQuads.insert(textQuads.end(), row.begin(), row.end());
+                                    }
                                 }
                                 if (scoreHudEnabled && !hudTextWarned) {
                                     hudTextWarned = true;
@@ -3650,7 +3682,14 @@ int main() {
         if (perfNow >= nextPerfWindow) {
             while (perfNow >= nextPerfWindow) nextPerfWindow += perf.windowSeconds();
             if (const auto window = perf.lastWindow(); window && !window->warmup) {
-                perfOverlayText = perfOverlay.text(*window);
+                {
+                    namespace gp = rt::native::gameplay;
+                    gp::PerfOverlayLevel level = gp::PerfOverlayLevel::Off;
+                    if (const auto* row = optionsModel.find("display.perf_overlay"))
+                        level = gp::perfOverlayLevelFromValue(optionsModel.valueOf(*row, optionsStore));
+                    if (level == gp::PerfOverlayLevel::Off && perfOverlayEnabled) level = gp::PerfOverlayLevel::FrameRate;
+                    perfSegments = gp::recompOverlayRow(*window, level);
+                }
                 if (perfLogEnabled) {
                     const auto integer = [](double value) { return std::to_string(static_cast<long>(std::floor(std::max(0.0, value) + .5))); };
                     const auto decimal = [](double value) {

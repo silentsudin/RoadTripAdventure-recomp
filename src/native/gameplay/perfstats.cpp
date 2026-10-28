@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <sstream>
 
 namespace rt::native::gameplay {
@@ -122,6 +123,38 @@ std::string OverlayModel::text(const PerfWindow& window) const {
         out += ' ';
         out += pair.value;
     }
+    return out;
+}
+
+namespace {
+template <typename... A>
+std::string fmt(const char* format, A... args) {
+    char buf[96];
+    std::snprintf(buf, sizeof(buf), format, args...);
+    return buf;
+}
+}  // namespace
+
+PerfOverlayLevel perfOverlayLevelFromValue(const std::string& value) {
+    if (value == "Frame rate") return PerfOverlayLevel::FrameRate;
+    if (value == "Detailed") return PerfOverlayLevel::Detailed;
+    return PerfOverlayLevel::Off;
+}
+
+std::vector<OverlaySegment> recompOverlayRow(const PerfWindow& w, PerfOverlayLevel level) {
+    std::vector<OverlaySegment> out;
+    if (level == PerfOverlayLevel::Off) return out;
+    const bool full = w.logicRate >= 59.0;
+    out.push_back({fmt("%.0f fps", w.renderFps), !full});
+    if (w.renderFps > w.logicRate + 1.0) out.push_back({fmt("game %.0f", w.logicRate), !full});
+    if (level != PerfOverlayLevel::Detailed) return out;
+    out.push_back({fmt("worst %.1f ms", w.worstFrameMs), w.worstFrameMs > 20.0});
+    // No VU1/GS counters natively: shown only if a source ever fills them.
+    if (w.vu1Busy >= 0 && w.gsBusy >= 0) out.push_back({fmt("VU1 %.0f%%  GS %.0f%%", w.vu1Busy, w.gsBusy), false});
+    out.push_back({fmt("CPU %.0f%%", w.cpuPercent), false});
+    if (w.gpuBusy >= 0) out.push_back({fmt("GPU %d%% @ %d MHz", w.gpuBusy, w.gpuMHz), false});
+    // FONTE has no degree sign: approved substitution (ui-parity.md text-parity).
+    if (w.batteryC > 0) out.push_back({fmt("Battery %.0f  deg C", w.batteryC), false});
     return out;
 }
 

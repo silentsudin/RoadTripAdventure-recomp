@@ -21,6 +21,17 @@ struct PerfWindow {
     std::uint64_t presents = 0;
     std::uint64_t logicSteps = 0;
     bool warmup = false;
+    // Recomp-overlay fields the native app has no counters for yet; negative =
+    // unknown, and unknown segments are never drawn.
+    double vu1Busy = -1.0, gsBusy = -1.0, batteryC = -1.0;
+    int gpuBusy = -1, gpuMHz = -1;
+};
+
+// Options > Performance overlay values (settings.cpp display.perf_overlay).
+enum class PerfOverlayLevel { Off, FrameRate, Detailed };
+struct OverlaySegment {
+    std::string text;
+    bool warn = false;  // recomp orange (below full speed / worst frame > 20 ms)
 };
 
 struct PerfTotals {
@@ -93,5 +104,9 @@ public:
 private:
     bool enabled_ = false;
 };
+
+// The recomp PerfOverlay.cpp:19-96 row: segments in its order, same templates.
+[[nodiscard]] std::vector<OverlaySegment> recompOverlayRow(const PerfWindow& window, PerfOverlayLevel level);
+[[nodiscard]] PerfOverlayLevel perfOverlayLevelFromValue(const std::string& value);
 
 }  // namespace rt::native::gameplay
