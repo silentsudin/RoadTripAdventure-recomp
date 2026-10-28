@@ -91,3 +91,28 @@ Coordinator (me) owns: shim, CMake, merges, symbol registry, verification commit
 `scripts/ported_count.py`: counts `// guest:0xXXXXXXXX` markers in `src/native/guest/`
 against the 1542 denominator; per-gate column maintained in `docs/native-reference/
 wave-board` rows W10+.
+
+## W13 parity status (2026-10-28)
+
+**Proven (committed on `re/native-complete`):** boot → attract → race → town route.
+Race EE-RAM census 152 B / 3 pages and 22/22 scanouts bit-exact against the oracle;
+town scanouts 2650/2670/2674/2678 100% exact; town RAM byte-identical at vb2678; the
+race@110 determinism pair is byte-identical. The census harness, recipes and per-cycle
+measurements live in `build/scratch/parity/w13flow/CENSUS.md` (derived, never committed).
+
+**Open — town uninitialized-residue class.** vb2679 is 539 B / 9 pages and vb2680
+4982 B. The first divergent byte is car0+0x1cc, and seven line-by-line MIPS audits
+(`gs_controls_car_update` 0x21a310, `AcquireVehicleInput` 0x21a990,
+`CalculateAiSteeringAndThrottle` 0x2508e0 including Ghidra's two "unreachable block"
+regions, the waypoint state, the ring/order path, FPU mode) found **no** transcription
+defect; forcing the oracle-implied control mask moved 539 B → 531 B, so the mask is 8 B of
+the remainder. The rest is the characterised residue: the RPC block 0x175e880 (SndRpcCmd22
+reads its own stale frame slots), the 0x1fff stack scatter, and the 0x1786 task descriptors.
+Closing it is a **frame-slot-history modelling task**, not a bug hunt — do not reopen it as
+more audits of the same TUs.
+
+**Systemic translator defect fixed:** Ghidra drops pass-through a-register call arguments;
+10 TUs were fixed with MIPS evidence and are in `PROTECTED_HAND` (a regen cannot undo them),
+and `scripts/ghidra/callargs.py` recovers them from the ELF (23 fills; pointer-scaling and
+literal-argument sites stay hand-held). Anything regenerated that shows a short argument list
+should be re-checked against `callargs.py` before it is trusted.
