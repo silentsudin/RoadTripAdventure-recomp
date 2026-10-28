@@ -5,7 +5,10 @@
 namespace guest {
 
 // sig: param_2/param_4 are pseudocode long (fn/0021a088.c:8; param_2 < 0 at :64 dead as uint32), int32_t keeps sign
-uint32_t UpdateSteeringDamping(uint32_t param_1, int32_t param_2, uint32_t param_3, int32_t param_4, uint32_t param_5, ...) {
+// sig: param_3 (input angle) and param_5 (target) are signed in the MIPS (bltz/slt
+// on them at 0x21a0xx); as uint32 the "param_5 < 0" arm was dead and left commands
+// took the positive ramp. int32_t keeps the sign.
+uint32_t UpdateSteeringDamping(uint32_t param_1, int32_t param_2, int32_t param_3, int32_t param_4, int32_t param_5, ...) {
   rtguest::FrameGuard rt_fg(0);
   bool bVar1;
   int iVar2;
@@ -26,7 +29,13 @@ uint32_t UpdateSteeringDamping(uint32_t param_1, int32_t param_2, uint32_t param
         if (iVar3 < -0x200) {
           iVar3 = -0x200;
         }
-        if (iVar3 - (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1d2))) < 9) {
+        // Issue #24 fix (rtguest::steerBiasFix): the descending arm's closeness test is
+        // the positive arm's mirrored the wrong way - iVar3 - cmd is negative while the
+        // command is above its negative target, so retail snaps to the target in one
+        // tick. The fix compares cmd - iVar3, so both sides step 8 a tick.
+        if ((rtguest::steerBiasFix()
+                 ? (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1d2))) - iVar3
+                 : iVar3 - (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1d2)))) < 9) {
 LAB_0021a150:
           (*(int16_t*)rtguest::G((uint32_t)(uint32_t)(param_1 + 0x1d2))) = (short)iVar3;
         }

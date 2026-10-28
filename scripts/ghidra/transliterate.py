@@ -51,7 +51,11 @@ PROTECTED_HAND = {"002793d0", "0020ed30", "0020cdc0", "002092d8", "002173d0", "0
                    # W13c19: Ghidra-dropped pass-through args + one delay-slot store; regen would
                    # reintroduce the defects (see build/scratch/parity/w-c18wave/CYCLE19.md).
                    "00207f88", "002085b0", "0021ca90", "00223b30", "00242fe8", "002496c8",
-                   "0024eb10", "0024ee30", "00253448", "00272ce0"}
+                   "0024eb10", "0024ee30", "00253448", "00272ce0",
+                   # W17 (#24): UpdateSteeringDamping - signed param_3/param_5 (the
+                   # "param_5 < 0" arm was dead as unsigned) and the option-guarded
+                   # descending-arm closeness test that fixes the left-steer snap.
+                   "0021a088"}
 
 def new_report() -> dict:
     return {k: ([] if k != "names" else {}) for k in REPORT_KEYS}

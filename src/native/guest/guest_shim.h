@@ -47,6 +47,14 @@ inline uint32_t getS32(int k) { return (uint32_t)gS[k]; }
 inline void setS32(int k, uint32_t v) { gS[k] = (uint64_t)(int64_t)(int32_t)v; }  // EE 32-bit ops sign-extend
 extern uint8_t kScratch[RT_SCRATCH_SIZE];
 
+// Issue #24 "Fix steering bias" (Options > Graphics): retail's UpdateSteeringDamping
+// compares the descending arm's target with the steering command the wrong way round,
+// so a left command snaps to its target in one tick while a right command steps +8 a
+// tick. Off = retail (parity hashes unchanged); on = both arms step. Set from the
+// settings store, read by gen/0021a088.cpp.
+inline bool gSteerBiasFix = false;
+inline bool steerBiasFix() { return gSteerBiasFix; }
+
 // One fault counter per unmapped address class; G() never traps the host.
 struct Fault { uint32_t addr; uint32_t count; };
 const Fault* faults(size_t* n);

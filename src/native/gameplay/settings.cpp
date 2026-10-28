@@ -550,6 +550,11 @@ OptionsModel::OptionsModel() {
         {"Dynamic", "Classic", "Off"}, A::RequiresGamepad, S::HostGluePending, {}, kGlue));
     options_.push_back(enumOpt("controllers.strength", "Strength", P::Controllers,
         {"100%", "75%", "50%", "25%", "Off"}, A::RequiresGamepad, S::HostGluePending, {}, kGlue));
+    // Issue #24. Wired: app/main.cpp reads it into rtguest::gSteerBiasFix, gen/0021a088.cpp
+    // uses it. Default off = retail (its left command snaps to lock in one tick).
+    options_.push_back(toggle("graphics.steering_bias", "Fix steering bias", P::Graphics, false,
+        A::Always, S::HostGluePending, {},
+        "issue #24: mirrors the descending steering ramp so left steering steps like right"));
 
     // Retail rows: the recomp catalog above, the Adventure-only radio, and the state actions.
     for (OptionSpec& spec : options_)

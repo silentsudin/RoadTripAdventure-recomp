@@ -2153,6 +2153,13 @@ int main() {
     rt::native::gameplay::SettingsStore optionsStore(rt::native::gameplay::defaultSettingsPath(appDataDirectory()));
     (void)optionsStore.load();
     const rt::native::gameplay::OptionsModel optionsModel;
+    // Issue #24 "Fix steering bias" (Options > Graphics): the guest steering ramp reads
+    // this flag (gen/0021a088.cpp). Off = retail, so the parity hashes are unchanged.
+    const auto applySteeringBias = [&] {
+        if (const auto* row = optionsModel.find("graphics.steering_bias"))
+            rtguest::gSteerBiasFix = optionsModel.valueOf(*row, optionsStore) == "on";
+    };
+    applySteeringBias();
     rt::native::preview::OptionsPanelState optionsPanelState;
     // RT_APP_MENU_SCREEN=options|controllers opens that panel (screenshot/harness hook).
     if (const char* screen = std::getenv("RT_APP_MENU_SCREEN");
@@ -3828,6 +3835,7 @@ int main() {
                     if (const auto* row = optionsModel.find("display.perf_overlay"))
                         level = gp::perfOverlayLevelFromValue(optionsModel.valueOf(*row, optionsStore));
                     if (level == gp::PerfOverlayLevel::Off && perfOverlayEnabled) level = gp::PerfOverlayLevel::FrameRate;
+                    applySteeringBias();  // the Options row may have changed while the menu held the game
                     perfSegments = gp::recompOverlayRow(*window, level);
                 }
                 if (perfLogEnabled) {
