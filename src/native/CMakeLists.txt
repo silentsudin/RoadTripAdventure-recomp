@@ -45,6 +45,7 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/nav_route_bridge.cpp # NavPath centerline -> authored RaceRoute zones
     gameplay/world_layout.cpp    # authentic fixed-point <-> tile-id <-> local-unit mapping (proven formulas)
     preview/ui_menu.cpp           # title/menu/options screen builders per ui-parity.md
+    preview/second_screen.cpp     # second-screen Map/Notebook/Radio pages (ui-parity.md "Second screen")
     preview/title_ui.cpp         # W6-02 title New Game / Continue UI state (W8-01 wiring)
     assets/title_screen.cpp       # runtime SYS/TITLE.GSL backdrop decoder
     assets/hud_art.cpp            # runtime race HUD art (METER dial + SCORE atlas)
@@ -928,3 +929,10 @@ target_include_directories(w14_ui_parity PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_features(w14_ui_parity PRIVATE cxx_std_20)
 target_compile_definitions(w14_ui_parity PRIVATE RT_W14_REPO_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/../..")
 target_compile_options(w14_ui_parity PRIVATE ${RT_NATIVE_WARN_OPTIONS} -UNDEBUG)
+
+# W14.1b second-screen page model + builder test (also writes the rich slot for the headless shots).
+add_executable(w14_second_screen_test "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_ui/w14_second_screen_test.cpp")
+target_link_libraries(w14_second_screen_test PRIVATE rt_native_assets)
+target_include_directories(w14_second_screen_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_features(w14_second_screen_test PRIVATE cxx_std_20)
+target_compile_options(w14_second_screen_test PRIVATE ${RT_NATIVE_WARN_OPTIONS} -UNDEBUG)

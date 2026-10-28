@@ -338,6 +338,7 @@ public:
     void reset();
 
     [[nodiscard]] SecondScreenPage page() const { return page_; }
+    [[nodiscard]] bool overridden() const { return override_; }  // a tab tap is in force
     [[nodiscard]] bool showsMap() const { return secondScreen_ && page_ == SecondScreenPage::Map; }
     // Hand-back rule for the glue: false => the main window may draw a map
     // (its own mode decides whether it does; env RT_APP_MAP_ENHANCED).

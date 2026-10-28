@@ -1038,10 +1038,22 @@
     "persisted_keys": [],
     "default": "off",
     "gating": "diagnostic (W14.1b)",
-    "owners": ["src/native/app/main.cpp", "src/native/preview/ui_menu.cpp"],
+    "owners": ["src/native/app/main.cpp", "src/native/preview/ui_menu.cpp", "src/native/preview/second_screen.cpp"],
     "docs": ["code:src/native/app/main.cpp", "docs/native-reference/ui-parity.md"],
     "status": "oracle-only",
-    "notes": "W14.1b: headless menu shot: MENU state + MENU_SCREEN=options|controllers renders the parity panel to RT_APP_SNAPSHOT (native twin of the recomp RT_MENU_SHOT)"
+    "notes": "W14.1b: headless menu shot: MENU state + MENU_SCREEN=options|controllers renders the parity panel, second-map|second-notebook|second-radio the second-screen page, to RT_APP_SNAPSHOT (native twin of the recomp RT_MENU_SHOT)"
+  },
+  {
+    "id": "second_debug",
+    "ledger": "-",
+    "env_vars": ["RT_SECOND_DEBUG"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "diagnostic (W14)",
+    "owners": ["src/native/app/main.cpp"],
+    "docs": ["code:src/native/app/main.cpp", "docs/native-reference/ui-parity.md"],
+    "status": "wired",
+    "notes": "W14: RT_SECOND_DEBUG=1 logs the recomp's [second] page-decision line (racing/town/drive/here/haveMap/up/page/auto/chosen | state words) when it changes"
   },
   {
     "id": "vif_hist",

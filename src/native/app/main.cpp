@@ -48,6 +48,7 @@ namespace guest { extern uint64_t g_diagCdReads, g_diagCdSectors; extern uint16_
 #include "preview/race_hud.h"
 #include "preview/rot_quad.h"
 #include "preview/title_ui.h"
+#include "preview/second_screen.h"
 #include "preview/ui_menu.h"
 #include "runtime/guest_facade.h"
 #include "runtime/testsocket.h"
@@ -1463,7 +1464,9 @@ std::vector<rt::native::preview::ScreenQuad> menuQuads(
 rt::native::preview::UiScreen buildLiveMenuScreen(
     AppState state, const rt::native::gameplay::MenuFlow& flow,
     const rt::native::preview::TitleUiState& titleUi, int frames, int width, int height,
-    const rt::native::preview::PausePanel* optionsPanel = nullptr) {
+    const rt::native::preview::PausePanel* optionsPanel = nullptr,
+    const rt::native::preview::UiScreen* secondScreen = nullptr) {
+    if (secondScreen) return *secondScreen;  // RT_APP_MENU_SCREEN=second-*: the second display's page
     if (state == AppState::LOAD) {
         auto draw = titleUi.emit(width, height);
         return {std::move(draw.quads), std::move(draw.text)};
@@ -2025,12 +2028,14 @@ int main() {
     // One lap lets the headless host exercise the complete authored session
     // loop promptly; GameSession enables race mode for its owned GameLoop.
     rt::native::gameplay::GameSession session(1);
+    bool adventureLoaded = false;  // a slot was restored: the second screen's Notebook has an Adventure to show
     if (const auto slot = envSlot("RT_APP_LOAD_SLOT")) {
         rt::native::gameplay::SaveData loaded{};
         std::string error;
         if (slotStore.load(*slot, loaded, &error)) {
             auto& progress = const_cast<rt::native::gameplay::SaveData&>(session.progress());
             progress = std::move(loaded);
+            adventureLoaded = true;
             std::cout << "[save] loaded slot " << *slot << " (money " << progress.money
                       << ", radio " << static_cast<int>(progress.radioStation) << ")\n";
         } else {
@@ -2154,6 +2159,28 @@ int main() {
         menuFlow.screen = rt::native::gameplay::MenuScreen::OPTIONS;
         optionsPanelState.controllers = std::strcmp(screen, "controllers") == 0;
     }
+    // RT_APP_MENU_SCREEN=second-map|second-notebook|second-radio renders that second-screen page
+    // (preview/second_screen.h) instead of the title/menu: it forces MENU, picks the page like a
+    // tap on its tab, and logs the recomp's [second] state line (its RT_SECOND_DEBUG twin).
+    std::optional<rt::native::gameplay::SecondScreenPage> forcedSecondPage;
+    if (const char* screen = std::getenv("RT_APP_MENU_SCREEN")) {
+        using rt::native::gameplay::SecondScreenPage;
+        if (std::strcmp(screen, "second-map") == 0) forcedSecondPage = SecondScreenPage::Map;
+        else if (std::strcmp(screen, "second-notebook") == 0) forcedSecondPage = SecondScreenPage::Notebook;
+        else if (std::strcmp(screen, "second-radio") == 0) forcedSecondPage = SecondScreenPage::Radio;
+        if (forcedSecondPage && state != AppState::MENU) {
+            state = AppState::MENU;
+            menuFlow.screen = rt::native::gameplay::MenuScreen::MODE_SELECT;
+        }
+    }
+    rt::native::gameplay::SecondScreenPages secondPages;
+    rt::native::preview::SecondScreenData secondData;
+    rt::native::preview::SecondScreenLapTracker secondLaps;
+    rt::native::preview::SecondScreenStampWatch secondStamps;
+    rt::native::preview::SecondScreenThrottle secondThrottle;
+    rt::native::preview::UiScreen secondCache;  // the panel keeps its last picture between throttled draws
+    std::string secondLastLog;
+    std::optional<rt::native::gameplay::SecondScreenPage> secondTap = forcedSecondPage;
     rt::native::preview::TitleAction titleAction = rt::native::preview::TitleAction::None;
     bool loggedAppState = false, loggedSessionState = false;
     AppState lastLoggedAppState = state;
@@ -3555,6 +3582,65 @@ int main() {
                     panelContext.gamepadPresent = gamepad != nullptr;
                     const auto optionsPanel = rt::native::preview::buildOptionsPanel(
                         optionsModel, optionsStore, panelContext, optionsPanelState);
+                    if (forcedSecondPage) {
+                        namespace pv = rt::native::preview;
+                        const double secondNow = monotonicSeconds();
+                        const bool touched = secondTap.has_value();
+                        if (secondThrottle.due(secondNow, touched)) {
+                            const auto& progress = session.progress();
+                            secondData = pv::SecondScreenData{};
+                            if (adventureLoaded) pv::fillSecondScreenFromSave(secondData, progress);
+                            secondData.racing = session.state() == rt::native::gameplay::SessionState::RACE;
+                            secondData.inTown = session.state() == rt::native::gameplay::SessionState::EXPLORE && adventureLoaded;
+                            secondData.canDrive = secondData.inTown;
+                            secondData.mapHere = true;
+                            secondData.menuOpen = false;
+                            secondData.stateWords = "scene " + std::to_string(progress.scene());
+                            secondPages.tick({secondData.racing, secondData.mapUp}, secondTap);
+                            secondTap.reset();
+                            secondStamps.observe(secondData.stamps, secondNow);
+                            if (const int stamp = secondStamps.recent(secondNow)) {
+                                secondData.newStamp = stamp;
+                                secondData.newStampSince = secondStamps.since(secondNow);
+                            }
+                            secondData.radioAvailable = adventureLoaded;
+                            if (secondData.racing) {
+                                // Lap column from the logic snapshot: the countdown is the hold before the first
+                                // frame counts (elapsedFrames == 0), then "GO!" for the first 1.5 s.
+                                secondLaps.note(snapshot.lap, snapshot.elapsedFrames, snapshot.bestLap, secondNow);
+                                secondData.lap = snapshot.lap + 1;
+                                secondData.laps = session.totalLaps();
+                                secondData.finished = snapshot.finished;
+                                secondData.lastLapFrames = secondLaps.last();
+                                secondData.bestBeforeLast = secondLaps.bestBeforeLast();
+                                secondData.bestLapFrames = snapshot.bestLap;
+                                secondData.newBestLap = secondLaps.newBestFlash(secondNow);
+                                secondData.countdown = snapshot.elapsedFrames == 0 ? 2 : snapshot.elapsedFrames < 90 ? 6 : 0;
+                            } else {
+                                secondLaps.reset();
+                            }
+                            if (secondData.inTown) {
+                                const unsigned ticks = snapshot.clock % 216000u;  // 9000 ticks an hour
+                                secondData.hour = static_cast<int>(ticks / 9000u);
+                                secondData.minute = static_cast<int>(ticks % 9000u / 150u);
+                            }
+                            secondCache = pv::buildSecondScreen(menuW, menuH, secondPages.page(), secondData);
+                            if (pv::secondScreenDebugEnabled()) {
+                                // The recomp's RT_SECOND_DEBUG line: what decides the page, per change.
+                                const int autoPage = static_cast<int>((secondData.racing || secondData.mapUp)
+                                                                          ? rt::native::gameplay::SecondScreenPage::Map
+                                                                          : rt::native::gameplay::SecondScreenPage::Notebook);
+                                const int chosen = static_cast<int>(secondTap.value_or(secondPages.page()));
+                                const std::string line = pv::secondScreenDebugLine(
+                                    secondData, secondPages.page(), autoPage, secondPages.overridden(), chosen,
+                                    secondData.mapUp);
+                                if (line != secondLastLog) {
+                                    secondLastLog = line;
+                                    std::cerr << pv::secondScreenDebugPrint(line);
+                                }
+                            }
+                        }
+                    }
                     if (fontAtlas.width > 0) {
                         // SYS/TITLE.GSL unit 0 is the shipped 640x448 plate,
                         // cars, road and sky.  Its runtime-only decoder is
@@ -3573,7 +3659,7 @@ int main() {
                                 // Rebind FONTE after the backdrop: the same
                                 // 2D textured pass then keeps the blink and
                                 // publisher/copyright text over the art.
-                                const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH, &optionsPanel);
+                                const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH, &optionsPanel, forcedSecondPage ? &secondCache : nullptr);
                                 const rt::native::preview::PreviewTexture atlasTex{
                                     fontAtlas.width, fontAtlas.height, fontAtlas.pixels};
                                 if (!ui.text.empty() &&
@@ -3596,7 +3682,7 @@ int main() {
                         // composite the menu rows over it with a transparent
                         // clear.  No art (no disc / decode miss) keeps the
                         // legacy opaque menuClear path byte-identical.
-                        const bool artBackdrop = titleBackdrop && state == AppState::MENU &&
+                        const bool artBackdrop = titleBackdrop && state == AppState::MENU && !forcedSecondPage &&
                             (menuFlow.screen == rt::native::gameplay::MenuScreen::MODE_SELECT ||
                              menuFlow.screen == rt::native::gameplay::MenuScreen::OPTIONS);
                         bool backdropDrawn = false;
@@ -3617,7 +3703,7 @@ int main() {
                         auto backdrop = menuQuads(state, menuFlow, menuW, menuH);
                         std::vector<rt::native::preview::ScreenQuad> quads;
                         if (!backdrop.empty() && !backdropDrawn) quads.push_back(backdrop.front());
-                        const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH, &optionsPanel);
+                        const auto ui = buildLiveMenuScreen(state, menuFlow, titleUi, frames, menuW, menuH, &optionsPanel, forcedSecondPage ? &secondCache : nullptr);
                         quads.insert(quads.end(), ui.quads.begin(), ui.quads.end());
                         if (backdropDrawn) {
                             std::vector<std::uint8_t> panelPixels;
