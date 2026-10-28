@@ -9,8 +9,7 @@
 // Coordinates are window pixels (the second display is its own output, not the
 // 640x448 frame). S = uiDesignScale(height) like every other recomp panel.
 //
-// Deviations from the recomp (none changes a label): panels and tabs are square
-// cornered rectangles (the recomp rounds them), stamp cards have no art (the
+// Deviations from the recomp (none changes a label): stamp cards have no art (the
 // stamp icons come from SYS/STAMP.GSL, not extracted natively yet; the card keeps
 // its frame and shows the caption "Stamp N"), and the map shows our reconstructed
 // roads/markers instead of a diverted GS layer.

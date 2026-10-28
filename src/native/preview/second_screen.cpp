@@ -40,6 +40,30 @@ struct Canvas {
     void rectPx(float x, float y, float w, float h, const Color& c) { rect(x, y, x + w, y + h, c); }
     float u(float v) const { return v * S; }
 
+    // Rounded rectangle from quads (the UI primitive is an axis-aligned quad): one full-width body
+    // plus, per rounded edge, one horizontal span per pixel row of the corner arc (radius clamped to fit).
+    void rrect(float x0, float y0, float x1, float y1, float r, const Color& c, bool top = true, bool bottom = true) {
+        if (x1 <= x0 || y1 <= y0) return;
+        r = std::min({r, (x1 - x0) * 0.5f, (y1 - y0) / (top && bottom ? 2.f : 1.f)});
+        if (r < 0.75f) { rect(x0, y0, x1, y1, c); return; }
+        const int n = std::clamp(static_cast<int>(std::ceil(r)), 1, 48);
+        const float h = r / static_cast<float>(n);
+        rect(x0, top ? y0 + r : y0, x1, bottom ? y1 - r : y1, c);
+        for (int k = 0; k < n; ++k) {
+            const float dy = r - (static_cast<float>(k) + 0.5f) * h, in = r - std::sqrt(std::max(0.f, r * r - dy * dy));
+            if (top) rect(x0 + in, y0 + static_cast<float>(k) * h, x1 - in, y0 + static_cast<float>(k + 1) * h, c);
+            if (bottom) rect(x0 + in, y1 - static_cast<float>(k + 1) * h, x1 - in, y1 - static_cast<float>(k) * h, c);
+        }
+    }
+    // A thick diagonal segment as a run of squares.
+    void line(float ax, float ay, float bx, float by, float t, const Color& c) {
+        const int steps = std::max(1, static_cast<int>(std::hypot(bx - ax, by - ay) / (t * 0.5f)));
+        for (int s = 0; s <= steps; ++s) {
+            const float f = static_cast<float>(s) / static_cast<float>(steps);
+            rectPx(ax + (bx - ax) * f - t * 0.5f, ay + (by - ay) * f - t * 0.5f, t, t, c);
+        }
+    }
+
     float scaleY(float size) const { return size / static_cast<float>(assets::kGlyphCellHeight); }
     float scaleX(float size) const { return scaleY(size) * 0.77f; }
     float width(const std::string& t, float size) const {
@@ -56,10 +80,11 @@ struct Canvas {
             x += cw;
         }
     }
-    // Outlined text (the recomp's `outlined`): a dark copy offset behind.
+    // Outlined text (the recomp's `outlined`, MapView.cpp:29): eight dark copies behind, default max(1,3)*S.
     void text(const std::string& t, float x, float y, float size, const Color& c, float outline = 0.f) {
-        const float o = outline > 0.f ? outline : std::max(1.f, size / 16.f);
-        glyphs(t, x + o, y + o, size, kOutline);
+        const float o = outline > 0.f ? outline : std::max(u(1), u(3));
+        static const float dirs[8][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-0.7f, -0.7f}, {0.7f, -0.7f}, {-0.7f, 0.7f}, {0.7f, 0.7f}};
+        for (const auto& d : dirs) glyphs(t, x + d[0] * o, y + d[1] * o, size, kOutline);
         glyphs(t, x, y, size, c);
     }
     void textFit(const std::string& t, float x, float y, float size, const Color& c, float maxW) {
@@ -202,11 +227,11 @@ void drawMap(Canvas& cv, const gameplay::MapProjectedFrame& m, float x0, float y
 void stampToast(Canvas& cv, float x0, float y0, float x1, float y1, int n, float since) {
     const float t = std::clamp(since / 0.25f, 0.f, 1.f), h = y1 - y0, drop = (1.f - t) * (h + cv.u(24));
     y0 += drop, y1 += drop;
-    cv.rect(x0, y0 + cv.u(8), x1, y1 + cv.u(8), kShadow);
-    cv.rect(x0, y0, x1, y1, kPaperRim);
-    cv.rect(x0 + cv.u(6), y0 + cv.u(6), x1 - cv.u(6), y1 - cv.u(6), kPaper);
+    cv.rrect(x0, y0 + cv.u(8), x1, y1 + cv.u(8), cv.u(20), kShadow);
+    cv.rrect(x0, y0, x1, y1, cv.u(20), kPaperRim);
+    cv.rrect(x0 + cv.u(6), y0 + cv.u(6), x1 - cv.u(6), y1 - cv.u(6), cv.u(14), kPaper);
     const float icon = h - cv.u(24), fx = x0 + cv.u(14), fy = y0 + cv.u(12);
-    cv.rect(fx, fy, fx + icon, fy + icon, kFrame);
+    cv.rrect(fx, fy, fx + icon, fy + icon, cv.u(12), kFrame);
     const float tx = fx + icon + cv.u(20), body = cv.u(32);
     cv.text("New stamp!", tx, y0 + cv.u(14), body, kGold);
     cv.glyphs(ellipsize(cv, "Stamp " + std::to_string(n), body, x1 - cv.u(20) - tx), tx, y0 + cv.u(14) + body * 1.2f, body, kInk);
@@ -236,7 +261,7 @@ void drawNotebook(Canvas& cv, float x0, float y0, float x1, float y1, const Seco
                                       {"Photos", std::to_string(d.photos) + " / 100"}};
     for (int i = 0; i < 5; ++i) {
         const float x = x0 + static_cast<float>(i) * (chipW + chipGap);
-        cv.rect(x, y, x + chipW, y + chipH, kTrack);
+        cv.rrect(x, y, x + chipW, y + chipH, cv.u(16), kTrack);
         const float ls = cv.u(24), vs = body, w = chipW - cv.u(20);
         const float lw = cv.width(values[i][0], ls), vw = cv.width(values[i][1], vs);
         const float l = lw > w ? ls * w / lw : ls, v = vw > w ? vs * w / vw : vs;
@@ -249,11 +274,12 @@ void drawNotebook(Canvas& cv, float x0, float y0, float x1, float y1, const Seco
     // Got / To get segmented control.
     const int got = static_cast<int>(d.stamps.count());
     const float segH = cv.u(72), mid = (x0 + x1) * 0.5f;
-    cv.rect(x0, y, x1, y + segH, kTrack);
+    const float sr = segH * 0.5f;
+    cv.rrect(x0, y, x1, y + segH, sr, kTrack);
     const float sx0 = d.stampsGot ? x0 : mid, sx1 = d.stampsGot ? mid : x1;
-    cv.rect(sx0, y, sx1, y + segH, col(theme::kCapGold));
-    cv.rect(sx0 + cv.u(10), y + cv.u(4), sx1 - cv.u(10), y + segH - cv.u(4), col(theme::kSelectionBottom));
-    cv.rect(sx0 + cv.u(10), y + cv.u(4), sx1 - cv.u(10), y + segH * 0.5f, col(theme::kSelectionTop));
+    cv.rrect(sx0, y, sx1, y + segH, sr, col(theme::kCapGold));
+    cv.rrect(sx0 + cv.u(10), y + cv.u(4), sx1 - cv.u(10), y + segH - cv.u(4), sr - cv.u(4), col(theme::kSelectionBottom));
+    cv.rrect(sx0 + cv.u(10), y + cv.u(4), sx1 - cv.u(10), y + segH * 0.5f, sr - cv.u(4), col(theme::kSelectionTop), true, false);
     const std::string a = "Got " + std::to_string(got), b = "To get " + std::to_string(100 - got);
     cv.text(a, (x0 + mid - cv.width(a, body)) * 0.5f, y + (segH - body) * 0.5f, body, d.stampsGot ? kValue : kLabel);
     cv.text(b, (mid + x1 - cv.width(b, body)) * 0.5f, y + (segH - body) * 0.5f, body, d.stampsGot ? kLabel : kValue);
@@ -274,14 +300,15 @@ void drawNotebook(Canvas& cv, float x0, float y0, float x1, float y1, const Seco
         if (top < y || top + cardH > y1) continue;  // no clip rect: only whole cards
         const int n = shown[k];
         const float kx1 = x1;
-        cv.rect(x0, top, kx1, top + cardH, kPaperRim);
-        cv.rect(x0 + cv.u(6), top + cv.u(6), kx1 - cv.u(6), top + cardH - cv.u(6), kPaper);
+        // 6*S supporting rim around the pale paper; the stamp frame (own rim) sits inside the paper.
+        cv.rrect(x0, top, kx1, top + cardH, cv.u(20), kPaperRim);
+        cv.rrect(x0 + cv.u(6), top + cv.u(6), kx1 - cv.u(6), top + cardH - cv.u(6), cv.u(14), kPaper);
         const float icon = cv.u(96), fx = x0 + cv.u(16), fy = top + (cardH - icon) * 0.5f;
-        cv.rect(fx - cv.u(4), fy - cv.u(4), fx + icon + cv.u(4), fy + icon + cv.u(4), kPaperRim);
-        cv.rect(fx, fy, fx + icon, fy + icon, kFrame);
+        cv.rrect(fx - cv.u(4), fy - cv.u(4), fx + icon + cv.u(4), fy + icon + cv.u(4), cv.u(18), kPaperRim);
+        cv.rrect(fx, fy, fx + icon, fy + icon, cv.u(14), kFrame);
         const std::string num = std::to_string(n);
         const float tagW = std::max(cv.u(44), cv.width(num, cv.u(24)) + cv.u(16));
-        cv.rect(kx1 - cv.u(6) - tagW, top + cv.u(6), kx1 - cv.u(6), top + cv.u(40), kPaperRim);
+        cv.rrect(kx1 - cv.u(6) - tagW, top + cv.u(6), kx1 - cv.u(6), top + cv.u(40), cv.u(10), kPaperRim);
         cv.glyphs(num, kx1 - cv.u(6) - tagW + (tagW - cv.width(num, cv.u(24))) * 0.5f, top + cv.u(6) + (cv.u(34) - cv.u(24)) * 0.5f, cv.u(24), kInk);
         const std::string caption = "Stamp " + num;
         const float tx = fx + icon + cv.u(24);
@@ -298,21 +325,27 @@ void drawNotebook(Canvas& cv, float x0, float y0, float x1, float y1, const Seco
 
 // ---- radio (SecondScreen.cpp:482-624) ----
 
+// Radio glyph (SecondScreen.cpp:500-505 / 585-589): diagonal aerial, rounded body, circular dial.
+void radioGlyph(Canvas& cv, float bx0, float by0, float bx1, float by1, float ax0, float ay0, float ax1, float ay1,
+               float dcx, float dcy, float dr, const Color& ink, const Color& dial) {
+    cv.line(ax0, ay0, ax1, ay1, cv.u(3), ink);
+    cv.rrect(bx0, by0, bx1, by1, cv.u(6), ink);
+    cv.rrect(dcx - dr, dcy - dr, dcx + dr, dcy + dr, dr, dial);
+}
+
 void drawRadioIcon(Canvas& cv, float cx, float top, float ih, const Color& ink, const Color& dial) {
     const float rx0 = cx - ih * 0.55f, ry0 = top + ih * 0.35f, rx1 = cx + ih * 0.55f, ry1 = top + ih;
-    cv.rect(rx0 + ih * 0.2f, top, rx0 + ih * 0.2f + cv.u(3), ry0, ink);  // aerial
-    cv.rect(rx0, ry0, rx1, ry1, ink);
-    const float r = ih * 0.16f, dx = rx1 - ih * 0.28f, dy = (ry0 + ry1) * 0.5f;
-    cv.rect(dx - r, dy - r, dx + r, dy + r, dial);
+    radioGlyph(cv, rx0, ry0, rx1, ry1, rx0 + ih * 0.2f, ry0, rx0 + ih * 0.55f, top, rx1 - ih * 0.28f, (ry0 + ry1) * 0.5f, ih * 0.16f, ink, dial);
 }
 
 void nowPlayingStrip(Canvas& cv, float x0, float y0, float x1, float y1, const SecondScreenData& d) {
     const float body = cv.u(32), h = y1 - y0, r = h * 0.5f;
     const std::string station = kStationNames[d.station == gameplay::RadioStation::PeachFm ? 0 : 1];
     const std::string songAscii = d.title.empty() ? d.artist : d.title + "   -   " + d.artist;  // FONTE has no em dash
-    cv.rect(x0, y0, x1, y1, kTrack);
-    drawRadioIcon(cv, x0 + r * 0.6f + h * 0.35f, y0 + h * 0.12f, h * 0.7f, kGold, kTrack);
-    float tx = x0 + r * 0.6f + h * 0.7f + cv.u(18);
+    cv.rrect(x0, y0, x1, y1, r, kTrack);
+    const float bx = x0 + r * 0.6f, cy = (y0 + y1) * 0.5f, bx1 = bx + h * 0.7f, by0 = cy - h * 0.18f, by1 = cy + h * 0.26f;
+    radioGlyph(cv, bx, by0, bx1, by1, bx + h * 0.12f, by0, bx + h * 0.42f, cy - h * 0.38f, bx1 - h * 0.2f, (by0 + by1) * 0.5f, h * 0.11f, kGold, kTrack);
+    float tx = bx1 + cv.u(18);
     const float ty = (y0 + y1) * 0.5f - body * 0.5f;
     cv.text(station, tx, ty, body, kGold);
     tx += cv.width(station, body) + cv.u(18);
@@ -332,8 +365,8 @@ void drawRadio(Canvas& cv, float x0, float y0, float x1, float y1, const SecondS
         const float bx = x0 + static_cast<float>(i) * (w + gap);
         const bool on = i == current;
         const float rim = cv.u(on ? 5 : 3);
-        cv.rect(bx, y0, bx + w, y0 + h, on ? kGold : kTabIdleRim);
-        cv.rect(bx + rim, y0 + rim, bx + w - rim, y0 + h - rim, on ? kPlateOn : kTrack);
+        cv.rrect(bx, y0, bx + w, y0 + h, cv.u(24), on ? kGold : kTabIdleRim);
+        cv.rrect(bx + rim, y0 + rim, bx + w - rim, y0 + h - rim, cv.u(24) - rim, on ? kPlateOn : kTrack);
         const std::string name = kStationNames[i];
         const float ih = cv.u(56), top = (y0 + y0 + h - ih - cv.u(16) - heading) * 0.5f;
         const Color ink = i == 2 ? col(0xF8C83866) : kGold;
@@ -366,8 +399,9 @@ void drawRadio(Canvas& cv, float x0, float y0, float x1, float y1, const SecondS
 
 void activeTab(Canvas& cv, float x0, float y0, float x1, float y1, const char* label) {
     const float body = cv.u(32);
-    cv.rect(x0, y0, x1, y1, kTabBottom);
-    cv.rect(x0, y0, x1, (y0 + y1) * 0.5f, kTabTop);
+    const float r = cv.u(28);
+    cv.rrect(x0, y0, x1, y1, r, kTabBottom, true, false);
+    cv.rrect(x0, y0, x1, (y0 + y1) * 0.5f, r, kTabTop, true, false);
     cv.rect(x0 + cv.u(14), y0, x1 - cv.u(14), y0 + cv.u(4), kTabShine);
     const float cy = (y0 + y1 - cv.u(8)) * 0.5f, lw = cv.width(label, body);
     cv.text(label, (x0 + x1 - lw) * 0.5f, cy - body * 0.5f, body, kValue);
@@ -382,8 +416,8 @@ void activeTab(Canvas& cv, float x0, float y0, float x1, float y1, const char* l
 
 void idleTab(Canvas& cv, float x0, float y0, float x1, float y1, const char* label, bool dim) {
     const float body = cv.u(32);
-    cv.rect(x0, y0, x1, y1, kTabIdleRim);
-    cv.rect(x0 + cv.u(4), y0 + cv.u(4), x1 - cv.u(4), y1, kTabIdle);
+    cv.rrect(x0, y0, x1, y1, cv.u(28), kTabIdleRim, true, false);
+    cv.rrect(x0 + cv.u(4), y0 + cv.u(4), x1 - cv.u(4), y1, cv.u(24), kTabIdle, true, false);
     cv.text(label, (x0 + x1 - cv.width(label, body)) * 0.5f, (y0 + y1 - cv.u(8) - body) * 0.5f, body, dim ? kTabDim : kLabel);
 }
 
@@ -436,12 +470,13 @@ UiScreen buildSecondScreen(int w, int h, SecondScreenPage page, const SecondScre
     if (w <= 0 || h <= 0) return screen;
     Canvas cv{screen, uiDesignScale(h)};
     const float W = static_cast<float>(w), H = static_cast<float>(h);
-    // Daylight sky (a vertical gradient in eight bands).
-    for (int i = 0; i < 8; ++i) {
-        const float t = static_cast<float>(i) / 7.f;
+    // Daylight sky: quads are flat-coloured, so the vertical gradient is 128 bands (< 1 level apart).
+    constexpr int kSkyBands = 128;
+    for (int i = 0; i < kSkyBands; ++i) {
+        const float t = (static_cast<float>(i) + 0.5f) / kSkyBands;
         Color c{};
         for (int k = 0; k < 4; ++k) c[static_cast<std::size_t>(k)] = kSkyTop[static_cast<std::size_t>(k)] + (kSkyBottom[static_cast<std::size_t>(k)] - kSkyTop[static_cast<std::size_t>(k)]) * t;
-        cv.rect(0, H * static_cast<float>(i) / 8.f, W, H * static_cast<float>(i + 1) / 8.f + 1.f, c);
+        cv.rect(0, H * static_cast<float>(i) / kSkyBands, W, H * static_cast<float>(i + 1) / kSkyBands + 1.f, c);
     }
     const float pad = cv.u(24), rowH = cv.u(84);
     const float pminX = pad, pminY = pad + rowH, pmaxX = W - pad, pmaxY = H - pad;
@@ -455,15 +490,17 @@ UiScreen buildSecondScreen(int w, int h, SecondScreenPage page, const SecondScre
             idleTab(cv, tabX(i), tabTop, tabX(i) + tabW, pminY + cv.u(2), tabs[i].second,
                     tabs[i].first == SecondScreenPage::Map && !d.mapUp && !d.racing);
     // The panel (shadow, two rims, body).
-    cv.rect(pminX, pminY + cv.u(8), pmaxX, pmaxY + cv.u(8), kShadow);
-    cv.rect(pminX, pminY, pmaxX, pmaxY, kPanelRimOuter);
-    cv.rect(pminX + cv.u(3), pminY + cv.u(3), pmaxX - cv.u(3), pmaxY - cv.u(3), kPanelRimInner);
-    cv.rect(pminX + cv.u(6), pminY + cv.u(6), pmaxX - cv.u(6), pmaxY - cv.u(6), kPanelBody);
+    const float pr = cv.u(24);
+    cv.rrect(pminX, pminY + cv.u(8), pmaxX, pmaxY + cv.u(8), pr, kShadow);
+    cv.rrect(pminX, pminY, pmaxX, pmaxY, pr, kPanelRimOuter);
+    cv.rrect(pminX + cv.u(3), pminY + cv.u(3), pmaxX - cv.u(3), pmaxY - cv.u(3), pr - cv.u(3), kPanelRimInner);
+    cv.rrect(pminX + cv.u(6), pminY + cv.u(6), pmaxX - cv.u(6), pmaxY - cv.u(6), pr - cv.u(6), kPanelBody);
     for (int i = 0; i < 3; ++i)
         if (tabs[i].first == page) activeTab(cv, tabX(i), pad, tabX(i) + tabW, pminY + cv.u(6), tabs[i].second);
     // Menu / Close pill.
-    cv.rect(mmaxX - menuW, tabTop, mmaxX, mmaxY, kMenuRim);
-    cv.rect(mmaxX - menuW + cv.u(4), tabTop + cv.u(4), mmaxX - cv.u(4), mmaxY - cv.u(4), kMenuFill);
+    const float pill = (mmaxY - tabTop) * 0.5f;
+    cv.rrect(mmaxX - menuW, tabTop, mmaxX, mmaxY, pill, kMenuRim);
+    cv.rrect(mmaxX - menuW + cv.u(4), tabTop + cv.u(4), mmaxX - cv.u(4), mmaxY - cv.u(4), pill - cv.u(4), kMenuFill);
     cv.centred(d.menuOpen ? "Close" : "Menu", mmaxX - menuW, mmaxX, (tabTop + mmaxY - cv.u(32)) * 0.5f, cv.u(32), kValue);
 
     const float inset = cv.u(30);
