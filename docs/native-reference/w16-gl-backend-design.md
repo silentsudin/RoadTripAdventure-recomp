@@ -339,3 +339,13 @@ element inside its own struct).
 Not covered by the container: physical Linux GPU drivers, handheld GLES behaviour, audio devices
 and the second-screen presentation display. `RT_NATIVE_VULKAN`/`RT_NATIVE_GL` CMake options from
 § 8 do not exist; renderer choice is the runtime `RT_APP_RENDERER`, which is what the lanes test.
+
+## 8h. Android on GL-only hardware (2026-10-28)
+
+The native manifest required `android.hardware.vulkan.version 0x403000` (Vulkan 1.3) with
+`required="true"`, which hid the app from devices without Vulkan — the old-Intel class in
+issue #20 — even though the renderer only asks for Vulkan 1.1 (`preview_vk.cpp`
+`VK_API_VERSION_1_1`) and there is a GL path with an automatic fallback
+(`RT_APP_RENDERER=auto`). Now: version `0x401000` (1.1), `required="false"`. Whether the GL
+path actually runs on such a device is unverified here (no such machine); it is the first
+thing to check when one is available.
