@@ -48,6 +48,7 @@ namespace guest { extern uint64_t g_diagCdReads, g_diagCdSectors; extern uint16_
 #include "preview/race_hud.h"
 #include "preview/rot_quad.h"
 #include "preview/title_ui.h"
+#include "app/second_display.h"
 #include "preview/second_screen.h"
 #include "preview/ui_menu.h"
 #include "runtime/guest_facade.h"
@@ -2293,6 +2294,70 @@ int main() {
     if (autopilotEnabled)
         std::cout << "rt-app autopilot: enabled results-hold=" << autopilotHoldFrames << "\n";
     std::vector<rt::native::gameplay::OverlaySegment> perfSegments;
+    // The second display's page (preview/second_screen.h): data from the session, throttled to 30 Hz.
+    // RT_APP_MENU_SCREEN=second-* draws it as the menu; on Android it feeds the presentation display.
+    const auto refreshSecond = [&](int menuW, int menuH, rt::native::preview::UiScreen& out) -> bool {
+        namespace pv = rt::native::preview;
+        const double secondNow = monotonicSeconds();
+        const bool touched = secondTap.has_value();
+        const bool built = secondThrottle.due(secondNow, touched);
+        if (built) {
+            const auto& progress = session.progress();
+            secondData = pv::SecondScreenData{};
+            if (adventureLoaded) pv::fillSecondScreenFromSave(secondData, progress);
+            secondData.racing = session.state() == rt::native::gameplay::SessionState::RACE;
+            secondData.inTown = session.state() == rt::native::gameplay::SessionState::EXPLORE && adventureLoaded;
+            secondData.canDrive = secondData.inTown;
+            secondData.mapHere = true;
+            secondData.mapUp = navDrive.has_value();
+            secondData.menuOpen = false;
+            secondData.stateWords = "scene " + std::to_string(progress.scene());
+            secondPages.tick({secondData.racing, secondData.mapUp}, secondTap);
+            secondTap.reset();
+            secondStamps.observe(secondData.stamps, secondNow);
+            if (const int stamp = secondStamps.recent(secondNow)) {
+                secondData.newStamp = stamp;
+                secondData.newStampSince = secondStamps.since(secondNow);
+            }
+            secondData.radioAvailable = adventureLoaded;
+            if (secondData.racing) {
+                // Lap column from the logic snapshot: the countdown is the hold before the first
+                // frame counts (elapsedFrames == 0), then "GO!" for the first 1.5 s.
+                secondLaps.note(snapshot.lap, snapshot.elapsedFrames, snapshot.bestLap, secondNow);
+                secondData.lap = snapshot.lap + 1;
+                secondData.laps = session.totalLaps();
+                secondData.finished = snapshot.finished;
+                secondData.lastLapFrames = secondLaps.last();
+                secondData.bestBeforeLast = secondLaps.bestBeforeLast();
+                secondData.bestLapFrames = snapshot.bestLap;
+                secondData.newBestLap = secondLaps.newBestFlash(secondNow);
+                secondData.countdown = snapshot.elapsedFrames == 0 ? 2 : snapshot.elapsedFrames < 90 ? 6 : 0;
+            } else {
+                secondLaps.reset();
+            }
+            if (secondData.inTown) {
+                const unsigned ticks = snapshot.clock % 216000u;  // 9000 ticks an hour
+                secondData.hour = static_cast<int>(ticks / 9000u);
+                secondData.minute = static_cast<int>(ticks % 9000u / 150u);
+            }
+            out = pv::buildSecondScreen(menuW, menuH, secondPages.page(), secondData);
+            if (pv::secondScreenDebugEnabled()) {
+                // The recomp's RT_SECOND_DEBUG line: what decides the page, per change.
+                const int autoPage = static_cast<int>((secondData.racing || secondData.mapUp)
+                                                          ? rt::native::gameplay::SecondScreenPage::Map
+                                                          : rt::native::gameplay::SecondScreenPage::Notebook);
+                const int chosen = static_cast<int>(secondTap.value_or(secondPages.page()));
+                const std::string line = pv::secondScreenDebugLine(
+                    secondData, secondPages.page(), autoPage, secondPages.overridden(), chosen,
+                    secondData.mapUp);
+                if (line != secondLastLog) {
+                    secondLastLog = line;
+                    std::cerr << pv::secondScreenDebugPrint(line);
+                }
+            }
+        }
+        return built;
+    };
     double nextPerfWindow = monotonicSeconds() + perf.windowSeconds();
     auto lastPresent = std::chrono::steady_clock::now();
     int effectiveInterpRenderRate = interpRenderRate;
@@ -2308,6 +2373,11 @@ int main() {
                                                      : std::string("vsync"))
                   << " catch-up cap=" << interpClock.catchUpCap() << "\n";
     }
+#ifdef __ANDROID__
+    rt::native::preview::Renderer* secondRenderer = nullptr;  // the presentation display's own offscreen target
+    int secondRenderW = 0, secondRenderH = 0;
+    rt::native::preview::UiScreen secondFrame;
+#endif
     auto previous = std::chrono::steady_clock::now();
     // FONTE is required for TITLE/MENU, not only the PLAYING HUD. Decode once
     // before the first frame so the title blink does not wait for the lazy
@@ -2396,6 +2466,46 @@ int main() {
             if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) resize = true; }
         if (!running) break;
         if (resize && !recreateSwapchain()) break;
+#ifdef __ANDROID__
+        {   // Presentation display (the Thor's lower screen): only while Options -> Second screen is On.
+            namespace sd = rt::native::app::seconddisplay;
+            namespace pv = rt::native::preview;
+            const bool secondWanted = optionsStore.getEnum("display.second_screen", "Off", {"On", "Off"}) == "On";
+            sd::service(secondWanted, monotonicSeconds());
+            int sw = 0, sh = 0;
+            if (secondWanted && sd::supported() && sd::surface(sw, sh)) {
+                float tx = 0.f, ty = 0.f;
+                while (sd::takeTouch(tx, ty)) {
+                    const auto hit = pv::secondScreenHit(sw, sh, tx * static_cast<float>(sw), ty * static_cast<float>(sh));
+                    if (hit.tab) secondTap = hit.tab;
+                    else if (hit.menu && state == AppState::PLAYING) returnToMenu = true;  // Menu: the game's menu on the top screen
+                }
+                if (secondRenderer && (secondRenderW != sw || secondRenderH != sh)) {
+                    pv::previewDestroy(secondRenderer);
+                    secondRenderer = nullptr;
+                }
+                if (!secondRenderer) {
+                    std::string secondError;
+                    secondRenderer = pv::previewInit(static_cast<std::uint32_t>(sw), static_cast<std::uint32_t>(sh), secondError, nullptr);
+                    secondRenderW = sw; secondRenderH = sh;
+                    if (!secondRenderer) androidLog(ANDROID_LOG_WARN, "second screen: renderer init failed: " + secondError);
+                }
+                if (secondRenderer && fontAtlas.width > 0 && refreshSecond(sw, sh, secondFrame)) {
+                    std::vector<std::uint8_t> secondPixels, secondText;
+                    std::string secondError;
+                    const pv::PreviewTexture atlasTex{fontAtlas.width, fontAtlas.height, fontAtlas.pixels};
+                    if (pv::previewRender2D(secondRenderer, secondFrame.quads, {0.f, 0.f, 0.f, 1.f}, secondPixels, secondError)) {
+                        if (!secondFrame.text.empty() && pv::previewUploadFontAtlas(secondRenderer, atlasTex, secondError) &&
+                            pv::previewRender2DTextured(secondRenderer, secondFrame.text, {0.f, 0.f, 0.f, 0.f}, secondText, secondError))
+                            compositeOver(secondPixels, secondText);
+                        sd::push(secondPixels.data(), sw, sh);
+                    } else {
+                        androidLog(ANDROID_LOG_WARN, "second screen: render failed: " + secondError);
+                    }
+                }
+            }
+        }
+#endif
         const auto now = std::chrono::steady_clock::now(); const float dt = std::min(std::chrono::duration<float>(now - previous).count(), 0.1f); previous = now;
         if (state == AppState::TITLE && titleAdvance) {
             menuFlow = {};
@@ -2406,6 +2516,7 @@ int main() {
                 using namespace rt::native::preview;
                 rt::native::gameplay::MenuContext optionsContext;
                 optionsContext.gamepadPresent = gamepad != nullptr;
+                optionsContext.secondScreenSupported = rt::native::app::seconddisplay::supported();
                 if (menuInput.up) (void)optionsPanelMove(optionsPanelState, optionsModel, optionsStore, optionsContext, -1);
                 if (menuInput.down) (void)optionsPanelMove(optionsPanelState, optionsModel, optionsStore, optionsContext, 1);
                 if (menuInput.left) (void)optionsPanelAdjust(optionsPanelState, optionsModel, optionsStore, optionsContext, -1);
@@ -3580,67 +3691,10 @@ int main() {
                     const std::array<float, 4> menuClear{.025f, .035f, .075f, 1.f};
                     rt::native::gameplay::MenuContext panelContext;
                     panelContext.gamepadPresent = gamepad != nullptr;
+                    panelContext.secondScreenSupported = rt::native::app::seconddisplay::supported();
                     const auto optionsPanel = rt::native::preview::buildOptionsPanel(
                         optionsModel, optionsStore, panelContext, optionsPanelState);
-                    if (forcedSecondPage) {
-                        namespace pv = rt::native::preview;
-                        const double secondNow = monotonicSeconds();
-                        const bool touched = secondTap.has_value();
-                        if (secondThrottle.due(secondNow, touched)) {
-                            const auto& progress = session.progress();
-                            secondData = pv::SecondScreenData{};
-                            if (adventureLoaded) pv::fillSecondScreenFromSave(secondData, progress);
-                            secondData.racing = session.state() == rt::native::gameplay::SessionState::RACE;
-                            secondData.inTown = session.state() == rt::native::gameplay::SessionState::EXPLORE && adventureLoaded;
-                            secondData.canDrive = secondData.inTown;
-                            secondData.mapHere = true;
-                            secondData.menuOpen = false;
-                            secondData.stateWords = "scene " + std::to_string(progress.scene());
-                            secondPages.tick({secondData.racing, secondData.mapUp}, secondTap);
-                            secondTap.reset();
-                            secondStamps.observe(secondData.stamps, secondNow);
-                            if (const int stamp = secondStamps.recent(secondNow)) {
-                                secondData.newStamp = stamp;
-                                secondData.newStampSince = secondStamps.since(secondNow);
-                            }
-                            secondData.radioAvailable = adventureLoaded;
-                            if (secondData.racing) {
-                                // Lap column from the logic snapshot: the countdown is the hold before the first
-                                // frame counts (elapsedFrames == 0), then "GO!" for the first 1.5 s.
-                                secondLaps.note(snapshot.lap, snapshot.elapsedFrames, snapshot.bestLap, secondNow);
-                                secondData.lap = snapshot.lap + 1;
-                                secondData.laps = session.totalLaps();
-                                secondData.finished = snapshot.finished;
-                                secondData.lastLapFrames = secondLaps.last();
-                                secondData.bestBeforeLast = secondLaps.bestBeforeLast();
-                                secondData.bestLapFrames = snapshot.bestLap;
-                                secondData.newBestLap = secondLaps.newBestFlash(secondNow);
-                                secondData.countdown = snapshot.elapsedFrames == 0 ? 2 : snapshot.elapsedFrames < 90 ? 6 : 0;
-                            } else {
-                                secondLaps.reset();
-                            }
-                            if (secondData.inTown) {
-                                const unsigned ticks = snapshot.clock % 216000u;  // 9000 ticks an hour
-                                secondData.hour = static_cast<int>(ticks / 9000u);
-                                secondData.minute = static_cast<int>(ticks % 9000u / 150u);
-                            }
-                            secondCache = pv::buildSecondScreen(menuW, menuH, secondPages.page(), secondData);
-                            if (pv::secondScreenDebugEnabled()) {
-                                // The recomp's RT_SECOND_DEBUG line: what decides the page, per change.
-                                const int autoPage = static_cast<int>((secondData.racing || secondData.mapUp)
-                                                                          ? rt::native::gameplay::SecondScreenPage::Map
-                                                                          : rt::native::gameplay::SecondScreenPage::Notebook);
-                                const int chosen = static_cast<int>(secondTap.value_or(secondPages.page()));
-                                const std::string line = pv::secondScreenDebugLine(
-                                    secondData, secondPages.page(), autoPage, secondPages.overridden(), chosen,
-                                    secondData.mapUp);
-                                if (line != secondLastLog) {
-                                    secondLastLog = line;
-                                    std::cerr << pv::secondScreenDebugPrint(line);
-                                }
-                            }
-                        }
-                    }
+                    if (forcedSecondPage) refreshSecond(menuW, menuH, secondCache);
                     if (fontAtlas.width > 0) {
                         // SYS/TITLE.GSL unit 0 is the shipped 640x448 plate,
                         // cars, road and sky.  Its runtime-only decoder is
@@ -3833,6 +3887,9 @@ int main() {
         else
             std::cout << "[save] save slot " << *slot << " failed: " << error << "\n";
     }
+#ifdef __ANDROID__
+    if (secondRenderer) rt::native::preview::previewDestroy(secondRenderer);
+#endif
     rt::native::preview::previewDestroy(renderer); destroy(presenter); rt::native::preview::glPresenterDestroy(glPresenter); SDL_DestroyWindow(window); SDL_Quit();
     return 0;
 }

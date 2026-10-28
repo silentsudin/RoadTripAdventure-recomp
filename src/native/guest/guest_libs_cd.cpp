@@ -18,7 +18,9 @@
 #include <cstdio>
 #include <cstring>
 #include <dlfcn.h>
+#if !defined(__ANDROID__)
 #include <execinfo.h>
+#endif
 #include <fstream>
 #include <map>
 #include <string>
@@ -268,6 +270,10 @@ uint32_t sceCdRead(uint32_t q0, uint32_t q1, uint64_t q2, uint32_t q3, ...) {
     if (std::getenv("RT_CD_TRACE")) {
         std::fprintf(stderr, "[cdread] lbn=%u n=%u buf=0x%x\n", lbn, sectors, buf);
         if (std::getenv("RT_CD_TRACE_BT")) {
+#if defined(__ANDROID__)
+            // Android's bionic has no execinfo; this is diagnostic-only.
+            std::fprintf(stderr, "    <backtrace unavailable on Android>\n");
+#else
             void* frames[14];
             const int nFr = backtrace(frames, 14);
             for (int i = 2; i < nFr; ++i) {
@@ -275,6 +281,7 @@ uint32_t sceCdRead(uint32_t q0, uint32_t q1, uint64_t q2, uint32_t q3, ...) {
                 if (dladdr(frames[i], &di) && di.dli_sname)
                     std::fprintf(stderr, "    #%d %s\n", i, di.dli_sname);
             }
+#endif
         }
     }
     // oracle clampReadBytes (CD.cpp:240): bytes = sectors*2048 clamped to RAM.

@@ -349,3 +349,26 @@ issue #20 — even though the renderer only asks for Vulkan 1.1 (`preview_vk.cpp
 (`RT_APP_RENDERER=auto`). Now: version `0x401000` (1.1), `required="false"`. Whether the GL
 path actually runs on such a device is unverified here (no such machine); it is the first
 thing to check when one is available.
+
+## 8i. Android: the second screen, and guest code on bionic (2026-10-28)
+
+**Second screen.** `RoadTripNativeActivity` (still the SDL launcher) now owns a non-focusable,
+non-cancelable `Presentation` with a `SurfaceView` on the first presentation display, reopened if
+something else dismisses it while `display.second_screen` is On. `app/second_display.{h,cpp}` is the
+JNI seam (surface created/destroyed, RGBA frame handoff, touches as 0..1 fractions).
+`app/main.cpp` draws the page (`preview/second_screen`) offscreen at the panel's size with its own
+`previewInit` renderer on the existing 30 Hz throttle and hands the pixels to Java, which draws them
+to the SurfaceView. A tab tap drives the page override; the Menu pill opens the game menu on the top
+screen. Not done: the pill never reads `Close`, the Map page has no draw list yet, radio has no
+tap-to-change-station, and the settings row still carries the glue status.
+
+**Guest threads on bionic.** `libmain.so` has to link `rt_guest` (main.cpp reads the fault counters,
+thread/semaphore counts and census dumps), but bionic has no `<ucontext.h>` and no `<execinfo.h>`.
+`guest/ucontext_shim.{h,cpp}` is an AArch64 context switch — AAPCS callee-saved GPRs, `d8`-`d15`,
+`sp`, `lr` and `FPCR` (the guest model relies on ucontext preserving the rounding mode) — selected by
+`-DRT_GUEST_UCONTEXT_SHIM`, forced on for Android and opt-in on macOS arm64. Because macOS arm64 is
+the same ABI, the shim was **functionally verified there**: the kernel test and the race@110 headless
+captures hash exactly like the system-ucontext build (`build/scratch/w16-linux/UCCONTEXT_ANDROID.md`).
+The `RT_FAULT_BT` backtrace diagnostic is compiled out on Android. `gradlew assembleDebug` now
+produces an APK. Not verified: guest wait/resume and FP-sensitive code on real hardware — that needs
+the Thor.

@@ -19,6 +19,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+option(RT_GUEST_UCONTEXT_SHIM "Use the in-tree AArch64 guest ucontext shim" OFF)
+if(ANDROID)
+    set(RT_GUEST_UCONTEXT_SHIM ON CACHE BOOL "Use the in-tree AArch64 guest ucontext shim" FORCE)
+endif()
+
 # ---------------------------------------------------------------- warnings
 if(MSVC)
     set(RT_NATIVE_WARN_OPTIONS /W4)
@@ -91,6 +96,7 @@ set(RT_NATIVE_ASSET_SOURCES
     gameplay/game_loop.cpp      # authored simulation frame (task walker -> AI/car/camera -> cull -> snapshot)
     gameplay/interp.cpp         # render-frame interpolation (fixed-step accumulator + render-pose blend)
     gameplay/perfstats.cpp      # host performance windows and ASCII overlay model
+    gameplay/event_bridge.cpp   # guest event dispatch queue used by app main
     runtime/testsocket.cpp      # JSON-lines native regression control socket
     runtime/guest_facade.cpp    # explicitly mapped guest-address compatibility facade
     render/race_terrain.cpp     # COURSE WorldStrip terrain -> renderer-neutral textured mesh
@@ -136,6 +142,10 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp/guest_decls.inc")
     # consumers — a static archive would drop unreferenced TUs and empty the
     # call registry (fault 0xF0200008: entry never registered).
     add_library(rt_guest OBJECT guest/guest_mem.cpp guest/guest_kernel.cpp guest/guest_libs.cpp guest/guest_libs_sif.cpp guest/guest_libs_pad.cpp guest/guest_libs_dma.cpp guest/guest_vif1.cpp guest/guest_gif.cpp guest/guest_gs.cpp guest/guest_vu1.cpp guest/guest_libs_cd.cpp guest/guest_libs_fs.cpp guest/guest_libs_gs.cpp guest/guest_libs_mc.cpp)
+    if(RT_GUEST_UCONTEXT_SHIM)
+        target_sources(rt_guest PRIVATE guest/ucontext_shim.cpp)
+        target_compile_definitions(rt_guest PRIVATE RT_GUEST_UCONTEXT_SHIM=1)
+    endif()
     file(GLOB RT_GUEST_GEN CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/guest/gen/*.cpp")
     # W12: the oracle recompiler replaces these 192 guest library functions with host
     # implementations (config/roadtrip.toml stubs list); native mirrors that split —
@@ -163,6 +173,10 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../build/decomp/guest_decls.inc")
     # (default fast), clang contracts shim expressions like vmaddbc's a+s*b into one
     # fmla and drifts 1-4 ulp from the oracle (W13 census 0x15a9 page).
     target_compile_options(rt_guest PRIVATE -ffp-contract=off)
+    if(ANDROID)
+        # Ghidra transliterations preserve guest-controlled printf formats.
+        target_compile_options(rt_guest PRIVATE -Wno-format-security)
+    endif()
     # W11 package pins (G2): worker-computed expected values from pseudocode.
     # Any tests/native_guest/test_*.cpp becomes <stem-without-test-__test at configure.
     file(GLOB RT_GUEST_TESTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_guest/test_*.cpp")
@@ -200,9 +214,9 @@ if(ANDROID)
     find_library(RT_ANDROID_LOG_LIB log REQUIRED)
     find_library(RT_ANDROID_GLES_LIB GLESv3 REQUIRED)
     find_library(RT_ANDROID_EGL_LIB EGL REQUIRED)
-    add_library(main SHARED app/main.cpp app/Autopilot.cpp preview/preview_vk.cpp
+    add_library(main SHARED app/main.cpp app/Autopilot.cpp app/second_display.cpp preview/preview_vk.cpp
         preview/present_gl.cpp preview/preview_gl.cpp)
-    target_link_libraries(main PRIVATE rt_native_assets SDL3::SDL3
+    target_link_libraries(main PRIVATE rt_native_assets rt_guest SDL3::SDL3
         ${RT_ANDROID_VULKAN_LIB} ${RT_ANDROID_LOG_LIB}
         ${RT_ANDROID_GLES_LIB} ${RT_ANDROID_EGL_LIB})
     target_compile_features(main PRIVATE cxx_std_20)

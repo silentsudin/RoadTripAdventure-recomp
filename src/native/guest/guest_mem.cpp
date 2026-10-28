@@ -10,7 +10,9 @@
 #include <vector>
 
 #include <dlfcn.h>   // RT_FAULT_BT symbolization (same as cd_trace_bt)
+#if !defined(__ANDROID__)
 #include <execinfo.h>
+#endif
 
 namespace rtguest {
 
@@ -116,6 +118,10 @@ void noteFault(uint32_t a) {
     uint32_t& c = ++faultMap()[a];
     if (c == 1 && std::getenv("RT_FAULT_BT")) {
         std::fprintf(stderr, "[faultbt] key=0x%x\n", a);
+#if defined(__ANDROID__)
+        // Android's bionic has no execinfo; faults remain counted and visible.
+        std::fprintf(stderr, "    <backtrace unavailable on Android>\n");
+#else
         void* frames[14];
         const int nFr = backtrace(frames, 14);
         static uintptr_t slide = 0;
@@ -130,8 +136,9 @@ void noteFault(uint32_t a) {
             Dl_info di;
             const char* nm = (dladdr(frames[i], &di) && di.dli_sname) ? di.dli_sname : "?";
             std::fprintf(stderr, "    #%d %s off=%#lx\n", i, nm,
-                         (unsigned long)((uintptr_t)frames[i] - slide));
+                          (unsigned long)((uintptr_t)frames[i] - slide));
         }
+#endif
     }
 }
 const Fault* faults(size_t* n) {

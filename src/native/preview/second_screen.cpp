@@ -544,6 +544,27 @@ bool secondScreenDebugEnabled() {
     return value && std::strcmp(value, "1") == 0;
 }
 
+SecondScreenHit secondScreenHit(int w, int h, float x, float y) {
+    SecondScreenHit hit;
+    if (w <= 0 || h <= 0) return hit;
+    // The header row of buildSecondScreen: tab and pill geometry, kept in step with it.
+    const float s = uiDesignScale(h);
+    const auto u = [s](float v) { return v * s; };
+    const float W = static_cast<float>(w);
+    const float pad = u(24), pminX = pad, pminY = pad + u(84), pmaxX = W - pad;
+    const float tabGap = u(16), tabTop = pad, menuW = u(168);
+    const float mmaxX = pmaxX - u(24);
+    const float tabW = std::min(u(240), (mmaxX - menuW - u(24) - (pminX + u(24)) - 2 * tabGap) / 3);
+    if (y < tabTop || y > pminY) return hit;
+    if (x >= mmaxX - menuW && x <= mmaxX) { hit.menu = true; return hit; }
+    const SecondScreenPage pages[3] = {SecondScreenPage::Map, SecondScreenPage::Notebook, SecondScreenPage::Radio};
+    for (int i = 0; i < 3; ++i) {
+        const float x0 = pminX + u(24) + static_cast<float>(i) * (tabW + tabGap);
+        if (x >= x0 && x <= x0 + tabW) { hit.tab = pages[i]; break; }
+    }
+    return hit;
+}
+
 std::string secondScreenDebugLine(const SecondScreenData& d, SecondScreenPage page, int autoPage, bool overridden,
                                   int chosenPage, bool haveMap) {
     char line[400];

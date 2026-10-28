@@ -100,6 +100,12 @@ int main(int argc, char** argv) {
     pages.tick({false, false}, std::nullopt);
     pages.tick({true, false}, std::nullopt);
     assert(pages.page() == SecondScreenPage::Map);
+    // Touch: tab and pill hit rects of the header row (1920x1080, scale 1).
+    assert(secondScreenHit(1920, 1080, 100, 60).tab == SecondScreenPage::Map);
+    assert(secondScreenHit(1920, 1080, 400, 60).tab == SecondScreenPage::Notebook);
+    assert(secondScreenHit(1920, 1080, 700, 60).tab == SecondScreenPage::Radio);
+    assert(secondScreenHit(1920, 1080, 1800, 60).menu);
+    assert(!secondScreenHit(1920, 1080, 960, 600).tab && !secondScreenHit(1920, 1080, 960, 600).menu);
     std::printf("w14_second_screen_test: all checks passed\n");
     return 0;
 }

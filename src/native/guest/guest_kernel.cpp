@@ -5,13 +5,16 @@
 // hard rule). Determinism: ucontext green threads switch only at kernel-call
 // boundaries; virtual time advances only at kVblank; no host threads, no
 // wall-clock reads, map iteration is id-ordered (std::map, not unordered_map).
+#if defined(RT_GUEST_UCONTEXT_SHIM)
+#include "ucontext_shim.h"
+#else
 // macOS: ucontext.h gates its API behind this feature macro; must precede includes.
 #define _XOPEN_SOURCE 700
+#include <ucontext.h>
+#endif
 #include "guest_kernel.h"
 
 #include "guest_shim.h"
-
-#include <ucontext.h>
 
 #include <cfenv>
 
@@ -27,6 +30,16 @@
 
 namespace rtguest {
 namespace {
+
+#if defined(RT_GUEST_UCONTEXT_SHIM)
+using UContext = ucontext_shim::Context;
+using ucontext_shim::getcontext;
+using ucontext_shim::makecontext;
+using ucontext_shim::sigemptyset;
+using ucontext_shim::swapcontext;
+#else
+using UContext = ucontext_t;
+#endif
 
 // ---- KE_* codes and thread-status/wait-type bytes (oracle EeScheduler +
 // Helpers/State.h, ps2sdk kernel.h) ----
@@ -76,7 +89,7 @@ struct KThread {
     int32_t resumeResult = 0;
     bool ownsStack = false;
     uint32_t frameTop = 0, frameFloor = 0;  // EE stack mirror region (W13 stack model)
-    ucontext_t uc{};
+    UContext uc{};
     bool ucReady = false;
     std::vector<uint8_t> hostStack;
 };
@@ -118,7 +131,7 @@ int g_nextIrqId = 1, g_intcHead = 0, g_intcTail = 1000, g_dmacHead = 0,
 uint32_t g_intcMask = 0, g_dmacMask = 0;
 std::deque<Invocation> g_invoc;
 std::vector<int> g_retired;  // erase-after-swap (can't free a running stack)
-ucontext_t g_pump{};
+UContext g_pump{};
 bool g_inInterrupt = false, g_resched = false;
 uint64_t g_micro = 0, g_vsyncTick = 0;
 bool g_bootPhasePending = false;

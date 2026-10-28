@@ -22,6 +22,7 @@
 #include <array>
 #include <bitset>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -86,6 +87,14 @@ std::string secondScreenRaceTime(std::uint32_t frames);
 std::string secondScreenLapNote(std::uint32_t lastLapFrames, std::uint32_t bestBeforeLast, bool* newBest);
 
 UiScreen buildSecondScreen(int w, int h, gameplay::SecondScreenPage page, const SecondScreenData& data);
+
+// What a tap at (x, y) (pixels of the w x h page) lands on: a tab, the Menu/Close pill, or nothing.
+// Same geometry as buildSecondScreen's header row.
+struct SecondScreenHit {
+    std::optional<gameplay::SecondScreenPage> tab;
+    bool menu = false;
+};
+SecondScreenHit secondScreenHit(int w, int h, float x, float y);
 
 // "racing 1 town 0 ..." (the recomp's [second] line) for the diagnostic log.
 std::string secondScreenDebugLine(const SecondScreenData& data, gameplay::SecondScreenPage page, int autoPage,
