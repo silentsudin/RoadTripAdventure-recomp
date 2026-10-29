@@ -268,15 +268,29 @@ GLuint textureFor(GlRenderer& R, const PreviewTexture& native, SamplerClass cls,
         }
         const PreviewTexture& tex = replacement.rgba.empty() ? native : replacement;
         packDump(native);
+        // A replacement carries a full CPU mip chain and is minified
+        // trilinearly; the native path keeps the GS's nearest, one level.
+        const assets::MipChain mips = replacement.rgba.empty() ? assets::MipChain{} : packMips(tex);
+        const bool trilinear = mips.valid() && mips.levelCount() > 1;
         const SamplerDesc sd = samplerFor(cls);
         GLuint t = 0; g.GenTextures(1, &t); g.BindTexture(kTexture2D, t);
         const GLint filter = static_cast<GLint>(sd.nearest ? kNearest : kLinear);
         const GLint wrap = static_cast<GLint>(sd.repeat ? kRepeat : kClampToEdge);
-        g.TexParameteri(kTexture2D, kMinFilter, filter); g.TexParameteri(kTexture2D, kMagFilter, filter);
+        g.TexParameteri(kTexture2D, kMinFilter,
+                        trilinear ? static_cast<GLint>(kLinearMipmapLinear) : filter);
+        g.TexParameteri(kTexture2D, kMagFilter, filter);
         g.TexParameteri(kTexture2D, kWrapS, wrap); g.TexParameteri(kTexture2D, kWrapT, wrap);
         g.PixelStorei(kUnpackAlignment, 1);
         g.TexImage2D(kTexture2D, 0, static_cast<GLint>(kRgba8), static_cast<GLsizei>(tex.width), static_cast<GLsizei>(tex.height), 0,
                      kRgba, kUnsignedByte, tex.rgba.data());
+        if (trilinear) {
+            for (std::size_t i = 1; i < mips.levels.size(); ++i) {
+                const assets::MipLevel& l = mips.levels[i];
+                g.TexImage2D(kTexture2D, static_cast<GLint>(i), static_cast<GLint>(kRgba8),
+                             static_cast<GLsizei>(l.width), static_cast<GLsizei>(l.height), 0,
+                             kRgba, kUnsignedByte, l.rgba.data());
+            }
+        }
         it = R.textures.emplace(key, t).first;
     }
     return it->second;

@@ -14,6 +14,7 @@
 // still links: the app installs the real ones (assets/texture_pack.cpp) at
 // startup.
 
+#include "assets/hd_pack.h"
 #include "assets/png_decode.h"
 #include "preview/preview.h"
 
@@ -28,6 +29,10 @@ struct PackHooks {
                                                const std::uint8_t* rgba, std::size_t n) = nullptr;
     void (*dump)(std::uint32_t width, std::uint32_t height, const std::uint8_t* rgba,
                  std::size_t n) = nullptr;
+    // Full CPU mip chain for a replacement image; an empty chain means one
+    // level (the native texture's own, point-sampled as the GS did).
+    assets::MipChain (*mips)(std::uint32_t width, std::uint32_t height, const std::uint8_t* rgba,
+                             std::size_t n) = nullptr;
 };
 
 inline PackHooks& packHooks() {
@@ -49,6 +54,13 @@ inline const assets::DecodedImage* packReplacement(const PreviewTexture& tex) {
 // Dumps the native texture if RT_TEXTURE_DUMP is on (once per content).
 inline void packDump(const PreviewTexture& tex) {
     if (packHooks().dump) packHooks().dump(tex.width, tex.height, tex.rgba.data(), tex.rgba.size());
+}
+
+// The mip chain a replacement is uploaded with (empty = one level).
+inline assets::MipChain packMips(const PreviewTexture& tex) {
+    return packHooks().mips
+               ? packHooks().mips(tex.width, tex.height, tex.rgba.data(), tex.rgba.size())
+               : assets::MipChain{};
 }
 
 }  // namespace rt::native::preview

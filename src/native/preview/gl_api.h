@@ -21,7 +21,7 @@ using GLsizeiptr = std::ptrdiff_t;
 
 constexpr GLenum kVertexShader = 0x8B31, kFragmentShader = 0x8B30, kCompileStatus = 0x8B81,
                  kLinkStatus = 0x8B82, kTexture2D = 0x0DE1, kRgba = 0x1908, kRgba8 = 0x8058,
-                 kUnsignedByte = 0x1401, kMinFilter = 0x2801, kMagFilter = 0x2800, kNearest = 0x2600, kLinear = 0x2601,
+                 kUnsignedByte = 0x1401, kMinFilter = 0x2801, kMagFilter = 0x2800, kNearest = 0x2600, kLinear = 0x2601, kLinearMipmapLinear = 0x2703,
                  kWrapS = 0x2802, kWrapT = 0x2803, kClampToEdge = 0x812F, kRepeat = 0x2901, kTriangles = 4,
                  kUnpackAlignment = 0x0CF5, kPackAlignment = 0x0D05, kTexture0 = 0x84C0, kVersion = 0x1F02,
                  kRenderer = 0x1F01, kArrayBuffer = 0x8892, kElementArrayBuffer = 0x8893, kStreamDraw = 0x88E0,

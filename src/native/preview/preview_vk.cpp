@@ -202,7 +202,8 @@ struct Renderer {
     VkDescriptorSetLayout texSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout texPl = VK_NULL_HANDLE;
     VkPipeline texPipe = VK_NULL_HANDLE;
-    VkSampler texSampler = VK_NULL_HANDLE;
+    VkSampler texSampler = VK_NULL_HANDLE;    // GS look: nearest, one level
+    VkSampler texSamplerHd = VK_NULL_HANDLE;  // HD pack: trilinear over the mip chain
     VkDescriptorPool texPool = VK_NULL_HANDLE;
     VkBuffer tvb = VK_NULL_HANDLE, tib = VK_NULL_HANDLE;
     VkDeviceMemory tvbm = VK_NULL_HANDLE, tibm = VK_NULL_HANDLE;
@@ -311,6 +312,7 @@ void previewDestroy(Renderer* R) {
         if (R->tibm) vkFreeMemory(R->dev, R->tibm, nullptr);
         if (R->texPool) vkDestroyDescriptorPool(R->dev, R->texPool, nullptr);
         if (R->texSampler) vkDestroySampler(R->dev, R->texSampler, nullptr);
+        if (R->texSamplerHd) vkDestroySampler(R->dev, R->texSamplerHd, nullptr);
         if (R->texPipe) vkDestroyPipeline(R->dev, R->texPipe, nullptr);
         if (R->texPl) vkDestroyPipelineLayout(R->dev, R->texPl, nullptr);
         if (R->texSetLayout) vkDestroyDescriptorSetLayout(R->dev, R->texSetLayout, nullptr);
@@ -581,6 +583,11 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     texSi.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     texSi.maxAnisotropy = 1.0f; texSi.unnormalizedCoordinates = VK_FALSE;
     VK_TRY(vkCreateSampler(dev, &texSi, nullptr, &R.texSampler), "vkCreateSampler");
+    VkSamplerCreateInfo hdSi = texSi;  // HD pack replacements only: trilinear over the mip chain
+    hdSi.magFilter = VK_FILTER_LINEAR; hdSi.minFilter = VK_FILTER_LINEAR;
+    hdSi.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    hdSi.maxLod = VK_LOD_CLAMP_NONE;  // zero-init clamps to the base level
+    VK_TRY(vkCreateSampler(dev, &hdSi, nullptr, &R.texSamplerHd), "vkCreateSampler(hd)");
     VkDescriptorPoolSize texPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2048};
     VkDescriptorPoolCreateInfo texPci{VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
     texPci.maxSets = 2048; texPci.poolSizeCount = 1; texPci.pPoolSizes = &texPoolSize;
@@ -880,11 +887,15 @@ bool ensurePageTexture(Renderer& R, std::string& error, const PreviewTexture& na
     }
     const PreviewTexture& tex = replacement.rgba.empty() ? native : replacement;
     packDump(native);
+    // A replacement is uploaded with a full CPU mip chain and sampled
+    // trilinearly; the native path keeps the GS's single level, point-sampled.
+    const assets::MipChain mips = replacement.rgba.empty() ? assets::MipChain{} : packMips(tex);
+    const std::uint32_t levels = mips.valid() ? static_cast<std::uint32_t>(mips.levelCount()) : 1u;
     Renderer::TexEntry e;
     VkImageCreateInfo ii{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
     ii.imageType = VK_IMAGE_TYPE_2D; ii.format = VK_FORMAT_R8G8B8A8_UNORM;
     ii.extent = {tex.width, tex.height, 1};
-    ii.mipLevels = 1; ii.arrayLayers = 1; ii.samples = VK_SAMPLE_COUNT_1_BIT;
+    ii.mipLevels = levels; ii.arrayLayers = 1; ii.samples = VK_SAMPLE_COUNT_1_BIT;
     ii.tiling = VK_IMAGE_TILING_OPTIMAL;
     ii.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     ii.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -898,15 +909,29 @@ bool ensurePageTexture(Renderer& R, std::string& error, const PreviewTexture& na
     VK_TRY(vkBindImageMemory(R.dev, e.img, e.mem, 0), "vkBindImageMemory(page)");
     VkImageViewCreateInfo vi{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
     vi.image = e.img; vi.viewType = VK_IMAGE_VIEW_TYPE_2D; vi.format = VK_FORMAT_R8G8B8A8_UNORM;
-    vi.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+    vi.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, levels, 0, 1};
     VK_TRY(vkCreateImageView(R.dev, &vi, nullptr, &e.view), "vkCreateImageView(page)");
 
-    const VkDeviceSize bytes = static_cast<VkDeviceSize>(tex.width) * tex.height * 4;
+    VkDeviceSize bytes = static_cast<VkDeviceSize>(tex.width) * tex.height * 4;
+    for (std::uint32_t i = 1; i < levels; ++i)
+        bytes += static_cast<VkDeviceSize>(mips.levels[i].width) * mips.levels[i].height * 4;
     VkBuffer stage = VK_NULL_HANDLE; VkDeviceMemory stageMem = VK_NULL_HANDLE;
     if (!makeBuffer(R, error, bytes, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, stage, stageMem)) return false;
     void* p = nullptr;
     VK_TRY(vkMapMemory(R.dev, stageMem, 0, bytes, 0, &p), "vkMapMemory(stage)");
-    std::memcpy(p, tex.rgba.data(), bytes);
+    std::vector<VkBufferImageCopy> regions(levels);
+    VkDeviceSize offset = 0;
+    for (std::uint32_t i = 0; i < levels; ++i) {
+        const std::uint32_t lw = i == 0 ? tex.width : mips.levels[i].width;
+        const std::uint32_t lh = i == 0 ? tex.height : mips.levels[i].height;
+        const std::uint8_t* src = i == 0 ? tex.rgba.data() : mips.levels[i].rgba.data();
+        const VkDeviceSize n = static_cast<VkDeviceSize>(lw) * lh * 4;  // 4-byte texels: every offset stays aligned
+        std::memcpy(static_cast<std::uint8_t*>(p) + offset, src, static_cast<std::size_t>(n));
+        regions[i].bufferOffset = offset;
+        regions[i].imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, i, 0, 1};
+        regions[i].imageExtent = {lw, lh, 1};
+        offset += n;
+    }
     vkUnmapMemory(R.dev, stageMem);
 
     VkCommandBufferAllocateInfo cai{VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
@@ -920,18 +945,16 @@ bool ensurePageTexture(Renderer& R, std::string& error, const PreviewTexture& na
     toDst.srcAccessMask = 0; toDst.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     toDst.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED; toDst.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     toDst.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; toDst.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    toDst.image = e.img; toDst.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+    toDst.image = e.img; toDst.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, levels, 0, 1};
     vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
                         0, nullptr, 0, nullptr, 1, &toDst);
-    VkBufferImageCopy region{};
-    region.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
-    region.imageExtent = {tex.width, tex.height, 1};
-    vkCmdCopyBufferToImage(cmd, stage, e.img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    vkCmdCopyBufferToImage(cmd, stage, e.img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           static_cast<std::uint32_t>(regions.size()), regions.data());
     VkImageMemoryBarrier toRead{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
     toRead.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT; toRead.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
     toRead.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL; toRead.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     toRead.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; toRead.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    toRead.image = e.img; toRead.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+    toRead.image = e.img; toRead.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, levels, 0, 1};
     vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
                         0, nullptr, 0, nullptr, 1, &toRead);
     VK_TRY(vkEndCommandBuffer(cmd), "vkEndCommandBuffer(page)");
@@ -946,7 +969,8 @@ bool ensurePageTexture(Renderer& R, std::string& error, const PreviewTexture& na
     VkDescriptorSetAllocateInfo dsai{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
     dsai.descriptorPool = R.texPool; dsai.descriptorSetCount = 1; dsai.pSetLayouts = &R.texSetLayout;
     VK_TRY(vkAllocateDescriptorSets(R.dev, &dsai, &e.set), "vkAllocateDescriptorSets(page)");
-    VkDescriptorImageInfo dii{R.texSampler, e.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
+    VkDescriptorImageInfo dii{levels > 1 ? R.texSamplerHd : R.texSampler, e.view,
+                              VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
     VkWriteDescriptorSet write{VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
     write.dstSet = e.set; write.dstBinding = 0; write.descriptorCount = 1;
     write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; write.pImageInfo = &dii;

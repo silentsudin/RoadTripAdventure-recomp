@@ -346,7 +346,15 @@ naming/index/verdict contract; nothing here invents a second one.
   every texel forced magenta changes 421,929 of 1,440,015 bytes (29 %) with
   the same count on both backends; an empty pack folder is byte-identical
   again. Unit contract test: `native_assets_texture_pack_test` (76 checks).
-- **Not implemented yet** (the OPEN list above, unchanged): mip chains and
-  anisotropic sampling of replacements, per-axis clamp policy, the ASTC/BC7
-  transcode cache, the budget/eviction window, the Options "Texture pack" row
-  and launch-time warm-up.
+- **Mip chain**: a replacement is uploaded with hd_pack's full CPU chain
+  (`buildMipChain`, `mipLevelCount`) and sampled trilinearly
+  (`kLinearMipmapLinear` in GL; a second sampler in Vulkan), so a 4x pack
+  image no longer aliases when minified. The native texture keeps the GS's
+  nearest, single level — no pack means no sampler change, which the
+  race@110 det pair confirms. The chain arrives through the same hook table
+  (`packMips`), so a target without the asset library still links.
+- **Not implemented yet** (the OPEN list above, unchanged): anisotropic
+  sampling (needs the Vulkan `samplerAnisotropy` device feature, so it is a
+  separate, gated change), per-axis clamp policy, the ASTC/BC7 transcode
+  cache, the budget/eviction window, the Options "Texture pack" row and
+  launch-time warm-up.

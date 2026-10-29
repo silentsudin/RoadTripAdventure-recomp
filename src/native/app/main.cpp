@@ -1572,6 +1572,9 @@ int main() {
         [](std::uint32_t w, std::uint32_t h, const std::uint8_t* rgba, std::size_t n) {
             (void)rt::native::assets::dumpTexture(w, h, std::span<const std::uint8_t>(rgba, n));
         },
+        [](std::uint32_t w, std::uint32_t h, const std::uint8_t* rgba, std::size_t n) {
+            return rt::native::assets::buildMipChain(w, h, std::span<const std::uint8_t>(rgba, n));
+        },
     });
     if (const char* packPath = std::getenv("RT_TEXTURE_PACK"); packPath && *packPath) {
         std::string packError;
