@@ -18,6 +18,13 @@
 #endif
 
 namespace rt::native::assets {
+
+std::filesystem::path dataRoot() {
+    if (const char* value = std::getenv("RT_DATA_DIR")) return value;
+    if (const char* home = std::getenv("HOME")) return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp";
+    return {};
+}
+
 namespace {
 constexpr std::uint32_t kBootElfCrc = 0x5A49851Du;
 
@@ -60,12 +67,6 @@ std::uint32_t crcFile(const std::filesystem::path& path) {
         return crc ^ 0xFFFFFFFFu;
     }
     return 0xFFFFFFFFu;
-}
-
-std::filesystem::path dataRoot() {
-    if (const char* value = std::getenv("RT_DATA_DIR")) return value;
-    if (const char* home = std::getenv("HOME")) return std::filesystem::path(home) / "Library/Application Support/RoadTripRecomp";
-    return {};
 }
 
 std::filesystem::path findDisc() {

@@ -1,5 +1,6 @@
 #include "preview.h"
 #include "preview_backend.h"
+#include "texture_pack_bridge.h"
 #include "gl_route.h"
 #include "lighting.h"
 #include "preview_hud_shaders.h"
@@ -860,15 +861,25 @@ std::uint64_t hashTexture(const PreviewTexture& tex) {
 
 // Upload one decoded page to a sampled RGBA8 image (cached by content hash;
 // pages repeat constantly across tiles).
-bool ensurePageTexture(Renderer& R, std::string& error, const PreviewTexture& tex,
+bool ensurePageTexture(Renderer& R, std::string& error, const PreviewTexture& native,
                       Renderer::TexEntry& out) {
-    const std::uint64_t key = hashTexture(tex);
+    const std::uint64_t key = hashTexture(native) ^ packKeySalt();
     auto cached = R.texCache.find(key);
     if (cached != R.texCache.end()) { out = cached->second; return true; }
-    if (!tex.width || !tex.height || tex.rgba.size() < static_cast<std::size_t>(tex.width) * tex.height * 4) {
+    if (!native.width || !native.height ||
+        native.rgba.size() < static_cast<std::size_t>(native.width) * native.height * 4) {
         error = "malformed preview texture";
         return false;
     }
+    // Cache miss: the one place the HD pack is consulted. A replacement is
+    // addressed by the native content but uploaded at its own size (same UV
+    // space); dumping runs beside the upload, never instead of it.
+    PreviewTexture replacement;
+    if (const assets::DecodedImage* rep = packReplacement(native)) {
+        replacement = PreviewTexture{rep->width, rep->height, rep->rgba};
+    }
+    const PreviewTexture& tex = replacement.rgba.empty() ? native : replacement;
+    packDump(native);
     Renderer::TexEntry e;
     VkImageCreateInfo ii{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
     ii.imageType = VK_IMAGE_TYPE_2D; ii.format = VK_FORMAT_R8G8B8A8_UNORM;

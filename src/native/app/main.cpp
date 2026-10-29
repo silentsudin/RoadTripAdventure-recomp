@@ -7,6 +7,8 @@
 #include "assets/glyph_atlas.h"
 #include "assets/native_model.h"
 #include "assets/setup_wizard.h"
+#include "assets/texture_pack.h"
+#include "preview/texture_pack_bridge.h"
 #include "assets/title_screen.h"
 #include "assets/hud_art.h"
 #include "assets/nav_routes.h"
@@ -1553,6 +1555,34 @@ int main() {
                                                rt::native::preview::RendererMode::Gl;
     if (headlessApp && !headlessGl) SDL_SetHint("SDL_VIDEO_DRIVER", "dummy");  // SDL3: no macro
     bootstrapSettings();
+    // HD texture packs (docs/native-reference/hd-texture-packs.md):
+    // RT_TEXTURE_PACK names a pack folder (or one under <data>/textures/packs),
+    // RT_TEXTURE_DUMP writes every texture the renderer uploads. Both unset is
+    // the legacy path, byte for byte.
+    if (const char* dump = std::getenv("RT_TEXTURE_DUMP"); dump && *dump)
+        rt::native::assets::setDumpDirectory(dump);
+    // The renderers reach the pack through hooks (preview/texture_pack_bridge.h);
+    // targets that do not link this app keep the no-op defaults.
+    rt::native::preview::setPackHooks({
+        [] { return 0x9E3779B97F4A7C15ull * rt::native::assets::activeTexturePack().generation(); },
+        [](std::uint32_t w, std::uint32_t h, const std::uint8_t* rgba, std::size_t n) {
+            return rt::native::assets::activeTexturePack().replacement(
+                w, h, std::span<const std::uint8_t>(rgba, n));
+        },
+        [](std::uint32_t w, std::uint32_t h, const std::uint8_t* rgba, std::size_t n) {
+            (void)rt::native::assets::dumpTexture(w, h, std::span<const std::uint8_t>(rgba, n));
+        },
+    });
+    if (const char* packPath = std::getenv("RT_TEXTURE_PACK"); packPath && *packPath) {
+        std::string packError;
+        const bool on = rt::native::assets::activeTexturePack().load(
+            rt::native::assets::resolvePackPath(packPath), packError);
+        std::cout << "rt-app texture pack: "
+                  << (on ? std::to_string(rt::native::assets::activeTexturePack().imageCount()) +
+                               " images, " + rt::native::assets::activeTexturePack().folder().string()
+                         : "not loaded (" + packError + ")")
+                  << "\n";
+    }
     // Headless keeps the log-only setup here; windowed runs set up after the presenter exists (draws the panel).
     if (headlessApp) (void)rt::native::assets::RunFirstRunSetupIfRequired();
     // W3-06 enhancement registry (RT_ENHANCE_*): parsed once at startup; every

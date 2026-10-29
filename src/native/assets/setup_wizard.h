@@ -17,6 +17,10 @@ struct SetupManifestFile {
 struct SetupManifest { std::vector<SetupManifestFile> files; };
 
 std::uint32_t crc32(const std::vector<unsigned char>& bytes);
+// The app's data directory (RT_DATA_DIR, else the platform default): disc,
+// saves, settings, texture packs.
+std::filesystem::path dataRoot();
+
 bool hasExpectedBootElfCrc(const std::filesystem::path& elf);
 bool writeSetupManifest(const std::filesystem::path& path, const SetupManifest& manifest);
 bool isSetupManifestValid(const std::filesystem::path& assetsRoot);

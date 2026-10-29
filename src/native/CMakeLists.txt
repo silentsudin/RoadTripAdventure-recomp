@@ -108,6 +108,7 @@ set(RT_NATIVE_ASSET_SOURCES
 # staged files are integrated.
 foreach(_rt_staged_source
         assets/course_props.cpp assets/car_models.cpp assets/glyph_atlas.cpp assets/hd_pack.cpp
+        assets/png_decode.cpp assets/texture_pack.cpp
         gameplay/rules_tables.cpp gameplay/hud_layout.cpp gameplay/glyphs.cpp
         gameplay/settings.cpp gameplay/map_view.cpp
         app/output_modes.cpp
@@ -802,6 +803,13 @@ add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test assert
     endforeach()
     # staged test target (hd_pack): same registration shape as the list above,
     # on its own block so concurrent work streams don't share an anchor line.
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_texture_pack.cpp")
+        add_executable(native_assets_texture_pack_test
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_texture_pack.cpp")
+        target_link_libraries(native_assets_texture_pack_test PRIVATE rt_native_assets)
+        target_compile_features(native_assets_texture_pack_test PRIVATE cxx_std_20)
+        target_compile_options(native_assets_texture_pack_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+    endif()
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_hd_pack.cpp")
         add_executable(native_assets_hd_pack_test
             "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_hd_pack.cpp")

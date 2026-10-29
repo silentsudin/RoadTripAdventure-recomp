@@ -4,6 +4,7 @@
 #include "preview/gl_api.h"
 #include "preview/gl_route.h"
 #include "preview/preview_backend.h"
+#include "preview/texture_pack_bridge.h"
 
 #include <chrono>
 #include <cstdint>
@@ -250,14 +251,23 @@ std::uint64_t hashTexture(const PreviewTexture& tex) {  // same FNV-1a as previe
 }
 
 // One RGBA8 texture object per distinct content (FNV-1a of w,h,rgba), sampler state from samplerFor().
-GLuint textureFor(GlRenderer& R, const PreviewTexture& tex, SamplerClass cls, std::string& error) {
-    if (!tex.width || !tex.height || tex.rgba.size() < static_cast<std::size_t>(tex.width) * tex.height * 4) {
+GLuint textureFor(GlRenderer& R, const PreviewTexture& native, SamplerClass cls, std::string& error) {
+    if (!native.width || !native.height ||
+        native.rgba.size() < static_cast<std::size_t>(native.width) * native.height * 4) {
         error = "malformed preview texture"; return 0;
     }
     const Gl& g = R.gl;
-    const std::uint64_t key = hashTexture(tex);
+    const std::uint64_t key = hashTexture(native) ^ packKeySalt();
     auto it = R.textures.find(key);
     if (it == R.textures.end()) {
+        // Miss: consult the HD pack once, upload its image (at its own size,
+        // same UV space) or the native texture, and dump beside the upload.
+        PreviewTexture replacement;
+        if (const assets::DecodedImage* rep = packReplacement(native)) {
+            replacement = PreviewTexture{rep->width, rep->height, rep->rgba};
+        }
+        const PreviewTexture& tex = replacement.rgba.empty() ? native : replacement;
+        packDump(native);
         const SamplerDesc sd = samplerFor(cls);
         GLuint t = 0; g.GenTextures(1, &t); g.BindTexture(kTexture2D, t);
         const GLint filter = static_cast<GLint>(sd.nearest ? kNearest : kLinear);

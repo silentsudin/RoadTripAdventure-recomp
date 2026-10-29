@@ -310,3 +310,43 @@ The key is a function of **content only**. Consequences:
   path) and the HUD-atlas region semantics under replacement.
 - Actual native budget measurements; `RT_APP_TEXPACK_BUDGET_MB` naming.
 - Options-menu surface ("Texture pack" row), launch-time pack warm-up UX.
+
+## As implemented in the native app (2026-10-28)
+
+`assets/texture_pack.{h,cpp}` (+ `assets/png_decode.{h,cpp}`) is the app glue,
+`preview/texture_pack_bridge.h` the renderers' seam. hd_pack keeps owning the
+naming/index/verdict contract; nothing here invents a second one.
+
+- **Selection**: `RT_TEXTURE_PACK=<folder|name>` — an existing directory is used
+  as-is, otherwise the name is a folder under `<data>/textures/packs`.
+  `RT_TEXTURE_DUMP=<dir>` writes every texture the renderer uploads as
+  `<key>_<W>x<H>.pam` (PAM keeps alpha), on the same naming a pack folder
+  accepts. Both are loaded once at startup; there is no live switch and no
+  Options row yet (the row needs a dynamic folder list in the catalogue).
+- **Where the lookup happens**: on a texture-cache MISS only, in both backends
+  (`preview_vk.cpp` `ensurePageTexture`, `preview_gl.cpp` `textureFor`), so a
+  frame pays nothing for an inactive pack. The cache key mixes the pack's
+  generation, so a switch can never serve the previous pack's image.
+- **Formats**: PNG (8-bit, colour types 0/2/3/4/6, PLTE + tRNS honoured,
+  non-interlaced) and PAM P7 (depth 1..4) / PPM P6, all decoded to RGBA8 with
+  the file's own alpha. 16-bit and interlaced PNGs are refused with a logged
+  reason rather than guessed at (`assets/png_decode.cpp`, its own inflate — no
+  zlib/libpng dependency ships). A pack file is untrusted input: images are
+  capped at 16.7M pixels (4096x4096 RGBA8 = 64 MB), the IHDR is checked the
+  moment it is read, image data before the IHDR is refused, an IDAT above
+  2*raster + 64 KiB is refused before it is kept, the inflate never expands
+  past that raster, and a file above 72 MB is never read, so a corrupt or
+  hostile file cannot allocate past its own stated size. These are resource
+  caps, not a proof about every legal stream: a valid image padded with
+  empty deflate blocks is refused too, and a pad adds no picture.
+- **Fallback**: a miss, a stale `_src` name, an unreadable file and a refused
+  image all draw the native texture and log once. Verified end to end on
+  `race@110` (headless, Vulkan **and** GL): dumping 146 textures leaves the
+  snapshot byte-identical to the golden; a pack made from those dumps with
+  every texel forced magenta changes 421,929 of 1,440,015 bytes (29 %) with
+  the same count on both backends; an empty pack folder is byte-identical
+  again. Unit contract test: `native_assets_texture_pack_test` (76 checks).
+- **Not implemented yet** (the OPEN list above, unchanged): mip chains and
+  anisotropic sampling of replacements, per-axis clamp policy, the ASTC/BC7
+  transcode cache, the budget/eviction window, the Options "Texture pack" row
+  and launch-time warm-up.

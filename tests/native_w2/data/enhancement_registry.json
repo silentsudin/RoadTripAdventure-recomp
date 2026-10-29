@@ -396,6 +396,30 @@
     "notes": "main.cpp:349 resolveDiscOrPackaged asset override; android bootstrap sets it to internal storage assets (main.cpp:150)"
   },
   {
+    "id": "texture_pack",
+    "ledger": "-",
+    "env_vars": ["RT_TEXTURE_PACK"],
+    "persisted_keys": [],
+    "default": "off (native textures)",
+    "gating": "always",
+    "owners": ["src/native/app/main.cpp", "src/native/assets/texture_pack.cpp", "src/native/preview/texture_pack_bridge.h"],
+    "docs": ["docs/native-reference/hd-texture-packs.md"],
+    "status": "live",
+    "notes": "main.cpp texture-pack bootstrap: a folder under <data>/textures/packs serves replacements by content key; every miss/stale/refused image falls back to the native texture"
+  },
+  {
+    "id": "texture_dump",
+    "ledger": "-",
+    "env_vars": ["RT_TEXTURE_DUMP"],
+    "persisted_keys": [],
+    "default": "off",
+    "gating": "always",
+    "owners": ["src/native/app/main.cpp", "src/native/assets/texture_pack.cpp", "src/native/preview/texture_pack_bridge.h"],
+    "docs": ["docs/native-reference/hd-texture-packs.md"],
+    "status": "live",
+    "notes": "one PAM per uploaded texture (dump beside the upload); a dump folder is directly pack-usable"
+  },
+  {
     "id": "pause_menu_open",
     "ledger": "-",
     "env_vars": ["RT_MENU"],
@@ -700,12 +724,12 @@
     "ledger": "hd_packs",
     "env_vars": [],
     "persisted_keys": [],
-    "default": "pack module + keying pipeline; no pack lookup wired into the app",
+    "default": "pack module + keying + app lookup (RT_TEXTURE_PACK / RT_TEXTURE_DUMP)",
     "gating": "disc",
-    "owners": ["src/native/assets/hd_pack.cpp", "src/native/assets/hd_pack.h", "src/native/assets/image_converter.cpp"],
+    "owners": ["src/native/assets/hd_pack.cpp", "src/native/assets/hd_pack.h", "src/native/assets/image_converter.cpp", "src/native/assets/texture_pack.cpp", "src/native/preview/texture_pack_bridge.h"],
     "docs": ["docs/native-reference/hd-texture-packs.md", "docs/native-reference/feature-retention.md"],
     "status": "wired",
-    "notes": "StableContentKey from the native RGBA8 decode path (hd_pack.h:20-40); replacement/dump API exists; app glue (pack discovery + VkImage cache swap) pending"
+    "notes": "StableContentKey from the native RGBA8 decode path (hd_pack.h:20-40); the renderers consult the pack on a texture-cache miss (Vulkan ensurePageTexture / GL textureFor) and every miss, stale _src, unreadable or refused image falls back to the native texture"
   },
   {
     "id": "elf_path",
