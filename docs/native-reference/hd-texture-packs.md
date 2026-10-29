@@ -309,7 +309,8 @@ The key is a function of **content only**. Consequences:
 - Per-draw clamp-state plumbing (REGION_CLAMP semantics of the native draw
   path) and the HUD-atlas region semantics under replacement.
 - Actual native budget measurements; `RT_APP_TEXPACK_BUDGET_MB` naming.
-- Options-menu surface ("Texture pack" row), launch-time pack warm-up UX.
+- Options-menu surface ("Texture pack" row) and launch-time pack warm-up UX.
+  The row landed with the app glue (see "As implemented"); warm-up did not.
 
 ## As implemented in the native app (2026-10-28)
 
@@ -318,7 +319,10 @@ The key is a function of **content only**. Consequences:
 naming/index/verdict contract; nothing here invents a second one.
 
 - **Selection**: `RT_TEXTURE_PACK=<folder|name>` — an existing directory is used
-  as-is, otherwise the name is a folder under `<data>/textures/packs`.
+  as-is, otherwise the name is a folder under `<data>/textures/packs`. The
+  Options row (Graphics → Texture pack) lists those folders, "Off" first, and
+  writes the chosen name back into `RT_TEXTURE_PACK` at the next start; an
+  explicit environment value still wins.
   `RT_TEXTURE_DUMP=<dir>` writes every texture the renderer uploads as
   `<key>_<W>x<H>.pam` (PAM keeps alpha), on the same naming a pack folder
   accepts. Both are loaded once at startup; there is no live switch and no
@@ -353,8 +357,8 @@ naming/index/verdict contract; nothing here invents a second one.
   nearest, single level — no pack means no sampler change, which the
   race@110 det pair confirms. The chain arrives through the same hook table
   (`packMips`), so a target without the asset library still links.
-- **Not implemented yet** (the OPEN list above, unchanged): anisotropic
-  sampling (needs the Vulkan `samplerAnisotropy` device feature, so it is a
-  separate, gated change), per-axis clamp policy, the ASTC/BC7 transcode
-  cache, the budget/eviction window, the Options "Texture pack" row and
-  launch-time warm-up.
+- **Not implemented yet**: anisotropic sampling (needs the Vulkan
+  `samplerAnisotropy` device feature, so it is a separate, gated change),
+  per-axis clamp policy, the ASTC/BC7 transcode cache, the budget/eviction
+  window, and launch-time pack warm-up. A pack chosen in Options is applied
+  at the next start (as the sibling rows do), not live.

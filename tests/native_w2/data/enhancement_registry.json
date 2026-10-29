@@ -399,7 +399,7 @@
     "id": "texture_pack",
     "ledger": "-",
     "env_vars": ["RT_TEXTURE_PACK"],
-    "persisted_keys": [],
+    "persisted_keys": ["graphics.texture_pack"],
     "default": "off (native textures)",
     "gating": "always",
     "owners": ["src/native/app/main.cpp", "src/native/assets/texture_pack.cpp", "src/native/preview/texture_pack_bridge.h"],

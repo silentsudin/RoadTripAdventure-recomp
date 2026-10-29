@@ -98,6 +98,7 @@ is the `MenuContext` predicate that hides the row (`settings.h`
 |---|---|---|---|---|---|
 | `graphics.terrain` | Disc terrain | `RT_APP_TERRAIN` | off | always | wired-now |
 | `graphics.textures` | Field textures | `RT_APP_TEXTURES` | off | requires terrain | wired-now |
+| `graphics.texture_pack` | Texture pack | `RT_TEXTURE_PACK` | Off | always | wired-now |
 | `graphics.terrain_file` | Single tile file | `RT_APP_TERRAIN_FILE` | (empty) | requires terrain | wired-now |
 | `graphics.stream` | Tile streaming (4-slot) | `RT_APP_STREAM` | off | requires terrain | wired-now |
 | `graphics.stream_step_frames` | Stream sweep step | `RT_APP_STREAM_STEP_FRAMES` | 10 | requires stream | wired-now |

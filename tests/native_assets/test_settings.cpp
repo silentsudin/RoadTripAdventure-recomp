@@ -169,6 +169,7 @@ static void testCatalogMapsEveryEnumeratedEnvFlag() {
         "RT_APP_SCOREHUD", "RT_APP_SNAPSHOT", "RT_APP_STATE", "RT_APP_STREAM",
         "RT_APP_STREAM_POS", "RT_APP_STREAM_ROW", "RT_APP_STREAM_STEP_FRAMES",
         "RT_APP_TERRAIN", "RT_APP_TERRAIN_FILE", "RT_APP_TEXTURES", "RT_DISC",
+        "RT_TEXTURE_PACK",
     };
     for (const std::string& flag : mustCover) {
         bool found = false;
@@ -181,6 +182,47 @@ static void testCatalogMapsEveryEnumeratedEnvFlag() {
     for (std::size_t i = 0; i < model.options().size(); ++i)
         for (std::size_t j = i + 1; j < model.options().size(); ++j)
             CHECK(model.options()[i].id != model.options()[j].id);
+}
+
+// The Texture pack row lists what is installed: "Off" first, then every
+// folder under <data>/textures/packs in sorted order, from the data root the
+// app resolves (RT_DATA_DIR). A pack dropped in shows up on the next build.
+static void testTexturePackRowListsFolders() {
+    const std::filesystem::path dir = tempDir();
+    const char* saved = std::getenv("RT_DATA_DIR");
+    const std::string keep = saved ? saved : "";
+    std::filesystem::create_directories(dir / "textures" / "packs" / "zeta");
+    std::filesystem::create_directories(dir / "textures" / "packs" / "alpha");
+    std::filesystem::create_directories(dir / "textures" / "packs" / "Off");  // reserved value
+    std::filesystem::create_directories(dir / "textures" / "dumps");  // not a pack
+    ::setenv("RT_DATA_DIR", dir.string().c_str(), 1);
+    OptionsModel model;
+    const OptionSpec* pack = model.find("graphics.texture_pack");
+    CHECK(pack != nullptr);
+    if (pack) {
+        CHECK(pack->type == OptionType::Enum);
+        CHECK(pack->domain.size() == 3);
+        CHECK(!pack->domain.empty() && pack->domain[0] == "Off");
+        CHECK(pack->domain.size() > 2 && pack->domain[1] == "alpha" && pack->domain[2] == "zeta");
+        CHECK(pack->defaultRaw == "Off");
+        // A folder literally named "Off" is not offered a second time.
+        CHECK(std::count(pack->domain.begin(), pack->domain.end(), std::string("Off")) == 1);
+    }
+    if (saved) ::setenv("RT_DATA_DIR", keep.c_str(), 1); else ::unsetenv("RT_DATA_DIR");
+    std::filesystem::remove_all(dir);
+
+    // With no data root at all (neither RT_DATA_DIR nor HOME) the row still
+    // lists only "Off": nothing is scanned relative to the working directory.
+    const char* savedHome = std::getenv("HOME");
+    const std::string keepHome = savedHome ? savedHome : "";
+    ::unsetenv("RT_DATA_DIR");
+    ::unsetenv("HOME");
+    OptionsModel bare;
+    const OptionSpec* barePack = bare.find("graphics.texture_pack");
+    CHECK(barePack != nullptr);
+    if (barePack) CHECK(barePack->domain.size() == 1 && barePack->domain[0] == "Off");
+    if (savedHome) ::setenv("HOME", keepHome.c_str(), 1);
+    if (saved) ::setenv("RT_DATA_DIR", keep.c_str(), 1);
 }
 
 static void testAvailabilityGamepadHiddenTriggers() {
@@ -461,6 +503,7 @@ int main() {
     testStoreTypedClampsAndFallbacks();
     testStoreOneWriterAndEmptyPath();
     testCatalogMapsEveryEnumeratedEnvFlag();
+    testTexturePackRowListsFolders();
     testAvailabilityGamepadHiddenTriggers();
     testNavigatorInitialStateAndWrap();
     testNavigatorPageEntryAdjustAndBack();

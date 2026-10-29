@@ -5,11 +5,14 @@
 // docs/native-reference/options-menu.md). AUTHORED-for-native (CLAUDE.md:87).
 #include "gameplay/settings.h"
 
+#include "assets/setup_wizard.h"
+
 #include <algorithm>
 #include <cctype>
 #include <charconv>
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <system_error>
 
@@ -269,6 +272,30 @@ std::filesystem::path defaultSettingsPath(const std::filesystem::path& dataDirec
 namespace {
 
 // Small builders keep the catalog table readable below.
+// The Texture pack row's choices: "Off" (native textures) then every pack
+// folder under <data>/textures/packs, sorted, so the row lists what is
+// installed. Read at catalogue build time; a pack dropped in shows up the
+// next time the Options model is made.
+std::vector<std::string> texturePackChoices() {
+    std::vector<std::string> out{"Off"};
+    const auto data = assets::dataRoot();
+    if (data.empty()) return out;  // no data root: nothing is installed
+    std::error_code ec;
+    std::filesystem::directory_iterator it(data / "textures" / "packs", ec), end;
+    if (ec) return out;
+    for (; it != end; it.increment(ec)) {
+        if (ec) break;
+        std::error_code dirEc;
+        if (!it->is_directory(dirEc) || dirEc) continue;
+        const std::string name = it->path().filename().string();
+        // "Off" is the row's own value, never a pack name.
+        if (name.empty() || name == "Off") continue;
+        if (std::find(out.begin(), out.end(), name) == out.end()) out.push_back(name);
+    }
+    std::sort(out.begin() + 1, out.end());
+    return out;
+}
+
 OptionSpec toggle(std::string id, std::string label, OptionPage page, bool on,
                   OptionAvailability avail, OptionStatus status,
                   std::vector<std::string> flags, std::string note) {
@@ -455,6 +482,9 @@ OptionsModel::OptionsModel() {
         A::Always, S::WiredNow, {"RT_APP_TERRAIN"}, "real FLD-tile terrain instead of the grass quad"));
     options_.push_back(toggle("graphics.textures", "Field textures", P::Graphics, false,
         A::RequiresTerrain, S::WiredNow, {"RT_APP_TEXTURES"}, "decode per-tile GS uploads to RGBA8"));
+    options_.push_back(enumOpt("graphics.texture_pack", "Texture pack", P::Graphics,
+        texturePackChoices(), A::Always, S::WiredNow, {"RT_TEXTURE_PACK"},
+        "folders under <data>/textures/packs; applied at the next start (RT_TEXTURE_PACK)"));
     options_.push_back(stringOpt("graphics.terrain_file", "Single tile file", P::Graphics,
         A::RequiresTerrain, S::WiredNow, {"RT_APP_TERRAIN_FILE"}, "one explicit FLD tile instead of the grid"));
     options_.push_back(toggle("graphics.stream", "Tile streaming (4-slot)", P::Graphics, false,

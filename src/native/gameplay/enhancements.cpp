@@ -245,7 +245,7 @@ const std::vector<EnhancementSpec>& registryTable() {
          RetentionStatus::Live,
          "main.cpp:349 resolveDiscOrPackaged asset override; android bootstrap sets it to internal storage assets (main.cpp:150)"},
         {"texture_pack", "-",
-         "RT_TEXTURE_PACK", "", "off (native textures)", "always",
+         "RT_TEXTURE_PACK", "graphics.texture_pack", "off (native textures)", "always",
          "src/native/app/main.cpp|src/native/assets/texture_pack.cpp|src/native/preview/texture_pack_bridge.h",
          "docs/native-reference/hd-texture-packs.md",
          RetentionStatus::Live,

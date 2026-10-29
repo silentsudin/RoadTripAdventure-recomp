@@ -246,6 +246,13 @@ void bootstrapSettings() {
     boolFlag("graphics.terrain", "RT_APP_TERRAIN");
     boolFlag("graphics.textures", "RT_APP_TEXTURES");
     boolFlag("graphics.stream", "RT_APP_STREAM");
+    // Texture pack: the Options row stores a folder name under
+    // <data>/textures/packs ("Off" = native textures); RT_TEXTURE_PACK still
+    // wins when set, and the pack is loaded below after this runs.
+    if (store.contains("graphics.texture_pack")) {
+        const std::string pack = store.getString("graphics.texture_pack", "Off");
+        if (pack != "Off" && !pack.empty()) setDefaultEnv("RT_TEXTURE_PACK", pack);
+    }
     boolFlag("graphics.stream_pos", "RT_APP_STREAM_POS");
     boolFlag("graphics.nav", "RT_APP_NAV");
     boolFlag("graphics.nav_town", "RT_APP_NAV_TOWN");
