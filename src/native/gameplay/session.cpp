@@ -6,10 +6,11 @@ namespace rt::native::gameplay {
 
 namespace {
 
-GameLoopParams makeRaceParams(int totalLaps) {
+GameLoopParams makeRaceParams(int totalLaps, float farPlane) {
     GameLoopParams params;
     params.raceMode = true;
     params.totalLaps = std::max(totalLaps, 1);
+    params.farZ = farPlane;
     return params;
 }
 
@@ -25,8 +26,8 @@ std::uint32_t rewardForRank(int rank) {
 
 }  // namespace
 
-GameSession::GameSession(int totalLaps)
-    : progress_(makeDefaultSave()), gameLoop_(makeRaceParams(totalLaps)) {
+GameSession::GameSession(int totalLaps, float farPlane)
+    : progress_(makeDefaultSave()), gameLoop_(makeRaceParams(totalLaps, farPlane)) {
     // Begin every Adventure at the Peach Town square so facade reads,
     // explore camera and terrain streaming all show the town on boot.
     // Face the town core: mesh building-band (y 4.5..9 RU) centroid sits at

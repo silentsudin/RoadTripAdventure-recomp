@@ -267,7 +267,7 @@
     "id": "tiles_radius",
     "ledger": "world_streaming",
     "env_vars": ["RT_APP_TILES_RADIUS"],
-    "persisted_keys": [],
+    "persisted_keys": ["graphics.draw_distance"],
     "default": "1 (5-tile neighbourhood around Peach Town)",
     "gating": "disc",
     "owners": ["src/native/app/main.cpp"],

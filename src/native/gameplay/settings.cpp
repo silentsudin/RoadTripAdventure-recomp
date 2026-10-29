@@ -485,6 +485,13 @@ OptionsModel::OptionsModel() {
     options_.push_back(enumOpt("graphics.texture_pack", "Texture pack", P::Graphics,
         texturePackChoices(), A::Always, S::WiredNow, {"RT_TEXTURE_PACK"},
         "folders under <data>/textures/packs; applied at the next start (RT_TEXTURE_PACK)"));
+    // Draw distance widens the terrain neighbourhood. Two steps only: the
+    // scene's far plane is 500 render units and "Wide" (radius 2, +/-320)
+    // stays inside it, while a third step would clip at the corners.
+    options_.push_back(enumOpt("graphics.draw_distance", "Draw distance", P::Graphics,
+        {"Default (original)", "Wide"}, A::RequiresTerrain, S::WiredNow,
+        {"RT_APP_TILES_RADIUS"},
+        "terrain neighbourhood radius 2 instead of 1; applied at the next start"));
     options_.push_back(stringOpt("graphics.terrain_file", "Single tile file", P::Graphics,
         A::RequiresTerrain, S::WiredNow, {"RT_APP_TERRAIN_FILE"}, "one explicit FLD tile instead of the grid"));
     options_.push_back(toggle("graphics.stream", "Tile streaming (4-slot)", P::Graphics, false,

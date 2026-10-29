@@ -32,7 +32,7 @@ Status legend: `absent` — the native app has no such feature; `partial`; `pres
 | #25 | Import a PCSX2 save file | `absent` | `gameplay/save.h` already parses the 13,384-byte progress block; the import is a container mapping (PCSX2 .psu/.ps2/.xps → that block) plus a menu row |
 | #26 | Force high-quality LOD for cars and wheels | `absent` | the native car mesh has one LOD; the option would force it in the game's own LOD selection |
 | #27 | Right thumbstick / analog camera control | `absent` | `gameplay/input_map` + camera: bind a stick axis to camera yaw/pitch |
-| #28 | Increased draw / render distance | `partial` | `gameplay/tile_streamer` already has a radius (`RT_APP_TILES_RADIUS`); needs a user-facing row and a wider far plane |
+| #28 | Increased draw / render distance | **implemented (two steps)** | Options > Graphics > `Draw distance` (`graphics.draw_distance`) maps to the terrain neighbourhood radius (`RT_APP_TILES_RADIUS`), applied at the next start; an explicit env value still wins. The scene's far plane follows the radius (`GameSession`'s `farPlane`, 500 render units x radius) so the wider neighbourhood's 679-unit far corner is not clipped; the default stays exactly 500. Headless, terrain scene: Default loads `tiles=9` (radius=1), Wide loads `tiles=23` (radius=2, `farZ=1000`) and changes 738,544 of 1,440,015 frame bytes. Radius 3 would need a far plane past 1,000 units; the row deliberately has no third step |
 | #30 | Custom race / opponents grid | `absent` | race setup (`gameplay/race_rules`, `session`) plus a grid editor UI |
 
 ## Notes

@@ -169,7 +169,7 @@ static void testCatalogMapsEveryEnumeratedEnvFlag() {
         "RT_APP_SCOREHUD", "RT_APP_SNAPSHOT", "RT_APP_STATE", "RT_APP_STREAM",
         "RT_APP_STREAM_POS", "RT_APP_STREAM_ROW", "RT_APP_STREAM_STEP_FRAMES",
         "RT_APP_TERRAIN", "RT_APP_TERRAIN_FILE", "RT_APP_TEXTURES", "RT_DISC",
-        "RT_TEXTURE_PACK",
+        "RT_TEXTURE_PACK", "RT_APP_TILES_RADIUS",
     };
     for (const std::string& flag : mustCover) {
         bool found = false;

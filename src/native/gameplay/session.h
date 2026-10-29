@@ -22,8 +22,10 @@ inline constexpr float kTownSpawnZ = 442.230f;
 class GameSession {
 public:
     // A single lap keeps the authored host loop concise while GameLoop remains
-    // configurable for callers that want longer races.
-    explicit GameSession(int totalLaps = 1);
+    // configurable for callers that want longer races. `farPlane` is the
+    // scene's far clip: the app raises it with the draw-distance row so a
+    // wider terrain neighbourhood is not cut at its far corner.
+    explicit GameSession(int totalLaps = 1, float farPlane = 500.f);
 
     [[nodiscard]] SessionState state() const { return state_; }
     void update(const MenuInput& input, const CarInput* driveInput = nullptr);

@@ -253,6 +253,14 @@ void bootstrapSettings() {
         const std::string pack = store.getString("graphics.texture_pack", "Off");
         if (pack != "Off" && !pack.empty()) setDefaultEnv("RT_TEXTURE_PACK", pack);
     }
+    // Draw distance: the row is the terrain neighbourhood radius (1 or 2
+    // lattice steps); an explicit RT_APP_TILES_RADIUS still wins.
+    if (store.contains("graphics.draw_distance")) {
+        const std::string distance =
+            store.getEnum("graphics.draw_distance", "Default (original)",
+                          {"Default (original)", "Wide"});
+        setDefaultEnv("RT_APP_TILES_RADIUS", distance == "Wide" ? "2" : "1");
+    }
     boolFlag("graphics.stream_pos", "RT_APP_STREAM_POS");
     boolFlag("graphics.nav", "RT_APP_NAV");
     boolFlag("graphics.nav_town", "RT_APP_NAV_TOWN");
@@ -2091,7 +2099,19 @@ int main() {
     };
     // One lap lets the headless host exercise the complete authored session
     // loop promptly; GameSession enables race mode for its owned GameLoop.
-    rt::native::gameplay::GameSession session(1);
+    // Draw distance (Options -> graphics.draw_distance -> RT_APP_TILES_RADIUS)
+    // widens the terrain neighbourhood to radius*160 render units per axis,
+    // so the far plane follows: radius 2 reaches a 679-unit far corner and
+    // would be clipped by the 500-unit default. Off stays exactly 500.
+    const float drawFarPlane = [] {
+        const char* v = std::getenv("RT_APP_TILES_RADIUS");
+        int r = 1;
+        if (v) r = std::strcmp(v, "all") == 0 ? 4 : std::atoi(v);
+        return 500.f * static_cast<float>(std::max(1, std::min(r, 4)));
+    }();
+    if (drawFarPlane > 500.f)
+        std::cout << "rt-app draw distance: farZ=" << drawFarPlane << "\n";
+    rt::native::gameplay::GameSession session(1, drawFarPlane);
     bool adventureLoaded = false;  // a slot was restored: the second screen's Notebook has an Adventure to show
     if (const auto slot = envSlot("RT_APP_LOAD_SLOT")) {
         rt::native::gameplay::SaveData loaded{};

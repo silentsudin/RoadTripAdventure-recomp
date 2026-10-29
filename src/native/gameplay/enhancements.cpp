@@ -170,7 +170,7 @@ const std::vector<EnhancementSpec>& registryTable() {
          RetentionStatus::Wired,
          "main.cpp:954-967: one explicit FLD tile; ignored under RT_APP_STREAM; matrix row single_tile"},
         {"tiles_radius", "world_streaming",
-         "RT_APP_TILES_RADIUS", "", "1 (5-tile neighbourhood around Peach Town)", "disc",
+         "RT_APP_TILES_RADIUS", "graphics.draw_distance", "1 (5-tile neighbourhood around Peach Town)", "disc",
          "src/native/app/main.cpp",
          "code:src/native/app/main.cpp|plan",
          RetentionStatus::Live,
