@@ -305,6 +305,56 @@ static void testSetCarPoseFreezesMotion() {
     CHECK(nearEq(s4.cameraEye.y, 2.f + 7.f * std::sin(kChasePitchRad), 0.01f));
 }
 
+static void testAnalogCameraOrbit() {
+    // Options > Controllers > Analog camera: the right stick orbits the view
+    // around the eye. Zero deflection must be the original path exactly.
+    GameLoop g;
+    const MenuInput mi = makeMi();
+    const FrameSnapshot base = g.tickPlayer(0.f, mi, CarInput{});
+    g.setCameraLook(0.f, 0.f);
+    const FrameSnapshot rest = g.tickPlayer(0.f, mi, CarInput{});
+    for (int i = 0; i < 16; ++i) CHECK(rest.view[i] == base.view[i]);
+    CHECK(rest.cameraTarget.x == base.cameraTarget.x);
+    CHECK(rest.cameraTarget.y == base.cameraTarget.y);
+    CHECK(rest.cameraTarget.z == base.cameraTarget.z);
+
+    // Inside the deadzone the stick cannot move the view (drift-safe).
+    g.setCameraLook(kCameraLookDeadzone * 0.9f, -kCameraLookDeadzone * 0.9f);
+    const FrameSnapshot dead = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(dead.cameraTarget.x == base.cameraTarget.x);
+    CHECK(dead.cameraTarget.z == base.cameraTarget.z);
+
+    // Full right: eye and car stay put, the look direction turns a quarter
+    // turn toward screen right (-X in this look-at basis).
+    g.setCameraLook(1.f, 0.f);
+    const FrameSnapshot right = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(right.cameraEye.x == base.cameraEye.x);
+    CHECK(right.cameraEye.y == base.cameraEye.y);
+    CHECK(right.cameraEye.z == base.cameraEye.z);
+    CHECK(right.carPosition.x == base.carPosition.x);
+    CHECK(right.carPosition.z == base.carPosition.z);
+    const Vec3 d0 = base.cameraTarget - base.cameraEye;
+    const Vec3 d1 = right.cameraTarget - right.cameraEye;
+    CHECK(nearEq(d1.x, -d0.z, 1e-4f));
+    CHECK(nearEq(d1.z, d0.x, 1e-4f));
+    CHECK(nearEq(d1.y, d0.y, 1e-4f));
+    CHECK(!nearEq(right.view[2], base.view[2], 1e-4f));
+
+    // Full up looks up, full down looks down (pitch about the camera's right).
+    g.setCameraLook(0.f, -1.f);
+    const FrameSnapshot up = g.tickPlayer(0.f, mi, CarInput{});
+    g.setCameraLook(0.f, 1.f);
+    const FrameSnapshot down = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK((up.cameraTarget - up.cameraEye).y > d0.y);
+    CHECK((down.cameraTarget - down.cameraEye).y < d0.y);
+
+    // Back to rest: the exact original view again (no residual offset).
+    g.setCameraLook(0.f, 0.f);
+    const FrameSnapshot back = g.tickPlayer(0.f, mi, CarInput{});
+    CHECK(back.cameraTarget.z == base.cameraTarget.z);
+    CHECK(back.cameraTarget.y == base.cameraTarget.y);
+}
+
 int main() {
     testExtractedCameraConstants();
     testBehindAndAbove();
@@ -316,6 +366,7 @@ int main() {
     testSetCarPoseReanchorsDeterministically();
     testSetCarPoseFreezesMotion();
     testAspectDoesNotMoveEye();
+    testAnalogCameraOrbit();
     if (g_fail) { std::fprintf(stderr, "%d failure(s)\n", g_fail); return 1; }
     std::puts("camera: all checks passed");
     return 0;

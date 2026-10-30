@@ -268,6 +268,7 @@ void bootstrapSettings() {
     boolFlag("graphics.route_town", "RT_APP_ROUTE_TOWN");
     boolFlag("graphics.hudtext", "RT_APP_HUDTEXT");
     boolFlag("controllers.triggers", "RT_APP_TRIGGERS");
+    boolFlag("controllers.analog_camera", "RT_APP_ANALOG_CAMERA");
     if (store.contains("display.interp")) setDefaultEnv("RT_APP_INTERP", store.getBool("display.interp", false) ? "1" : "0");
     if (store.contains("display.interp_cap")) setDefaultEnv("RT_APP_INTERP_CAP", std::to_string(store.getInt("display.interp_cap", 2, 1, 99)));
     if (store.contains("display.interp_rate")) setDefaultEnv("RT_APP_INTERP_RATE", std::to_string(store.getInt("display.interp_rate", 0, 0, 999)));
@@ -1697,6 +1698,10 @@ int main() {
         return value && std::strcmp(value, "1") == 0;
     }();
     if (triggersEnabled) std::cout << "rt-app triggers: enabled\n";
+    const bool analogCamera = [] {
+        const char* value = std::getenv("RT_APP_ANALOG_CAMERA");
+        return value && std::strcmp(value, "1") == 0;
+    }();
     const bool perfOverlayEnabled = [] {
         const char* value = std::getenv("RT_APP_PERFOVERLAY");
         return (value && std::strcmp(value, "1") == 0) ||
@@ -2947,6 +2952,23 @@ int main() {
                 axes.stickX = std::clamp((injected.lx - 128) / 127.f, -1.f, 1.f);
             }
             auto input = rt::native::gameplay::playerCarInput(pad, axes, controllerConfig);
+            // Analog camera (Options > Controllers): the right stick orbits the
+            // view; the car keeps driving on its own axes. Off = never set, so
+            // the loop's original look-at path stays byte-identical.
+            if (analogCamera) {
+                float rx = 0.f, ry = 0.f;
+                if (testSocket.lockstep()) {
+                    const auto injected = testSocket.pad();
+                    rx = std::clamp((injected.rx - 128) / 127.f, -1.f, 1.f);
+                    ry = std::clamp((injected.ry - 128) / 127.f, -1.f, 1.f);
+                } else if (gamepad) {
+                    rx = std::clamp(static_cast<float>(
+                             SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTX)) / 32767.f, -1.f, 1.f);
+                    ry = std::clamp(static_cast<float>(
+                             SDL_GetGamepadAxis(gamepad, SDL_GAMEPAD_AXIS_RIGHTY)) / 32767.f, -1.f, 1.f);
+                }
+                session.setCameraLook(rx, ry);
+            }
             if (triggersEnabled && gamepad) {
                 const auto trigger = [gamepad](SDL_GamepadAxis axis) {
                     return std::clamp(static_cast<float>(SDL_GetGamepadAxis(gamepad, axis)) / 32767.f, 0.f, 1.f);

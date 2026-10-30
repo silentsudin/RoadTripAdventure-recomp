@@ -532,6 +532,9 @@ OptionsModel::OptionsModel() {
     options_.push_back(real("controllers.deadzone", "Stick deadzone", P::Controllers, 0.0, 0.9, 0.05, 0.2,
         A::RequiresGamepad, S::GpuWavePending, {},
         "mirrors input.h kStickDeadzone (0.2); store->input glue is GPU wave"));
+    options_.push_back(toggle("controllers.analog_camera", "Analog camera", P::Controllers, false,
+        A::RequiresGamepad, S::WiredNow, {"RT_APP_ANALOG_CAMERA"},
+        "right stick orbits the chase view (yaw/pitch); the car keeps its own axes"));
 
     // ---- Sound -----------------------------------------------------------
     options_.push_back(toggle("sound.audio", "Audio output", P::Sound, true,

@@ -31,6 +31,15 @@ inline constexpr float kChasePitchRad   = 0.08590293f; // ROM CONFIRMED: 0x0380 
 inline constexpr float kChaseLookAtRu   = 1.500f;      // UNDOCUMENTED host convention (car centre + up*1.5)
 inline constexpr float kChaseFovYRad    = 1.030f;      // UNDOCUMENTED-assumed (see camera-framing.md:31)
 
+// Analog camera (Options > Controllers > Analog camera): the right stick
+// orbits the chase view around its eye; the car keeps its own axes. Full
+// deflection is a quarter turn of yaw and 30 degrees of pitch (the look-at up
+// vector stays well conditioned). The deadzone matches input.h kStickDeadzone
+// so a resting stick's drift cannot move the view.
+inline constexpr float kCameraLookDeadzone  = 0.2f;
+inline constexpr float kCameraYawMaxRad     = 1.57079633f;
+inline constexpr float kCameraPitchMaxRad   = 0.52359878f;
+
 // Drive-tuned defaults (rt-asset-drive, CAR0/Q00: 2 laps/240 frames, max
 // centreline deviation 43.8 vs road half width 60).
 struct GameLoopParams {
@@ -141,6 +150,13 @@ public:
     const World& world() const { return world_; }
     const GameLoopParams& params() const { return params_; }
     void setProjectionAspect(float aspect) { params_.aspect = aspect; }
+
+    // Right-stick analog camera (each -1..1; +X right, +Y down, SDL axes).
+    // (0,0) takes the original look-at untouched, so frames stay bit-identical.
+    void setCameraLook(float stickX, float stickY) {
+        camStickX_ = stickX;
+        camStickY_ = stickY;
+    }
     const TaskPool& tasks() const { return tasks_; }
     // Distance from a world point to the closed road centreline.
     float roadDistance(Vec2 p) const;
@@ -165,6 +181,8 @@ private:
     GuestCarBlock guest_{};  // race-mode translated driveline (guest_vehicle)
     AiState ai_;
     CameraState camera_;
+    float camStickX_ = 0.f;  // analog-camera stick deflection, -1..1
+    float camStickY_ = 0.f;
     WaypointPath path_;
     RaceTracker raceTracker_{0};
     int lapCount_ = 0;

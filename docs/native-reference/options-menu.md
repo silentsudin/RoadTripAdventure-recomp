@@ -122,9 +122,15 @@ is the `MenuContext` predicate that hides the row (`settings.h`
 | `controllers.rumble` | Rumble | — | on | **requires gamepad** | **gpu-wave-pending** |
 | `controllers.rumble_strength` | Rumble strength | — | 1.0 | **requires gamepad** | **gpu-wave-pending** |
 | `controllers.deadzone` | Stick deadzone | — | 0.2 | **requires gamepad** | **gpu-wave-pending** |
+| `controllers.analog_camera` | Analog camera | `RT_APP_ANALOG_CAMERA` | off | **requires gamepad** | wired-now |
 
 `controllers.deadzone` mirrors `gameplay/input.h` `kStickDeadzone = 0.2f`
 (`input.h:15`); wiring the stored value into `playerCarInput` is GPU-wave glue.
+
+`controllers.analog_camera` feeds the right stick to `GameSession::setCameraLook`
+(yaw up to a quarter turn, pitch up to 30 degrees, same 0.2 deadzone); the orbit
+is applied to the look target after `updateCamera`, and zero deflection runs no
+rotation at all, so retail frames are unchanged.
 
 ### Sound
 

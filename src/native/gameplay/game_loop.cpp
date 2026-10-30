@@ -187,6 +187,24 @@ FrameSnapshot GameLoop::makeSnapshot() {
     cp.pitchHigh    = params_.chasePitchRad;
     cp.lookAtHeight = params_.chaseLookAtHeight;
     updateCamera(camera_, pose, static_cast<float>(car_.speed) * params_.cameraSpeedScale, cp);
+    // Analog camera: orbit the look target around the eye by the right stick.
+    // Zero stick runs no rotation math at all, so the default view is exact.
+    if (camStickX_ != 0.f || camStickY_ != 0.f) {
+        const auto beyondDeadzone = [](float v) {
+            const float a = std::fabs(v);
+            if (a <= kCameraLookDeadzone) return 0.f;
+            return std::copysign((a - kCameraLookDeadzone) / (1.f - kCameraLookDeadzone), v);
+        };
+        Vec3 dir = camera_.target - camera_.eye;
+        // Stick right looks toward screen right (+X yaw is screen left in this
+        // look-at basis); stick down looks down.
+        const float yaw = -beyondDeadzone(camStickX_) * kCameraYawMaxRad;
+        const float pitch = -beyondDeadzone(camStickY_) * kCameraPitchMaxRad;
+        if (yaw != 0.f) dir = rotateAboutAxis(dir, {0.f, 1.f, 0.f}, yaw);
+        if (pitch != 0.f)
+            dir = rotateAboutAxis(dir, normalized(cross(dir, {0.f, 1.f, 0.f})), pitch);
+        camera_.target = camera_.eye + dir;
+    }
     const Mat4 v = lookAtMatrix(camera_.eye, camera_.target);
 
     FrameSnapshot s;

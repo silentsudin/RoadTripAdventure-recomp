@@ -140,4 +140,11 @@ void updateCamera(CameraState& cam, const CarPose& car, float speed,
 // Right-handed look-at view matrix (OpenGL convention: camera looks down -Z).
 Mat4 lookAtMatrix(Vec3 eye, Vec3 target, Vec3 up = {0.f, 1.f, 0.f});
 
+// Rodrigues rotation of v about a unit axis. Host-only math for the analog
+// camera's look orbit (no game constant behind it).
+inline Vec3 rotateAboutAxis(Vec3 v, Vec3 axis, float angle) {
+    const float c = std::cos(angle), s = std::sin(angle);
+    return v * c + cross(axis, v) * s + axis * (dot(axis, v) * (1.f - c));
+}
+
 }  // namespace rt::native::gameplay

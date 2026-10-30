@@ -59,6 +59,9 @@ private:
     // rebuilds loop params from makeRaceParams().
     void setProjectionAspect(float aspect) { gameLoop_.setProjectionAspect(aspect); }
 
+    // Right-stick analog camera (Options > Controllers); (0,0) = original view.
+    void setCameraLook(float stickX, float stickY) { gameLoop_.setCameraLook(stickX, stickY); }
+
   private:
     RaceTracker raceTracker_{0};
     FrameSnapshot lastSnapshot_;
