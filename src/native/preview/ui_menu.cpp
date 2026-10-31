@@ -373,7 +373,7 @@ BuiltPanel buildRows(const gameplay::OptionsModel& model, const gameplay::Settin
     };
     if (!state.controllers) {
         b.panel.title = "Options";
-        for (OptionPage page : {OptionPage::Display, OptionPage::Sound, OptionPage::Graphics}) {
+        for (OptionPage page : {OptionPage::Display, OptionPage::Sound, OptionPage::Graphics, OptionPage::Save}) {
             const auto rows = model.pageRows(page, context);
             if (rows.empty()) continue;
             addRow(b, PanelRowKind::Heading, gameplay::optionPageName(page), {}, false, nullptr);
@@ -456,7 +456,16 @@ bool optionsPanelConfirm(OptionsPanelState& state, const gameplay::OptionsModel&
     if (!state.controllers && state.focus >= 0 && state.focus == b.linkRow) {
         state.controllers = true;
         state.focus = -1;
+        state.lastAction.clear();
         return true;
+    }
+    state.lastAction.clear();
+    if (selectable(b, state.focus)) {
+        const OptionSpec* spec = b.spec[static_cast<std::size_t>(state.focus)];
+        if (spec && spec->type == gameplay::OptionType::Action) {
+            state.lastAction = spec->id;
+            return true;
+        }
     }
     return optionsPanelAdjust(state, model, store, context, 1);
 }

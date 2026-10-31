@@ -90,6 +90,9 @@ UiScreen buildSetupScreen(int w, int h, const assets::SetupScreenText& text, dou
 struct OptionsPanelState {
     bool controllers = false;  // false: the Display/Sound/Graphics page
     int focus = -1;            // row index; -1 = first selectable row
+    // Id of the Action row the latest confirm fired ("" when it fired none).
+    // The caller performs it (save.save_state / save.load_state) and clears it.
+    std::string lastAction;
 };
 PausePanel buildOptionsPanel(const gameplay::OptionsModel& model, const gameplay::SettingsStore& store,
                              const gameplay::MenuContext& context, OptionsPanelState& state);

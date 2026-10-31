@@ -152,8 +152,14 @@ about that, and it appears only in an Adventure (the sibling rule, `CLAUDE.md:80
 | id | label | maps-to | default | availability | status |
 |---|---|---|---|---|---|
 | `save.slot` | Save slot | (slot value) | 0 | **requires save state** | wired-now |
-| `save.save_state` | Save state | `GameSession::save` | — | **requires save state** | wired-now |
-| `save.load_state` | Load state | `GameSession::load` | — | **requires save state** | wired-now |
+| `save.save_state` | Save state | `SlotStore::save` | — | **requires save state** | wired-now |
+| `save.load_state` | Load state | `SlotStore::load` | — | **requires save state** | wired-now |
+
+The Save heading appears only in an Adventure or the player's own race (the
+recomp's `RequiresSaveState` rule). Confirm on an action row records its id in
+`OptionsPanelState::lastAction`; `app/main.cpp` dispatches it through
+`gameplay/runSaveAction` (`save_slots.{h,cpp}`) to the slot the Save slot row
+picks, and logs `[save] <id> slot <n> ok|failed: <reason>`.
 
 **Catalog size: 40 rows** (Display 14, Graphics 15, Controllers 4, Sound 4,
 Save 3). **Env-flag coverage: all 27 enumerated flags** in §1 (26 `RT_APP_*` plus

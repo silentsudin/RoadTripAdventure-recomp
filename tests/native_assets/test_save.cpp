@@ -2,11 +2,14 @@
 // buffers only - no game data. Offsets per config/game_state.toml [progress]
 // and docs/game-mechanics/menus-and-save.md "Save layout".
 #include "../../src/native/gameplay/save.h"
+#include "../../src/native/gameplay/save_slots.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <string>
+#include <unistd.h>
 #include <vector>
 
 using namespace rt::native::gameplay;
@@ -365,6 +368,31 @@ void testOriginalP2MigrationErrors() {
     CHECK(!shortImport && shortImport.error().code == SaveErrorCode::InvalidSize);
 }
 
+void testSaveActionDispatch() {
+    // Options > Save rows: "save.save_state"/"save.load_state" through SlotStore
+    // (the app dispatches the panel's lastAction; unknown ids fail cleanly).
+    const std::filesystem::path dir = std::filesystem::temp_directory_path() /
+        ("rt_save_action_" + std::to_string(::getpid()));
+    std::filesystem::remove_all(dir);
+    SlotStore store(dir);
+    SaveData progress{};
+    progress.money = 4242;
+    std::string error;
+    CHECK(runSaveAction("save.save_state", 1, store, progress, &error));
+    CHECK(store.list()[1]);
+    CHECK(!store.list()[0]);
+    SaveData loaded{};
+    CHECK(runSaveAction("save.load_state", 1, store, loaded, &error));
+    CHECK(loaded.money == 4242u);
+    CHECK(!runSaveAction("save.unknown", 0, store, progress, &error));
+    CHECK(error == "unknown save action");
+    // An empty slot is a failure, not a silent default save.
+    SaveData empty{};
+    CHECK(!runSaveAction("save.load_state", 0, store, empty, &error));
+    CHECK(!error.empty());
+    std::filesystem::remove_all(dir);
+}
+
 }  // namespace
 
 int main() {
@@ -377,6 +405,7 @@ int main() {
     testMigrate();
     testOriginalP2Migration();
     testOriginalP2MigrationErrors();
+    testSaveActionDispatch();
     if (g_fail) { std::fprintf(stderr, "%d failure(s)\n", g_fail); return 1; }
     std::printf("save: %d checks passed\n", g_checks);
     return 0;

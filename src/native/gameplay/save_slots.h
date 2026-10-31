@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace rt::native::gameplay {
@@ -21,5 +22,11 @@ public:
 private:
     std::filesystem::path directory_;
 };
+
+// Options > Save page action rows: a save writes the Adventure progress to the
+// host slot chosen by save.slot (0/1), a load replaces it. Unknown ids and store
+// failures return false, with the reason in *error.
+bool runSaveAction(std::string_view action, int slot, SlotStore& store, SaveData& progress,
+                   std::string* error = nullptr);
 
 } // namespace rt::native::gameplay

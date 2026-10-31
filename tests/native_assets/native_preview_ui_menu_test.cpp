@@ -15,6 +15,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -370,6 +371,47 @@ void testParitySpotRead() {
 
 }  // namespace
 
+static void testOptionsSaveActionReporting() {
+    // Options > Save: the page shows in an Adventure, and confirming an Action
+    // row reports its id (the app's one dispatch seam, app/main.cpp).
+    namespace gp = rt::native::gameplay;
+    namespace pv = rt::native::preview;
+    const std::filesystem::path dir = std::filesystem::temp_directory_path() / "rt_ui_menu_action_test";
+    std::filesystem::remove_all(dir);
+    std::filesystem::create_directories(dir);
+    gp::OptionsModel model;
+    gp::SettingsStore store(dir / "settings.toml");
+    gp::MenuContext ctx;
+    ctx.diagnostics = true;  // the Save page rows are retail-hidden
+    ctx.adventure = true;    // RequiresSaveState
+    pv::OptionsPanelState st;
+
+    const auto focusLabel = [&]() -> std::string {
+        const pv::PausePanel panel = pv::buildOptionsPanel(model, store, ctx, st);
+        if (panel.focus < 0 || panel.focus >= static_cast<int>(panel.rows.size())) return {};
+        return panel.rows[static_cast<std::size_t>(panel.focus)].label;
+    };
+    const auto moveTo = [&](std::string_view label) {
+        for (int i = 0; i < 200; ++i) {
+            if (focusLabel() == label) return true;
+            (void)pv::optionsPanelMove(st, model, store, ctx, 1);
+        }
+        return false;
+    };
+
+    check(moveTo("Save state"), "the Save page and its Save state row are reachable in an Adventure");
+    check(pv::optionsPanelConfirm(st, model, store, ctx), "confirming the Save state row reports a change");
+    check(st.lastAction == "save.save_state", "the panel reports the Save state action id");
+    check(moveTo("Load state"), "Load state follows Save state");
+    check(pv::optionsPanelConfirm(st, model, store, ctx), "confirming the Load state row reports a change");
+    check(st.lastAction == "save.load_state", "the panel reports the Load state action id");
+    check(moveTo("Audio output"), "a plain toggle row is reachable");
+    (void)pv::optionsPanelConfirm(st, model, store, ctx);
+    check(st.lastAction.empty(), "a non-action row clears the action id");
+
+    std::filesystem::remove_all(dir);
+}
+
 int main() {
     testStrings();
     testDesignScale();
@@ -378,6 +420,7 @@ int main() {
     testDeterministic();
     testBackdropQuad();
     testParitySpotRead();
+    testOptionsSaveActionReporting();
     if (g_fail) {
         std::fprintf(stderr, "%d/%d ui_menu checks failed\n", g_fail, g_checks);
         return 1;

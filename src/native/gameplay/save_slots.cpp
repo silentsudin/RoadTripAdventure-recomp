@@ -67,4 +67,12 @@ std::array<bool, 2> SlotStore::list() const {
 
 SaveData SlotStore::fresh() { return save_v2::toSaveData(save_v2::Container{}); }
 
+bool runSaveAction(std::string_view action, int slot, SlotStore& store, SaveData& progress,
+                   std::string* error) {
+    if (action == "save.save_state") return store.save(slot, progress, error);
+    if (action == "save.load_state") return store.load(slot, progress, error);
+    if (error) *error = "unknown save action";
+    return false;
+}
+
 } // namespace rt::native::gameplay

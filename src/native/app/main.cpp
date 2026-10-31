@@ -2612,11 +2612,32 @@ int main() {
                 rt::native::gameplay::MenuContext optionsContext;
                 optionsContext.gamepadPresent = gamepad != nullptr;
                 optionsContext.secondScreenSupported = rt::native::app::seconddisplay::supported();
+                // Save-page rows need the session facts the recomp's Capabilities carries:
+                // state actions only in an Adventure or the player's own race.
+                optionsContext.adventure = session.state() == rt::native::gameplay::SessionState::EXPLORE;
+                optionsContext.race = session.state() == rt::native::gameplay::SessionState::RACE;
+                optionsContext.playerRace = true;
+                optionsContext.moviePlaying = false;
+                optionsContext.gsCanSaveStates = true;
                 if (menuInput.up) (void)optionsPanelMove(optionsPanelState, optionsModel, optionsStore, optionsContext, -1);
                 if (menuInput.down) (void)optionsPanelMove(optionsPanelState, optionsModel, optionsStore, optionsContext, 1);
                 if (menuInput.left) (void)optionsPanelAdjust(optionsPanelState, optionsModel, optionsStore, optionsContext, -1);
                 if (menuInput.right) (void)optionsPanelAdjust(optionsPanelState, optionsModel, optionsStore, optionsContext, 1);
-                if (menuInput.confirm) (void)optionsPanelConfirm(optionsPanelState, optionsModel, optionsStore, optionsContext);
+                if (menuInput.confirm) {
+                    (void)optionsPanelConfirm(optionsPanelState, optionsModel, optionsStore, optionsContext);
+                    // Options > Save action rows: the panel reports the fired id and this is
+                    // its one consumer (the slot is the row's save.slot value, 0/1).
+                    if (!optionsPanelState.lastAction.empty()) {
+                        const int slot = optionsStore.getInt("save.slot", 0, 0, 1);
+                        std::string saveError;
+                        const bool ok = rt::native::gameplay::runSaveAction(
+                            optionsPanelState.lastAction, slot, slotStore,
+                            const_cast<rt::native::gameplay::SaveData&>(session.progress()), &saveError);
+                        std::cout << "[save] " << optionsPanelState.lastAction << " slot " << slot
+                                  << (ok ? " ok" : " failed: " + saveError) << "\n";
+                        optionsPanelState.lastAction.clear();
+                    }
+                }
                 // Cancel leaves Controllers for Options first; flow cancel only from Options.
                 if (menuInput.cancel && optionsPanelBack(optionsPanelState)) menuInput.cancel = false;
                 menuInput.up = menuInput.down = menuInput.left = menuInput.right = menuInput.confirm = false;

@@ -549,11 +549,13 @@ OptionsModel::OptionsModel() {
 
     // ---- Save ------------------------------------------------------------
     options_.push_back(integer("save.slot", "Save slot", P::Save, 0, 1, 1, 0,
-        A::RequiresSaveState, S::WiredNow, {}, "native host slot 0/1 (MemoryCard)"));
+        A::RequiresSaveState, S::WiredNow, {}, "host slot 0/1; the actions below write slot<N>.sav through it"));
     options_.push_back(action("save.save_state", "Save state", P::Save,
-        A::RequiresSaveState, S::WiredNow, "GameSession::save(card, slot) -> slot<N>.sav"));
+        A::RequiresSaveState, S::WiredNow,
+        "writes the Adventure progress to the slot (runSaveAction, app/main.cpp dispatch)"));
     options_.push_back(action("save.load_state", "Load state", P::Save,
-        A::RequiresSaveState, S::WiredNow, "GameSession::load(card, slot) <- slot<N>.sav"));
+        A::RequiresSaveState, S::WiredNow,
+        "reads the slot back into the Adventure progress (runSaveAction, app/main.cpp dispatch)"));
 
     // ---- Recomp catalog (retail) -------------------------------------------
     // Order and strings: docs/native-reference/ui-parity.md "Pause Options"; source
