@@ -141,13 +141,15 @@ rotation at all, so retail frames are unchanged.
 | `sound.audio` | Audio output | `RT_APP_NOAUDIO` (inverted) | on | always | wired-now |
 | `sound.bgm` | BGM track / file | `RT_APP_BGM` | (empty) | requires audio | wired-now |
 | `sound.bgm_tsq` | Use TSQ BGM (else VAG) | `RT_APP_BGM_TSQ` | on | requires audio | wired-now |
-| `sound.radio_station` | Radio station | — | `off` | **requires Adventure** | gpu-wave-pending |
+| `sound.radio_station` | Radio station | `RT_APP_RADIO` | `off` | **requires Adventure** | host-glue-pending (consumer wired) |
 
 `sound.radio_station` is grounded in the PROVEN save byte `+0x12DD`
 (0 off / 1 Peach FM / 2 E-Radio, `docs/native-reference/save-layout.md:68`;
-`src/native/gameplay/save.h:65` `kRadioStation`). The host BGM path
-(`app/main.cpp:125-159`) does not consume the station yet — the row is honest
-about that, and it appears only in an Adventure (the sibling rule, `CLAUDE.md:80`).
+`src/native/gameplay/save.h:65` `kRadioStation`). The station-follow path
+consumes it: the row's value becomes the `RT_APP_RADIO` byte, and when a
+station is picked the radio pair owns the host BGM path instead of the fixed
+TSQ track (`app/main.cpp:468-510`, `radio-stations.md` §5). It appears only in
+an Adventure (the sibling rule, `CLAUDE.md:80`).
 
 ### Save
 

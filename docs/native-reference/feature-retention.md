@@ -15,6 +15,32 @@ newly added `route`/`route_town` rows), so every matrix row referenced below is
 verified.  Matrix rows pin observable logs/behaviour, not pixel-level fidelity;
 statuses below still distinguish those.
 
+## Refresh 2026-10-31
+
+The 2026-10-16 table below is left intact as the record of that audit; this
+section re-checks the rows that changed since, against the code on
+`re/native-complete` at `987d7b2`. Rows not listed did not change and keep
+their 2026-10-16 status.
+
+| Feature | Was | Now | Evidence (file:line) | Remaining |
+|---|---|---|---|---|
+| HD texture packs | MISSING | **IMPLEMENTED-VERIFIED** | Pack discovery/validation, dump mode and the mip-chained replacement image: `src/native/assets/hd_pack.cpp` (529 lines), `src/native/assets/hd_pack.h`; renderer seam `src/native/preview/texture_pack_bridge.h`; row `src/native/gameplay/settings.cpp:485-487`; bootstrap `src/native/app/main.cpp:251-256`; `tests/native_assets/test_hd_pack.cpp`, `tests/native_assets/test_texture_pack.cpp`; `hd-texture-packs.md` | Anisotropy (needs a Vulkan `samplerAnisotropy` path) |
+| Frame generation | MISSING | **PARTIAL** | Interpolated render poses between completed logic steps: `src/native/gameplay/interp.{h,cpp}`, `src/native/gameplay/settings.cpp:452-458`, `src/native/app/main.cpp:751-772`; `tests/native_assets/test_interp.cpp`; `frame-interpolation.md` | Shadow-frame re-render / warping (the recomp's frame generation) |
+| Rumble / haptics | MISSING | **PARTIAL** | Burst channel, gate bytes and the SDL device command: `src/native/gameplay/rumble.{h,cpp}`, app glue `src/native/app/main.cpp:2329-2360` and per-step output `:3144-3164`; rows `src/native/gameplay/settings.cpp:534-537`; `tests/native_assets/test_rumble.cpp`; `rumble-haptics.md` | No event sources: the authored loop exposes no landing/collision/scrape (main.cpp:3125-3139), so nothing ever fires; opt-in `RT_APP_RUMBLE=1` only |
+| Radio (station selection and VAG streams) | PARTIAL | **IMPLEMENTED-VERIFIED** | Station byte -> stereo VAG pair and station-follow BGM ownership: `src/native/gameplay/radio.{h,cpp}`, `src/native/app/main.cpp:468-510`, `:2143-2147`; row `src/native/gameplay/settings.cpp:554-556` (note refreshed); `tests/native_assets/test_radio.cpp`; `radio-stations.md` | — |
+| Analog triggers | PARTIAL | **PARTIAL** | Row `src/native/gameplay/settings.cpp:531-532` (still GpuWavePending); SDL trigger polling into analog drive `src/native/app/main.cpp:3012-3023`; mapping pinned by `tests/native_assets/test_trigger_map.cpp`, `tests/native_assets/test_trigger_integration.cpp` | The glue writes `input`, which normal play discards (`main.cpp:3025`; `session.update` only takes the player's input in the lockstep harness, `:3043`), so no player has ever felt it |
+| Save states (host save/load) | PARTIAL | **IMPLEMENTED-VERIFIED** | `runSaveAction` and the slot store `src/native/gameplay/save_slots.{h,cpp}` (`:70-74`); Save page rows `src/native/gameplay/settings.cpp:561-566` built by `src/native/preview/ui_menu.cpp:376`; menu dispatch `src/native/app/main.cpp:2649-2657` (`[save] <id> slot <n> ok|failed`); `tests/native_assets/test_save.cpp` | — |
+| Original-save migration | IMPLEMENTED-UNVERIFIED | **IMPLEMENTED-UNVERIFIED** (evidence strengthened) | `importSaveFile` picks `BASLUS-20398` vs P2 image: `src/native/gameplay/save.cpp:513-521`; app import `src/native/app/main.cpp:2251-2265` (`[save] import ... ok|failed`); covered only by synthetic fixtures in `tests/native_assets/test_save.cpp` | A run against a real card image and a real extracted save |
+| Second screen / split presentation | MISSING | **IMPLEMENTED-UNVERIFIED** | Android presentation display (Java `Presentation` in `platform/android/app/src/main/java/io/github/roadtrip/RoadTripActivity.java` + JNI seam `src/native/app/second_display.{h,cpp}`): `src/native/app/main.cpp:2584-2620`; page builder `src/native/preview/second_screen.{h,cpp}` (`buildSecondScreen` at `second_screen.h:89`), pinned by `tests/native_ui/w14_second_screen_test.cpp` (`src/native/CMakeLists.txt:966-970`); row `src/native/gameplay/settings.cpp:591` | No run on the Thor's presentation display (not connected) |
+| Widescreen presentation | PARTIAL | **PARTIAL** | Projection aspect follows the presented extent every frame (`src/native/app/main.cpp:3043-3046`); HUD position / edges row is still host-glue-pending (`src/native/gameplay/settings.cpp:578`) | HUD re-anchor policy and visual checks at 16:9/21:9 |
+
+Cross-cutting gap this refresh exposed: the player's input (keyboard bits, pad
+triggers, right stick) is collected every fixed step but reaches the authored
+loop only in the lockstep test harness; normal play hands the session the
+autopilot's input instead (`src/native/app/main.cpp:3025`, `:3035-3043`), and
+gamepad buttons are never read into the pad (`:2308-2317`). Driving with a
+keyboard or pad in the shipped app is therefore not wired yet.
+
 | Feature | Original-behavior evidence (doc / vaddr) | Native status | Native evidence (file:line) | Next step |
 |---|---|---|---|---|
 | Widescreen presentation | Original HUD is authored in 640x448 and widescreen re-anchoring is only an inferred normalized mapping (`hud-layout.md:11-17`); original projection X/Y scales are at `0x0021f500/0x0021f50c` (`camera-constants.md:17-18`). | **PARTIAL** | Resizable SDL/Vulkan window: `src/native/app/main.cpp:768-777`; resize recreates the swapchain/renderer: `src/native/app/main.cpp:910-917`; preview uses current render aspect: `src/native/preview/preview.cpp:599-600`. No explicit wide-HUD re-anchor mode was found. | Add a defined widescreen UI/projection policy and visual checks at target aspects. |

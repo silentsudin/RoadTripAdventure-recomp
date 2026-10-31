@@ -530,7 +530,7 @@ OptionsModel::OptionsModel() {
     // ---- Controllers -----------------------------------------------------
     options_.push_back(toggle("controllers.triggers", "Analog trigger drive", P::Controllers, false,
         A::RequiresGamepad, S::GpuWavePending, {"RT_APP_TRIGGERS"},
-        "mapping module ready (input.{h,cpp} mapTriggersToDrive); app glue lands at the integration wave"));
+        "mapping + SDL trigger polling ready; normal play hands the loop autopilot input, so the glue reaches it only in the lockstep harness"));
     options_.push_back(toggle("controllers.rumble", "Rumble", P::Controllers, true,
         A::RequiresGamepad, S::GpuWavePending, {},
         "GPU wave - currently preview: no native haptics yet (sibling Controllers->Vibration)"));
@@ -552,8 +552,8 @@ OptionsModel::OptionsModel() {
     options_.push_back(toggle("sound.bgm_tsq", "Use TSQ BGM (else VAG)", P::Sound, true,
         A::RequiresAudio, S::WiredNow, {"RT_APP_BGM_TSQ"}, "off forces the VAG path"));
     options_.push_back(enumOpt("sound.radio_station", "Radio station", P::Sound,
-        {"off", "peach_fm", "e_radio"}, A::RequiresAdventure, S::HostGluePending, {},
-        "AUTHORED: save +0x12DD (0/1/2, PROVEN); the host BGM path does not consume the station yet"));
+        {"off", "peach_fm", "e_radio"}, A::RequiresAdventure, S::HostGluePending, {"RT_APP_RADIO"},
+        "save +0x12DD (0/1/2, PROVEN); station-follow owns the host BGM path (app/main.cpp:468-510)"));
 
     // ---- Save ------------------------------------------------------------
     options_.push_back(integer("save.slot", "Save slot", P::Save, 0, 1, 1, 0,
