@@ -1423,6 +1423,9 @@
 0x3356EC = { name = "vifPacketPtr", note = "write pointer of the VIF1 packet being built" }
 0x3356F0 = { name = "vifPacketSaved", note = "main-buffer pointer saved while the second buffer is built" }
 0x3356F4 = { name = "vifPacketSecond", note = "1 while building in the second buffer" }
+0x332CC0 = { name = "carBodyFarRatio", note = "drawCar 0x221788 body LOD: a distance ratio >= this (ELF float 0.03) takes the far body model, else the near one; a five-car cap (0x3356E8) applies on top" }
+0x332CCC = { name = "carWheelsFarRatio", note = "drawCar 0x221788 wheels: ratio == 0 -> drawCarWheelsNear, < this (ELF float 0.05) -> drawCarWheelsMid, else the far wheel model" }
+0x3356E8 = { name = "carNearBodyCount", note = "near car bodies drawn this frame; past 5 drawCar takes the far body (ResetShowroomLighting 0x223200 clears it)" }
 0x29ED10 = { name = "gifRegListTemplate", note = "GIF tag: NLOOP 1, EOP, REGLIST, NREG 2 (regs patched per call)" }
 0x335900 = { name = "gameFrameCtx", note = "0x160-byte per-frame ctx, 2nd arg to every task callback (gs_tasks_walker 00204f98.c:8); memset by gameMainLoop 002003b8.c:19; +0 frame counter +1/iter (:80), +8 frameParity toggled (:81), +9 gsFieldParity, +0xa game mode, +0xf loadInProgress, +0x28 drive flags, +0x30 pad bits, +0x50 fade colour" }
 0x335909 = { name = "gsFieldParity", note = "= (sceGsSyncV(0)==0) at 002003b8.c:52-54; SyncV (0026e458.c) returns interlace env ? CSR FIELD bit : 1; only consumers: uiEnvCenterPos/B param_4 half-line y (+8) at 0026f340.c:19-23" }
