@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <string>
 #include <unistd.h>
 #include <vector>
@@ -393,6 +394,49 @@ void testSaveActionDispatch() {
     std::filesystem::remove_all(dir);
 }
 
+void testSaveImportFile() {
+    // Issue #25: one file in, a SaveData out - an extracted BASLUS-20398 progress
+    // file or a public-P2 image holding one. PCSX2's .psu/.ps2/.xps containers
+    // are different formats and must be refused rather than guessed at.
+    const std::filesystem::path dir = std::filesystem::temp_directory_path() /
+        ("rt_save_import_" + std::to_string(::getpid()));
+    std::filesystem::remove_all(dir);
+    std::filesystem::create_directories(dir);
+    const auto writeBytes = [](const std::filesystem::path& path, const std::vector<std::uint8_t>& bytes) {
+        std::ofstream out(path, std::ios::binary | std::ios::trunc);
+        out.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
+        return static_cast<bool>(out);
+    };
+
+    const std::vector<std::uint8_t> original = makeCleanBuffer();
+    const std::filesystem::path imagePath = dir / "card.p2img";
+    CHECK(writeBytes(imagePath, makeSyntheticP2(original)));
+    const auto fromImage = importSaveFile(imagePath, 0);
+    CHECK(fromImage);
+    CHECK(fromImage && fromImage->money == 123456u);
+
+    const std::filesystem::path filePath = dir / "BASLUS-20398";
+    CHECK(writeBytes(filePath, original));
+    const auto fromFile = importSaveFile(filePath, 1);
+    CHECK(fromFile);
+    CHECK(fromFile && fromImage && fromFile->raw == fromImage->raw);
+
+    CHECK(!importSaveFile(imagePath, 2));  // slot out of range
+    const auto missing = importSaveFile(dir / "missing.p2img", 0);
+    CHECK(!missing && missing.error().code == SaveErrorCode::IoError);
+
+    const std::filesystem::path junkPath = dir / "junk.bin";
+    CHECK(writeBytes(junkPath, std::vector<std::uint8_t>(100, 0)));
+    const auto junk = importSaveFile(junkPath, 0);
+    CHECK(!junk && junk.error().code == SaveErrorCode::NotP2Image);
+
+    const std::filesystem::path psuPath = dir / "card.psu";
+    CHECK(writeBytes(psuPath, std::vector<std::uint8_t>{'P', 'S', '2', 'U', 0, 0, 0, 0}));
+    CHECK(!importSaveFile(psuPath, 0));
+
+    std::filesystem::remove_all(dir);
+}
+
 }  // namespace
 
 int main() {
@@ -406,6 +450,7 @@ int main() {
     testOriginalP2Migration();
     testOriginalP2MigrationErrors();
     testSaveActionDispatch();
+    testSaveImportFile();
     if (g_fail) { std::fprintf(stderr, "%d failure(s)\n", g_fail); return 1; }
     std::printf("save: %d checks passed\n", g_checks);
     return 0;

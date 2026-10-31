@@ -2240,6 +2240,17 @@ int main() {
     // Recomp-parity Pause > Options / Controllers panel (retail catalog, diagnostics off).
     rt::native::gameplay::SettingsStore optionsStore(rt::native::gameplay::defaultSettingsPath(appDataDirectory()));
     (void)optionsStore.load();
+    // Issue #25: RT_APP_IMPORT_SAVE=<file> imports a PS2 save into the slot the
+    // Save slot row names - an extracted BASLUS-20398 file or a public-P2 image.
+    if (const char* importPath = std::getenv("RT_APP_IMPORT_SAVE"); importPath && *importPath) {
+        const int slot = optionsStore.getInt("save.slot", 0, 0, 1);
+        std::string importError;
+        const auto imported = rt::native::gameplay::importSaveFile(importPath, slot);
+        const bool ok = imported && slotStore.save(slot, *imported, &importError);
+        std::cout << "[save] import " << importPath << " slot " << slot
+                  << (ok ? " ok" : imported ? " failed: " + importError : " failed: " + imported.error().message)
+                  << "\n";
+    }
     const rt::native::gameplay::OptionsModel optionsModel;
     // Issue #24 "Fix steering bias" (Options > Graphics): the guest steering ramp reads
     // this flag (gen/0021a088.cpp). Off = retail, so the parity hashes are unchanged.

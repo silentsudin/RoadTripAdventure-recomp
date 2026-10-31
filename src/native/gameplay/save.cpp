@@ -510,4 +510,15 @@ migrateFromSaveFile(const std::filesystem::path& extractedFile) {
     return migrateFromSaveFile(std::span<const std::uint8_t>(bytes));
 }
 
+expected<SaveData, SaveError> importSaveFile(const std::filesystem::path& file, int slot) {
+    if (slot < 0 || slot > 1)
+        return saveError(SaveErrorCode::InvalidSlot, "native save slot must be 0 or 1");
+    if (file.filename() == kRoadTripFile) return migrateFromSaveFile(file);
+    std::ifstream input(file, std::ios::binary);
+    if (!input) return saveError(SaveErrorCode::IoError, "could not open the save file to import");
+    const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(input)),
+                                          std::istreambuf_iterator<char>());
+    return migrateFromP2Image(std::span<const std::uint8_t>(bytes), slot);
+}
+
 }  // namespace rt::native::gameplay

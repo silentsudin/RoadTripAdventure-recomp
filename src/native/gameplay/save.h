@@ -222,4 +222,11 @@ migrateFromSaveFile(std::span<const std::uint8_t> extractedFile);
 expected<SaveData, SaveError>
 migrateFromSaveFile(const std::filesystem::path& extractedFile);
 
+// Issue #25 import entry point: one file, either an extracted BASLUS-20398
+// progress file (13,384 bytes) or a public-P2 memory-card image holding one
+// (scanned for the BASLUS-20398 directory). slot is the target native slot (0
+// or 1) and only validates it. PCSX2's .psu/.ps2/.xps containers are NOT read
+// yet - they are separate formats from the P2 image modelled here.
+expected<SaveData, SaveError> importSaveFile(const std::filesystem::path& file, int slot);
+
 }  // namespace rt::native::gameplay
