@@ -43,6 +43,7 @@
 
 namespace guest { extern uint64_t g_diagCdReads, g_diagCdSectors; extern uint16_t g_bootButtons; void gsEnvCensusDump(); }
 #include "preview/car_mesh.h"
+#include "preview/crt_filter.h"
 #include "preview/preview.h"
 #include "preview/present_gl.h"
 #include "preview/preview_backend.h"
@@ -1698,6 +1699,10 @@ int main() {
         return value && std::strcmp(value, "1") == 0;
     }();
     if (triggersEnabled) std::cout << "rt-app triggers: enabled\n";
+    const bool crtFilter = [] {
+        const char* value = std::getenv("RT_APP_CRT");
+        return value && std::strcmp(value, "1") == 0;
+    }();
     const bool analogCamera = [] {
         const char* value = std::getenv("RT_APP_ANALOG_CAMERA");
         return value && std::strcmp(value, "1") == 0;
@@ -3934,6 +3939,12 @@ int main() {
                             renderer, fallback, menuClear, pixels, error);
                     }
                 }
+                // Issue #21: the CRT filter works on the composited picture, so the
+                // presented frame and RT_APP_SNAPSHOT carry the same look on both backends.
+                if (rendered && crtFilter)
+                    rt::native::preview::applyCrtFilter(
+                        pixels, static_cast<int>(presenter.extent.width),
+                        static_cast<int>(presenter.extent.height));
                 if (!rendered || !((glPresenter && !headlessApp) ? rt::native::preview::glPresent(glPresenter, pixels, error) : present(presenter, pixels, retry, error))) {
                     std::cerr << "render: " << error << "\n"; running = false; break;
                 }

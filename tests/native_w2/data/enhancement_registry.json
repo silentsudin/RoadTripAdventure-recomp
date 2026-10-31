@@ -192,6 +192,18 @@
     "notes": "main.cpp:2958-2970 feeds the right stick (SDL RIGHTX/RIGHTY, test pad rx/ry) to GameSession::setCameraLook; game_loop.cpp makeSnapshot orbits the look target by up to 90 deg yaw / 30 deg pitch behind a deadzone, and zero stick runs no rotation at all (retail frames unchanged)"
   },
   {
+    "id": "crt_filter",
+    "ledger": "-",
+    "env_vars": ["RT_APP_CRT"],
+    "persisted_keys": ["graphics.crt"],
+    "default": "off (no filter)",
+    "gating": "always (opt-in)",
+    "owners": ["src/native/app/main.cpp", "src/native/preview/crt_filter.cpp", "src/native/preview/crt_filter.h"],
+    "docs": ["docs/native-reference/w17-issues.md", "docs/native-reference/options-menu.md", "code:src/native/app/main.cpp"],
+    "status": "wired",
+    "notes": "main.cpp:3944-3946 applies preview/crt_filter.cpp to the composited RGBA8 frame (third-row scanline gaps + a 3-column aperture mask, integer gains); both presenters and RT_APP_SNAPSHOT carry it; a GPU pass belongs to the composite wave"
+  },
+  {
     "id": "output_modes",
     "ledger": "widescreen",
     "env_vars": ["RT_APP_RESOLUTION", "RT_APP_FULLSCREEN"],

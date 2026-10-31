@@ -518,6 +518,10 @@ OptionsModel::OptionsModel() {
         A::Always, S::WiredNow, {"RT_APP_HUDTEXT"}, "decode SYS/FONTE.GSL and draw race/town text"));
     options_.push_back(enumOpt("graphics.scorehud", "Score/Meter page", P::Graphics,
         {"off", "score", "meter"}, A::Always, S::WiredNow, {"RT_APP_SCOREHUD"}, "livery-test style page overlay"));
+    // Issue #21. Wired: app/main.cpp filters the composited frame (preview/crt_filter.cpp).
+    options_.push_back(toggle("graphics.crt", "CRT filter", P::Graphics, false,
+        A::Always, S::WiredNow, {"RT_APP_CRT"},
+        "issue #21: scanlines and an aperture mask over the composited picture"));
 
     // ---- Controllers -----------------------------------------------------
     options_.push_back(toggle("controllers.triggers", "Analog trigger drive", P::Controllers, false,

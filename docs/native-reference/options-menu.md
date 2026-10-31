@@ -113,6 +113,7 @@ is the `MenuContext` predicate that hides the row (`settings.h`
 | `graphics.carmodel_dump` | Car livery dump path | `RT_APP_CARMODEL_DUMP` | (empty) | always | wired-now |
 | `graphics.hudtext` | HUD text (FONTE) | `RT_APP_HUDTEXT` | off | always | wired-now |
 | `graphics.scorehud` | Score/Meter page | `RT_APP_SCOREHUD` | `off` | always | wired-now |
+| `graphics.crt` | CRT filter | `RT_APP_CRT` | off | always | wired-now |
 
 ### Controllers
 

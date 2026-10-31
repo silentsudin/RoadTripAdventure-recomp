@@ -20,6 +20,7 @@ GSR 2, ASR, MetalFX), frame generation, and the texture-pack glue.
 | Overlays are CPU alpha-blended into the scene buffer | `app/main.cpp:1512-1523` (`compositeOver`) |
 | Presentation is a CPU upload: Vulkan staging copy, GL `TexSubImage2D` | `app/main.cpp:670-697`; `preview/present_gl.cpp:108-133` |
 | Renderer passes + readbacks per frame | PLAYING 1+1; title with text 2+2; normal Explore 6+6; full race HUD **11+11** (`main.cpp:3174-3628`) |
+| The CRT filter (issue #21) is a CPU gain pass on the composited buffer just before present, not a GPU pass | `app/main.cpp:3944-3946`, `preview/crt_filter.cpp` |
 
 So the chain is not merely absent: the per-element readback is what makes a
 temporal chain impossible (colour, depth, motion and the UI mask must stay on

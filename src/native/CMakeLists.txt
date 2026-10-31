@@ -58,6 +58,7 @@ set(RT_NATIVE_ASSET_SOURCES
     assets/image_loader.cpp     # ImageRecord -> NativeImage
     assets/model_loader.cpp     # MeshRecord + images -> NativeModel
     preview/car_mesh.cpp          # CAR container -> render-ready NativeModel (scale/centred/normals)
+    preview/crt_filter.cpp        # composited-frame CRT filter (scanlines + aperture mask, issue #21)
     assets/music_seq.cpp        # Road Trip TVB voice-bank and TSQ sequence container parsers
     assets/setup_wizard.cpp     # first-run validated native asset cache
     assets/tsq_sequencer.cpp    # bounded TSQ event decoder and offline TVB PCM renderer
@@ -464,6 +465,12 @@ add_compile_options(-UNDEBUG)  # W13: Release gates must not compile test assert
     target_link_libraries(native_preview_lighting_test PRIVATE rt_native_assets)
     target_compile_features(native_preview_lighting_test PRIVATE cxx_std_20)
     target_compile_options(native_preview_lighting_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
+
+    add_executable(native_preview_crt_filter_test
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/test_crt_filter.cpp")
+    target_link_libraries(native_preview_crt_filter_test PRIVATE rt_native_assets)
+    target_compile_features(native_preview_crt_filter_test PRIVATE cxx_std_20)
+    target_compile_options(native_preview_crt_filter_test PRIVATE ${RT_NATIVE_WARN_OPTIONS})
 
     add_executable(native_preview_ui_menu_test
         "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/native_assets/native_preview_ui_menu_test.cpp")
