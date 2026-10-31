@@ -275,6 +275,7 @@ void bootstrapSettings() {
     if (store.contains("display.interp_rate")) setDefaultEnv("RT_APP_INTERP_RATE", std::to_string(store.getInt("display.interp_rate", 0, 0, 999)));
     if (store.contains("graphics.stream_step_frames")) setDefaultEnv("RT_APP_STREAM_STEP_FRAMES", std::to_string(store.getInt("graphics.stream_step_frames", 10, 0, 999)));
     if (store.contains("graphics.stream_row")) setDefaultEnv("RT_APP_STREAM_ROW", std::to_string(store.getInt("graphics.stream_row", 1, 0, 7)));
+    if (store.contains("graphics.race_laps")) setDefaultEnv("RT_APP_LAPS", std::to_string(store.getInt("graphics.race_laps", 1, 1, 5)));
     if (store.contains("sound.audio") && !store.getBool("sound.audio", true)) setDefaultEnv("RT_APP_NOAUDIO", "1");
     if (store.contains("sound.bgm")) setDefaultEnv("RT_APP_BGM", store.getString("sound.bgm", ""));
     if (store.contains("sound.bgm_tsq") && !store.getBool("sound.bgm_tsq", true)) setDefaultEnv("RT_APP_BGM_TSQ", "0");
@@ -2121,7 +2122,9 @@ int main() {
     }();
     if (drawFarPlane > 500.f)
         std::cout << "rt-app draw distance: farZ=" << drawFarPlane << "\n";
-    rt::native::gameplay::GameSession session(1, drawFarPlane);
+    // Race laps (issue #30, Options > Graphics > Race laps): the app's race loop length.
+    const int raceLaps = rt::native::gameplay::parseRaceLaps(std::getenv("RT_APP_LAPS"));
+    rt::native::gameplay::GameSession session(raceLaps, drawFarPlane);
     bool adventureLoaded = false;  // a slot was restored: the second screen's Notebook has an Adventure to show
     if (const auto slot = envSlot("RT_APP_LOAD_SLOT")) {
         rt::native::gameplay::SaveData loaded{};

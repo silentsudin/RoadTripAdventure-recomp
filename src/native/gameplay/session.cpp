@@ -1,6 +1,7 @@
 #include "gameplay/session.h"
 
 #include <algorithm>
+#include <cstdlib>
 
 namespace rt::native::gameplay {
 
@@ -120,6 +121,15 @@ void GameSession::awardRaceResult() {
     if (lastSnapshot_.rank >= 0 && lastSnapshot_.rank < static_cast<int>(kResultNotRaced))
         progress_.raceResults[0] = static_cast<std::uint8_t>(lastSnapshot_.rank);
     raceTracker_.writeToSave(progress_);
+}
+
+int parseRaceLaps(const char* value) {
+    if (!value || !*value) return 1;
+    char* end = nullptr;
+    const long parsed = std::strtol(value, &end, 10);
+    if (end == value || *end != '\0') return 1;  // not a whole number
+    if (parsed < 1) return 1;
+    return parsed > 5 ? 5 : static_cast<int>(parsed);  // overflow (LONG_MAX) clamps
 }
 
 }  // namespace rt::native::gameplay

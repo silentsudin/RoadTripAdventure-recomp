@@ -114,6 +114,7 @@ is the `MenuContext` predicate that hides the row (`settings.h`
 | `graphics.hudtext` | HUD text (FONTE) | `RT_APP_HUDTEXT` | off | always | wired-now |
 | `graphics.scorehud` | Score/Meter page | `RT_APP_SCOREHUD` | `off` | always | wired-now |
 | `graphics.crt` | CRT filter | `RT_APP_CRT` | off | always | wired-now |
+| `graphics.race_laps` | Race laps | `RT_APP_LAPS` | 1 | always | wired-now |
 
 ### Controllers
 

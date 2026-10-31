@@ -192,6 +192,18 @@
     "notes": "main.cpp:2958-2970 feeds the right stick (SDL RIGHTX/RIGHTY, test pad rx/ry) to GameSession::setCameraLook; game_loop.cpp makeSnapshot orbits the look target by up to 90 deg yaw / 30 deg pitch behind a deadzone, and zero stick runs no rotation at all (retail frames unchanged)"
   },
   {
+    "id": "race_laps",
+    "ledger": "-",
+    "env_vars": ["RT_APP_LAPS"],
+    "persisted_keys": ["graphics.race_laps"],
+    "default": "1 lap (unchanged)",
+    "gating": "always (opt-in)",
+    "owners": ["src/native/app/main.cpp", "src/native/gameplay/settings.cpp", "src/native/gameplay/session.cpp"],
+    "docs": ["docs/native-reference/options-menu.md", "docs/native-reference/w17-issues.md", "code:src/native/app/main.cpp"],
+    "status": "wired",
+    "notes": "main.cpp:2126-2131 clamps 1..5 and builds GameSession(totalLaps) (makeRaceParams -> GameLoopParams::totalLaps); issue #30's laps slice, the opponents grid is still absent"
+  },
+  {
     "id": "crt_filter",
     "ledger": "-",
     "env_vars": ["RT_APP_CRT"],

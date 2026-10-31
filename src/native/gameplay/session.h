@@ -71,4 +71,9 @@ private:
     void awardRaceResult();
 };
 
+// Options > Graphics > Race laps (RT_APP_LAPS / graphics.race_laps): a whole
+// number 1..5; empty, garbage, trailing junk or a value below 1 mean 1, and
+// anything above 5 (overflow included) means 5.
+int parseRaceLaps(const char* value);
+
 }  // namespace rt::native::gameplay

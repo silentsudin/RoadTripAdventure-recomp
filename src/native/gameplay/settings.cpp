@@ -522,6 +522,10 @@ OptionsModel::OptionsModel() {
     options_.push_back(toggle("graphics.crt", "CRT filter", P::Graphics, false,
         A::Always, S::WiredNow, {"RT_APP_CRT"},
         "issue #21: scanlines and an aperture mask over the composited picture"));
+    // Issue #30 (laps slice). Wired: app/main.cpp builds GameSession(totalLaps).
+    options_.push_back(integer("graphics.race_laps", "Race laps", P::Graphics, 1, 5, 1, 1,
+        A::Always, S::WiredNow, {"RT_APP_LAPS"},
+        "issue #30: total laps for a Quick Race; 1 is this build's long-standing default"));
 
     // ---- Controllers -----------------------------------------------------
     options_.push_back(toggle("controllers.triggers", "Analog trigger drive", P::Controllers, false,

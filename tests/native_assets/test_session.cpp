@@ -165,6 +165,33 @@ void testExplorePoseReanchorsOffTown() {
     CHECK(s.lastSnapshot().cameraEye.y > 5.f);
 }
 
+void testRaceLapsReachTheSession() {
+    // Options > Graphics > Race laps -> RT_APP_LAPS -> GameSession(totalLaps):
+    // the totalLaps the race loop runs. 0 and below clamp to one lap.
+    GameSession one(1);
+    CHECK(one.totalLaps() == 1);
+    GameSession three(3);
+    CHECK(three.totalLaps() == 3);
+    GameSession clamped(0);
+    CHECK(clamped.totalLaps() == 1);
+}
+
+void testRaceLapsEnvParse() {
+    // RT_APP_LAPS: a whole number 1..5; empty, garbage, trailing junk, negative
+    // and overflow all mean 1, and anything above 5 clamps to 5.
+    CHECK(parseRaceLaps(nullptr) == 1);
+    CHECK(parseRaceLaps("") == 1);
+    CHECK(parseRaceLaps("0") == 1);
+    CHECK(parseRaceLaps("-3") == 1);
+    CHECK(parseRaceLaps("2x") == 1);
+    CHECK(parseRaceLaps(" 2") == 2);  // strtol skips leading spaces
+    CHECK(parseRaceLaps("1") == 1);
+    CHECK(parseRaceLaps("3") == 3);
+    CHECK(parseRaceLaps("5") == 5);
+    CHECK(parseRaceLaps("9") == 5);
+    CHECK(parseRaceLaps("999999999999999999999999") == 5);  // overflow clamps
+}
+
 }  // namespace
 
 int main() {
@@ -173,6 +200,8 @@ int main() {
     testProgressSaveLoadRoundTrip();
     testTownDriveMovesCarWithGas();
     testExplorePoseReanchorsOffTown();
+    testRaceLapsReachTheSession();
+    testRaceLapsEnvParse();
     if (g_fail != 0) return EXIT_FAILURE;
     std::puts("session: all checks passed");
     return EXIT_SUCCESS;
