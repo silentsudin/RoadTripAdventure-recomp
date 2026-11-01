@@ -96,7 +96,7 @@ void testTownDriveMovesCarWithGas() {
     // starts at the factory-side square, and facade reads see it immediately.
     CHECK(p0.x == 506.283f && p0.z == 442.230f);
 
-    // Null driveInput (every non-lockstep run) keeps EXPLORE frozen — the
+    // Null driveInput (headless capture runs) keeps EXPLORE frozen — the
     // no-assets default-launch determinism contract.
     for (int i = 0; i < 60; ++i) session.update({});
     const auto pIdle = session.lastSnapshot().carPosition;

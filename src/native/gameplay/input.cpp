@@ -34,6 +34,14 @@ PadState padWith(PhysicalButton a, PhysicalButton b, PhysicalButton c) {
     return p;
 }
 
+PadState padFromKeys(bool accelerate, bool brake, bool reverse, const ControllerConfig& cfg) {
+    PadState pad;
+    if (accelerate) setPressed(pad, cfg.getButtonConfig(ControllerAction::ACCELERATE));
+    if (brake)      setPressed(pad, cfg.getButtonConfig(ControllerAction::BRAKE));
+    if (reverse)    setPressed(pad, cfg.getButtonConfig(ControllerAction::REVERSE));
+    return pad;
+}
+
 float triggerGasDuty(float trigger) { return 0.5f + 0.5f * clamp01(trigger); }
 
 int triggerBrakeRampLimit(float trigger, float rampMax) {

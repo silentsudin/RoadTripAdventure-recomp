@@ -2,6 +2,7 @@
 #include "../../src/native/gameplay/input.h"
 
 #include <cstdio>
+#include <string>
 
 using namespace rt::native::gameplay;
 
@@ -42,6 +43,28 @@ int main() {
 
     CarInput u = playerCarInput(padWith(PhysicalButton::START, PhysicalButton::SELECT), ax, cfg);
     CHECK(!u.gas && !u.brake && !u.reverse && u.steer == 0);
+
+    // The keyboard's pad (gameplay/input.h): Up/W gas, Down/S brake, Space
+    // reverse through the same bindings the player path reads; no key, no bit.
+    CHECK(playerCarInput(padFromKeys(true, false, false, cfg), AnalogAxes{}, cfg).gas);
+    CHECK(playerCarInput(padFromKeys(false, true, false, cfg), AnalogAxes{}, cfg).brake);
+    CHECK(playerCarInput(padFromKeys(false, false, true, cfg), AnalogAxes{}, cfg).reverse);
+    const CarInput idle = playerCarInput(padFromKeys(false, false, false, cfg), AnalogAxes{}, cfg);
+    CHECK(!idle.gas && !idle.brake && !idle.reverse && idle.steer == 0);
+
+    // Which input drives the authored loop (gameplay/input.h): the harness pad
+    // in lockstep runs, the autopilot while it holds, the loop's AI path in
+    // headless captures, and the player in a windowed session - in that order.
+    CHECK(driveSource(true, true, true) == DriveSource::Harness);
+    CHECK(driveSource(true, false, false) == DriveSource::Harness);
+    CHECK(driveSource(false, true, true) == DriveSource::Autopilot);
+    CHECK(driveSource(false, true, false) == DriveSource::Autopilot);
+    CHECK(driveSource(false, false, true) == DriveSource::Ai);
+    CHECK(driveSource(false, false, false) == DriveSource::Player);
+    CHECK(std::string(driveSourceName(DriveSource::Harness)) == "harness");
+    CHECK(std::string(driveSourceName(DriveSource::Autopilot)) == "autopilot");
+    CHECK(std::string(driveSourceName(DriveSource::Ai)) == "ai");
+    CHECK(std::string(driveSourceName(DriveSource::Player)) == "player");
 
     if (g_fail == 0) std::printf("input tests passed\n");
     return g_fail ? 1 : 0;

@@ -145,3 +145,20 @@ The 10 constants are reproducible from the addiu immediates immediately precedin
 - Full analog stick → steering + wing axis mapping lives in playerCarInput + AcquireVehicleInput (not in this batch).
 - Per-device profile overrides (e.g. "xbox family") are a coordinator + wave-3 concern.
 - Touch / mouse nav for second-screen is out of scope.
+
+## 9. Which input drives the loop (host)
+
+`gameplay::driveSource` (`src/native/gameplay/input.h`) picks one source per
+fixed 60-Hz step, in precedence order:
+
+| Source | When | Input |
+|---|---|---|
+| `harness` | a test socket drives the step (`TestSocket::lockstep`) | the socket's pad |
+| `autopilot` | `RT_APP_AUTOPILOT=1` and the session is in an Adventure | gas on, steering toward the road |
+| `ai` | headless capture runs (`RT_APP_HEADLESS`) | none: the loop's own AI path, which every gate and snapshot pins |
+| `player` | a windowed session | `padFromKeys` (arrows/WASD steer, Up/W gas, Down/S brake, Space reverse) plus the pad's triggers and right stick |
+
+`rt-app drive: <source>` logs the source, and `rt-app drive end:` logs the final
+pose and speed. Headless, harness and autopilot runs pass the same pointers they
+did before this rule existed. The pad's own buttons are not read yet
+(`SDL_GetGamepadButton` appears nowhere under `src/native`), so a gamepad alone cannot drive.

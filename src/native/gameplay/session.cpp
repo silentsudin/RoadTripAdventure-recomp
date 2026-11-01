@@ -48,8 +48,8 @@ void GameSession::update(const MenuInput& input, const CarInput* driveInput) {
         // physics + chase camera + world streaming as the race (GameLoop::
         // tickPlayer). The original town script (doors, traffic, pedestrians)
         // remains unmerged; the pose starts on the Peach Town square anchor
-        // (kTownSpawn* above, oracle-proven). Null driveInput (every
-        // non-lockstep run) keeps EXPLORE behaviour unchanged.
+        // (kTownSpawn* above, oracle-proven). Null driveInput (headless
+        // capture runs) keeps EXPLORE behaviour unchanged.
         if (driveInput) lastSnapshot_ = gameLoop_.tickPlayer(1.f / 60.f, input, *driveInput);
         break;
     case SessionState::RACE:

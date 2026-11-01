@@ -2298,6 +2298,9 @@ int main() {
     std::optional<rt::native::gameplay::SecondScreenPage> secondTap = forcedSecondPage;
     rt::native::preview::TitleAction titleAction = rt::native::preview::TitleAction::None;
     bool loggedAppState = false, loggedSessionState = false;
+    bool loggedDriveSource = false;
+    rt::native::gameplay::DriveSource lastDriveSource = rt::native::gameplay::DriveSource::Ai;
+    rt::native::gameplay::DriveSource loggedDriveSourceValue = rt::native::gameplay::DriveSource::Ai;
     AppState lastLoggedAppState = state;
     rt::native::gameplay::SessionState lastLoggedSessionState = session.state();
     // Session snapshot of the last completed logic step. Hoisted so render-only
@@ -2701,16 +2704,13 @@ int main() {
         }
         const bool* keys = SDL_GetKeyboardState(nullptr);
         const auto held = [keys](SDL_Scancode key) { return keys && keys[key]; };
-        rt::native::gameplay::PadState pad;
         rt::native::gameplay::AnalogAxes axes;
         axes.stickX = (held(SDL_SCANCODE_RIGHT) || held(SDL_SCANCODE_D) ? 1.f : 0.f) -
                       (held(SDL_SCANCODE_LEFT) || held(SDL_SCANCODE_A) ? 1.f : 0.f);
-        if (held(SDL_SCANCODE_UP) || held(SDL_SCANCODE_W))
-            rt::native::gameplay::setPressed(pad, controllerConfig.getButtonConfig(rt::native::gameplay::ControllerAction::ACCELERATE));
-        if (held(SDL_SCANCODE_DOWN) || held(SDL_SCANCODE_S))
-            rt::native::gameplay::setPressed(pad, controllerConfig.getButtonConfig(rt::native::gameplay::ControllerAction::BRAKE));
-        if (held(SDL_SCANCODE_SPACE))
-            rt::native::gameplay::setPressed(pad, controllerConfig.getButtonConfig(rt::native::gameplay::ControllerAction::REVERSE));
+        rt::native::gameplay::PadState pad = rt::native::gameplay::padFromKeys(
+            held(SDL_SCANCODE_UP) || held(SDL_SCANCODE_W),
+            held(SDL_SCANCODE_DOWN) || held(SDL_SCANCODE_S),
+            held(SDL_SCANCODE_SPACE), controllerConfig);
         // One logic step of the fixed 60-Hz quantum: everything that must keep
         // the original VBlank-paced cadence (session tick, route follower,
         // shop/dialogue/collectibles, state/session logs, stream demand) per
@@ -3022,7 +3022,6 @@ int main() {
                 input.brake = input.brake || drive.input.brake;
                 input.reverse = input.reverse || drive.input.reverse;
             }
-            (void)input;
             if (state == AppState::PLAYING) {
                 // W3-05: drain queued script events immediately before the
                 // session consumes input so a trigger lands in the same logic
@@ -3038,7 +3037,21 @@ int main() {
                     session.continueFromResults();
                     std::cout << "rt-app autopilot: continued results\n";
                 }
-                session.update(menuInput, testSocket.lockstep() ? &input : autopilotStep.driveInput);
+                // A windowed session is driven by the player's input; headless
+                // captures keep the loop's own AI path and snapshots, and the
+                // harness pad / autopilot take precedence (gameplay/input.h).
+                lastDriveSource = rt::native::gameplay::driveSource(
+                    testSocket.lockstep(), autopilotStep.driveInput != nullptr, headlessApp);
+                if (!loggedDriveSource || lastDriveSource != loggedDriveSourceValue) {
+                    std::cout << "rt-app drive: " << rt::native::gameplay::driveSourceName(lastDriveSource) << "\n";
+                    loggedDriveSource = true;
+                    loggedDriveSourceValue = lastDriveSource;
+                }
+                const rt::native::gameplay::CarInput* driveInput =
+                    lastDriveSource == rt::native::gameplay::DriveSource::Ai ? nullptr
+                  : lastDriveSource == rt::native::gameplay::DriveSource::Autopilot ? autopilotStep.driveInput
+                                                                                : &input;
+                session.update(menuInput, driveInput);
                 // Widescreen policy (output-modes.md): 3D fills the window; fovY
                 // pinned, aspect follows the presented extent.  Applied every
                 // frame because startRace() rebuilds loop params.
@@ -4007,7 +4020,10 @@ int main() {
         }
         if (!interpEnabled || testSocket.lockstep()) ++frames;
     }
-    std::cout << "rt-app frames=" << frames << " simulation_frame=" << simulationFrame << "\n";
+    std::cout << "rt-app frames=" << frames << " simulation_frame=" << simulationFrame << "\n"
+              << "rt-app drive end: source=" << rt::native::gameplay::driveSourceName(lastDriveSource)
+              << " x=" << snapshot.carPosition.x << " z=" << snapshot.carPosition.z
+              << " speed=" << snapshot.speed << "\n";
     if (nativeBoot.ok) {  // where decompiled boot stopped: kernel-object census + quarantined faults
         std::size_t nf = 0;
         const rtguest::Fault* fs = rtguest::faults(&nf);

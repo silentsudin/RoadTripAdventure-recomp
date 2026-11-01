@@ -17,6 +17,34 @@ constexpr float kTriggerThreshold = 0.5f;
 
 CarInput playerCarInput(const PadState& pad, const AnalogAxes& axes, const ControllerConfig& cfg);
 
+// The keyboard's contribution to the pad (Up/W gas, Down/S brake, Space
+// reverse; steering stays an axis), in the game's own button words - half of
+// the player path a windowed session feeds the authored loop with.
+PadState padFromKeys(bool accelerate, bool brake, bool reverse, const ControllerConfig& cfg);
+
+// Which input drives the authored loop for one logic step, in precedence
+// order: the harness pad while a test socket drives steps, the autopilot's
+// input when it holds, the loop's own AI path in headless capture runs (what
+// every gate and snapshot pins), and the player's input in a windowed session.
+enum class DriveSource { Harness, Autopilot, Ai, Player };
+
+constexpr DriveSource driveSource(bool harnessLockstep, bool autopilotActive, bool headless) {
+    return harnessLockstep ? DriveSource::Harness
+         : autopilotActive  ? DriveSource::Autopilot
+         : headless         ? DriveSource::Ai
+                            : DriveSource::Player;
+}
+
+constexpr const char* driveSourceName(DriveSource source) {
+    switch (source) {
+    case DriveSource::Harness: return "harness";
+    case DriveSource::Autopilot: return "autopilot";
+    case DriveSource::Ai: return "ai";
+    case DriveSource::Player: return "player";
+    }
+    return "ai";
+}
+
 // Test/helper: set or clear a button bit in a PadState.
 void setPressed(PadState& pad, PhysicalButton button, bool down = true);
 PadState padWith(PhysicalButton a, PhysicalButton b = PhysicalButton::NONE,
