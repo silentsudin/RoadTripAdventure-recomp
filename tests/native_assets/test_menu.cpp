@@ -149,6 +149,37 @@ static void testFixedMenuInputResolution() {
     CHECK(input.confirm && input.cancel && input.up && input.down && input.left && input.right);
 }
 
+static void testPadMenuEdgesAndHoldGesture() {
+    using namespace rt::native::gameplay;
+    // One action per press: holding fires once, releasing and pressing fires again.
+    std::uint16_t previous = 0;
+    const std::uint16_t down = buttonMask(PhysicalButton::DPAD_DOWN);
+    const std::uint16_t cross = buttonMask(PhysicalButton::CROSS);
+    CHECK(menuInputEdges(down, previous).down);
+    CHECK(!menuInputEdges(down, previous).down);            // held: no repeat
+    CHECK(!menuInputEdges(0, previous).down);
+    CHECK(menuInputEdges(down, previous).down);            // released then pressed
+    CHECK(!menuInputEdges(0, previous).down);                // release
+    const MenuInput both = menuInputEdges(static_cast<std::uint16_t>(cross | down), previous);
+    CHECK(both.confirm && both.down && !both.up && !both.cancel);
+    CHECK(!menuInputEdges(static_cast<std::uint16_t>(buttonMask(PhysicalButton::CIRCLE)), previous).confirm);
+
+    // Back + Start held 0.3 s fires once, then re-arms after release.
+    float held = 0.f;
+    CHECK(!menuGestureReady(true, 0.1f, held));
+    CHECK(!menuGestureReady(true, 0.1f, held));
+    CHECK(menuGestureReady(true, 0.1f, held));              // 0.3 s reached
+    CHECK(!menuGestureReady(true, 0.1f, held));            // stays false while held
+    CHECK(!menuGestureReady(false, 0.1f, held));            // release re-arms
+    CHECK(!menuGestureReady(true, 0.1f, held));
+    CHECK(menuGestureReady(true, 0.25f, held));
+    // A press shorter than the hold never fires.
+    held = 0.f;
+    CHECK(!menuGestureReady(true, 0.1f, held));
+    CHECK(!menuGestureReady(false, 1.f, held));
+    CHECK(!menuGestureReady(true, 0.1f, held));
+}
+
 int main() {
     testMenuGridWrapAndDisabledRows();
     testMenuScrollOffsetTracksVerticalCursor();
@@ -157,6 +188,7 @@ int main() {
     testPauseMenuEnterLeaveAndFrames();
     testControllerButtonMasksAndDefaults();
     testFixedMenuInputResolution();
+    testPadMenuEdgesAndHoldGesture();
     if (g_fail != 0) return EXIT_FAILURE;
     std::puts("menu tests passed");
     return EXIT_SUCCESS;

@@ -2298,6 +2298,8 @@ int main() {
     std::optional<rt::native::gameplay::SecondScreenPage> secondTap = forcedSecondPage;
     rt::native::preview::TitleAction titleAction = rt::native::preview::TitleAction::None;
     bool loggedAppState = false, loggedSessionState = false;
+    std::uint16_t menuPadPrevious = 0;
+    float menuHoldSeconds = 0.f;
     bool loggedDriveSource = false;
     rt::native::gameplay::DriveSource lastDriveSource = rt::native::gameplay::DriveSource::Ai;
     rt::native::gameplay::DriveSource loggedDriveSourceValue = rt::native::gameplay::DriveSource::Ai;
@@ -2557,10 +2559,14 @@ int main() {
                     menuInput.left = menuInput.left || event.key.scancode == SDL_SCANCODE_LEFT;
                     menuInput.right = menuInput.right || event.key.scancode == SDL_SCANCODE_RIGHT;
                     menuInput.confirm = menuInput.confirm || event.key.scancode == SDL_SCANCODE_RETURN;
-                    menuInput.cancel = menuInput.cancel || event.key.scancode == SDL_SCANCODE_ESCAPE;
+                    menuInput.cancel = menuInput.cancel ||
+                        event.key.scancode == SDL_SCANCODE_ESCAPE ||
+                        event.key.scancode == SDL_SCANCODE_AC_BACK;
                 }
                 if (state == AppState::PLAYING) {
-                    if (event.key.scancode == SDL_SCANCODE_ESCAPE) returnToMenu = true;
+                    // Android's back button opens the menu too (the recomp's contract).
+                    if (event.key.scancode == SDL_SCANCODE_ESCAPE ||
+                        event.key.scancode == SDL_SCANCODE_AC_BACK) returnToMenu = true;
                     if (event.key.scancode == SDL_SCANCODE_TAB &&
                         session.state() == rt::native::gameplay::SessionState::RACE)
                         playerDriven = !playerDriven;
@@ -2624,7 +2630,36 @@ int main() {
         }
 #endif
         const auto now = std::chrono::steady_clock::now(); const float dt = std::min(std::chrono::duration<float>(now - previous).count(), 0.1f); previous = now;
-        if (state == AppState::TITLE && titleAdvance) {
+        // Pad menus (docs/native-reference/input-map.md section 10): one action per
+        // press like the keys, and the recomp's Back + Start held gesture opens
+        // the menu from play (README.md:135).
+        std::uint16_t menuPad = 0;
+        if (gamepad) {
+            const auto menuButton = [gamepad](SDL_GamepadButton button) {
+                return SDL_GetGamepadButton(gamepad, button);
+            };
+            if (menuButton(SDL_GAMEPAD_BUTTON_DPAD_UP)) menuPad |= rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::DPAD_UP);
+            if (menuButton(SDL_GAMEPAD_BUTTON_DPAD_DOWN)) menuPad |= rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::DPAD_DOWN);
+            if (menuButton(SDL_GAMEPAD_BUTTON_DPAD_LEFT)) menuPad |= rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::DPAD_LEFT);
+            if (menuButton(SDL_GAMEPAD_BUTTON_DPAD_RIGHT)) menuPad |= rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::DPAD_RIGHT);
+            if (menuButton(SDL_GAMEPAD_BUTTON_SOUTH)) menuPad |= rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::CROSS);
+            if (menuButton(SDL_GAMEPAD_BUTTON_EAST)) menuPad |= rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::CIRCLE);
+            if (menuButton(SDL_GAMEPAD_BUTTON_START)) menuPad |= rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::START);
+            if (menuButton(SDL_GAMEPAD_BUTTON_BACK)) menuPad |= rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::SELECT);
+        }
+        const auto padMenuInput = rt::native::gameplay::menuInputEdges(menuPad, menuPadPrevious);
+        menuInput.up = menuInput.up || padMenuInput.up;
+        menuInput.down = menuInput.down || padMenuInput.down;
+        menuInput.left = menuInput.left || padMenuInput.left;
+        menuInput.right = menuInput.right || padMenuInput.right;
+        menuInput.confirm = menuInput.confirm || padMenuInput.confirm;
+        menuInput.cancel = menuInput.cancel || padMenuInput.cancel;
+        const std::uint16_t menuHoldMask =
+            rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::SELECT) |
+            rt::native::gameplay::buttonMask(rt::native::gameplay::PhysicalButton::START);
+        const bool menuOpenedByPad = rt::native::gameplay::menuGestureReady(
+            state == AppState::PLAYING && (menuPad & menuHoldMask) == menuHoldMask, dt, menuHoldSeconds);
+        if (state == AppState::TITLE && (titleAdvance || padMenuInput.confirm)) {
             menuFlow = {};
             (void)rt::native::gameplay::tickMenuFlow(menuFlow, {.confirm = true}, dt);
             state = AppState::MENU;
@@ -2698,7 +2733,7 @@ int main() {
                 state = AppState::PLAYING;
                 session.startRace();
             }
-        } else if (state == AppState::PLAYING && returnToMenu) {
+        } else if (state == AppState::PLAYING && (returnToMenu || menuOpenedByPad)) {
             menuFlow.screen = rt::native::gameplay::MenuScreen::MODE_SELECT;
             state = AppState::MENU;
         }

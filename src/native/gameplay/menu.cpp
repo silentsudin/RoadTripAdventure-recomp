@@ -201,4 +201,27 @@ MenuInput resolveMenuInput(const PadState& input) {
     };
 }
 
+MenuInput menuInputEdges(std::uint16_t pressed, std::uint16_t& previous) {
+    const std::uint16_t edges = static_cast<std::uint16_t>(pressed & ~previous);
+    previous = pressed;
+    return {
+        .up = (edges & buttonMask(PhysicalButton::DPAD_UP)) != 0,
+        .down = (edges & buttonMask(PhysicalButton::DPAD_DOWN)) != 0,
+        .left = (edges & buttonMask(PhysicalButton::DPAD_LEFT)) != 0,
+        .right = (edges & buttonMask(PhysicalButton::DPAD_RIGHT)) != 0,
+        .confirm = (edges & buttonMask(PhysicalButton::CROSS)) != 0,
+        .cancel = (edges & buttonMask(PhysicalButton::CIRCLE)) != 0,
+    };
+}
+
+bool menuGestureReady(bool pressed, float dt, float& held) {
+    if (!pressed) {
+        held = 0.f;
+        return false;
+    }
+    if (held >= kMenuHoldSeconds) return false;  // already fired for this hold
+    held += dt;
+    return held >= kMenuHoldSeconds;
+}
+
 }  // namespace rt::native::gameplay

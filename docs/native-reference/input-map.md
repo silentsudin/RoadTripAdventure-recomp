@@ -163,3 +163,23 @@ pose and speed. Headless, harness and autopilot runs pass the same pointers they
 did before this rule existed. The pad's South/West/East buttons are read every
 step (`SDL_GetGamepadButton`); the joystick layer applies a real pad's button
 state at the next event pump, so a windowed session sees it from the next step.
+
+## 10. Pad menus (host)
+
+The pad drives the menus with the same `MenuInput` the keys build:
+
+| Action | Pad |
+|---|---|
+| move | d-pad (one step per press, `menuInputEdges`) |
+| confirm | CROSS (South) |
+| cancel / back | CIRCLE (East), or Android's back button (`SDL_SCANCODE_AC_BACK`) |
+| open our menu from play | Back + Start held 0.3 s (`menuGestureReady`; README.md:135) |
+
+`resolveMenuInput` is the held state the guest would read; the host uses edges so
+a held button cannot run the cursor down a list. The fixed gestures are proven
+by `tests/native_assets/test_menu.cpp` (`testPadMenuEdgesAndHoldGesture`).
+
+`RT_APP_VPAD` was tried and dropped: SDL attaches a virtual gamepad and
+`SDL_SetJoystickVirtualButton` succeeds, but inside this app `SDL_GetGamepadButton`
+stayed false - and with a real window it returns unapplied state - while the same
+calls in a standalone probe work. A physical pad is the only remaining check.

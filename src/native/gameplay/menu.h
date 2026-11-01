@@ -148,4 +148,15 @@ bool loadControllerConfig(ControllerConfig& config, const SaveData& save);
 // Menu navigation is fixed (not part of the +0x12E8 driving remap).
 MenuInput resolveMenuInput(const PadState& input);
 
+// One action per press from the pad (d-pad, CROSS confirm, CIRCLE cancel),
+// like the keyboard's key-down events: a held button fires once and again only
+// after it is released (resolveMenuInput above is the held state).
+MenuInput menuInputEdges(std::uint16_t pressed, std::uint16_t& previous);
+
+// The recomp's in-game menu gesture (README.md:135 "Guide, or Back + Start
+// held"): true on the frame a hold reaches kMenuHoldSeconds, and again only
+// after the buttons are released.
+constexpr float kMenuHoldSeconds = 0.3f;
+bool menuGestureReady(bool pressed, float dt, float& held);
+
 }  // namespace rt::native::gameplay
