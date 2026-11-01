@@ -570,9 +570,13 @@ OptionsModel::OptionsModel() {
     // src/ui/PauseMenu.cpp:397-542, 813-872. The first row of each page is its first retail row.
     const std::string kGlue = "recomp catalog row; persisted, host consumer lands with the window/audio/input glue";
     options_.push_back(enumOpt("display.window_mode", "Display mode", P::Display,
-        {"Window", "Borderless fullscreen", "Fullscreen"}, A::RequiresDesktop, S::HostGluePending, {}, kGlue));
+        {"Window", "Borderless fullscreen", "Fullscreen"}, A::RequiresDesktop, S::HostGluePending,
+        {"RT_APP_FULLSCREEN"},
+        "applies at the next start (the window is created once); the app asks for no exclusive mode, so both fullscreen rows are fullscreen at the desktop resolution"));
     options_.push_back(enumOpt("display.window_size", "Window size", P::Display,
-        {"Medium (960x672)", "Small (640x448)", "Large (1280x896)"}, A::RequiresDesktopWindow, S::HostGluePending, {}, kGlue));
+        {"Medium (960x672)", "Small (640x448)", "Large (1280x896)"}, A::RequiresDesktopWindow, S::HostGluePending,
+        {"RT_APP_RESOLUTION"},
+        "applies at the next start; the row is the RT_APP_RESOLUTION preset (exact WxH)"));
     options_.push_back(enumOpt("display.aspect", "Aspect ratio", P::Display,
         {"4:3 (original)", "16:10", "16:9", "21:9", "32:9"}, A::Always, S::HostGluePending, {}, kGlue));
     options_.push_back(enumOpt("display.hud_position", "HUD position", P::Display,

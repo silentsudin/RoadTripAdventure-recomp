@@ -210,7 +210,12 @@ RT_APP_RESOLUTION=<preset|WxH>
     desktop mode — never abort; unset keeps today's 800x600 windowed default
     byte-for-byte (matrix-regression quiet).
 RT_APP_FULLSCREEN=<0|1>
-    1 = SDL borderless fullscreen at the resolved resolution (default 0).
+    1 = SDL_WINDOW_FULLSCREEN at window creation (fullscreen at the desktop
+    resolution), 0/unset stays windowed (default). The app never asks for an
+    exclusive mode: SDL_SetWindowFullscreenMode is not called, so SDL3's
+    exclusive mode is out of scope here and Borderless/Fullscreen behave alike.
+    The Options Display mode / Window size rows stand in for this pair
+    (settings.cpp) and apply at the next start.
 ```
 
 Glue, matching the existing env-helper conventions (`envFrames()`,

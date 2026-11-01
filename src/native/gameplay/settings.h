@@ -47,6 +47,22 @@ constexpr FrameRatePacing frameRatePacing(std::string_view label) {
     return {};
 }
 
+// Display mode row -> the SDL fullscreen flag it stands in for at the next
+// start (the window is created once, so a change applies at the next start).
+enum class WindowMode { Windowed, Borderless, Fullscreen };
+constexpr WindowMode windowModeOf(std::string_view label) {
+    if (label == "Borderless fullscreen") return WindowMode::Borderless;
+    if (label == "Fullscreen") return WindowMode::Fullscreen;
+    return WindowMode::Windowed;
+}
+
+// Window size row -> the RT_APP_RESOLUTION preset it stands in for.
+constexpr std::string_view windowSizeString(std::string_view label) {
+    if (label == "Small (640x448)") return "640x448";
+    if (label == "Large (1280x896)") return "1280x896";
+    return "960x672";
+}
+
 // ---------------------------------------------------------------------------
 // SettingsStore
 //

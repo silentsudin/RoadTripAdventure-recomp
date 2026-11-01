@@ -516,6 +516,32 @@ static void testFrameRateRowIsInterpPacing() {
     CHECK(row->envFlags.size() == 2 && row->envFlags[0] == "RT_APP_INTERP" &&
           row->envFlags[1] == "RT_APP_INTERP_RATE");
     CHECK(row->retail);  // shown in the retail Options menu
+
+    // The two window rows stand in for the output-mode env pair and apply at
+    // the next start (output-modes.md): Borderless is SDL's desktop fullscreen.
+    CHECK(windowModeOf("Window") == WindowMode::Windowed);
+    CHECK(windowModeOf("Borderless fullscreen") == WindowMode::Borderless);
+    CHECK(windowModeOf("Fullscreen") == WindowMode::Fullscreen);
+    CHECK(windowModeOf("garbage") == WindowMode::Windowed);
+    CHECK(windowSizeString("Small (640x448)") == "640x448");
+    CHECK(windowSizeString("Large (1280x896)") == "1280x896");
+    CHECK(windowSizeString("Medium (960x672)") == "960x672");
+    CHECK(windowSizeString("garbage") == "960x672");
+    const OptionSpec* mode = model.find("display.window_mode");
+    const OptionSpec* size = model.find("display.window_size");
+    CHECK(mode && mode->envFlags.size() == 1 && mode->envFlags[0] == "RT_APP_FULLSCREEN");
+    CHECK(size && size->envFlags.size() == 1 && size->envFlags[0] == "RT_APP_RESOLUTION");
+    CHECK(mode && size);
+    // A handheld is always fullscreen: both rows disappear there.
+    MenuContext androidCtx;
+    androidCtx.android = true;
+    androidCtx.windowed = true;
+    CHECK(!optionAvailable(*mode, androidCtx));
+    CHECK(!optionAvailable(*size, androidCtx));
+    MenuContext desktopCtx;
+    desktopCtx.windowed = true;
+    CHECK(optionAvailable(*mode, desktopCtx));
+    CHECK(optionAvailable(*size, desktopCtx));
 }
 
 int main() {

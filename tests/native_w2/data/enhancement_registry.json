@@ -219,13 +219,13 @@
     "id": "output_modes",
     "ledger": "widescreen",
     "env_vars": ["RT_APP_RESOLUTION", "RT_APP_FULLSCREEN"],
-    "persisted_keys": [],
+    "persisted_keys": ["display.window_mode", "display.window_size"],
     "default": "800x600 windowed (kInitialWidth/Height, main.cpp:1417)",
     "gating": "device (display)",
     "owners": ["src/native/app/main.cpp", "src/native/app/output_modes.cpp"],
     "docs": ["docs/native-reference/output-modes.md"],
     "status": "wired",
-    "notes": "main.cpp:1438-1470: preset|WxH ladder + borderless fullscreen; unset stays byte-identical legacy path (matrix quiet); covers the widescreen-presentation ledger row together with the resizable swapchain"
+    "notes": "main.cpp:1438-1470 and :271-292: preset|WxH ladder + fullscreen (the app asks for no exclusive mode); the Display mode / Window size rows stand in for both and apply at the next start; unset stays byte-identical legacy path (matrix quiet); covers the widescreen-presentation ledger row together with the resizable swapchain"
   },
   {
     "id": "glyph_family",

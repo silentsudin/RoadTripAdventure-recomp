@@ -270,6 +270,26 @@ void bootstrapSettings() {
     boolFlag("graphics.hudtext", "RT_APP_HUDTEXT");
     boolFlag("controllers.triggers", "RT_APP_TRIGGERS");
     boolFlag("controllers.analog_camera", "RT_APP_ANALOG_CAMERA");
+    // Display mode / Window size: the window is created once, so the row
+    // applies at the next start (output-modes.md). Desktop only (Android's
+    // window is always fullscreen).
+    if (store.contains("display.window_mode")) {
+        const std::string mode = store.getEnum("display.window_mode", "Window",
+                                               {"Window", "Borderless fullscreen", "Fullscreen"});
+        switch (windowModeOf(mode)) {
+        case WindowMode::Fullscreen:  // SDL3 has no exclusive mode: the window
+        case WindowMode::Borderless:  // is fullscreen at the desktop resolution
+            setDefaultEnv("RT_APP_FULLSCREEN", "1");
+            break;
+        case WindowMode::Windowed: setDefaultEnv("RT_APP_FULLSCREEN", "0"); break;
+        }
+    }
+    if (store.contains("display.window_size")) {
+        const std::string size = store.getEnum("display.window_size", "Medium (960x672)",
+                                               {"Medium (960x672)", "Small (640x448)",
+                                                "Large (1280x896)"});
+        setDefaultEnv("RT_APP_RESOLUTION", std::string(windowSizeString(size)));
+    }
     // Frame rate 120/240 is the interpolated render re-render of
     // frame-interpolation.md ("generated"): logic stays 60 Hz, render poses
     // between completed steps. 60 leaves the interp rows alone; an explicit
@@ -1435,6 +1455,14 @@ rt::native::preview::TerrainMesh loadTerrainMesh() {
 }
 
 enum class AppState { TITLE, MENU, LOAD, PLAYING };
+
+// The options model hides window rows on handhelds (settings.h MenuContext):
+// Android's window is always fullscreen.
+#ifdef __ANDROID__
+constexpr bool kAndroidHost = true;
+#else
+constexpr bool kAndroidHost = false;
+#endif
 
 const char* appStateName(AppState state) {
     switch (state) {
@@ -2680,6 +2708,7 @@ int main() {
             if (menuFlow.screen == rt::native::gameplay::MenuScreen::OPTIONS) {
                 using namespace rt::native::preview;
                 rt::native::gameplay::MenuContext optionsContext;
+                optionsContext.android = kAndroidHost;
                 optionsContext.gamepadPresent = gamepad != nullptr;
                 optionsContext.secondScreenSupported = rt::native::app::seconddisplay::supported();
                 // Save-page rows need the session facts the recomp's Capabilities carries:
@@ -3909,6 +3938,7 @@ int main() {
                     const int menuH = static_cast<int>(presenter.extent.height);
                     const std::array<float, 4> menuClear{.025f, .035f, .075f, 1.f};
                     rt::native::gameplay::MenuContext panelContext;
+                    panelContext.android = kAndroidHost;
                     panelContext.gamepadPresent = gamepad != nullptr;
                     panelContext.secondScreenSupported = rt::native::app::seconddisplay::supported();
                     const auto optionsPanel = rt::native::preview::buildOptionsPanel(
