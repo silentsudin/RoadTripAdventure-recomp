@@ -34,6 +34,19 @@
 
 namespace rt::native::gameplay {
 
+// Frame rate row -> the interp pacing it stands in for (frame-interpolation.md):
+// 120/240 re-render the pose interpolated between 60-Hz logic steps; 60 leaves
+// the interp rows alone.
+struct FrameRatePacing {
+    bool interp = false;
+    int rate = 0;
+};
+constexpr FrameRatePacing frameRatePacing(std::string_view label) {
+    if (label == "120 fps (generated)") return {true, 120};
+    if (label == "240 fps (generated)") return {true, 240};
+    return {};
+}
+
 // ---------------------------------------------------------------------------
 // SettingsStore
 //

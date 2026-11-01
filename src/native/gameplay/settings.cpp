@@ -580,7 +580,9 @@ OptionsModel::OptionsModel() {
     options_.push_back(enumOpt("display.map", "Map", P::Display,
         {"Enhanced", "Original"}, A::RequiresMapRow, S::HostGluePending, {}, kGlue));
     options_.push_back(enumOpt("display.frame_rate", "Frame rate", P::Display,
-        {"60 fps (original)", "120 fps (generated)", "240 fps (generated)"}, A::Always, S::HostGluePending, {}, kGlue));
+        {"60 fps (original)", "120 fps (generated)", "240 fps (generated)"}, A::Always, S::HostGluePending,
+        {"RT_APP_INTERP", "RT_APP_INTERP_RATE"},
+        "120/240 set RT_APP_INTERP=1 + the rate: the interpolated re-render of frame-interpolation.md, logic locked 60 Hz"));
     options_.push_back(enumOpt("display.frame_generation", "Frame generation", P::Display,
         {"Re-rendered (no added latency)", "Warped, interpolated (+1 refresh latency)", "Warped, extrapolated (edge artefacts)"},
         A::RequiresFrameGenWarp, S::HostGluePending, {}, kGlue));

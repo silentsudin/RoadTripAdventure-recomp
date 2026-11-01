@@ -58,10 +58,9 @@ the inventory the catalog is mapped against.
 | `RT_DISC` | `app/main.cpp:131,480` | `~/Library/Application Support/RoadTripRecomp/disc` | path to a disc extract |
 | `RT_MENU` | new (this module) | unset | `1` = open the pause menu (interim) |
 
-`RT_APP_TRIGGERS` is referenced by the trigger-mapping commit message
-(`docs/native-reference/feature-retention.md` / `input.{h,cpp}`) but is not yet
-read by `main.cpp`; the Controllers → Analog trigger drive row stands in for it
-and is flagged GPU-wave-pending.
+`RT_APP_TRIGGERS` is read by `main.cpp` (SDL trigger polling into analog drive,
+`input.{h,cpp}`); the Controllers → Analog trigger drive row stands in for it and
+feeds the loop in a windowed session.
 
 ---
 
@@ -82,6 +81,7 @@ is the `MenuContext` predicate that hides the row (`settings.h`
 | `display.interp` | Frame interpolation | `RT_APP_INTERP` | off | always | wired-now |
 | `display.interp_cap` | Interp catch-up cap | `RT_APP_INTERP_CAP` | 2 | requires interp | wired-now |
 | `display.interp_rate` | Interp render rate (fps) | `RT_APP_INTERP_RATE` | 0 (vsync) | requires interp | wired-now |
+| `display.frame_rate` | Frame rate (retail row) | `RT_APP_INTERP` + `RT_APP_INTERP_RATE` | 60 fps (original) | always | host-glue-pending (consumer wired) |
 | `display.render` | Render to window | `RT_APP_NORENDER` (inverted) | on | always | wired-now |
 | `display.snapshot_path` | Snapshot path (PPM) | `RT_APP_SNAPSHOT` | (empty) | always | wired-now |
 | `display.frame_budget` | Frame budget | `RT_APP_FRAMES` | 0 (unlimited) | always | wired-now |

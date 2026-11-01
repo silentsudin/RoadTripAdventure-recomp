@@ -270,6 +270,19 @@ void bootstrapSettings() {
     boolFlag("graphics.hudtext", "RT_APP_HUDTEXT");
     boolFlag("controllers.triggers", "RT_APP_TRIGGERS");
     boolFlag("controllers.analog_camera", "RT_APP_ANALOG_CAMERA");
+    // Frame rate 120/240 is the interpolated render re-render of
+    // frame-interpolation.md ("generated"): logic stays 60 Hz, render poses
+    // between completed steps. 60 leaves the interp rows alone; an explicit
+    // RT_APP_* still wins (setDefaultEnv fills only an absent key).
+    if (store.contains("display.frame_rate")) {
+        const std::string rate = store.getEnum("display.frame_rate", "60 fps (original)",
+                                               {"60 fps (original)", "120 fps (generated)",
+                                                "240 fps (generated)"});
+        if (const FrameRatePacing pacing = frameRatePacing(rate); pacing.interp) {
+            setDefaultEnv("RT_APP_INTERP", "1");
+            setDefaultEnv("RT_APP_INTERP_RATE", std::to_string(pacing.rate));
+        }
+    }
     if (store.contains("display.interp")) setDefaultEnv("RT_APP_INTERP", store.getBool("display.interp", false) ? "1" : "0");
     if (store.contains("display.interp_cap")) setDefaultEnv("RT_APP_INTERP_CAP", std::to_string(store.getInt("display.interp_cap", 2, 1, 99)));
     if (store.contains("display.interp_rate")) setDefaultEnv("RT_APP_INTERP_RATE", std::to_string(store.getInt("display.interp_rate", 0, 0, 999)));

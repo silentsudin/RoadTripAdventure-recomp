@@ -111,13 +111,13 @@
     "id": "frame_interpolation",
     "ledger": "frame_generation",
     "env_vars": ["RT_APP_INTERP", "RT_APP_INTERP_CAP", "RT_APP_INTERP_RATE"],
-    "persisted_keys": ["display.interp", "display.interp_cap", "display.interp_rate"],
+    "persisted_keys": ["display.interp", "display.interp_cap", "display.interp_rate", "display.frame_rate"],
     "default": "off (one logic step per host frame, byte-identical loop); cap 2; rate 0 (vsync)",
     "gating": "device (render pacing), logic locked 60 Hz",
     "owners": ["src/native/app/main.cpp", "src/native/gameplay/interp.cpp", "src/native/gameplay/interp.h"],
     "docs": ["docs/native-reference/frame-interpolation.md", "docs/native-reference/frame-timing.md", "docs/native-reference/options-menu.md"],
     "status": "wired",
-    "notes": "main.cpp:636-654; frame-timing.md verdict a: 60 Hz logic locked, only render poses interpolate; matrix row interp; RT_APP_SNAPSHOT stays a t=0 capture"
+    "notes": "main.cpp:636-654 and :273-284: display.frame_rate 120/240 sets RT_APP_INTERP=1 and the rate (frame-timing.md verdict a: 60 Hz logic locked, only render poses interpolate); explicit RT_APP_* still wins; matrix row interp; RT_APP_SNAPSHOT stays a t=0 capture"
   },
   {
     "id": "rumble",

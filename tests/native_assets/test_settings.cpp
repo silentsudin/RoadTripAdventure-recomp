@@ -497,6 +497,27 @@ static void testNavigatorActionRows() {
     std::filesystem::remove_all(dir);
 }
 
+static void testFrameRateRowIsInterpPacing() {
+    // The retail Frame rate row stands in for interp (frame-interpolation.md):
+    // 120/240 set the interpolated re-render rate, 60 (or anything unknown)
+    // leaves the interp rows alone.
+    const FrameRatePacing fast = frameRatePacing("120 fps (generated)");
+    CHECK(fast.interp && fast.rate == 120);
+    const FrameRatePacing fastest = frameRatePacing("240 fps (generated)");
+    CHECK(fastest.interp && fastest.rate == 240);
+    const FrameRatePacing original = frameRatePacing("60 fps (original)");
+    CHECK(!original.interp && original.rate == 0);
+    const FrameRatePacing unknown = frameRatePacing("garbage");
+    CHECK(!unknown.interp && unknown.rate == 0);
+
+    OptionsModel model;
+    const OptionSpec* row = model.find("display.frame_rate");
+    CHECK(row != nullptr);
+    CHECK(row->envFlags.size() == 2 && row->envFlags[0] == "RT_APP_INTERP" &&
+          row->envFlags[1] == "RT_APP_INTERP_RATE");
+    CHECK(row->retail);  // shown in the retail Options menu
+}
+
 int main() {
     testStoreRoundTripPreservesUnknownKeys();
     testStoreSkipsCorruptLinesAndKeepsValidKeys();
@@ -511,6 +532,7 @@ int main() {
     testNavigatorEnumRejectsInvalidKeepsCurrent();
     testNavigatorScriptedSequenceDeterministic();
     testNavigatorActionRows();
+    testFrameRateRowIsInterpPacing();
     if (g_fail) { std::fprintf(stderr, "%d failure(s)\n", g_fail); return 1; }
     std::puts("settings: all checks passed");
     return 0;
