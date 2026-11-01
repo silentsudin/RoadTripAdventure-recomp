@@ -2707,10 +2707,16 @@ int main() {
         rt::native::gameplay::AnalogAxes axes;
         axes.stickX = (held(SDL_SCANCODE_RIGHT) || held(SDL_SCANCODE_D) ? 1.f : 0.f) -
                       (held(SDL_SCANCODE_LEFT) || held(SDL_SCANCODE_A) ? 1.f : 0.f);
-        rt::native::gameplay::PadState pad = rt::native::gameplay::padFromKeys(
-            held(SDL_SCANCODE_UP) || held(SDL_SCANCODE_W),
-            held(SDL_SCANCODE_DOWN) || held(SDL_SCANCODE_S),
-            held(SDL_SCANCODE_SPACE), controllerConfig);
+        // Keyboard and pad both drive the same three bits: South/West/East are
+        // the pad's CROSS/SQUARE/CIRCLE (gas/brake/reverse); its triggers and
+        // stick are the analog inputs read above.
+        const auto gameButton = [gamepad](SDL_GamepadButton button) {
+            return gamepad && SDL_GetGamepadButton(gamepad, button);
+        };
+        rt::native::gameplay::PadState pad = rt::native::gameplay::padFromButtons(
+            held(SDL_SCANCODE_UP) || held(SDL_SCANCODE_W) || gameButton(SDL_GAMEPAD_BUTTON_SOUTH),
+            held(SDL_SCANCODE_DOWN) || held(SDL_SCANCODE_S) || gameButton(SDL_GAMEPAD_BUTTON_WEST),
+            held(SDL_SCANCODE_SPACE) || gameButton(SDL_GAMEPAD_BUTTON_EAST), controllerConfig);
         // One logic step of the fixed 60-Hz quantum: everything that must keep
         // the original VBlank-paced cadence (session tick, route follower,
         // shop/dialogue/collectibles, state/session logs, stream demand) per

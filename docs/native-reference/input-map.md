@@ -156,9 +156,10 @@ fixed 60-Hz step, in precedence order:
 | `harness` | a test socket drives the step (`TestSocket::lockstep`) | the socket's pad |
 | `autopilot` | `RT_APP_AUTOPILOT=1` and the session is in an Adventure | gas on, steering toward the road |
 | `ai` | headless capture runs (`RT_APP_HEADLESS`) | none: the loop's own AI path, which every gate and snapshot pins |
-| `player` | a windowed session | `padFromKeys` (arrows/WASD steer, Up/W gas, Down/S brake, Space reverse) plus the pad's triggers and right stick |
+| `player` | a windowed session | `padFromButtons` (arrows/WASD steer, Up/W or the pad's South, Down/S or West, Space or East) plus the pad's triggers and right stick |
 
 `rt-app drive: <source>` logs the source, and `rt-app drive end:` logs the final
 pose and speed. Headless, harness and autopilot runs pass the same pointers they
-did before this rule existed. The pad's own buttons are not read yet
-(`SDL_GetGamepadButton` appears nowhere under `src/native`), so a gamepad alone cannot drive.
+did before this rule existed. The pad's South/West/East buttons are read every
+step (`SDL_GetGamepadButton`); the joystick layer applies a real pad's button
+state at the next event pump, so a windowed session sees it from the next step.

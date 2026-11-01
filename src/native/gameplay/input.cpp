@@ -34,7 +34,7 @@ PadState padWith(PhysicalButton a, PhysicalButton b, PhysicalButton c) {
     return p;
 }
 
-PadState padFromKeys(bool accelerate, bool brake, bool reverse, const ControllerConfig& cfg) {
+PadState padFromButtons(bool accelerate, bool brake, bool reverse, const ControllerConfig& cfg) {
     PadState pad;
     if (accelerate) setPressed(pad, cfg.getButtonConfig(ControllerAction::ACCELERATE));
     if (brake)      setPressed(pad, cfg.getButtonConfig(ControllerAction::BRAKE));

@@ -17,10 +17,11 @@ constexpr float kTriggerThreshold = 0.5f;
 
 CarInput playerCarInput(const PadState& pad, const AnalogAxes& axes, const ControllerConfig& cfg);
 
-// The keyboard's contribution to the pad (Up/W gas, Down/S brake, Space
-// reverse; steering stays an axis), in the game's own button words - half of
-// the player path a windowed session feeds the authored loop with.
-PadState padFromKeys(bool accelerate, bool brake, bool reverse, const ControllerConfig& cfg);
+// The player's three digital drive bits (keyboard Up/W, Down/S, Space, or the
+// pad's South/West/East) in the game's own button words; steering and the
+// triggers stay axes. Half of the player path a windowed session feeds the
+// authored loop with (driveSource above).
+PadState padFromButtons(bool accelerate, bool brake, bool reverse, const ControllerConfig& cfg);
 
 // Which input drives the authored loop for one logic step, in precedence
 // order: the harness pad while a test socket drives steps, the autopilot's

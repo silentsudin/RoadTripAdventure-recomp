@@ -44,12 +44,12 @@ int main() {
     CarInput u = playerCarInput(padWith(PhysicalButton::START, PhysicalButton::SELECT), ax, cfg);
     CHECK(!u.gas && !u.brake && !u.reverse && u.steer == 0);
 
-    // The keyboard's pad (gameplay/input.h): Up/W gas, Down/S brake, Space
-    // reverse through the same bindings the player path reads; no key, no bit.
-    CHECK(playerCarInput(padFromKeys(true, false, false, cfg), AnalogAxes{}, cfg).gas);
-    CHECK(playerCarInput(padFromKeys(false, true, false, cfg), AnalogAxes{}, cfg).brake);
-    CHECK(playerCarInput(padFromKeys(false, false, true, cfg), AnalogAxes{}, cfg).reverse);
-    const CarInput idle = playerCarInput(padFromKeys(false, false, false, cfg), AnalogAxes{}, cfg);
+    // The player's drive bits (gameplay/input.h): keyboard or pad, gas/brake/reverse
+    // through the same bindings the player path reads; nothing pressed, no bit.
+    CHECK(playerCarInput(padFromButtons(true, false, false, cfg), AnalogAxes{}, cfg).gas);
+    CHECK(playerCarInput(padFromButtons(false, true, false, cfg), AnalogAxes{}, cfg).brake);
+    CHECK(playerCarInput(padFromButtons(false, false, true, cfg), AnalogAxes{}, cfg).reverse);
+    const CarInput idle = playerCarInput(padFromButtons(false, false, false, cfg), AnalogAxes{}, cfg);
     CHECK(!idle.gas && !idle.brake && !idle.reverse && idle.steer == 0);
 
     // Which input drives the authored loop (gameplay/input.h): the harness pad
