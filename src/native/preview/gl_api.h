@@ -29,7 +29,10 @@ constexpr GLenum kVertexShader = 0x8B31, kFragmentShader = 0x8B30, kCompileStatu
                  kColorAttachment0 = 0x8CE0, kDepthAttachment = 0x8D00, kDepthComponent32F = 0x8CAC,
                  kFramebufferComplete = 0x8CD5, kColorBufferBit = 0x4000, kDepthBufferBit = 0x100,
                  kDepthTest = 0x0B71, kBlend = 0x0BE2, kCullFace = 0x0B44, kScissorTest = 0x0C11,
-                 kDither = 0x0BD0, kLess = 0x0201;
+                 kDither = 0x0BD0, kLess = 0x0201,
+                 kNoError = 0,
+                 kMaxTextureAnisotropyExt = 0x84FF,   // GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+                 kTextureMaxAnisotropyExt = 0x84FE;   // GL_TEXTURE_MAX_ANISOTROPY_EXT
 
 struct Gl {
     GLuint (RT_GLAPI* CreateShader)(GLenum); void (RT_GLAPI* ShaderSource)(GLuint, GLsizei, const GLchar* const*, const GLint*);
@@ -42,6 +45,8 @@ struct Gl {
     void (RT_GLAPI* GenVertexArrays)(GLsizei, GLuint*); void (RT_GLAPI* BindVertexArray)(GLuint); void (RT_GLAPI* DeleteVertexArrays)(GLsizei, const GLuint*);
     void (RT_GLAPI* GenTextures)(GLsizei, GLuint*); void (RT_GLAPI* BindTexture)(GLenum, GLuint); void (RT_GLAPI* DeleteTextures)(GLsizei, const GLuint*);
     void (RT_GLAPI* TexParameteri)(GLenum, GLenum, GLint);
+    void (RT_GLAPI* TexParameterf)(GLenum, GLenum, GLfloat);   // EXT_texture_filter_anisotropic
+    void (RT_GLAPI* GetFloatv)(GLenum, GLfloat*);
     void (RT_GLAPI* TexImage2D)(GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const void*);
     void (RT_GLAPI* TexSubImage2D)(GLenum, GLint, GLint, GLint, GLsizei, GLsizei, GLenum, GLenum, const void*);
     void (RT_GLAPI* ActiveTexture)(GLenum); void (RT_GLAPI* PixelStorei)(GLenum, GLint);
@@ -79,6 +84,7 @@ inline bool loadGl(Gl& g) {
     L(AttachShader); L(LinkProgram); L(GetProgramiv); L(GetProgramInfoLog); L(UseProgram); L(GetUniformLocation);
     L(Uniform1i); L(DeleteShader); L(DeleteProgram); L(GenVertexArrays); L(BindVertexArray); L(DeleteVertexArrays);
     L(GenTextures); L(BindTexture); L(DeleteTextures); L(TexParameteri); L(TexImage2D); L(TexSubImage2D);
+    L(TexParameterf); L(GetFloatv);
     L(ActiveTexture); L(PixelStorei); L(Viewport); L(DrawArrays); L(ReadPixels); L(GetString);
     L(GenBuffers); L(BindBuffer); L(DeleteBuffers); L(BufferData); L(EnableVertexAttribArray); L(VertexAttribPointer);
     L(GenFramebuffers); L(BindFramebuffer); L(DeleteFramebuffers); L(GenRenderbuffers); L(BindRenderbuffer);

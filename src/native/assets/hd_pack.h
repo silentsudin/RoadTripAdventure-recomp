@@ -400,6 +400,24 @@ DumpWriteError writeDumpFile(const std::filesystem::path& dir, StableContentKey 
 // first for bare-fallback entries).
 std::uint32_t mipLevelCount(std::uint32_t width, std::uint32_t height);
 
+// RT_APP_ANISOTROPY text -> the requested maxAnisotropy for HD pack images
+// (1 = off). Digits only; anything else is off; the cap 16 is the hardware's
+// usual maximum and the renderer still clamps to the device's own limit.
+constexpr int parseAnisotropy(std::string_view text) {
+    int value = 0;
+    for (const char c : text) {
+        if (c < '0' || c > '9') return 1;
+        value = value * 10 + (c - '0');
+        if (value > 16) return 16;
+    }
+    return value > 1 ? value : 1;
+}
+static_assert(parseAnisotropy("") == 1);
+static_assert(parseAnisotropy("0") == 1);
+static_assert(parseAnisotropy("4") == 4);
+static_assert(parseAnisotropy("99") == 16);
+static_assert(parseAnisotropy("4x") == 1);
+
 struct MipLevel {
     std::uint32_t width = 0;
     std::uint32_t height = 0;

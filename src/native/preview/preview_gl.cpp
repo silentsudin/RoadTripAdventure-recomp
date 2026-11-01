@@ -6,6 +6,7 @@
 #include "preview/preview_backend.h"
 #include "preview/texture_pack_bridge.h"
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
@@ -283,6 +284,20 @@ GLuint textureFor(GlRenderer& R, const PreviewTexture& native, SamplerClass cls,
         g.PixelStorei(kUnpackAlignment, 1);
         g.TexImage2D(kTexture2D, 0, static_cast<GLint>(kRgba8), static_cast<GLsizei>(tex.width), static_cast<GLsizei>(tex.height), 0,
                      kRgba, kUnsignedByte, tex.rgba.data());
+        if (trilinear && g.TexParameterf && g.GetFloatv) {
+            const float wantAnisotropy = packAnisotropyRequested();
+            if (wantAnisotropy > 1.f) {
+                // GL_EXT_texture_filter_anisotropic is proved by the query itself
+                // (GL_EXTENSIONS is invalid in ES3 core), so a driver without it
+                // answers INVALID_ENUM and is left alone.
+                while (g.GetError() != kNoError) {}
+                GLfloat maxAnisotropy = 1.f;
+                g.GetFloatv(kMaxTextureAnisotropyExt, &maxAnisotropy);
+                if (g.GetError() == kNoError && maxAnisotropy > 1.f)
+                    g.TexParameterf(kTexture2D, kTextureMaxAnisotropyExt,
+                                    std::min(wantAnisotropy, maxAnisotropy));
+            }
+        }
         if (trilinear) {
             for (std::size_t i = 1; i < mips.levels.size(); ++i) {
                 const assets::MipLevel& l = mips.levels[i];

@@ -193,6 +193,12 @@ nativeWidth/nativeHeight echo, note
   straight RGBA (a premultiply→filter→unpremultiply A/B variant is a GPU-wave
   note for AI-upscaled packs — recorded, not decided here).
 - **Anisotropy default 16** [CONFIRMED sibling value; "costs next to nothing"].
+  [NATIVE] `RT_APP_ANISOTROPY=<2..16>` turns it on for replacements only: the
+  Vulkan backend asks for the `samplerAnisotropy` feature and clamps the
+  request to `limits.maxSamplerAnisotropy`, the GL backend passes
+  `GL_TEXTURE_MAX_ANISOTROPY_EXT` when the driver has it. Unset, `0` or `1`
+  keeps plain trilinear; the grammar is `assets::parseAnisotropy` (digits only,
+  capped at 16, anything else off).
 - **Clamp policy** [CONFIRMED idea, per-draw resolution]: axes the native draw
   clamps (PS2 `CLAMP`/`REGION_CLAMP`) sample **clamp-to-edge** so a pack image
   never bleeds its far edge at any mip level; wrapping axes keep repeat
@@ -209,6 +215,8 @@ RT_APP_TEXPACK=<dir>     actives one pack folder (one at a time, sibling model);
                          "" / unset disables. Switching drops and rescans.
 RT_APP_TEXTDUMP=<dir>    dumps every decoded texture into <dir> (re-dumps
                          overwrite the same content-keyed file).
+RT_APP_ANISOTROPY=<n>    anisotropic sampling of pack images (2..16; unset/1
+                         = off). Clamped to the device's own maximum.
 ```
 
 Glue at a decode site (e.g. the car-livery pipeline in main.cpp — read-only

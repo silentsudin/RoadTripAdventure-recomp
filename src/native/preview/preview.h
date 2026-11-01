@@ -35,6 +35,11 @@ struct ScreenQuad {
 
 ModelStats computeStats(const assets::NativeModel& model);
 
+// RT_APP_ANISOTROPY as the renderers read it: 1 = off (also the default when
+// unset); the backends clamp it to their device's limit. Only HD pack images
+// (mip chain + linear filters) are sampled anisotropically.
+float packAnisotropyRequested();
+
 // RGBA8 8-bit PNG (stored deflate blocks; no external dependency).
 std::vector<std::uint8_t> encodePng(std::uint32_t width, std::uint32_t height,
                                     const std::vector<std::uint8_t>& rgba);

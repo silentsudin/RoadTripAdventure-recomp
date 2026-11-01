@@ -63,6 +63,7 @@ using rt::native::assets::encodePpmRgb;
 using rt::native::assets::indexPackFileName;
 using rt::native::assets::mipLevelCount;
 using rt::native::assets::parsePackFileName;
+using rt::native::assets::parseAnisotropy;
 using rt::native::assets::parseStableKey;
 using rt::native::assets::planDump;
 using rt::native::assets::requestReplacement;
@@ -731,6 +732,19 @@ void testDumpFolderUsability() {
 
 } // namespace
 
+void testParseAnisotropy() {
+    // RT_APP_ANISOTROPY: digits only, 1 = off, capped at 16 (hd_pack.h).
+    check(parseAnisotropy("") == 1, "aniso: empty -> off");
+    check(parseAnisotropy("0") == 1, "aniso: 0 -> off");
+    check(parseAnisotropy("1") == 1, "aniso: 1 -> off");
+    check(parseAnisotropy("2") == 2, "aniso: 2 -> 2");
+    check(parseAnisotropy("8") == 8, "aniso: 8 -> 8");
+    check(parseAnisotropy("16") == 16, "aniso: 16 -> 16");
+    check(parseAnisotropy("17") == 16, "aniso: 17 -> capped at 16");
+    check(parseAnisotropy("4x") == 1, "aniso: garbage -> off");
+    check(parseAnisotropy("-4") == 1, "aniso: negative -> off");
+}
+
 int main() {
     testKeyStability();
     testKeyPaletteSwap();
@@ -745,6 +759,7 @@ int main() {
     testDumpNameRoundTrip();
     testPlanAndWrite();
     testDumpFolderUsability();
+    testParseAnisotropy();
 
     if (g_failures > 0) {
         std::cerr << "test_hd_pack: " << g_failures << " of " << g_checks

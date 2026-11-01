@@ -456,6 +456,18 @@
     "notes": "one PAM per uploaded texture (dump beside the upload); a dump folder is directly pack-usable"
   },
   {
+    "id": "pack_anisotropy",
+    "ledger": "hd_packs",
+    "env_vars": ["RT_APP_ANISOTROPY"],
+    "persisted_keys": [],
+    "default": "off (1x; the sample is trilinear over the pack's mip chain)",
+    "gating": "disc (a pack image with a mip chain)",
+    "owners": ["src/native/preview/preview_vk.cpp", "src/native/preview/preview_gl.cpp", "src/native/assets/hd_pack.cpp"],
+    "docs": ["docs/native-reference/hd-texture-packs.md"],
+    "status": "wired",
+    "notes": "hd_pack.h parseAnisotropy (digits 2..16, else off) read once per backend: Vulkan asks for samplerAnisotropy and sets hdSi.anisotropyEnable with the device's limit clamp; GL uses GL_TEXTURE_MAX_ANISOTROPY_EXT when present; only replacement images (mip chain + linear filters) are sampled anisotropically"
+  },
+  {
     "id": "pause_menu_open",
     "ledger": "-",
     "env_vars": ["RT_MENU"],

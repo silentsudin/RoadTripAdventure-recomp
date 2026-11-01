@@ -204,6 +204,7 @@ struct Renderer {
     VkPipeline texPipe = VK_NULL_HANDLE;
     VkSampler texSampler = VK_NULL_HANDLE;    // GS look: nearest, one level
     VkSampler texSamplerHd = VK_NULL_HANDLE;  // HD pack: trilinear over the mip chain
+    float maxAnisotropy = 1.f;                // device limit (RT_APP_ANISOTROPY)
     VkDescriptorPool texPool = VK_NULL_HANDLE;
     VkBuffer tvb = VK_NULL_HANDLE, tib = VK_NULL_HANDLE;
     VkDeviceMemory tvbm = VK_NULL_HANDLE, tibm = VK_NULL_HANDLE;
@@ -385,6 +386,9 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     VkPhysicalDeviceProperties props;
     vkGetPhysicalDeviceProperties(pd, &props);
     R.deviceName = props.deviceName;
+    R.maxAnisotropy = props.limits.maxSamplerAnisotropy;
+    VkPhysicalDeviceFeatures deviceFeatures{};
+    vkGetPhysicalDeviceFeatures(pd, &deviceFeatures);
     vkGetPhysicalDeviceMemoryProperties(pd, &R.mp);
 
     std::uint32_t qn = 0;
@@ -404,6 +408,9 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     dexts.push_back("VK_KHR_portability_subset");
 #endif
     VkDeviceCreateInfo dci{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
+    VkPhysicalDeviceFeatures enabledFeatures{};
+    enabledFeatures.samplerAnisotropy = deviceFeatures.samplerAnisotropy;
+    dci.pEnabledFeatures = &enabledFeatures;
     dci.queueCreateInfoCount = 1; dci.pQueueCreateInfos = &qci;
     dci.enabledExtensionCount = static_cast<std::uint32_t>(dexts.size());
     dci.ppEnabledExtensionNames = dexts.data();
@@ -587,6 +594,14 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     hdSi.magFilter = VK_FILTER_LINEAR; hdSi.minFilter = VK_FILTER_LINEAR;
     hdSi.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
     hdSi.maxLod = VK_LOD_CLAMP_NONE;  // zero-init clamps to the base level
+    const float wantAnisotropy = packAnisotropyRequested();
+    hdSi.maxAnisotropy = 1.f;
+    if (wantAnisotropy > 1.f && enabledFeatures.samplerAnisotropy && R.maxAnisotropy > 1.f) {
+        hdSi.anisotropyEnable = VK_TRUE;
+        hdSi.maxAnisotropy = std::min(wantAnisotropy, R.maxAnisotropy);
+    }
+    std::printf("[preview] hd pack anisotropy %s %.0f (device max %.0f)\n",
+                hdSi.anisotropyEnable ? "on" : "off", hdSi.maxAnisotropy, R.maxAnisotropy);
     VK_TRY(vkCreateSampler(dev, &hdSi, nullptr, &R.texSamplerHd), "vkCreateSampler(hd)");
     VkDescriptorPoolSize texPoolSize{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2048};
     VkDescriptorPoolCreateInfo texPci{VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
@@ -603,6 +618,11 @@ static bool initImpl(Renderer& R, std::uint32_t W, std::uint32_t H, std::string&
     cai.commandPool = R.pool; cai.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; cai.commandBufferCount = 1;
     VK_TRY(vkAllocateCommandBuffers(dev, &cai, &R.cmd), "vkAllocateCommandBuffers");
     return true;
+}
+
+float packAnisotropyRequested() {
+    const char* text = std::getenv("RT_APP_ANISOTROPY");
+    return text ? static_cast<float>(assets::parseAnisotropy(text)) : 1.f;
 }
 
 Renderer* previewInit(std::uint32_t W, std::uint32_t H, std::string& error, std::string* deviceName) {
